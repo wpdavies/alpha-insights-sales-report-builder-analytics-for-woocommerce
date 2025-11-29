@@ -1490,26 +1490,36 @@ function wpd_fetch_for_updates() {
 	$api_key = get_option( 'wpd_ai_api_key', null);
 
 	// Load Class
-	require_once( WPD_AI_PATH . 'includes/helpers/plugin-update-checker/plugin-update-checker.php' );
+	if ( file_exists( WPD_AI_PATH . 'includes/helpers/plugin-update-checker/plugin-update-checker.php' ) ) {
 
-	// Build API Endpoint
-	$api_endpoint = 'https://wpdavies.dev/wp-json/wp-davies/v1/alpha-insights/plugin-update/';
-	$query_params = http_build_query([
-		'license_key' => $api_key,
-		'plugin_version' => WPD_AI_VER,
-		'requesting_url' => site_url(),
-		'product_id' => WPD_AI_PRODUCT_ID
-	]);
+		require_once( WPD_AI_PATH . 'includes/helpers/plugin-update-checker/plugin-update-checker.php' );
 
-	// Build Vars
-	$plugin_data_request = $api_endpoint . '?' . $query_params;
-	$alpha_insights_plugin_file = WPD_AI_PATH . '/wpd-alpha-insights-free.php';
+		// Build API Endpoint
+		$api_endpoint = 'https://wpdavies.dev/wp-json/wp-davies/v1/alpha-insights/plugin-update/';
+		$query_params = http_build_query([
+			'license_key' => $api_key,
+			'plugin_version' => WPD_AI_VER,
+			'requesting_url' => site_url(),
+			'product_id' => WPD_AI_PRODUCT_ID
+		]);
 
-	// Load updater
-	$alpha_insights_updater = Puc_v4_Factory::buildUpdateChecker( $plugin_data_request, $alpha_insights_plugin_file, '' );
+		// Build Vars
+		$plugin_data_request = $api_endpoint . '?' . $query_params;
+		$alpha_insights_plugin_file = WPD_AI_PATH . '/wpd-alpha-insights-free.php';
 
-	// Return results?
-	return $alpha_insights_updater;
+		// Load updater
+		$alpha_insights_updater = Puc_v4_Factory::buildUpdateChecker( $plugin_data_request, $alpha_insights_plugin_file, '' );
+
+		// Return results?
+		return $alpha_insights_updater;
+
+	} else {
+
+		return false;
+
+	}
+
+
 
 }
 
