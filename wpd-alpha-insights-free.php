@@ -2,7 +2,7 @@
 /**
  *
  * Plugin Name:         Alpha Insights - Sales Report Builder & Analytics For WooCommerce
- * Plugin URI:          https://wpdavies.dev/
+ * Plugin URI:          https://wpdavies.dev/plugins/alpha-insights/
  * Description:         The world's most powerful drag & drop WooCommerce reporting plugin.
  * Author:              WP Davies
  * Author URI:          https://wpdavies.dev/
@@ -957,7 +957,25 @@ class WPD_Alpha_Insights_Free_Plugin {
 			$new_links[] = '<a href="' . esc_url( wpd_admin_page_url('settings') ) . '">' . esc_html__( 'Settings', 'wpd-alpha-insights' ) . '</a>';
 		}
 		
-		$new_links[] = '<a href="' . esc_url( 'https://wpdavies.dev/docs/alpha-insights/' ) . '" target="_blank">' . esc_html__( 'Docs', 'wpd-alpha-insights' ) . '</a>';		
+		$new_links[] = '<a href="' . esc_url( 'https://wpdavies.dev/docs/alpha-insights/' ) . '" target="_blank">' . esc_html__( 'Docs', 'wpd-alpha-insights' ) . '</a>';	
+
+		if ( ! WPD_AI_PRO ) {
+
+			// Build upgrade URL with query parameters for tracking
+			$upgrade_url = add_query_arg(
+				array(
+					'utm_source' => 'wordpress',
+					'utm_medium' => 'plugin_action_links',
+					'utm_campaign' => 'alpha_insights_free_upgrade',
+					'utm_content' => 'upgrade_to_pro_link'
+				),
+				'https://wpdavies.dev/plugins/alpha-insights/'
+			);
+			
+			// Add the "Upgrade to Pro" link at the beginning
+			$new_links[] = '<a href="' . esc_url($upgrade_url) . '" target="_blank" style="color: #2271b1; font-weight: 600;">' . esc_html__('Upgrade to Pro', 'wpd-alpha-insights') . '</a>';
+			
+		}
 
 		$links = array_merge( $new_links, $links );
 
