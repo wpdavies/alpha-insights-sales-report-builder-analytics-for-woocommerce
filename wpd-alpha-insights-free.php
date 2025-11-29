@@ -18,7 +18,7 @@
  * License:             GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  *
- * Text Domain:         alpha-insights-pro
+ * Text Domain:         alpha-insights-sales-report-builder-analytics-for-woocommerce
  * Domain Path: 		/languages
  *
  * Alpha Insights
@@ -143,7 +143,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 		
 		// Security Constants
 		if ( ! defined('WPD_AI_AJAX_NONCE_ACTION') ) define( 'WPD_AI_AJAX_NONCE_ACTION', 'wpd_alpha_insights_nonce' );
-		if ( ! defined('WPD_AI_TEXT_DOMAIN') ) define( 'WPD_AI_TEXT_DOMAIN', 'wpd-alpha-insights' );
+		if ( ! defined('WPD_AI_TEXT_DOMAIN') ) define( 'WPD_AI_TEXT_DOMAIN', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 
 		// Date Formats
 		if ( ! defined('WPD_AI_PHP_PRETTY_DATE') ) define( 'WPD_AI_PHP_PRETTY_DATE', 'F jS, Y' );
@@ -586,7 +586,6 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		$this->include_plugin_files();	
 		$this->create_uploads_folders();
-		$this->load_textdomain();
 
 		// Pro version updating
 		if ( WPD_AI_PRO ) $this->check_for_updates();
@@ -732,15 +731,6 @@ class WPD_Alpha_Insights_Free_Plugin {
 			}
 
 		}
-
-	}
-
-	/**
-	 * Load translator
-	 */
-	public function load_textdomain() {
-
-		load_plugin_textdomain( WPD_AI_TEXT_DOMAIN, false, dirname(plugin_basename(__FILE__)).'/languages/' );
 
 	}
 
