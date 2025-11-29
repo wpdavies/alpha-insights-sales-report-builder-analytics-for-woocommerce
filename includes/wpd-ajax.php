@@ -29,7 +29,7 @@ if ( ! function_exists( 'wpd_verify_ajax_request' ) ) {
 		$nonce_key = isset( $_POST['nonce'] ) ? 'nonce' : 'security';
 		if ( ! isset( $_POST[ $nonce_key ] ) || ! wp_verify_nonce( $_POST[ $nonce_key ], $nonce_action ) ) {
 			wp_send_json_error( array( 
-				'message' => __( 'Security check failed. Please refresh the page and try again.', 'wpd-alpha-insights' ) 
+				'message' => __( 'Security check failed. Please refresh the page and try again.', WPD_AI_TEXT_DOMAIN ) 
 			) );
 			return false;
 		}
@@ -37,7 +37,7 @@ if ( ! function_exists( 'wpd_verify_ajax_request' ) ) {
 		// Check capability
 		if ( ! current_user_can( $capability ) ) {
 			wp_send_json_error( array( 
-				'message' => __( 'You do not have permission to perform this action.', 'wpd-alpha-insights' ) 
+				'message' => __( 'You do not have permission to perform this action.', WPD_AI_TEXT_DOMAIN ) 
 			) );
 			return false;
 		}
@@ -60,7 +60,7 @@ if ( ! function_exists('wpd_javascript_email_ajax') ) {
 			jQuery(document).ready(function($) {
 				jQuery('<?php echo esc_js( $click_selector ); ?>').click(function(e) {
 					e.preventDefault();
-					wpdPopNotification( 'loading', '<?php echo esc_js( __( 'Processing...', 'wpd-alpha-insights' ) ); ?>', '<?php echo esc_js( __( 'We are working on it!', 'wpd-alpha-insights' ) ); ?>' );
+					wpdPopNotification( 'loading', '<?php echo esc_js( __( 'Processing...', WPD_AI_TEXT_DOMAIN ) ); ?>', '<?php echo esc_js( __( 'We are working on it!', WPD_AI_TEXT_DOMAIN ) ); ?>' );
 			        var data = {
 			            'action': 'wpd_send_email',
 			            'email' : '<?php echo esc_js( $email_to_send ); ?>',
@@ -72,12 +72,12 @@ if ( ! function_exists('wpd_javascript_email_ajax') ) {
 			        .done(function( response ) {
 			    		var parsedResponse = wpdHandleAjaxResponse(
 			    			response,
-			    			'<?php echo esc_js( __( 'Your email has been successfully sent.', 'wpd-alpha-insights' ) ); ?>',
-			    			'<?php echo esc_js( __( 'Your email was not sent.', 'wpd-alpha-insights' ) ); ?>'
+			    			'<?php echo esc_js( __( 'Your email has been successfully sent.', WPD_AI_TEXT_DOMAIN ) ); ?>',
+			    			'<?php echo esc_js( __( 'Your email was not sent.', WPD_AI_TEXT_DOMAIN ) ); ?>'
 			    		);
 			        })
 			        .fail(function( jqXHR, textStatus, errorThrown ) {
-			    		var errorMessage = '<?php echo esc_js( __( 'Your email was not sent.', 'wpd-alpha-insights' ) ); ?>';
+			    		var errorMessage = '<?php echo esc_js( __( 'Your email was not sent.', WPD_AI_TEXT_DOMAIN ) ); ?>';
 			    		if (jqXHR.responseText) {
 			    			try {
 			    				var errorResponse = JSON.parse(jqXHR.responseText);
@@ -86,7 +86,7 @@ if ( ! function_exists('wpd_javascript_email_ajax') ) {
 			    				// If we can't parse the error, use default message
 			    			}
 			    		}
-			    		wpdPopNotification( 'fail', '<?php echo esc_js( __( 'Email Failed', 'wpd-alpha-insights' ) ); ?>', errorMessage );
+			    		wpdPopNotification( 'fail', '<?php echo esc_js( __( 'Email Failed', WPD_AI_TEXT_DOMAIN ) ); ?>', errorMessage );
 			        });
 			    });
 			});
@@ -118,7 +118,7 @@ if ( ! function_exists('wpd_javascript_ajax_action') ) {
 			jQuery(document).ready(function($) {
 				jQuery('<?php echo esc_js( $click_selector ); ?>').click(function(e) {
 					e.preventDefault();
-					wpdPopNotification( 'loading', '<?php echo esc_js( __( 'Processing...', 'wpd-alpha-insights' ) ); ?>', '<?php echo esc_js( __( 'We are working on it!', 'wpd-alpha-insights' ) ); ?>' );
+					wpdPopNotification( 'loading', '<?php echo esc_js( __( 'Processing...', WPD_AI_TEXT_DOMAIN ) ); ?>', '<?php echo esc_js( __( 'We are working on it!', WPD_AI_TEXT_DOMAIN ) ); ?>' );
 					var formData = $('<?php echo esc_js( $form_selector ); ?>').serializeArray();
 			        var data = {
 			            'action': '<?php echo esc_js( $action ); ?>',
@@ -131,15 +131,15 @@ if ( ! function_exists('wpd_javascript_ajax_action') ) {
 			        .done(function( response ) {
 			    		var parsedResponse = wpdHandleAjaxResponse(
 			    			response,
-			    			'<?php echo esc_js( __( 'Your request has been successfully completed.', 'wpd-alpha-insights' ) ); ?>',
-			    			'<?php echo esc_js( __( 'Your action could not be completed.', 'wpd-alpha-insights' ) ); ?>'
+			    			'<?php echo esc_js( __( 'Your request has been successfully completed.', WPD_AI_TEXT_DOMAIN ) ); ?>',
+			    			'<?php echo esc_js( __( 'Your action could not be completed.', WPD_AI_TEXT_DOMAIN ) ); ?>'
 			    		);
 			    		if (parsedResponse && parsedResponse.success) {
 			    			window.postMessage(parsedResponse, "*"); // jQuery(window).on("message", function(e) {});
 			    		}
 			        })
 			        .fail(function( jqXHR, textStatus, errorThrown ) {
-			    		var errorMessage = '<?php echo esc_js( __( 'Your action could not be completed.', 'wpd-alpha-insights' ) ); ?>';
+			    		var errorMessage = '<?php echo esc_js( __( 'Your action could not be completed.', WPD_AI_TEXT_DOMAIN ) ); ?>';
 			    		if (jqXHR.responseText) {
 			    			try {
 			    				var errorResponse = JSON.parse(jqXHR.responseText);
@@ -148,7 +148,7 @@ if ( ! function_exists('wpd_javascript_ajax_action') ) {
 			    				// If we can't parse the error, use default message
 			    			}
 			    		}
-			    		wpdPopNotification( 'fail', '<?php echo esc_js( __( 'Request Failed', 'wpd-alpha-insights' ) ); ?>', errorMessage );
+			    		wpdPopNotification( 'fail', '<?php echo esc_js( __( 'Request Failed', WPD_AI_TEXT_DOMAIN ) ); ?>', errorMessage );
 			        });
 			    });
 			});
@@ -181,12 +181,12 @@ function wpd_reset_order_meta() {
 	if ( is_numeric($deleted_rows) ) {
 
 		$response['success']	= true;
-		$response['message']	= sprintf( __( '%d rows were deleted.', 'wpd-alpha-insights' ), $deleted_rows );
+		$response['message']	= sprintf( __( '%d rows were deleted.', WPD_AI_TEXT_DOMAIN ), $deleted_rows );
 
 	} else {
 
 		$response['success']	= false;
-		$response['message'] 	= __( 'Unfortunately we could not complete this action. Please check the DB Error Log.', 'wpd-alpha-insights' );
+		$response['message'] 	= __( 'Unfortunately we could not complete this action. Please check the DB Error Log.', WPD_AI_TEXT_DOMAIN );
 
 	}
 
@@ -217,12 +217,12 @@ function wpd_delete_order_line_item_cogs_ajax() {
 	if ( is_numeric($deleted_rows) ) {
 
 		$response['success']	= true;
-		$response['message']	= sprintf( __( '%d rows were deleted.', 'wpd-alpha-insights' ), $deleted_rows );
+		$response['message']	= sprintf( __( '%d rows were deleted.', WPD_AI_TEXT_DOMAIN ), $deleted_rows );
 
 	} else {
 
 		$response['success']	= false;
-		$response['message'] 	= __( 'Unfortunately we could not complete this action. Please check the DB Error Log.', 'wpd-alpha-insights' );
+		$response['message'] 	= __( 'Unfortunately we could not complete this action. Please check the DB Error Log.', WPD_AI_TEXT_DOMAIN );
 
 	}
 
@@ -253,12 +253,12 @@ function wpd_delete_all_cache_ajax() {
 	if ( $delete_all_cache ) {
 
 		$response['success']	= true;
-		$response['message']	= __( 'Succesfully deleted all cached data, we will rebuild this over time or as you view reports.', 'wpd-alpha-insights' );
+		$response['message']	= __( 'Succesfully deleted all cached data, we will rebuild this over time or as you view reports.', WPD_AI_TEXT_DOMAIN );
 	
 	} else {
 
 		$response['success']	= false;
-		$response['message']	= __( 'Unable to delete cached data, check the error logs for more info.', 'wpd-alpha-insights' );
+		$response['message']	= __( 'Unable to delete cached data, check the error logs for more info.', WPD_AI_TEXT_DOMAIN );
 	
 	}
 
@@ -304,7 +304,7 @@ function wpd_export_react_report_to_pdf() {
 
 		if ( empty( $report_slug ) ) {
 			wp_send_json_error( array(
-				'error_messages' => __( 'Report slug is required', 'wpd-alpha-insights' )
+				'error_messages' => __( 'Report slug is required', WPD_AI_TEXT_DOMAIN )
 			) );
 			return;
 		}
@@ -347,7 +347,7 @@ function wpd_send_email_ajax() {
 	$email_to_send = isset( $_POST['email'] ) ? sanitize_email( $_POST['email'] ) : '';
 	
 	if ( empty( $email_to_send ) || ! is_email( $email_to_send ) ) {
-		wp_send_json_error( array( 'message' => __( 'Invalid email address.', 'wpd-alpha-insights' ) ) );
+		wp_send_json_error( array( 'message' => __( 'Invalid email address.', WPD_AI_TEXT_DOMAIN ) ) );
 		return;
 	}
 	
@@ -393,13 +393,13 @@ function wpd_deactivate_license_ajax_function() {
 	if ( $deactivate['result'] === 'success' ) {
 
 		$response['success']	= true;
-		$response['message']	= __( 'License deactivated succesfully, please refresh this page.', 'wpd-alpha-insights' );
+		$response['message']	= __( 'License deactivated succesfully, please refresh this page.', WPD_AI_TEXT_DOMAIN );
 		update_option( 'wpd_ai_license_status', null );
 
 	} else {
 
 		$response['success']	= false;
-		$response['message'] 	= __( 'Could not deactivate your license key, try again later.', 'wpd-alpha-insights' );
+		$response['message'] 	= __( 'Could not deactivate your license key, try again later.', WPD_AI_TEXT_DOMAIN );
 
 	}
 
@@ -423,7 +423,7 @@ function wpd_activate_license_ajax_function() {
 	if ( ! WPD_AI_PRO || ! class_exists('WPD_Authenticator') ) {	
 
 		$response['success'] = false;
-		$response['message'] = __( 'This is a Pro feature.', 'wpd-alpha-insights' );
+		$response['message'] = __( 'This is a Pro feature.', WPD_AI_TEXT_DOMAIN );
 		wp_send_json( $response );
 		return;
 
@@ -435,13 +435,13 @@ function wpd_activate_license_ajax_function() {
 	if ( $activate['result'] === 'success' ) {
 
 		$response['success'] = true;
-		$response['message'] = __( 'License activated succesfully, please refresh this page.', 'wpd-alpha-insights' );
+		$response['message'] = __( 'License activated succesfully, please refresh this page.', WPD_AI_TEXT_DOMAIN );
 
 	} elseif ( $activate['result'] == 'error' ) {
 
 		$response['success'] = false;
 		$error_message = isset( $activate['message'] ) ? sanitize_text_field( $activate['message'] ) : '';
-		$response['message'] = sprintf( __( 'Could not activate license, %s', 'wpd-alpha-insights' ), $error_message );
+		$response['message'] = sprintf( __( 'Could not activate license, %s', WPD_AI_TEXT_DOMAIN ), $error_message );
 
 	} else {
 
@@ -453,7 +453,7 @@ function wpd_activate_license_ajax_function() {
 
 		} else {
 
-			$response['message'] = __( 'Could not activate your license key, try again later.', 'wpd-alpha-insights' );
+			$response['message'] = __( 'Could not activate your license key, try again later.', WPD_AI_TEXT_DOMAIN );
 
 		}
 
@@ -482,12 +482,12 @@ function wpd_refresh_license_ajax_function() {
 	if ( $license_status ) {
 
 		$response['success'] = true;
-		$response['message'] = sprintf( __( 'Your license is currently %s. All your license details have been updated, please refresh this page.', 'wpd-alpha-insights' ), esc_html( $license_status ) );
+		$response['message'] = sprintf( __( 'Your license is currently %s. All your license details have been updated, please refresh this page.', WPD_AI_TEXT_DOMAIN ), esc_html( $license_status ) );
 
 	} else {
 
 		$response['success'] = false;
-		$response['message'] = __( 'Could not fetch your license data, try again later.', 'wpd-alpha-insights' );
+		$response['message'] = __( 'Could not fetch your license data, try again later.', WPD_AI_TEXT_DOMAIN );
 
 	}
 
@@ -515,12 +515,12 @@ function wpd_refresh_all_facebook_api_data_ajax_function() {
 
 		$campaigns_found = isset( $result['campaigns_found'] ) ? absint( $result['campaigns_found'] ) : 0;
 		$response['success'] = true;
-		$response['message'] = sprintf( __( 'Success! %s campaign were found, we\'ve created and updated all of your Facebook data, please refresh this page.', 'wpd-alpha-insights' ), $campaigns_found );
+		$response['message'] = sprintf( __( 'Success! %s campaign were found, we\'ve created and updated all of your Facebook data, please refresh this page.', WPD_AI_TEXT_DOMAIN ), $campaigns_found );
 
 	} else {
 
 		$response['success'] = false;
-		$response['message'] = __( 'Could not load Facebook API data. You might not have any data to access or your connection may not be configured correctly.', 'wpd-alpha-insights' );
+		$response['message'] = __( 'Could not load Facebook API data. You might not have any data to access or your connection may not be configured correctly.', WPD_AI_TEXT_DOMAIN );
 
 	}
 
@@ -551,19 +551,19 @@ function wpd_delete_all_facebook_api_expense_data_ajax_function() {
 		if ( $result ) {
 	
 			$response['success'] = true;
-			$response['message'] = sprintf( __( 'Sucesfully deleted %s Facebook API Ad Spend data points.', 'wpd-alpha-insights' ), absint( $result ) );
+			$response['message'] = sprintf( __( 'Sucesfully deleted %s Facebook API Ad Spend data points.', WPD_AI_TEXT_DOMAIN ), absint( $result ) );
 	
 		} else {
 	
 			$response['success'] = false;
-			$response['message'] = __( 'No expenses were removed.', 'wpd-alpha-insights' );
+			$response['message'] = __( 'No expenses were removed.', WPD_AI_TEXT_DOMAIN );
 	
 		}
 
 	} else {
 
 		$response['success'] = false;
-		$response['message'] = __( 'This is a Pro feature.', 'wpd-alpha-insights' );
+		$response['message'] = __( 'This is a Pro feature.', WPD_AI_TEXT_DOMAIN );
 
 	}
 
@@ -594,19 +594,19 @@ function wpd_delete_all_facebook_api_campaign_data_ajax_function() {
 		if ( $result ) {
 	
 			$response['success'] = true;
-			$response['message'] = sprintf( __( 'Sucesfully deleted %s Facebook API campaign data points.', 'wpd-alpha-insights' ), absint( $result ) );
+			$response['message'] = sprintf( __( 'Sucesfully deleted %s Facebook API campaign data points.', WPD_AI_TEXT_DOMAIN ), absint( $result ) );
 	
 		} else {
 	
 			$response['success'] = false;
-			$response['message'] = __( 'No campaigns were removed.', 'wpd-alpha-insights' );
+			$response['message'] = __( 'No campaigns were removed.', WPD_AI_TEXT_DOMAIN );
 	
 		}
 
 	} else {
 
 		$response['success'] = false;
-		$response['message'] = __( 'This is a Pro feature.', 'wpd-alpha-insights' );
+		$response['message'] = __( 'This is a Pro feature.', WPD_AI_TEXT_DOMAIN );
 
 	}
 
@@ -653,14 +653,14 @@ function wpd_test_facebook_api_status_ajax_function() {
 		} else {
 	
 			$response['success'] = false;
-			$response['message'] = __( 'Could not check API status.', 'wpd-alpha-insights' );
+			$response['message'] = __( 'Could not check API status.', WPD_AI_TEXT_DOMAIN );
 	
 		}
 
 	} else {
 
 		$response['success'] = false;
-		$response['message'] = __( 'This is a Pro feature.', 'wpd-alpha-insights' );
+		$response['message'] = __( 'This is a Pro feature.', WPD_AI_TEXT_DOMAIN );
 
 	}
 
@@ -684,7 +684,7 @@ function wpd_save_settings_ajax_function() {
 	if ( ! WPD_AI_PRO ) {
 
 		// Return response
-		$response['message'] = __( 'This is a Pro feature.', 'wpd-alpha-insights' );
+		$response['message'] = __( 'This is a Pro feature.', WPD_AI_TEXT_DOMAIN );
 		$response['target'] = 'save-facebook-settings';
 		$response['success'] = false;
 		wp_send_json( $response );
@@ -782,7 +782,7 @@ function wpd_test_google_ads_api_status() {
 	
 			// Return response
 			$response['success'] = false;
-			$response['message'] = __( 'Could not complete the test - we received unexpected result, check your WordPress debug.log.', 'wpd-alpha-insights' );
+			$response['message'] = __( 'Could not complete the test - we received unexpected result, check your WordPress debug.log.', WPD_AI_TEXT_DOMAIN );
 	
 			wp_send_json( $response );
 			return;
@@ -797,7 +797,7 @@ function wpd_test_google_ads_api_status() {
 
 		// Correct response from the API test
 		$response['success'] = false;
-		$response['message'] = __( 'This is a Pro feature.', 'wpd-alpha-insights' );
+		$response['message'] = __( 'This is a Pro feature.', WPD_AI_TEXT_DOMAIN );
 
 	}
 
@@ -835,22 +835,22 @@ function wpd_delete_all_google_api_expense_data_ajax_function() {
 			$response['success'] = true;
 
 			if ( $found === 0 ) {
-				$response['message'] = __( 'No ad expenses were found, all good.', 'wpd-alpha-insights' );
+				$response['message'] = __( 'No ad expenses were found, all good.', WPD_AI_TEXT_DOMAIN );
 			} else {
-				$response['message'] = sprintf( __( 'Sucesfully deleted %s out of %s Google API expenses.', 'wpd-alpha-insights' ), absint( $deleted ), absint( $found ) );
+				$response['message'] = sprintf( __( 'Sucesfully deleted %s out of %s Google API expenses.', WPD_AI_TEXT_DOMAIN ), absint( $deleted ), absint( $found ) );
 			}
 
 		} else {
 
 			$response['success'] = false;
-			$response['message'] = __( 'Something doesnt quite seem right, check your WordPress debug.log.', 'wpd-alpha-insights' );
+			$response['message'] = __( 'Something doesnt quite seem right, check your WordPress debug.log.', WPD_AI_TEXT_DOMAIN );
 
 		}
 
 	} else {
 
 		$response['success'] = false;
-		$response['message'] = __( 'This is a Pro feature.', 'wpd-alpha-insights' );
+		$response['message'] = __( 'This is a Pro feature.', WPD_AI_TEXT_DOMAIN );
 
 	}
 
@@ -885,22 +885,22 @@ function wpd_delete_all_google_api_campaign_data_ajax_function() {
 
 			$response['success'] = true;
 			if ( $found === 0 ) {
-				$response['message'] = __( 'No campaign data was found, all good.', 'wpd-alpha-insights' );
+				$response['message'] = __( 'No campaign data was found, all good.', WPD_AI_TEXT_DOMAIN );
 			} else {
-				$response['message'] = sprintf( __( 'Sucesfully deleted %s out of %s Google API campaign data points.', 'wpd-alpha-insights' ), absint( $deleted ), absint( $found ) );
+				$response['message'] = sprintf( __( 'Sucesfully deleted %s out of %s Google API campaign data points.', WPD_AI_TEXT_DOMAIN ), absint( $deleted ), absint( $found ) );
 			}
 
 		} else {
 
 			$response['success'] = false;
-			$response['message'] = __( 'Something doesnt quite seem right, check your WordPress debug.log.', 'wpd-alpha-insights' );
+			$response['message'] = __( 'Something doesnt quite seem right, check your WordPress debug.log.', WPD_AI_TEXT_DOMAIN );
 
 		}
 
 	} else {
 
 		$response['success'] = false;
-		$response['message'] = __( 'This is a Pro feature.', 'wpd-alpha-insights' );
+		$response['message'] = __( 'This is a Pro feature.', WPD_AI_TEXT_DOMAIN );
 
 	}
 
@@ -937,20 +937,20 @@ function wpd_refresh_all_google_data_ajax_function() {
 			if ( isset($result['message']) ) {
 				$response['message'] = sanitize_text_field( $result['message'] );
 			} else {
-				$response['message'] = __( 'Looks like this was completed succesfully, but we got an unexpected result. Check your log and the reports for new data.', 'wpd-alpha-insights' );
+				$response['message'] = __( 'Looks like this was completed succesfully, but we got an unexpected result. Check your log and the reports for new data.', WPD_AI_TEXT_DOMAIN );
 			}
 
 		} else {
 
 			$response['success'] = false;
-			$response['message'] = __( 'Something doesnt quite seem right, check your WordPress debug.log.', 'wpd-alpha-insights' );
+			$response['message'] = __( 'Something doesnt quite seem right, check your WordPress debug.log.', WPD_AI_TEXT_DOMAIN );
 
 		}
 
 	} else {
 
 		$response['success'] = false;
-		$response['message'] = __( 'This is a Pro feature.', 'wpd-alpha-insights' );
+		$response['message'] = __( 'This is a Pro feature.', WPD_AI_TEXT_DOMAIN );
 
 	}
 
@@ -982,7 +982,7 @@ function wpd_create_google_conversion_action_ajax_function() {
 
 			// Return response
 			$response['success'] = false;
-			$response['message'] = __( 'Something went wrong while creating the conversion action, refresh the page and check the error log at the bottom of this page.', 'wpd-alpha-insights' );
+			$response['message'] = __( 'Something went wrong while creating the conversion action, refresh the page and check the error log at the bottom of this page.', WPD_AI_TEXT_DOMAIN );
 
 		} elseif( is_array($conversion_action_result) && isset($conversion_action_result['success']) && $conversion_action_result['success'] ) {
 
@@ -994,14 +994,14 @@ function wpd_create_google_conversion_action_ajax_function() {
 				
 				// Return response for fallback case
 				$response['success'] = true;
-				$fallback_message = $re_enabled ? __( 'enabled it', 'wpd-alpha-insights' ) : __( 'it was already enabled', 'wpd-alpha-insights' );
-				$response['message'] = sprintf( __( 'Found existing conversion action "%s" and %s. Please refresh the page to see the updated status. You can view this conversion action in your Google Ads account under Goals > Summary.', 'wpd-alpha-insights' ), $action_name, $fallback_message );
+				$fallback_message = $re_enabled ? __( 'enabled it', WPD_AI_TEXT_DOMAIN ) : __( 'it was already enabled', WPD_AI_TEXT_DOMAIN );
+				$response['message'] = sprintf( __( 'Found existing conversion action "%s" and %s. Please refresh the page to see the updated status. You can view this conversion action in your Google Ads account under Goals > Summary.', WPD_AI_TEXT_DOMAIN ), $action_name, $fallback_message );
 				
 			} else {
 				
 				// Return response for normal creation
 				$response['success'] = true;
-				$response['message'] = sprintf( __( 'Successfully created conversion action "%s". Please refresh the page to see the updated status. You can view this conversion action in your Google Ads account under Goals > Summary.', 'wpd-alpha-insights' ), $action_name );
+				$response['message'] = sprintf( __( 'Successfully created conversion action "%s". Please refresh the page to see the updated status. You can view this conversion action in your Google Ads account under Goals > Summary.', WPD_AI_TEXT_DOMAIN ), $action_name );
 				
 			}
 
@@ -1009,7 +1009,7 @@ function wpd_create_google_conversion_action_ajax_function() {
 
 			// Return response
 			$response['success'] = false;
-			$response['message'] = __( 'The response looks malformed, refresh this page and check the error log at the bottom of this page.', 'wpd-alpha-insights' );
+			$response['message'] = __( 'The response looks malformed, refresh this page and check the error log at the bottom of this page.', WPD_AI_TEXT_DOMAIN );
 
 		}
 
@@ -1017,7 +1017,7 @@ function wpd_create_google_conversion_action_ajax_function() {
 
 		// Return response
 		$response['success'] = false;
-		$response['message'] = __( 'This is a Pro feature.', 'wpd-alpha-insights' );
+		$response['message'] = __( 'This is a Pro feature.', WPD_AI_TEXT_DOMAIN );
 
 	}
 
@@ -1049,20 +1049,20 @@ function wpd_delete_google_conversion_action_ajax_function() {
 
 			// Return response
 			$response['success'] = false;
-			$response['message'] = __( 'Something went wrong while deleting the conversion action, refresh the page and check the error log at the bottom of this page.', 'wpd-alpha-insights' );
+			$response['message'] = __( 'Something went wrong while deleting the conversion action, refresh the page and check the error log at the bottom of this page.', WPD_AI_TEXT_DOMAIN );
 
 		} elseif( is_array($delete_result) && isset($delete_result['success']) && $delete_result['success'] ) {
 
 			// Return response
 			$action_id = isset( $delete_result['conversion_action_id'] ) ? absint( $delete_result['conversion_action_id'] ) : 0;
 			$response['success'] = true;
-			$response['message'] = sprintf( __( 'Successfully deleted conversion action (ID: %d). Please refresh the page to see the updated status.', 'wpd-alpha-insights' ), $action_id );
+			$response['message'] = sprintf( __( 'Successfully deleted conversion action (ID: %d). Please refresh the page to see the updated status.', WPD_AI_TEXT_DOMAIN ), $action_id );
 
 		} else {
 
 			// Return response
 			$response['success'] = false;
-			$response['message'] = __( 'The response looks malformed, refresh this page and check the error log at the bottom of this page.', 'wpd-alpha-insights' );
+			$response['message'] = __( 'The response looks malformed, refresh this page and check the error log at the bottom of this page.', WPD_AI_TEXT_DOMAIN );
 
 		}
 
@@ -1070,7 +1070,7 @@ function wpd_delete_google_conversion_action_ajax_function() {
 
 		// Return response
 		$response['success'] = false;
-		$response['message'] = __( 'This is a Pro feature.', 'wpd-alpha-insights' );
+		$response['message'] = __( 'This is a Pro feature.', WPD_AI_TEXT_DOMAIN );
 
 	}
 
@@ -1112,12 +1112,12 @@ function wpd_scan_utm_campaigns_via_order_ajax_function() {
 			} else {
 
 				if ( $result === false ) {
-					$response['message'] = __( 'Make sure you configure utm_campaign values against campaigns on the settings page before you run this function.', 'wpd-alpha-insights' );
+					$response['message'] = __( 'Make sure you configure utm_campaign values against campaigns on the settings page before you run this function.', WPD_AI_TEXT_DOMAIN );
 				}
 				elseif ( $result === 0 ) {
-					$response['message'] = __( 'No matches were found between your configured utm_campaigns and the values found in your orders. Check the stored query parameters on an order to determine the utm_campaign.', 'wpd-alpha-insights' );
+					$response['message'] = __( 'No matches were found between your configured utm_campaigns and the values found in your orders. Check the stored query parameters on an order to determine the utm_campaign.', WPD_AI_TEXT_DOMAIN );
 				} else {
-					$response['message'] = sprintf( __( 'Succesfully updated %d orders via your configured utm_campaigns', 'wpd-alpha-insights' ), absint( $result ) );
+					$response['message'] = sprintf( __( 'Succesfully updated %d orders via your configured utm_campaigns', WPD_AI_TEXT_DOMAIN ), absint( $result ) );
 				}
 				
 			}
@@ -1125,14 +1125,14 @@ function wpd_scan_utm_campaigns_via_order_ajax_function() {
 		} else {
 
 			$response['success'] = false;
-			$response['message'] = __( 'Something doesnt quite seem right, check your WordPress debug.log.', 'wpd-alpha-insights' );
+			$response['message'] = __( 'Something doesnt quite seem right, check your WordPress debug.log.', WPD_AI_TEXT_DOMAIN );
 
 		}
 
 	} else {
 
 		$response['success'] = false;
-		$response['message'] = __( 'This is a Pro feature.', 'wpd-alpha-insights' );
+		$response['message'] = __( 'This is a Pro feature.', WPD_AI_TEXT_DOMAIN );
 
 	}
 
@@ -1180,21 +1180,21 @@ function wpd_scan_order_gclids_ajax_function() {
 				$errors = isset( $result['errors'] ) ? absint( $result['errors'] ) : 0;
 				$gclids_found = isset( $result['gclids_found'] ) ? absint( $result['gclids_found'] ) : 0;
 
-				$response['message'] = sprintf( __( '%d Orders were checked, we found %d GCLIDs, associated %d orders to campaigns and there were %d API errors.', 'wpd-alpha-insights' ), $orders_checked, $gclids_found, $updates, $errors );
+				$response['message'] = sprintf( __( '%d Orders were checked, we found %d GCLIDs, associated %d orders to campaigns and there were %d API errors.', WPD_AI_TEXT_DOMAIN ), $orders_checked, $gclids_found, $updates, $errors );
 				
 			}
 
 		} else {
 
 			$response['success'] = false;
-			$response['message'] = __( 'Something doesnt quite seem right, check your WordPress debug.log.', 'wpd-alpha-insights' );
+			$response['message'] = __( 'Something doesnt quite seem right, check your WordPress debug.log.', WPD_AI_TEXT_DOMAIN );
 
 		}
 
 	} else {
 
 		$response['success'] = false;
-		$response['message'] = __( 'This is a Pro feature.', 'wpd-alpha-insights' );
+		$response['message'] = __( 'This is a Pro feature.', WPD_AI_TEXT_DOMAIN );
 
 	}
 
@@ -1225,16 +1225,16 @@ function wpd_update_wpd_ai_database() {
 
 		if ( $db_upgrade_response ) {
 			$response['success'] = true;
-			$response['message'] = __( 'DB Upgrade completed succesfully, you can check the Alpha Insights logs for more details if required.', 'wpd-alpha-insights' );
+			$response['message'] = __( 'DB Upgrade completed succesfully, you can check the Alpha Insights logs for more details if required.', WPD_AI_TEXT_DOMAIN );
 		} else {
 			$response['success'] = false;
-			$response['message'] = __( 'Error occurred during DB upgrade, please check the Alpha Insights logs for more details.', 'wpd-alpha-insights' );
+			$response['message'] = __( 'Error occurred during DB upgrade, please check the Alpha Insights logs for more details.', WPD_AI_TEXT_DOMAIN );
 		}
 
 	} else {
 
 		$response['success'] = false;
-		$response['message'] = __( 'We couldnt complete this action unfortunately, feel free to shoot us an email and we\'ll help you resolve this.', 'wpd-alpha-insights' );
+		$response['message'] = __( 'We couldnt complete this action unfortunately, feel free to shoot us an email and we\'ll help you resolve this.', WPD_AI_TEXT_DOMAIN );
 
 	}
 
@@ -1272,26 +1272,26 @@ function wpd_delete_log_ajax() {
 
 				$delete = wp_delete_file( $real_file_path );
 				$response['success'] = true;
-				$response['message'] = __( 'Log file has been succesfully deleted.', 'wpd-alpha-insights' );
+				$response['message'] = __( 'Log file has been succesfully deleted.', WPD_AI_TEXT_DOMAIN );
 
 			} else {
 
 				$response['success'] = true;
-				$response['message'] = __( 'Could not find the log file, it may have already been deleted.', 'wpd-alpha-insights' );
+				$response['message'] = __( 'Could not find the log file, it may have already been deleted.', WPD_AI_TEXT_DOMAIN );
 
 			}
 
 		} else {
 
 			$response['success'] = false;
-			$response['message'] = __( 'Invalid file path.', 'wpd-alpha-insights' );
+			$response['message'] = __( 'Invalid file path.', WPD_AI_TEXT_DOMAIN );
 
 		}
 
 	} else {
 
 		$response['success'] = false;
-		$response['message'] = __( 'Log file not specified.', 'wpd-alpha-insights' );
+		$response['message'] = __( 'Log file not specified.', WPD_AI_TEXT_DOMAIN );
 
 	}
 
@@ -1323,7 +1323,7 @@ function wpd_create_google_add_to_cart_conversion_action_ajax_function() {
 
 			// Return response
 			$response['success'] = false;
-			$response['message'] = __( 'Something went wrong while creating the Add To Cart conversion action, refresh the page and check the error log at the bottom of this page.', 'wpd-alpha-insights' );
+			$response['message'] = __( 'Something went wrong while creating the Add To Cart conversion action, refresh the page and check the error log at the bottom of this page.', WPD_AI_TEXT_DOMAIN );
 
 		} elseif( is_array($conversion_action_result) && isset($conversion_action_result['success']) && $conversion_action_result['success'] ) {
 
@@ -1335,14 +1335,14 @@ function wpd_create_google_add_to_cart_conversion_action_ajax_function() {
 				
 				// Return response for fallback case
 				$response['success'] = true;
-				$fallback_message = $re_enabled ? __( 'enabled it', 'wpd-alpha-insights' ) : __( 'it was already enabled', 'wpd-alpha-insights' );
-				$response['message'] = sprintf( __( 'Found existing Add To Cart conversion action "%s" and %s. Please refresh the page to see the updated status. You can view this conversion action in your Google Ads account under Goals > Summary.', 'wpd-alpha-insights' ), $action_name, $fallback_message );
+				$fallback_message = $re_enabled ? __( 'enabled it', WPD_AI_TEXT_DOMAIN ) : __( 'it was already enabled', WPD_AI_TEXT_DOMAIN );
+				$response['message'] = sprintf( __( 'Found existing Add To Cart conversion action "%s" and %s. Please refresh the page to see the updated status. You can view this conversion action in your Google Ads account under Goals > Summary.', WPD_AI_TEXT_DOMAIN ), $action_name, $fallback_message );
 				
 			} else {
 				
 				// Return response for normal creation
 				$response['success'] = true;
-				$response['message'] = sprintf( __( 'Successfully created Add To Cart conversion action "%s". Please refresh the page to see the updated status. You can view this conversion action in your Google Ads account under Goals > Summary.', 'wpd-alpha-insights' ), $action_name );
+				$response['message'] = sprintf( __( 'Successfully created Add To Cart conversion action "%s". Please refresh the page to see the updated status. You can view this conversion action in your Google Ads account under Goals > Summary.', WPD_AI_TEXT_DOMAIN ), $action_name );
 				
 			}
 
@@ -1350,7 +1350,7 @@ function wpd_create_google_add_to_cart_conversion_action_ajax_function() {
 
 			// Return response
 			$response['success'] = false;
-			$response['message'] = __( 'The response looks malformed, refresh this page and check the error log at the bottom of this page.', 'wpd-alpha-insights' );
+			$response['message'] = __( 'The response looks malformed, refresh this page and check the error log at the bottom of this page.', WPD_AI_TEXT_DOMAIN );
 
 		}
 
@@ -1358,7 +1358,7 @@ function wpd_create_google_add_to_cart_conversion_action_ajax_function() {
 
 		// Return response
 		$response['success'] = false;
-		$response['message'] = __( 'This is a Pro feature.', 'wpd-alpha-insights' );
+		$response['message'] = __( 'This is a Pro feature.', WPD_AI_TEXT_DOMAIN );
 
 	}
 
@@ -1390,19 +1390,19 @@ function wpd_delete_google_add_to_cart_conversion_action_ajax_function() {
 
 			// Return response
 			$response['success'] = false;
-			$response['message'] = __( 'Something went wrong while deleting the Add To Cart conversion action, refresh the page and check the error log at the bottom of this page.', 'wpd-alpha-insights' );
+			$response['message'] = __( 'Something went wrong while deleting the Add To Cart conversion action, refresh the page and check the error log at the bottom of this page.', WPD_AI_TEXT_DOMAIN );
 
 		} elseif( is_array($conversion_action_result) && isset($conversion_action_result['success']) && $conversion_action_result['success'] ) {
 
 			// Return response
 			$response['success'] = true;
-			$response['message'] = __( 'Successfully deleted Add To Cart conversion action. Please refresh the page to see the updated status.', 'wpd-alpha-insights' );
+			$response['message'] = __( 'Successfully deleted Add To Cart conversion action. Please refresh the page to see the updated status.', WPD_AI_TEXT_DOMAIN );
 
 		} else {
 
 			// Return response
 			$response['success'] = false;
-			$response['message'] = __( 'The response looks malformed, refresh this page and check the error log at the bottom of this page.', 'wpd-alpha-insights' );
+			$response['message'] = __( 'The response looks malformed, refresh this page and check the error log at the bottom of this page.', WPD_AI_TEXT_DOMAIN );
 
 		}
 
@@ -1410,7 +1410,7 @@ function wpd_delete_google_add_to_cart_conversion_action_ajax_function() {
 
 		// Return response
 		$response['success'] = false;
-		$response['message'] = __( 'This is a Pro feature.', 'wpd-alpha-insights' );
+		$response['message'] = __( 'This is a Pro feature.', WPD_AI_TEXT_DOMAIN );
 
 	}
 
@@ -1439,7 +1439,7 @@ function wpd_load_documentation_ajax() {
 		$docs_path = WPD_AI_PATH . 'assets/documentation/alpha-insights/';
 		
 		if (!file_exists($docs_path) || !is_dir($docs_path)) {
-			throw new Exception(__('Documentation directory not found.', 'wpd-alpha-insights'));
+			throw new Exception(__('Documentation directory not found.', WPD_AI_TEXT_DOMAIN));
 		}
 
 		// Recursively load all JSON files
@@ -1447,7 +1447,7 @@ function wpd_load_documentation_ajax() {
 
 		$response['success'] = true;
 		$response['data']    = $docs_data;
-		$response['message'] = sprintf(__('Loaded %d documentation files.', 'wpd-alpha-insights'), count($docs_data, COUNT_RECURSIVE) - count($docs_data));
+		$response['message'] = sprintf(__('Loaded %d documentation files.', WPD_AI_TEXT_DOMAIN), count($docs_data, COUNT_RECURSIVE) - count($docs_data));
 
 	} catch (Exception $e) {
 		$response['message'] = esc_html( $e->getMessage() );
@@ -1574,14 +1574,14 @@ function wpd_save_getting_started_settings() {
 	// Check nonce
 	if ( ! check_ajax_referer( WPD_AI_AJAX_NONCE_ACTION, 'nonce', false ) ) {
 		wp_send_json_error( array( 
-			'message' => __( 'Security check failed', 'wpd-alpha-insights' ) 
+			'message' => __( 'Security check failed', WPD_AI_TEXT_DOMAIN ) 
 		) );
 	}
 
 	// Check user permissions
 	if ( ! current_user_can( 'manage_options' ) ) {
 		wp_send_json_error( array(
-			'message' => __( 'You do not have permission to save settings', 'wpd-alpha-insights' )
+			'message' => __( 'You do not have permission to save settings', WPD_AI_TEXT_DOMAIN )
 		) );
 	}
 
@@ -1595,7 +1595,7 @@ function wpd_save_getting_started_settings() {
 
 	if ( empty( $settings ) ) {
 		wp_send_json_error( array(
-			'message' => __( 'No settings data received', 'wpd-alpha-insights' )
+			'message' => __( 'No settings data received', WPD_AI_TEXT_DOMAIN )
 		) );
 	}
 
@@ -1634,7 +1634,7 @@ function wpd_save_getting_started_settings() {
 
 	// Return success
 	wp_send_json_success( array(
-		'message' => __( 'Settings saved successfully', 'wpd-alpha-insights' )
+		'message' => __( 'Settings saved successfully', WPD_AI_TEXT_DOMAIN )
 	) );
 }
 
@@ -1651,19 +1651,19 @@ function wpd_getting_started_activate_license() {
 	
 	// Check nonce
 	if ( ! check_ajax_referer( WPD_AI_AJAX_NONCE_ACTION, 'nonce', false ) ) {
-		wp_send_json_error( __( 'Security check failed', 'wpd-alpha-insights' ) );
+		wp_send_json_error( __( 'Security check failed', WPD_AI_TEXT_DOMAIN ) );
 	}
 
 	// Check user permissions
 	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_send_json_error( __( 'You do not have permission to activate licenses', 'wpd-alpha-insights' ) );
+		wp_send_json_error( __( 'You do not have permission to activate licenses', WPD_AI_TEXT_DOMAIN ) );
 	}
 
 	// Get license key
 	$license_key = isset( $_POST['license_key'] ) ? sanitize_text_field( $_POST['license_key'] ) : '';
 
 	if ( empty( $license_key ) ) {
-		wp_send_json_error( __( 'Please enter a license key', 'wpd-alpha-insights' ) );
+		wp_send_json_error( __( 'Please enter a license key', WPD_AI_TEXT_DOMAIN ) );
 	}
 
 	// Save license key
@@ -1678,13 +1678,13 @@ function wpd_getting_started_activate_license() {
 		
 		// Success
 		wp_send_json_success( array(
-			'message' => isset( $activate_result['message'] ) ? $activate_result['message'] : __( 'License activated successfully!', 'wpd-alpha-insights' )
+			'message' => isset( $activate_result['message'] ) ? $activate_result['message'] : __( 'License activated successfully!', WPD_AI_TEXT_DOMAIN )
 		) );
 
 	} else {
 		
 		// Error
-		$error_message = isset( $activate_result['message'] ) ? $activate_result['message'] : __( 'Could not activate your license key. Please check your license key and try again.', 'wpd-alpha-insights' );
+		$error_message = isset( $activate_result['message'] ) ? $activate_result['message'] : __( 'Could not activate your license key. Please check your license key and try again.', WPD_AI_TEXT_DOMAIN );
 		wp_send_json_error( $error_message );
 
 	}

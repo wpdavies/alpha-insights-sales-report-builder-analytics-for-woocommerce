@@ -75,13 +75,13 @@ $total_store_profit_data = array_merge(array('total_store_profit' => 0), $total_
 wpd_write_log('Profit report data prepared - Orders: ' . $total_order_data['total_order_count'] . ', Revenue: ' . $total_order_data['total_order_revenue'], 'email');
 
 ?>
-<?php wpd_email_header( sprintf( __( '%s Profit Report', 'wpd-alpha-insights' ), 'Alpha Insights' ) ); ?>
+<?php wpd_email_header( sprintf( __( '%s Profit Report', WPD_AI_TEXT_DOMAIN ), 'Alpha Insights' ) ); ?>
 <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnCodeBlock">
     <tbody class="mcnTextBlockOuter">
         <tr>
             <td valign="top" class="mcnTextBlockInner">
 				<div class="mcnTextContent">
-					<p style="color: #03aaed;font-size: 19px; text-align: center;"><?php printf( __( 'Showing results from %s to %s', 'wpd-alpha-insights' ), $from_date, $to_date ); ?>.</p>
+					<p style="color: #03aaed;font-size: 19px; text-align: center;"><?php printf( __( 'Showing results from %s to %s', WPD_AI_TEXT_DOMAIN ), $from_date, $to_date ); ?>.</p>
 				    <table border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable">
 				        <tbody>
 				        	<tr>
@@ -89,37 +89,37 @@ wpd_write_log('Profit report data prepared - Orders: ' . $total_order_data['tota
 					                <table border="0" cellpadding="20" cellspacing="0" width="100%" id="emailContainer">
 					                    <tbody>
 					                    	<?php if ( $profit_report_settings['details']['order_revenue'] ) : ?>
-							                    <?php wpd_table_row_report_data( __( 'Net Sales (Incl. Tax)', 'wpd-alpha-insights'), wc_price($total_order_data['total_order_revenue']) ); ?>
+							                    <?php wpd_table_row_report_data( __( 'Net Sales (Incl. Tax)', WPD_AI_TEXT_DOMAIN), wc_price($total_order_data['total_order_revenue']) ); ?>
 						                	<?php endif; ?>
 						               		<?php if ( $profit_report_settings['details']['order_cost'] ) : ?>
-							                    <?php wpd_table_row_report_data( __( 'Total Order Costs', 'wpd-alpha-insights'), wc_price($total_order_data['total_order_cost']) ); ?>
+							                    <?php wpd_table_row_report_data( __( 'Total Order Costs', WPD_AI_TEXT_DOMAIN), wc_price($total_order_data['total_order_cost']) ); ?>
 						                	<?php endif; ?>
 						               		<?php if ( $profit_report_settings['details']['order_profit'] ) : ?>
-							                    <?php wpd_table_row_report_data( __( 'Gross Profit', 'wpd-alpha-insights'), wc_price($total_order_data['total_order_profit']) ); ?>
+							                    <?php wpd_table_row_report_data( __( 'Gross Profit', WPD_AI_TEXT_DOMAIN), wc_price($total_order_data['total_order_profit']) ); ?>
 						                	<?php endif; ?>
 						               		<?php if ( $profit_report_settings['details']['order_count'] ) : ?>
-							                    <?php wpd_table_row_report_data( __( 'Number Of Orders', 'wpd-alpha-insights'), $total_order_data['total_order_count'] ); ?>
+							                    <?php wpd_table_row_report_data( __( 'Number Of Orders', WPD_AI_TEXT_DOMAIN), $total_order_data['total_order_count'] ); ?>
 						                	<?php endif; ?>
 						               		<?php if ( $profit_report_settings['details']['average_order_value'] ) : ?>
-							                    <?php wpd_table_row_report_data( __( 'Average Order Value', 'wpd-alpha-insights'), wc_price($total_order_data['average_order_revenue']) ); ?>
+							                    <?php wpd_table_row_report_data( __( 'Average Order Value', WPD_AI_TEXT_DOMAIN), wc_price($total_order_data['average_order_revenue']) ); ?>
 						                	<?php endif; ?>
 						               		<?php if ( $profit_report_settings['details']['average_profit_per_order'] ) : ?>
-							                    <?php wpd_table_row_report_data( __( 'Average Gross Profit Per Order', 'wpd-alpha-insights'), wc_price($total_order_data['average_order_profit']) ); ?>
+							                    <?php wpd_table_row_report_data( __( 'Average Gross Profit Per Order', WPD_AI_TEXT_DOMAIN), wc_price($total_order_data['average_order_profit']) ); ?>
 						                	<?php endif; ?>
 						               		<?php if ( $profit_report_settings['details']['total_products_sold'] ) : ?>
-							                    <?php wpd_table_row_report_data( __( 'Total Products Sold', 'wpd-alpha-insights'), $total_order_data['total_skus_sold'] ); ?>
+							                    <?php wpd_table_row_report_data( __( 'Total Products Sold', WPD_AI_TEXT_DOMAIN), $total_order_data['total_skus_sold'] ); ?>
 						                	<?php endif; ?>
 						               		<?php if ( $profit_report_settings['details']['total_product_discounts'] ) : ?>
-							                    <?php wpd_table_row_report_data( __( 'Total Product Discounts', 'wpd-alpha-insights'), wc_price($total_order_data['total_product_discount_amount']) ); ?>
+							                    <?php wpd_table_row_report_data( __( 'Total Product Discounts', WPD_AI_TEXT_DOMAIN), wc_price($total_order_data['total_product_discount_amount']) ); ?>
 						                	<?php endif; ?>
 						               		<?php if ( $profit_report_settings['details']['total_refunds'] ) : ?>
-							                    <?php wpd_table_row_report_data( __( 'Order Refunds', 'wpd-alpha-insights'), wc_price($total_order_data['total_refund_amount']) ); ?>
+							                    <?php wpd_table_row_report_data( __( 'Order Refunds', WPD_AI_TEXT_DOMAIN), wc_price($total_order_data['total_refund_amount']) ); ?>
 						                	<?php endif; ?>
 						               		<?php if ( $profit_report_settings['details']['additional_expenses'] ) : ?>
-							                    <?php wpd_table_row_report_data( __( 'Additional Expenses', 'wpd-alpha-insights'), wc_price($total_expense_data['total_amount']) ); ?>
+							                    <?php wpd_table_row_report_data( __( 'Additional Expenses', WPD_AI_TEXT_DOMAIN), wc_price($total_expense_data['total_amount']) ); ?>
 						                	<?php endif; ?>
 						               		<?php if ( $profit_report_settings['details']['net_profit'] ) : ?>
-							                    <?php wpd_table_row_report_data( __( 'Total Net Profit', 'wpd-alpha-insights'), wc_price($total_store_profit_data['total_store_profit']) ); ?>
+							                    <?php wpd_table_row_report_data( __( 'Total Net Profit', WPD_AI_TEXT_DOMAIN), wc_price($total_store_profit_data['total_store_profit']) ); ?>
 						                	<?php endif; ?>
 					                	</tbody>
 					            	</table>

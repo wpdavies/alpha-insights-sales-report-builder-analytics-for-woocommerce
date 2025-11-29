@@ -311,7 +311,7 @@ class WPD_Alpha_Insights_Core {
 		// COGS input
 		woocommerce_wp_text_input( array(
 			'id' => 'line-item-cogs[' . $item_id . ']',
-			'label' => __( 'Cost Of Goods Per Unit ('.wpd_store_currency_string().')', 'wpd-alpha-insights' ),
+			'label' => __( 'Cost Of Goods Per Unit ('.wpd_store_currency_string().')', WPD_AI_TEXT_DOMAIN ),
 			'value' => $line_item_cogs,
 			'placeholder' => esc_attr( strip_tags( wc_price( $default_line_item_cogs ) ) ),
 			'wrapper_class' => 'form-field-wide wpd-line-item-cogs',
@@ -352,7 +352,7 @@ class WPD_Alpha_Insights_Core {
 					array (
 
 						'id'          => '_wpd_ai_custom_product_costs['.$item_id.']['.$custom_cost_slug.']',
-						'label' 	  => sprintf( __( '%s Per Unit (%s)', 'wpd-alpha-insights' ), esc_html( $custom_cost_data['label'] ), esc_html( wpd_store_currency_string() ) ),
+						'label' 	  => sprintf( __( '%s Per Unit (%s)', WPD_AI_TEXT_DOMAIN ), esc_html( $custom_cost_data['label'] ), esc_html( wpd_store_currency_string() ) ),
 						'value'       => $custom_cost_meta_value,
 						'data_type'   => 'price',
 						'placeholder' => strip_tags( wc_price( $default_calculated_value ) ),
@@ -559,7 +559,7 @@ class WPD_Alpha_Insights_Core {
 				$order_currency = $order_data['order_currency'];
 				$original_amount = wpd_store_price( $item->get_total(), array('currency' => $order_currency) );
 				$currency_conversion_string = sprintf( 
-					__( 'This order was paid for in %s. <br>The original amount is %s.', 'wpd-alpha-insights' ), 
+					__( 'This order was paid for in %s. <br>The original amount is %s.', WPD_AI_TEXT_DOMAIN ), 
 					$order_currency, 
 					$original_amount 
 				);
@@ -572,25 +572,25 @@ class WPD_Alpha_Insights_Core {
 						<table class="display_meta fixed wpd-line-item-summary">
 							<tbody>
 								<tr>
-									<th><?php _e( 'Revenue Excl. Tax:', 'wpd-alpha-insights' ); ?><?php if ( $multi_currency ) echo esc_html( ' (' . wpd_get_store_currency() . ')' ); ?></th>
+									<th><?php _e( 'Revenue Excl. Tax:', WPD_AI_TEXT_DOMAIN ); ?><?php if ( $multi_currency ) echo esc_html( ' (' . wpd_get_store_currency() . ')' ); ?></th>
 									<td><?php echo wpd_store_price( $product_data['product_revenue_excluding_tax'] ) ?></td>
 								</tr>
 								<tr>
-									<th><?php _e( 'Cost Of Goods:', 'wpd-alpha-insights' ); ?></th>
+									<th><?php _e( 'Cost Of Goods:', WPD_AI_TEXT_DOMAIN ); ?></th>
 									<td><?php echo wpd_store_price( $product_data['total_product_cogs'] ) ?></td>
 								</tr>
 								<?php if ( $product_data['total_custom_product_cost'] ) : ?>
 									<tr>
-										<th><?php _e( 'Custom Costs:', 'wpd-alpha-insights' ); ?></th>
+										<th><?php _e( 'Custom Costs:', WPD_AI_TEXT_DOMAIN ); ?></th>
 										<td><?php echo wpd_store_price( $product_data['total_custom_product_cost'] ); ?></td>
 									</tr>
 								<?php endif; ?>
 								<tr>
-									<th><?php _e( 'Profit:', 'wpd-alpha-insights' ); ?></th>
+									<th><?php _e( 'Profit:', WPD_AI_TEXT_DOMAIN ); ?></th>
 									<td><?php echo wpd_store_price( $product_data['total_profit'] )?></td>
 								</tr>
 								<tr>
-									<th><?php _e( 'Margin:', 'wpd-alpha-insights' ); ?></th>
+									<th><?php _e( 'Margin:', WPD_AI_TEXT_DOMAIN ); ?></th>
 									<td><?php echo esc_html( $product_data['product_margin'] ); ?>%</td>
 								</tr>
 								<?php if ( $multi_currency) : ?>
@@ -632,7 +632,7 @@ class WPD_Alpha_Insights_Core {
 		// Profit Summary
 		add_meta_box ( 
 			'wpd-ai-dashboard-summary', 
-			__( 'Alpha Insights Dashboard', 'wpd-alpha-insights' ),
+			__( 'Alpha Insights Dashboard', WPD_AI_TEXT_DOMAIN ),
 			array( $this, 'order_admin_metabox_dashboard' ), 
 			$screen, // Screen to display on
 			'normal', // normal, side, advanced
@@ -803,7 +803,7 @@ class WPD_Alpha_Insights_Core {
 				<div class="edit_address"><?php
 					woocommerce_wp_text_input( array(
 						'id' => 'total_product_cost',
-						'label' => __( 'Total Product Cost Of Goods (' . wpd_store_currency_string() . ')', 'wpd-alpha-insights' ) . ':',
+						'label' => __( 'Total Product Cost Of Goods (' . wpd_store_currency_string() . ')', WPD_AI_TEXT_DOMAIN ) . ':',
 						'value' => $meta_total_product_cost,
 						'placeholder' => strip_tags( wc_price( $total_product_cost ) ),
 						'wrapper_class' => 'form-field-wide',
@@ -823,7 +823,7 @@ class WPD_Alpha_Insights_Core {
 
 								woocommerce_wp_text_input( array(
 									'id' => '_wpd_ai_total_order_product_custom_cost',
-									'label' => __( 'Total Product Custom Costs ('.wpd_store_currency_string().')', 'wpd-alpha-insights' ) . ':',
+									'label' => __( 'Total Product Custom Costs ('.wpd_store_currency_string().')', WPD_AI_TEXT_DOMAIN ) . ':',
 									'value' => $meta_total_order_product_custom_cost,
 									'placeholder' => strip_tags( wc_price( $order_data['total_product_custom_costs'] ) ),
 									'wrapper_class' => 'form-field-wide',
@@ -840,7 +840,7 @@ class WPD_Alpha_Insights_Core {
 
 					woocommerce_wp_text_input( array(
 						'id' => 'total_shipping_cost',
-						'label' => __( 'Total Shipping Cost ('.wpd_store_currency_string().')', 'wpd-alpha-insights' ) . ':',
+						'label' => __( 'Total Shipping Cost ('.wpd_store_currency_string().')', WPD_AI_TEXT_DOMAIN ) . ':',
 						'value' => $meta_total_shipping_cost,
 						'placeholder' => strip_tags( wc_price( $total_shipping_cost ) ),
 						'wrapper_class' => 'form-field-wide',
@@ -849,7 +849,7 @@ class WPD_Alpha_Insights_Core {
 
 					woocommerce_wp_text_input( array(
 						'id' => 'payment_gateway_cost',
-						'label' => __( 'Payment Gateway Cost ('.wpd_store_currency_string().')', 'wpd-alpha-insights' ) . ':',
+						'label' => __( 'Payment Gateway Cost ('.wpd_store_currency_string().')', WPD_AI_TEXT_DOMAIN ) . ':',
 						'value' => $meta_payment_gateway_cost,
 						'placeholder' => esc_attr( strip_tags( wc_price( $payment_gateway_cost ) ) ),
 						'wrapper_class' => 'form-field-wide',
@@ -871,7 +871,7 @@ class WPD_Alpha_Insights_Core {
 
 						woocommerce_wp_text_input( array(
 							'id' => '_wpd_ai_custom_order_cost_' . $cost_slug,
-							'label' => sprintf( __( '%s (%s)', 'wpd-alpha-insights' ), esc_html( $cost_data['label'] ), esc_html( wpd_store_currency_string() ) ) . ':',
+							'label' => sprintf( __( '%s (%s)', WPD_AI_TEXT_DOMAIN ), esc_html( $cost_data['label'] ), esc_html( wpd_store_currency_string() ) ) . ':',
 							'value' => $custom_order_cost_value, // Need to figure out
 							'placeholder' => esc_attr( strip_tags( wc_price( $custom_order_cost_placeholder ) ) ),
 							'wrapper_class' => 'form-field-wide',
@@ -963,7 +963,7 @@ class WPD_Alpha_Insights_Core {
 			</div>
 			<div class="wpd-grid-footer wpd-grid-full-span">
 				<p style="float:left;">You can use the arrows in the top right corner to reposition this dashboard.<br>Don't want this dashboard? <a href="<?php echo wpd_admin_page_url( 'settings' ); ?>">Update your WordPress Admin Display Extensions settings</a> in Alpha Insights.</p>
-				<p style="float:right;"><?php submit_button( __( 'Save & Recalculate', 'wpd-alpha-insights' ), 'primary wpd-ai-submit', 'submit', false ); ?></p>
+				<p style="float:right;"><?php submit_button( __( 'Save & Recalculate', WPD_AI_TEXT_DOMAIN ), 'primary wpd-ai-submit', 'submit', false ); ?></p>
 			</div>
 		</div>
 		<?php
@@ -1186,9 +1186,9 @@ class WPD_Alpha_Insights_Core {
 			unset( $columns['origin'] );
 		}
 
-	    $columns['order_profit'] 	= __( 'Profit', 'wpd-alpha-insights' );
-	    $columns['order_margin'] 	= __( 'Margin', 'wpd-alpha-insights' );
-	    $columns['order_total'] 	= __( 'Total', 'wpd-alpha-insights' ); // Reorders order_total
+	    $columns['order_profit'] 	= __( 'Profit', WPD_AI_TEXT_DOMAIN );
+	    $columns['order_margin'] 	= __( 'Margin', WPD_AI_TEXT_DOMAIN );
+	    $columns['order_total'] 	= __( 'Total', WPD_AI_TEXT_DOMAIN ); // Reorders order_total
 
 		// Custom Columns
 		$custom_admin_columns = wpd_get_admin_custom_column_settings();
@@ -1388,7 +1388,7 @@ class WPD_Alpha_Insights_Core {
 
 		$product_data_tabs['wpd-ai-cost-of-goods'] = array(
 
-			'label' 	=> __( 'Alpha Insights Cost Of Goods', 'wpd-alpha-insights' ),
+			'label' 	=> __( 'Alpha Insights Cost Of Goods', WPD_AI_TEXT_DOMAIN ),
 			'target' 	=> 'wpd-ai-cost-of-goods',
 			'priority' 	=> 10,
 			'class' 	=> array( 'wpd-ai-cost-of-goods' ),

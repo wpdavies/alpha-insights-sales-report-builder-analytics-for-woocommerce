@@ -80,8 +80,8 @@ if ( isset($_POST['wpd_ai_debug_data_warehouse_report']) && ! empty($_POST['wpd_
 ?>
 <div class="wpd-wrapper">
 	<div class="wpd-section-heading wpd-inline">
-		<?php _e( 'General Settings', 'wpd-alpha-insights' ); ?>
-		<?php submit_button( __('Save Changes', 'wpd-alpha-insights'), 'primary pull-right', 'submit', false); ?>
+		<?php _e( 'General Settings', WPD_AI_TEXT_DOMAIN ); ?>
+		<?php submit_button( __('Save Changes', WPD_AI_TEXT_DOMAIN), 'primary pull-right', 'submit', false); ?>
 	</div>
 </div>
 <div class="wpd-wrapper">
@@ -92,19 +92,19 @@ if ( isset($_POST['wpd_ai_debug_data_warehouse_report']) && ! empty($_POST['wpd_
     <table class="wpd-table fixed widefat">
         <thead>
             <tr>
-                <th colspan="2"><?php _e( 'Debug Order Calculations', 'wpd-alpha-insights' ); ?></th>
+                <th colspan="2"><?php _e( 'Debug Order Calculations', WPD_AI_TEXT_DOMAIN ); ?></th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td>
-                    <label for="wpd_ai_general_settings"><?php _e( 'Debug order ID', 'wpd-alpha-insights' ); ?></label>
-                    <div class="wpd-meta"><?php _e( 'Use this tool to produce a full output of all the calculations for a specific order. This can assist with debugging.', 'wpd-alpha-insights' ); ?></div>
+                    <label for="wpd_ai_general_settings"><?php _e( 'Debug order ID', WPD_AI_TEXT_DOMAIN ); ?></label>
+                    <div class="wpd-meta"><?php _e( 'Use this tool to produce a full output of all the calculations for a specific order. This can assist with debugging.', WPD_AI_TEXT_DOMAIN ); ?></div>
                 </td>
                 <td>
                     <span style="display:inline-block">
                         <input class="wpd-input" type="number" name="wpd_ai_debug_order_id" value="<?php echo $order_id ?>" step="1" placeholder="5469">
-                        <?php submit_button( __('Debug', 'wpd-alpha-insights'), 'primary pull-right', 'submit', false); ?>
+                        <?php submit_button( __('Debug', WPD_AI_TEXT_DOMAIN), 'primary pull-right', 'submit', false); ?>
                     </span>
                 </td>
             </tr>

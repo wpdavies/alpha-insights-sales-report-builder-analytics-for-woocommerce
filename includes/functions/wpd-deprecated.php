@@ -274,7 +274,7 @@ function wpd_per_page_selector( $per_page = 25 ) {
 
 	?>
 		<span class="wpd-per-page-wrapper">
-			<label for="wpd-per-page"><?php _e( 'Per Page', 'wpd-alpha-insights' ) ?></label>
+			<label for="wpd-per-page"><?php _e( 'Per Page', WPD_AI_TEXT_DOMAIN ) ?></label>
 			<select name="wpd-per-page" class="wpd-input">
 				<?php 
 					$per_page_array = array( '25', '50', '100', '250', '500', 'all' );	
@@ -358,19 +358,19 @@ if ( ! function_exists( 'wpd_stock_status_html' ) ) {
 			if ( $stock_quantity < 1 ) {
 
 				// Out of stock
-				$result = __( 'Out Stock', 'wpd-alpha-insights' ) . '(' . $stock_quantity . ')';
-				$result	.= '<div class="wpd-meta">' . __( 'Backorders:', 'wpd-alpha-insights') . ' ' . $backorders . '</div>';
+				$result = __( 'Out Stock', WPD_AI_TEXT_DOMAIN ) . '(' . $stock_quantity . ')';
+				$result	.= '<div class="wpd-meta">' . __( 'Backorders:', WPD_AI_TEXT_DOMAIN) . ' ' . $backorders . '</div>';
 
 			} else {
 
 				// In stock
-				$result = __( 'In Stock', 'wpd-alpha-insights' ) . ' (' . $stock_quantity . ')';
+				$result = __( 'In Stock', WPD_AI_TEXT_DOMAIN ) . ' (' . $stock_quantity . ')';
 
 			}
 
 		} else {
 
-			$result = __( 'In Stock', 'wpd-alpha-insights') . ' (N/A)' . '<div class="wpd-meta">'. __( 'Stock Not Managed', 'wpd-alpha-insights') . '</div>';
+			$result = __( 'In Stock', WPD_AI_TEXT_DOMAIN) . ' (N/A)' . '<div class="wpd-meta">'. __( 'Stock Not Managed', WPD_AI_TEXT_DOMAIN) . '</div>';
 
 		}
 
@@ -452,7 +452,7 @@ function wpd_performance_reports( $data ) {
 
     if ( ! $output ) {
 
-		$error_message['file-creation-failure'] = __( 'Failed to create the CSV file, check to make sure folder permissions are okay.', 'wpd-alpha-insights' );
+		$error_message['file-creation-failure'] = __( 'Failed to create the CSV file, check to make sure folder permissions are okay.', WPD_AI_TEXT_DOMAIN );
 		$success = false;
 
     }
@@ -466,7 +466,7 @@ function wpd_performance_reports( $data ) {
 
      if ( ! $write_csv ) {
 
-    	$error_message['write-failure'] = __( 'Failed to write CSV, check to make sure folder permissions are okay.', 'wpd-alpha-insights' );
+    	$error_message['write-failure'] = __( 'Failed to write CSV, check to make sure folder permissions are okay.', WPD_AI_TEXT_DOMAIN );
 		$success = false;
 
     } else {
@@ -483,7 +483,7 @@ function wpd_performance_reports( $data ) {
      */
     if ( $i === 0 || $i === 1 ) {
 
-    	$error_message['data-failure'] = __( 'We couldn\'t find any data for the given range. Please check your filter and try again.', 'wpd-alpha-insights' );
+    	$error_message['data-failure'] = __( 'We couldn\'t find any data for the given range. Please check your filter and try again.', WPD_AI_TEXT_DOMAIN );
 		$success = false;
 
     }
@@ -862,9 +862,9 @@ if ( ! function_exists('wpd_javascript_ajax') ) {
 			<div class="wpd-loading" style="text-align: center;">
 				<?php echo wpd_preloader( 100 ); ?>
 				<?php echo wpd_success( 100, false ); ?>
-				<p class="wpd-loading-message"><?php _e( 'Processing Your Data', 'wpd-alpha-insights'); ?>...</p>
+				<p class="wpd-loading-message"><?php _e( 'Processing Your Data', WPD_AI_TEXT_DOMAIN); ?>...</p>
 				<div class="wpd-results"></div>
-				<div class="wpd-cta"><a href="#" class="wpd-button" id="wpd-csv-download" style="display:none;" target="_blank"><?php _e( 'Download File', 'wpd-alpha-insights'); ?></a></div>
+				<div class="wpd-cta"><a href="#" class="wpd-button" id="wpd-csv-download" style="display:none;" target="_blank"><?php _e( 'Download File', WPD_AI_TEXT_DOMAIN); ?></a></div>
 				<p class="wpd-results-summary wpd-meta"></p>
 			</div>
 		</div>
@@ -876,7 +876,7 @@ if ( ! function_exists('wpd_javascript_ajax') ) {
 
 					$('.wpd-preloader').show();
 	            	$('.wpd-success').hide();
-	            	$('.wpd-loading-message').text( '<?php _e( 'Processing Your Data', 'wpd-alpha-insights') ?>...');
+	            	$('.wpd-loading-message').text( '<?php _e( 'Processing Your Data', WPD_AI_TEXT_DOMAIN) ?>...');
 	            	$('.wpd-results').text('');
 	            	$('#wpd-csv-download').attr('href', '#');
 	            	$('#wpd-csv-download').hide();
@@ -908,15 +908,15 @@ if ( ! function_exists('wpd_javascript_ajax') ) {
 			            	var url = response.download_link;
 			            	$('.wpd-preloader').hide();
 			            	$('.wpd-success').show();
-			            	$('.wpd-loading-message').text('<?php _e( 'Success!', 'wpd-alpha-insights') ?>');
-			            	$('.wpd-results').text( '<?php _e( 'Your CSV was succesfully created, click the link to download.', 'wpd-alpha-insights') ?>');
+			            	$('.wpd-loading-message').text('<?php _e( 'Success!', WPD_AI_TEXT_DOMAIN) ?>');
+			            	$('.wpd-results').text( '<?php _e( 'Your CSV was succesfully created, click the link to download.', WPD_AI_TEXT_DOMAIN) ?>');
 			            	$('#wpd-csv-download').attr('href', url);
 			            	$('#wpd-csv-download').show();
-	            			$('.wpd-results-summary').text( (response.rows_found - 1) + ' <?php _e( 'records were found', 'wpd-alpha-insights') ?>.');
+	            			$('.wpd-results-summary').text( (response.rows_found - 1) + ' <?php _e( 'records were found', WPD_AI_TEXT_DOMAIN) ?>.');
 
 	            			if ( response.file_type == 'PDF' ) {
 
-			            		$('.wpd-results').text( '<?php _e( 'Your PDF was succesfully created, click the link to download.', 'wpd-alpha-insights' ); ?>' );
+			            		$('.wpd-results').text( '<?php _e( 'Your PDF was succesfully created, click the link to download.', WPD_AI_TEXT_DOMAIN ); ?>' );
 	            				$('.wpd-results-summary').text('');
 
 	            			}
@@ -926,15 +926,15 @@ if ( ! function_exists('wpd_javascript_ajax') ) {
 		            		var error_string = '';
 		            		if ( response.error_messages ) {
 			            		for ( var key in response.error_messages ) {
-								  	error_string += "<p><strong><?php _e('Error', 'wpd-alpha-insights') ?>:</strong> " + response.error_messages[key] + "</p>";
+								  	error_string += "<p><strong><?php _e('Error', WPD_AI_TEXT_DOMAIN) ?>:</strong> " + response.error_messages[key] + "</p>";
 								}
 		            		}
 			            	$('.wpd-preloader').hide();
-			            	$('.wpd-loading-message').text('<?php _e('Something went wrong', 'wpd-alpha-insights'); ?>');
-			            	$('.wpd-results').html('<p><?php _e('Hm, something went wrong. We were unable to create your CSV file.', 'wpd-alpha-insights'); ?> </p> ' + error_string);
+			            	$('.wpd-loading-message').text('<?php _e('Something went wrong', WPD_AI_TEXT_DOMAIN); ?>');
+			            	$('.wpd-results').html('<p><?php _e('Hm, something went wrong. We were unable to create your CSV file.', WPD_AI_TEXT_DOMAIN); ?> </p> ' + error_string);
 
 			            	if ( response.file_type == 'PDF' ) {
-			            		$('.wpd-results').html('<p><?php _e('Hm, something went wrong. We were unable to create your PDF file.', 'wpd-alpha-insights'); ?> </p> ' + error_string);
+			            		$('.wpd-results').html('<p><?php _e('Hm, something went wrong. We were unable to create your PDF file.', WPD_AI_TEXT_DOMAIN); ?> </p> ' + error_string);
 	            			}
 
 		            	}
@@ -942,8 +942,8 @@ if ( ! function_exists('wpd_javascript_ajax') ) {
 		            }).fail(function( xhr, textStatus, errorThrown ) {
 
 		            	$('.wpd-preloader').hide();
-		            	$('.wpd-loading-message').text('<?php _e('Something went wrong.', 'wpd-alpha-insights'); ?>');
-		            	$('.wpd-results').text('<?php _e('Hm, something went wrong. We were unable to create your document. Check the console for errors.', 'wpd-alpha-insights'); ?>');
+		            	$('.wpd-loading-message').text('<?php _e('Something went wrong.', WPD_AI_TEXT_DOMAIN); ?>');
+		            	$('.wpd-results').text('<?php _e('Hm, something went wrong. We were unable to create your document. Check the console for errors.', WPD_AI_TEXT_DOMAIN); ?>');
 
 		            }).done(function(response) {
 

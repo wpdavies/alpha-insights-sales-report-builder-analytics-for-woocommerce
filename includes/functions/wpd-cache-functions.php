@@ -62,12 +62,12 @@ function wpd_delete_all_product_cache() {
 	if ( $products_IDs ) {
 
 		$response['success']			= true;
-		$response['message']	= __( $total_records . ' products were found, ' . $records_updated . ' products have had their cache refreshed.', 'wpd-alpha-insights' );
+		$response['message']	= __( $total_records . ' products were found, ' . $records_updated . ' products have had their cache refreshed.', WPD_AI_TEXT_DOMAIN );
 
 	} else {
 
 		$response['success']			= false;
-		$response['message'] 			= __( 'Unfortunately we could not complete this action, no product IDs were found.', 'wpd-alpha-insights' );
+		$response['message'] 			= __( 'Unfortunately we could not complete this action, no product IDs were found.', WPD_AI_TEXT_DOMAIN );
 
 	}
 

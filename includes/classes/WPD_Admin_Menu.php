@@ -69,8 +69,8 @@ class WPD_Admin_Menu {
     
         // Top level menu item - Defaults to Sales Reports
         add_menu_page(
-            __( 'Sales Reports', 'wpd-alpha-insights'),						// Page Title
-            __( 'Alpha Insights', 'wpd-alpha-insights' ), 					// Menu Title
+            __( 'Sales Reports', WPD_AI_TEXT_DOMAIN),						// Page Title
+            __( 'Alpha Insights', WPD_AI_TEXT_DOMAIN ), 					// Menu Title
             $capability, 													// Capability
             self::$top_level_menu_slug, 									// Menu Slug
             'wpd_profit_reports_page_content',								// Callback (page content)
@@ -81,8 +81,8 @@ class WPD_Admin_Menu {
         // Submenu item - Sales Reports
         add_submenu_page(
             self::$top_level_menu_slug,						// Parent Slug
-            __( 'Sales Reports', 'wpd-alpha-insights'), 	// Page Title
-            __( 'Sales Reports', 'wpd-alpha-insights'), 	// Menu Title
+            __( 'Sales Reports', WPD_AI_TEXT_DOMAIN), 	// Page Title
+            __( 'Sales Reports', WPD_AI_TEXT_DOMAIN), 	// Menu Title
             $capability, 									// Capability
             self::$sales_report_slug,						// Menu Slug
             'wpd_profit_reports_page_content',				// Callback (page content)
@@ -92,8 +92,8 @@ class WPD_Admin_Menu {
         // Submenu item - Website Traffic
         add_submenu_page( 	
             self::$top_level_menu_slug, 					// Parent Slug
-            __( 'Website Traffic', 'wpd-alpha-insights'), 	// Page Title
-            __( 'Website Traffic', 'wpd-alpha-insights'), 	// Menu Title
+            __( 'Website Traffic', WPD_AI_TEXT_DOMAIN), 	// Page Title
+            __( 'Website Traffic', WPD_AI_TEXT_DOMAIN), 	// Menu Title
             $capability, 								    // Capability
             self::$website_traffic_slug,	                // Menu Slug
             'wpd_analytics_dashboard',					    // Callback (page content)
@@ -103,8 +103,8 @@ class WPD_Admin_Menu {
         // Submenu item - Profit & Loss Statement
         add_submenu_page( 
             self::$top_level_menu_slug, 					// Parent Slug
-            __( 'P&L Statement', 'wpd-alpha-insights'),     // Page Title
-            __( 'P&L Statement', 'wpd-alpha-insights'),     // Menu Title
+            __( 'P&L Statement', WPD_AI_TEXT_DOMAIN),     // Page Title
+            __( 'P&L Statement', WPD_AI_TEXT_DOMAIN),     // Menu Title
             $capability, 								    // Capability
             self::$profit_loss_statement_slug, 				// Menu Slug
             'wpd_pl_statement_page', 					    // Callback (page content)
@@ -114,8 +114,8 @@ class WPD_Admin_Menu {
         // Submenu item - Expense management
         add_submenu_page( 
             self::$top_level_menu_slug, 					// Parent Slug
-            __( 'Manage Expenses', 'wpd-alpha-insights'), 	// Page title
-            __( 'Manage Expenses', 'wpd-alpha-insights'), 	// Menu Title
+            __( 'Manage Expenses', WPD_AI_TEXT_DOMAIN), 	// Page title
+            __( 'Manage Expenses', WPD_AI_TEXT_DOMAIN), 	// Menu Title
             $capability, 									// Capability
             self::$manage_expenses_slug, 					// Menu Slug
             'wpd_expense_management_page',					// Callback (page content)
@@ -125,8 +125,8 @@ class WPD_Admin_Menu {
         // Submenu item - Expense Reports
         add_submenu_page( 	
             '',											    // Parent Slug
-            __( 'Expense Report', 'wpd-alpha-insights'), 	// Page Title
-            __( 'Expense Report', 'wpd-alpha-insights'), 	// Menu Title
+            __( 'Expense Report', WPD_AI_TEXT_DOMAIN), 	// Page Title
+            __( 'Expense Report', WPD_AI_TEXT_DOMAIN), 	// Menu Title
             $capability, 									// Capability
             self::$expense_reports_slug,                    // Menu Slug
             'wpd_expense_reports_page',						// Callback (page content)
@@ -136,8 +136,8 @@ class WPD_Admin_Menu {
         // Submenu item - Advertising Reports
         add_submenu_page( 	
             '',											        // Parent Slug
-            __( 'Advertising Reports', 'wpd-alpha-insights'), 	// Page Title
-            __( 'Advertising Reports', 'wpd-alpha-insights'), 	// Menu Title
+            __( 'Advertising Reports', WPD_AI_TEXT_DOMAIN), 	// Page Title
+            __( 'Advertising Reports', WPD_AI_TEXT_DOMAIN), 	// Menu Title
             $capability, 									    // Capability
             self::$advertising_slug,                            // Menu Slug
             'wpd_advertising_reports_page',						// Callback (page content)
@@ -147,8 +147,8 @@ class WPD_Admin_Menu {
         // Submenu item - Cost Of Goods Manager
         add_submenu_page( 
             self::$top_level_menu_slug, 					// Parent Slug
-            __( 'Cost Of Goods', 'wpd-alpha-insights'),  	// Page Title
-            __( 'Cost Of Goods', 'wpd-alpha-insights'), 	// Menu Title
+            __( 'Cost Of Goods', WPD_AI_TEXT_DOMAIN),  	// Page Title
+            __( 'Cost Of Goods', WPD_AI_TEXT_DOMAIN), 	// Menu Title
             $capability, 								    // Capability
             self::$cost_of_goods_slug, 				        // Menu Slug
             'wpd_cost_of_goods_manager_page',			    // Callback (page content)
@@ -158,8 +158,8 @@ class WPD_Admin_Menu {
         // Submenu item - Settings
         add_submenu_page( 
             self::$top_level_menu_slug,  					// Parent Slug
-            __( 'Settings', 'wpd-alpha-insights'), 	        // Page title
-            __( 'Settings', 'wpd-alpha-insights'), 	        // Menu Title
+            __( 'Settings', WPD_AI_TEXT_DOMAIN), 	        // Page title
+            __( 'Settings', WPD_AI_TEXT_DOMAIN), 	        // Menu Title
             $capability, 							        // Capability
             self::$settings_slug, 						    // Menu Slug
             'wpd_settings_page', 					        // Callback (page content)
@@ -169,8 +169,8 @@ class WPD_Admin_Menu {
         // Submenu item - Getting Started
         add_submenu_page( 
             self::$top_level_menu_slug,  					// Parent Slug
-            __( 'Getting Started', 'wpd-alpha-insights'), 	// Page title
-            __( 'Getting Started', 'wpd-alpha-insights'), 	// Menu Title
+            __( 'Getting Started', WPD_AI_TEXT_DOMAIN), 	// Page title
+            __( 'Getting Started', WPD_AI_TEXT_DOMAIN), 	// Menu Title
             $capability, 									// Capability
             self::$getting_started_slug, 					// Menu Slug
             'wpd_getting_started_page', 					// Callback (page content)
@@ -306,13 +306,13 @@ class WPD_Admin_Menu {
 
             // Sales Reports
             self::$sales_report_slug => array(
-                'title' => __( 'Sales Reports', 'wpd-alpha-insights'),
+                'title' => __( 'Sales Reports', WPD_AI_TEXT_DOMAIN),
                 'url'   => admin_url( 'admin.php') . '?page=' . self::$sales_report_slug,
                 'icon'  => null,
                 'additional_classes' => array(),
                 'children' => array(
                     'manage_sales_reports' => array(
-                        'title' => __( 'Manage Reports', 'wpd-alpha-insights'),
+                        'title' => __( 'Manage Reports', WPD_AI_TEXT_DOMAIN),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$sales_report_slug . '&subpage=manage-reports',
                         'icon'  => null,
                         'additional_classes' => array(),
@@ -322,13 +322,13 @@ class WPD_Admin_Menu {
 
             // Website Traffic
             self::$website_traffic_slug => array(
-                'title' => __( 'Website Traffic', 'wpd-alpha-insights'),
+                'title' => __( 'Website Traffic', WPD_AI_TEXT_DOMAIN),
                 'url'   => admin_url( 'admin.php') . '?page=' . self::$website_traffic_slug,
                 'icon'  => null,
                 'additional_classes' => array(),
                 'children' => array(
                     'manage_website_traffic' => array(
-                        'title' => __( 'Manage Reports', 'wpd-alpha-insights'),
+                        'title' => __( 'Manage Reports', WPD_AI_TEXT_DOMAIN),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$website_traffic_slug . '&subpage=manage-reports',
                         'icon'  => null,
                         'additional_classes' => array(),
@@ -338,13 +338,13 @@ class WPD_Admin_Menu {
 
             // Profit & Loss Statement
             self::$profit_loss_statement_slug => array(
-                'title' => __( 'P&L Statement', 'wpd-alpha-insights'),
+                'title' => __( 'P&L Statement', WPD_AI_TEXT_DOMAIN),
                 'url'   => admin_url( 'admin.php') . '?page=' . self::$profit_loss_statement_slug,
                 'icon'  => null,
                 'additional_classes' => array(),
                 'children' => array(
                     'profit_loss_statement_report' => array(
-                        'title' => __( 'Profit & Loss Statement', 'wpd-alpha-insights'),
+                        'title' => __( 'Profit & Loss Statement', WPD_AI_TEXT_DOMAIN),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$profit_loss_statement_slug,
                         'icon'  => null,
                         'additional_classes' => array(),
@@ -354,43 +354,43 @@ class WPD_Admin_Menu {
 
             // Advertising
             self::$advertising_slug => array(
-                'title' => __( 'Advertising', 'wpd-alpha-insights'),
+                'title' => __( 'Advertising', WPD_AI_TEXT_DOMAIN),
                 'url'   => '#na',
                 'icon'  => null,
                 'additional_classes' => array(),
                 'children' => array(
                     'facebook_report' => array(
-                        'title' => __( 'Facebook Report', 'wpd-alpha-insights'),
+                        'title' => __( 'Facebook Report', WPD_AI_TEXT_DOMAIN),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$advertising_slug . '&subpage=facebook',
                         'icon'  => null,
                         'additional_classes' => array(),
                     ),
                     'facebook_expenses' => array(
-                        'title' => __( 'Facebook Expenses', 'wpd-alpha-insights'),
+                        'title' => __( 'Facebook Expenses', WPD_AI_TEXT_DOMAIN),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$manage_expenses_slug . '&subpage=manage-all-expenses',
                         'icon'  => null,
                         'additional_classes' => array(),
                     ),
                     'facebook_settings' => array(
-                        'title' => __( 'Facebook Settings', 'wpd-alpha-insights'),
+                        'title' => __( 'Facebook Settings', WPD_AI_TEXT_DOMAIN),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=facebook',
                         'icon'  => null,
                         'additional_classes' => array(),
                     ),
                     'google_ads_report' => array(
-                        'title' => __( 'Google Ads Report', 'wpd-alpha-insights'),
+                        'title' => __( 'Google Ads Report', WPD_AI_TEXT_DOMAIN),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$advertising_slug . '&subpage=google-ads',
                         'icon'  => null,
                         'additional_classes' => array(),
                     ),
                     'google_ads_expenses' => array(
-                        'title' => __( 'Google Ads Expenses', 'wpd-alpha-insights'),
+                        'title' => __( 'Google Ads Expenses', WPD_AI_TEXT_DOMAIN),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$manage_expenses_slug . '&subpage=manage-all-expenses',
                         'icon'  => null,
                         'additional_classes' => array(),
                     ),
                     'google_ads_settings' => array(
-                        'title' => __( 'Google Ads Settings', 'wpd-alpha-insights'),
+                        'title' => __( 'Google Ads Settings', WPD_AI_TEXT_DOMAIN),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=google-ads',
                         'icon'  => null,
                         'additional_classes' => array(),
@@ -400,37 +400,37 @@ class WPD_Admin_Menu {
 
             // Manage Expenses
             self::$manage_expenses_slug => array(
-                'title' => __( 'Expense Manager', 'wpd-alpha-insights'),
+                'title' => __( 'Expense Manager', WPD_AI_TEXT_DOMAIN),
                 'url'   => admin_url( 'admin.php') . '?page=' . self::$manage_expenses_slug,
                 'icon'  => null,
                 'additional_classes' => array(),
                 'children' => array(
                     'dashboard' => array(
-                        'title' => __( 'Dashboard', 'wpd-alpha-insights'),
+                        'title' => __( 'Dashboard', WPD_AI_TEXT_DOMAIN),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$manage_expenses_slug . '&subpage=dashboard',
                         'icon'  => null,
                         'additional_classes' => array(),
                     ),
                     'report' => array(
-                        'title' => __( 'Expense Report', 'wpd-alpha-insights'),
+                        'title' => __( 'Expense Report', WPD_AI_TEXT_DOMAIN),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$expense_reports_slug,
                         'icon'  => null,
                         'additional_classes' => array(),
                     ),
                     'manage_all_expenses' => array(
-                        'title' => __( 'Manage All Expenses', 'wpd-alpha-insights'),
+                        'title' => __( 'Manage All Expenses', WPD_AI_TEXT_DOMAIN),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$manage_expenses_slug . '&subpage=manage-all-expenses',
                         'icon'  => null,
                         'additional_classes' => array(),
                     ),
                     'manage_expense_taxonomies' => array(
-                        'title' => __( 'Categories & Suppliers', 'wpd-alpha-insights'),
+                        'title' => __( 'Categories & Suppliers', WPD_AI_TEXT_DOMAIN),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$manage_expenses_slug . '&subpage=manage-expense-taxonomies',
                         'icon'  => null,
                         'additional_classes' => array(),
                     ),
                     'bulk_import_expenses' => array(
-                        'title' => __( 'Bulk Create Expenses', 'wpd-alpha-insights'),
+                        'title' => __( 'Bulk Create Expenses', WPD_AI_TEXT_DOMAIN),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$manage_expenses_slug . '&subpage=import-expenses',
                         'icon'  => null,
                         'additional_classes' => array(),
@@ -440,13 +440,13 @@ class WPD_Admin_Menu {
 
             // Cost Of Goods Manager
             self::$cost_of_goods_slug => array(
-                'title' => __( 'Cost Of Goods', 'wpd-alpha-insights'),
+                'title' => __( 'Cost Of Goods', WPD_AI_TEXT_DOMAIN),
                 'url'   => admin_url( 'admin.php') . '?page=' . self::$cost_of_goods_slug,
                 'icon'  => null,
                 'additional_classes' => array(),
                 'children' => array(
                     'cost_of_goods_manager' => array(
-                        'title' => __( 'Cost Of Goods Manager', 'wpd-alpha-insights'),
+                        'title' => __( 'Cost Of Goods Manager', WPD_AI_TEXT_DOMAIN),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$cost_of_goods_slug . '&subpage=cost-of-goods-manager',
                         'icon'  => null,
                         'additional_classes' => array(),
@@ -456,49 +456,49 @@ class WPD_Admin_Menu {
 
             // Settings
             self::$settings_slug => array(
-                'title' => __( 'Settings', 'wpd-alpha-insights'),
+                'title' => __( 'Settings', WPD_AI_TEXT_DOMAIN),
                 'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug,
                 'icon'  => null,
                 'additional_classes' => array(),
                 'children' => array(
                     'general_settings' => array(
-                        'title' => __( 'General Settings', 'wpd-alpha-insights'),
+                        'title' => __( 'General Settings', WPD_AI_TEXT_DOMAIN),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=general-settings',
                         'icon'  => null,
                         'additional_classes' => array(),
                     ),
                     'email_settings' => array(
-                        'title' => __( 'Email Settings', 'wpd-alpha-insights'),
+                        'title' => __( 'Email Settings', WPD_AI_TEXT_DOMAIN),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=email',
                         'icon'  => null,
                         'additional_classes' => array(),
                     ),
                     'facebook_settings' => array(
-                        'title' => __( 'Facebook Settings', 'wpd-alpha-insights'),
+                        'title' => __( 'Facebook Settings', WPD_AI_TEXT_DOMAIN),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=facebook',
                         'icon'  => null,
                         'additional_classes' => array(),
                     ),
                     'google_ads_settings' => array(
-                        'title' => __( 'Google Ads Settings', 'wpd-alpha-insights'),
+                        'title' => __( 'Google Ads Settings', WPD_AI_TEXT_DOMAIN),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=google-ads',
                         'icon'  => null,
                         'additional_classes' => array(),
                     ),
                     'webhooks_settings' => array(
-                        'title' => __( 'Webhooks Settings', 'wpd-alpha-insights'),
+                        'title' => __( 'Webhooks Settings', WPD_AI_TEXT_DOMAIN),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=webhooks',
                         'icon'  => null,
                         'additional_classes' => array(),
                     ),
                     'license_manager' => array(
-                        'title' => __( 'License Manager', 'wpd-alpha-insights'),
+                        'title' => __( 'License Manager', WPD_AI_TEXT_DOMAIN),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=license',
                         'icon'  => null,
                         'additional_classes' => array(),
                     ),
                     'debug_settings' => array(
-                        'title' => __( 'Debug Settings', 'wpd-alpha-insights'),
+                        'title' => __( 'Debug Settings', WPD_AI_TEXT_DOMAIN),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=debug',
                         'icon'  => null,
                         'additional_classes' => array(),
@@ -508,7 +508,7 @@ class WPD_Admin_Menu {
 
             // About/Help
             self::$about_help_slug => array(
-                'title' => __( 'Help', 'wpd-alpha-insights'),
+                'title' => __( 'Help', WPD_AI_TEXT_DOMAIN),
                 'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug,
                 'icon'  => null,
                 'additional_classes' => array('additional-items'),

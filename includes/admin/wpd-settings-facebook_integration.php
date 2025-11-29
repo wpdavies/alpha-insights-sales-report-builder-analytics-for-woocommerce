@@ -41,8 +41,8 @@ defined( 'ABSPATH' ) || exit;
 
 <div class="wpd-wrapper">
 	<div class="wpd-section-heading wpd-inline">
-		<?php _e( 'Facebook API', 'wpd-alpha-insights' ); ?>
-		<?php submit_button( __('Save Changes', 'wpd-alpha-insights'), 'primary pull-right', 'submit', false); ?>
+		<?php _e( 'Facebook API', WPD_AI_TEXT_DOMAIN ); ?>
+		<?php submit_button( __('Save Changes', WPD_AI_TEXT_DOMAIN), 'primary pull-right', 'submit', false); ?>
 		<?php if( $facebook_settings['api_status'] == 'Healthy' ) : ?>
 			<a href="#" class="wpd-input button button-secondary pull-right" id="wpd-refresh-facebook-api-data-top" style="margin-right: 5px;">Refresh All Campaign Data</a>
 		<?php endif; ?>
@@ -53,15 +53,15 @@ defined( 'ABSPATH' ) || exit;
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'API Connection', 'wpd-alpha-insights' ); ?></th>
+				<th colspan="2"><?php _e( 'API Connection', WPD_AI_TEXT_DOMAIN ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<?php if ( $facebook_auth ) : ?>
 			<tr>
 				<td colspan="2">
-					<label style="display: block; margin-bottom: 12px; font-weight: 600;"><?php _e( 'Connect To Facebook', 'wpd-alpha-insights' ); ?></label>
-					<div class="wpd-meta" style="margin-bottom: 16px;"><?php _e( 'Connect your Facebook Ads account to track campaign performance and ad spend directly within Alpha Insights.', 'wpd-alpha-insights' ); ?></div>
+					<label style="display: block; margin-bottom: 12px; font-weight: 600;"><?php _e( 'Connect To Facebook', WPD_AI_TEXT_DOMAIN ); ?></label>
+					<div class="wpd-meta" style="margin-bottom: 16px;"><?php _e( 'Connect your Facebook Ads account to track campaign performance and ad spend directly within Alpha Insights.', WPD_AI_TEXT_DOMAIN ); ?></div>
 					<?php $facebook_auth->render_auth_ui(); ?>
 				</td>
 			</tr>
@@ -72,7 +72,7 @@ defined( 'ABSPATH' ) || exit;
 		<thead>
 			<tr>
 				<th colspan="2">
-					<?php _e( 'Alpha Campaign Profit Tracking', 'wpd-alpha-insights' ); ?>
+					<?php _e( 'Alpha Campaign Profit Tracking', WPD_AI_TEXT_DOMAIN ); ?>
 				</th>
 			</tr>
 		</thead>
@@ -95,52 +95,52 @@ defined( 'ABSPATH' ) || exit;
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'API Settings', 'wpd-alpha-insights' ); ?></th>
+				<th colspan="2"><?php _e( 'API Settings', WPD_AI_TEXT_DOMAIN ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr>
 				<td>
-					<label><?php _e( 'API Call Schedule', 'wpd-alpha-insights' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'How often to query the Facebook API for your ad spend & campaign insights.', 'wpd-alpha-insights' ); ?></div>
+					<label><?php _e( 'API Call Schedule', WPD_AI_TEXT_DOMAIN ); ?></label>
+					<div class="wpd-meta"><?php _e( 'How often to query the Facebook API for your ad spend & campaign insights.', WPD_AI_TEXT_DOMAIN ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_facebook_integration[facebook_api_call_schedule]">
-						<option value="daily" <?php echo wpd_selected_option( 'daily', $facebook_settings['facebook_api_call_schedule'] ) ?> ><?php _e( 'Daily', 'wpd-alpha-insights' ); ?></option>
-						<option value="12-hrs" <?php echo wpd_selected_option( '12-hrs', $facebook_settings['facebook_api_call_schedule'] ) ?> ><?php _e( 'Every 12 Hours', 'wpd-alpha-insights' ); ?></option>
-						<option value="6-hrs" <?php echo wpd_selected_option( '6-hrs', $facebook_settings['facebook_api_call_schedule'] ) ?> ><?php _e( 'Every 6 Hours', 'wpd-alpha-insights' ); ?></option>
-						<option value="3-hrs" <?php echo wpd_selected_option( '3-hrs', $facebook_settings['facebook_api_call_schedule'] ) ?> ><?php _e( 'Every 3 Hours', 'wpd-alpha-insights' ); ?></option>
+						<option value="daily" <?php echo wpd_selected_option( 'daily', $facebook_settings['facebook_api_call_schedule'] ) ?> ><?php _e( 'Daily', WPD_AI_TEXT_DOMAIN ); ?></option>
+						<option value="12-hrs" <?php echo wpd_selected_option( '12-hrs', $facebook_settings['facebook_api_call_schedule'] ) ?> ><?php _e( 'Every 12 Hours', WPD_AI_TEXT_DOMAIN ); ?></option>
+						<option value="6-hrs" <?php echo wpd_selected_option( '6-hrs', $facebook_settings['facebook_api_call_schedule'] ) ?> ><?php _e( 'Every 6 Hours', WPD_AI_TEXT_DOMAIN ); ?></option>
+						<option value="3-hrs" <?php echo wpd_selected_option( '3-hrs', $facebook_settings['facebook_api_call_schedule'] ) ?> ><?php _e( 'Every 3 Hours', WPD_AI_TEXT_DOMAIN ); ?></option>
 					</select>
 				</td>
 			</tr>
 			<tr style="display:none;">
 				<td>
-					<label><?php _e( 'Collect Campaign Insights', 'wpd-alpha-insights' ); ?></label>
+					<label><?php _e( 'Collect Campaign Insights', WPD_AI_TEXT_DOMAIN ); ?></label>
 					<div class="wpd-meta"><?php _e( 'This will check your ad account for campaigns and build some basic reports based on those campaigns.' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_facebook_integration[collect_campaign_insights]">
-						<option value="true" <?php echo wpd_selected_option( 'true', $facebook_settings['collect_campaign_insights'] ) ?> ><?php _e( 'True', 'wpd-alpha-insights' ); ?></option>
-						<option value="false" <?php echo wpd_selected_option( 'false', $facebook_settings['collect_campaign_insights'] ) ?> ><?php _e( 'False', 'wpd-alpha-insights' ); ?></option>
+						<option value="true" <?php echo wpd_selected_option( 'true', $facebook_settings['collect_campaign_insights'] ) ?> ><?php _e( 'True', WPD_AI_TEXT_DOMAIN ); ?></option>
+						<option value="false" <?php echo wpd_selected_option( 'false', $facebook_settings['collect_campaign_insights'] ) ?> ><?php _e( 'False', WPD_AI_TEXT_DOMAIN ); ?></option>
 					</select>
 				</td>
 			</tr>
 			<tr style="display:none;">
 				<td>
-					<label><?php _e( 'Collect Daily Ad Spend (Stored as an expense)', 'wpd-alpha-insights' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This will check your ad spend per day for your ad account and log it as an expense within Alpha Insights. This will run automatically as per your schedule.', 'wpd-alpha-insights' ); ?></div>
+					<label><?php _e( 'Collect Daily Ad Spend (Stored as an expense)', WPD_AI_TEXT_DOMAIN ); ?></label>
+					<div class="wpd-meta"><?php _e( 'This will check your ad spend per day for your ad account and log it as an expense within Alpha Insights. This will run automatically as per your schedule.', WPD_AI_TEXT_DOMAIN ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_facebook_integration[collect_daily_ad_spend]">
-						<option value="true" <?php echo wpd_selected_option( 'true', $facebook_settings['collect_daily_ad_spend'] ) ?> ><?php _e( 'True', 'wpd-alpha-insights' ); ?></option>
-						<option value="false" <?php echo wpd_selected_option( 'false', $facebook_settings['collect_daily_ad_spend'] ) ?> ><?php _e( 'False', 'wpd-alpha-insights' ); ?></option>
+						<option value="true" <?php echo wpd_selected_option( 'true', $facebook_settings['collect_daily_ad_spend'] ) ?> ><?php _e( 'True', WPD_AI_TEXT_DOMAIN ); ?></option>
+						<option value="false" <?php echo wpd_selected_option( 'false', $facebook_settings['collect_daily_ad_spend'] ) ?> ><?php _e( 'False', WPD_AI_TEXT_DOMAIN ); ?></option>
 					</select>
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Ad Spend Expense Category', 'wpd-alpha-insights' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'Which expense category would you like us to save this in.', 'wpd-alpha-insights' ); ?></div>
+					<label><?php _e( 'Ad Spend Expense Category', WPD_AI_TEXT_DOMAIN ); ?></label>
+					<div class="wpd-meta"><?php _e( 'Which expense category would you like us to save this in.', WPD_AI_TEXT_DOMAIN ); ?></div>
 				</td>
 				<td>
 					<?php
@@ -166,22 +166,22 @@ defined( 'ABSPATH' ) || exit;
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Request Timeout', 'wpd-alpha-insights' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'HTTP Timeout Request in seconds. Extend this number if you are having timeout issues. Usually a response will be complete within 5 seconds (default).', 'wpd-alpha-insights' ); ?></div>
+					<label><?php _e( 'Request Timeout', WPD_AI_TEXT_DOMAIN ); ?></label>
+					<div class="wpd-meta"><?php _e( 'HTTP Timeout Request in seconds. Extend this number if you are having timeout issues. Usually a response will be complete within 5 seconds (default).', WPD_AI_TEXT_DOMAIN ); ?></div>
 				</td>
 				<td>
 					<input class="wpd-input" min="5" max="60" type="number" name="wpd_ai_facebook_integration[request_timeout]" value="<?php echo $facebook_settings['request_timeout'] ?>" step="1" placeholder="5">		
-					<label for="wpd_ai_facebook_integration[request_timeout]" class="wpd-meta wpd-block-label"><?php _e( 'Number between 5-60', 'wpd-alpha-insights' ); ?></label>			
+					<label for="wpd_ai_facebook_integration[request_timeout]" class="wpd-meta wpd-block-label"><?php _e( 'Number between 5-60', WPD_AI_TEXT_DOMAIN ); ?></label>			
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Number Of Results To Collect Per Call', 'wpd-alpha-insights' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'How many results Facebook should return, they tell us if there are more results to grab which we automatically do. Only change this if you are getting timeout errors, it may help.', 'wpd-alpha-insights' ); ?></div>
+					<label><?php _e( 'Number Of Results To Collect Per Call', WPD_AI_TEXT_DOMAIN ); ?></label>
+					<div class="wpd-meta"><?php _e( 'How many results Facebook should return, they tell us if there are more results to grab which we automatically do. Only change this if you are getting timeout errors, it may help.', WPD_AI_TEXT_DOMAIN ); ?></div>
 				</td>
 				<td>
 					<input class="wpd-input" min="1" max="500" type="number" name="wpd_ai_facebook_integration[api_limit_per_page]" value="<?php echo $facebook_settings['api_limit_per_page'] ?>" step="1" placeholder="50">
-					<label for="wpd_ai_facebook_integration[api_limit_per_page]" class="wpd-meta wpd-block-label"><?php _e( 'Default: 50', 'wpd-alpha-insights' ); ?></label>		
+					<label for="wpd_ai_facebook_integration[api_limit_per_page]" class="wpd-meta wpd-block-label"><?php _e( 'Default: 50', WPD_AI_TEXT_DOMAIN ); ?></label>		
 				</td>
 			</tr>
 		</tbody>
@@ -189,7 +189,7 @@ defined( 'ABSPATH' ) || exit;
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'API Data', 'wpd-alpha-insights' ); ?></th>
+				<th colspan="2"><?php _e( 'API Data', WPD_AI_TEXT_DOMAIN ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -224,14 +224,14 @@ defined( 'ABSPATH' ) || exit;
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'API Tools', 'wpd-alpha-insights' ); ?></th>
+				<th colspan="2"><?php _e( 'API Tools', WPD_AI_TEXT_DOMAIN ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr>
 				<td>
-					<label><?php _e( 'Refresh all API Data', 'wpd-alpha-insights' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This function will create / update the Ad Spend & Campaign Insights for your ad account for all time.', 'wpd-alpha-insights' ); ?></div>
+					<label><?php _e( 'Refresh all API Data', WPD_AI_TEXT_DOMAIN ); ?></label>
+					<div class="wpd-meta"><?php _e( 'This function will create / update the Ad Spend & Campaign Insights for your ad account for all time.', WPD_AI_TEXT_DOMAIN ); ?></div>
 				</td>
 				<td>
 					<a href="#" class="wpd-input button button-secondary" id="wpd-refresh-facebook-api-data">Refresh All Campaign Data</a>
@@ -240,8 +240,8 @@ defined( 'ABSPATH' ) || exit;
 			</tr>
 			<tr>
 				<td>
-				<label><?php _e( 'API Status', 'wpd-alpha-insights' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This will check your current API status and display the latest status message.', 'wpd-alpha-insights' ); ?></div>
+				<label><?php _e( 'API Status', WPD_AI_TEXT_DOMAIN ); ?></label>
+					<div class="wpd-meta"><?php _e( 'This will check your current API status and display the latest status message.', WPD_AI_TEXT_DOMAIN ); ?></div>
 				</td>
 				<td>
 					<a href="#" class="wpd-input button button-secondary" id="wpd-test-api-status">Check API Status</a>
@@ -249,8 +249,8 @@ defined( 'ABSPATH' ) || exit;
 			</tr>	
 			<tr>
 				<td>
-					<label><?php _e( 'Facebook Data Deletion', 'wpd-alpha-insights' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'These tools will delete the data that we have stored in your database from the Facebook API calls. This will not effect your Facebook ad account.', 'wpd-alpha-insights' ); ?></div>
+					<label><?php _e( 'Facebook Data Deletion', WPD_AI_TEXT_DOMAIN ); ?></label>
+					<div class="wpd-meta"><?php _e( 'These tools will delete the data that we have stored in your database from the Facebook API calls. This will not effect your Facebook ad account.', WPD_AI_TEXT_DOMAIN ); ?></div>
 				</td>
 				<td>
 					<a href="#" class="wpd-input button button-secondary" id="wpd-delete-all-expense-data">Delete All Expense Data</a>
@@ -262,7 +262,7 @@ defined( 'ABSPATH' ) || exit;
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'Important Information', 'wpd-alpha-insights' ); ?></th>
+				<th colspan="2"><?php _e( 'Important Information', WPD_AI_TEXT_DOMAIN ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -284,7 +284,7 @@ defined( 'ABSPATH' ) || exit;
 	</table>
 </div>
 <div class="wpd-inline">
-	<?php submit_button( __('Save Changes', 'wpd-alpha-insights'), 'primary pull-right', 'submit', false); ?>
+	<?php submit_button( __('Save Changes', WPD_AI_TEXT_DOMAIN), 'primary pull-right', 'submit', false); ?>
 </div>
 <?php wpd_javascript_ajax_action( '#wpd-delete-all-expense-data', 'wpd_delete_all_facebook_api_expense_data' ); ?>
 <?php wpd_javascript_ajax_action( '#wpd-delete-all-campaign-data', 'wpd_delete_all_facebook_api_campaign_data' ); ?>

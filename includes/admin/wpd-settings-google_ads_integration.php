@@ -64,8 +64,8 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 ?>
 <div class="wpd-wrapper">
 	<div class="wpd-section-heading wpd-inline">
-		<?php _e( 'Google Ads API', 'wpd-alpha-insights' ); ?>
-		<?php submit_button( __('Save Changes', 'wpd-alpha-insights'), 'primary pull-right', 'submit', false); ?>
+		<?php _e( 'Google Ads API', WPD_AI_TEXT_DOMAIN ); ?>
+		<?php submit_button( __('Save Changes', WPD_AI_TEXT_DOMAIN), 'primary pull-right', 'submit', false); ?>
 		<?php if( $is_configured ) : ?>
 			<a href="#" class="wpd-input button button-secondary pull-right" id="wpd-refresh-google-api-data-top" style="margin-right: 5px;">Refresh All Campaign Data</a>
 		<?php endif; ?>
@@ -76,15 +76,15 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'API Connection', 'wpd-alpha-insights' ); ?></th>
+				<th colspan="2"><?php _e( 'API Connection', WPD_AI_TEXT_DOMAIN ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<?php if ( $google_auth ) : ?>
 			<tr>
 				<td colspan="2">
-					<label style="display: block; margin-bottom: 12px; font-weight: 600;"><?php _e( 'Connect To Google Ads', 'wpd-alpha-insights' ); ?></label>
-					<div class="wpd-meta" style="margin-bottom: 16px;"><?php _e( 'Connect your Google Ads account to track campaign performance and ad spend directly within Alpha Insights.', 'wpd-alpha-insights' ); ?></div>
+					<label style="display: block; margin-bottom: 12px; font-weight: 600;"><?php _e( 'Connect To Google Ads', WPD_AI_TEXT_DOMAIN ); ?></label>
+					<div class="wpd-meta" style="margin-bottom: 16px;"><?php _e( 'Connect your Google Ads account to track campaign performance and ad spend directly within Alpha Insights.', WPD_AI_TEXT_DOMAIN ); ?></div>
 					<?php $google_auth->render_auth_ui(); ?>
 				</td>
 			</tr>
@@ -95,7 +95,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 		<thead>
 			<tr>
 				<th colspan="2">
-					<?php _e( 'Alpha Campaign Profit Tracking', 'wpd-alpha-insights' ); ?>
+					<?php _e( 'Alpha Campaign Profit Tracking', WPD_AI_TEXT_DOMAIN ); ?>
 				</th>
 			</tr>
 		</thead>
@@ -118,52 +118,52 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'API Settings', 'wpd-alpha-insights' ); ?></th>
+				<th colspan="2"><?php _e( 'API Settings', WPD_AI_TEXT_DOMAIN ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr>
 				<td>
-					<label><?php _e( 'API Call Schedule', 'wpd-alpha-insights' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'How often to query the Google API for your ad spend & campaign insights. This regular schedule will always check through the past 30 days of data and create or update accordingly. To update all time data use the Refresh All Data button.', 'wpd-alpha-insights' ); ?></div>
+					<label><?php _e( 'API Call Schedule', WPD_AI_TEXT_DOMAIN ); ?></label>
+					<div class="wpd-meta"><?php _e( 'How often to query the Google API for your ad spend & campaign insights. This regular schedule will always check through the past 30 days of data and create or update accordingly. To update all time data use the Refresh All Data button.', WPD_AI_TEXT_DOMAIN ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_google_ads_api[api_call_schedule]">
-						<option value="daily" <?php echo wpd_selected_option( 'daily', $api_call_schedule ) ?> ><?php _e( 'Daily', 'wpd-alpha-insights' ); ?></option>
-						<option value="12-hrs" <?php echo wpd_selected_option( '12-hrs', $api_call_schedule ) ?> ><?php _e( 'Every 12 Hours', 'wpd-alpha-insights' ); ?></option>
-						<option value="6-hrs" <?php echo wpd_selected_option( '6-hrs', $api_call_schedule ) ?> ><?php _e( 'Every 6 Hours', 'wpd-alpha-insights' ); ?></option>
-						<option value="3-hrs" <?php echo wpd_selected_option( '3-hrs', $api_call_schedule ) ?> ><?php _e( 'Every 3 Hours', 'wpd-alpha-insights' ); ?></option>
+						<option value="daily" <?php echo wpd_selected_option( 'daily', $api_call_schedule ) ?> ><?php _e( 'Daily', WPD_AI_TEXT_DOMAIN ); ?></option>
+						<option value="12-hrs" <?php echo wpd_selected_option( '12-hrs', $api_call_schedule ) ?> ><?php _e( 'Every 12 Hours', WPD_AI_TEXT_DOMAIN ); ?></option>
+						<option value="6-hrs" <?php echo wpd_selected_option( '6-hrs', $api_call_schedule ) ?> ><?php _e( 'Every 6 Hours', WPD_AI_TEXT_DOMAIN ); ?></option>
+						<option value="3-hrs" <?php echo wpd_selected_option( '3-hrs', $api_call_schedule ) ?> ><?php _e( 'Every 3 Hours', WPD_AI_TEXT_DOMAIN ); ?></option>
 					</select>
 				</td>
 			</tr>
 			<tr style="display:none;">
 				<td>
-					<label><?php _e( 'Collect Campaign Insights', 'wpd-alpha-insights' ); ?></label>
+					<label><?php _e( 'Collect Campaign Insights', WPD_AI_TEXT_DOMAIN ); ?></label>
 					<div class="wpd-meta"><?php _e( 'This will check your ad account for campaigns and build some basic reports based on those campaigns.' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_google_ads_api[collect_campaign_insights]">
-						<option value="true" <?php echo wpd_selected_option( 'true', $collect_campaign_insights ) ?> ><?php _e( 'True', 'wpd-alpha-insights' ); ?></option>
-						<option value="false" <?php echo wpd_selected_option( 'false', $collect_campaign_insights ) ?> ><?php _e( 'False', 'wpd-alpha-insights' ); ?></option>
+						<option value="true" <?php echo wpd_selected_option( 'true', $collect_campaign_insights ) ?> ><?php _e( 'True', WPD_AI_TEXT_DOMAIN ); ?></option>
+						<option value="false" <?php echo wpd_selected_option( 'false', $collect_campaign_insights ) ?> ><?php _e( 'False', WPD_AI_TEXT_DOMAIN ); ?></option>
 					</select>
 				</td>
 			</tr>
 			<tr style="display:none;">
 				<td>
-					<label><?php _e( 'Collect Daily Ad Spend (Stored as an expense)', 'wpd-alpha-insights' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This will check your ad spend per day for your ad account and log it as an expense within Alpha Insights. This will run automatically as per your schedule.', 'wpd-alpha-insights' ); ?></div>
+					<label><?php _e( 'Collect Daily Ad Spend (Stored as an expense)', WPD_AI_TEXT_DOMAIN ); ?></label>
+					<div class="wpd-meta"><?php _e( 'This will check your ad spend per day for your ad account and log it as an expense within Alpha Insights. This will run automatically as per your schedule.', WPD_AI_TEXT_DOMAIN ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_google_ads_api[collect_daily_ad_spend]">
-						<option value="true" <?php echo wpd_selected_option( 'true', $collect_daily_ad_spend ) ?> ><?php _e( 'True', 'wpd-alpha-insights' ); ?></option>
-						<option value="false" <?php echo wpd_selected_option( 'false', $collect_daily_ad_spend ) ?> ><?php _e( 'False', 'wpd-alpha-insights' ); ?></option>
+						<option value="true" <?php echo wpd_selected_option( 'true', $collect_daily_ad_spend ) ?> ><?php _e( 'True', WPD_AI_TEXT_DOMAIN ); ?></option>
+						<option value="false" <?php echo wpd_selected_option( 'false', $collect_daily_ad_spend ) ?> ><?php _e( 'False', WPD_AI_TEXT_DOMAIN ); ?></option>
 					</select>
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Ad Spend Expense Category', 'wpd-alpha-insights' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'Which expense category would you like us to save this in.', 'wpd-alpha-insights' ); ?></div>
+					<label><?php _e( 'Ad Spend Expense Category', WPD_AI_TEXT_DOMAIN ); ?></label>
+					<div class="wpd-meta"><?php _e( 'Which expense category would you like us to save this in.', WPD_AI_TEXT_DOMAIN ); ?></div>
 				</td>
 				<td>
 					<?php
@@ -189,12 +189,12 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Ad Account Age (Years)', 'wpd-alpha-insights' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'When we do an all time search, we\'ll check back this many years to fetch and store data. Defaults to 10 years.<br>You will want this number larger than your account age, but large queries may time out.', 'wpd-alpha-insights' ); ?></div>
+					<label><?php _e( 'Ad Account Age (Years)', WPD_AI_TEXT_DOMAIN ); ?></label>
+					<div class="wpd-meta"><?php _e( 'When we do an all time search, we\'ll check back this many years to fetch and store data. Defaults to 10 years.<br>You will want this number larger than your account age, but large queries may time out.', WPD_AI_TEXT_DOMAIN ); ?></div>
 				</td>
 				<td>
 					<input class="wpd-input" min="1" max="25" type="number" name="wpd_ai_google_ads_api[account_age_years]" value="<?php echo $account_age_years ?>" step="1" placeholder="10">
-					<label for="wpd_ai_google_ads_api[account_age_years]" class="wpd-meta wpd-block-label"><?php _e( 'Default: 10', 'wpd-alpha-insights' ); ?></label>		
+					<label for="wpd_ai_google_ads_api[account_age_years]" class="wpd-meta wpd-block-label"><?php _e( 'Default: 10', WPD_AI_TEXT_DOMAIN ); ?></label>		
 				</td>
 			</tr>
 		</tbody>
@@ -202,18 +202,18 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'Conversion Action for Tracking Order Profit Value & Add To Carts', 'wpd-alpha-insights' ); ?></th>
+				<th colspan="2"><?php _e( 'Conversion Action for Tracking Order Profit Value & Add To Carts', WPD_AI_TEXT_DOMAIN ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr>
 				<td>
-					<label><?php _e( 'Conversion Action for Tracking Order Profit Value', 'wpd-alpha-insights' ); ?></label>
+					<label><?php _e( 'Conversion Action for Tracking Order Profit Value', WPD_AI_TEXT_DOMAIN ); ?></label>
 					<div class="wpd-meta">
 						<?php if ( ! empty($profit_conversion_action_details) ) : ?>
-							<?php _e( 'A conversion action has been created and configured for tracking order profit value. Every time an order is detected with a GCLID, the profit value will be sent to this conversion action. You can view this conversion action in your Google Ads account under Goals > Summary and then clicking View All Conversions.', 'wpd-alpha-insights' ); ?>
+							<?php _e( 'A conversion action has been created and configured for tracking order profit value. Every time an order is detected with a GCLID, the profit value will be sent to this conversion action. You can view this conversion action in your Google Ads account under Goals > Summary and then clicking View All Conversions.', WPD_AI_TEXT_DOMAIN ); ?>
 						<?php else: ?>
-							<?php _e( 'Create a conversion action that will be used to pass the profit value of an order back to Google Ads. Every time an order is detected with a GCLID, the profit value will be sent to this conversion action. You can view this conversion action in your Google Ads account under Goals > Summary and then clicking View All Conversions.', 'wpd-alpha-insights' ); ?>
+							<?php _e( 'Create a conversion action that will be used to pass the profit value of an order back to Google Ads. Every time an order is detected with a GCLID, the profit value will be sent to this conversion action. You can view this conversion action in your Google Ads account under Goals > Summary and then clicking View All Conversions.', WPD_AI_TEXT_DOMAIN ); ?>
 						<?php endif; ?>
 					</div>
 				</td>
@@ -241,12 +241,12 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Conversion Action for Add To Cart', 'wpd-alpha-insights' ); ?></label>
+					<label><?php _e( 'Conversion Action for Add To Cart', WPD_AI_TEXT_DOMAIN ); ?></label>
 					<div class="wpd-meta">
 						<?php if ( ! empty($add_to_cart_conversion_action_details) ) : ?>
-							<?php _e( 'A conversion action has been created and configured for tracking Add To Cart events. Every time an Add To Cart event is detected with a GCLID, the event will be sent to this conversion action. You can view this conversion action in your Google Ads account under Goals > Summary and then clicking View All Conversions.', 'wpd-alpha-insights' ); ?>
+							<?php _e( 'A conversion action has been created and configured for tracking Add To Cart events. Every time an Add To Cart event is detected with a GCLID, the event will be sent to this conversion action. You can view this conversion action in your Google Ads account under Goals > Summary and then clicking View All Conversions.', WPD_AI_TEXT_DOMAIN ); ?>
 						<?php else: ?>
-							<?php _e( 'Create a conversion action that will be used to track Add To Cart events. Every time an Add To Cart event is detected with a GCLID, the event will be sent to this conversion action. You can view this conversion action in your Google Ads account under Goals > Summary and then clicking View All Conversions.', 'wpd-alpha-insights' ); ?>
+							<?php _e( 'Create a conversion action that will be used to track Add To Cart events. Every time an Add To Cart event is detected with a GCLID, the event will be sent to this conversion action. You can view this conversion action in your Google Ads account under Goals > Summary and then clicking View All Conversions.', WPD_AI_TEXT_DOMAIN ); ?>
 						<?php endif; ?>
 					</div>
 				</td>
@@ -277,7 +277,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'API Data', 'wpd-alpha-insights' ); ?></th>
+				<th colspan="2"><?php _e( 'API Data', WPD_AI_TEXT_DOMAIN ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -312,14 +312,14 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'API Tools', 'wpd-alpha-insights' ); ?></th>
+				<th colspan="2"><?php _e( 'API Tools', WPD_AI_TEXT_DOMAIN ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr>
 				<td>
-					<label><?php _e( 'Refresh all API Data', 'wpd-alpha-insights' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This function will create / update the Ad Spend & Campaign Insights for your ad account for the number of years set on this settings page. It will not delete anything, just update it using the latest data from the API. Use this sparingly, it is a large request for both the Google API and your website. It is only really required to fetch all time data once you\'ve established a connection.', 'wpd-alpha-insights' ); ?></div>
+					<label><?php _e( 'Refresh all API Data', WPD_AI_TEXT_DOMAIN ); ?></label>
+					<div class="wpd-meta"><?php _e( 'This function will create / update the Ad Spend & Campaign Insights for your ad account for the number of years set on this settings page. It will not delete anything, just update it using the latest data from the API. Use this sparingly, it is a large request for both the Google API and your website. It is only really required to fetch all time data once you\'ve established a connection.', WPD_AI_TEXT_DOMAIN ); ?></div>
 				</td>
 				<td>
 					<a href="#refresh" class="wpd-input button button-secondary" id="wpd-refresh-google-api-data">Refresh All Campaign Data</a>
@@ -328,8 +328,8 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 			</tr>
 			<tr>
 				<td>
-				<label><?php _e( 'API Status', 'wpd-alpha-insights' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This will check your current API status and display the latest status message.', 'wpd-alpha-insights' ); ?></div>
+				<label><?php _e( 'API Status', WPD_AI_TEXT_DOMAIN ); ?></label>
+					<div class="wpd-meta"><?php _e( 'This will check your current API status and display the latest status message.', WPD_AI_TEXT_DOMAIN ); ?></div>
 				</td>
 				<td>
 					<a href="#" class="wpd-input button button-secondary" id="wpd-test-api-status">Check API Status</a>
@@ -337,8 +337,8 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 			</tr>	
 			<tr>
 				<td>
-					<label><?php _e( 'Data Deletion', 'wpd-alpha-insights' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'These tools will delete the data that we have stored in your database from the Google Ads API calls. This will not effect your Google Ad account or any stored expenses or campaigns that were not created by the API.', 'wpd-alpha-insights' ); ?></div>
+					<label><?php _e( 'Data Deletion', WPD_AI_TEXT_DOMAIN ); ?></label>
+					<div class="wpd-meta"><?php _e( 'These tools will delete the data that we have stored in your database from the Google Ads API calls. This will not effect your Google Ad account or any stored expenses or campaigns that were not created by the API.', WPD_AI_TEXT_DOMAIN ); ?></div>
 				</td>
 				<td>
 					<a href="#" class="wpd-input button button-secondary" id="wpd-delete-all-expense-data">Delete All Expense Data</a>
@@ -349,7 +349,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 	</table>
 </div>
 <div class="wpd-wrapper">
-	<?php submit_button( __('Save Changes', 'wpd-alpha-insights'), 'primary pull-right', 'submit', false); ?>
+	<?php submit_button( __('Save Changes', WPD_AI_TEXT_DOMAIN), 'primary pull-right', 'submit', false); ?>
 </div>
 <?php wpd_javascript_ajax_action( '#wpd-test-api-status', 'wpd_test_google_ads_api_status' ); ?>
 <?php wpd_javascript_ajax_action( '#wpd-delete-all-expense-data', 'wpd_delete_all_google_api_expense_data' ); ?>
