@@ -1,0 +1,5 @@
+title,amount,currency,date_paid,reference_number,expense_type
+Facebook Ads,24.56,USD,20/05/2020,3153146021463404-6175802,Advertising
+Google Ads,32.45,USD,16/03/2020,3153146adfa63404-6175802,Advertising
+Alpha Insights,87.43,AUD,5/08/2019,paypal-alpha-xyz,Software
+,,,"This date field may get formatted by excel automatically, it strictly must be in YYYY-MM-DD format, you can change it in excel under number formats",,

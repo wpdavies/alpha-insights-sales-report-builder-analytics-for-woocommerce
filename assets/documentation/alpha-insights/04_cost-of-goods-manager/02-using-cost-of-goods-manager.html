@@ -1,0 +1,465 @@
+﻿<h2>Using the Cost of Goods Manager</h2>
+<p>This guide walks you through everything you can do with the Cost of Goods Manager, from basic cost entry to advanced filtering and bulk operations.</p>
+<h3>Accessing the Cost Manager</h3>
+<ol>
+<li>Log into your WordPress admin dashboard</li>
+<li>In the sidebar, navigate to <strong>Alpha Insights</strong>
+</li>
+<li>Click <strong>Cost of Goods Manager</strong>
+</li>
+</ol>
+<p>The Cost Manager will load, displaying your products in an easy-to-navigate table.</p>
+<h3>Understanding the Interface</h3>
+<h4>Statistics Cards (Top Section)</h4>
+<p>At the top, you'll see six statistics cards that provide an overview of your catalog:</p>
+<ul>
+<li>
+<strong>Total Products:</strong> Number of products currently visible (changes based on filters)
+</li>
+<li>
+<strong>With Cost Set:</strong> Products that have custom costs entered
+</li>
+<li>
+<strong>Without Cost:</strong> Products using default calculated costs
+</li>
+<li>
+<strong>Avg Margin:</strong> Your average profit margin percentage
+</li>
+<li>
+<strong>Stock Value (RRP):</strong> Total inventory value at retail prices
+</li>
+<li>
+<strong>Stock Value (Cost):</strong> Total inventory value at your cost
+</li>
+</ul>
+<p>These update automatically as you filter products or make changes.</p>
+<h4>Header Buttons</h4>
+<p>In the top-right corner of the page header, you'll find two helper buttons:</p>
+<ul>
+<li>
+<strong>Stats:</strong> Opens a detailed statistics panel with breakdowns and insights
+</li>
+<li>
+<strong>Help:</strong> Opens comprehensive help documentation and calculation explanations
+</li>
+</ul>
+<h4>Toolbar (Controls)</h4>
+<p>Below the statistics, you'll find the toolbar with:</p>
+<ul>
+<li>
+<strong>Per Page selector:</strong> Choose how many products to display (25, 50, 100, or 200)
+</li>
+<li>
+<strong>Pagination info:</strong> Shows current page and total items
+</li>
+<li>
+<strong>Action buttons:</strong> Migrate From, Import CSV, and Export CSV
+</li>
+</ul>
+<h4>Filter Panel</h4>
+<p>The filter panel lets you narrow down which products are displayed:</p>
+<ul>
+<li>
+<strong>Search Products:</strong> Find by name or SKU
+</li>
+<li>
+<strong>Category:</strong> Filter by product category
+</li>
+<li>
+<strong>Supplier:</strong> Filter by supplier (if using supplier taxonomy)
+</li>
+<li>
+<strong>Stock Status:</strong> Show in stock, out of stock, or backorder products
+</li>
+<li>
+<strong>Product Type:</strong> Filter by simple, variable, or variation products
+</li>
+<li>
+<strong>Cost Status:</strong> Show all products, only those with costs, or only those missing costs
+</li>
+</ul>
+<h4>Product Table</h4>
+<p>The main table displays all your products with these columns:</p>
+<ul>
+<li>
+<strong>Checkbox:</strong> Select products for bulk actions
+</li>
+<li>
+<strong>Product:</strong> Name and thumbnail image
+</li>
+<li>
+<strong>RRP:</strong> Regular retail price
+</li>
+<li>
+<strong>Cost:</strong> Editable cost field
+</li>
+<li>
+<strong>Margin %:</strong> Calculated profit margin
+</li>
+<li>
+<strong>Profit:</strong> Per-unit profit amount
+</li>
+<li>
+<strong>Stock:</strong> Current stock quantity
+</li>
+<li>
+<strong>Actions:</strong> Quick links to edit or view product
+</li>
+</ul>
+<h3>Adding and Updating Costs</h3>
+<h4>Updating a Single Product Cost</h4>
+<ol>
+<li>Find the product in the table (use search or filters if needed)</li>
+<li>Click in the <strong>Cost</strong> field for that product</li>
+<li>The field becomes editable and shows the current cost</li>
+<li>Type the new cost value (e.g., 25.50)</li>
+<li>The field and row will be highlighted to show unsaved changes</li>
+<li>The Margin % and Profit columns update automatically in real-time</li>
+<li>Press <strong>Enter</strong> to save all changes immediately, OR continue editing other products and click the floating <strong>Save All Changes</strong> button when done</li>
+</ol>
+<p>
+<strong>Tips:</strong>
+</p>
+<ul>
+<li>Use <strong>Tab</strong> to move to the next product's cost field without clicking</li>
+<li>If a product has no custom cost set, you'll see a placeholder showing the default calculated cost</li>
+<li>To remove a custom cost and revert to default, clear the field completely and press Enter</li>
+<li>You can edit multiple products before saving - a floating <strong>Save All Changes</strong> button appears when you have unsaved changes</li>
+<li>Press <strong>Escape</strong> while editing to cancel and revert to the original value</li>
+</ul>
+<h4>Understanding the Cost Field</h4>
+<p>The cost input field has some intelligent features:</p>
+<p>
+<strong>Placeholder Text:</strong> If a product has no custom cost, you'll see gray text showing the default cost. This is <em>not</em> saved - it's just what the system calculates. Click the field to enter a custom cost.
+</p>
+<p>
+<strong>Custom Cost:</strong> Once you enter a value, it's saved as a custom cost and displayed in black text. This overrides any default calculation.
+</p>
+<p>
+<strong>Zero Cost:</strong> You can explicitly set a cost to $0 for digital products or free items. Type "0" and press Enter.
+</p>
+<p>
+<strong>Empty to Clear:</strong> If you delete all text from the field and press Enter, it removes the custom cost and the product reverts to using the default calculation.
+</p>
+<h4>Keyboard Shortcuts for Speed</h4>
+<p>Use these keyboard shortcuts to update costs quickly:</p>
+<ul>
+<li>
+<strong>Tab:</strong> Move to next cost field
+</li>
+<li>
+<strong>Shift + Tab:</strong> Move to previous cost field
+</li>
+<li>
+<strong>Enter:</strong> Save current field and move to next
+</li>
+<li>
+<strong>Escape:</strong> Cancel editing and revert to original value
+</li>
+</ul>
+<p>This lets you update dozens of products in minutes without ever touching your mouse!</p>
+<h3>Using Filters</h3>
+<h4>Search by Name or SKU</h4>
+<ol>
+<li>Click in the <strong>Search Products</strong> field</li>
+<li>Type any part of the product name or SKU</li>
+<li>Results filter automatically as you type</li>
+<li>Press Enter or click elsewhere to apply the filter</li>
+</ol>
+<p>
+<strong>Example:</strong> Searching "shirt" will show all products with "shirt" in their name.
+</p>
+<h4>Filter by Category</h4>
+<ol>
+<li>Click the <strong>Category</strong> dropdown</li>
+<li>Select a category from the list</li>
+<li>Table updates to show only products in that category</li>
+</ol>
+<p>
+<strong>Use case:</strong> Your supplier increased prices for all clothing items - filter by "Clothing" category to update just those products.
+</p>
+<h4>Filter by Stock Status</h4>
+<ol>
+<li>Click the <strong>Stock Status</strong> dropdown</li>
+<li>Choose: In Stock, Out of Stock, or On Backorder</li>
+</ol>
+<p>
+<strong>Use case:</strong> Focus on in-stock products first since they're actively selling, or find out-of-stock items that might have incorrect costs.
+</p>
+<h4>Filter by Cost Status</h4>
+<p>This is one of the most useful filters:</p>
+<ol>
+<li>Click the <strong>Cost Status</strong> dropdown</li>
+<li>Select <strong>"Missing Cost"</strong> to see only products without custom costs</li>
+<li>Or select <strong>"Has Cost"</strong> to see products you've already set up</li>
+</ol>
+<p>
+<strong>Use case:</strong> When doing initial setup, filter by "Missing Cost" to see what still needs to be entered. Work through the list, adding costs until it's empty!
+</p>
+<h4>Combining Multiple Filters</h4>
+<p>You can use multiple filters simultaneously to get very specific results:</p>
+<p>
+<strong>Example 1:</strong> Show only Electronics category products that are in stock and missing costs
+</p>
+<ul>
+<li>Category: Electronics</li>
+<li>Stock Status: In Stock</li>
+<li>Cost Status: Missing Cost</li>
+</ul>
+<p>
+<strong>Example 2:</strong> Find all variable products from a specific supplier
+</p>
+<ul>
+<li>Supplier: Select supplier name</li>
+<li>Product Type: Variable</li>
+</ul>
+<h4>Clearing Filters</h4>
+<p>To reset all filters and see all products:</p>
+<ul>
+<li>Click the <strong>Clear</strong> button in the filter panel, OR</li>
+<li>Manually change each filter back to "All"</li>
+</ul>
+<h3>Sorting Products</h3>
+<p>Click any column header to sort by that column:</p>
+<h4>Sort by Name (Default)</h4>
+<p>Click <strong>Product</strong> column header to sort alphabetically (A-Z or Z-A)</p>
+<h4>Sort by Price</h4>
+<p>Click <strong>RRP</strong> to sort products from lowest to highest price (or reverse). Useful for finding your premium or budget products.</p>
+<h4>Sort by Cost</h4>
+<p>Click <strong>Cost</strong> to see which products cost you the most or least to acquire.</p>
+<h4>Sort by Margin %</h4>
+<p>Click <strong>Margin %</strong> to identify:</p>
+<ul>
+<li>
+<strong>Lowest margin products:</strong> Might need repricing or cost reduction
+</li>
+<li>
+<strong>Highest margin products:</strong> Your most profitable offerings
+</li>
+</ul>
+<h4>Sort by Profit</h4>
+<p>Click <strong>Profit</strong> to see per-unit profit. This shows which single sale generates the most profit dollars, not percentage.</p>
+<h4>Sort by Stock</h4>
+<p>Click <strong>Stock</strong> to see which products you have most/least inventory of.</p>
+<p>
+<strong>Sorting Tip:</strong> Click the column header once for ascending order (low to high), click again for descending (high to low).
+</p>
+<h3>Exporting Costs to CSV</h3>
+<h4>Why Export?</h4>
+<ul>
+<li>Create backups of your cost data</li>
+<li>Analyze costs in Excel or Google Sheets</li>
+<li>Share with accountants or bookkeepers</li>
+<li>Document cost changes over time</li>
+</ul>
+<h4>How to Export</h4>
+<ol>
+<li>Apply any filters you want (or leave them all to export everything)</li>
+<li>Click <strong>Export CSV</strong> button in the toolbar</li>
+<li>Your browser downloads a file named "cost-of-goods-YYYY-MM-DD.csv"</li>
+<li>Open in Excel, Google Sheets, or any spreadsheet program</li>
+</ol>
+<p>The exported CSV includes:</p>
+<ul>
+<li>Product ID, Name, SKU, Type</li>
+<li>RRP (retail price)</li>
+<li>Custom Cost (if set) and Default Cost (calculated)</li>
+<li>Margin % and Profit calculations</li>
+<li>Stock quantity</li>
+</ul>
+<p>
+<strong>Pro tip:</strong> Use filters before exporting to create category-specific or supplier-specific cost reports.
+</p>
+<h3>Importing Costs from CSV</h3>
+<h4>When to Import</h4>
+<ul>
+<li>Setting up costs for the first time from a supplier spreadsheet</li>
+<li>Bulk updating costs after receiving new pricing</li>
+<li>Migrating costs from another system</li>
+<li>Restoring costs from a backup</li>
+</ul>
+<h4>CSV Format Required</h4>
+<p>Your CSV file must have these columns:</p>
+<ol>
+<li>
+<strong>Product Identifier:</strong> Either Product ID or SKU
+</li>
+<li>
+<strong>Cost:</strong> The cost value to set
+</li>
+</ol>
+<p>
+<strong>Example CSV:</strong>
+</p>
+<pre>SKU,Cost T-SHIRT-S,12.50 T-SHIRT-M,12.50 T-SHIRT-L,13.00 HAT-01,8.00
+</pre>
+<h4>Import Process</h4>
+<ol>
+<li>Prepare your CSV file (or use the export as a template)</li>
+<li>Click <strong>Import CSV</strong> button</li>
+<li>A modal opens with import options</li>
+<li>Choose identifier type:<strong>Product ID</strong> or <strong>SKU</strong>
+</li>
+<li>Click <strong>Choose File</strong> and select your CSV</li>
+<li>Review the preview (shows first few rows)</li>
+<li>Click <strong>Import</strong> to process</li>
+<li>Wait for confirmation (shows how many products updated)</li>
+</ol>
+<p>
+<strong>Important Notes:</strong>
+</p>
+<ul>
+<li>Import processes one row at a time - large files may take a minute</li>
+<li>Products not found (wrong ID/SKU) will be skipped</li>
+<li>Existing costs are overwritten with CSV values</li>
+<li>Empty cost values will clear the custom cost</li>
+</ul>
+<h3>Migrating from Another COGS Plugin</h3>
+<p>If you previously used a different Cost of Goods plugin, Alpha Insights can automatically copy those costs.</p>
+<h4>Supported Plugins</h4>
+<ul>
+<li>WooCommerce Cost of Goods (SkyVerge)</li>
+<li>WooCommerce 10.0+ Native COGS</li>
+<li>ATUM Inventory Management</li>
+<li>Cost of Goods for WooCommerce (Algoritmika)</li>
+<li>YITH Cost of Goods</li>
+<li>Generic purchase price fields</li>
+</ul>
+<h4>Migration Steps</h4>
+<ol>
+<li>Click <strong>Migrate From</strong> button in the toolbar</li>
+<li>Select the source plugin from the dropdown</li>
+<li>Click <strong>Check for Data</strong>
+</li>
+<li>
+<ul>
+<li>How many products have costs in the old plugin</li>
+<li>Sample products that will be migrated</li>
+</ul>
+</li>
+<li>
+<ul>
+<li>
+<strong>Overwrite existing:</strong> Check this to replace any costs you've already set in Alpha Insights
+</li>
+<li>Leave unchecked to only migrate products without costs in Alpha Insights</li>
+</ul>
+</li>
+<li>Click <strong>Start Migration</strong>
+</li>
+<li>Wait for process to complete</li>
+<li>Review confirmation showing how many products were migrated</li>
+</ol>
+<p>
+<strong>What Happens:</strong>
+</p>
+<ul>
+<li>Alpha Insights copies cost values from the old plugin's meta field</li>
+<li>Costs are saved to Alpha Insights' cost field</li>
+<li>Your original plugin's data remains unchanged (safe to keep as backup)</li>
+<li>Order profit data is recalculated with the new costs</li>
+</ul>
+<h3>Using the Statistics Panel</h3>
+<p>Click the <strong>Stats</strong> button to open a detailed statistics panel showing:</p>
+<ul>
+<li>Breakdown of products by status</li>
+<li>Average, minimum, and maximum margins</li>
+<li>Total stock value comparisons</li>
+<li>Cost coverage percentage</li>
+</ul>
+<p>This gives you a high-level view of your catalog health and cost management progress.</p>
+<h3>Tips for Efficient Cost Management</h3>
+<h4>Start with High-Priority Products</h4>
+<ol>
+<li>Filter by <strong>Cost Status: Missing Cost</strong>
+</li>
+<li>Sort by <strong>Stock</strong>(descending) to see best-sellers first</li>
+<li>Add costs for your top 20-50 sellers before worrying about slow-movers</li>
+</ol>
+<h4>Use Keyboard for Speed</h4>
+<p>Once you start entering costs:</p>
+<ol>
+<li>Click the first product's cost field</li>
+<li>Type the cost and press Tab (moves to next product)</li>
+<li>Type cost, Tab, type cost, Tab - you can update dozens per minute!</li>
+</ol>
+<h4>Work Category by Category</h4>
+<ol>
+<li>Filter by one category at a time</li>
+<li>Update all products in that category</li>
+<li>Move to the next category</li>
+<li>Track progress by watching "Without Cost" stat decrease</li>
+</ol>
+<h4>Export Before Major Changes</h4>
+<p>Before bulk updates or imports:</p>
+<ol>
+<li>Export your current costs as a backup</li>
+<li>Make the changes</li>
+<li>If anything goes wrong, you can re-import the backup</li>
+</ol>
+<h4>Regular Audits</h4>
+<p>Schedule monthly reviews:</p>
+<ol>
+<li>Sort by <strong>Margin %</strong> to find low-margin products</li>
+<li>Check if costs have changed from suppliers</li>
+<li>Update any products with outdated costs</li>
+<li>Look for outliers that might have data entry errors</li>
+</ol>
+<h3>Troubleshooting</h3>
+<h4>"Cost field won't save"</h4>
+<p>
+<strong>Causes:</strong>
+</p>
+<ul>
+<li>Invalid characters in cost (use only numbers and decimal point)</li>
+<li>Browser cache issue</li>
+</ul>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Ensure you're typing only numbers (12.50, not $12.50)</li>
+<li>Refresh the page and try again</li>
+<li>Check browser console for errors (press F12)</li>
+</ul>
+<h4>"Statistics aren't updating"</h4>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Stats update after each save - wait a moment</li>
+<li>Click the Stats button to manually refresh</li>
+<li>Refresh the entire page if needed</li>
+</ul>
+<h4>"Products not showing"</h4>
+<p>
+<strong>Causes:</strong>
+</p>
+<ul>
+<li>Filters are applied</li>
+<li>Search term has no matches</li>
+</ul>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Click <strong>Clear</strong> button to reset all filters</li>
+<li>Check the pagination - you might be on a later page</li>
+</ul>
+<h4>"Import failed"</h4>
+<p>
+<strong>Causes:</strong>
+</p>
+<ul>
+<li>CSV format incorrect</li>
+<li>Product IDs or SKUs don't match</li>
+<li>File encoding issues</li>
+</ul>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Export a sample CSV from Alpha Insights to see correct format</li>
+<li>Verify SKUs/IDs match your actual products</li>
+<li>Save CSV as UTF-8 encoding</li>
+</ul>

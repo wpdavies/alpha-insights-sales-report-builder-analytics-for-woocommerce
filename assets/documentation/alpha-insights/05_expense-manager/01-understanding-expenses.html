@@ -1,0 +1,428 @@
+﻿<h2>Understanding Expenses in Alpha Insights</h2>
+<p>Expenses in Alpha Insights are business costs that aren't directly tied to individual products or orders - like rent, salaries, software subscriptions, and operational expenses. The expense management system helps you track all business costs to calculate true net profit and understand your complete financial picture.</p>
+
+<h3>Why Track Expenses?</h3>
+<p><strong>Without expense tracking:</strong> You only see gross profit (revenue minus product costs, shipping, and payment fees)</p>
+<p><strong>With expense tracking:</strong> You see net profit (true profitability after ALL business expenses)</p>
+<p><strong>Example Profit Calculation:</strong></p>
+<pre><code>Revenue:           $50,000
+Product Costs:     -$20,000
+Shipping Costs:    -$3,000
+Payment Fees:      -$1,500
+                   --------
+Gross Profit:      $25,500 (51% margin)
+
+Rent:             -$2,000
+Salaries:         -$8,000
+Software:         -$500
+Marketing:        -$3,000
+Other Expenses:   -$1,000
+                   --------
+Net Profit:        $11,000 (22% margin)
+</code></pre>
+
+<h3>How Expenses Work in Alpha Insights</h3>
+<p>The expense system is built on a custom post type with rich metadata and taxonomies:</p>
+<ul>
+<li><strong>One-Time Expenses:</strong> Single occurrence costs assigned to a specific date</li>
+<li><strong>Recurring Expenses:</strong> Automatically calculated expenses that repeat on a schedule</li>
+<li><strong>Paid vs Unpaid:</strong> Track which expenses have been paid and which are outstanding</li>
+<li><strong>Multi-Currency:</strong> Expenses in any currency are automatically converted to your store currency</li>
+<li><strong>Categories:</strong> Hierarchical taxonomy for organizing expenses (with parent/child relationships)</li>
+<li><strong>Suppliers:</strong> Track which suppliers expenses are paid to (shared with products)</li>
+</ul>
+
+<h3>Types of Expenses</h3>
+<h3>Operating Expenses</h3>
+<p>
+<strong>What they are:</strong> Day-to-day costs of running your business
+</p>
+<p>
+<strong>Examples:</strong>
+</p>
+<ul>
+<li>Office or warehouse rent</li>
+<li>Utilities (electricity, water, internet)</li>
+<li>Insurance (business liability, property)</li>
+<li>Office supplies</li>
+<li>Equipment maintenance</li>
+</ul>
+<h3>Software and Services</h3>
+<p>
+<strong>What they are:</strong> Technology and service subscriptions
+</p>
+<p>
+<strong>Examples:</strong>
+</p>
+<ul>
+<li>WooCommerce hosting</li>
+<li>Email marketing software (Klaviyo, Mailchimp)</li>
+<li>Accounting software (QuickBooks, Xero)</li>
+<li>Other WooCommerce plugins</li>
+<li>Photography and design tools</li>
+</ul>
+<h3>Personnel Costs</h3>
+<p>
+<strong>What they are:</strong> Employee and contractor payments
+</p>
+<p>
+<strong>Examples:</strong>
+</p>
+<ul>
+<li>Employee salaries</li>
+<li>Contractor fees</li>
+<li>Payroll taxes</li>
+<li>Health insurance</li>
+<li>Freelancer payments (designers, developers)</li>
+</ul>
+<h3>Marketing and Advertising (Non-Ad Platforms)</h3>
+<p>
+<strong>What they are:</strong> Marketing costs not tracked by Facebook/Google integrations
+</p>
+<p>
+<strong>Examples:</strong>
+</p>
+<ul>
+<li>Influencer payments</li>
+<li>Affiliate commissions</li>
+<li>Email marketing costs</li>
+<li>Content creation</li>
+<li>Print advertising</li>
+<li>Sponsorships</li>
+</ul>
+<p>
+<strong>Note:</strong> Facebook and Google ad spend is automatically tracked via integrations, don't add these as expenses
+</p>
+<h3>Professional Services</h3>
+<p>
+<strong>What they are:</strong> Expert services you hire
+</p>
+<p>
+<strong>Examples:</strong>
+</p>
+<ul>
+<li>Accounting and bookkeeping</li>
+<li>Legal services</li>
+<li>Business consulting</li>
+<li>Tax preparation</li>
+</ul>
+<h3>Bank and Financial Fees</h3>
+<p>
+<strong>What they are:</strong> Banking and loan costs
+</p>
+<p>
+<strong>Examples:</strong>
+</p>
+<ul>
+<li>Business bank account fees</li>
+<li>Loan interest payments</li>
+<li>Credit card annual fees (business cards)</li>
+<li>Currency conversion fees</li>
+</ul>
+<p>
+<strong>Note:</strong> Per-transaction payment fees (Stripe, PayPal) are tracked automatically per order, not as expenses
+</p>
+<h3>How Expenses Affect Profit Calculations</h3>
+<p>Expenses in Alpha Insights are tracked by date and aggregated for reporting, not allocated to individual orders. The system calculates:</p>
+<ul>
+<li><strong>Total Expenses:</strong> Sum of all paid expenses in a date range</li>
+<li><strong>Store Profit:</strong> Total order profit minus total expenses for the same period</li>
+<li><strong>Expense Trends:</strong> Expenses tracked over time by day/week/month/year</li>
+<li><strong>Category Breakdown:</strong> Expenses grouped by category and supplier</li>
+</ul>
+<p><strong>Important:</strong> Expenses are NOT divided among individual orders. They're aggregated totals that reduce your overall store profit for a given time period. This is different from per-order costs like product costs, shipping, and payment fees which ARE tracked per order.</p>
+<h3>Gross vs Net Profit</h3>
+<p>
+<strong>Gross Profit calculation:</strong>
+</p>
+<pre>
+	<code>Revenue - (Product Costs + Shipping + Payment Fees) = Gross Profit</code>
+</pre>
+<p>
+<strong>Net Profit calculation:</strong>
+</p>
+<pre>
+	<code>Gross Profit - (Operating Expenses + Ad Spend) = Net Profit</code>
+</pre>
+<h3>Why Both Matter</h3>
+<ul>
+<li>
+<strong>Gross profit:</strong> Shows if your pricing covers direct costs (sustainable product pricing)
+</li>
+<li>
+<strong>Net profit:</strong> Shows if your business is actually profitable overall
+</li>
+</ul>
+<p>You can have great gross margins but still lose money if expenses are too high!</p>
+<h3>Expense Frequency Options</h3>
+<p>Alpha Insights supports both one-time and recurring expenses with multiple frequency options:</p>
+
+<h4>One-Time Expenses</h4>
+<p><strong>What they are:</strong> Single occurrence costs assigned to a specific date</p>
+<p><strong>Examples:</strong></p>
+<ul>
+<li>Equipment purchase</li>
+<li>Website redesign</li>
+<li>Legal fees for contract</li>
+<li>One-time marketing campaign</li>
+</ul>
+<p><strong>How they work:</strong> Recorded once on the date specified</p>
+
+<h4>Recurring Expenses</h4>
+<p>Recurring expenses are automatically calculated and tracked based on their frequency. The system generates occurrences from the start date through either the end date (if specified) or the current date.</p>
+
+<p><strong>Supported Frequencies:</strong></p>
+<ul>
+<li><strong>Daily:</strong> Occurs every day (e.g., daily contractor fees)</li>
+<li><strong>Weekly:</strong> Occurs once per week (e.g., weekly cleaning service)</li>
+<li><strong>Fortnightly:</strong> Occurs every 2 weeks (e.g., bi-weekly payroll)</li>
+<li><strong>Monthly:</strong> Occurs once per month (e.g., rent, most software subscriptions)</li>
+<li><strong>Quarterly:</strong> Occurs every 3 months (e.g., quarterly tax payments)</li>
+<li><strong>Yearly/Annually:</strong> Occurs once per year (e.g., annual insurance premiums)</li>
+</ul>
+
+<h4>Recurring Expense Details</h4>
+<ul>
+<li><strong>Start Date:</strong> Required - when the recurring expense begins</li>
+<li><strong>End Date:</strong> Optional - when the recurring expense stops (leave blank for ongoing)</li>
+<li><strong>Amount:</strong> The amount charged per occurrence (not total)</li>
+<li><strong>Occurrence Tracking:</strong> The system tracks total occurrences and total amount paid to date</li>
+<li><strong>Current Date Limit:</strong> Recurring expenses never calculate beyond today's date</li>
+</ul>
+
+<p><strong>Example Monthly Recurring Expense:</strong></p>
+<pre><code>Expense: Office Rent
+Amount: $2,500
+Frequency: Monthly
+Start Date: January 1, 2024
+End Date: (blank - ongoing)
+
+Result: $2,500 expense recorded on the 1st of each month
+Total to date (10 months): $25,000
+</code></pre>
+<h3>Expense Categories & Suppliers</h3>
+<p>Alpha Insights uses two taxonomy systems to organize expenses:</p>
+
+<h4>Expense Categories (Hierarchical)</h4>
+<p>Categories support parent/child relationships, allowing you to create structured organizational systems:</p>
+<ul>
+<li><strong>Parent Categories:</strong> Top-level groupings (e.g., "Marketing")</li>
+<li><strong>Child Categories:</strong> Sub-categories (e.g., "Marketing > Social Media Advertising")</li>
+</ul>
+<p><strong>Benefits of hierarchical categories:</strong></p>
+<ul>
+<li>Report on parent categories to see totals across all child categories</li>
+<li>Drill down into specific expense types</li>
+<li>Flexible organizational structure that grows with your business</li>
+</ul>
+
+<h4>Suppliers</h4>
+<p>The Suppliers taxonomy is shared between expenses AND products, allowing you to:</p>
+<ul>
+<li>Track all costs associated with a specific supplier</li>
+<li>See both product costs and operational expenses by supplier</li>
+<li>Store supplier metadata like tax numbers and country information</li>
+<li>Generate supplier-specific reports</li>
+</ul>
+
+<p><strong>Creating Categories and Suppliers:</strong></p>
+<ol>
+<li>Go to <strong>Expense Manager → Manage Taxonomies</strong></li>
+<li>Choose <strong>Expense Categories</strong> or <strong>Suppliers</strong></li>
+<li>Click <strong>Add New</strong></li>
+<li>Enter name and details</li>
+<li>For categories, optionally select a parent category</li>
+<li>Save</li>
+</ol>
+
+<p><strong>Managing Taxonomies:</strong> You can edit, delete, and bulk manage taxonomies through the Manage Taxonomies interface.</p>
+<h4>When to Add Expenses</h4>
+<h3>At Setup</h3>
+<p>When first setting up Alpha Insights, add:</p>
+<ul>
+<li>All recurring monthly expenses (rent, software, etc.)</li>
+<li>Regular personnel costs</li>
+<li>Fixed ongoing costs</li>
+</ul>
+<h4>As They Occur</h4>
+<p>Add one-time expenses as they happen:</p>
+<ul>
+<li>Equipment purchases</li>
+<li>Professional services</li>
+<li>One-off marketing campaigns</li>
+</ul>
+<h3>Regular Reviews</h3>
+<p>Review expenses monthly to:</p>
+<ul>
+<li>Add any new recurring costs</li>
+<li>Remove expired subscriptions</li>
+<li>Update amounts if costs changed</li>
+<li>Verify allocations are correct</li>
+</ul>
+<h4>What NOT to Track as Expenses</h4>
+<h3>Already Tracked Automatically</h3>
+<p>Don't add these - they're handled automatically:</p>
+<ul>
+<li>Product costs (tracked per product)</li>
+<li>Shipping costs (tracked per order)</li>
+<li>Payment gateway fees (tracked per order)</li>
+<li>Facebook Ads spend (synced via integration)</li>
+<li>Google Ads spend (synced via integration)</li>
+</ul>
+<h3>Personal Expenses</h3>
+<p>Don't include personal costs:</p>
+<ul>
+<li>Personal vehicle expenses (unless 100% business use)</li>
+<li>Personal phone bills</li>
+<li>Personal meals</li>
+<li>Home rent (unless home office with proper deduction)</li>
+</ul>
+<p>
+<strong>Why:</strong> Alpha Insights tracks business profit, not personal finances
+</p>
+<h3>Tax Payments</h3>
+<p>Generally don't include tax payments:</p>
+<ul>
+<li>Income tax payments</li>
+<li>Sales tax remittances</li>
+</ul>
+<p>
+<strong>Why:</strong> These are paid from profit, not operating expenses. Track profit before tax for clarity.
+</p>
+<p>
+<strong>Exception:</strong> Payroll taxes and property taxes ARE business expenses
+</p>
+<h4>Expense Best Practices</h4>
+<h3>Be Consistent</h3>
+<ul>
+<li>Add expenses in the same currency as your store</li>
+<li>Use consistent naming conventions</li>
+<li>Add expenses promptly (don't let them pile up)</li>
+<li>Review and update monthly</li>
+</ul>
+<h3>Start With Major Expenses</h3>
+<p>Don't get overwhelmed - start with the big ones:</p>
+<ol>
+<li>Rent/lease</li>
+<li>Largest software subscription (hosting, email marketing)</li>
+<li>Employee salaries</li>
+<li>Major marketing costs</li>
+</ol>
+<p>Add smaller expenses later as time allows</p>
+<h3>Round When Appropriate</h3>
+<p>For recurring expenses, rounding simplifies tracking:</p>
+<ul>
+<li>$497/month software → $500/month</li>
+<li>$2,995/month rent → $3,000/month</li>
+</ul>
+<p>Small rounding differences won't materially affect profit calculations</p>
+<h4>Document Everything</h4>
+<p>Use the notes field to remember:</p>
+<ul>
+<li>Why the expense was incurred</li>
+<li>Invoice numbers</li>
+<li>Vendor names</li>
+<li>Contract terms (e.g., "Annual - renews December")</li>
+</ul>
+<h3>Viewing Expense Data</h3>
+
+<h4>Expense Manager Dashboard</h4>
+<p>The main Expense Management page shows:</p>
+<ul>
+<li><strong>Key Metrics:</strong> Paid Expenses, Unpaid Expenses (all time), Net Revenue, Net Profit</li>
+<li><strong>Recent Expenses:</strong> List of recent paid or unpaid expenses (configurable date range)</li>
+<li><strong>Recurring Expenses:</strong> All active recurring expenses with total paid to date</li>
+<li><strong>Quick Actions:</strong> Add expense, manage taxonomies, import/export</li>
+</ul>
+
+<h4>Manage All Expenses</h4>
+<p>Advanced expense list with:</p>
+<ul>
+<li>Filter by: date range, category, supplier, paid/unpaid status, recurring/one-time, attachment status</li>
+<li>Search by expense name or reference</li>
+<li>Bulk operations: delete, update paid status, assign category or supplier</li>
+<li>Export: all expenses or filtered results to CSV</li>
+<li>Pagination for large expense lists</li>
+</ul>
+
+<h4>In Reports</h4>
+<p>The Report Builder shows expense data in:</p>
+<ul>
+<li><strong>Profit & Loss Statement:</strong> Complete P&L with expense breakdown by category</li>
+<li><strong>Expense Reports:</strong> Pre-built and custom expense analysis reports</li>
+<li><strong>Store Profit Reports:</strong> Net profit calculations including expenses</li>
+<li><strong>Time-Based Reports:</strong> Expenses tracked by day/week/month/year</li>
+</ul>
+<h3>Automatic Expense Creation via API</h3>
+<p>Alpha Insights can automatically create and update expenses from advertising platforms:</p>
+
+<h4>Facebook Ads Integration</h4>
+<p>When Facebook Ads integration is configured and enabled:</p>
+<ul>
+<li>Daily ad spend is automatically created as expenses</li>
+<li>Each day's spend is tracked as a separate expense post</li>
+<li>Expenses include Facebook API metadata (account name, account ID, last updated)</li>
+<li>Updates existing expenses if they already exist for that day</li>
+<li>Campaign-level spend tracking available</li>
+</ul>
+
+<h4>Google Ads Integration</h4>
+<p>When Google Ads integration is configured and enabled:</p>
+<ul>
+<li>Campaign and account data automatically synced</li>
+<li>Daily spend tracked per campaign</li>
+<li>Expenses include Google API metadata (campaign details, account data)</li>
+<li>GCLID tracking for order attribution</li>
+<li>Campaign performance data stored with expenses</li>
+</ul>
+
+<p><strong>Benefits of API Integration:</strong></p>
+<ul>
+<li>No manual data entry for ad spend</li>
+<li>Always accurate and up-to-date</li>
+<li>Automatic reconciliation</li>
+<li>Campaign-level expense tracking</li>
+<li>Complete attribution from ad to order</li>
+</ul>
+
+<p><strong>Note:</strong> API-created expenses should not be manually edited as they will be overwritten on the next API sync.</p>
+
+<h3>Expense Attachments</h3>
+<p>Alpha Insights supports multiple file attachments per expense:</p>
+<ul>
+<li><strong>Supported File Types:</strong> Images (JPG, PNG, GIF, WebP), PDFs, and documents</li>
+<li><strong>Multiple Attachments:</strong> Attach multiple receipts, invoices, or supporting documents</li>
+<li><strong>File Size Limit:</strong> 10MB per file</li>
+<li><strong>Storage:</strong> Files stored in WordPress media library</li>
+<li><strong>Viewing:</strong> Click thumbnail to view full attachment</li>
+<li><strong>Management:</strong> Add or remove attachments when editing expenses</li>
+</ul>
+
+<p><strong>Best Practices for Attachments:</strong></p>
+<ul>
+<li>Attach invoice PDFs for large expenses</li>
+<li>Include receipt images for in-person purchases</li>
+<li>Attach contracts for recurring service agreements</li>
+<li>Use consistent file naming (e.g., "Invoice-2024-10-CompanyName.pdf")</li>
+</ul>
+
+<h3>Expense Benchmarks</h3>
+<h4>Typical eCommerce Expense Ratios</h4>
+<p>
+<strong>Rent/Facilities:</strong>5-15% of revenue
+</p>
+<p>
+<strong>Software/Tools:</strong>2-5% of revenue
+</p>
+<p>
+<strong>Marketing (beyond ads):</strong>3-8% of revenue
+</p>
+<p>
+<strong>Personnel:</strong>15-30% of revenue (varies widely)
+</p>
+<p>
+<strong>Total Operating Expenses:</strong>25-50% of revenue
+</p>
+<p>
+<strong>Target Net Margin:</strong>15-25% after all costs
+</p>

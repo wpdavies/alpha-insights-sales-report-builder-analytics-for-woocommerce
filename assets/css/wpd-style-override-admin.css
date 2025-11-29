@@ -1,0 +1,572 @@
+/**
+ *
+ *  Core Overrides - Menu
+ *
+ */
+ /* CSS Variables for Alpha Insights Brand Colors */
+:root {
+    /* Primary Brand Colors */
+    --alpha-primary: rgb(19, 143, 221);
+    --alpha-secondary: rgb(132, 103, 214);
+    --alpha-accent: rgb(48, 193, 241);
+    --alpha-highlight: rgb(48, 229, 241);
+    --alpha-gradient: rgb(3, 170, 237);
+    --alpha-teal: rgb(48, 241, 191);
+    
+    /* Neutral Colors */
+    --alpha-white: #ffffff;
+    --alpha-light-gray: #f8f9fa;
+    --alpha-gray: #6c757d;
+    --alpha-dark-gray: #2c3e50;
+    --alpha-black: #000000;
+    
+    /* Semantic Colors */
+    --alpha-success: #28a745;
+    --alpha-warning: #ffc107;
+    --alpha-danger: #dc3545;
+    --alpha-info: var(--alpha-accent);
+    
+    /* Typography */
+    --alpha-font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --alpha-font-weight-light: 300;
+    --alpha-font-weight-regular: 400;
+    --alpha-font-weight-medium: 500;
+    --alpha-font-weight-semibold: 600;
+    --alpha-font-weight-bold: 700;
+    
+    /* Spacing */
+    --alpha-spacing-xs: 4px;
+    --alpha-spacing-sm: 8px;
+    --alpha-spacing-md: 16px;
+    --alpha-spacing-lg: 24px;
+    --alpha-spacing-xl: 32px;
+    --alpha-spacing-xxl: 48px;
+    
+    /* Border Radius */
+    --alpha-border-radius-sm: 4px;
+    --alpha-border-radius-md: 8px;
+    --alpha-border-radius-lg: 12px;
+    --alpha-border-radius-xl: 16px;
+    
+    /* Shadows */
+    --alpha-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --alpha-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --alpha-shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+    --alpha-shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.15);
+    
+    /* Transitions */
+    --alpha-transition-fast: 0.15s ease;
+    --alpha-transition-normal: 0.3s ease;
+    --alpha-transition-slow: 0.5s ease;
+}
+ input[type=checkbox]:focus, 
+ input[type=color]:focus, 
+ input[type=date]:focus, 
+ input[type=datetime-local]:focus, 
+ input[type=datetime]:focus, 
+ input[type=email]:focus, 
+ input[type=month]:focus, 
+ input[type=number]:focus, 
+ input[type=password]:focus, 
+ input[type=radio]:focus, 
+ input[type=search]:focus, 
+ input[type=tel]:focus, 
+ input[type=text]:focus, 
+ input[type=time]:focus, 
+ input[type=url]:focus, 
+ input[type=week]:focus, 
+ select:focus, 
+ textarea:focus,
+ .wp-core-ui select:focus {
+    border-color: rgb(3, 170, 237) !important;
+    box-shadow: 0 0 0 1px rgb(3, 170, 237);
+    outline: 2px solid transparent;
+}
+.wpd-line-item-cogs input {
+    padding: 10px 20px !important;
+}
+body, body * {
+    font-family: 'Poppins', -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+}
+body #wpcontent {
+    padding: 0px;
+    background: #f6f6f6;
+}
+.wrap, #contextual-help-wrap, #screen-options-wrap {
+    margin: 0px;
+    padding: 0px 50px;
+}
+div#screen-meta {
+    margin: 0 0px -1px 0;
+    border-color: #eaeaea;
+    padding: 30px 0px;
+}
+#screen-meta-links .show-settings {
+    border-color: #eaeaea;
+}
+#update-nag, .update-nag {
+    /*display: block;*/
+    margin-left: 50px;
+    margin-right: 50px;
+}
+#adminmenu div.wp-menu-name {
+    padding: 18px 0px;
+    padding-right: 30px !important;
+    padding-left: 30px !important;
+    border-bottom: solid 1px #ffffff0d;
+}
+#adminmenu div.wp-menu-image {
+    width: 55px;
+    height: 55px;
+    text-align: center;
+}
+#adminmenu .wp-menu-image img {
+    padding: 18px 0 0 0;
+}
+div.wp-menu-image:before {
+    padding: 18px 0;
+}
+/*#adminmenu li.wp-has-current-submenu a.wp-has-current-submenu {
+    background: #01aef0;
+    border: none;
+    font-weight: 600;
+    color: white;
+    background-image: linear-gradient(to right, rgb(3, 170, 237) , rgb(19,143,221));
+}*/
+#adminmenu li.wp-has-current-submenu a.wp-has-current-submenu {
+    background: #01aef0;
+    font-weight: 500;
+    color: white;
+    background-image: linear-gradient(to right, rgb(3, 170, 237) , rgb(19,143,221));
+    background: linear-gradient(-180deg,#04a9ed 0%,#138fdd 100%);
+    box-shadow: inset 0 1px 0 1px rgba(255,255,255,.1), 0 1px 0 0 rgba(30,32,40,.1);
+    border-top-right-radius: 7px;
+    border-top-left-radius: 7px;
+}
+#adminmenu, #adminmenu .wp-submenu, #adminmenuback, #adminmenuwrap {
+    width: 200px;
+    background-color: #161616;
+}
+#adminmenu .wp-has-current-submenu ul>li>a, .folded #adminmenu li.menu-top .wp-submenu>li>a {
+    padding: 8px 20px;
+    border-top: solid 1px #ffffff0a;
+}
+#adminmenu .wp-has-current-submenu .wp-submenu, #adminmenu .wp-has-current-submenu .wp-submenu.sub-open, #adminmenu .wp-has-current-submenu.opensub .wp-submenu, #adminmenu a.wp-has-current-submenu:focus+.wp-submenu, .no-js li.wp-has-current-submenu:hover .wp-submenu {
+    background: #262626;
+}
+li.wp-not-current-submenu.wp-menu-separator {
+    margin: 0px !important;
+    background: #262626;
+    display: none;
+}
+#adminmenu .wp-submenu a:focus, #adminmenu .wp-submenu a:hover, #adminmenu a:hover, #adminmenu li.menu-top>a:focus {
+    color: #01aef0;
+}
+#wpcontent, #wpfooter {
+    margin-left: 200px;
+}
+#adminmenu .wp-not-current-submenu .wp-submenu, .folded #adminmenu .wp-has-current-submenu .wp-submenu {
+    min-width: 200px;
+    width: auto;
+}
+#adminmenu .wp-submenu {
+    left: 200px;
+}
+#adminmenu li.wp-has-submenu.wp-not-current-submenu.opensub:hover:after {
+    border-right-color: #ffffff26;
+}
+#adminmenu li.wp-has-submenu.wp-not-current-submenu:hover:after {
+    top: 18px;
+}
+/**
+ *
+ *  Core Override - Top Bar
+ *
+ */
+div#wpadminbar * {
+    font-family: 'Poppins', -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+}
+#wpadminbar {
+    background: #000000;
+}
+/**
+ *
+ *  Core Elements
+ *
+ */
+#menu-management .menu-edit, #menu-settings-column .accordion-container, .comment-ays, .feature-filter, .imgedit-group, .manage-menus, .menu-item-handle, .popular-tags, .stuffbox, .widget-inside, .widget-top, .widgets-holder-wrap, .wp-editor-container, p.popular-tags, table.widefat {
+    border-color: #e6e6e6;
+    border-radius: 7px;
+}
+.postbox {
+    position: relative;
+    min-width: 255px;
+    border: 1px solid #e6e6e6;
+    box-shadow: 0 5px 10px 0px rgba(0,0,0,.05);
+    background: #fff;
+    border-radius: 7px;
+}
+.postbox, .stuffbox {
+    margin-bottom: 50px;
+    padding: 0;
+    line-height: 1;
+    overflow: hidden;
+}
+.postbox .inside h2, .wrap [class$=icon32]+h2, .wrap h1, .wrap>h2:first-child {
+    font-size: 28px;
+    font-weight: 600;
+    margin-top: 50px;
+}
+#poststuff .stuffbox>h3, #poststuff h2, #poststuff h3.hndle {
+    font-size: 14px;
+    padding: 20px 10px;
+    margin: 0;
+    line-height: 1.4;
+    font-weight: 500;
+}
+.order_actions li.wide {
+    padding: 10px !important;
+}
+#poststuff .inside {
+    margin: 6px 0 0 0;
+    margin: 0px;
+}
+.metabox-holder .postbox>h3, .metabox-holder .stuffbox>h3, .metabox-holder h2.hndle, .metabox-holder h3.hndle {
+    padding: 20px 10px;
+    border-bottom-color: #e6e6e6;
+}
+.postbox-header .handle-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
+#woocommerce_dashboard_status .wc_status_list li a {
+    padding: 20px 12px;
+}
+#activity-widget #the-comment-list .avatar {
+    display: inline-block;
+    position: unset;
+    float: left;
+    padding-right: 20px;
+}
+#activity-widget #the-comment-list .comment-item {
+    background: white;
+    border-bottom: solid 1px #e6e6e6;
+}
+.widefat td, 
+.widefat th,
+.widefat tbody th.check-column, 
+.updates-table tbody td.check-column, 
+.widefat tbody th.check-column, 
+.widefat tfoot td.check-column, 
+.widefat thead td.check-column {
+    padding: 30px 10px;
+    background: transparent;
+    border-bottom: solid 1px #eaeaea;
+    border-color: #eaeaea !important;
+}
+table.wp-list-table.widefat.fixed.striped.posts {
+    border-radius: 7px !important;
+    overflow: hidden;
+}
+table.wp-list-table.widefat {
+    border-radius: 7px !important;
+    overflow: hidden;
+    box-shadow: 0 5px 10px 0px rgba(0,0,0,.05);
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+#titlediv #title {
+    height: unset;
+    padding: 20px;
+}
+#titlediv #title-prompt-text {
+    padding: 20px;
+    line-height: initial;
+}
+.media-frame input[type=date], 
+.media-frame input[type=datetime-local], 
+.media-frame input[type=datetime], 
+.media-frame input[type=email], 
+.media-frame input[type=month], 
+.media-frame input[type=number], 
+.media-frame input[type=password], 
+.media-frame input[type=search], 
+.media-frame input[type=tel], 
+.media-frame input[type=text], 
+.media-frame input[type=time], 
+.media-frame input[type=url], 
+.media-frame input[type=week],
+input[type=checkbox], 
+input[type=radio], 
+.wp-core-ui select, 
+input[type=color], 
+input[type=date], 
+input[type=datetime-local], 
+input[type=datetime], 
+input[type=email], 
+input[type=month], 
+input[type=number], 
+input[type=password], 
+input[type=search], 
+input[type=tel], 
+input[type=text], 
+input[type=time], 
+input[type=url], 
+input[type=week], 
+.wp-core-ui select, 
+select,
+textarea {
+    border-color: #ccc !important;
+    border-radius: 7px !important;
+    color: #666;
+    border-radius: 7px;
+    line-height: initial;
+    max-width: 100%;
+    font-weight: 400;
+    padding: 10px 20px;
+    font-weight: 400;
+}
+fieldset {
+    border-radius: 7px;
+    border-color: #e6e6e6 !important;
+}
+div#wpseo-metabox-root div {
+    border-color: #e6e6e6 !important;
+}
+.misc-pub-section {
+    padding: 10px 0px;
+}
+#major-publishing-actions {
+    background: white;
+}
+#post-status-info {
+    background: white;
+    border-color: #e6e6e6 !important;
+    padding: 20px;
+    border-radius: 7px;
+    box-shadow: none !important;
+    border-top-right-radius: 0px;
+    border-top-left-radius: 0px;
+}
+div#postdivrich {
+    margin-top: 30px;
+}
+#wp-content-editor-tools {
+    background: none;
+}
+.wp-editor-expand #wp-content-editor-container {
+    border-bottom: 0 none;
+    border-color: #e6e6e6 !important;
+}
+.wp-editor-expand #wp-content-editor-tools {
+    border-bottom: none;
+}
+div.mce-toolbar-grp, .tmce-active .quicktags-toolbar {
+    border-bottom: 1px solid #e6e6e6;
+    background: #fbfbfb;
+    padding: 20px 0px;
+}
+.html-active .switch-html, .tmce-active .switch-tmce {
+    background: #fbfbfb;
+    border-bottom-color: #fbfbfb;
+}
+.woocommerce-reports-wide .postbox .chart-with-sidebar, .woocommerce-reports-wrap .postbox .chart-with-sidebar, #poststuff .inside.chart-with-sidebar {
+    padding: 12px 12px 12px 249px !important;
+    margin: 0!important;
+}
+.wrap, #contextual-help-wrap, #screen-options-wrap, .woocommerce-embed-page .wrap, .woocommerce-page .wrap {
+    margin: 0px;
+    padding: 0px 50px;
+}
+.wp-core-ui .button, 
+.wp-core-ui .button:active, 
+.wp-core-ui .button-secondary, 
+.wp-core-ui .button-secondary:active, 
+.wrap .add-new-h2, 
+.wrap .add-new-h2:active, 
+.wrap .page-title-action, 
+.wrap .page-title-action:active {
+    border-color: #007cba;
+    border: solid 1px #ccc;
+    box-shadow: inset 0 1px 0 1px rgba(255,255,255,.1), 0 1px 0 0 rgba(30,32,40,.1);
+    border-radius: 7px;
+    font-weight: 500;
+    padding: 10px 20px;
+    color: #666;
+    line-height: initial;
+    height: unset !important;
+}
+.wp-core-ui .button-primary, 
+input.btn.btn-primary, 
+body.elementor-editor-active #elementor-switch-mode-button, 
+#elementor-editor-button, 
+#elementor-switch-mode-button {
+    background: linear-gradient(-180deg,#04a9ed 0%,#138fdd 100%);
+    border: 1px solid #138fdd;
+    box-shadow: inset 0 1px 0 1px rgba(255,255,255,.1), 0 1px 0 0 rgba(30,32,40,.1);
+    border-radius: 7px;
+    color: #fff;
+    font-weight: 500;
+    padding: 10px 20px !important;
+    line-height: initial !important;
+    transition: all var(--alpha-transition-normal);
+    border: none;
+    text-decoration: none;
+    font-family: var(--alpha-font-family);
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.3px;
+    background: var(--alpha-primary);
+    color: var(--alpha-white);
+    border: 1px solid rgba(19, 143, 221, 0.15);
+    box-shadow: 0 2px 6px rgba(19, 143, 221, 0.2);
+}
+.wp-core-ui .button-primary:hover,
+input.btn.btn-primary:hover,
+.wp-core-ui .button-primary:active,
+input.btn.btn-primary:active,
+.wp-core-ui .button-primary:focus,
+input.btn.btn-primary:focus,
+#elementor-switch-mode-button:hover, #elementor-editor-button:focus,
+#elementor-switch-mode-button:hover, #elementor-editor-button:focus {
+    background: var(--alpha-gradient);
+    color: var(--alpha-white);
+    border-color: var(--alpha-gradient);
+    box-shadow: 0 4px 12px rgba(19, 143, 221, 0.3);
+    transform: translateY(-1px);
+}
+.wp-core-ui .button-primary::before,
+input.btn.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s;
+  }
+  
+  .wp-core-ui .button-primary:hover::before,
+  input.btn.btn-primary:hover::before {
+    left: 100%;
+  }
+.tablenav .tablenav-pages .button, 
+.tablenav .tablenav-pages .button:active, 
+.tablenav .tablenav-pages .button:focus, 
+.tablenav .tablenav-pages .tablenav-pages-navspan {
+    display: inline-block;
+    vertical-align: baseline;
+    min-width: 30px;
+    min-height: 30px;
+    margin: 0;
+    padding: 0 4px;
+    font-size: 16px;
+    line-height: 1.625;
+    text-align: center;
+}
+.attachments-browser .media-toolbar-secondary {
+    margin: 10px 0px;
+}
+.woocommerce-layout__header {
+    left: 200px;
+}
+.woocommerce-layout__header .woocommerce-layout__header-breadcrumbs {
+    margin-top: 0px;
+}
+.post-type-shop_subscription .tablenav input, 
+.post-type-shop_subscription .tablenav select, 
+.post-type-product .tablenav input, 
+.post-type-product .tablenav select, 
+.post-type-shop_order .tablenav input, 
+.post-type-shop_order .tablenav select {
+    height: unset !important;
+}
+.post-type-shop_subscription .tablenav .select2-selection--single,
+.post-type-shop_order .tablenav .select2-selection--single {
+    height: auto !important;
+    padding: 6px 5px !important;
+    border-radius: 7px !important;
+    border-color: #ccc !important;
+}
+.nav-tab {
+    padding: 10px 20px;
+    border-top-right-radius: 7px;
+    border-top-left-radius: 7px;
+}
+.plugins .active th.check-column {
+    background-color: #f7fcfe;
+}
+.plugins .active th.check-column {
+    border-bottom: none;
+}
+.screen-per-page {
+    width: 90px;
+}
+.wp-core-ui .button-group.button-large .button, .wp-core-ui .button.button-large {
+    min-height: 32px !important;
+    line-height: 2.30769231 !important;
+    padding: 0 12px !important;
+}
+.postbox-header {
+    border-color: #eaeaea;
+}
+#misc-publishing-actions {
+    padding: 10px;
+}
+.wp-picker-container .wp-color-result.button {
+    border-radius: 3px;
+}
+.order_data_column .form-field input[type=number] {
+    padding: 10px;
+    min-width: 65px;
+}
+.order_data_column .select2-selection {
+    padding: 5px !important;
+    height: unset !important;
+    border-color: #ccc !important;
+}
+.order_data_column .select2-selection .select2-selection__arrow {
+    height: 35px !important;
+}
+#order_data {
+    padding: 20px 25px 30px !important;
+}
+h2.woocommerce-order-data__heading {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
+    font-weight: 500 !important;
+    text-transform: capitalize;
+}
+p.woocommerce-order-data__meta.order_number {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
+    font-size: 14px !important;
+}
+@media (max-width: 600px) {
+    .wrap, #contextual-help-wrap, #screen-options-wrap, .woocommerce-embed-page .wrap, .woocommerce-page .wrap {
+        padding: 0px 10px;
+    }
+}
+button.button.wc-reload {
+    height: 40px !important;
+    padding: 19px 0px !important;
+    width: 27px !important;
+}
+button.button.wc-reload::after {
+    line-height: 38px;
+}
+div#woocommerce-subscription-schedule .wc-metaboxes-wrapper > * > * {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+div#woocommerce-subscription-schedule .wc-metaboxes-wrapper input {
+    width: inherit !important;
+}
+div#woocommerce-subscription-schedule .wc-metaboxes-wrapper .billing-schedule-edit.wcs-date-input {
+    align-items: flex-end;
+}
+#adminmenu .wp-submenu ul.wp-third-level-menu {
+    background-color: rgb(38, 38, 38);
+}

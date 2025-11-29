@@ -1,0 +1,545 @@
+<h2>Email Settings</h2>
+<p>Alpha Insights can send automated email notifications with your store's profit and expense reports. Configure email recipients, frequency, and which metrics to include in your scheduled email reports.</p>
+
+<h3>Accessing Email Settings</h3>
+<ol>
+<li>Go to <strong>Alpha Insights → Settings</strong></li>
+<li>Navigate to the <strong>Email</strong> settings page (via tab or link)</li>
+<li>You'll see configuration for Appearance Settings and email reports</li>
+</ol>
+
+<h3>Quick Overview</h3>
+<p><strong>What you can do:</strong></p>
+<ul>
+<li>Configure automated profit reports (daily, weekly, monthly)</li>
+<li>Set up expense reports for accounting</li>
+<li>Choose which metrics to include in each email</li>
+<li>Send to multiple recipients</li>
+<li>Preview and test emails before enabling</li>
+</ul>
+
+<h2>Appearance Settings</h2>
+<p>Control the overall formatting and branding of your email notifications.</p>
+
+<h3>Include Header and Footer</h3>
+<p><strong>What it does:</strong> Adds Alpha Insights branded header and footer to your emails</p>
+
+<p><strong>Options:</strong></p>
+<ul>
+<li><strong>Header:</strong> Branded header at the top with Alpha Insights logo and styling</li>
+<li><strong>Footer:</strong> Footer section with links and branding</li>
+</ul>
+
+<p><strong>When to disable:</strong></p>
+<ul>
+<li>You're using an email template plugin that already adds headers/footers</li>
+<li>You have custom email HTML templates configured</li>
+<li>You prefer plain-text style emails without branding</li>
+<li>Headers/footers conflict with your email client's formatting</li>
+</ul>
+
+<p><strong>Recommendation:</strong> Keep both enabled for professional-looking emails with proper formatting</p>
+
+<h2>Email #1 - Profit Report</h2>
+<p>Your primary performance email with revenue, profit, orders, and sales metrics. This is the most important report for tracking daily business performance.</p>
+
+<h3>Recipients</h3>
+
+<h4>Comma Separated List Of Recipients</h4>
+<p><strong>What it is:</strong> Email addresses that will receive this report</p>
+
+<p><strong>Format:</strong> <code>email1@domain.com, email2@domain.com, email3@domain.com</code></p>
+
+<p><strong>Examples:</strong></p>
+<ul>
+<li><strong>Single owner:</strong> <code>john@yourstore.com</code></li>
+<li><strong>Owner + manager:</strong> <code>owner@yourstore.com, manager@yourstore.com</code></li>
+<li><strong>Team distribution:</strong> <code>ceo@store.com, cfo@store.com, operations@store.com</code></li>
+</ul>
+
+<p><strong>Placeholder:</strong> If left empty, the email will default to your WordPress admin email address</p>
+
+<p><strong>Tip:</strong> You can send profit reports to different people than expense reports - configure each report separately</p>
+
+<h3>Frequency</h3>
+
+<h4>How Often This Email Should Be Sent</h4>
+<p>Choose when you want to receive profit reports. You can enable multiple frequencies - the report will send at each enabled interval.</p>
+
+<p><strong>Available options:</strong></p>
+<ul>
+<li><strong>Daily:</strong> Every day with yesterday's performance data (sent ~8 AM)</li>
+<li><strong>Weekly:</strong> Every Monday with last week's complete data</li>
+<li><strong>Monthly:</strong> First of each month with previous month's comprehensive summary</li>
+</ul>
+
+<p><strong>Multiple selections:</strong> You can check multiple boxes to receive reports at different intervals</p>
+
+<p><strong>Common configurations:</strong></p>
+<ul>
+<li><strong>Daily only:</strong> Perfect for active monitoring - check yesterday's performance every morning</li>
+<li><strong>Weekly only:</strong> Good for less frequent review cycles - review business once per week</li>
+<li><strong>Daily + Monthly:</strong> Quick daily pulse checks with detailed monthly summaries</li>
+<li><strong>All three enabled:</strong> Complete coverage at all intervals (daily, weekly, monthly)</li>
+</ul>
+
+<p><strong>Disable all:</strong> Uncheck all boxes to stop profit report emails</p>
+
+<h3>What Would You Like To Include?</h3>
+<p>Customize which metrics appear in your profit report emails. Check or uncheck each metric based on what you want to see.</p>
+
+<h4>Available Metrics</h4>
+
+<p><strong>Order Revenue</strong></p>
+<ul>
+<li>Total revenue (sales) for the period</li>
+<li>Includes all order totals from paid orders</li>
+<li>Before any costs are deducted</li>
+</ul>
+
+<p><strong>Order Cost</strong></p>
+<ul>
+<li>Total costs for the period</li>
+<li>Includes product COGS, shipping, payment fees, custom costs</li>
+<li>Shows what you spent to fulfill orders</li>
+</ul>
+
+<p><strong>Order Profit</strong></p>
+<ul>
+<li>Net order profit (revenue minus order costs)</li>
+<li>This is your gross profit before operating expenses</li>
+<li>Does not include additional expenses from Expense Manager</li>
+</ul>
+
+<p><strong>Order Count</strong></p>
+<ul>
+<li>Number of orders placed and paid</li>
+<li>Based on order statuses configured in General Settings</li>
+</ul>
+
+<p><strong>Average Order Value</strong></p>
+<ul>
+<li>Average revenue per order</li>
+<li>Calculated as: Total Revenue ÷ Order Count</li>
+<li>Useful for tracking if customers are spending more/less per order</li>
+</ul>
+
+<p><strong>Average Profit Per Order</strong></p>
+<ul>
+<li>Average profit per order</li>
+<li>Calculated as: Total Order Profit ÷ Order Count</li>
+<li>Shows profitability per transaction</li>
+</ul>
+
+<p><strong>Total Products Sold</strong></p>
+<ul>
+<li>Quantity of products sold (sum of all line item quantities)</li>
+<li>Shows volume of items moved</li>
+</ul>
+
+<p><strong>Total Product Discounts</strong></p>
+<ul>
+<li>Amount of discounts applied via coupons or sale prices</li>
+<li>Helps track promotional impact</li>
+</ul>
+
+<p><strong>Total Refunds</strong></p>
+<ul>
+<li>Refund amounts processed during the period</li>
+<li>Includes full and partial refunds</li>
+</ul>
+
+<p><strong>Additional Expenses</strong></p>
+<ul>
+<li>Operating expenses from Expense Manager for the period</li>
+<li>Includes all expense categories (advertising, software, etc.)</li>
+<li>Does not include order-level costs (already in Order Cost)</li>
+</ul>
+
+<p><strong>Net Profit</strong></p>
+<ul>
+<li>Final profit after all expenses</li>
+<li>Calculated as: Order Profit - Additional Expenses</li>
+<li>This is your true bottom line</li>
+</ul>
+
+<h4>Selecting Metrics</h4>
+<p><strong>Minimal configuration:</strong> Order Revenue, Order Profit, Order Count</p>
+<p><strong>Balanced configuration:</strong> Order Revenue, Order Profit, Order Count, Average Order Value, Net Profit</p>
+<p><strong>Comprehensive:</strong> Enable all metrics for complete visibility</p>
+
+<p><strong>Recommendation:</strong> Start with a balanced configuration - you can always add more metrics later</p>
+
+<h3>Testing and Preview</h3>
+
+<h4>Preview Email</h4>
+<p><strong>What it does:</strong> Opens a preview of what the profit report email will look like</p>
+<p><strong>How to use:</strong></p>
+<ol>
+<li>Click <strong>Preview Email</strong> button</li>
+<li>Opens in new browser tab</li>
+<li>Shows actual email HTML with sample data</li>
+<li>Check formatting, layout, and structure</li>
+</ol>
+<p><strong>Use for:</strong> Verifying email appearance before enabling scheduled reports</p>
+
+<h4>Send Test Email</h4>
+<p><strong>What it does:</strong> Immediately sends a test profit report with your actual store data</p>
+<p><strong>How to use:</strong></p>
+<ol>
+<li>Configure recipients in the field above</li>
+<li>Select which metrics to include</li>
+<li>Click <strong>Send Test Email</strong></li>
+<li>Email sent immediately to all configured recipients</li>
+<li>Check your inbox (and spam folder)</li>
+</ol>
+
+<p><strong>Testing workflow:</strong></p>
+<ol>
+<li>Enter your email address in recipients</li>
+<li>Choose metrics you want</li>
+<li>Click "Send Test Email"</li>
+<li>Review the email you receive</li>
+<li>Adjust configuration if needed</li>
+<li>Click "Save Changes" when satisfied</li>
+</ol>
+
+<p><strong>Important:</strong> Test email uses your actual store data, not sample data</p>
+
+<h3>Example Profit Report</h3>
+<p><strong>Subject Line:</strong> Your Store Profit Report - [Date Range]</p>
+<p><strong>Email Content Example:</strong></p>
+<pre>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Your Store Performance Report
+Last 7 Days: Oct 15-22, 2024
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💰 Order Revenue: $12,450.00
+📦 Orders: 143 orders
+📊 Average Order Value: $87.06
+
+💵 Order Cost: $7,558.00
+✅ Order Profit: $4,892.00 (39.3% margin)
+📈 Average Profit Per Order: $34.21
+
+📦 Products Sold: 287 units
+💸 Discounts Applied: $525.00
+↩️ Refunds: $450.00
+
+🏢 Additional Expenses: $645.00
+🎯 Net Profit: $4,247.00
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+</pre>
+
+<h2>Email #2 - Expense Report</h2>
+<p>Track and review your business expenses automatically. Perfect for accounting, bookkeeping, and expense monitoring.</p>
+
+<h3>Recipients</h3>
+<p>Same format as Profit Report - comma-separated email addresses</p>
+
+<p><strong>Different recipients:</strong> You can send expense reports to different people than profit reports</p>
+<p><strong>Common setup:</strong></p>
+<ul>
+<li>Profit reports → Owner, managers</li>
+<li>Expense reports → Accountant, bookkeeper, CFO</li>
+</ul>
+
+<h3>Frequency</h3>
+<p>Choose when to receive expense reports:</p>
+<ul>
+<li><strong>Daily:</strong> Yesterday's expenses</li>
+<li><strong>Weekly:</strong> Last week's expenses</li>
+<li><strong>Monthly:</strong> Previous month's complete expense summary (most common)</li>
+</ul>
+
+<p><strong>Typical usage:</strong> Monthly expense reports are most popular for accounting and bookkeeping purposes</p>
+
+<h3>What Would You Like To Include?</h3>
+<p>Customize which expense metrics appear in your reports.</p>
+
+<h4>Available Metrics</h4>
+
+<p><strong>Total Expenses Paid</strong></p>
+<ul>
+<li>Total amount of all expenses for the period</li>
+<li>Sum of all expense records in Expense Manager</li>
+<li>Primary metric for expense tracking</li>
+</ul>
+
+<p><strong>Total No. Expenses</strong></p>
+<ul>
+<li>Count of individual expense entries</li>
+<li>Shows how many expenses were recorded</li>
+<li>Useful for tracking expense frequency</li>
+</ul>
+
+<p><strong>Average Expenses Per Day</strong></p>
+<ul>
+<li>Daily average spending rate</li>
+<li>Calculated as: Total Expenses ÷ Days in Period</li>
+<li>Helps understand daily burn rate</li>
+</ul>
+
+<p><strong>All Parent Category Expenses</strong></p>
+<ul>
+<li>Breakdown by top-level expense categories</li>
+<li>Shows spending across main categories (e.g., Marketing, Software, Shipping)</li>
+<li>High-level expense distribution</li>
+</ul>
+
+<p><strong>All Child Category Expenses</strong></p>
+<ul>
+<li>Detailed breakdown including sub-categories</li>
+<li>Shows spending in granular detail (e.g., Facebook Ads, Google Ads under Marketing)</li>
+<li>Comprehensive category breakdown</li>
+</ul>
+
+<h4>Understanding Category Levels</h4>
+<p><strong>Parent categories:</strong> Top-level groupings</p>
+<ul>
+<li>Marketing</li>
+<li>Software & Tools</li>
+<li>Shipping & Fulfillment</li>
+<li>Office Expenses</li>
+</ul>
+
+<p><strong>Child categories:</strong> Sub-categories under parents</p>
+<ul>
+<li>Marketing → Facebook Ads</li>
+<li>Marketing → Google Ads</li>
+<li>Marketing → Influencer Marketing</li>
+<li>Software & Tools → Email Marketing</li>
+<li>Software & Tools → Accounting Software</li>
+</ul>
+
+<p><strong>Tip:</strong> Enable "Parent Category Expenses" for clean overview, or "Child Category Expenses" for detailed analysis</p>
+
+<h3>Example Expense Report</h3>
+<p><strong>Subject Line:</strong> Your Store Expense Report - [Date Range]</p>
+<p><strong>Email Content Example:</strong></p>
+<pre>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Expense Report
+October 2024
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💰 Total Expenses: $3,245.00
+📋 Number of Expenses: 47
+📊 Average Per Day: $103.71
+
+Expense Breakdown by Category:
+📢 Advertising: $1,850.00 (57%)
+  - Facebook Ads: $1,200.00
+  - Google Ads: $650.00
+
+📦 Shipping & Fulfillment: $750.00 (23%)
+  - Carrier Fees: $600.00
+  - Packaging: $150.00
+
+💻 Software & Tools: $345.00 (11%)
+  - Email Marketing: $199.00
+  - Analytics Tools: $146.00
+
+🏢 Office Supplies: $200.00 (6%)
+
+🔧 Other: $100.00 (3%)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+</pre>
+
+<h3>Testing Expense Reports</h3>
+<p>Same testing options as Profit Reports:</p>
+<ul>
+<li><strong>Preview Email:</strong> See what it looks like</li>
+<li><strong>Send Test Email:</strong> Send with actual expense data</li>
+</ul>
+
+<h2>Email Delivery</h2>
+
+<h3>When Emails Are Sent</h3>
+<p><strong>Daily emails:</strong> Approximately 8:00 AM in your WordPress timezone</p>
+<p><strong>Weekly emails:</strong> Monday morning (8:00 AM)</p>
+<p><strong>Monthly emails:</strong> 1st of each month (8:00 AM)</p>
+
+<p><strong>Timezone:</strong> Based on your WordPress timezone setting (Settings → General → Timezone)</p>
+
+<p><strong>Important note:</strong> Email timing depends on WordPress cron, which requires site traffic to trigger. For guaranteed timing on low-traffic sites, consider setting up a server cron job.</p>
+
+<h3>Email Deliverability</h3>
+
+<h4>Default WordPress Email</h4>
+<p>By default, Alpha Insights uses WordPress's built-in email system (PHP mail function). This works but has limitations:</p>
+<ul>
+<li>Higher chance of emails going to spam</li>
+<li>Less reliable delivery</li>
+<li>No delivery tracking</li>
+<li>Not authenticated</li>
+</ul>
+
+<h4>Recommended: Use SMTP</h4>
+<p>For much better email delivery, install an SMTP plugin:</p>
+
+<p><strong>Popular SMTP plugins:</strong></p>
+<ul>
+<li><strong>WP Mail SMTP:</strong> Most popular, easy setup</li>
+<li><strong>Post SMTP:</strong> Feature-rich alternative</li>
+<li><strong>Easy WP SMTP:</strong> Simplified configuration</li>
+</ul>
+
+<p><strong>Recommended SMTP services:</strong></p>
+<ul>
+<li><strong>SendGrid:</strong> Free tier (100 emails/day), reliable, easy setup</li>
+<li><strong>Mailgun:</strong> Developer-friendly, good pricing</li>
+<li><strong>Amazon SES:</strong> Very cost-effective for volume</li>
+<li><strong>Gmail:</strong> Easy but limited (500 emails/day)</li>
+</ul>
+
+<p><strong>Benefits of SMTP:</strong></p>
+<ul>
+<li>✅ Much better deliverability</li>
+<li>✅ Emails rarely go to spam</li>
+<li>✅ Authenticated sending</li>
+<li>✅ Delivery tracking and logs</li>
+<li>✅ Professional appearance</li>
+</ul>
+
+<h3>Sender Configuration</h3>
+
+<p><strong>Sender email address:</strong> Controlled by WordPress → Settings → General → Email Address</p>
+<p><strong>Sender name:</strong> Set by your SMTP plugin or theme</p>
+
+<p><strong>Best practices:</strong></p>
+<ul>
+<li>Use an email from your domain: <code>reports@yourstore.com</code></li>
+<li>Don't use personal email: <code>yourname@gmail.com</code></li>
+<li>Use recognizable name: "YourStore Reports" not "WordPress"</li>
+<li>Configure SPF and DKIM records for your domain</li>
+</ul>
+
+<h2>Saving Your Settings</h2>
+<p>After configuring email settings:</p>
+<ol>
+<li>Click <strong>Save Changes</strong> button (top or bottom of page)</li>
+<li>Wait for confirmation message</li>
+<li>Send test emails to verify configuration</li>
+<li>Check your inbox and spam folder</li>
+</ol>
+
+<p><strong>Settings take effect immediately</strong> - next scheduled email will use your new configuration</p>
+
+<h2>Troubleshooting</h2>
+
+<h3>Not Receiving Emails</h3>
+<p><strong>Check these items:</strong></p>
+<ol>
+<li><strong>Spam folder:</strong> Check junk/spam - whitelist the sender</li>
+<li><strong>Email address:</strong> Verify correct address in settings (no typos)</li>
+<li><strong>Frequency enabled:</strong> At least one frequency box must be checked</li>
+<li><strong>WordPress cron:</strong> Verify scheduled tasks are running (WP Crontrol plugin)</li>
+<li><strong>Host allows email:</strong> Some hosts block outbound email - check with hosting support</li>
+<li><strong>SMTP configured:</strong> If using SMTP, verify settings are correct</li>
+</ol>
+
+<p><strong>Testing steps:</strong></p>
+<ol>
+<li>Click "Send Test Email"</li>
+<li>If test arrives → scheduled emails should work (check spam folder for schedule)</li>
+<li>If test doesn't arrive → email sending is broken (check SMTP, host settings)</li>
+</ol>
+
+<h3>Emails Going to Spam</h3>
+<p><strong>Common causes:</strong></p>
+<ul>
+<li>Using PHP mail() instead of SMTP</li>
+<li>Sender email not from your domain</li>
+<li>Missing SPF/DKIM records</li>
+<li>Poor IP reputation</li>
+</ul>
+
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>Install and configure SMTP plugin</li>
+<li>Use sender email from your domain</li>
+<li>Set up SPF record: Contact your DNS provider</li>
+<li>Set up DKIM: Configured in SMTP service</li>
+<li>Whitelist sender in your email client</li>
+</ol>
+
+<h3>Wrong Data in Emails</h3>
+<p><strong>Check:</strong></p>
+<ul>
+<li>WordPress timezone matches your location</li>
+<li>Order statuses configured correctly in General Settings</li>
+<li>Reports cache is up to date (clear if needed)</li>
+<li>Metrics selected match what you want to see</li>
+</ul>
+
+<h3>Emails Not Sending at Right Time</h3>
+<p><strong>WordPress cron dependency:</strong> WordPress cron requires site traffic to run</p>
+<p><strong>Solutions:</strong></p>
+<ul>
+<li>Install "WP Cron Control" plugin for reliable scheduling</li>
+<li>Set up server cron job (advanced - ask host)</li>
+<li>Verify WordPress timezone setting</li>
+</ul>
+
+<h2>Best Practices</h2>
+
+<h3>Email Configuration</h3>
+<ul>
+<li><strong>Start simple:</strong> Enable just daily profit report initially</li>
+<li><strong>Test thoroughly:</strong> Send test emails before enabling scheduled reports</li>
+<li><strong>Right frequency:</strong> Don't overwhelm yourself - choose what you'll actually review</li>
+<li><strong>Appropriate recipients:</strong> Send profit to management, expenses to accounting</li>
+<li><strong>Focused metrics:</strong> Include only metrics you check regularly</li>
+</ul>
+
+<h3>For Different Business Types</h3>
+
+<p><strong>Solo business owner:</strong></p>
+<ul>
+<li>Daily profit report to yourself</li>
+<li>Monthly expense report for tax preparation</li>
+<li>Include all metrics - you want full visibility</li>
+</ul>
+
+<p><strong>Small team (2-5 people):</strong></p>
+<ul>
+<li>Daily profit to owner/manager</li>
+<li>Weekly profit to team</li>
+<li>Monthly expense to accountant</li>
+<li>Balanced metrics for each</li>
+</ul>
+
+<p><strong>Larger business:</strong></p>
+<ul>
+<li>Daily profit to operations team</li>
+<li>Weekly profit to executives</li>
+<li>Monthly comprehensive reports to finance</li>
+<li>Custom recipient groups per report</li>
+</ul>
+
+<h3>Privacy and Security</h3>
+<ul>
+<li>Email is not encrypted - financial data is visible</li>
+<li>Only send to secure business email addresses</li>
+<li>Don't send to personal email accounts</li>
+<li>Regularly review recipient lists</li>
+<li>Remove recipients who no longer need access</li>
+<li>Be aware of compliance requirements for financial data</li>
+</ul>
+
+<h2>Summary</h2>
+<p>Email settings in Alpha Insights provide:</p>
+<ul>
+<li><strong>Automated reporting:</strong> Scheduled profit and expense summaries</li>
+<li><strong>Customization:</strong> Choose metrics and frequency</li>
+<li><strong>Flexibility:</strong> Different reports to different people</li>
+<li><strong>Convenience:</strong> Performance data delivered to your inbox</li>
+<li><strong>Reliability:</strong> Set it up once and it runs automatically</li>
+</ul>
+
+<p>Configure your email reports to match your business review schedule, and you'll always stay informed about your store's profitability!</p>
+

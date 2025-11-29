@@ -1,0 +1,311 @@
+﻿<h2>Optimizing Report Performance</h2>
+<p>As your store grows, reports may take longer to load. This guide covers optimization techniques to keep Alpha
+    Insights running fast, even with large amounts of data.</p>
+<h3>Understanding Report Performance</h3>
+<h3>What Affects Speed</h3>
+<ul>
+    <li>
+        <strong>Data volume:</strong> More orders = longer processing time
+    </li>
+    <li>
+        <strong>Date range:</strong> Wider ranges = more data to process
+    </li>
+    <li>
+        <strong>Widget count:</strong> More widgets = more calculations
+    </li>
+    <li>
+        <strong>Filters:</strong> Complex filters require more processing
+    </li>
+    <li>
+        <strong>Server resources:</strong> Hosting quality matters
+    </li>
+</ul>
+<h3>Typical Load Times</h3>
+<p>
+    <strong>Small stores (< 5,000 orders):</strong>1-3 seconds
+</p>
+<p>
+    <strong>Medium stores (5,000-50,000 orders):</strong>2-8 seconds
+</p>
+<p>
+    <strong>Large stores (50,000+ orders):</strong>5-15 seconds
+</p>
+<p>
+    <strong>Very large stores (500,000+ orders):</strong>10-30 seconds
+</p>
+<h4>Quick Performance Wins</h4>
+<h4>1. Reduce Date Range</h4>
+<p>
+    <strong>Instead of:</strong>"All Time" (processes everything)
+</p>
+<p>
+    <strong>Use:</strong>"Last 30 Days" or "This Month"
+</p>
+<p>
+    <strong>Impact:</strong> Can reduce load time by 50-90%
+</p>
+<h4>2. Limit Table Rows</h4>
+<p>
+    <strong>Data Table settings:</strong>
+</p>
+<ul>
+    <li>Max Records: 500 instead of No Limit</li>
+    <li>Results Per Page: 25 instead of 200</li>
+</ul>
+<p>
+    <strong>Impact:</strong> Faster initial load, pagination handles rest
+</p>
+<h4>3. Reduce Widget Count</h4>
+<p>
+    <strong>Instead of:</strong>15 widgets in one report
+</p>
+<p>
+    <strong>Use:</strong>5-8 widgets, create multiple focused reports
+</p>
+<p>
+    <strong>Impact:</strong> Faster loading, better user experience
+</p>
+<h4>4. Enable Database Indexes</h4>
+<ol>
+    <li>Go to <strong>Tools → System Status</strong>
+    </li>
+    <li>Click <strong>Rebuild Database Indexes</strong>
+    </li>
+    <li>Wait for completion (1-5 minutes)</li>
+</ol>
+<p>
+    <strong>When to use:</strong> If reports suddenly slow after months of use
+</p>
+<p>
+    <strong>Impact:</strong> Can improve speed by 30-50%
+</p>
+<h3>Server-Level Optimization</h3>
+<h3>PHP Memory Limit</h3>
+<p>
+    <strong>Recommended:</strong>256MB minimum, 512MB ideal
+</p>
+<p>
+    <strong>Check current limit:</strong>
+</p>
+<ol>
+    <li>Alpha Insights → Tools → System Status</li>
+    <li>See PHP Memory Limit</li>
+</ol>
+<p>
+    <strong>If too low:</strong>
+</p>
+<ul>
+    <li>Contact hosting provider to increase</li>
+    <li>Or add to wp-config.php:<code>define('WP_MEMORY_LIMIT', '512M');</code>
+    </li>
+</ul>
+<h3>PHP Version</h3>
+<p>
+    <strong>Minimum:</strong> PHP 7.4
+</p>
+<p>
+    <strong>Recommended:</strong> PHP 8.0 or 8.1
+</p>
+<p>
+    <strong>Impact of upgrading:</strong>
+</p>
+<ul>
+    <li>PHP 8.0: 20-40% faster than PHP 7.4</li>
+    <li>PHP 8.1: Additional 10-15% improvement</li>
+</ul>
+<p>
+    <strong>How to upgrade:</strong> Contact hosting provider or change in hosting control panel
+</p>
+<h3>Database Optimization</h3>
+<p>
+    <strong>Optimize tables monthly:</strong>
+</p>
+<ol>
+    <li>Alpha Insights → Tools → Database</li>
+    <li>Click <strong>Optimize Database Tables</strong>
+    </li>
+    <li>Wait for completion</li>
+</ol>
+<p>
+    <strong>What it does:</strong>
+</p>
+<ul>
+    <li>Reorganizes data for faster queries</li>
+    <li>Removes fragmentation</li>
+    <li>Reclaims wasted space</li>
+</ul>
+<h4>Report-Specific Optimizations</h4>
+<h3>Large Data Tables</h3>
+<p>
+    <strong>If you have table with 10,000+ rows:</strong>
+</p>
+<ol>
+    <li>Set Max Records to 500 or 1000</li>
+    <li>Use filters to narrow data</li>
+    <li>Create focused sub-reports instead of one massive table</li>
+</ol>
+<h3>Complex Charts</h3>
+<p>
+    <strong>Line charts with 365+ data points:</strong>
+</p>
+<ul>
+    <li>Use weekly or monthly granularity instead of daily</li>
+    <li>Or reduce date range</li>
+</ul>
+<p>
+    <strong>Bar charts with 100+ bars:</strong>
+</p>
+<ul>
+    <li>Limit to top 20-50</li>
+    <li>Use table for complete data</li>
+</ul>
+<h4>Multiple Metric Charts</h4>
+<p>
+    <strong>Instead of:</strong> One chart with 8 metrics
+</p>
+<p>
+    <strong>Use:</strong> Two charts with 4 metrics each
+</p>
+<p>
+    <strong>Or:</strong> Primary chart with 2-3 metrics
+</p>
+<h3>Data Retention Management</h3>
+<h3>Session Data Cleanup</h3>
+<p>Old session data slows queries:</p>
+<ol>
+    <li>Settings → Data & Privacy</li>
+    <li>Set Session Retention to 90 days</li>
+    <li>Old sessions automatically deleted</li>
+</ol>
+<p>
+    <strong>Impact:</strong> Keeps analytics tables lean
+</p>
+<h3>Archive Old Orders</h3>
+<p>
+    <strong>For multi-year stores:</strong>
+</p>
+<ol>
+    <li>Export orders older than 2 years</li>
+    <li>Store exported data as archive</li>
+    <li>Optionally delete very old orders from database</li>
+</ol>
+<p>
+    <strong>Caution:</strong> Only delete if you have secure backups
+</p>
+<h4>Background Processing</h4>
+<h3>Optimize Background Tasks</h3>
+<ol>
+    <li>Settings → General → Performance</li>
+    <li>
+        <ul>
+            <li>
+                <strong>Balanced:</strong> Good for most stores
+            </li>
+            <li>
+                <strong>Conservative:</strong> If experiencing performance issues
+            </li>
+        </ul>
+    </li>
+</ol>
+<h4>Schedule Heavy Tasks</h4>
+<p>Run intensive tasks during off-peak hours:</p>
+<ul>
+    <li>Historical data processing: Midnight</li>
+    <li>Database optimization: 3am</li>
+</ul>
+<h3>Hosting Optimization</h3>
+<h3>Hosting Quality Matters</h3>
+<p>
+    <strong>Shared hosting:</strong>
+</p>
+<ul>
+    <li>OK for stores under 10,000 orders</li>
+    <li>May struggle with complex reports</li>
+</ul>
+<p>
+    <strong>VPS or managed WordPress:</strong>
+</p>
+<ul>
+    <li>Good for most eCommerce stores</li>
+    <li>Handles up to 100,000 orders well</li>
+</ul>
+<p>
+    <strong>Dedicated server:</strong>
+</p>
+<ul>
+    <li>Best for large stores (100,000+ orders)</li>
+    <li>Can handle complex reports with ease</li>
+</ul>
+<h3>Recommended Hosts for Alpha Insights</h3>
+<ul>
+    <li>WP Engine (managed WordPress)</li>
+    <li>Kinsta (managed WordPress)</li>
+    <li>SiteGround (shared/cloud)</li>
+    <li>Cloudways (managed cloud VPS)</li>
+    <li>AWS/DigitalOcean (for advanced users)</li>
+</ul>
+<h4>Monitoring Performance</h4>
+<h3>System Status Check</h3>
+<ol>
+    <li>Go to <strong>Alpha Insights → Tools → System Status</strong>
+    </li>
+    <li>
+        <ul>
+            <li>PHP version</li>
+            <li>Memory limit</li>
+            <li>Database size</li>
+            <li>Background task queue</li>
+        </ul>
+    </li>
+</ol>
+<h4>Slow Query Log</h4>
+<ol>
+    <li>Tools → Debug → Slow Query Log</li>
+    <li>See which reports/queries are slowest</li>
+    <li>Focus optimization on those areas</li>
+</ol>
+<h3>Troubleshooting Slow Reports</h3>
+<h3>Issue: Reports take 30+ seconds to load</h3>
+<p>
+    <strong>Check:</strong>
+</p>
+<ol>
+    <li>Date range - reduce to last 30-90 days</li>
+    <li>Number of widgets - reduce to 6-8 max</li>
+    <li>Table row limits - set to 500 max</li>
+    <li>Check hosting resources - may need upgrade</li>
+</ol>
+<h4>Issue: Dashboard is slow</h4>
+<p>
+    <strong>Solutions:</strong>
+</p>
+<ul>
+    <li>Disable dashboard widgets you don't use</li>
+    <li>Set shorter default date range (Last 7 Days)</li>
+</ul>
+<h3>Issue: Background tasks backing up</h3>
+<p>
+    <strong>Check:</strong>
+</p>
+<ol>
+    <li>Tools → Background Tasks</li>
+    <li>See task queue length</li>
+    <li>If 100+ tasks queued, contact support</li>
+</ol>
+<p>
+    <strong>Solution:</strong>
+</p>
+<ul>
+    <li>Verify WP-Cron is working</li>
+    <li>May need to enable system cron with host</li>
+</ul>
+<h3>Best Practices</h3>
+<ul>
+    <li>Keep WordPress and PHP updated</li>
+    <li>Limit date ranges to what you actually need</li>
+    <li>Optimize database monthly</li>
+    <li>Monitor system status quarterly</li>
+    <li>Don't overload reports with widgets</li>
+    <li>Use filters to reduce data volume</li>
+    <li>Upgrade hosting if consistently slow</li>
+</ul>

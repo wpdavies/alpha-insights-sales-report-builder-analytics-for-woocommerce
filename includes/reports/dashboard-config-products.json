@@ -1,0 +1,691 @@
+{
+  "dashboard_id": "products",
+  "name": "Product Report",
+  "menu_order": "20",
+  "widgets": [],
+  "filters": {
+    "date_from": null,
+    "date_to": null,
+    "date_preset": "last_30_days",
+    "comparison_date_selection": "previous_period",
+    "data_filters": {}
+  },
+  "created_at": 1761040032,
+  "updated_at": 1761040032,
+  "rows": [
+    {
+      "id": "row-1757894415596",
+      "columns": [
+        {
+          "id": "column-1757894415596-0",
+          "width": {
+            "desktop": 3,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1757894418823_0v6lmc44p",
+              "type": "metric_card",
+              "config": {
+                "title": "Total Quantity Sold",
+                "metric": "products.totals.total_qty_sold",
+                "change_indicator": "previous_period",
+                "sub_value": "products.totals.total_skus_sold",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "icon": "trending_up",
+                "color": "blue",
+                "selected_columns": [],
+                "column_order": [],
+                "default_sort_key": "",
+                "default_sort_direction": "asc",
+                "format": "text"
+              }
+            }
+          ],
+          "isEmptyColumn": false
+        },
+        {
+          "id": "column-1757894415596-1",
+          "width": {
+            "desktop": 3,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1757894493151_alwsdqmy6",
+              "type": "metric_card",
+              "config": {
+                "title": "Average Product Discount %",
+                "metric": "products.totals.average_product_discount_percent",
+                "change_indicator": "previous_period",
+                "sub_value": "products.totals.total_product_discount_amount",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "icon": "trending_up",
+                "color": "blue",
+                "selected_columns": [],
+                "column_order": [],
+                "default_sort_key": "",
+                "default_sort_direction": "asc",
+                "format": "text"
+              }
+            }
+          ],
+          "isEmptyColumn": false
+        },
+        {
+          "id": "column-1757894415596-2",
+          "width": {
+            "desktop": 3,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1757894530788_mmdse3f7s",
+              "type": "metric_card",
+              "config": {
+                "title": "Average Product Margin",
+                "metric": "products.totals.average_product_margin",
+                "change_indicator": "previous_period",
+                "sub_value": "products.totals.average_profit_per_product",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "icon": "trending_up",
+                "color": "blue",
+                "selected_columns": [],
+                "column_order": [],
+                "default_sort_key": "",
+                "default_sort_direction": "asc",
+                "format": "text"
+              }
+            }
+          ],
+          "isEmptyColumn": false
+        },
+        {
+          "id": "column-1757894415596-3",
+          "width": {
+            "desktop": 3,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1757894626511_pw9tzbs6b",
+              "type": "metric_card",
+              "config": {
+                "title": "Total Product Refunds",
+                "metric": "products.totals.total_product_refund_amount",
+                "change_indicator": "previous_period",
+                "sub_value": "refunds.totals.refund_rate_percentage",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "icon": "trending_up",
+                "color": "blue",
+                "selected_columns": [],
+                "column_order": [],
+                "default_sort_key": "",
+                "default_sort_direction": "asc",
+                "format": "text"
+              }
+            }
+          ],
+          "isEmptyColumn": false
+        }
+      ]
+    },
+    {
+      "id": "row-1757891610965",
+      "columns": [
+        {
+          "id": "column-1757891610965-0",
+          "width": {
+            "desktop": 12,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1757891615462_felszw537",
+              "type": "data_table",
+              "config": {
+                "title": "Top Sellers By Revenue",
+                "metric": "products.data_table.products",
+                "selected_columns": [
+                  "total_product_revenue",
+                  "total_quantity_sold",
+                  "total_times_sold",
+                  "total_product_profit",
+                  "purchase_rate",
+                  "average_product_discount_percent",
+                  "average_sell_price",
+                  "average_margin",
+                  "refund_rate",
+                  "product_rrp",
+                  "product_display",
+                  "total_times_refunded"
+                ],
+                "column_order": [
+                  "product_display",
+                  "product_name",
+                  "product_image",
+                  "total_product_revenue",
+                  "total_product_revenue_excluding_tax",
+                  "total_product_profit",
+                  "total_times_sold",
+                  "total_quantity_sold",
+                  "purchase_rate",
+                  "product_rrp",
+                  "average_sell_price",
+                  "average_product_discount_percent",
+                  "average_margin",
+                  "total_times_refunded",
+                  "refund_rate",
+                  "product_cost_price",
+                  "product_sku"
+                ],
+                "limit": 50,
+                "max_records": 500,
+                "sortable": true,
+                "searchable": true,
+                "default_sort_key": "total_product_revenue",
+                "default_sort_direction": "desc",
+                "filters": [],
+                "width_desktop": 12,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "icon": "list",
+                "color": "blue",
+                "no_max_height": false,
+                "max_height": "600",
+                "realtime_data": false,
+                "format": "text"
+              }
+            }
+          ],
+          "isEmptyColumn": false
+        }
+      ]
+    },
+    {
+      "id": "row-1757894709202",
+      "columns": [
+        {
+          "id": "column-1757894709202-0",
+          "width": {
+            "desktop": 9,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1757894775434_x3v7gbcib",
+              "type": "line_chart",
+              "config": {
+                "title": "Product Sales & Refunds",
+                "data_type": "data_by_date",
+                "metrics": [
+                  {
+                    "metric": "products.data_by_date.product_revenue_by_date",
+                    "label": "Product Revenue",
+                    "icon": "inventory_2",
+                    "color": "purple",
+                    "data_source": "products",
+                    "value_key": "product_revenue_by_date"
+                  },
+                  {
+                    "metric": "products.data_by_date.quantity_sold_by_date",
+                    "label": "Product Quantity Sold",
+                    "icon": "inventory_2",
+                    "color": "blue",
+                    "data_source": "products",
+                    "value_key": "quantity_sold_by_date"
+                  },
+                  {
+                    "metric": "refunds.data_by_date.quantity_refunded_by_date",
+                    "label": "Product Quantity Refunded",
+                    "icon": "undo",
+                    "color": "red",
+                    "data_source": "refunds",
+                    "value_key": "quantity_refunded_by_date"
+                  }
+                ],
+                "metric": "",
+                "metric_field": "",
+                "metric_display": "number",
+                "date_format": "auto",
+                "width_desktop": 9,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "color": "blue",
+                "show_legend": true,
+                "chart_height": "335",
+                "realtime_data": false,
+                "format": "text"
+              }
+            }
+          ],
+          "isEmptyColumn": false
+        },
+        {
+          "id": "column-2-1",
+          "width": {
+            "desktop": 3,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1757896600050_9jdwy9imu",
+              "type": "metric_list",
+              "config": {
+                "title": "Product Sales Data",
+                "metrics": [
+                  {
+                    "metric": "products.totals.total_product_revenue",
+                    "label": "Total Product Revenue",
+                    "icon": "inventory_2",
+                    "color": "blue",
+                    "data_source": "products",
+                    "value_key": "total_product_revenue"
+                  },
+                  {
+                    "metric": "products.totals.total_product_revenue_excluding_tax",
+                    "label": "Total Product Revenue (Excluding Tax)",
+                    "icon": "inventory_2",
+                    "color": "blue",
+                    "data_source": "products",
+                    "value_key": "total_product_revenue_excluding_tax"
+                  },
+                  {
+                    "metric": "products.totals.total_product_profit",
+                    "label": "Total Product Profit",
+                    "icon": "inventory_2",
+                    "color": "blue",
+                    "data_source": "products",
+                    "value_key": "total_product_profit"
+                  },
+                  {
+                    "metric": "products.totals.average_product_margin",
+                    "label": "Average Product Margin",
+                    "icon": "inventory_2",
+                    "color": "blue",
+                    "data_source": "products",
+                    "value_key": "average_product_margin"
+                  }
+                ],
+                "change_indicator": "previous_period",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-1757898668792",
+      "columns": [
+        {
+          "id": "column-3-0",
+          "width": {
+            "desktop": 12,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1757898356421_cv3g8v21i",
+              "type": "data_table",
+              "config": {
+                "title": "Product Analytics",
+                "metric": "analytics.data_table.products",
+                "selected_columns": [
+                  "product_name",
+                  "session_count",
+                  "product_clicks",
+                  "product_page_views",
+                  "add_to_cart",
+                  "transactions",
+                  "conversion_rate",
+                  "percent_of_sessions_with_add_to_cart"
+                ],
+                "column_order": [],
+                "limit": "50",
+                "max_records": 500,
+                "sortable": true,
+                "searchable": true,
+                "default_sort_key": "session_count",
+                "default_sort_direction": "desc",
+                "filters": [],
+                "width_desktop": 12,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "icon": "list",
+                "color": "blue",
+                "no_max_height": false,
+                "max_height": "600",
+                "realtime_data": false,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-1757896495673",
+      "columns": [
+        {
+          "id": "column-3-0",
+          "width": {
+            "desktop": 6,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1757894911699_fvc48d5d7",
+              "type": "pie_chart",
+              "config": {
+                "title": "Sales Data By Product Category",
+                "data_type": "categorized_data",
+                "metric": "products.categorized_data.product_cat_data",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "color": "blue",
+                "show_legend": true,
+                "selected_columns": [],
+                "column_order": [],
+                "default_sort_key": "",
+                "default_sort_direction": "asc",
+                "metric_field": "total_revenue",
+                "metric_display": "currency",
+                "format": "text"
+              }
+            },
+            {
+              "id": "widget_1757894948187_164yicaby",
+              "type": "simple_table",
+              "config": {
+                "title": "Sales Data By Product Category",
+                "data_type": "categorized_data",
+                "color": "blue",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "rows_limit": 50,
+                "sort_config": {
+                  "key": "total_revenue",
+                  "direction": "desc"
+                },
+                "column_order": [],
+                "time_format": "auto",
+                "metric": "products.categorized_data.product_cat_data",
+                "selected_columns": [],
+                "default_sort_key": "",
+                "default_sort_direction": "asc",
+                "metric_fields": [
+                  "total_revenue",
+                  "total_profit",
+                  "total_quantity_sold",
+                  "unique_products_sold"
+                ],
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-3-1",
+          "width": {
+            "desktop": 6,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1757895099686_q5j5ji6i3",
+              "type": "bar_chart",
+              "config": {
+                "title": "Sales Data By Product Tag",
+                "data_type": "categorized_data",
+                "metrics": [],
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "color": "blue",
+                "show_legend": true,
+                "date_format": "auto",
+                "metric": "products.categorized_data.product_tag_data",
+                "selected_columns": [],
+                "column_order": [],
+                "default_sort_key": "",
+                "default_sort_direction": "asc",
+                "metric_field": "total_revenue",
+                "metric_display": "currency",
+                "format": "text"
+              }
+            },
+            {
+              "id": "widget_1757896542609_vi33m57ag",
+              "type": "simple_table",
+              "config": {
+                "title": "Sales Data By Product Tag",
+                "data_type": "categorized_data",
+                "color": "blue",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "rows_limit": 50,
+                "sort_config": {
+                  "key": "total_revenue",
+                  "direction": "desc"
+                },
+                "column_order": [],
+                "time_format": "auto",
+                "metric": "products.categorized_data.product_tag_data",
+                "selected_columns": [],
+                "default_sort_key": "",
+                "default_sort_direction": "asc",
+                "metric_fields": [
+                  "total_revenue",
+                  "total_profit",
+                  "total_quantity_sold",
+                  "unique_products_sold"
+                ],
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-1757897490049",
+      "columns": [
+        {
+          "id": "column-1757897490049-0",
+          "width": {
+            "desktop": 4,
+            "tablet": 8,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1757897492897_33qqs884t",
+              "type": "simple_table",
+              "config": {
+                "title": "Most Profitable Products",
+                "data_type": "data_table",
+                "metric": "products.data_table.products",
+                "metric_fields": "",
+                "selected_columns": [
+                  "product_display",
+                  "total_product_profit"
+                ],
+                "metrics": "",
+                "time_format": "auto",
+                "color": "blue",
+                "width_desktop": 4,
+                "width_tablet": 8,
+                "width_mobile": 12,
+                "rows_limit": "25",
+                "sort_config": {
+                  "key": "total_product_profit",
+                  "direction": "desc"
+                },
+                "column_order": [],
+                "format": "text"
+              }
+            }
+          ],
+          "isEmptyColumn": false
+        },
+        {
+          "id": "column-4-1",
+          "width": {
+            "desktop": 4,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1757897785383_ex49ljeb1",
+              "type": "simple_table",
+              "config": {
+                "title": "Least Profitable Products",
+                "data_type": "data_table",
+                "metric": "products.data_table.products",
+                "metric_fields": "",
+                "selected_columns": [
+                  "product_display",
+                  "total_product_profit"
+                ],
+                "metrics": "",
+                "time_format": "auto",
+                "color": "blue",
+                "width_desktop": 4,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "rows_limit": "25",
+                "sort_config": {
+                  "key": "total_product_profit",
+                  "direction": "asc"
+                },
+                "column_order": [],
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-4-2",
+          "width": {
+            "desktop": 4,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1757898181468_4lyn41mp3",
+              "type": "simple_table",
+              "config": {
+                "title": "Top Sellers By Purchase Rate",
+                "data_type": "data_table",
+                "metric": "products.data_table.products",
+                "metric_fields": "",
+                "selected_columns": [
+                  "product_display",
+                  "purchase_rate"
+                ],
+                "metrics": "",
+                "time_format": "auto",
+                "color": "blue",
+                "width_desktop": 4,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "rows_limit": "25",
+                "sort_config": {
+                  "key": "purchase_rate",
+                  "direction": "desc"
+                },
+                "column_order": [],
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-1757898259483",
+      "columns": [
+        {
+          "id": "column-1757898259483-0",
+          "width": {
+            "desktop": 12,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1757898261859_fkaf9apd6",
+              "type": "data_table",
+              "config": {
+                "title": "Refunded Products",
+                "metric": "products.data_table.products",
+                "selected_columns": [
+                  "product_display",
+                  "total_quantity_refunded",
+                  "total_times_refunded",
+                  "total_refund_amount",
+                  "refund_rate"
+                ],
+                "column_order": [],
+                "limit": "50",
+                "sortable": true,
+                "searchable": true,
+                "default_sort_key": "total_quantity_refunded",
+                "default_sort_direction": "desc",
+                "filters": [
+                  {
+                    "id": "filter_1757898286555_mcuz9s76u",
+                    "column": "total_quantity_refunded",
+                    "operator": "greater_than",
+                    "value": "0",
+                    "value2": ""
+                  }
+                ],
+                "width_desktop": 12,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "icon": "list",
+                "color": "blue",
+                "format": "text"
+              }
+            }
+          ],
+          "isEmptyColumn": false
+        }
+      ]
+    }
+  ],
+  "report_category": "sales_reports",
+  "version_number": "1.0",
+  "appear_in_menu": true,
+  "realtime_data": false,
+  "icon": "inventory_2",
+  "color": "blue"
+}

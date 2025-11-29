@@ -1,0 +1,284 @@
+﻿<h2>Doughnut Chart Widget</h2>
+<p>The Doughnut Chart widget is identical to the Pie Chart but with a hollow center, creating a modern ring appearance. It displays the same proportion and percentage data with a sleeker visual style.</p>
+<h3>When to Use</h3>
+<ul>
+<li>Modern, clean aesthetic preferred over traditional pie charts</li>
+<li>Display center statistic (total value can appear in the hole)</li>
+<li>Show category proportions and distributions</li>
+<li>Same use cases as pie chart but with contemporary look</li>
+</ul>
+<h3>Difference from Pie Chart</h3>
+<table>
+<tr>
+<th>Feature</th>
+<th>Pie Chart</th>
+<th>Doughnut Chart</th>
+</tr>
+<tr>
+<td>Center</td>
+<td>Filled</td>
+<td>Hollow (can show total)</td>
+</tr>
+<tr>
+<td>Appearance</td>
+<td>Traditional</td>
+<td>Modern</td>
+</tr>
+<tr>
+<td>Visual Weight</td>
+<td>Heavier</td>
+<td>Lighter, airier</td>
+</tr>
+<tr>
+<td>Data Display</td>
+<td>Identical</td>
+<td>Identical</td>
+</tr>
+<tr>
+<td>Use Cases</td>
+<td>Same</td>
+<td>Same</td>
+</tr>
+</table>
+<h4>Configuration Options</h4>
+<h3>Content Settings</h3>
+<h4>Title (Required)</h4>
+<p>
+<strong>Examples:</strong> "Sales Distribution", "Traffic Sources", "Profit by Category"
+</p>
+<h3>Data Type (Required)</h3>
+<p>
+<strong>Options:</strong>
+</p>
+<ul>
+<li>
+<strong>Categorized Data:</strong> Category-grouped data (recommended)
+</li>
+<li>
+<strong>Data Tables:</strong> Table data converted to chart
+</li>
+</ul>
+<h3>Metric (Required)</h3>
+<p>
+<strong>Select from:</strong>
+</p>
+<ul>
+<li>Product categories, tags, individual products</li>
+<li>Traffic sources and types</li>
+<li>Geographic regions (country, state)</li>
+<li>Order statuses, payment methods</li>
+<li>Customer segments</li>
+<li>Campaign data</li>
+<li>Expense categories</li>
+</ul>
+<h3>Metric Field</h3>
+<p>
+<strong>What to measure:</strong>
+</p>
+<ul>
+<li>total_revenue - Revenue contribution</li>
+<li>total_profit - Profit contribution</li>
+<li>order_count - Order volume</li>
+<li>units_sold - Quantity sold</li>
+<li>session_count - Traffic volume</li>
+</ul>
+<h4>Design Settings</h4>
+<h3>Responsive Width</h3>
+<p>
+<strong>Desktop/Tablet/Mobile Columns (1-12)</strong>
+</p>
+<p>
+<strong>Recommended:</strong> 6 columns (half width) for balanced layout
+</p>
+<h4>Color Theme</h4>
+<p>
+<strong>Options:</strong> Blue, Green, Purple, Orange, Red, Gray
+</p>
+<p>
+<strong>Effect:</strong> Slices use gradient variations of chosen color
+</p>
+<h3>Show Legend</h3>
+<p>
+<strong>Options:</strong> On (default) / Off
+</p>
+<p>
+<strong>Legend shows:</strong> Category name, color, value, percentage
+</p>
+<h3>Chart Height</h3>
+<p>
+<strong>Range:</strong> 200-1000 pixels (default: 450px)
+</p>
+<p>
+<strong>Adjust for:</strong>
+</p>
+<ul>
+<li>Number of categories (more = taller)</li>
+<li>Legend size</li>
+<li>Visual balance with other widgets</li>
+</ul>
+<h4>Center Value Display</h4>
+<h3>Doughnut Hole Content</h3>
+<p>The hollow center can display:</p>
+<ul>
+<li>
+<strong>Total Value:</strong> Sum of all slices ($45,230)
+</li>
+<li>
+<strong>Metric Label:</strong> What's being measured ("Total Revenue")
+</li>
+<li>
+<strong>Count:</strong> Number of categories shown
+</li>
+<li>
+<strong>Custom Text:</strong> Any text you specify
+</li>
+</ul>
+<p>
+<strong>Example center display:</strong>
+</p>
+<pre>
+	<code>Total Revenue
+   $45,230
+ 5 Categories</code>
+</pre>
+<h4>Example Configurations</h4>
+<h4>Example 1: Revenue by Category</h4>
+<pre>
+	<code>Title: Product Category Revenue
+Data Type: Categorized Data
+Metric: products.categorized_data.by_category
+Metric Field: total_revenue
+Color: Blue
+Show Legend: On
+Height: 450px
+Width: 6 columns</code>
+</pre>
+<h4>Example 2: Traffic Distribution</h4>
+<pre>
+	<code>Title: Traffic Source Breakdown
+Data Type: Categorized Data
+Metric: analytics.categorized_data.traffic_sources
+Metric Field: session_count
+Color: Purple
+Show Legend: On
+Height: 400px
+Width: 6 columns</code>
+</pre>
+<h4>Example 3: Profit by Region</h4>
+<pre>
+	<code>Title: Profit by Country
+Data Type: Categorized Data
+Metric: geographic.categorized_data.by_country
+Metric Field: total_profit
+Color: Green
+Show Legend: On
+Width: 6 columns</code>
+</pre>
+<h4>Example 4: Expense Categories</h4>
+<pre>
+	<code>Title: Operating Expense Distribution
+Data Type: Categorized Data
+Metric: expenses.categorized_data.by_category
+Metric Field: total_amount
+Color: Red
+Show Legend: On
+Width: 6 columns</code>
+</pre>
+<h3>Best Practices</h3>
+<h4>Optimal Slice Count</h4>
+<ul>
+<li>
+<strong>3-5 slices:</strong> Perfect clarity
+</li>
+<li>
+<strong>6-7 slices:</strong> Still good
+</li>
+<li>
+<strong>8+ slices:</strong> Getting crowded, consider alternatives
+</li>
+</ul>
+<h3>Slice Ordering</h3>
+<p>Slices automatically ordered by size (largest first, clockwise)</p>
+<h4>Using with Pie Charts</h4>
+<p>Mix and match in same report:</p>
+<ul>
+<li>Use pie chart for one comparison</li>
+<li>Use doughnut chart for another</li>
+<li>Provides visual variety</li>
+</ul>
+<h3>Pairing Strategy</h3>
+<p>
+<strong>Revenue + Profit side-by-side:</strong>
+</p>
+<ul>
+<li>Left: Revenue by Category (pie chart)</li>
+<li>Right: Profit by Category (doughnut chart)</li>
+<li>Visual variety while comparing related data</li>
+</ul>
+<h4>Common Use Cases</h4>
+<h3>Portfolio Analysis</h3>
+<p>Understand product mix:</p>
+<ul>
+<li>Doughnut showing revenue by category</li>
+<li>Center displays total revenue</li>
+<li>Legend shows each category's contribution</li>
+</ul>
+<h3>Channel Attribution</h3>
+<p>See marketing channel effectiveness:</p>
+<ul>
+<li>Slices: Organic, Paid Search, Paid Social, Email, Direct, Referral</li>
+<li>Field: Order count or Revenue</li>
+<li>Identifies channel dependencies</li>
+</ul>
+<h4>Geographic Distribution</h4>
+<p>Visualize location-based sales:</p>
+<ul>
+<li>Slices: Top 5-7 countries or states</li>
+<li>Field: Revenue or Profit</li>
+<li>Shows geographic concentration</li>
+</ul>
+<h3>Interpreting Doughnut Charts</h3>
+<h4>Balanced Distribution</h4>
+<p>Similar slice sizes = diversified, balanced portfolio</p>
+<h3>Concentrated Distribution</h3>
+<p>One large slice dominating = dependency risk</p>
+<h4>Long Tail</h4>
+<p>Many tiny slices = fragmented, may need consolidation</p>
+<h3>Troubleshooting</h3>
+<h3>Issue: Too many small slices</h3>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Apply filter to show only top 5-7 categories</li>
+<li>Small categories auto-group into "Other" if configured</li>
+<li>Or switch to bar chart for better comparison</li>
+</ul>
+<h4>Issue: Chart appears empty</h4>
+<p>
+<strong>Check:</strong>
+</p>
+<ul>
+<li>Metric has data for date range</li>
+<li>Metric field exists and has values</li>
+<li>Filters not excluding all data</li>
+</ul>
+<h3>Issue: Percentages don't add to 100%</h3>
+<p>
+<strong>Cause:</strong> Rounding or filtering
+</p>
+<p>
+<strong>This is normal:</strong> Display rounding can cause 99.9% or 100.1%
+</p>
+<h3>Related Widgets</h3>
+<ul>
+<li>
+<a href='/documentation/alpha-insights/report-builder/widgets/pie-chart-widget.html'>Pie Chart Widget</a> - Traditional pie chart
+</li>
+<li>
+<a href='/documentation/alpha-insights/report-builder/widgets/bar-chart-widget.html'>Bar Chart Widget</a> - Better for many categories
+</li>
+<li>
+<a href='/documentation/alpha-insights/report-builder/widgets/simple-table-widget.html'>Simple Table Widget</a> - Exact values
+</li>
+</ul>

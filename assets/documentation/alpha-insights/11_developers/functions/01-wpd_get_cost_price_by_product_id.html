@@ -1,0 +1,160 @@
+﻿<h2>Function: wpd_get_cost_price_by_product_id
+</h2>
+<p>Retrieve the cost price (COGS) for a product by its ID. This is the main function for accessing product cost data.
+</p>
+<h3>Description
+</h3>
+<p>Returns the cost of goods sold (COGS) for a specific product. Checks cache first for performance, retrieves from database if needed, and applies the <code>wpd_ai_cost_price_per_unit</code> filter before returning.
+</p>
+<h4>Location
+</h4>
+<p><strong>File:</strong><code>includes/wpd-functions.php</code>
+</p>
+<p><strong>Line:</strong>~193
+</p>
+<h3>Function Signature
+</h3>
+<pre><code>wpd_get_cost_price_by_product_id( $product_id )</code>
+</pre>
+<h4>Parameters
+</h4>
+<table>
+<tr>
+<th>Parameter
+</th>
+<th>Type
+</th>
+<th>Required
+</th>
+<th>Description
+</th>
+</tr>
+<tr>
+<td>$product_id
+</td>
+<td>int
+</td>
+<td>Yes
+</td>
+<td>The WooCommerce product ID
+</td>
+</tr>
+</table>
+<h3>Return Value
+</h3>
+<p><strong>Type:</strong> float
+</p>
+<p><strong>Description:</strong> The cost price per unit. Returns 0.00 if no cost set or product doesn't exist.
+</p>
+<h4>Example Usage
+</h4>
+<h3>Basic Usage
+</h3>
+<pre><code>// Get cost for product ID 123 $cost = wpd_get_cost_price_by_product_id( 123 ); echo 'Product cost: $' . number_format( $cost, 2 );</code>
+</pre>
+<h3>Calculate Profit for Product Sale
+</h3>
+<pre><code>$product_id = 456; $sell_price = 50.00; $quantity = 2; $cost_per_unit = wpd_get_cost_price_by_product_id( $product_id ); $total_cost = $cost_per_unit * $quantity; $total_revenue = $sell_price * $quantity; $profit = $total_revenue - $total_cost; echo sprintf( 'Selling %d units: $%s revenue, $%s cost, $%s profit', $quantity, number_format( $total_revenue, 2 ), number_format( $total_cost, 2 ), number_format( $profit, 2 ) );</code>
+</pre>
+<h3>Display Cost in Custom Location
+</h3>
+<pre><code>// Add cost to product admin columns add_filter( 'manage_edit-product_columns', 'add_cost_column' ); function add_cost_column( $columns ) { $columns['product_cost'] = 'Cost'; return $columns; } add_action( 'manage_product_posts_custom_column', 'display_cost_column', 10, 2 ); function display_cost_column( $column, $post_id ) { if ( $column === 'product_cost' ) { $cost = wpd_get_cost_price_by_product_id( $post_id ); echo wc_price( $cost ); } }</code>
+</pre>
+<h3>Check If Product Has Cost Set
+</h3>
+<pre><code>$product_id = 789; $cost = wpd_get_cost_price_by_product_id( $product_id ); if ( $cost >0 ) { echo 'Cost is set: $' . number_format( $cost, 2 ); } else { echo 'No cost set for this product'; }</code>
+</pre>
+<h3>Bulk Cost Retrieval
+</h3>
+<pre><code>// Get costs for multiple products $product_ids = array( 100, 101, 102, 103 ); $costs = array(); foreach ( $product_ids as $product_id ) { $costs[$product_id] = wpd_get_cost_price_by_product_id( $product_id ); } print_r( $costs ); // Output: Array ( [100] =>25.00 [101] =>18.50 [102] =>32.00 [103] =>0.00 )</code>
+</pre>
+<h3>Calculate Margin on Product Page
+</h3>
+<pre>
+<div class="product-margin" style="margin: 20px 0;">'; echo '<strong>Profit Margin:</strong>' . number_format( $margin, 1 ) . '%'; echo ' (Cost: ' . wc_price( $cost ) . ', Profit: ' . wc_price( $profit ) . ')'; echo '
+</div>
+ '; } }</code>
+</pre>
+<h3>Integration with External System
+</h3>
+<pre><code>// Sync cost to external inventory system add_action( 'save_post_product', 'sync_cost_to_erp', 20 ); function sync_cost_to_erp( $product_id ) { $product = wc_get_product( $product_id ); if ( ! $product ) { return; } $cost = wpd_get_cost_price_by_product_id( $product_id ); $sku = $product->get_sku(); if ( $cost >0 && $sku ) { // Send to ERP API my_erp_api_update_product_cost( $sku, $cost ); } }</code>
+</pre>
+<h4>Performance Notes
+</h4>
+<h3>Caching
+</h3>
+<p>Function uses WordPress object cache:
+</p>
+<ul>
+<li>Cache key:<code>_wpd_ai_product_cost_price</code>
+</li>
+<li>Cache group: Product ID
+</li>
+<li>Results cached until product updated
+</li>
+</ul>
+<h3>Optimization Tips
+</h3>
+<ul>
+<li>Results are cached - safe to call multiple times for same product
+</li>
+<li>For bulk operations, costs cached after first retrieval
+</li>
+<li>Cache automatically cleared when product cost updated
+</li>
+</ul>
+<h4>Special Cases
+</h4>
+<h3>Variable Products
+</h3>
+<p>For variable products (with variations):
+</p>
+<pre><code>// Parent product - returns average or default $parent_cost = wpd_get_cost_price_by_product_id( $parent_id ); // Specific variation - returns variation-specific cost $variation_cost = wpd_get_cost_price_by_product_id( $variation_id ); // Each variation can have different cost</code>
+</pre>
+<h4>Products Without Cost
+</h4>
+<pre><code>// Returns 0.00 if: // - Cost not set in product // - Product doesn't exist // - Product ID invalid $cost = wpd_get_cost_price_by_product_id( 999999 ); // Returns: 0.00</code>
+</pre>
+<h3>Bundled Products
+</h3>
+<p>For product bundles:
+</p>
+<ul>
+<li>Returns cost of the bundle product itself
+</li>
+<li>Does NOT automatically sum child product costs
+</li>
+<li>Set bundle cost manually to sum of components
+</li>
+</ul>
+<h3>Filtering Cost Value
+</h3>
+<p>Cost can be filtered using <code>wpd_ai_cost_price_per_unit</code>:
+</p>
+<pre><code>add_filter( 'wpd_ai_cost_price_per_unit', 'modify_retrieved_cost', 10, 2 ); function modify_retrieved_cost( $cost, $product_id ) { // Your custom logic return $cost; }</code>
+</pre>
+<p>See <a href='/documentation/alpha-insights/developers/filters/wpd_ai_cost_price_per_unit.html'>wpd_ai_cost_price_per_unit filter documentation</a>
+</p>
+<h3>Debugging
+</h3>
+<pre><code>// Debug cost retrieval $product_id = 123; $cost = wpd_get_cost_price_by_product_id( $product_id ); error_log( sprintf( 'Product #%d cost: $%s (Type: %s)', $product_id, number_format( $cost, 2 ), gettype( $cost ) ));</code>
+</pre>
+<h3>Related Functions
+</h3>
+<ul>
+<li><code>wpd_get_default_cost_price_by_product_id( $product_id )</code>- Get default cost without filters
+</li>
+<li><code>wpd_calculate_cost_profit_by_order( $order_id )</code>- Calculate order profit
+</li>
+<li><code>wpd_get_additional_costs_by_product_id( $product_id )</code>- Get custom product costs
+</li>
+</ul>
+<h3>Related Filters
+</h3>
+<ul>
+<li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_cost_price_per_unit.html'>wpd_ai_cost_price_per_unit</a>- Filter returned cost
+</li>
+<li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_custom_product_cost_options.html'>wpd_ai_custom_product_cost_options</a>- Register custom cost types
+</li>
+</ul>
+</p>

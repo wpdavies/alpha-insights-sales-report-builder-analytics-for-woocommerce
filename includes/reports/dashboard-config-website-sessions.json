@@ -1,0 +1,95 @@
+{
+  "dashboard_id": "website-sessions",
+  "name": "Website Sessions",
+  "description": "",
+  "filters": {
+    "date_from": null,
+    "date_to": null,
+    "date_preset": "last_30_days",
+    "comparison_date_selection": null,
+    "data_filters": []
+  },
+  "created_at": 1761037306,
+  "updated_at": 1761037327,
+  "menu_order": "60",
+  "report_category": "website_traffic",
+  "version_number": "1.0",
+  "appear_in_menu": true,
+  "realtime_data": false,
+  "rows": [
+    {
+      "id": "row-1757914322575",
+      "columns": [
+        {
+          "id": "column-1-0",
+          "width": {
+            "desktop": 12,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1757916105641_vfh61p2kb",
+              "type": "data_table",
+              "config": {
+                "title": "Website Sessions",
+                "metric": "analytics.data_table.sessions",
+                "selected_columns": [
+                  "session_id",
+                  "ip_address",
+                  "user_id",
+                  "session_start_in_local",
+                  "session_end_in_local",
+                  "session_duration",
+                  "landing_page",
+                  "landing_page_path",
+                  "landing_page_query_parameters",
+                  "landing_page_campaign",
+                  "referral_url",
+                  "referral_source",
+                  "device",
+                  "events",
+                  "page_views",
+                  "non_page_view_events",
+                  "category_page_views",
+                  "product_clicks",
+                  "product_page_views",
+                  "add_to_carts",
+                  "add_to_cart_value",
+                  "initiate_checkouts",
+                  "checkout_error_count",
+                  "form_submits",
+                  "transactions",
+                  "transaction_value",
+                  "product_transaction_value",
+                  "unique_products_purchased",
+                  "total_products_purchased"
+                ],
+                "column_order": [],
+                "limit": "50",
+                "max_records": "0",
+                "sortable": true,
+                "searchable": true,
+                "default_sort_key": "session_start_in_local",
+                "default_sort_direction": "desc",
+                "filters": [],
+                "width_desktop": 12,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "icon": "list",
+                "color": "blue",
+                "no_max_height": false,
+                "max_height": "600",
+                "realtime_data": false,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "pro_report": true,
+  "icon": "list",
+  "color": "orange"
+}

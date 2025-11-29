@@ -1,0 +1,276 @@
+﻿<h2>How Alpha Insights Handles Refunds</h2>
+<p>Refunds affect your profit, and Alpha Insights tracks them automatically. This guide explains how refunds are calculated and displayed in your reports.</p>
+<h3>Automatic Refund Detection</h3>
+<p>Alpha Insights automatically detects when:</p>
+<ul>
+<li>Order is fully refunded</li>
+<li>Order is partially refunded</li>
+<li>Refund is processed through WooCommerce</li>
+</ul>
+<p>No manual entry needed - refunds sync automatically!</p>
+<h3>Refund Impact on Profit</h3>
+<h4>Full Refund</h4>
+<p>
+<strong>What happens:</strong>
+</p>
+<pre>
+	<code>Original order: $100 revenue, $40 cost, $60 profit Full refund: -$100 revenue Result: $0 revenue, -$40 profit (you're out the cost)</code>
+</pre>
+<p>
+<strong>Net impact:</strong>
+</p>
+<ul>
+<li>Revenue reduced by refund amount</li>
+<li>Costs remain (you already incurred them)</li>
+<li>Profit becomes negative by cost amount</li>
+</ul>
+<h4>Partial Refund</h4>
+<p>
+<strong>Example:</strong>
+</p>
+<pre>
+	<code>Original: $100 revenue, $40 cost, $60 profit Partial refund: $30 (one item returned) Result: $70 revenue, $28 cost (adjusted), $42 profit</code>
+</pre>
+<p>
+<strong>Alpha Insights:</strong>
+</p>
+<ul>
+<li>Recalculates based on remaining items</li>
+<li>Adjusts costs proportionally</li>
+<li>Updates profit automatically</li>
+</ul>
+<h3>Refund Handling Options</h3>
+<h4>Configuration</h4>
+<p>Go to <strong>Settings → General Settings → Refund Handling</strong>
+</p>
+<h4>Option 1: Deduct from Period (Default)</h4>
+<p>
+<strong>How it works:</strong>
+</p>
+<ul>
+<li>Refund reduces profit in the period it occurred</li>
+<li>Original order profit remains unchanged</li>
+</ul>
+<p>
+<strong>Example:</strong>
+</p>
+<ul>
+<li>Order placed Jan 15: Shows $60 profit in January</li>
+<li>Refunded Feb 20: Shows -$60 in February</li>
+</ul>
+<p>
+<strong>Best for:</strong> Cash flow-based accounting, month-to-month management
+</p>
+<h4>Option 2: Reverse Original Order</h4>
+<p>
+<strong>How it works:</strong>
+</p>
+<ul>
+<li>Profit removed from original order date</li>
+<li>Historical reports update</li>
+</ul>
+<p>
+<strong>Example:</strong>
+</p>
+<ul>
+<li>Order placed Jan 15: Shows $60 profit in January</li>
+<li>Refunded Feb 20: January profit adjusted to $0</li>
+</ul>
+<p>
+<strong>Best for:</strong> Accrual accounting, accurate historical reporting
+</p>
+<h4>Option 3: Track Separately</h4>
+<p>
+<strong>How it works:</strong>
+</p>
+<ul>
+<li>Refunds don't affect profit calculations</li>
+<li>Tracked as separate metric</li>
+</ul>
+<p>
+<strong>Best for:</strong> Advanced users who want manual control
+</p>
+<h3>Viewing Refund Data</h3>
+<h4>In Dashboard</h4>
+<ul>
+<li>
+<strong>Refund Count:</strong> Number of refunded orders
+</li>
+<li>
+<strong>Refund Amount:</strong> Total refunded
+</li>
+<li>
+<strong>Refund Rate:</strong>% of orders refunded
+</li>
+</ul>
+<h4>In Reports</h4>
+<p>
+<strong>Profit & Loss Statement shows:</strong>
+</p>
+<pre>
+	<code>Gross Revenue: $50,000 Less: Refunds: ($2,300) Net Revenue: $47,700</code>
+</pre>
+<h3>Refund-Specific Reports</h3>
+<ol>
+<li>Create custom report</li>
+<li>Filter: Order Status = Refunded</li>
+<li>See all refunded orders with reasons</li>
+</ol>
+<h3>Refund Metrics</h3>
+<h4>Refund Rate</h4>
+<p>
+<strong>Formula:</strong>(Refunded Orders / Total Orders) Ã— 100
+</p>
+<p>
+<strong>Benchmarks:</strong>
+</p>
+<ul>
+<li>Under 2%: Excellent</li>
+<li>2-5%: Normal for eCommerce</li>
+<li>5-10%: Higher than ideal, investigate</li>
+<li>Over 10%: Concerning, address urgently</li>
+</ul>
+<h4>Refund Amount</h4>
+<p>
+<strong>Total dollar amount refunded in period</strong>
+</p>
+<p>
+<strong>Impact:</strong> Directly reduces net revenue
+</p>
+<h4>Refund Reasons</h4>
+<p>If tracking refund reasons in WooCommerce:</p>
+<ul>
+<li>Product quality issues</li>
+<li>Size/fit problems</li>
+<li>Shipping delays</li>
+<li>Changed mind</li>
+<li>Received wrong item</li>
+</ul>
+<p>Alpha Insights can report on refund reasons to identify patterns</p>
+<h3>Partial Refund Scenarios</h3>
+<h4>Item Return (Keep Shipping)</h4>
+<p>
+<strong>Example:</strong>
+</p>
+<ul>
+<li>Original: $100 product + $10 shipping = $110 total</li>
+<li>Refund product only: $100</li>
+<li>Keep shipping fee: $10</li>
+</ul>
+<p>
+<strong>Alpha Insights adjustment:</strong>
+</p>
+<ul>
+<li>Revenue: $10 (shipping kept)</li>
+<li>Cost: $6 (shipping cost)</li>
+<li>Profit: $4</li>
+</ul>
+<h4>Partial Item Return</h4>
+<p>
+<strong>Example:</strong> Order had 3 items, customer returns 1
+</p>
+<ul>
+<li>Alpha Insights removes that item's revenue and cost</li>
+<li>Recalculates profit for remaining 2 items</li>
+</ul>
+<h4>Refund with Restocking Fee</h4>
+<p>
+<strong>Example:</strong>
+</p>
+<ul>
+<li>Order total: $100</li>
+<li>Refund: $90 (kept $10 restocking fee)</li>
+</ul>
+<p>
+<strong>In Alpha Insights:</strong>
+</p>
+<ul>
+<li>Revenue: $10</li>
+<li>Profit: $10 minus applicable costs</li>
+</ul>
+<h3>Analyzing Refund Patterns</h3>
+<h4>Refund by Product</h4>
+<p>Create report:</p>
+<ol>
+<li>Filter: Refunded orders only</li>
+<li>Group by: Product</li>
+<li>See which products have high refund rates</li>
+</ol>
+<p>
+<strong>Action:</strong> Improve product quality, descriptions, or discontinue
+</p>
+<h4>Refund by Traffic Source</h4>
+<p>See if certain channels have higher refunds:</p>
+<ol>
+<li>Filter: Refunded orders</li>
+<li>Group by: Traffic Source</li>
+</ol>
+<p>
+<strong>Insight:</strong> If Facebook ads have 10% refund rate but email has 2%, may indicate targeting issues
+</p>
+<h4>Refund Timing</h4>
+<p>When do refunds occur after purchase?</p>
+<ul>
+<li>
+< 7 days: Buyer's remorse, wrong item</li>
+<li>7-30 days: Product quality, fit issues</li>
+<li>30+ days: Warranty issues</li>
+</ul>
+<h3>Reducing Refunds</h3>
+<h4>Product-Related</h4>
+<ul>
+<li>Improve product descriptions</li>
+<li>Add more/better photos</li>
+<li>Include size charts</li>
+<li>Show product in use</li>
+<li>Honest marketing (don't overpromise)</li>
+</ul>
+<h4>Shipping-Related</h4>
+<ul>
+<li>Faster shipping (less buyer's remorse)</li>
+<li>Better packaging (reduce damage)</li>
+<li>Accurate tracking information</li>
+</ul>
+<h4>Customer Service</h4>
+<ul>
+<li>Quick pre-purchase support</li>
+<li>Clear return policy</li>
+<li>Proactive issue resolution</li>
+<li>Quality checks before shipping</li>
+</ul>
+<h3>Refund Cost Recovery</h3>
+<h4>Restocking Fees</h4>
+<p>Some businesses charge 10-20% restocking fee:</p>
+<ul>
+<li>Covers cost of processing return</li>
+<li>Reduces refund impact</li>
+<li>Check local laws on restocking fees</li>
+</ul>
+<h4>No Return on Final Sale</h4>
+<ul>
+<li>Mark clearance items as final sale</li>
+<li>Reduces refund rate</li>
+<li>Clear communication to customers</li>
+</ul>
+<h4>Return Shipping Paid by Customer</h4>
+<ul>
+<li>Customer pays return shipping</li>
+<li>You keep original shipping fee</li>
+<li>Reduces refund cost impact</li>
+</ul>
+<h3>Tax and Fees on Refunds</h3>
+<h4>Sales Tax</h4>
+<p>Alpha Insights automatically:</p>
+<ul>
+<li>Refunds include tax refunded</li>
+<li>Tax liability reduced accordingly</li>
+</ul>
+<h4>Payment Fees</h4>
+<p>
+<strong>Important:</strong> Payment processors usually don't refund their fees!
+</p>
+<ul>
+<li>Original order: Paid $3.20 Stripe fee</li>
+<li>Refund: Still out the $3.20 (Stripe keeps it)</li>
+<li>Alpha Insights accounts for this in profit calculations</li>
+</ul>

@@ -1,0 +1,265 @@
+﻿<h2>What Happens When I Update Costs?</h2>
+<p>When you update product costs, expenses, or fee settings, Alpha Insights automatically recalculates profit for all affected orders. This guide explains the recalculation process and what to expect.</p>
+<h3>Automatic Recalculation</h3>
+<h4>What Triggers Recalculation</h4>
+<p>Profit recalculates automatically when you:</p>
+<ul>
+<li>Update product cost</li>
+<li>Add or edit expenses</li>
+<li>Change payment gateway fee settings</li>
+<li>Modify shipping cost rules</li>
+<li>Add custom order costs</li>
+</ul>
+<h4>How It Works</h4>
+<ol>
+<li>You save a cost change</li>
+<li>Alpha Insights queues background task</li>
+<li>System finds all affected orders</li>
+<li>Recalculates profit for each order</li>
+<li>Updates database with new values</li>
+<li>Reports automatically show updated data</li>
+</ol>
+<h4>Processing Time</h4>
+<p>
+<strong>Small stores (< 1,000 orders):</strong>10-30 seconds
+</p>
+<p>
+<strong>Medium stores (1,000-10,000 orders):</strong>1-5 minutes
+</p>
+<p>
+<strong>Large stores (10,000+ orders):</strong>5-30 minutes
+</p>
+<p>
+<strong>Note:</strong> Happens in background - you can continue working
+</p>
+<h3>Recalculation Examples</h3>
+<h4>Example 1: Update Product Cost</h4>
+<p>
+<strong>Scenario:</strong>
+</p>
+<ul>
+<li>Product: Blue T-Shirt</li>
+<li>Old cost: $20</li>
+<li>New cost: $25</li>
+<li>Historical orders: 150</li>
+</ul>
+<p>
+<strong>What happens:</strong>
+</p>
+<ol>
+<li>All 150 historical orders recalculate</li>
+<li>Each order profit reduced by $5</li>
+<li>Total profit for that product reduced by $750</li>
+<li>Reports update to show new profit figures</li>
+</ol>
+<p>
+<strong>Timeline:</strong> Complete in 1-2 minutes
+</p>
+<h4>Example 2: Add Monthly Expense</h4>
+<p>
+<strong>Scenario:</strong>
+</p>
+<ul>
+<li>Add rent expense: $3,000/month starting Jan 1</li>
+<li>Current date: Jan 15</li>
+<li>Orders in January so far: 120</li>
+</ul>
+<p>
+<strong>What happens:</strong>
+</p>
+<ol>
+<li>$3,000 divided by 120 orders = $25 per order</li>
+<li>Each January order profit reduced by $25</li>
+<li>Net profit for January updated</li>
+</ol>
+<p>
+<strong>Note:</strong> Only affects orders from expense start date forward
+</p>
+<h4>Example 3: Change Payment Fee Settings</h4>
+<p>
+<strong>Scenario:</strong>
+</p>
+<ul>
+<li>Update Stripe fee: 2.9% → 2.6% (negotiated better rate)</li>
+<li>Historical orders: All orders using Stripe</li>
+</ul>
+<p>
+<strong>What happens:</strong>
+</p>
+<ol>
+<li>All Stripe orders recalculate with new fee</li>
+<li>Fees slightly lower</li>
+<li>Profit increases slightly for each order</li>
+</ol>
+<p>
+<strong>Processing:</strong> May take 5-15 minutes for large order history
+</p>
+<h3>Historical vs Future Impact</h3>
+<h4>Future Orders</h4>
+<p>New orders use current costs:</p>
+<ul>
+<li>Order placed today uses today's product cost</li>
+<li>No retroactive application</li>
+<li>Clean and simple</li>
+</ul>
+<h4>Historical Orders</h4>
+<p>
+<strong>Important decision:</strong> Should historical orders use new costs?
+</p>
+<p>
+<strong>Alpha Insights default:</strong> Yes - recalculates all historical orders
+</p>
+<p>
+<strong>Why:</strong>
+</p>
+<ul>
+<li>Gives you consistent reporting</li>
+<li>Shows "what-if" scenarios</li>
+<li>Easier to maintain single cost per product</li>
+</ul>
+<p>
+<strong>Alternative approach:</strong> Use date-specific costs (advanced)
+</p>
+<h3>Date-Specific Costs (Advanced)</h3>
+<h4>When to Use</h4>
+<ul>
+<li>Supplier changed prices at specific date</li>
+<li>You want historical accuracy</li>
+<li>Different costs in different time periods</li>
+</ul>
+<h4>How to Set</h4>
+<ol>
+<li>Edit product</li>
+<li>Go to Alpha Insights Cost Settings</li>
+<li>Enable <strong>Historical Cost Tracking</strong>
+</li>
+<li>
+<ul>
+<li>Jan 1 - May 31: $20</li>
+<li>Jun 1 - Dec 31: $23</li>
+</ul>
+</li>
+<li>Save</li>
+</ol>
+<p>
+<strong>Result:</strong>
+</p>
+<ul>
+<li>Orders Jan-May use $20 cost</li>
+<li>Orders Jun-Dec use $23 cost</li>
+<li>Historical accuracy preserved</li>
+</ul>
+<h3>Viewing Recalculation Status</h3>
+<h4>Background Process Monitor</h4>
+<ol>
+<li>Go to <strong>Alpha Insights → Tools → Background Tasks</strong>
+</li>
+<li>See active recalculation tasks</li>
+<li>Progress bar shows completion %</li>
+</ol>
+<h4>Notification</h4>
+<p>When recalculation completes:</p>
+<ul>
+<li>Admin notice appears: "Profit recalculation complete"</li>
+<li>Shows number of orders updated</li>
+</ul>
+<h3>Verifying Recalculation</h3>
+<h4>Check Updated Profit</h4>
+<ol>
+<li>Go to Dashboard</li>
+<li>Verify profit metrics changed as expected</li>
+<li>Check a recent order's profit breakdown</li>
+</ol>
+<h4>Before/After Comparison</h4>
+<ol>
+<li>Before updating costs, note current profit</li>
+<li>Update costs</li>
+<li>After recalculation, compare profit</li>
+<li>Verify change matches expectations</li>
+</ol>
+<h4>Test with Sample Order</h4>
+<ol>
+<li>Note profit for specific order</li>
+<li>Update product cost</li>
+<li>Check same order again</li>
+<li>Verify profit updated correctly</li>
+</ol>
+<h3>Common Questions</h3>
+<h4>Q: If I update cost, can I undo it?</h4>
+<p>
+<strong>A:</strong> Yes, just update back to previous cost. Profit will recalculate again.
+</p>
+<h4>Q: Does recalculation slow my site?</h4>
+<p>
+<strong>A:</strong> No, runs in background with low priority. Site performance unaffected.
+</p>
+<h4>Q: What if I add costs months after orders?</h4>
+<p>
+<strong>A:</strong> Works fine! Historical orders will calculate profit using the cost you enter.
+</p>
+<h4>Q: Can I see profit before and after cost change?</h4>
+<p>
+<strong>A:</strong> Not automatically, but you can:
+</p>
+<ul>
+<li>Export reports before making changes</li>
+<li>Make changes</li>
+<li>Compare old export to new reports</li>
+</ul>
+<h3>Best Practices</h3>
+<h4>Before Major Cost Updates</h4>
+<ol>
+<li>Export current profit reports as backup</li>
+<li>Document reason for cost change</li>
+<li>Update costs</li>
+<li>Verify new profit figures make sense</li>
+</ol>
+<h4>Supplier Price Increases</h4>
+<p>When supplier raises prices:</p>
+<ol>
+<li>Update product costs with new values</li>
+<li>Note effective date in product</li>
+<li>Consider whether to raise selling prices</li>
+<li>Monitor impact on margins</li>
+</ol>
+<h4>Correcting Errors</h4>
+<p>If you entered wrong cost:</p>
+<ul>
+<li>Simply update to correct cost</li>
+<li>Recalculation fixes all historical data</li>
+<li>No need to delete and re-enter orders</li>
+</ul>
+<h3>Bulk Cost Updates</h3>
+<h4>Updating Many Products</h4>
+<p>
+<strong>If supplier raised all costs by 10%:</strong>
+</p>
+<ol>
+<li>Go to Cost of Goods Manager</li>
+<li>Select all products (or filter to supplier)</li>
+<li>Bulk Actions → Adjust Costs by Percentage</li>
+<li>Enter +10%</li>
+<li>Apply</li>
+<li>All products update, all orders recalculate</li>
+</ol>
+<h4>Category-Wide Updates</h4>
+<ol>
+<li>Filter to specific category</li>
+<li>Select all in category</li>
+<li>Bulk update costs</li>
+</ol>
+<h3>Monitoring Impact of Cost Changes</h3>
+<h4>Before/After Report</h4>
+<ol>
+<li>Create comparison report</li>
+<li>Date range: Same period</li>
+<li>Compare profit before and after cost updates</li>
+<li>See total impact</li>
+</ol>
+<h4>Margin Analysis</h4>
+<p>After updating costs:</p>
+<ol>
+<li>Check profit margin % metric</li>
+<li>Compare to previous margin</li>
+<li>Assess if selling prices need adjustment</li>
+</ol>

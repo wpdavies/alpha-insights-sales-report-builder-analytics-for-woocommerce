@@ -1,0 +1,432 @@
+﻿<h2>Adding and Managing Expenses</h2>
+<p>This guide walks you through adding expenses, managing existing expenses, and using the Expense Manager interface in Alpha Insights.</p>
+
+<h3>Accessing the Expense Manager</h3>
+<ol>
+<li>Go to <strong>Alpha Insights</strong> in your WordPress dashboard</li>
+<li>Click <strong>Expense Manager</strong> from the menu</li>
+<li>You'll see the Expense Management dashboard with metrics, recent expenses, and recurring expenses</li>
+</ol>
+
+<h3>The Expense Manager Interface</h3>
+
+<h4>Main Dashboard View</h4>
+<p>The dashboard shows:</p>
+<ul>
+<li><strong>Header:</strong> Page title, date range selector, Add Expense button</li>
+<li><strong>Metrics Cards:</strong> Paid Expenses, Unpaid Expenses, Net Revenue, Net Profit</li>
+<li><strong>Recent Expenses List:</strong> Toggle between paid/unpaid, filterable by date range</li>
+<li><strong>Recurring Expenses:</strong> Active recurring expenses with occurrence counts</li>
+<li><strong>Taxonomy Manager:</strong> Quick view of categories and suppliers</li>
+</ul>
+
+<h4>Navigation Tabs</h4>
+<ul>
+<li><strong>Dashboard:</strong> Overview and recent activity</li>
+<li><strong>Manage All Expenses:</strong> Complete expense list with advanced filtering</li>
+<li><strong>Import Expenses:</strong> CSV import and bulk manual entry</li>
+<li><strong>Manage Taxonomies:</strong> Categories and suppliers management</li>
+</ul>
+
+<h3>Adding a New Expense</h3>
+
+<h4>Opening the Add Expense Modal</h4>
+<p>Click the <strong>Add Expense</strong> button (available on all pages) to open the expense entry modal.</p>
+
+<h4>Expense Fields</h4>
+
+<p><strong>Basic Information:</strong></p>
+<ul>
+<li><strong>Expense Name (Required):</strong> Descriptive name (e.g., "Office Rent - Main St Location")</li>
+<li><strong>Amount (Required):</strong> Numeric amount (no currency symbols)</li>
+<li><strong>Currency (Required):</strong> Select from available currencies (defaults to store currency)</li>
+<li><strong>Date (Required):</strong> Date expense occurred (for one-time) or start date (for recurring)</li>
+<li><strong>Reference Number:</strong> Optional invoice or reference ID</li>
+</ul>
+
+<p><strong>Organization:</strong></p>
+<ul>
+<li><strong>Expense Category:</strong> Select or create new category</li>
+<li><strong>Supplier:</strong> Select or create new supplier</li>
+</ul>
+
+<p><strong>Status:</strong></p>
+<ul>
+<li><strong>Paid Status:</strong> Toggle between Paid/Unpaid (defaults to Paid)</li>
+<li><strong>Note:</strong> Unpaid expenses are tracked separately and shown "all time" regardless of date filters</li>
+</ul>
+
+<p><strong>Recurring Options:</strong></p>
+<ul>
+<li><strong>Recurring Expense:</strong> Toggle to enable recurring</li>
+<li><strong>Frequency:</strong> Daily, Weekly, Fortnightly, Monthly, Quarterly, or Yearly</li>
+<li><strong>Start Date:</strong> When recurring begins (required if recurring)</li>
+<li><strong>End Date:</strong> Optional - when recurring stops (leave blank for ongoing)</li>
+</ul>
+
+<p><strong>Attachments:</strong></p>
+<ul>
+<li><strong>Upload Files:</strong> Attach receipts, invoices, or documentation</li>
+<li><strong>Supported Types:</strong> Images (JPG, PNG, GIF, WebP), PDFs, and documents</li>
+<li><strong>Size Limit:</strong> 10MB per file</li>
+<li><strong>Multiple Files:</strong> Attach multiple documents to one expense</li>
+</ul>
+
+<h4>Saving the Expense</h4>
+<ol>
+<li>Fill in required fields (marked with *)</li>
+<li>Click <strong>Save Expense</strong></li>
+<li>The expense will be created and the list will refresh</li>
+<li>For recurring expenses, occurrences are automatically calculated</li>
+</ol>
+
+<h3>Example: Adding Different Types of Expenses</h3>
+
+<h4>Example 1: One-Time Expense</h4>
+<pre><code>Expense Name: Website Redesign
+Amount: 3500
+Currency: USD
+Date: 2024-10-15
+Category: Marketing
+Supplier: WebDesignCo
+Paid: Yes
+Recurring: No
+Reference: Invoice-2024-10-15
+Attachment: WebDesign-Invoice.pdf
+</code></pre>
+
+<h4>Example 2: Monthly Recurring Expense</h4>
+<pre><code>Expense Name: Office Rent
+Amount: 2500
+Currency: USD
+Frequency: Monthly
+Start Date: 2024-01-01
+End Date: (leave blank)
+Category: Operating Expenses
+Paid: Yes
+Recurring: Yes
+Reference: Lease-Agreement-2024
+</code></pre>
+
+<h4>Example 3: Unpaid Expense</h4>
+<pre><code>Expense Name: Equipment Purchase - Printer
+Amount: 450
+Currency: USD
+Date: 2024-10-20
+Category: Operating Expenses
+Supplier: Office Supply Co
+Paid: No (Toggle to unpaid)
+Recurring: No
+Reference: PO-2024-1020
+</code></pre>
+
+<h3>Viewing and Managing Expenses</h3>
+
+<h4>Recent Expenses View (Dashboard)</h4>
+<p>The dashboard shows recent expenses with:</p>
+<ul>
+<li><strong>Paid/Unpaid Toggle:</strong> Switch between viewing paid or unpaid expenses</li>
+<li><strong>Date Range Selector:</strong> Filter by 7, 30, 60, 90, 180, or 365 days</li>
+<li><strong>Expense Details:</strong> Name, amount, date, category, supplier</li>
+<li><strong>Quick Actions:</strong> View/Edit or Delete</li>
+<li><strong>Add Button:</strong> Quick access to add new expense</li>
+</ul>
+
+<h4>Recurring Expenses View (Dashboard)</h4>
+<p>Shows all active recurring expenses with:</p>
+<ul>
+<li><strong>Expense Name:</strong> Title of the recurring expense</li>
+<li><strong>Amount Per Occurrence:</strong> Amount charged each time</li>
+<li><strong>Frequency:</strong> How often it recurs</li>
+<li><strong>Start/End Dates:</strong> When it began and ends (if applicable)</li>
+<li><strong>Total Paid to Date:</strong> Cumulative amount paid</li>
+<li><strong>Occurrence Count:</strong> Number of times it has occurred</li>
+<li><strong>Actions:</strong> View/Edit the recurring expense</li>
+</ul>
+
+<h4>Manage All Expenses View</h4>
+<p>Advanced expense management with full filtering:</p>
+
+<p><strong>Filter Options:</strong></p>
+<ul>
+<li><strong>Date Range:</strong> Custom from/to dates</li>
+<li><strong>Search:</strong> Search by expense name or reference</li>
+<li><strong>Category:</strong> Filter by expense category</li>
+<li><strong>Supplier:</strong> Filter by supplier</li>
+<li><strong>Paid Status:</strong> All, Paid, or Unpaid</li>
+<li><strong>Recurring:</strong> All, Recurring, or One-Time</li>
+<li><strong>Attachments:</strong> All, With Attachments, or Without Attachments</li>
+</ul>
+
+<p><strong>Bulk Operations:</strong></p>
+<ul>
+<li><strong>Select Multiple:</strong> Checkbox to select expenses</li>
+<li><strong>Bulk Delete:</strong> Delete selected expenses</li>
+<li><strong>Bulk Update Paid:</strong> Mark selected as paid/unpaid</li>
+<li><strong>Bulk Assign Category:</strong> Assign category to selected expenses</li>
+<li><strong>Bulk Assign Supplier:</strong> Assign supplier to selected expenses</li>
+</ul>
+
+<p><strong>Export Options:</strong></p>
+<ul>
+<li><strong>Export Found:</strong> Export currently filtered expenses to CSV</li>
+<li><strong>Export All:</strong> Export all expenses to CSV</li>
+</ul>
+
+<p><strong>Pagination:</strong></p>
+<ul>
+<li>50 expenses per page</li>
+<li>Navigate through pages for large expense lists</li>
+<li>Total count displayed</li>
+</ul>
+
+<h3>Editing an Expense</h3>
+
+<h4>From Any Expense List:</h4>
+<ol>
+<li>Click the <strong>Edit</strong> button next to the expense</li>
+<li>The Add/Edit Expense modal opens with existing data</li>
+<li>Modify any fields</li>
+<li>Click <strong>Update Expense</strong></li>
+<li>Changes are saved and lists refresh</li>
+</ol>
+
+<p><strong>Important Notes:</strong></p>
+<ul>
+<li>Editing an expense updates all calculations immediately</li>
+<li>For recurring expenses, editing updates the template - future occurrences use new values</li>
+<li>Past occurrences of recurring expenses remain unchanged</li>
+<li>API-created expenses (Facebook/Google) should not be manually edited</li>
+</ul>
+
+<h3>Deleting Expenses</h3>
+
+<h4>Single Expense:</h4>
+<ol>
+<li>Click the <strong>Delete</strong> button next to the expense</li>
+<li>Confirm deletion when prompted</li>
+<li>Expense is permanently deleted</li>
+<li>All reports and calculations update immediately</li>
+</ol>
+
+<h4>Bulk Delete:</h4>
+<ol>
+<li>Go to <strong>Manage All Expenses</strong></li>
+<li>Select multiple expenses using checkboxes</li>
+<li>Click <strong>Bulk Actions → Delete</strong></li>
+<li>Confirm bulk deletion</li>
+<li>All selected expenses are permanently deleted</li>
+</ol>
+
+<p><strong>Warning:</strong> Deletion is permanent and cannot be undone. Consider marking expenses as unpaid or setting an end date for recurring expenses instead of deleting.</p>
+
+<h3>Managing Expense Categories</h3>
+
+<h4>Accessing Category Management:</h4>
+<ol>
+<li>Go to <strong>Expense Manager → Manage Taxonomies</strong></li>
+<li>Click the <strong>Expense Categories</strong> tab</li>
+</ol>
+
+<h4>Creating a New Category:</h4>
+<ol>
+<li>Click <strong>Add New Category</strong></li>
+<li>Enter category name</li>
+<li>Optionally select a parent category (for hierarchical structure)</li>
+<li>Click <strong>Save</strong></li>
+</ol>
+
+<h4>Editing a Category:</h4>
+<ol>
+<li>Find the category in the list</li>
+<li>Click <strong>Edit</strong></li>
+<li>Modify name or parent</li>
+<li>Click <strong>Update</strong></li>
+<li>All expenses automatically update</li>
+</ol>
+
+<h4>Deleting a Category:</h4>
+<ol>
+<li>Click <strong>Delete</strong> next to the category</li>
+<li>Choose what to do with expenses in this category:
+    <ul>
+    <li>Move to another category</li>
+    <li>Leave uncategorized</li>
+    </ul>
+</li>
+<li>Confirm deletion</li>
+</ol>
+
+<h4>Bulk Category Operations:</h4>
+<ul>
+<li>Select multiple categories</li>
+<li>Bulk delete or bulk edit</li>
+</ul>
+
+<h3>Managing Suppliers</h3>
+
+<h4>Accessing Supplier Management:</h4>
+<ol>
+<li>Go to <strong>Expense Manager → Manage Taxonomies</strong></li>
+<li>Click the <strong>Suppliers</strong> tab</li>
+</ol>
+
+<h4>Creating a New Supplier:</h4>
+<ol>
+<li>Click <strong>Add New Supplier</strong></li>
+<li>Enter supplier name</li>
+<li>Optionally add:
+    <ul>
+    <li>Tax/VAT number</li>
+    <li>Country</li>
+    </ul>
+</li>
+<li>Click <strong>Save</strong></li>
+</ol>
+
+<p><strong>Note:</strong> Suppliers are shared between expenses and products, so you can track all costs associated with a specific supplier across your entire business.</p>
+
+<h4>Editing and Deleting Suppliers:</h4>
+<p>Same process as categories - edit to change details, delete to remove (with options for reassignment).</p>
+
+<h3>Common Scenarios</h3>
+
+<h4>Scenario: Converting Unpaid to Paid</h4>
+<p>When an unpaid expense is paid:</p>
+<ol>
+<li>Find the expense in the Unpaid expenses list</li>
+<li>Click <strong>Edit</strong></li>
+<li>Toggle <strong>Paid Status</strong> to Paid</li>
+<li>Update the <strong>Date</strong> to the payment date</li>
+<li>Add any relevant reference number</li>
+<li>Click <strong>Update Expense</strong></li>
+</ol>
+<p>The expense will now appear in paid expenses and be included in date-filtered reports.</p>
+
+<h4>Scenario: Ending a Recurring Expense</h4>
+<p>To stop a recurring expense:</p>
+<ol>
+<li>Find the recurring expense (Dashboard or Manage All)</li>
+<li>Click <strong>Edit</strong></li>
+<li>Set an <strong>End Date</strong> (past or future)</li>
+<li>Click <strong>Update Expense</strong></li>
+</ol>
+<p>The system will stop calculating occurrences after the end date.</p>
+
+<h4>Scenario: Changing Recurring Amount</h4>
+<p>If a recurring expense amount changes (e.g., rent increase):</p>
+<ol>
+<li>Edit the recurring expense</li>
+<li>Update the <strong>Amount</strong></li>
+<li>In <strong>Reference/Notes</strong>, note the effective date</li>
+<li>Click <strong>Update Expense</strong></li>
+</ol>
+<p><strong>Note:</strong> This will update future calculations but not past occurrences. For precise historical accuracy, you could set an end date on the old expense and create a new recurring expense with the new amount.</p>
+
+<h4>Scenario: Bulk Categorizing Uncategorized Expenses</h4>
+<ol>
+<li>Go to <strong>Manage All Expenses</strong></li>
+<li>Filter to show uncategorized expenses (or use search)</li>
+<li>Select the expenses to categorize</li>
+<li>Click <strong>Bulk Actions → Assign Category</strong></li>
+<li>Select the category</li>
+<li>Click <strong>Apply</strong></li>
+</ol>
+
+<h3>Tips for Effective Expense Management</h3>
+
+<h4>Use Descriptive Names</h4>
+<p>Good naming helps you find expenses later:</p>
+<ul>
+<li><strong>Good:</strong> "Adobe Creative Cloud - Team Plan"</li>
+<li><strong>Bad:</strong> "Software"</li>
+</ul>
+
+<h4>Leverage Categories and Suppliers</h4>
+<p>Consistent categorization and supplier assignment enables:</p>
+<ul>
+<li>Accurate expense breakdowns</li>
+<li>Supplier-specific cost analysis</li>
+<li>Better filtering and searching</li>
+<li>More meaningful reports</li>
+</ul>
+
+<h4>Attach Documentation</h4>
+<p>Always attach:</p>
+<ul>
+<li>Invoices for all significant expenses</li>
+<li>Receipts for in-person purchases</li>
+<li>Contracts for service agreements</li>
+<li>Any supporting documentation</li>
+</ul>
+
+<h4>Use Reference Numbers</h4>
+<p>Add invoice numbers, PO numbers, or internal reference codes to make expense tracking easier and more professional.</p>
+
+<h4>Review Regularly</h4>
+<p>Set a recurring calendar reminder to:</p>
+<ul>
+<li>Review and approve unpaid expenses</li>
+<li>Verify recurring expenses are still active</li>
+<li>Check for duplicate entries</li>
+<li>Ensure all expenses are properly categorized</li>
+<li>Export data for accounting</li>
+</ul>
+
+<h4>Use Filters Effectively</h4>
+<p>The Manage All Expenses filters are powerful:</p>
+<ul>
+<li>Find all expenses without attachments to add documentation</li>
+<li>Filter by supplier to review vendor costs</li>
+<li>Check recurring expenses to verify they're still needed</li>
+<li>Search by reference number for quick lookups</li>
+</ul>
+
+<h4>Leverage Bulk Operations</h4>
+<p>Bulk operations save time:</p>
+<ul>
+<li>Bulk assign categories when importing many expenses</li>
+<li>Bulk mark as paid after payment runs</li>
+<li>Bulk assign suppliers when adding historical data</li>
+</ul>
+
+<h3>Keyboard Shortcuts & Quick Actions</h3>
+<ul>
+<li><strong>Add Expense Button:</strong> Always visible in header for quick access</li>
+<li><strong>Edit Icon:</strong> Quick edit from any expense list</li>
+<li><strong>Date Range Selector:</strong> Fast filtering on dashboard</li>
+<li><strong>Paid/Unpaid Toggle:</strong> Instant view switching</li>
+<li><strong>Export Buttons:</strong> One-click CSV export</li>
+</ul>
+
+<h3>Troubleshooting</h3>
+
+<h4>Expense Not Showing in Reports</h4>
+<ul>
+<li>Check if expense is marked as Paid (unpaid expenses shown separately)</li>
+<li>Verify the date falls within your selected date range</li>
+<li>Confirm the expense was saved successfully</li>
+<li>Check category/supplier filters aren't excluding it</li>
+</ul>
+
+<h4>Recurring Expense Not Calculating Correctly</h4>
+<ul>
+<li>Verify start date is in the past</li>
+<li>Check end date isn't before current date</li>
+<li>Confirm frequency is set correctly</li>
+<li>Recurring expenses don't calculate beyond current date</li>
+</ul>
+
+<h4>Can't Delete Expense</h4>
+<ul>
+<li>Ensure you have proper permissions</li>
+<li>API-created expenses may need to be deleted from the source</li>
+<li>Try refreshing the page</li>
+</ul>
+
+<h4>Currency Conversion Issues</h4>
+<ul>
+<li>Verify exchange rates are configured in Alpha Insights settings</li>
+<li>Check that currency codes are correct</li>
+<li>Currency conversions use rates from settings</li>
+</ul>

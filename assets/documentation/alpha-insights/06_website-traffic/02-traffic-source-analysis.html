@@ -1,0 +1,959 @@
+﻿<h2>Traffic Source Analysis and Optimization</h2>
+
+<p>Understanding which traffic sources generate profit (not just visits) is the key to smart marketing. This comprehensive guide shows you how to analyze traffic sources in Alpha Insights, understand how source detection works, and optimize your marketing budget based on profitability.</p>
+
+<p><strong>Prerequisites:</strong> Make sure website tracking is enabled. See <a href='/documentation/alpha-insights/website-traffic/understanding-website-analytics.html'>Understanding Website Analytics</a> to get started.</p>
+
+<h3>Traffic Source Categories</h3>
+
+<p>Alpha Insights automatically categorizes all traffic into these sources using the <code>WPD_Traffic_Type</code> class:</p>
+
+<h3>Organic Search</h3>
+
+<p><strong>What it is:</strong> Visitors from search engines (Google, Bing, Yahoo) clicking unpaid search results</p>
+
+<p><strong>How it's detected:</strong> Referrer domain matches known search engine domains:</p>
+
+<ul>
+<li>www.google.com (all country variations)</li>
+<li>bing.com</li>
+<li>yahoo.com</li>
+<li>duckduckgo.com</li>
+<li>search.brave.com</li>
+<li>ecosia.org</li>
+<li>qwant.com</li>
+<li>yandex.com / yandex.ru / ya.ru</li>
+<li>baidu.com</li>
+<li>daum.net</li>
+<li>naver.com</li>
+<li>Seznam.cz</li>
+<li>And 20+ other search engines worldwide</li>
+</ul>
+
+<p><strong>Technical note:</strong> Detection checks if referrer contains search engine domain AND typically includes a search query parameter (q=, p=, query=, etc.), though the query itself is not stored.</p>
+
+<p><strong>Typical characteristics:</strong></p>
+
+<ul>
+<li>High intent - actively searching for products/solutions</li>
+<li>Good conversion rates (3-8% average)</li>
+<li>Higher profit per session</li>
+<li>Free traffic (except SEO investment)</li>
+<li>Quality varies by keyword and search intent</li>
+<li>Often best long-term traffic source</li>
+</ul>
+
+<p><strong>Optimization strategies:</strong></p>
+<ul>
+<li>Invest in SEO and content marketing</li>
+<li>Optimize product pages for search engines</li>
+<li>Target high-intent keywords</li>
+<li>Improve site speed and mobile experience</li>
+<li>Build quality backlinks</li>
+<li>Create helpful, unique content</li>
+</ul>
+
+<h3>Google Ads (Paid Search)</h3>
+
+<p><strong>What it is:</strong> Visitors from Google Ads or Bing Ads paid campaigns</p>
+
+<p><strong>How it's detected:</strong></p>
+<ol>
+<li><strong>First check:</strong> Query parameter <code>gclid</code> (Google Click ID) present in URL</li>
+<li><strong>Second check:</strong> Query parameter <code>utm_medium=cpc</code> from google.com or bing.com</li>
+<li><strong>Priority:</strong> Query parameters override referrer-based detection</li>
+</ol>
+
+<p><strong>Example URLs:</strong></p>
+<pre><code>https://yourstore.com/products?gclid=abc123xyz
+https://yourstore.com?utm_source=google&utm_medium=cpc</code></pre>
+
+<p><strong>Typical characteristics:</strong></p>
+
+<ul>
+<li>Very high intent - actively searching, willing to click ads</li>
+<li>Excellent conversion rates (5-12% average)</li>
+<li>Higher cost per click ($1-10+ depending on industry)</li>
+<li>Profitable if managed well (ROAS 3-6 is good)</li>
+<li>Scalable - increase budget to increase traffic</li>
+<li>Fast results - traffic starts immediately</li>
+</ul>
+
+<p><strong>Optimization:</strong></p>
+<ul>
+<li>Tracked automatically via Google Ads integration</li>
+<li>Use <code>google_cid={{campaignid}}</code> parameter for campaign attribution</li>
+<li>Monitor ROAS (Return on Ad Spend) in Alpha Insights reports</li>
+<li>Pause campaigns with ROAS < 2 (not profitable after expenses)</li>
+<li>Scale campaigns with ROAS > 4 (highly profitable)</li>
+</ul>
+
+<h3>Social Media (Organic)</h3>
+
+<p><strong>What it is:</strong> Visitors from social platforms clicking organic (non-paid) posts</p>
+
+<p><strong>Platforms detected:</strong></p>
+
+<ul>
+<li><strong>Facebook:</strong> facebook.com, m.facebook.com, l.facebook.com, fb.com</li>
+<li><strong>Instagram:</strong> instagram.com, l.instagram.com, ig.com</li>
+<li><strong>Reddit:</strong> reddit.com</li>
+<li><strong>TikTok:</strong> (detected via utm_source=tiktok)</li>
+<li><strong>Pinterest:</strong> (detected via utm_source=pinterest)</li>
+<li><strong>Twitter/X:</strong> (detected via utm_source=twitter or x.com)</li>
+<li><strong>LinkedIn:</strong> (detected via utm_source=linkedin)</li>
+</ul>
+
+<p><strong>How it's detected:</strong></p>
+<ol>
+<li><strong>Query parameter check first:</strong> <code>fbclid</code> (Facebook Click ID) forces Social classification</li>
+<li><strong>Query parameter check:</strong> <code>utm_source=fb</code> or <code>utm_source=ig</code> or <code>utm_source=Facebook</code></li>
+<li><strong>Referrer domain match:</strong> Checks if referrer contains facebook.com, instagram.com, etc.</li>
+<li><strong>Social vs Paid Social:</strong> If utm_medium=cpc also present, may be classified differently</li>
+</ol>
+
+<p><strong>Technical note:</strong> Facebook and Instagram often strip referrer data for privacy. Using <code>fbclid</code> is automatic, but UTM parameters are more reliable for other platforms.</p>
+
+<p><strong>Typical characteristics:</strong></p>
+
+<ul>
+<li>Lower intent - discovery browsing, not active searching</li>
+<li>Lower conversion rates (1-3% average)</li>
+<li>Younger demographic often (varies by platform)</li>
+<li>Free but requires content creation time and effort</li>
+<li>Highly variable quality depending on post content</li>
+<li>Good for brand awareness and engagement</li>
+</ul>
+
+<p><strong>Optimization strategies:</strong></p>
+<ul>
+<li>Create engaging visual content</li>
+<li>Use influencer partnerships</li>
+<li>Encourage user-generated content</li>
+<li>Post consistently with clear CTAs</li>
+<li>Test different content types (video, carousel, stories)</li>
+<li>Use platform-specific features (Reels, Stories, etc.)</li>
+</ul>
+
+<h3>Paid Social (Facebook Ads, Instagram Ads, TikTok Ads)</h3>
+
+<p><strong>What it is:</strong> Paid advertising on social platforms</p>
+
+<p><strong>How it's detected:</strong></p>
+<ol>
+<li><strong>Facebook/Instagram:</strong> <code>fbclid</code> parameter + comes from facebook.com/instagram.com</li>
+<li><strong>Manual tagging:</strong> <code>utm_medium=cpc</code> or <code>utm_medium=paid_social</code> from social platforms</li>
+<li><strong>Campaign tracking:</strong> <code>meta_cid={{campaign.id}}</code> for Facebook campaign attribution</li>
+</ol>
+
+<p><strong>Note:</strong> Alpha Insights currently classifies Facebook paid traffic as "Social" (not separate "Paid Social"). Use Facebook Ads integration for campaign-level tracking.</p>
+
+<p><strong>Typical characteristics:</strong></p>
+
+<ul>
+<li>Scalable volume - increase budget for more traffic</li>
+<li>Moderate conversion rates (2-5% average)</li>
+<li>Lower cost per click than paid search ($0.50-$3)</li>
+<li>ROAS varies widely (2-5 typical, depends on targeting)</li>
+<li>Visual/creative-dependent performance</li>
+<li>Good for retargeting and lookalike audiences</li>
+</ul>
+
+<p><strong>Optimization:</strong></p>
+<ul>
+<li>Tracked automatically via Facebook Ads integration</li>
+<li>Use <code>meta_cid={{campaign.id}}</code> in ad URLs for attribution</li>
+<li>Test different audiences and creatives</li>
+<li>Monitor profit-based ROAS in Alpha Insights</li>
+<li>Retarget cart abandoners and past customers</li>
+<li>Use video and carousel ads for products</li>
+</ul>
+
+<h3>Email</h3>
+
+<p><strong>What it is:</strong> Visitors from email campaigns</p>
+
+<p><strong>How it's detected:</strong></p>
+
+<p><strong>Priority 1 - Query parameters:</strong></p>
+<ul>
+<li><code>mc_cid</code> (Mailchimp campaign ID)</li>
+<li><code>utm_medium=email</code></li>
+<li><code>utm_source=mailpoet</code></li>
+</ul>
+
+<p><strong>Priority 2 - Referrer domain matching:</strong></p>
+<ul>
+<li><strong>Mailchimp:</strong> mailchi.mp, admin.mailchimp.com, campaign-archive.com</li>
+<li><strong>Klaviyo:</strong> klaviyo.com, klclick.com</li>
+<li><strong>Constant Contact:</strong> constantcontact.com, r20.rs6.net</li>
+<li><strong>Brevo (Sendinblue):</strong> r.mailjet.com, mta.brevo.com, sendibm3.com</li>
+<li><strong>HubSpot:</strong> hubspotlinks.com, hs-analytics.net</li>
+<li><strong>Campaign Monitor:</strong> createsend.com, cmail*.com (all cmail domains)</li>
+<li><strong>ActiveCampaign:</strong> emltrk.com, activehosted.com</li>
+<li><strong>MailerLite:</strong> mlsend.com, emlml.com</li>
+<li><strong>SendGrid:</strong> sendgrid.net</li>
+<li><strong>Salesforce Marketing Cloud:</strong> exacttarget.com</li>
+<li><strong>SparkPost:</strong> sparkpostmail.com</li>
+<li><strong>Dotdigital:</strong> dotmailer.com</li>
+</ul>
+
+<p><strong>Technical note:</strong> Email providers often use tracking domains (e.g., klclick.com for Klaviyo) which Alpha Insights recognizes automatically.</p>
+
+<p><strong>Typical characteristics:</strong></p>
+
+<ul>
+<li>Highest conversion rates (5-15% average)</li>
+<li>Very high profit per session</li>
+<li>Engaged, existing audience (your list)</li>
+<li>Owned channel - don't pay per click</li>
+<li>Excellent for promotions and launches</li>
+<li>Repeat customer acquisition</li>
+</ul>
+
+<p><strong>Best practices:</strong></p>
+<ul>
+<li>Always use <code>utm_medium=email</code> in all email links</li>
+<li>Add <code>utm_campaign</code> to track specific email campaigns</li>
+<li>Grow email list aggressively (it's your most valuable asset)</li>
+<li>Segment audiences for personalization</li>
+<li>Test subject lines and content</li>
+<li>Send abandoned cart recovery emails</li>
+</ul>
+
+<h3>Direct</h3>
+
+<p><strong>What it is:</strong> Visitors typing URL directly, using bookmarks, or unknown source</p>
+
+<p><strong>How it's detected:</strong></p>
+<ol>
+<li>No referrer URL present (empty or null)</li>
+<li>Referrer URL is your own domain (internal navigation)</li>
+<li>Referrer cannot be determined</li>
+<li>Catches all traffic that doesn't match other categories</li>
+</ol>
+
+<p><strong>Typical characteristics:</strong></p>
+
+<ul>
+<li>Mix of returning customers and brand-aware visitors</li>
+<li>High conversion rates (4-10% average)</li>
+<li>Often includes some misattributed traffic (missing referrers)</li>
+<li>Loyal customers who know your brand</li>
+<li>Higher average order value</li>
+</ul>
+
+<p><strong>What "Direct" actually includes:</strong></p>
+<ul>
+<li>Typed URL directly into browser</li>
+<li>Bookmarks or saved links</li>
+<li>Links from native apps (email apps, messaging apps) that strip referrers</li>
+<li>HTTPS → HTTP transitions (referrer lost)</li>
+<li>Shortened URLs without tracking (bit.ly, etc.)</li>
+<li>Links from PDFs or documents</li>
+<li>QR codes without tracking parameters</li>
+<li>Dark social (private messaging apps)</li>
+</ul>
+
+<p><strong>Note:</strong> High direct traffic often indicates strong brand recognition, but some may be misattributed. Use UTM parameters on all external links to reduce "dark traffic."</p>
+
+<h3>Referral</h3>
+
+<p><strong>What it is:</strong> Visitors clicking links from other websites</p>
+
+<p><strong>How it's detected:</strong></p>
+<ol>
+<li>Referrer URL present and not empty</li>
+<li>Referrer domain is NOT your own site</li>
+<li>Referrer domain is NOT a known search engine, social platform, or email provider</li>
+<li>Catches all external links not classified elsewhere</li>
+</ol>
+
+<p><strong>Examples of referral sources:</strong></p>
+
+<ul>
+<li>Blog features and reviews</li>
+<li>News articles and press coverage</li>
+<li>Partner websites and affiliate links</li>
+<li>Review sites (Trustpilot, Yelp, etc.)</li>
+<li>Forums and community sites</li>
+<li>Directory listings</li>
+<li>Comparison shopping sites</li>
+</ul>
+
+<p><strong>Typical characteristics:</strong></p>
+
+<ul>
+<li>Quality varies dramatically by referring site</li>
+<li>Can be very profitable if from relevant, high-quality sites</li>
+<li>Conversion rate depends on referring page context and audience</li>
+<li>Often untapped opportunity</li>
+</ul>
+
+<p><strong>Optimization:</strong></p>
+<ul>
+<li>Identify high-value referral sources in Traffic Channels report</li>
+<li>Build relationships with sites that send quality traffic</li>
+<li>Create shareable content (infographics, tools, guides)</li>
+<li>Pursue guest posting and PR opportunities</li>
+<li>Set up affiliate program for relevant partners</li>
+<li>Monitor referral traffic for spam or low-quality sources</li>
+</ul>
+
+<h3>AI Chat</h3>
+
+<p><strong>What it is:</strong> Visitors from AI chatbot assistants and search interfaces</p>
+
+<p><strong>How it's detected:</strong> Referrer domain matches AI chat platforms:</p>
+
+<ul>
+<li><strong>Perplexity:</strong> perplexity.ai</li>
+<li><strong>ChatGPT:</strong> chatgpt.com, openai.com</li>
+<li><strong>Claude:</strong> claude.ai, anthropic.com</li>
+<li><strong>Gemini:</strong> gemini.google.com, bard.google.com</li>
+<li><strong>Grok:</strong> grok.com</li>
+<li><strong>DeepSeek:</strong> deepseek.com</li>
+</ul>
+
+<p><strong>Why it matters:</strong> Growing traffic source as users adopt AI search. Different user behavior and intent than traditional search.</p>
+
+<p><strong>Typical characteristics:</strong></p>
+<ul>
+<li>Emerging traffic source (small but growing)</li>
+<li>High intent if AI recommended your site</li>
+<li>Unknown conversion patterns (too new)</li>
+<li>May indicate brand authority if AI cites you</li>
+</ul>
+
+<p><strong>Optimization:</strong></p>
+<ul>
+<li>Create authoritative, well-structured content</li>
+<li>Use schema markup for better AI understanding</li>
+<li>Monitor this category - it will grow significantly</li>
+<li>Answer common questions comprehensively</li>
+</ul>
+
+<h3>App</h3>
+
+<p><strong>What it is:</strong> Traffic from mobile apps or app-based browsers</p>
+
+<p><strong>How it's detected:</strong> Referrer URL starts with <code>app://</code> protocol</p>
+
+<p><strong>Use case:</strong> If you have a mobile app or app-based shopping, this tracks that traffic separately.</p>
+
+<h3>Unknown</h3>
+
+<p><strong>What it is:</strong> Traffic that couldn't be classified</p>
+
+<p><strong>When it happens:</strong></p>
+<ul>
+<li>Referrer present but doesn't match any known patterns</li>
+<li>Unusual or malformed referrer URLs</li>
+<li>New traffic sources not yet in detection list</li>
+</ul>
+
+<p><strong>If you see significant "Unknown" traffic:</strong></p>
+<ul>
+<li>Check Website Sessions report to see actual referrer URLs</li>
+<li>Add UTM parameters to external links</li>
+<li>Contact support to add new traffic sources to detection list</li>
+</ul>
+
+<h4>Traffic Source Detection Priority</h4>
+
+<p>Alpha Insights checks sources in this order (first match wins):</p>
+
+<ol>
+<li><strong>Query Parameters (highest priority):</strong>
+    <ul>
+    <li><code>fbclid</code> → Social</li>
+    <li><code>gclid</code> → Google Ads</li>
+    <li><code>mc_cid</code> → Email</li>
+    <li><code>utm_medium=email</code> → Email</li>
+    <li><code>utm_source=mailpoet</code> → Email</li>
+    <li><code>utm_source=fb|ig|Facebook</code> → Social</li>
+    </ul>
+</li>
+<li><strong>Referrer Domain Matching:</strong>
+    <ul>
+    <li>Search engines → Organic</li>
+    <li>Email providers → Email</li>
+    <li>AI chat platforms → AI Chat</li>
+    <li>Social platforms → Social</li>
+    </ul>
+</li>
+<li><strong>Referrer Analysis:</strong>
+    <ul>
+    <li>Empty/null referrer → Direct</li>
+    <li>Own domain → Direct</li>
+    <li><code>app://</code> protocol → App</li>
+    <li>External domain → Referral</li>
+    </ul>
+</li>
+</ol>
+
+<p><strong>Why query parameters take priority:</strong> They're explicit and intentional (you added them), so they're more reliable than referrer data which can be stripped or missing.</p>
+
+<h4>Viewing Traffic Source Data</h4>
+
+<h3>Traffic Channels Report</h3>
+
+<p>The Traffic Channels report is a pre-built report in Alpha Insights. To learn about creating custom traffic reports, see <a href='/documentation/alpha-insights/report-builder/creating-custom-reports.html'>Creating Custom Reports</a>.</p>
+
+<ol>
+<li>Go to <strong>Alpha Insights → Website Traffic → Traffic Channels</strong></li>
+<li>See comprehensive breakdown of all traffic sources</li>
+</ol>
+
+<p><strong>Data visualizations:</strong></p>
+
+<ul>
+<li><strong>Sessions By Acquisition Channel (Line Chart):</strong> Track how each source performs over time</li>
+<li><strong>Traffic Data By Acquisition Source (Data Table):</strong> Detailed metrics for each source</li>
+<li><strong>Traffic By Referral URL:</strong> See specific referring domains and pages</li>
+<li><strong>Traffic By UTM Campaign:</strong> Campaign-level performance</li>
+<li><strong>Traffic By Landing Page:</strong> Which pages attract which traffic sources</li>
+</ul>
+
+<p><strong>Key table columns explained:</strong></p>
+
+<table>
+<tr>
+<th>Column</th>
+<th>What It Shows</th>
+<th>How It's Calculated</th>
+</tr>
+<tr>
+<td>Source</td>
+<td>Traffic source category</td>
+<td>Determined by WPD_Traffic_Type class</td>
+</tr>
+<tr>
+<td>Sessions</td>
+<td>Number of visits</td>
+<td>Count of unique session_ids</td>
+</tr>
+<tr>
+<td>Users</td>
+<td>Unique visitors</td>
+<td>Count of unique IP addresses</td>
+</tr>
+<tr>
+<td>Transactions</td>
+<td>Orders from this source</td>
+<td>Count of transaction events</td>
+</tr>
+<tr>
+<td>Total Value</td>
+<td>Revenue generated</td>
+<td>Sum of event_value for transactions</td>
+</tr>
+<tr>
+<td>Conversion Rate</td>
+<td>% of sessions that converted</td>
+<td>(Transactions / Sessions) × 100</td>
+</tr>
+</table>
+
+<h4>Source Performance Over Time</h4>
+
+<p>Track trends and seasonality:</p>
+
+<ol>
+<li>View the "Sessions By Acquisition Channel" line chart</li>
+<li>Identify which sources are growing or declining</li>
+<li>Spot seasonal patterns (e.g., email spikes during holidays)</li>
+<li>Adjust date range to analyze different time periods</li>
+</ol>
+
+<p><strong>What to look for:</strong></p>
+<ul>
+<li>Sudden drops (tracking issues or external changes)</li>
+<li>Growth trends (successful optimizations)</li>
+<li>Seasonal patterns (plan marketing calendar)</li>
+<li>Day-of-week patterns (optimal posting times)</li>
+</ul>
+
+<h3>Analyzing Performance by Source</h3>
+
+<h3>Revenue Per Session - The Key Metric</h3>
+
+<p><strong>Formula:</strong> Total Revenue / Total Sessions</p>
+
+<p><strong>Why it's THE most important metric:</strong> It tells you the average value of a visitor from each source, accounting for both conversion rate and average order value.</p>
+
+<p><strong>Example analysis:</strong></p>
+
+<pre><code>Source: Organic Search
+- Sessions: 5,000
+- Revenue: $35,000
+- Orders: 225
+- Conversion Rate: 4.5%
+- Average Order Value: $156
+- Revenue per session: $7.00
+
+Source: Facebook Organic
+- Sessions: 3,000
+- Revenue: $9,000
+- Orders: 60
+- Conversion Rate: 2.0%
+- Average Order Value: $150
+- Revenue per session: $3.00
+
+Insight: Organic search visitors generate 2.3x more revenue per session.
+Even though AOV is similar, organic has 2.25x better conversion rate.
+Recommendation: Invest more in SEO, less in Facebook organic posts.</code></pre>
+
+<h3>Profit Per Session - Even Better</h3>
+
+<p>In Alpha Insights, you can see <strong>profit</strong> per session by adding product costs. To add product costs, see <a href='/documentation/alpha-insights/cost-of-goods-manager/understanding-cost-of-goods-manager.html'>Cost of Goods Manager</a>.</p>
+
+<pre><code>Source: Email
+- Sessions: 500
+- Revenue: $4,500
+- Product Costs: $1,800
+- Gross Profit: $2,700
+- Profit Per Session: $5.40
+
+Source: Social
+- Sessions: 3,000
+- Revenue: $9,000
+- Product Costs: $4,500
+- Gross Profit: $4,500
+- Profit Per Session: $1.50
+
+Insight: Email generates 3.6x more profit per session.
+Even with lower volume, email is far more valuable than social.
+Recommendation: Prioritize list growth and email marketing.</code></pre>
+
+<h3>Conversion Rate by Source</h3>
+
+<p><strong>Shows:</strong> Which sources bring higher-quality, ready-to-buy traffic</p>
+
+<p><strong>Example comparison:</strong></p>
+
+<pre><code>Email:           8.2% conversion rate
+Organic Search:  4.5%
+Google Ads:      6.1%
+Social Organic:  1.8%
+Direct:          5.5%
+Referral:        3.2%</code></pre>
+
+<p><strong>Insights from this data:</strong></p>
+<ul>
+<li>Email has highest intent - they're your customers/subscribers</li>
+<li>Google Ads high intent - actively searching for solution</li>
+<li>Social low intent - casual browsing, not shopping</li>
+<li>Direct high intent - brand loyal, know what they want</li>
+</ul>
+
+<h3>Average Order Value by Source</h3>
+
+<p><strong>Shows:</strong> Which sources bring bigger spenders</p>
+
+<pre><code>Direct:         $95 AOV
+Email:          $87 AOV
+Organic Search: $78 AOV
+Google Ads:     $70 AOV
+Paid Social:    $65 AOV
+Social Organic: $52 AOV</code></pre>
+
+<p><strong>Why this matters:</strong></p>
+<ul>
+<li>Direct visitors often buy more (brand loyal, repeat customers)</li>
+<li>Email subscribers tend to spend more (trust relationship)</li>
+<li>Social browsers often buy lower-priced items (impulse)</li>
+<li>Combine with conversion rate for full picture</li>
+</ul>
+
+<h4>Comparing Paid vs Organic Channels</h4>
+
+<h3>Full Funnel Comparison</h3>
+
+<p><strong>Paid Channels (Google Ads, Facebook Ads):</strong></p>
+
+<ul>
+<li><strong>Pros:</strong>
+    <ul>
+    <li>Scalable - increase budget for more traffic</li>
+    <li>Fast results - traffic starts immediately</li>
+    <li>Precise targeting - reach exact audiences</li>
+    <li>Measurable - direct ROI tracking</li>
+    <li>Controllable - turn on/off anytime</li>
+    </ul>
+</li>
+<li><strong>Cons:</strong>
+    <ul>
+    <li>Ongoing cost - stops when you stop paying</li>
+    <li>Profit depends on ROAS - not always profitable</li>
+    <li>Increasing costs - CPCs rising over time</li>
+    <li>Requires optimization - doesn't run itself</li>
+    </ul>
+</li>
+<li><strong>Best for:</strong> Quick growth, launching new products, testing markets</li>
+</ul>
+
+<p><strong>Organic Channels (SEO, Social, Email):</strong></p>
+
+<ul>
+<li><strong>Pros:</strong>
+    <ul>
+    <li>No per-click cost - free traffic</li>
+    <li>Compounds over time - grows exponentially</li>
+    <li>Higher trust - users prefer organic over ads</li>
+    <li>Sustainable - continues even if you pause work</li>
+    <li>Higher quality - better conversion rates</li>
+    </ul>
+</li>
+<li><strong>Cons:</strong>
+    <ul>
+    <li>Slower results - takes months to build</li>
+    <li>Requires consistent effort - content creation, SEO</li>
+    <li>Less controllable - can't "turn up" traffic</li>
+    <li>Harder to attribute - indirect conversions</li>
+    </ul>
+</li>
+<li><strong>Best for:</strong> Long-term sustainable growth, building brand equity</li>
+</ul>
+
+<h3>Blended Channel Analysis</h3>
+
+<p>Compare total contribution across paid vs organic:</p>
+
+<pre><code>Paid Channels (Google Ads + Facebook Ads):
+- Sessions: 4,000
+- Revenue: $18,000
+- Orders: 180
+- Conversion Rate: 4.5%
+- Revenue per session: $4.50
+- Ad Spend: $6,000
+- ROAS: 3.0 ($18,000 / $6,000)
+- Net Profit After Ad Spend: $3,000
+
+Organic Channels (Search + Social + Email):
+- Sessions: 6,000
+- Revenue: $24,000
+- Orders: 300
+- Conversion Rate: 5.0%
+- Revenue per session: $4.00
+- Ad Spend: $0
+- Net Profit: $10,800 (after COGS)
+
+Insight: Organic channels deliver 3.6x more profit with 50% more sessions.
+Paid channels profitable but should not exceed 30% of total traffic.
+Recommendation: Maintain paid ads for consistent flow, invest heavily in organic growth.</code></pre>
+
+<h4>Source Optimization Strategies</h4>
+
+<h3>Strategy 1: Double Down on Winners</h3>
+
+<p><strong>Identify:</strong> Sources with conversion rates and revenue per session above your average</p>
+
+<p><strong>Action plan:</strong></p>
+
+<ul>
+<li>Allocate more marketing budget and time to these sources</li>
+<li>Create more content for that channel</li>
+<li>Optimize conversion specifically for that audience</li>
+<li>Study what makes that traffic convert better</li>
+</ul>
+
+<p><strong>Example:</strong> If email has 8% conversion rate and $6.00 revenue per session:</p>
+<ol>
+<li>Invest heavily in list growth (popups, lead magnets)</li>
+<li>Send more frequent campaigns (test frequency)</li>
+<li>Segment list for personalization</li>
+<li>Create email-exclusive offers</li>
+<li>Build automation flows (abandoned cart, welcome, post-purchase)</li>
+</ol>
+
+<h3>Strategy 2: Improve Moderate Performers</h3>
+
+<p><strong>Identify:</strong> Sources with decent volume but below-average conversion rates or revenue per session</p>
+
+<p><strong>Optimization tactics:</strong></p>
+
+<ul>
+<li><strong>Better targeting:</strong> Refine audience to higher-intent visitors
+    <ul>
+    <li>Organic: Target higher-intent keywords</li>
+    <li>Paid: Narrow audience, exclude low converters</li>
+    <li>Social: Post content that attracts buyers, not just browsers</li>
+    </ul>
+</li>
+<li><strong>Landing page optimization:</strong> Create source-specific landing pages
+    <ul>
+    <li>Match messaging to source (social vs search intent)</li>
+    <li>Test different layouts and CTAs</li>
+    <li>Reduce friction for that traffic type</li>
+    </ul>
+</li>
+<li><strong>Product mix:</strong> Promote higher-margin products to this audience
+    <ul>
+    <li>Feature products that convert better for this source</li>
+    <li>Adjust pricing or offers for audience</li>
+    </ul>
+</li>
+<li><strong>Retargeting:</strong> Set up retargeting for these visitors
+    <ul>
+    <li>Pixel visitors from low-converting sources</li>
+    <li>Retarget with social proof and urgency</li>
+    <li>Offer incentive for return visit</li>
+    </ul>
+</li>
+</ul>
+
+<h3>Strategy 3: Fix or Cut Losers</h3>
+
+<p><strong>Identify:</strong> Sources with very low conversion rates or minimal revenue contribution</p>
+
+<p><strong>Decision framework:</strong></p>
+
+<ol>
+<li><strong>If paid channel with ROAS < 1.5:</strong>
+    <ul>
+    <li>Try optimization (better targeting, creative, landing pages)</li>
+    <li>If still unprofitable after 2-3 optimization attempts → Pause</li>
+    <li>Reallocate budget to profitable channels</li>
+    </ul>
+</li>
+<li><strong>If organic channel with < 1% conversion:</strong>
+    <ul>
+    <li>Reduce effort and content creation for that channel</li>
+    <li>Refocus time on higher-performing channels</li>
+    <li>Don't abandon completely - maintain minimal presence</li>
+    </ul>
+</li>
+<li><strong>If referral site sending low-quality traffic:</strong>
+    <ul>
+    <li>Check if it's spam or bot traffic</li>
+    <li>Consider requesting link removal if damaging</li>
+    <li>Block in robots.txt if malicious</li>
+    </ul>
+</li>
+</ol>
+
+<p><strong>Warning:</strong> Don't cut channels too quickly. Some channels have long conversion windows or assist conversions. Analyze at least 30-90 days of data before deciding.</p>
+
+<h4>Device-Based Source Analysis</h4>
+
+<p>Combine traffic source with device data for deeper insights:</p>
+
+<pre><code>Facebook + Mobile = 1.5% conversion rate
+Facebook + Desktop = 3.2% conversion rate
+
+Insight: Facebook mobile traffic significantly underperforms.
+Possible causes:
+- Mobile site speed issues
+- Mobile UX problems
+- Mobile checkout friction
+- Audience targeting (mobile users less serious buyers)
+
+Actions:
+- Optimize mobile site speed (test with PageSpeed Insights)
+- Improve mobile checkout flow
+- Add mobile-specific CTAs
+- Consider mobile-only landing pages
+- Test different ad formats for mobile</code></pre>
+
+<h3>Understanding Multi-Touch Customer Journey</h3>
+
+<p>Most customers don't buy on first visit. For detailed information on how sessions and attribution work, see the <a href='/documentation/alpha-insights/website-traffic/session-management.html'>Session Management guide</a>.</p>
+
+<p>They might:</p>
+
+<ol>
+<li><strong>First visit:</strong> Click Facebook Ad (awareness) → Browse, don't buy</li>
+<li><strong>Second visit:</strong> Organic Google search (consideration) → Read reviews, compare</li>
+<li><strong>Third visit:</strong> Direct visit to complete purchase (decision) → Ready to buy</li>
+</ol>
+
+<p><strong>How Alpha Insights handles this:</strong></p>
+
+<ul>
+<li><strong>Session Attribution:</strong> Each session is attributed to the source that started it</li>
+<li><strong>Order Attribution:</strong> Orders are attributed to the landing page and referrer from the order session</li>
+<li><strong>Typically last-click attribution:</strong> The final session before purchase gets credit</li>
+</ul>
+
+<p><strong>What this means:</strong></p>
+<ul>
+<li>Facebook might assist conversions without getting credit</li>
+<li>Direct traffic may be overvalued (it's often the final touchpoint)</li>
+<li>Email and organic often get proper credit (high intent, direct conversion)</li>
+</ul>
+
+<p><strong>To understand full journey:</strong></p>
+<ul>
+<li>Review individual sessions in Website Sessions report</li>
+<li>Track same IP address across multiple sessions</li>
+<li>Consider all sources as part of the journey</li>
+<li>Don't undervalue awareness channels (social, content)</li>
+</ul>
+
+<h4>Seasonal Source Patterns</h4>
+
+<h3>Identifying Seasonality</h3>
+
+<p>Different sources perform differently by season:</p>
+
+<pre><code>Q4 (Holiday Season - Oct-Dec):
+- Direct traffic surges (brand searches, gift shopping)
+- Email performs exceptionally (holiday promotions)
+- Social organic increases (holiday content sharing)
+- Paid ads most expensive but highest volume
+
+Q1 (January-March):
+- Organic search increases (New Year resolutions, research)
+- Direct traffic drops (post-holiday)
+- Email engagement lower (email fatigue)
+- Paid ads cheaper (less competition)
+
+Q2 (April-June):
+- Social organic peaks (summer content, events)
+- Referral traffic increases (spring press coverage)
+- Email engagement improves
+- Steady growth period
+
+Q3 (July-September):
+- Back-to-school drives specific categories
+- Traffic generally stable
+- Good time for testing and optimization
+- Prepare for Q4 campaigns</code></pre>
+
+<p><strong>Use these insights to:</strong></p>
+<ul>
+<li>Adjust marketing calendars and content plans</li>
+<li>Allocate seasonal budgets (heavy in Q4, lighter in Q1)</li>
+<li>Prepare inventory based on seasonal source patterns</li>
+<li>Plan campaigns around peak performance times</li>
+<li>Test new channels during slow periods</li>
+</ul>
+
+<h4>Advanced Analysis: Source × Product Category</h4>
+
+<p>Different sources may prefer different products:</p>
+
+<pre><code>Organic Search → Best for:
+- Educational products (books, courses)
+- Problem-solving products (tools, software)
+- High-consideration purchases
+
+Social Media → Best for:
+- Visual products (fashion, home decor)
+- Impulse buys (under $50)
+- Trending items
+
+Email → Best for:
+- Repeat purchase products
+- New arrivals
+- Sale items and promotions
+
+Direct → Best for:
+- Replenishment products
+- Favorite products
+- Subscription items</code></pre>
+
+<p><strong>Action:</strong> Analyze traffic source by product category in Report Builder to identify which sources drive sales for which product types. Promote appropriate products to each channel.</p>
+
+<h3>Creating Source-Optimized Marketing Plans</h3>
+
+<p>You can export traffic data to CSV or Excel for deeper analysis. See <a href='/documentation/alpha-insights/report-builder/export-features.html'>Export Features</a> to learn how.</p>
+
+<p><strong>90-Day Marketing Optimization Plan:</strong></p>
+
+<ol>
+<li><strong>Week 1-2: Audit</strong>
+    <ul>
+    <li>Run Traffic Channels report for last 90 days</li>
+    <li>Calculate revenue per session for each source</li>
+    <li>Identify top 3 performers and bottom 3</li>
+    </ul>
+</li>
+<li><strong>Week 3-4: Optimize Winners</strong>
+    <ul>
+    <li>Increase budget/effort on top 3 sources by 50%</li>
+    <li>Create more content for these channels</li>
+    <li>Optimize conversion paths for these audiences</li>
+    </ul>
+</li>
+<li><strong>Week 5-8: Improve Moderates</strong>
+    <ul>
+    <li>A/B test landing pages for medium performers</li>
+    <li>Refine targeting and messaging</li>
+    <li>Set up retargeting campaigns</li>
+    </ul>
+</li>
+<li><strong>Week 9-12: Review and Scale</strong>
+    <ul>
+    <li>Measure improvements</li>
+    <li>Scale what's working</li>
+    <li>Pause or reduce what's not</li>
+    <li>Plan next 90 days</li>
+    </ul>
+</li>
+</ol>
+
+<h3>Best Practices Summary</h3>
+
+<ul>
+<li><strong>Review weekly:</strong> Check Traffic Channels report every Monday</li>
+<li><strong>Focus on profit per session:</strong> Not just traffic volume</li>
+<li><strong>Use UTM parameters religiously:</strong> Accurate data = better decisions</li>
+<li><strong>Don't ignore low-volume, high-conversion sources:</strong> Email with 500 sessions at 8% conversion beats social with 5,000 sessions at 1%</li>
+<li><strong>Analyze individual sessions:</strong> Use Website Sessions report to understand behavior patterns</li>
+<li><strong>Invest in owned channels:</strong> Email and SEO compound over time</li>
+<li><strong>Use paid channels strategically:</strong> Scale proven products, not for testing</li>
+<li><strong>Test new sources:</strong> Small budgets first, scale winners</li>
+<li><strong>Monitor device performance:</strong> Mobile vs desktop can be dramatically different</li>
+<li><strong>Consider full customer journey:</strong> Not just last-click attribution</li>
+<li><strong>Track seasonal patterns:</strong> Build year-over-year comparisons</li>
+<li><strong>Combine with product data:</strong> Match products to best-performing sources</li>
+</ul>
+
+<h4>Technical Reference: Source Detection Logic</h4>
+
+<p><strong>PHP Class:</strong> <code>WPD_Traffic_Type</code></p>
+
+<p><strong>Detection method:</strong> <code>determine_traffic_source($referral_url, $query_parameters)</code></p>
+
+<p><strong>Process flow:</strong></p>
+
+<ol>
+<li><code>check_query_parameters()</code> - Checks UTM and tracking parameters first</li>
+<li><code>is_traffic_organic()</code> - Matches against $organic_sources array</li>
+<li><code>is_traffic_paid_google()</code> - Currently returns false, relies on gclid parameter</li>
+<li><code>is_traffic_mail()</code> - Matches against $referral_url_email_sources array</li>
+<li><code>is_traffic_ai_chat()</code> - Matches against $referral_url_ai_chat_sources array</li>
+<li><code>is_traffic_social()</code> - Matches against $social_sources array</li>
+<li><code>is_traffic_direct()</code> - Returns true if referrer is empty or null</li>
+<li>Final checks: Own domain → Direct, app:// → App, otherwise → Referral</li>
+</ol>
+
+<p><strong>Available traffic types function:</strong> <code>WPD_Traffic_Type::available_traffic_types()</code></p>
+
+<p><strong>Returns array:</strong></p>
+<pre><code>[
+    'organic'    => 'Organic',
+    'google_ads' => 'Google Ads',
+    'email'      => 'Email',
+    'social'     => 'Social',
+    'direct'     => 'Direct',
+    'app'        => 'App',
+    'referral'   => 'Referral',
+    'ai_chat'    => 'AI Chat',
+    'unknown'    => 'Unknown'
+]</code></pre>
+
+<h4>Next Steps</h4>
+
+<ul>
+<li>Set up <a href='/documentation/alpha-insights/website-traffic/tracking-utm-campaigns.html'>UTM Campaign Tracking</a> for accurate source attribution</li>
+<li>Review <a href='/documentation/alpha-insights/website-traffic/understanding-website-analytics.html'>Website Analytics Overview</a> for tracking fundamentals</li>
+<li>Read <a href='/documentation/alpha-insights/website-traffic/session-management.html'>Session Management</a> to understand attribution windows</li>
+<li>Check <a href='/documentation/alpha-insights/website-traffic/troubleshooting-website-traffic.html'>Troubleshooting Guide</a> if source data seems incorrect</li>
+<li>Review <a href='/documentation/alpha-insights/website-traffic/technical-architecture.html'>Technical Architecture</a> to understand source detection logic</li>
+<li>Create custom reports in <a href='/documentation/alpha-insights/report-builder/creating-custom-reports.html'>Report Builder</a> to analyze sources</li>
+<li>Set up <a href='/documentation/alpha-insights/advertising-integrations/facebook/connecting-facebook-ads.html'>Facebook Ads Integration</a> for campaign profit tracking</li>
+<li>Configure <a href='/documentation/alpha-insights/advertising-integrations/google-ads/connecting-google-ads.html'>Google Ads Integration</a> for search campaign ROAS</li>
+</ul>

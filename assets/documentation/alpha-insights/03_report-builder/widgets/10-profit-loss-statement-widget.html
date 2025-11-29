@@ -1,0 +1,346 @@
+﻿<h2>Profit & Loss Statement Widget</h2>
+<p>The Profit & Loss Statement widget displays a comprehensive financial statement showing revenue, costs, expenses, and profit in a traditional accounting format. This is a specialized widget that provides a complete profit breakdown.</p>
+<h3>When to Use</h3>
+<ul>
+<li>Create formal financial reports for stakeholders, investors, or accountants</li>
+<li>Show complete profit breakdown from gross revenue to net profit</li>
+<li>Display all cost and expense categories in one place</li>
+<li>Generate period-end financial summaries (monthly, quarterly, annual)</li>
+<li>Understand complete profit waterfall (where revenue goes)</li>
+</ul>
+<h4>Configuration Options</h4>
+<h3>Content Settings</h3>
+<h4>Title (Required)</h4>
+<p>
+<strong>Default:</strong> "Profit & Loss Statement"
+</p>
+<p>
+<strong>Examples:</strong> "January 2024 P&L", "Q4 Financial Summary", "Annual Income Statement"
+</p>
+<h3>Metric (Auto-configured)</h3>
+<p>
+<strong>Value:</strong> Automatically set to profit_loss_statement_data
+</p>
+<p>
+<strong>Note:</strong> This widget has a fixed data source - it always shows the complete P&L breakdown
+</p>
+<h4>Design Settings</h4>
+<h3>Responsive Width</h3>
+<p>
+<strong>Recommended:</strong> Full width (12 columns) - P&L statements need horizontal space
+</p>
+<h4>Color Theme</h4>
+<p>
+<strong>Options:</strong> Blue, Green, Purple, Orange, Red, Gray
+</p>
+<p>
+<strong>Default:</strong> Green (financial statements traditionally use green)
+</p>
+<h3>Advanced Settings</h3>
+<h4>Enable Real-Time Data</h4>
+<p>
+<strong>Options:</strong> On/Off
+</p>
+<p>
+<strong>When enabled:</strong> P&L refreshes every 30 seconds
+</p>
+<p>
+<strong>Use for:</strong> Live monitoring dashboards
+</p>
+<h3>P&L Statement Structure</h3>
+<h3>What's Displayed</h3>
+<p>The widget shows a complete profit waterfall:</p>
+<pre>
+	<code>┌─────────────────────────────────────────┐
+│   PROFIT & LOSS STATEMENT               │
+│   Period: January 1 - January 31, 2024 │
+├─────────────────────────────────────────┤
+│ REVENUE                                 │
+│   Gross Revenue          $50,230        │
+│   Less: Refunds          ($1,450)       │
+│   Less: Discounts        ($2,300)       │
+├─────────────────────────────────────────┤
+│   Net Revenue            $46,480   100% │
+│                                         │
+│ COST OF GOODS SOLD                      │
+│   Product Costs          $18,592    40% │
+│   Shipping Costs          $2,324     5% │
+│   Payment Gateway Fees    $1,394     3% │
+│   Custom Order Costs        $465     1% │
+├─────────────────────────────────────────┤
+│   Total COGS            $22,775    49% │
+│                                         │
+│ GROSS PROFIT            $23,705    51% │
+│                                         │
+│ OPERATING EXPENSES                      │
+│   Rent & Facilities       $3,000     6% │
+│   Software & Tools          $850     2% │
+│   Marketing (non-ads)     $1,200     3% │
+│   Salaries & Personnel    $8,500    18% │
+│   Professional Services     $600     1% │
+│   Other Operating           $450     1% │
+├─────────────────────────────────────────┤
+│   Total Operating Exp.  $14,600    31% │
+│                                         │
+│ ADVERTISING SPEND                       │
+│   Facebook Ads            $2,500     5% │
+│   Google Ads              $1,800     4% │
+├─────────────────────────────────────────┤
+│   Total Ad Spend         $4,300     9% │
+│                                         │
+│ NET PROFIT               $4,805    10% │
+├─────────────────────────────────────────┤
+│ Key Metrics:                            │
+│   Gross Margin: 51%                     │
+│   Operating Margin: 20%                 │
+│   Net Margin: 10%                       │
+│   ROAS: 4.8                             │
+└─────────────────────────────────────────┘</code>
+</pre>
+<h4>Statement Sections Explained</h4>
+<h3>Revenue Section</h3>
+<ul>
+<li>
+<strong>Gross Revenue:</strong> All order totals including tax
+</li>
+<li>
+<strong>Refunds:</strong> Money returned to customers
+</li>
+<li>
+<strong>Discounts:</strong> Coupon and discount amounts
+</li>
+<li>
+<strong>Net Revenue:</strong> What you actually kept from sales
+</li>
+</ul>
+<h3>Cost of Goods Sold (COGS)</h3>
+<ul>
+<li>
+<strong>Product Costs:</strong> Cost to acquire/produce products
+</li>
+<li>
+<strong>Shipping Costs:</strong> Fulfillment and delivery costs
+</li>
+<li>
+<strong>Payment Fees:</strong> Credit card processing fees
+</li>
+<li>
+<strong>Custom Costs:</strong> Any additional per-order costs
+</li>
+<li>
+<strong>Total COGS:</strong> Sum of all direct order costs
+</li>
+</ul>
+<h3>Gross Profit</h3>
+<p>
+<strong>Formula:</strong> Net Revenue - Total COGS
+</p>
+<p>
+<strong>What it means:</strong> Profit before operating expenses and advertising
+</p>
+<p>
+<strong>Benchmark:</strong> Healthy eCommerce stores target 40-60% gross margin
+</p>
+<h3>Operating Expenses</h3>
+<ul>
+<li>
+<strong>Rent & Facilities:</strong> Office, warehouse, utilities
+</li>
+<li>
+<strong>Software & Tools:</strong> Subscriptions and software
+</li>
+<li>
+<strong>Marketing:</strong> Non-ad marketing costs
+</li>
+<li>
+<strong>Salaries:</strong> Employee and contractor costs
+</li>
+<li>
+<strong>Professional Services:</strong> Accounting, legal, consulting
+</li>
+<li>
+<strong>Other:</strong> Miscellaneous operating costs
+</li>
+</ul>
+<h3>Advertising Spend</h3>
+<ul>
+<li>
+<strong>Facebook Ads:</strong> From Facebook Ads integration
+</li>
+<li>
+<strong>Google Ads:</strong> From Google Ads integration
+</li>
+<li>
+<strong>Other Platforms:</strong> Manually added ad costs
+</li>
+</ul>
+<h3>Net Profit</h3>
+<p>
+<strong>Formula:</strong> Gross Profit - Operating Expenses - Ad Spend
+</p>
+<p>
+<strong>What it means:</strong> True take-home profit after ALL costs
+</p>
+<p>
+<strong>Benchmark:</strong> Target 10-25% net margin for sustainable eCommerce
+</p>
+<h4>Key Metrics at Bottom</h4>
+<h3>Gross Margin</h3>
+<p>
+<strong>Formula:</strong> (Gross Profit / Net Revenue) × 100
+</p>
+<p>
+<strong>Shows:</strong> Profitability before overhead
+</p>
+<h4>Operating Margin</h4>
+<p>
+<strong>Formula:</strong> ((Gross Profit - Operating Expenses) / Net Revenue) × 100
+</p>
+<p>
+<strong>Shows:</strong> Profitability before advertising
+</p>
+<h3>Net Margin</h3>
+<p>
+<strong>Formula:</strong> (Net Profit / Net Revenue) × 100
+</p>
+<p>
+<strong>Shows:</strong> Overall business profitability
+</p>
+<h4>ROAS</h4>
+<p>
+<strong>Formula:</strong> Net Revenue / Ad Spend
+</p>
+<p>
+<strong>Shows:</strong> Return on advertising investment
+</p>
+<h3>Example Use Cases</h3>
+<h4>Monthly Financial Review</h4>
+<p>Create P&L for each month:</p>
+<ul>
+<li>Date range: This Month</li>
+<li>Compare to: Previous Month</li>
+<li>Share with team/investors</li>
+</ul>
+<h3>Quarterly Board Report</h3>
+<p>Formal financial statement:</p>
+<ul>
+<li>Date range: This Quarter</li>
+<li>Compare to: Previous Quarter</li>
+<li>Export as PDF for board meetings</li>
+</ul>
+<h4>Annual Tax Preparation</h4>
+<p>Year-end financial summary:</p>
+<ul>
+<li>Date range: This Year</li>
+<li>Complete breakdown of all revenue and expenses</li>
+<li>Share with accountant</li>
+</ul>
+<h3>Budget vs Actual</h3>
+<p>Compare actual performance to budget:</p>
+<ul>
+<li>P&L shows actuals</li>
+<li>Compare each line to budgeted amounts</li>
+<li>Identify variances</li>
+</ul>
+<h4>Best Practices</h4>
+<h3>Report Context</h3>
+<ul>
+<li>Use in formal financial reports</li>
+<li>Include at end of comprehensive reports</li>
+<li>Create dedicated P&L report template</li>
+</ul>
+<h4>Date Range Selection</h4>
+<ul>
+<li>Use complete periods (full months, quarters, years)</li>
+<li>Enable period comparison to show trends</li>
+<li>Avoid partial periods for cleaner statements</li>
+</ul>
+<h3>Sharing</h3>
+<ul>
+<li>Export as PDF for professional appearance</li>
+<li>Include report title heading (H1) above P&L widget</li>
+<li>Add date and period information</li>
+</ul>
+<h4>Regular Review</h4>
+<ul>
+<li>Generate monthly P&L for trend analysis</li>
+<li>Compare to industry benchmarks</li>
+<li>Use to identify cost-cutting opportunities</li>
+</ul>
+<h3>Interpreting the P&L</h3>
+<h4>Healthy Ratios</h4>
+<p>
+<strong>Good signs:</strong>
+</p>
+<ul>
+<li>Gross margin 40-60%</li>
+<li>Operating expenses under 35% of revenue</li>
+<li>Ad spend 10-20% of revenue</li>
+<li>Net margin 10-25%</li>
+</ul>
+<h3>Warning Signs</h3>
+<p>
+<strong>Watch for:</strong>
+</p>
+<ul>
+<li>Gross margin under 30% (pricing or cost issues)</li>
+<li>Operating expenses over 45% (overhead too high)</li>
+<li>Ad spend over 30% without proportional returns</li>
+<li>Net margin under 5% (barely profitable)</li>
+<li>Negative net profit (losing money)</li>
+</ul>
+<h3>Trend Analysis</h3>
+<p>Compare P&L month-over-month:</p>
+<ul>
+<li>
+<strong>Revenue growing, profit flat:</strong> Costs rising too fast
+</li>
+<li>
+<strong>Revenue flat, profit growing:</strong> Improving efficiency (good!)
+</li>
+<li>
+<strong>Margins expanding:</strong> Better pricing or cost control
+</li>
+<li>
+<strong>Margins shrinking:</strong> Investigate cost increases
+</li>
+</ul>
+<h3>Customization Limitations</h3>
+<p>
+<strong>Note:</strong> P&L widget has minimal customization by design - it follows standard accounting format
+</p>
+<ul>
+<li>Cannot remove or reorder sections</li>
+<li>Cannot change calculations</li>
+<li>Categories are automatically populated from your data</li>
+<li>Format is standardized for consistency</li>
+</ul>
+<p>
+<strong>This is intentional:</strong> Ensures P&L statements are comparable across periods and meet accounting standards
+</p>
+<h4>Exporting P&L</h4>
+<h3>PDF Export</h3>
+<ul>
+<li>Professional formatting maintained</li>
+<li>Perfect for sharing with accountants</li>
+<li>Suitable for printing</li>
+</ul>
+<h4>CSV/Excel Export</h4>
+<ul>
+<li>Each line item becomes a row</li>
+<li>Amounts in separate column</li>
+<li>Percentages in another column</li>
+<li>Easy to import into accounting software</li>
+</ul>
+<h3>Related Widgets</h3>
+<ul>
+<li>
+<a href='/documentation/alpha-insights/report-builder/widgets/metric-list-widget.html'>Metric List Widget</a> - Simpler metric display
+</li>
+<li>
+<a href='/documentation/alpha-insights/report-builder/widgets/simple-table-widget.html'>Simple Table Widget</a> - Category breakdowns
+</li>
+<li>
+<a href='/documentation/alpha-insights/report-builder/creating-custom-reports.html'>Creating Custom Reports</a>
+</li>
+</ul>

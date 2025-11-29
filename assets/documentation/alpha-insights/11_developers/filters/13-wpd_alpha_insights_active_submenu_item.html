@@ -1,0 +1,328 @@
+<h2>Filter: wpd_alpha_insights_active_submenu_item</h2>
+
+<p>Control which submenu item is highlighted as active within a parent menu section.</p>
+
+<h3>Description</h3>
+
+<p>This filter determines which child/submenu item appears as active/selected under a parent menu. Essential for custom submenu pages or when you need to override the default active submenu detection.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPD_Admin_Menu.php</code></p>
+<p><strong>Method:</strong> <code>WPD_Admin_Menu::get_active_submenu_item()</code></p>
+<p><strong>Line:</strong> ~685</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$submenu_item_key</td>
+        <td>string|null</td>
+        <td>The currently detected active submenu item slug</td>
+    </tr>
+    <tr>
+        <td>$parent_menu_item_key</td>
+        <td>string</td>
+        <td>The parent menu item slug</td>
+    </tr>
+    <tr>
+        <td>$children</td>
+        <td>array</td>
+        <td>Array of available submenu items under this parent</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> string|null</p>
+<p><strong>Description:</strong> The submenu item slug that should be marked as active</p>
+
+<h3>Example Usage</h3>
+
+<h3>Set Active Submenu for Custom Page</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_active_submenu_item', 'custom_active_submenu', 10, 3 );
+
+function custom_active_submenu( $submenu_key, $parent_key, $children ) {
+    
+    // Only apply to Reports parent menu
+    if ( $parent_key !== 'reports' ) {
+        return $submenu_key;
+    }
+    
+    // If on custom report page, highlight specific submenu
+    if ( isset( $_GET['custom_report'] ) && $_GET['custom_report'] === 'advanced' ) {
+        return 'advanced-reports';
+    }
+    
+    return $submenu_key;
+}</code></pre>
+
+<h3>Default to First Submenu</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_active_submenu_item', 'default_first_submenu', 10, 3 );
+
+function default_first_submenu( $submenu_key, $parent_key, $children ) {
+    
+    // If no submenu detected and children exist, activate first one
+    if ( empty( $submenu_key ) && ! empty( $children ) ) {
+        return array_key_first( $children );
+    }
+    
+    return $submenu_key;
+}</code></pre>
+
+<h3>Route Based on Query Parameters</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_active_submenu_item', 'query_based_submenu', 10, 3 );
+
+function query_based_submenu( $submenu_key, $parent_key, $children ) {
+    
+    // Only for Expenses menu
+    if ( $parent_key !== 'expenses' ) {
+        return $submenu_key;
+    }
+    
+    // Different subpages activate different submenus
+    if ( isset( $_GET['subpage'] ) ) {
+        $subpage = sanitize_text_field( $_GET['subpage'] );
+        
+        switch ( $subpage ) {
+            case 'add-expense':
+                return 'add-new-expense';
+            case 'manage-expenses':
+                return 'all-expenses';
+            case 'expense-categories':
+                return 'categories';
+            default:
+                return $submenu_key;
+        }
+    }
+    
+    return $submenu_key;
+}</code></pre>
+
+<h3>Context-Aware Submenu Selection</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_active_submenu_item', 'context_aware_submenu', 10, 3 );
+
+function context_aware_submenu( $submenu_key, $parent_key, $children ) {
+    
+    if ( $parent_key !== 'cost-of-goods' ) {
+        return $submenu_key;
+    }
+    
+    // If editing a product, highlight appropriate submenu
+    if ( isset( $_GET['action'] ) && $_GET['action'] === 'edit' && 
+         isset( $_GET['product_id'] ) ) {
+        
+        $product = wc_get_product( $_GET['product_id'] );
+        
+        if ( $product && $product->is_type( 'variable' ) ) {
+            return 'variable-products';
+        } else {
+            return 'simple-products';
+        }
+    }
+    
+    return $submenu_key;
+}</code></pre>
+
+<h3>Category-Based Submenu</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_active_submenu_item', 'category_submenu', 10, 3 );
+
+function category_submenu( $submenu_key, $parent_key, $children ) {
+    
+    if ( $parent_key !== 'reports' ) {
+        return $submenu_key;
+    }
+    
+    // Activate submenu based on selected category
+    if ( isset( $_GET['category'] ) ) {
+        $category = sanitize_text_field( $_GET['category'] );
+        
+        // Map categories to submenu items
+        $category_map = array(
+            'sales' => 'sales-reports',
+            'profit' => 'profit-reports',
+            'products' => 'product-reports',
+            'customers' => 'customer-reports'
+        );
+        
+        if ( isset( $category_map[$category] ) ) {
+            return $category_map[$category];
+        }
+    }
+    
+    return $submenu_key;
+}</code></pre>
+
+<h3>Role-Based Submenu</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_active_submenu_item', 'role_based_submenu', 10, 3 );
+
+function role_based_submenu( $submenu_key, $parent_key, $children ) {
+    
+    if ( $parent_key !== 'dashboard' ) {
+        return $submenu_key;
+    }
+    
+    // Different default submenu for different user roles
+    $user = wp_get_current_user();
+    
+    if ( empty( $submenu_key ) ) {
+        if ( in_array( 'shop_manager', $user->roles ) ) {
+            return 'manager-dashboard';
+        } elseif ( in_array( 'accountant', $user->roles ) ) {
+            return 'financial-dashboard';
+        }
+    }
+    
+    return $submenu_key;
+}</code></pre>
+
+<h3>Validate Submenu Exists</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_active_submenu_item', 'validate_submenu', 10, 3 );
+
+function validate_submenu( $submenu_key, $parent_key, $children ) {
+    
+    // If detected submenu doesn't exist in children, fallback to first
+    if ( ! empty( $submenu_key ) && ! isset( $children[$submenu_key] ) ) {
+        error_log( sprintf(
+            'Invalid submenu "%s" for parent "%s", falling back to first child',
+            $submenu_key,
+            $parent_key
+        ));
+        
+        return ! empty( $children ) ? array_key_first( $children ) : null;
+    }
+    
+    return $submenu_key;
+}</code></pre>
+
+<h3>Best Practices</h3>
+
+<ul>
+    <li>Always check the <code>$parent_key</code> to target specific parent menus</li>
+    <li>Verify submenu exists in <code>$children</code> array before returning it</li>
+    <li>Use early returns for better code readability</li>
+    <li>Handle null/empty values gracefully</li>
+    <li>Test with all parent menus that have submenus</li>
+    <li>Document your custom routing logic</li>
+</ul>
+
+<h3>Important Notes</h3>
+
+<ul>
+    <li>Filter runs for each parent menu that has children</li>
+    <li>Returned slug must exist in the <code>$children</code> array</li>
+    <li>Default behavior activates first child if on parent page</li>
+    <li>Returning null means no submenu will be highlighted</li>
+    <li>This only affects visual highlighting, not access control</li>
+</ul>
+
+<h3>How Active Submenu Detection Works</h3>
+
+<p>Alpha Insights determines active submenu by:</p>
+
+<ol>
+    <li>Checking <code>subpage</code> URL parameter</li>
+    <li>Matching against registered submenu slugs</li>
+    <li>Checking <code>page</code> parameter if no subpage</li>
+    <li>Defaulting to first child if on parent page</li>
+    <li>Applying this filter for final determination</li>
+</ol>
+
+<h3>Children Array Structure</h3>
+
+<pre><code>$children = array(
+    'submenu-slug-1' => array(
+        'label' => 'Submenu Item 1',
+        'url' => '...',
+        'order' => 1
+    ),
+    'submenu-slug-2' => array(
+        'label' => 'Submenu Item 2',
+        'url' => '...',
+        'order' => 2
+    )
+);</code></pre>
+
+<h3>Common Use Cases</h3>
+
+<table>
+    <tr>
+        <th>Scenario</th>
+        <th>Solution</th>
+    </tr>
+    <tr>
+        <td>Custom submenu page</td>
+        <td>Return custom submenu slug based on URL params</td>
+    </tr>
+    <tr>
+        <td>Grouped functionality</td>
+        <td>Map multiple pages to same submenu</td>
+    </tr>
+    <tr>
+        <td>Context-based selection</td>
+        <td>Choose submenu based on data being viewed</td>
+    </tr>
+    <tr>
+        <td>Fallback behavior</td>
+        <td>Return first/last child when no match found</td>
+    </tr>
+</table>
+
+<h3>Debugging</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_active_submenu_item', 'debug_active_submenu', 999, 3 );
+
+function debug_active_submenu( $submenu_key, $parent_key, $children ) {
+    
+    error_log( sprintf(
+        'Parent: %s | Active Submenu: %s | Available: %s',
+        $parent_key,
+        $submenu_key ? $submenu_key : 'none',
+        implode( ', ', array_keys( $children ) )
+    ));
+    
+    return $submenu_key;
+}</code></pre>
+
+<h3>Troubleshooting</h3>
+
+<h4>No Submenu Highlighted</h4>
+<ul>
+    <li>Check submenu slug matches key in children array</li>
+    <li>Verify parent menu has children defined</li>
+    <li>Ensure submenu wasn't removed by another filter</li>
+</ul>
+
+<h4>Wrong Submenu Highlighted</h4>
+<ul>
+    <li>Check filter priority (higher priority = later execution)</li>
+    <li>Verify parent_key is what you expect</li>
+    <li>Log available children to debug</li>
+</ul>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_alpha_insights_active_parent_menu_item.html'>wpd_alpha_insights_active_parent_menu_item</a> - Control active parent menu</li>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_alpha_insights_menu_items.html'>wpd_alpha_insights_menu_items</a> - Modify menu structure</li>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_alpha_insights_menu_html.html'>wpd_alpha_insights_menu_html</a> - Modify menu HTML</li>
+</ul>
+
+<h3>Related Classes</h3>
+
+<ul>
+    <li><code>WPD_Admin_Menu</code> - Menu management and rendering</li>
+</ul>
+</p>

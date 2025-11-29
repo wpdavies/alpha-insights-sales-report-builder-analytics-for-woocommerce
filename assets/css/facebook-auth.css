@@ -1,0 +1,462 @@
+/**
+ * Facebook Authentication Modal Styles
+ * Modern, clean design matching React dashboard aesthetic
+ */
+
+/* Connection Status Container */
+.wpd-facebook-auth-container {
+    margin: 20px 0;
+}
+
+.wpd-fb-connection-status {
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+}
+
+.wpd-fb-connection-status.connected {
+    border-color: #10b981;
+    background: #f0fdf4;
+}
+
+.wpd-fb-connection-status.expiring-soon {
+    border-color: #f59e0b;
+    background: #fffbeb;
+}
+
+.wpd-fb-connection-status.expired {
+    border-color: #ef4444;
+    background: #fef2f2;
+}
+
+.wpd-fb-status-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.wpd-fb-account-name {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.wpd-fb-status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.wpd-fb-status-badge.wpd-fb-connected {
+    background: #10b981;
+    color: white;
+}
+
+.wpd-fb-status-badge.wpd-fb-expiring-soon {
+    background: #f59e0b;
+    color: white;
+}
+
+.wpd-fb-status-badge.wpd-fb-expired {
+    background: #ef4444;
+    color: white;
+}
+
+.wpd-fb-expiry-info {
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.wpd-fb-expiry-info.wpd-fb-expired {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+.wpd-fb-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+/* Modal Base */
+.wpd-fb-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: wpd-fb-fadeIn 0.2s ease;
+}
+
+.wpd-fb-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.wpd-fb-modal-content {
+    position: relative;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: wpd-fb-slideUp 0.3s ease;
+    z-index: 1;
+}
+
+.wpd-fb-modal.wpd-fb-modal-sm .wpd-fb-modal-content {
+    max-width: 450px;
+}
+
+.wpd-fb-modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: transparent;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.wpd-fb-modal-close:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+/* Modal Header */
+.wpd-fb-modal-header {
+    padding: 32px 32px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: center;
+}
+
+.wpd-fb-modal-icon {
+    margin: 0 auto 16px;
+    width: 64px;
+    height: 64px;
+    background: #f0f9ff;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wpd-fb-modal-title {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.wpd-fb-modal-subtitle {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Modal Body */
+.wpd-fb-modal-body {
+    padding: 32px;
+}
+
+.wpd-fb-step {
+    animation: wpd-fb-fadeIn 0.3s ease;
+}
+
+.wpd-fb-step-content {
+    margin-bottom: 24px;
+}
+
+.wpd-fb-step-content.wpd-fb-center {
+    text-align: center;
+}
+
+.wpd-fb-step-content h3 {
+    margin: 0 0 16px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.wpd-fb-step-content p {
+    margin: 0 0 12px 0;
+    color: #6b7280;
+    line-height: 1.6;
+}
+
+/* Requirements List */
+.wpd-fb-requirements {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px 0;
+}
+
+.wpd-fb-requirements li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    color: #374151;
+    font-size: 14px;
+}
+
+.wpd-fb-requirements li svg {
+    flex-shrink: 0;
+    color: #10b981;
+}
+
+/* Info Box */
+.wpd-fb-info-box {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    background: #f0f9ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    color: #1e40af;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.wpd-fb-info-box svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+/* Spinner */
+.wpd-fb-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #e5e7eb;
+    border-top-color: #1877f2;
+    border-radius: 50%;
+    animation: wpd-fb-spin 0.8s linear infinite;
+    margin: 0 auto 24px;
+}
+
+/* Ad Account List */
+.wpd-fb-account-list {
+    margin: 16px 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.wpd-fb-account-item {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.wpd-fb-account-item:hover {
+    border-color: #1877f2;
+    background: #f0f9ff;
+}
+
+.wpd-fb-account-item.selected {
+    border-color: #1877f2;
+    background: #f0f9ff;
+}
+
+.wpd-fb-account-radio {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #d1d5db;
+    border-radius: 50%;
+    margin-right: 12px;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.wpd-fb-account-item.selected .wpd-fb-account-radio {
+    border-color: #1877f2;
+}
+
+.wpd-fb-account-item.selected .wpd-fb-account-radio::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: #1877f2;
+    border-radius: 50%;
+}
+
+.wpd-fb-account-info {
+    flex: 1;
+}
+
+.wpd-fb-account-name-display {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 4px;
+}
+
+.wpd-fb-account-id-display {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+/* Success/Error Icons */
+.wpd-fb-success-icon,
+.wpd-fb-error-icon {
+    margin: 0 auto 24px;
+}
+
+.wpd-fb-success-account {
+    font-size: 16px;
+    color: #374151;
+}
+
+.wpd-fb-success-account strong {
+    color: #1f2937;
+}
+
+.wpd-fb-error-message {
+    color: #dc2626;
+    font-weight: 500;
+}
+
+.wpd-fb-popup-notice {
+    margin-top: 24px;
+    color: #9ca3af;
+}
+
+/* Modal Actions */
+.wpd-fb-modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding: 20px 32px;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.wpd-fb-modal-actions button {
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wpd-fb-btn-text {
+    white-space: nowrap;
+}
+
+/* Button States */
+button.wpd-fb-authorize-btn:disabled,
+button.wpd-fb-save-account-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Animations */
+@keyframes wpd-fb-fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes wpd-fb-slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes wpd-fb-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .wpd-fb-modal-content {
+        width: 95%;
+        max-height: 95vh;
+    }
+    
+    .wpd-fb-modal-header,
+    .wpd-fb-modal-body,
+    .wpd-fb-modal-actions {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    
+    .wpd-fb-modal-title {
+        font-size: 20px;
+    }
+    
+    .wpd-fb-actions {
+        flex-direction: column;
+    }
+    
+    .wpd-fb-actions button {
+        width: 100%;
+    }
+}
+
+/* WordPress Admin Compatibility */
+#wpcontent .wpd-fb-modal button.button {
+    font-size: 14px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

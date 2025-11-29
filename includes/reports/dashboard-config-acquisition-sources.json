@@ -1,0 +1,289 @@
+{
+  "dashboard_id": "acquisition-sources",
+  "name": "Traffic Channels",
+  "description": "",
+  "filters": {
+    "date_from": null,
+    "date_to": null,
+    "date_preset": "last_30_days",
+    "comparison_date_selection": "previous_period",
+    "data_filters": []
+  },
+  "created_at": 1761040032,
+  "updated_at": 1761040032,
+  "menu_order": "30",
+  "report_category": "website_traffic",
+  "version_number": "1.0",
+  "appear_in_menu": true,
+  "realtime_data": false,
+  "rows": [
+    {
+      "id": "row-1759176594209",
+      "columns": [
+        {
+          "id": "column-1759176594209-0",
+          "width": {
+            "desktop": 12,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_1759176526023_5ejozlswa",
+              "type": "line_chart",
+              "config": {
+                "title": "Sessions By Acquisition Channel",
+                "data_type": "data_by_date",
+                "metrics": [
+                  {
+                    "metric": "analytics.data_by_date.acquisition_channels_by_date",
+                    "label": "Website Sessions By Acquisition Channel",
+                    "icon": "analytics",
+                    "color": "blue",
+                    "data_source": "analytics",
+                    "value_key": "acquisition_channels_by_date"
+                  }
+                ],
+                "metric": "",
+                "metric_field": "",
+                "metric_display": "number",
+                "date_format": "auto",
+                "width_desktop": 12,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "color": "blue",
+                "show_legend": true,
+                "realtime_data": false,
+                "format": "text"
+              }
+            },
+            {
+              "id": "widget_1759176597040_v16nmrijz",
+              "type": "simple_table",
+              "config": {
+                "title": "Website Traffic Data By Acquisition Source",
+                "data_type": "categorized_data",
+                "metric": "analytics.categorized_data.acquisition_summary",
+                "metric_fields": [
+                  "session_count",
+                  "channel_percent",
+                  "user_count",
+                  "transactions",
+                  "total_value",
+                  "conversion_rate"
+                ],
+                "selected_columns": [],
+                "metrics": [],
+                "time_format": "auto",
+                "color": "blue",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "rows_limit": 50,
+                "sort_config": {
+                  "key": "session_count",
+                  "direction": "desc"
+                },
+                "column_order": [],
+                "no_max_height": true,
+                "max_height": 490,
+                "realtime_data": false,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-1758924595192",
+      "columns": [
+        {
+          "id": "column-1758924595192-0",
+          "width": {
+            "desktop": 6,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_1758924604296_foo6f3afc",
+              "type": "bar_chart",
+              "config": {
+                "title": "Website Traffic Data By Referral URL",
+                "data_type": "categorized_data",
+                "metrics": [],
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "color": "blue",
+                "show_legend": true,
+                "realtime_data": false,
+                "date_format": "auto",
+                "metric": "analytics.categorized_data.referral_url_summary",
+                "selected_columns": [],
+                "column_order": [],
+                "default_sort_key": "",
+                "default_sort_direction": "asc",
+                "metric_field": "session_count",
+                "metric_display": "number",
+                "format": "text"
+              }
+            },
+            {
+              "id": "widget_1758924632931_pp5cmz0lu",
+              "type": "simple_table",
+              "config": {
+                "title": "Website Traffic Data By Referral URL",
+                "data_type": "categorized_data",
+                "metric": "analytics.categorized_data.referral_url_summary",
+                "metrics": [],
+                "time_format": "auto",
+                "color": "blue",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "rows_limit": 50,
+                "sort_config": {
+                  "key": "session_count",
+                  "direction": "desc"
+                },
+                "column_order": [],
+                "realtime_data": false,
+                "selected_columns": [],
+                "default_sort_key": "",
+                "default_sort_direction": "asc",
+                "metric_fields": [
+                  "session_count",
+                  "user_count",
+                  "views",
+                  "transactions",
+                  "revenue"
+                ],
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-1-1",
+          "width": {
+            "desktop": 6,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1758924990157_jdqs6v984",
+              "type": "bar_chart",
+              "config": {
+                "title": "Website Traffic Data By UTM Campaign",
+                "data_type": "categorized_data",
+                "metrics": [],
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "color": "blue",
+                "show_legend": true,
+                "realtime_data": false,
+                "date_format": "auto",
+                "metric": "analytics.categorized_data.campaign_summary",
+                "selected_columns": [],
+                "column_order": [],
+                "default_sort_key": "",
+                "default_sort_direction": "asc",
+                "metric_field": "session_count",
+                "metric_display": "number",
+                "format": "text"
+              }
+            },
+            {
+              "id": "widget_1758925010559_lhrsq3dzt",
+              "type": "simple_table",
+              "config": {
+                "title": "Website Traffic Data By UTM Campaign",
+                "data_type": "categorized_data",
+                "metric": "analytics.categorized_data.campaign_summary",
+                "metrics": [],
+                "time_format": "auto",
+                "color": "blue",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "rows_limit": 50,
+                "sort_config": {
+                  "key": "session_count",
+                  "direction": "desc"
+                },
+                "column_order": [],
+                "realtime_data": false,
+                "selected_columns": [],
+                "default_sort_key": "",
+                "default_sort_direction": "asc",
+                "metric_fields": [
+                  "session_count",
+                  "user_count",
+                  "transactions",
+                  "total_value"
+                ],
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-1758925040224",
+      "columns": [
+        {
+          "id": "column-7-1",
+          "width": {
+            "desktop": 12,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1758925077936_6ze4bgd3c",
+              "type": "simple_table",
+              "config": {
+                "title": "Website Traffic Data By Landing Page",
+                "data_type": "categorized_data",
+                "metric": "analytics.categorized_data.landing_page_summary",
+                "metric_fields": [
+                  "session_count",
+                  "user_count",
+                  "views",
+                  "transactions",
+                  "revenue"
+                ],
+                "selected_columns": [],
+                "metrics": [],
+                "time_format": "auto",
+                "color": "blue",
+                "width_desktop": 6,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "rows_limit": 50,
+                "sort_config": {
+                  "key": "session_count",
+                  "direction": "desc"
+                },
+                "column_order": [],
+                "no_max_height": false,
+                "max_height": "600",
+                "realtime_data": false,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "icon": "target",
+  "color": "accent"
+}

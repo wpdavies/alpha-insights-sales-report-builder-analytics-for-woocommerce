@@ -1,0 +1,337 @@
+{
+  "dashboard_id": "realtime-dashboard",
+  "name": "Realtime Dashboard",
+  "menu_order": "10",
+  "report_category": "website_traffic",
+  "version_number": "1.0",
+  "appear_in_menu": true,
+  "filters": {
+    "date_from": null,
+    "date_to": null,
+    "date_preset": "today",
+    "comparison_date_selection": null,
+    "data_filters": []
+  },
+  "created_at": 1761040032,
+  "updated_at": 1761040032,
+  "realtime_data": true,
+  "rows": [
+    {
+      "id": "row-1760504019239",
+      "columns": [
+        {
+          "id": "column-1760504019239-0",
+          "width": {
+            "desktop": 6,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_1760504022322_hrgj9hk9e",
+              "type": "bar_chart",
+              "config": {
+                "title": "Sessions",
+                "data_type": "data_by_date",
+                "metrics": [
+                  {
+                    "metric": "analytics.data_by_date.sessions_by_date",
+                    "label": "Unique Website Sessions",
+                    "icon": "analytics",
+                    "color": "blue",
+                    "data_source": "analytics",
+                    "value_key": "sessions_by_date"
+                  }
+                ],
+                "metric": "",
+                "metric_field": "",
+                "metric_display": "number",
+                "date_format": "auto",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "color": "blue",
+                "show_legend": true,
+                "realtime_data": true,
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-1760504019239-1",
+          "width": {
+            "desktop": 6,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_1760504039385_8ee53v9hw",
+              "type": "simple_table",
+              "config": {
+                "title": "Currently Viewed Pages",
+                "data_type": "categorized_data",
+                "metric": "analytics.categorized_data.page_view_summary",
+                "metric_fields": [
+                  "session_count",
+                  "views"
+                ],
+                "selected_columns": [],
+                "metrics": [],
+                "time_format": "auto",
+                "color": "blue",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "rows_limit": 50,
+                "sort_config": {
+                  "key": "views",
+                  "direction": "desc"
+                },
+                "column_order": [],
+                "realtime_data": true,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-1759049357049",
+      "columns": [
+        {
+          "id": "column-1759049357049-0",
+          "width": {
+            "desktop": 7,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_1760503217649_5jlkxlwlg",
+              "type": "line_chart",
+              "config": {
+                "title": "Events",
+                "data_type": "data_by_date",
+                "metrics": [
+                  {
+                    "metric": "analytics.data_by_date.all_events_by_date",
+                    "label": "All Website Events",
+                    "icon": "analytics",
+                    "color": "blue",
+                    "data_source": "analytics",
+                    "value_key": "all_events_by_date"
+                  }
+                ],
+                "metric": "",
+                "metric_field": "",
+                "metric_display": "number",
+                "date_format": "auto",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "color": "blue",
+                "show_legend": true,
+                "realtime_data": true,
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-0-1",
+          "width": {
+            "desktop": 5,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1759049405105_azkmdjizv",
+              "type": "pie_chart",
+              "config": {
+                "title": "Acquisition Source",
+                "data_type": "categorized_data",
+                "metric": "analytics.categorized_data.acquisition_summary",
+                "metric_field": "session_count",
+                "width_desktop": 4,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "color": "blue",
+                "show_legend": true,
+                "realtime_data": true,
+                "metric_display": "number",
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-1759049601951",
+      "columns": [
+        {
+          "id": "column-2-0",
+          "width": {
+            "desktop": 12,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1759049954573_tz5o3ynal",
+              "type": "simple_table",
+              "config": {
+                "title": "Product Activity",
+                "data_type": "categorized_data",
+                "metric": "analytics.categorized_data.product_summary",
+                "metric_fields": [
+                  "session_count",
+                  "product_clicks",
+                  "product_page_views",
+                  "add_to_cart",
+                  "percent_of_sessions_with_add_to_cart",
+                  "transactions",
+                  "qty_purchased",
+                  "total_value",
+                  "conversion_rate"
+                ],
+                "selected_columns": [],
+                "metrics": [],
+                "time_format": "auto",
+                "color": "blue",
+                "width_desktop": 12,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "rows_limit": 50,
+                "sort_config": {
+                  "key": "session_count",
+                  "direction": "desc"
+                },
+                "column_order": [],
+                "realtime_data": true,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-1759049823837",
+      "columns": [
+        {
+          "id": "column-1759049823837-0",
+          "width": {
+            "desktop": 6,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_1759049829524_vvgwx3txd",
+              "type": "bar_chart",
+              "config": {
+                "title": "UTM Campaign",
+                "data_type": "categorized_data",
+                "metrics": [],
+                "metric": "analytics.categorized_data.campaign_summary",
+                "metric_field": "session_count",
+                "metric_display": "number",
+                "date_format": "auto",
+                "width_desktop": 6,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "color": "blue",
+                "show_legend": true,
+                "realtime_data": true,
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-3-1",
+          "width": {
+            "desktop": 6,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1759050161093_8xd3qohxe",
+              "type": "bar_chart",
+              "config": {
+                "title": "Session Funnel",
+                "data_type": "categorized_data",
+                "metrics": [],
+                "metric": "analytics.categorized_data.conversion_funnel_summary",
+                "metric_field": "count",
+                "metric_display": "number",
+                "date_format": "auto",
+                "width_desktop": 6,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "color": "blue",
+                "show_legend": true,
+                "realtime_data": true,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-1760504566995",
+      "columns": [
+        {
+          "id": "column-1760504566995-0",
+          "width": {
+            "desktop": 12,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_1760504570160_ym875vkae",
+              "type": "simple_table",
+              "config": {
+                "title": "Count Of Checkout Errors By Error Message",
+                "data_type": "categorized_data",
+                "metric": "analytics.categorized_data.checkout_errors_summary",
+                "metric_fields": "",
+                "selected_columns": [],
+                "metrics": [],
+                "time_format": "auto",
+                "color": "blue",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "rows_limit": 50,
+                "sort_config": {
+                  "key": null,
+                  "direction": "asc"
+                },
+                "column_order": [],
+                "realtime_data": true,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "pro_report": true,
+  "icon": "activity",
+  "color": "indigo"
+}

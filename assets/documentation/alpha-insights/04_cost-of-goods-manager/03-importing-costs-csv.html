@@ -1,0 +1,374 @@
+﻿<h2>Importing Product Costs via CSV</h2>
+<p>CSV import is the fastest way to add or update costs for many products at once. Whether you're setting up Alpha Insights for the first time or receiving updated pricing from suppliers, importing from a spreadsheet saves hours of manual data entry.</p>
+<h3>When to Use CSV Import</h3>
+<h4>Initial Setup</h4>
+<p>If you have costs in an existing spreadsheet, database, or another system, CSV import lets you add all costs at once instead of entering them individually.</p>
+<h4>Supplier Price Updates</h4>
+<p>When suppliers send you updated price sheets, convert their format to match Alpha Insights' CSV format and import - much faster than updating products one by one.</p>
+<h4>Multi-Source Cost Data</h4>
+<p>If you get costs from multiple suppliers or sources, compile them into one CSV file and import everything in a single operation.</p>
+<h4>Periodic Cost Reviews</h4>
+<p>Export your costs, review and adjust them in Excel or Google Sheets, then re-import the updated values.</p>
+<h3>Preparing Your CSV File</h3>
+<h4>Required Columns</h4>
+<p>Your CSV file must include these two columns (order doesn't matter):</p>
+
+<p><strong>1. Product Identifier (choose one):</strong></p>
+<ul>
+<li><strong>Product ID:</strong> The WooCommerce post ID (numerical, e.g., 123, 456)</li>
+<li><strong>SKU:</strong> The product SKU / Stock Keeping Unit (e.g., T-SHIRT-S, HAT-01)</li>
+</ul>
+
+<p><strong>2. Cost Column:</strong></p>
+<ul>
+<li>Use decimal format: 12.50, not $12.50</li>
+<li>Don't include currency symbols</li>
+<li>Decimal separator can be period (12.50) or comma (12,50) - Alpha Insights handles both</li>
+<li>Zero (0 or 0.00) is a valid cost for free items</li>
+<li>Empty cost cells will remove the custom cost from that product</li>
+</ul>
+<h4>CSV Format Examples</h4>
+<p>
+<strong>Example 1: Using Product ID</strong>
+</p>
+<pre>Product ID,Cost 123,25.50 124,18.00 125,32.75
+</pre>
+<p>
+<strong>Example 2: Using SKU</strong>
+</p>
+<pre>SKU,Cost T-SHIRT-S,12.50 T-SHIRT-M,12.50 T-SHIRT-L,13.00 HAT-BLUE-01,8.50
+</pre>
+<p>
+<strong>Example 3: Additional Columns (Ignored)</strong>
+</p>
+<p>You can include other columns - they'll be ignored:</p>
+<pre>SKU,Product Name,Cost,Supplier T-SHIRT-S,T-Shirt Small,12.50,ABC Corp HAT-01,Blue Baseball Hat,8.50,XYZ Ltd
+</pre>
+<p>Alpha Insights only reads the identifier (SKU) and Cost columns.</p>
+<h4>Getting Product IDs or SKUs</h4>
+<p>If you're not sure of your product IDs or SKUs:</p>
+<ol>
+<li>Go to <strong>Alpha Insights → Cost of Goods Manager</strong>
+</li>
+<li>Click <strong>Export CSV</strong>
+</li>
+<li>Open the exported file - it contains all your product IDs and SKUs</li>
+<li>Use this as a template: delete the columns you don't need, keep ID/SKU and Cost</li>
+</ol>
+<h4>Excel/Google Sheets Preparation</h4>
+<p>
+<strong>In Excel:</strong>
+</p>
+<ol>
+<li>Create or open your spreadsheet</li>
+<li>Ensure column headers are in Row 1: "SKU" (or "Product ID") and "Cost"</li>
+<li>Fill in your data</li>
+<li>Click <strong>File → Save As</strong>
+</li>
+<li>Choose format:<strong>CSV (Comma delimited) (*.csv)</strong>
+</li>
+<li>Save the file</li>
+</ol>
+<p>
+<strong>In Google Sheets:</strong>
+</p>
+<ol>
+<li>Create or open your spreadsheet</li>
+<li>Ensure proper column headers</li>
+<li>Click <strong>File → Download → Comma Separated Values (.csv)</strong>
+</li>
+<li>Save to your computer</li>
+</ol>
+<h3>Importing the CSV File</h3>
+<h4>Step-by-Step Import Process</h4>
+<ol>
+<li>Go to <strong>Alpha Insights → Cost of Goods Manager</strong>
+</li>
+<li>Click the <strong>Import CSV</strong> button in the toolbar</li>
+<li>A modal window opens with import options</li>
+</ol>
+<h4>Choose Identifier Type</h4>
+<p>Select which identifier your CSV uses:</p>
+<ul>
+<li>
+<strong>Product ID:</strong> If your CSV has numerical IDs (123, 456, etc.)
+</li>
+<li>
+<strong>SKU:</strong> If your CSV has text SKUs (T-SHIRT-S, HAT-01, etc.)
+</li>
+</ul>
+<p>
+<strong>Important:</strong> Choose the correct type! If you select "SKU" but your CSV has IDs, products won't be found.
+</p>
+<h4>Upload Your File</h4>
+<ol>
+<li>Click <strong>Choose File</strong> or <strong>Browse</strong>
+</li>
+<li>Select your CSV file from your computer</li>
+<li>Click <strong>Open</strong>
+</li>
+</ol>
+<h4>Preview and Confirm</h4>
+<p>Alpha Insights shows a preview of your file:</p>
+<ul>
+<li>First few rows displayed</li>
+<li>Column headers identified</li>
+<li>Number of rows to process</li>
+</ul>
+<p>Review this carefully:</p>
+<ul>
+<li>Do the columns look correct?</li>
+<li>Are the product identifiers showing properly?</li>
+<li>Are the cost values formatted correctly?</li>
+</ul>
+<p>If something looks wrong, click <strong>Cancel</strong>, fix your CSV, and try again.</p>
+<h4>Start Import</h4>
+<ol>
+<li>If the preview looks good, click <strong>Start Import</strong> or <strong>Import</strong>
+</li>
+<li>A progress indicator shows as products are processed</li>
+<li>Processing happens one row at a time</li>
+<li>For large files (1,000+ products), this may take 1-2 minutes</li>
+</ol>
+<h4>Import Results</h4>
+<p>When complete, you'll see a summary:</p>
+<ul>
+<li>
+<strong>Total rows processed:</strong> How many lines were in your CSV
+</li>
+<li>
+<strong>Successfully updated:</strong> Products that were found and updated
+</li>
+<li>
+<strong>Skipped/Failed:</strong> Products that couldn't be found or had errors
+</li>
+<li>
+<strong>Error details:</strong> List of any products that failed (with reason)
+</li>
+</ul>
+<h3>What Happens During Import</h3>
+<h4>For Each Row in Your CSV:</h4>
+<ol>
+<li>Alpha Insights searches for the product by ID or SKU</li>
+<li>
+<ul>
+<li>Cost is validated (must be numeric)</li>
+<li>Cost is saved to the product</li>
+<li>Profit cache for orders containing this product is cleared</li>
+<li>Counter increments</li>
+</ul>
+</li>
+<li>
+<ul>
+<li>Row is skipped</li>
+<li>Error is logged with the identifier that failed</li>
+</ul>
+</li>
+</ol>
+<h4>Existing Costs</h4>
+<p>Import <strong>overwrites</strong> existing costs:</p>
+<ul>
+<li>If a product has a cost already, the CSV value replaces it</li>
+<li>If a product has no cost, the CSV value is added</li>
+<li>If the CSV has a zero cost (0 or 0.00), it's saved as zero - this is a valid cost</li>
+<li>If the CSV has an empty cost value, the custom cost is removed and the product reverts to using the default calculated cost</li>
+</ul>
+<p>There's no "merge" or "skip existing" option - CSV import is for bulk updates.</p>
+<h4>Validation</h4>
+<p>Alpha Insights validates each row:</p>
+<ul>
+<li>
+<strong>Product identifier:</strong> Must exist in your store
+</li>
+<li>
+<strong>Cost value:</strong> Must be numeric (12.50 is valid, "twelve dollars" is not)
+</li>
+<li>
+<strong>Format:</strong> Handles international decimal formats automatically
+</li>
+</ul>
+<p>Invalid rows are skipped with an error message - valid rows still process.</p>
+<h3>Common CSV Import Scenarios</h3>
+<h4>Scenario 1: First-Time Cost Setup</h4>
+<p>You have 500 products and a supplier gave you a price list in Excel.</p>
+<ol>
+<li>Open supplier's Excel file</li>
+<li>Add your product SKUs to their list (match their products to yours)</li>
+<li>Format as: SKU | Cost (delete other columns)</li>
+<li>Save as CSV</li>
+<li>Import using SKU identifier type</li>
+<li>Review results to see which products matched</li>
+</ol>
+<p>
+<strong>Tip:</strong> Some products might not match if SKUs differ. Check the error list and fix those manually.
+</p>
+<h4>Scenario 2: Quarterly Price Increase</h4>
+<p>Your supplier increased all costs by 8%.</p>
+<ol>
+<li>Export your current costs from Cost Manager</li>
+<li>Open in Excel</li>
+<li>Create formula in new column: =Cost * 1.08</li>
+<li>Copy formula down</li>
+<li>Delete old cost column, rename new column to "Cost"</li>
+<li>Keep SKU or Product ID column</li>
+<li>Save as CSV and import</li>
+</ol>
+<h4>Scenario 3: Multiple Suppliers</h4>
+<p>You source from 3 different suppliers, each with their own price sheets.</p>
+<ol>
+<li>Export Alpha Insights costs for all products</li>
+<li>Open in Excel</li>
+<li>
+<ul>
+<li>Match their products to your SKUs</li>
+<li>Update costs in the main spreadsheet</li>
+</ul>
+</li>
+<li>Save combined file as CSV</li>
+<li>Import once with all updated costs</li>
+</ol>
+<h4>Scenario 4: New Variable Products</h4>
+<p>You added a new shirt with 10 color/size variations, each with different costs.</p>
+<ol>
+<li>
+<pre>SKU,Cost SHIRT-S-RED,12.00 SHIRT-S-BLUE,12.00 SHIRT-M-RED,12.50 SHIRT-M-BLUE,12.50 ...
+</pre>
+</li>
+<li>Import this small file</li>
+<li>All variations get costs added at once</li>
+</ol>
+<h3>Troubleshooting CSV Imports</h3>
+<h4>"File upload failed"</h4>
+<p>
+<strong>Causes:</strong>
+</p>
+<ul>
+<li>File is too large (over WordPress upload limit)</li>
+<li>File isn't actually a CSV</li>
+<li>Server permissions issue</li>
+</ul>
+<p>
+<strong>Solutions:</strong>
+</p>
+<ul>
+<li>Check file size - split large files into smaller batches</li>
+<li>Ensure file ends in .csv</li>
+<li>Resave from Excel as CSV (not XLSX)</li>
+<li>Contact host if upload limits are an issue</li>
+</ul>
+<h4>"No products were updated"</h4>
+<p>
+<strong>Causes:</strong>
+</p>
+<ul>
+<li>Wrong identifier type selected</li>
+<li>Product IDs or SKUs don't match your actual products</li>
+<li>Column headers missing or incorrect</li>
+</ul>
+<p>
+<strong>Solutions:</strong>
+</p>
+<ul>
+<li>Export a sample CSV from Alpha Insights to check your products' actual IDs/SKUs</li>
+<li>Verify column headers are exactly "Product ID" or "SKU" and "Cost"</li>
+<li>Try the opposite identifier type (ID vs SKU)</li>
+</ul>
+<h4>"Some products failed to import"</h4>
+<p>This is normal if:</p>
+<ul>
+<li>CSV has products you've since deleted from WooCommerce</li>
+<li>SKUs in CSV don't exactly match (case-sensitive, spacing matters)</li>
+<li>Some costs have invalid characters ($, commas, etc.)</li>
+</ul>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Review the error list in import results</li>
+<li>For failed products, add them manually or fix the CSV row and re-import just those</li>
+</ul>
+<h4>"Costs importing as wrong values"</h4>
+<p>
+<strong>Causes:</strong>
+</p>
+<ul>
+<li>Excel formatting costs as currency (with symbols)</li>
+<li>Decimal separator confusion (1,50 vs 1.50)</li>
+<li>Scientific notation (1.2E+5)</li>
+</ul>
+<p>
+<strong>Solutions:</strong>
+</p>
+<ul>
+<li>In Excel, format cost column as "Number" with 2 decimal places</li>
+<li>Remove currency symbols before saving</li>
+<li>Alpha Insights handles both comma and period decimals, but choose one consistently</li>
+</ul>
+<h4>"Import is very slow"</h4>
+<p>Large files (1,000+ products) can take time.</p>
+<p>
+<strong>Normal behavior:</strong>
+</p>
+<ul>
+<li>1,000 products: ~1-2 minutes</li>
+<li>5,000 products: ~5-10 minutes</li>
+</ul>
+<p>If it's much slower:</p>
+<ul>
+<li>Check your server performance</li>
+<li>Consider splitting into smaller batches</li>
+<li>Do imports during low-traffic times</li>
+</ul>
+<h3>Best Practices</h3>
+<h4>Test with Small Sample First</h4>
+<p>Before importing 5,000 products:</p>
+<ol>
+<li>Create a test CSV with just 5-10 products</li>
+<li>Import and verify results</li>
+<li>If successful, proceed with full file</li>
+</ol>
+<h4>Backup Before Large Imports</h4>
+<ol>
+<li>Export current costs before importing updates</li>
+<li>Save the export as a backup</li>
+<li>If import goes wrong, re-import the backup</li>
+</ol>
+<h4>Use SKUs When Possible</h4>
+<p>SKUs are more reliable than Product IDs because:</p>
+<ul>
+<li>IDs can change if you migrate sites</li>
+<li>SKUs are more human-readable</li>
+<li>Easier to match with supplier data</li>
+</ul>
+<p>Only use Product IDs if you don't have SKUs set up.</p>
+<h4>Clean Your Data First</h4>
+<p>Before importing:</p>
+<ul>
+<li>Remove extra spaces from SKUs/costs</li>
+<li>Ensure all costs are numeric</li>
+<li>Delete any completely empty rows</li>
+<li>Verify column headers are exactly correct</li>
+</ul>
+<h4>Document Your Import</h4>
+<p>Keep track of imports:</p>
+<ul>
+<li>Save dated copies of import files</li>
+<li>Note why/when you did each import</li>
+<li>Screenshot or save the import results</li>
+</ul>
+<p>This helps if you need to troubleshoot later.</p>
+<h3>Alternative Import Methods</h3>
+<h4>If CSV Import Isn't Working</h4>
+<p>You have other options:</p>
+<p>
+<strong>1. Cost Manager Manual Entry:</strong> For small numbers of products (under 50), manual entry in Cost Manager is often fastest.
+</p>
+<p>
+<strong>2. Individual Product Edit:</strong> Edit products one-by-one in WooCommerce.
+</p>
+<p>
+<strong>3. Database Import:</strong> For very large imports (10,000+ products), developers can directly update the database using SQL - contact support for guidance.
+</p>
+<p>
+<strong>4. API Integration:</strong> If you have a developer, costs can be updated programmatically via REST API or PHP functions.
+</p>

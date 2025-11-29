@@ -1,0 +1,291 @@
+<h2>Filter: wpd_ai_custom_product_cost_default_value</h2>
+
+<p>Filter the default value for custom product-level costs during order profit calculations.</p>
+
+<h3>Description</h3>
+
+<p>This powerful filter allows you to dynamically calculate custom product costs per line item in an order. These costs are calculated per unit and multiplied by quantity. Use this to add packaging costs, custom fees, or any product-specific expenses that vary by item.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPD_Order_Calculator.php</code> and <code>includes/classes/WPD_Alpha_Insights_Core.php</code></p>
+<p><strong>Method:</strong> <code>WPD_Order_Calculator::get_custom_product_costs()</code></p>
+<p><strong>Line:</strong> ~1123 and ~343</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$default_calculated_value</td>
+        <td>float</td>
+        <td>The calculated cost value based on product settings</td>
+    </tr>
+    <tr>
+        <td>$custom_cost_slug</td>
+        <td>string</td>
+        <td>The unique slug identifier for this custom cost type</td>
+    </tr>
+    <tr>
+        <td>$order</td>
+        <td>WC_Order</td>
+        <td>The WooCommerce order object</td>
+    </tr>
+    <tr>
+        <td>$item</td>
+        <td>WC_Order_Item_Product</td>
+        <td>The order line item (contains product data, quantity, etc.)</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> float</p>
+<p><strong>Description:</strong> Modified custom product cost per unit</p>
+
+<h3>Example Usage</h3>
+
+<h3>Dynamic Packaging Cost by Product Weight</h3>
+
+<pre><code>add_filter( 'wpd_ai_custom_product_cost_default_value', 'weight_based_packaging', 10, 4 );
+
+function weight_based_packaging( $cost, $slug, $order, $item ) {
+    
+    if ( $slug !== 'packaging_cost' ) {
+        return $cost;
+    }
+    
+    $product = $item->get_product();
+    if ( ! $product ) {
+        return $cost;
+    }
+    
+    $weight = (float) $product->get_weight();
+    
+    // Tiered packaging based on weight
+    if ( $weight > 10 ) {
+        return 5.00; // Large packaging
+    } elseif ( $weight > 5 ) {
+        return 3.00; // Medium packaging
+    } elseif ( $weight > 1 ) {
+        return 1.50; // Small packaging
+    }
+    
+    return 0.75; // Minimal packaging
+}</code></pre>
+
+<h3>Custom Gift Wrapping Fee</h3>
+
+<pre><code>add_filter( 'wpd_ai_custom_product_cost_default_value', 'gift_wrap_cost', 10, 4 );
+
+function gift_wrap_cost( $cost, $slug, $order, $item ) {
+    
+    if ( $slug !== 'gift_wrap' ) {
+        return $cost;
+    }
+    
+    // Check if gift wrapping was requested
+    $gift_wrap_meta = $item->get_meta('_gift_wrap', true);
+    
+    if ( $gift_wrap_meta === 'yes' ) {
+        return 3.50; // Cost of gift wrapping materials + labor
+    }
+    
+    return 0;
+}</code></pre>
+
+<h3>Product Category-Specific Handling</h3>
+
+<pre><code>add_filter( 'wpd_ai_custom_product_cost_default_value', 'category_handling_fees', 10, 4 );
+
+function category_handling_fees( $cost, $slug, $order, $item ) {
+    
+    if ( $slug !== 'handling_fee' ) {
+        return $cost;
+    }
+    
+    $product = $item->get_product();
+    if ( ! $product ) {
+        return $cost;
+    }
+    
+    $product_id = $product->get_id();
+    
+    // Extra handling for fragile items
+    if ( has_term( 'fragile', 'product_cat', $product_id ) ) {
+        return 4.00;
+    }
+    
+    // Extra handling for oversized items
+    if ( has_term( 'oversized', 'product_cat', $product_id ) ) {
+        return 6.50;
+    }
+    
+    // Electronics need special packaging
+    if ( has_term( 'electronics', 'product_cat', $product_id ) ) {
+        return 2.50;
+    }
+    
+    return 1.00; // Standard handling
+}</code></pre>
+
+<h3>Customization Labor Cost</h3>
+
+<pre><code>add_filter( 'wpd_ai_custom_product_cost_default_value', 'customization_labor', 10, 4 );
+
+function customization_labor( $cost, $slug, $order, $item ) {
+    
+    if ( $slug !== 'labor_cost' ) {
+        return $cost;
+    }
+    
+    // Check if product was customized
+    $has_engraving = $item->get_meta('_engraving_text', true);
+    $custom_color = $item->get_meta('_custom_color', true);
+    
+    $labor_cost = 0;
+    
+    if ( ! empty( $has_engraving ) ) {
+        $labor_cost += 8.00; // Engraving labor
+    }
+    
+    if ( ! empty( $custom_color ) ) {
+        $labor_cost += 5.00; // Custom color mixing
+    }
+    
+    return $labor_cost;
+}</code></pre>
+
+<h3>Quantity-Based Discounts on Custom Costs</h3>
+
+<pre><code>add_filter( 'wpd_ai_custom_product_cost_default_value', 'bulk_cost_discount', 10, 4 );
+
+function bulk_cost_discount( $cost, $slug, $order, $item ) {
+    
+    if ( $slug !== 'setup_fee' ) {
+        return $cost;
+    }
+    
+    $quantity = $item->get_quantity();
+    
+    // Setup fee per unit decreases with quantity
+    if ( $quantity >= 100 ) {
+        return 0.50; // Bulk discount
+    } elseif ( $quantity >= 50 ) {
+        return 1.00;
+    } elseif ( $quantity >= 10 ) {
+        return 2.00;
+    }
+    
+    return 5.00; // Standard setup fee per unit
+}</code></pre>
+
+<h3>Percentage-Based Custom Fee</h3>
+
+<pre><code>add_filter( 'wpd_ai_custom_product_cost_default_value', 'percentage_based_fee', 10, 4 );
+
+function percentage_based_fee( $cost, $slug, $order, $item ) {
+    
+    if ( $slug !== 'marketplace_fee' ) {
+        return $cost;
+    }
+    
+    // 12% marketplace fee on product price
+    $product_price = $item->get_total() / $item->get_quantity(); // Price per unit
+    
+    return $product_price * 0.12;
+}</code></pre>
+
+<h3>Integration with External System</h3>
+
+<pre><code>add_filter( 'wpd_ai_custom_product_cost_default_value', 'erp_product_costs', 10, 4 );
+
+function erp_product_costs( $cost, $slug, $order, $item ) {
+    
+    $product = $item->get_product();
+    if ( ! $product ) {
+        return $cost;
+    }
+    
+    $sku = $product->get_sku();
+    if ( empty( $sku ) ) {
+        return $cost;
+    }
+    
+    // Fetch actual cost from ERP
+    $erp_costs = wp_cache_get( 'erp_costs_' . $sku, 'my_erp' );
+    
+    if ( false === $erp_costs ) {
+        $erp_costs = my_erp_get_product_costs( $sku );
+        wp_cache_set( 'erp_costs_' . $sku, $erp_costs, 'my_erp', 3600 );
+    }
+    
+    if ( isset( $erp_costs[$slug] ) ) {
+        return (float) $erp_costs[$slug];
+    }
+    
+    return $cost;
+}</code></pre>
+
+<h3>Best Practices</h3>
+
+<ul>
+    <li>Always return a float value (cost per unit, not total)</li>
+    <li>The returned value is automatically multiplied by quantity</li>
+    <li>Check the <code>$custom_cost_slug</code> to target specific cost types</li>
+    <li>Verify product exists before accessing product methods</li>
+    <li>Cache expensive operations</li>
+    <li>Return 0 if cost doesn't apply to this item</li>
+</ul>
+
+<h3>Important Notes</h3>
+
+<ul>
+    <li>Cost returned is <strong>per unit</strong> - Alpha Insights multiplies by quantity automatically</li>
+    <li>Custom product costs must be registered in plugin settings or via filter first</li>
+    <li>Filter runs for each line item in the order</li>
+    <li>Use <code>$item->get_meta()</code> to access custom product data</li>
+    <li>Product variations have their own custom cost values</li>
+</ul>
+
+<h3>Calculation Example</h3>
+
+<p>If you return $3.00 and the customer ordered 5 units:</p>
+<pre><code>Total Custom Cost = $3.00 × 5 = $15.00</code></pre>
+
+<h3>Debugging</h3>
+
+<pre><code>add_filter( 'wpd_ai_custom_product_cost_default_value', 'debug_product_costs', 999, 4 );
+
+function debug_product_costs( $cost, $slug, $order, $item ) {
+    $product = $item->get_product();
+    error_log( sprintf(
+        'Order #%d - Item: %s - Cost Type: %s - Value: $%s × %d units',
+        $order->get_id(),
+        $product ? $product->get_name() : 'Unknown',
+        $slug,
+        number_format( $cost, 2 ),
+        $item->get_quantity()
+    ));
+    return $cost;
+}</code></pre>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_custom_product_cost_options.html'>wpd_ai_custom_product_cost_options</a> - Register custom product cost types</li>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_custom_order_cost_default_value.html'>wpd_ai_custom_order_cost_default_value</a> - Order-level custom costs</li>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_calculate_cost_profit_by_order.html'>wpd_ai_calculate_cost_profit_by_order</a> - Full profit calculation</li>
+</ul>
+
+<h3>Related Functions</h3>
+
+<ul>
+    <li><code>wpd_get_custom_product_cost_options( $product_id )</code> - Get registered custom costs</li>
+    <li><code>wpd_calculate_cost_profit_by_order( $order_id )</code> - Calculate order profit</li>
+</ul>
+</p>

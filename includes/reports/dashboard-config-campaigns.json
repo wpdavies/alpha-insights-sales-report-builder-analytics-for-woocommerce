@@ -1,0 +1,258 @@
+{
+  "dashboard_id": "campaigns",
+  "name": "UTM Campaign Traffic",
+  "menu_order": "40",
+  "report_category": "website_traffic",
+  "version_number": "1.0",
+  "appear_in_menu": true,
+  "filters": {
+    "date_from": null,
+    "date_to": null,
+    "date_preset": "last_30_days",
+    "comparison_date_selection": "previous_period",
+    "data_filters": {}
+  },
+  "created_at": 1761040032,
+  "updated_at": 1761040032,
+  "realtime_data": false,
+  "rows": [
+    {
+      "id": "row-1759178448110",
+      "columns": [
+        {
+          "id": "column-0-0",
+          "width": {
+            "desktop": 12,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1759178350669_rnkep8dtj",
+              "type": "bar_chart",
+              "config": {
+                "title": "Sessions By UTM Campaign",
+                "data_type": "categorized_data",
+                "metrics": [],
+                "metric": "analytics.categorized_data.campaign_summary",
+                "metric_field": "session_count",
+                "metric_display": "number",
+                "date_format": "auto",
+                "width_desktop": 12,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "color": "blue",
+                "show_legend": true,
+                "realtime_data": false,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-1759178386165",
+      "columns": [
+        {
+          "id": "column-1759178386165-0",
+          "width": {
+            "desktop": 6,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_1759178392053_21uj4e4x1",
+              "type": "bar_chart",
+              "config": {
+                "title": "Transactions By UTM Campaign",
+                "data_type": "categorized_data",
+                "metrics": [],
+                "metric": "analytics.categorized_data.campaign_summary",
+                "metric_field": "transactions",
+                "metric_display": "number",
+                "date_format": "auto",
+                "width_desktop": 6,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "color": "blue",
+                "show_legend": true,
+                "realtime_data": false,
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-1-1",
+          "width": {
+            "desktop": 6,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1759178419027_7xx7xi8x2",
+              "type": "bar_chart",
+              "config": {
+                "title": "Revenue By UTM Campaign",
+                "data_type": "categorized_data",
+                "metrics": [],
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "color": "blue",
+                "show_legend": true,
+                "realtime_data": false,
+                "date_format": "auto",
+                "metric": "analytics.categorized_data.campaign_summary",
+                "selected_columns": [],
+                "column_order": [],
+                "default_sort_key": "",
+                "default_sort_direction": "asc",
+                "metric_field": "total_value",
+                "metric_display": "currency",
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-1759178479682",
+      "columns": [
+        {
+          "id": "column-1759178479682-0",
+          "width": {
+            "desktop": 12,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_1759178482431_45pomscv2",
+              "type": "simple_table",
+              "config": {
+                "title": "Website Traffic Data By UTM Campaign",
+                "data_type": "categorized_data",
+                "metric": "analytics.categorized_data.campaign_summary",
+                "metrics": [],
+                "time_format": "auto",
+                "color": "blue",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "rows_limit": 50,
+                "sort_config": {
+                  "key": null,
+                  "direction": "asc"
+                },
+                "column_order": [],
+                "realtime_data": false,
+                "selected_columns": [],
+                "default_sort_key": "",
+                "default_sort_direction": "asc",
+                "metric_fields": [
+                  "session_count",
+                  "user_count",
+                  "transactions",
+                  "total_value"
+                ],
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-1759178495114",
+      "columns": [
+        {
+          "id": "column-1759178495114-0",
+          "width": {
+            "desktop": 12,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_1759178499216_pwm54f0mh",
+              "type": "data_table",
+              "config": {
+                "title": "Sessions With Campaigns",
+                "metric": "analytics.data_table.sessions",
+                "selected_columns": [
+                  "user_id",
+                  "session_start_in_local",
+                  "session_duration",
+                  "landing_page",
+                  "landing_page_campaign",
+                  "referral_source",
+                  "device",
+                  "events",
+                  "page_views",
+                  "add_to_carts",
+                  "add_to_cart_value",
+                  "initiate_checkouts",
+                  "transactions",
+                  "transaction_value"
+                ],
+                "column_order": [
+                  "session_id",
+                  "user_id",
+                  "session_start_in_local",
+                  "session_duration",
+                  "referral_url",
+                  "landing_page",
+                  "landing_page_campaign",
+                  "referral_source",
+                  "device",
+                  "page_views",
+                  "add_to_carts",
+                  "add_to_cart_value",
+                  "initiate_checkouts",
+                  "transactions",
+                  "transaction_value",
+                  "events"
+                ],
+                "limit": "50",
+                "max_records": 500,
+                "sortable": true,
+                "searchable": true,
+                "default_sort_key": "session_start_in_local",
+                "default_sort_direction": "desc",
+                "filters": [
+                  {
+                    "id": "filter_1759178520530_wpvk71z1j",
+                    "column": "landing_page_campaign",
+                    "operator": "is_not_null",
+                    "value": "",
+                    "value2": ""
+                  }
+                ],
+                "width_desktop": 12,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "icon": "list",
+                "color": "blue",
+                "no_max_height": false,
+                "max_height": "600",
+                "realtime_data": false,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "pro_report": true,
+  "icon": "link",
+  "color": "teal"
+}
