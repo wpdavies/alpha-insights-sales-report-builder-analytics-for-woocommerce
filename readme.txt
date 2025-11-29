@@ -45,7 +45,7 @@ Alpha Insights transforms your WooCommerce store data into real profit, sales an
 
 **Upgrade to Alpha Insights Pro:**
 
-Looking for more powerful features? [Upgrade to Alpha Insights Pro](https://wpdavies.dev/products/alpha-insights/?utm_source=wordpress&utm_medium=readme&utm_campaign=free_version_upgrade) and unlock:
+Looking for more powerful features? [Upgrade to Alpha Insights Pro](https://wpdavies.dev/plugins/alpha-insights/?utm_source=wordpress&utm_medium=readme&utm_campaign=free_version_upgrade) and unlock:
 
 * Unlimited custom reports with advanced widgets and metrics
 * Full expense management with categorization and recurring expenses
@@ -55,7 +55,7 @@ Looking for more powerful features? [Upgrade to Alpha Insights Pro](https://wpda
 * Live share links for reports
 * Priority support and updates
 
-[Get Alpha Insights Pro →](https://wpdavies.dev/products/alpha-insights/?utm_source=wordpress&utm_medium=readme&utm_campaign=free_version_upgrade)
+[Get Alpha Insights Pro →](https://wpdavies.dev/plugins/alpha-insights/?utm_source=wordpress&utm_medium=readme&utm_campaign=free_version_upgrade)
 
 == Installation ==
 
@@ -87,10 +87,6 @@ Looking for more powerful features? [Upgrade to Alpha Insights Pro](https://wpda
 4. Start building reports!
 
 == Frequently Asked Questions ==
-
-= Does this work with WooCommerce? =
-
-Yes! Alpha Insights requires WooCommerce 3.0 or higher and is fully compatible with WooCommerce & HPOS (high performance order storage)
 
 = Do I need to manually add costs for each product? =
 
@@ -143,11 +139,6 @@ Yep, if you don't set costs using Alpha Insights, we'll default back to the nati
 
 = 1.0.0 =
 Initial release of Alpha Insights. Get started by configuring your product costs and creating your first report!
-
-== Support ==
-
-For support, feature requests, and documentation, please visit:
-https://wpdavies.dev/docs/alpha-insights/
 
 == Credits ==
 
