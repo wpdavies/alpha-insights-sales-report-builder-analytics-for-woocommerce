@@ -78,7 +78,7 @@ if ( ! function_exists( 'wpd_create_csv_file' ) ) {
 
 	    if ( ! $output ) {
 
-			$error_message['file-creation-failure'] = __( 'Failed to create the CSV file, check to make sure folder permissions are okay.', 'wpd-alpha-insights' );
+			$error_message['file-creation-failure'] = __( 'Failed to create the CSV file, check to make sure folder permissions are okay.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 			$success = false;
 
 	    }
@@ -105,7 +105,7 @@ if ( ! function_exists( 'wpd_create_csv_file' ) ) {
 
 		     if ( ! $write_csv ) {
 
-		    	$error_message['write-failure'] = __( 'Failed to write CSV, check to make sure folder permissions are okay.', 'wpd-alpha-insights' );
+		    	$error_message['write-failure'] = __( 'Failed to write CSV, check to make sure folder permissions are okay.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 				$success = false;
 
 		    } else {
@@ -123,7 +123,7 @@ if ( ! function_exists( 'wpd_create_csv_file' ) ) {
 	     */
 	    if ( $i === 0 || $i === 1 ) {
 
-	    	$error_message['data-failure'] = __( 'We couldn\'t find any data for the given range. Please check your filter and try again.', 'wpd-alpha-insights' );
+	    	$error_message['data-failure'] = __( 'We couldn\'t find any data for the given range. Please check your filter and try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 			$success = false;
 
 	    }
@@ -242,19 +242,19 @@ if ( ! function_exists( 'wpd_generate_pdf_from_report_slug' ) ) {
 
 			// Validate report slug
 			if ( empty( $report_slug ) ) {
-				throw new Exception( __('Report slug is required', 'wpd-alpha-insights') );
+				throw new Exception( __('Report slug is required', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') );
 			}
 
 			// Validate license key
 			if ( empty( $license_key ) ) {
-				throw new Exception( __('You must have a valid license key to use this feature', 'wpd-alpha-insights') );
+				throw new Exception( __('You must have a valid license key to use this feature', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') );
 			}
 
 			// Get report configuration to extract the report name
 			$report_config = get_option( 'wpd_dashboard_config_' . $report_slug );
 			
 			if ( ! $report_config ) {
-				throw new Exception( __('Report not found', 'wpd-alpha-insights') );
+				throw new Exception( __('Report not found', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') );
 			}
 
 			// Extract report name and generate file name
@@ -288,7 +288,7 @@ if ( ! function_exists( 'wpd_generate_pdf_from_report_slug' ) ) {
 				throw new Exception( 
 					isset( $link_creation_result['message'] ) 
 						? $link_creation_result['message'] 
-						: __('Failed to create temporary live link', 'wpd-alpha-insights') 
+						: __('Failed to create temporary live link', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') 
 				);
 			}
 
@@ -322,7 +322,7 @@ if ( ! function_exists( 'wpd_generate_pdf_from_report_slug' ) ) {
 			// Check for WP_Error
 			if ( is_wp_error( $api_response ) ) {
 				throw new Exception( 
-					__('API request failed: ', 'wpd-alpha-insights') . $api_response->get_error_message() 
+					__('API request failed: ', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') . $api_response->get_error_message() 
 				);
 			}
 
@@ -335,7 +335,7 @@ if ( ! function_exists( 'wpd_generate_pdf_from_report_slug' ) ) {
 				$error_data = json_decode( $response_body, true );
 				$error_msg = isset( $error_data['error_message'] ) 
 					? $error_data['error_message'] 
-					: __('PDF generation API returned error', 'wpd-alpha-insights');
+					: __('PDF generation API returned error', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
 				throw new Exception( $error_msg );
 			}
 
@@ -347,19 +347,19 @@ if ( ! function_exists( 'wpd_generate_pdf_from_report_slug' ) ) {
 				throw new Exception( 
 					isset( $pdf_data['error_message'] ) 
 						? $pdf_data['error_message'] 
-						: __('PDF generation failed', 'wpd-alpha-insights') 
+						: __('PDF generation failed', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') 
 				);
 			}
 
 			if ( empty( $pdf_data['pdf_base64'] ) ) {
-				throw new Exception( __('PDF data is missing from API response', 'wpd-alpha-insights') );
+				throw new Exception( __('PDF data is missing from API response', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') );
 			}
 
 			// Decode the base64 PDF
 			$pdf_binary = base64_decode( $pdf_data['pdf_base64'] );
 
 			if ( $pdf_binary === false ) {
-				throw new Exception( __('Failed to decode PDF data', 'wpd-alpha-insights') );
+				throw new Exception( __('Failed to decode PDF data', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') );
 			}
 
 			// Prepare file paths
@@ -387,7 +387,7 @@ if ( ! function_exists( 'wpd_generate_pdf_from_report_slug' ) ) {
 			$bytes_written = file_put_contents( $server_pdf_file, $pdf_binary );
 
 			if ( $bytes_written === false ) {
-				throw new Exception( __('Failed to save PDF file to server', 'wpd-alpha-insights') );
+				throw new Exception( __('Failed to save PDF file to server', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') );
 			}
 
 			// Set proper file permissions
@@ -432,7 +432,7 @@ if ( ! function_exists( 'wpd_generate_pdf_from_report_slug' ) ) {
 					// Log cleanup error but don't fail the whole operation
 					if ( $success ) {
 						// If PDF generation succeeded, just add a warning
-						$response['cleanup_warning'] = __('Temporary live link could not be deleted', 'wpd-alpha-insights');
+						$response['cleanup_warning'] = __('Temporary live link could not be deleted', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
 					}
 				}
 			}

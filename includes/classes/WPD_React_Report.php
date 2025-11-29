@@ -278,7 +278,7 @@ class WPD_React_Report {
         // Verify nonce
         if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( [
-                'message' => __( 'Security check failed', 'wpd-alpha-insights' )
+                'message' => __( 'Security check failed', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ] );
             return;
         }
@@ -286,7 +286,7 @@ class WPD_React_Report {
         // Check user capabilities
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( [
-                'message' => __( 'You do not have permission to export data', 'wpd-alpha-insights' )
+                'message' => __( 'You do not have permission to export data', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ] );
             return;
         }
@@ -296,7 +296,7 @@ class WPD_React_Report {
         
         if ( empty( $dashboard_id ) ) {
             wp_send_json_error( [
-                'message' => __( 'Dashboard ID is required', 'wpd-alpha-insights' )
+                'message' => __( 'Dashboard ID is required', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ] );
             return;
         }
@@ -306,7 +306,7 @@ class WPD_React_Report {
         
         if ( empty( $dashboard_config ) ) {
             wp_send_json_error( [
-                'message' => __( 'Dashboard configuration not found', 'wpd-alpha-insights' )
+                'message' => __( 'Dashboard configuration not found', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ] );
             return;
         }
@@ -331,7 +331,7 @@ class WPD_React_Report {
         // Check if data fetch was successful
         if ( ! isset( $data_response['data'] ) || empty( $data_response['data'] ) ) {
             wp_send_json_error( [
-                'message' => __( 'No data available to export', 'wpd-alpha-insights' )
+                'message' => __( 'No data available to export', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ] );
             return;
         }
@@ -374,7 +374,7 @@ class WPD_React_Report {
         
         if (!$nonce_valid) {
             wp_send_json_error( array(
-                'message' => __('Invalid nonce', 'wpd-alpha-insights')
+                'message' => __('Invalid nonce', 'alpha-insights-sales-report-builder-analytics-for-woocommerce')
             ) );
             return;
         }
@@ -383,7 +383,7 @@ class WPD_React_Report {
         
         if (empty($report_slug)) {
             wp_send_json_error( array(
-                'message' => __('Report slug is required', 'wpd-alpha-insights')
+                'message' => __('Report slug is required', 'alpha-insights-sales-report-builder-analytics-for-woocommerce')
             ) );
             return;
         }
@@ -409,7 +409,7 @@ class WPD_React_Report {
         
         if (!$nonce_valid) {
             wp_send_json_error( array(
-                'message' => __('Invalid nonce', 'wpd-alpha-insights')
+                'message' => __('Invalid nonce', 'alpha-insights-sales-report-builder-analytics-for-woocommerce')
             ) );
             return;
         }
@@ -422,7 +422,7 @@ class WPD_React_Report {
 
         if (empty($report_slug) || empty($name)) {
             wp_send_json_error( array(
-                'message' => __('Report slug and name are required', 'wpd-alpha-insights')
+                'message' => __('Report slug and name are required', 'alpha-insights-sales-report-builder-analytics-for-woocommerce')
             ) );
             return;
         }
@@ -446,7 +446,7 @@ class WPD_React_Report {
         
         if (!$nonce_valid) {
             wp_send_json_error( array(
-                'message' => __('Invalid nonce', 'wpd-alpha-insights')
+                'message' => __('Invalid nonce', 'alpha-insights-sales-report-builder-analytics-for-woocommerce')
             ) );
             return;
         }
@@ -455,7 +455,7 @@ class WPD_React_Report {
         
         if (empty($link_id)) {
             wp_send_json_error( array(
-                'message' => __('Link ID is required', 'wpd-alpha-insights')
+                'message' => __('Link ID is required', 'alpha-insights-sales-report-builder-analytics-for-woocommerce')
             ) );
             return;
         }
@@ -476,7 +476,7 @@ class WPD_React_Report {
         // Check nonce for security
         if ( ! wp_verify_nonce( $_POST['nonce'] ?? '', WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
-                'message' => __( 'Security check failed.', 'wpd-alpha-insights' )
+                'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -484,7 +484,7 @@ class WPD_React_Report {
         // Check capability
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( array(
-                'message' => __( 'You do not have permission to perform this action.', 'wpd-alpha-insights' )
+                'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -508,7 +508,7 @@ class WPD_React_Report {
         // Check nonce for security
         if ( ! wp_verify_nonce( $_POST['nonce'] ?? '', WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
-                'message' => __( 'Security check failed.', 'wpd-alpha-insights' )
+                'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -516,7 +516,7 @@ class WPD_React_Report {
         // Check capability
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( array(
-                'message' => __( 'You do not have permission to perform this action.', 'wpd-alpha-insights' )
+                'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -526,7 +526,7 @@ class WPD_React_Report {
 
         if (empty($report_data_json)) {
             wp_send_json_error( array(
-                'message' => __( 'No report data provided.', 'wpd-alpha-insights' )
+                'message' => __( 'No report data provided.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -535,14 +535,14 @@ class WPD_React_Report {
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             wp_send_json_error( array(
-                'message' => __( 'Invalid JSON format.', 'wpd-alpha-insights' )
+                'message' => __( 'Invalid JSON format.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
 
         if (empty($report_data['dashboard_id'])) {
             wp_send_json_error( array(
-                'message' => __( 'Report dashboard_id is required.', 'wpd-alpha-insights' )
+                'message' => __( 'Report dashboard_id is required.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -563,7 +563,7 @@ class WPD_React_Report {
         // Check nonce for security
         if ( ! wp_verify_nonce( $_POST['nonce'] ?? '', WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
-                'message' => __( 'Security check failed.', 'wpd-alpha-insights' )
+                'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -571,7 +571,7 @@ class WPD_React_Report {
         // Check capability
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( array(
-                'message' => __( 'You do not have permission to perform this action.', 'wpd-alpha-insights' )
+                'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -595,7 +595,7 @@ class WPD_React_Report {
         // Check nonce for security (optional for read operations, but recommended)
         if ( ! empty($_POST['nonce']) && ! wp_verify_nonce( $_POST['nonce'] ?? '', WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
-                'message' => __( 'Security check failed.', 'wpd-alpha-insights' )
+                'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -603,7 +603,7 @@ class WPD_React_Report {
         // Check capability
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( array(
-                'message' => __( 'You do not have permission to perform this action.', 'wpd-alpha-insights' )
+                'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -624,7 +624,7 @@ class WPD_React_Report {
         // Check nonce for security
         if ( ! wp_verify_nonce( $_POST['nonce'] ?? '', WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
-                'message' => __( 'Security check failed.', 'wpd-alpha-insights' )
+                'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -632,7 +632,7 @@ class WPD_React_Report {
         // Check capability
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( array(
-                'message' => __( 'You do not have permission to perform this action.', 'wpd-alpha-insights' )
+                'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -654,7 +654,7 @@ class WPD_React_Report {
     public static function save_report_config_ajax_handler() {
         // Verify nonce
         if ( ! wp_verify_nonce( $_POST['nonce'] ?? '', WPD_AI_AJAX_NONCE_ACTION ) ) {
-            wp_send_json_error( array( 'message' => __( 'Security check failed', 'wpd-alpha-insights' ) ) );
+            wp_send_json_error( array( 'message' => __( 'Security check failed', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
             return;
         }
 
@@ -680,7 +680,7 @@ class WPD_React_Report {
             
             if ($json_error !== JSON_ERROR_NONE) {
                 wp_send_json_error( array( 
-                    'message' => sprintf( __( 'Invalid JSON configuration data: %s', 'wpd-alpha-insights' ), esc_html( json_last_error_msg() ) )
+                    'message' => sprintf( __( 'Invalid JSON configuration data: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( json_last_error_msg() ) )
                 ) );
                 return;
             }
@@ -804,7 +804,7 @@ class WPD_React_Report {
         // Check nonce for security (optional for read operations, but recommended)
         if ( ! empty($_POST['nonce']) && ! wp_verify_nonce( $_POST['nonce'] ?? '', WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
-                'message' => __( 'Security check failed.', 'wpd-alpha-insights' )
+                'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -812,7 +812,7 @@ class WPD_React_Report {
         // Check capability
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( array(
-                'message' => __( 'You do not have permission to perform this action.', 'wpd-alpha-insights' )
+                'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -833,7 +833,7 @@ class WPD_React_Report {
         // Check nonce for security
         if ( ! empty($_POST['nonce']) && ! wp_verify_nonce( $_POST['nonce'] ?? '', WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
-                'message' => __( 'Security check failed.', 'wpd-alpha-insights' )
+                'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -841,7 +841,7 @@ class WPD_React_Report {
         // Check capability
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( array(
-                'message' => __( 'You do not have permission to perform this action.', 'wpd-alpha-insights' )
+                'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -851,7 +851,7 @@ class WPD_React_Report {
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
                 wp_send_json_error( array(
-                    'message' => sprintf(__('Missing required field: %s', 'wpd-alpha-insights'), esc_html($field))
+                    'message' => sprintf(__('Missing required field: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), esc_html($field))
                 ) );
                 return;
             }
@@ -896,7 +896,7 @@ class WPD_React_Report {
         // Check nonce for security
         if ( ! empty($_POST['nonce']) && ! wp_verify_nonce( $_POST['nonce'] ?? '', WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
-                'message' => __( 'Security check failed.', 'wpd-alpha-insights' )
+                'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -904,7 +904,7 @@ class WPD_React_Report {
         // Check capability
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( array(
-                'message' => __( 'You do not have permission to perform this action.', 'wpd-alpha-insights' )
+                'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -914,7 +914,7 @@ class WPD_React_Report {
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
                 wp_send_json_error( array(
-                    'message' => sprintf(__('Missing required field: %s', 'wpd-alpha-insights'), esc_html($field))
+                    'message' => sprintf(__('Missing required field: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), esc_html($field))
                 ) );
                 return;
             }
@@ -946,7 +946,7 @@ class WPD_React_Report {
         // Check nonce for security
         if ( ! empty($_POST['nonce']) && ! wp_verify_nonce( $_POST['nonce'] ?? '', WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
-                'message' => __( 'Security check failed.', 'wpd-alpha-insights' )
+                'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -954,7 +954,7 @@ class WPD_React_Report {
         // Check capability
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( array(
-                'message' => __( 'You do not have permission to perform this action.', 'wpd-alpha-insights' )
+                'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -962,7 +962,7 @@ class WPD_React_Report {
         // Validate required fields
         if (empty($_POST['report_id'])) {
             wp_send_json_error( array(
-                'message' => __('Missing report ID.', 'wpd-alpha-insights')
+                'message' => __('Missing report ID.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce')
             ) );
             return;
         }
@@ -983,7 +983,7 @@ class WPD_React_Report {
         // Check nonce for security
         if ( ! empty($_POST['nonce']) && ! wp_verify_nonce( $_POST['nonce'] ?? '', WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
-                'message' => __( 'Security check failed.', 'wpd-alpha-insights' )
+                'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -991,7 +991,7 @@ class WPD_React_Report {
         // Check capability
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( array(
-                'message' => __( 'You do not have permission to perform this action.', 'wpd-alpha-insights' )
+                'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -1010,7 +1010,7 @@ class WPD_React_Report {
         // Check nonce for security
         if ( ! empty($_POST['nonce']) && ! wp_verify_nonce( $_POST['nonce'] ?? '', WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
-                'message' => __( 'Security check failed.', 'wpd-alpha-insights' )
+                'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -1018,7 +1018,7 @@ class WPD_React_Report {
         // Check capability
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( array(
-                'message' => __( 'You do not have permission to perform this action.', 'wpd-alpha-insights' )
+                'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -1042,7 +1042,7 @@ class WPD_React_Report {
         // Check nonce for security
         if ( ! empty($_POST['nonce']) && ! wp_verify_nonce( $_POST['nonce'] ?? '', WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
-                'message' => __( 'Security check failed.', 'wpd-alpha-insights' )
+                'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -1050,7 +1050,7 @@ class WPD_React_Report {
         // Check capability
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( array(
-                'message' => __( 'You do not have permission to perform this action.', 'wpd-alpha-insights' )
+                'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
             return;
         }
@@ -1169,7 +1169,7 @@ class WPD_React_Report {
 
         $response = array(
             'success' => true,
-            'message' => __( 'Cache status updated to complete.', 'wpd-alpha-insights' ),
+            'message' => __( 'Cache status updated to complete.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
             'data' => array(
                 'cache_is_built' => 1
             )
@@ -1278,7 +1278,7 @@ class WPD_React_Report {
         // Check if this is a mandatory report that cannot be deleted
         if ( in_array( $report_id, self::$mandatory_report_slugs ) ) {
             $response['success'] = false;
-            $response['message'] = __('This is a required Alpha Insights report and cannot be deleted. You can hide it from the menu by unchecking "Appear in Menu" in the report settings.', 'wpd-alpha-insights');
+            $response['message'] = __('This is a required Alpha Insights report and cannot be deleted. You can hide it from the menu by unchecking "Appear in Menu" in the report settings.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
             $response['error_code'] = 'mandatory_report';
             return $response;
         }
@@ -1287,7 +1287,7 @@ class WPD_React_Report {
         $existing_config = get_option('wpd_dashboard_config_' . $report_id);
         if ($existing_config === false) {
             $response['success'] = false;
-            $response['message'] = __('Report not found.', 'wpd-alpha-insights');
+            $response['message'] = __('Report not found.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
             return $response;
         }
 
@@ -1299,10 +1299,10 @@ class WPD_React_Report {
         
         if ($deleted) {
             $response['success'] = true;
-            $response['message'] = __('Report deleted successfully.', 'wpd-alpha-insights');
+            $response['message'] = __('Report deleted successfully.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
         } else {
             $response['success'] = false;
-            $response['message'] = __('Failed to delete report.', 'wpd-alpha-insights');
+            $response['message'] = __('Failed to delete report.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
         }
 
         return $response;
@@ -1323,14 +1323,14 @@ class WPD_React_Report {
         // Validate input
         if (empty($report_slug) || empty($report_config)) {
             $response['success'] = false;
-            $response['message'] = __('Report slug and config data are required.', 'wpd-alpha-insights');
+            $response['message'] = __('Report slug and config data are required.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
             return $response;
         }
 
         // Validate required fields
         if (empty($report_config['name'])) {
             $response['success'] = false;
-            $response['message'] = __('Report name is required in config data.', 'wpd-alpha-insights');
+            $response['message'] = __('Report name is required in config data.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
             return $response;
         }
 
@@ -1344,14 +1344,14 @@ class WPD_React_Report {
         // Validate slug format
         if (!preg_match('/^[a-z0-9-]+$/', $report_slug)) {
             $response['success'] = false;
-            $response['message'] = __('Report slug can only contain lowercase letters, numbers, and hyphens.', 'wpd-alpha-insights');
+            $response['message'] = __('Report slug can only contain lowercase letters, numbers, and hyphens.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
             return $response;
         }
 
         // Validate version number format (major.minor with 1-2 decimal places)
         if (!preg_match('/^\d+\.\d{1,2}$/', $version_number)) {
             $response['success'] = false;
-            $response['message'] = __('Version number must be in format major.minor (e.g., 1.0, 1.21, 2.05).', 'wpd-alpha-insights');
+            $response['message'] = __('Version number must be in format major.minor (e.g., 1.0, 1.21, 2.05).', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
             return $response;
         }
 
@@ -1359,7 +1359,7 @@ class WPD_React_Report {
         $existing_config = get_option('wpd_dashboard_config_' . $report_slug);
         if ($existing_config !== false) {
             $response['success'] = false;
-            $response['message'] = __('A report with this slug already exists. Please choose a different slug.', 'wpd-alpha-insights');
+            $response['message'] = __('A report with this slug already exists. Please choose a different slug.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
             return $response;
         }
 
@@ -1404,14 +1404,14 @@ class WPD_React_Report {
         
         if ($saved !== false) {
             $response['success'] = true;
-            $response['message'] = __('Report created successfully!', 'wpd-alpha-insights');
+            $response['message'] = __('Report created successfully!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
             $response['data'] = array(
                 'report_slug' => $report_slug,
                 'report_name' => $report_name
             );
         } else {
             $response['success'] = false;
-            $response['message'] = __('Failed to create report. Please try again.', 'wpd-alpha-insights');
+            $response['message'] = __('Failed to create report. Please try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
         }
 
         return $response;
@@ -1433,7 +1433,7 @@ class WPD_React_Report {
         // Validate input
         if (empty($original_slug) || empty($config_data)) {
             $response['success'] = false;
-            $response['message'] = __('Original slug and config data are required.', 'wpd-alpha-insights');
+            $response['message'] = __('Original slug and config data are required.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
             return $response;
         }
 
@@ -1448,7 +1448,7 @@ class WPD_React_Report {
         // Validate slug format
         if (!preg_match('/^[a-z0-9-]+$/', $report_slug)) {
             $response['success'] = false;
-            $response['message'] = __('Report slug can only contain lowercase letters, numbers, and hyphens.', 'wpd-alpha-insights');
+            $response['message'] = __('Report slug can only contain lowercase letters, numbers, and hyphens.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
             return $response;
         }
 
@@ -1456,7 +1456,7 @@ class WPD_React_Report {
         $existing_config = get_option('wpd_dashboard_config_' . $original_slug);
         if ($existing_config === false) {
             $response['success'] = false;
-            $response['message'] = __('Report not found.', 'wpd-alpha-insights');
+            $response['message'] = __('Report not found.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
             return $response;
         }
 
@@ -1465,7 +1465,7 @@ class WPD_React_Report {
             $new_slug_exists = get_option('wpd_dashboard_config_' . $report_slug);
             if ($new_slug_exists !== false) {
                 $response['success'] = false;
-                $response['message'] = __('A report with this slug already exists. Please choose a different slug.', 'wpd-alpha-insights');
+                $response['message'] = __('A report with this slug already exists. Please choose a different slug.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
                 return $response;
             }
         }
@@ -1503,14 +1503,14 @@ class WPD_React_Report {
         
         if ($saved !== false) {
             $response['success'] = true;
-            $response['message'] = __('Report updated successfully!', 'wpd-alpha-insights');
+            $response['message'] = __('Report updated successfully!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
             $response['data'] = array(
                 'report_slug' => $report_slug,
                 'report_name' => $config['name']
             );
         } else {
             $response['success'] = false;
-            $response['message'] = __('Failed to update report. Please try again.', 'wpd-alpha-insights');
+            $response['message'] = __('Failed to update report. Please try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
         }
 
         return $response;
@@ -2677,14 +2677,14 @@ class WPD_React_Report {
         
         if ( empty( $report_slug ) ) {
             $response['success'] = false;
-            $response['message'] = __( 'Report slug is required.', 'wpd-alpha-insights' );
+            $response['message'] = __( 'Report slug is required.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
             return $response;
         }
 
         // Verify this is actually a mandatory report
         if ( ! in_array( $report_slug, self::$mandatory_report_slugs ) ) {
             $response['success'] = false;
-            $response['message'] = __( 'This report is not a mandatory report.', 'wpd-alpha-insights' );
+            $response['message'] = __( 'This report is not a mandatory report.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
             return $response;
         }
 
@@ -2729,7 +2729,7 @@ class WPD_React_Report {
             if ( $saved !== false ) {
                 $response['success'] = true;
                 $response['message'] = sprintf( 
-                    __( 'Mandatory report "%s" has been automatically installed.', 'wpd-alpha-insights' ),
+                    __( 'Mandatory report "%s" has been automatically installed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
                     $report_data['name'] ?? $report_slug
                 );
                 $response['data'] = array(
@@ -2762,7 +2762,7 @@ class WPD_React_Report {
         
         if ( empty( $report_slug ) ) {
             $response['success'] = false;
-            $response['message'] = __( 'Report slug is required.', 'wpd-alpha-insights' );
+            $response['message'] = __( 'Report slug is required.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
             return $response;
         }
 
@@ -2812,7 +2812,7 @@ class WPD_React_Report {
 
             if ( $saved !== false ) {
                 $response['success'] = true;
-                $response['message'] = __( 'Report imported successfully!', 'wpd-alpha-insights' );
+                $response['message'] = __( 'Report imported successfully!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
                 $response['data'] = array(
                     'report_slug' => $report_slug,
                     'report_name' => $report_data['name'] ?? $report_slug
@@ -2842,7 +2842,7 @@ class WPD_React_Report {
 
         if ( empty( $report_slug ) ) {
             $response['success'] = false;
-            $response['message'] = __( 'Report slug is required.', 'wpd-alpha-insights' );
+            $response['message'] = __( 'Report slug is required.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
             return $response;
         }
 
@@ -2908,7 +2908,7 @@ class WPD_React_Report {
             
             if ( $saved !== false ) {
                 $response['success'] = true;
-                $response['message'] = __( 'Report reset to default successfully!', 'wpd-alpha-insights' );
+                $response['message'] = __( 'Report reset to default successfully!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
                 $response['data'] = array(
                     'report_slug' => $actual_dashboard_id,
                     'report_name' => $report_data['name']
@@ -2951,7 +2951,7 @@ class WPD_React_Report {
             if ( $existing_config === $config_data ) {
                 // Config hasn't changed, but this is still a successful operation
                 $response['success'] = true;
-                $response['message'] = __( 'Report configuration is already up to date!', 'wpd-alpha-insights' );
+                $response['message'] = __( 'Report configuration is already up to date!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
             } else {
                 // Config has changed, save it
                 $saved = update_option( $option_name, $config_data, false );
@@ -2960,7 +2960,7 @@ class WPD_React_Report {
                     // update_option returns false only if the value is the same or if there's an error
                     // Since we already checked for same value above, this should be successful
                     $response['success'] = true;
-                    $response['message'] = __( 'Report configuration saved successfully!', 'wpd-alpha-insights' );
+                    $response['message'] = __( 'Report configuration saved successfully!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
                 } else {
                     throw new Exception( 'Failed to save report configuration' );
                 }
@@ -3128,18 +3128,18 @@ class WPD_React_Report {
                 // Build message based on imported and skipped counts
                 if ( $imported_count > 0 && $skipped_count > 0 ) {
                     $response['message'] = sprintf( 
-                        __( 'Successfully imported %d reports. %d reports were already installed and skipped.', 'wpd-alpha-insights' ), 
+                        __( 'Successfully imported %d reports. %d reports were already installed and skipped.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 
                         $imported_count,
                         $skipped_count
                     );
                 } elseif ( $imported_count > 0 ) {
                     $response['message'] = sprintf( 
-                        __( 'Successfully imported %d default reports.', 'wpd-alpha-insights' ), 
+                        __( 'Successfully imported %d default reports.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 
                         $imported_count 
                     );
                 } else {
                     $response['message'] = sprintf( 
-                        __( 'All %d reports were already installed.', 'wpd-alpha-insights' ), 
+                        __( 'All %d reports were already installed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 
                         $skipped_count 
                     );
                 }
@@ -3154,7 +3154,7 @@ class WPD_React_Report {
                 }
             } else {
                 $response['success'] = false;
-                $response['message'] = __( 'No reports could be imported.', 'wpd-alpha-insights' );
+                $response['message'] = __( 'No reports could be imported.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
                 $response['imported_count'] = 0;
                 $response['imported_reports'] = array();
                 $response['skipped_count'] = 0;
@@ -3230,7 +3230,7 @@ class WPD_React_Report {
             if ( $existing_report && ! $overwrite ) {
                 $response['success'] = false;
                 $response['message'] = sprintf( 
-                    __( 'Report with slug "%s" already exists. Please enable overwrite to replace it.', 'wpd-alpha-insights' ), 
+                    __( 'Report with slug "%s" already exists. Please enable overwrite to replace it.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 
                     $dashboard_id 
                 );
                 return $response;
@@ -3272,8 +3272,8 @@ class WPD_React_Report {
 
             $response['success'] = true;
             $response['message'] = $overwrite 
-                ? __( 'Report successfully imported and existing report was overwritten.', 'wpd-alpha-insights' )
-                : __( 'Report successfully imported.', 'wpd-alpha-insights' );
+                ? __( 'Report successfully imported and existing report was overwritten.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
+                : __( 'Report successfully imported.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
             $response['dashboard_id'] = $dashboard_id;
             if ( isset( $report_data['name'] ) ) {
                 $response['report_name'] = $report_data['name'];
@@ -3281,7 +3281,7 @@ class WPD_React_Report {
             
         } catch ( Exception $e ) {
             $response['success'] = false;
-            $response['message'] = sprintf( __( 'Error importing report: %s', 'wpd-alpha-insights' ), esc_html( $e->getMessage() ) );
+            $response['message'] = sprintf( __( 'Error importing report: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $e->getMessage() ) );
         }
 
         return $response;
@@ -3303,7 +3303,7 @@ class WPD_React_Report {
         
         if (!$report_config) {
             $response['success'] = false;
-            $response['message'] = sprintf( __( 'Report not found for slug: %s', 'wpd-alpha-insights' ), esc_html( $report_slug ) );
+            $response['message'] = sprintf( __( 'Report not found for slug: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $report_slug ) );
             return $response;
         }
 
@@ -3351,7 +3351,7 @@ class WPD_React_Report {
         
         if (!$report_config) {
             $response['success'] = false;
-            $response['message'] = __('Report not found', 'wpd-alpha-insights');
+            $response['message'] = __('Report not found', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
             return $response;
         }
 
@@ -3383,12 +3383,12 @@ class WPD_React_Report {
         
         if (!$saved) {
             $response['success'] = false;
-            $response['message'] = __('Failed to save live share link', 'wpd-alpha-insights');
+            $response['message'] = __('Failed to save live share link', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
             return $response;
         }
 
         $response['success'] = true;
-        $response['message'] = __('Live share link created successfully', 'wpd-alpha-insights');
+        $response['message'] = __('Live share link created successfully', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
         $response['data'] = ['link' => $new_link];
         return $response;
     }
@@ -3429,7 +3429,7 @@ class WPD_React_Report {
 
         if (!$found_report_slug) {
             $response['success'] = false;
-            $response['message'] = __('Live share link not found', 'wpd-alpha-insights');
+            $response['message'] = __('Live share link not found', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
             return $response;
         }
 
@@ -3438,7 +3438,7 @@ class WPD_React_Report {
         
         if (!$report_config) {
             $response['success'] = false;
-            $response['message'] = __('Report not found', 'wpd-alpha-insights');
+            $response['message'] = __('Report not found', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
             return $response;
         }
 
@@ -3460,12 +3460,12 @@ class WPD_React_Report {
         
         if (!$saved) {
             $response['success'] = false;
-            $response['message'] = __('Failed to delete live share link', 'wpd-alpha-insights');
+            $response['message'] = __('Failed to delete live share link', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
             return $response;
         }
 
         $response['success'] = true;
-        $response['message'] = __('Live share link deleted successfully', 'wpd-alpha-insights');
+        $response['message'] = __('Live share link deleted successfully', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
         return $response;
     }
 

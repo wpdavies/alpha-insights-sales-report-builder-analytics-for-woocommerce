@@ -62,12 +62,12 @@ function wpd_delete_all_product_cache() {
 	if ( $products_IDs ) {
 
 		$response['success']			= true;
-		$response['message']	= __( $total_records . ' products were found, ' . $records_updated . ' products have had their cache refreshed.', 'wpd-alpha-insights' );
+		$response['message']	= sprintf( __( '%1$d products were found, %2$d products have had their cache refreshed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $total_records, $records_updated );
 
 	} else {
 
 		$response['success']			= false;
-		$response['message'] 			= __( 'Unfortunately we could not complete this action, no product IDs were found.', 'wpd-alpha-insights' );
+		$response['message'] 			= __( 'Unfortunately we could not complete this action, no product IDs were found.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 
 	}
 

@@ -28,8 +28,8 @@ function wpd_admin_notification_pop() {
 				<tr>
 					<td class="wpd-notification-pop-icon"><?php wpd_preloader( 40 ); ?></td>
 					<td>
-						<div class="wpd-notification-pop-title"><?php _e( 'Processing', 'wpd-alpha-insights'); ?>...</div>
-						<div class="wpd-meta wpd-notification-pop-subtitle"><?php _e( 'We are working on it!', 'wpd-alpha-insights'); ?></div>
+						<div class="wpd-notification-pop-title"><?php _e( 'Processing', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>...</div>
+						<div class="wpd-meta wpd-notification-pop-subtitle"><?php _e( 'We are working on it!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></div>
 					</td>
 				</tr>
 			</tbody>
@@ -63,8 +63,8 @@ function wpd_documentation_modal_html() {
 					<div class="wpd-docs-brand-logo-row">
 						<img src="<?php echo esc_url($logo_icon_url); ?>" alt="Alpha Insights Icon" class="wpd-docs-brand-logo-icon" />
 						<div class="wpd-docs-brand-logo-text">
-							<div class="wpd-docs-brand-title"><?php _e('Alpha Insights', 'wpd-alpha-insights'); ?></div>
-							<div class="wpd-docs-brand-subtitle"><?php _e('Intelligent Profit Reports', 'wpd-alpha-insights'); ?></div>
+							<div class="wpd-docs-brand-title"><?php _e('Alpha Insights', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></div>
+							<div class="wpd-docs-brand-subtitle"><?php _e('Intelligent Profit Reports', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></div>
 						</div>
 					</div>
 				</div>
@@ -88,8 +88,8 @@ function wpd_documentation_modal_html() {
 						</div>
 						<div class="wpd-docs-support-content">
 							<a href="https://wpdavies.dev/my-account/my-tickets/" target="_blank" class="wpd-docs-support-link">
-								<h4 class="wpd-docs-support-title"><?php _e('Open A Support Ticket', 'wpd-alpha-insights'); ?></h4>
-								<p class="wpd-docs-support-text"><?php _e('Get personalized help from our support team', 'wpd-alpha-insights'); ?></p>
+								<h4 class="wpd-docs-support-title"><?php _e('Open A Support Ticket', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></h4>
+								<p class="wpd-docs-support-text"><?php _e('Get personalized help from our support team', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
 							</a>
 						</div>
 					</div>
@@ -103,7 +103,7 @@ function wpd_documentation_modal_html() {
 						</div>
 						<div class="wpd-docs-support-content">
 							<a href="mailto:support@wpdavies.dev" class="wpd-docs-support-link">
-								<h4 class="wpd-docs-support-title"><?php _e('Email Us', 'wpd-alpha-insights'); ?></h4>
+								<h4 class="wpd-docs-support-title"><?php _e('Email Us', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></h4>
 								<p class="wpd-docs-support-text">support@wpdavies.dev</p>
 							</a>
 						</div>
@@ -121,10 +121,10 @@ function wpd_documentation_modal_html() {
 						</svg>
 					</div>
 					<div class="wpd-docs-upgrade-content">
-						<h4 class="wpd-docs-upgrade-title"><?php _e('Upgrade to Pro', 'wpd-alpha-insights'); ?></h4>
-						<p class="wpd-docs-upgrade-text"><?php _e('Unlock advanced features, priority support, and more', 'wpd-alpha-insights'); ?></p>
+						<h4 class="wpd-docs-upgrade-title"><?php _e('Upgrade to Pro', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></h4>
+						<p class="wpd-docs-upgrade-text"><?php _e('Unlock advanced features, priority support, and more', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
 						<a href="https://wpdavies.dev/plugins/alpha-insights/pricing/?utm_campaign=Alpha+Insights+Help+Modal&utm_source=Alpha+Insights+Plugin" target="_blank" class="wpd-docs-upgrade-button">
-							<?php _e('Upgrade Now', 'wpd-alpha-insights'); ?>
+							<?php _e('Upgrade Now', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>
 							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 								<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
 								<polyline points="15 3 21 3 21 9"></polyline>
@@ -141,8 +141,8 @@ function wpd_documentation_modal_html() {
 			<div class="wpd-docs-modal-content">
 				<!-- Header -->
 				<div class="wpd-docs-modal-header">
-					<h2 class="wpd-docs-modal-title"><?php _e('Documentation', 'wpd-alpha-insights'); ?></h2>
-					<button type="button" class="wpd-docs-modal-close" aria-label="<?php esc_attr_e('Close', 'wpd-alpha-insights'); ?>">
+					<h2 class="wpd-docs-modal-title"><?php _e('Documentation', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></h2>
+					<button type="button" class="wpd-docs-modal-close" aria-label="<?php esc_attr_e('Close', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>">
 						&times;
 					</button>
 				</div>
@@ -152,7 +152,7 @@ function wpd_documentation_modal_html() {
 					<input 
 						type="text" 
 						class="wpd-docs-search-input" 
-						placeholder="<?php esc_attr_e('Search documentation...', 'wpd-alpha-insights'); ?>"
+						placeholder="<?php esc_attr_e('Search documentation...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>"
 						id="wpd-docs-search"
 					/>
 				</div>
@@ -170,7 +170,7 @@ function wpd_documentation_modal_html() {
 					<div class="wpd-docs-viewer">
 						<div class="wpd-docs-loading">
 							<div class="wpd-docs-loading-spinner"></div>
-							<p><?php _e('Loading documentation...', 'wpd-alpha-insights'); ?></p>
+							<p><?php _e('Loading documentation...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
 						</div>
 					</div>
 				</div>
@@ -477,8 +477,8 @@ function is_wpd_page() {
 	$bool 				= false;
 
 	if ( 
-			( isset($screen->parent_base) && $screen->parent_base == 'wpd-alpha-insights' ) 
-			|| $page == 'wpd-alpha-insights' 
+			( isset($screen->parent_base) && $screen->parent_base == 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) 
+			|| $page == 'alpha-insights-sales-report-builder-analytics-for-woocommerce' 
 			|| $page == 'wpd-expense-reports' 
 			|| $post_type == 'expense'
 			|| $post_type == 'facebook_campaign'
@@ -1084,7 +1084,7 @@ function wpd_template_locate( $template_category, $template_name ) {
 
 	} else {
 
-		echo __( 'Template not found', 'wpd-alpha-insights' ) . ' (' . $template_file . ')';
+		echo __( 'Template not found', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) . ' (' . $template_file . ')';
 
 	}
 

@@ -18,7 +18,7 @@
  * License:             GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  *
- * Text Domain:         wpd-alpha-insights
+ * Text Domain:         alpha-insights-sales-report-builder-analytics-for-woocommerce
  * Domain Path: 		/languages
  *
  * Alpha Insights
@@ -32,7 +32,7 @@
  * @copyright           Copyright WP Davies © 2025
  * @author              WP Davies
  * @package             Alpha Insights
- * @textdomain 			wpd-alpha-insights
+ * @textdomain 			alpha-insights-pro
  *
  */
 defined( 'ABSPATH' ) || exit;
@@ -234,7 +234,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 			// Fail Message
 			$message[] = sprintf(
-				__( 'Alpha Insights has not been fully activated as it requires at least PHP %s to run correctly. Please upgrade your PHP version to use this plugin.', 'wpd-alpha-insights' ),
+				__( 'Alpha Insights has not been fully activated as it requires at least PHP %s to run correctly. Please upgrade your PHP version to use this plugin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 				WPD_AI_MIN_PHP_VER
 			);
 
@@ -254,7 +254,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 			// Fail message
 			$message[] = sprintf(
-				__( 'Alpha Insights requires at least WordPress version %1$s to run. Please upgrade WordPress to use this plugin. You are currently using version %2$s', 'wpd-alpha-insights' ),
+				__( 'Alpha Insights requires at least WordPress version %1$s to run. Please upgrade WordPress to use this plugin. You are currently using version %2$s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 				WPD_AI_MIN_WP_VER,
 				$wp_version
 			);
@@ -274,7 +274,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 			$this->version_check = false;
 
 			// Fail Message
-			$message[] = __( 'WooCommerce must be installed and activated in order to use Alpha Insights.', 'wpd-alpha-insights' );
+			$message[] = __( 'WooCommerce must be installed and activated in order to use Alpha Insights.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 
 			// Return Results
 			return array(
@@ -292,7 +292,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 			// Fail Message
 			$message[] = sprintf(
-				__( 'Alpha Insights requires at least WooCommerce version %1$s to run. Please upgrade WooCommerce to use this plugin. You are currently using version %2$s', 'wpd-alpha-insights' ),
+				__( 'Alpha Insights requires at least WooCommerce version %1$s to run. Please upgrade WooCommerce to use this plugin. You are currently using version %2$s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 				WPD_AI_MIN_WC_VER,
 				WC_VERSION
 			);
@@ -585,7 +585,6 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		$this->include_plugin_files();	
 		$this->create_uploads_folders();
-		$this->load_textdomain();
 
 		// Pro version updating
 		if ( WPD_AI_PRO ) $this->check_for_updates();
@@ -735,15 +734,6 @@ class WPD_Alpha_Insights_Free_Plugin {
 	}
 
 	/**
-	 * Load translator
-	 */
-	public function load_textdomain() {
-
-		load_plugin_textdomain( 'wpd-alpha-insights', false, dirname(plugin_basename(__FILE__)).'/languages/' );
-
-	}
-
-	/**
 	 * Responsible for loading any initialization admin notices
 	 */
 	public function output_alpha_insights_init_admin_notices() {
@@ -762,7 +752,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 			delete_transient( 'wpd_ai_free_deactivated_by_pro' );
 			?>
 			<div class="notice notice-warning is-dismissible">
-				<p><strong><?php esc_html_e( 'Alpha Insights:', 'wpd-alpha-insights' ); ?></strong> <?php esc_html_e( 'The free version has been automatically deactivated because Alpha Insights Pro is active. Please deactivate the pro version first if you wish to use the free version.', 'wpd-alpha-insights' ); ?></p>
+				<p><strong><?php esc_html_e( 'Alpha Insights:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></strong> <?php esc_html_e( 'The free version has been automatically deactivated because Alpha Insights Pro is active. Please deactivate the pro version first if you wish to use the free version.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></p>
 			</div>
 			<?php
 		}
@@ -779,7 +769,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 			
 			// Output notice - check if function exists
 			if ( function_exists( 'wpd_admin_notice' ) ) {
-				wpd_admin_notice( __( 'Your Alpha Insights Order Cache is currently being updated, depending on how many orders you have this may take a few minutes.', 'wpd-alpha-insights' ) );
+				wpd_admin_notice( __( 'Your Alpha Insights Order Cache is currently being updated, depending on how many orders you have this may take a few minutes.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
 			}
 
 		}
@@ -789,7 +779,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 			// Output notice - check if function exists
 			if ( function_exists( 'wpd_admin_notice' ) ) {
-				wpd_admin_notice( __( 'Your Alpha Insights license has expired or is invalid. Please update your license to continue using the plugin.', 'wpd-alpha-insights' ) );
+				wpd_admin_notice( __( 'Your Alpha Insights license has expired or is invalid. Please update your license to continue using the plugin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
 			}
 
 		}
@@ -879,13 +869,13 @@ class WPD_Alpha_Insights_Free_Plugin {
 			if ( $db_upgrade_response ) {
 
 				$response['success']	= true;
-				$response['message']	= __( 'DB Upgrade completed successfully, you can check the Alpha Insights logs for more details if required.', 'wpd-alpha-insights' );
+				$response['message']	= __( 'DB Upgrade completed successfully, you can check the Alpha Insights logs for more details if required.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 				$this->log( 'DB Upgrade completed successfully, you can check the Alpha Insights logs for more details if required.' );
 
 			} else {
 
 				$response['success']	= false;
-				$response['message']	= __( 'Error occurred during DB upgrade, please check the Alpha Insights logs for more details.', 'wpd-alpha-insights' );
+				$response['message']	= __( 'Error occurred during DB upgrade, please check the Alpha Insights logs for more details.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 				$this->log( 'Error occurred during DB upgrade, please check the Alpha Insights logs for more details.' );
 
 			}
@@ -893,7 +883,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 		} else {
 
 			$response['success']	= false;
-			$response['message']	= __( 'We couldn\'t complete this action unfortunately, feel free to shoot us an email and we\'ll help you resolve this.', 'wpd-alpha-insights' );
+			$response['message']	= __( 'We couldn\'t complete this action unfortunately, feel free to shoot us an email and we\'ll help you resolve this.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 			$this->log( 'Could not complete the DB upgrade, couldn\'t locate the DB interactor object, please contact support or re-trigger the DB upgrade in general settings.' );
 
 		}
@@ -954,10 +944,10 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		// Check if function exists before using
 		if ( function_exists( 'wpd_admin_page_url' ) ) {
-			$new_links[] = '<a href="' . esc_url( wpd_admin_page_url('settings') ) . '">' . esc_html__( 'Settings', 'wpd-alpha-insights' ) . '</a>';
+			$new_links[] = '<a href="' . esc_url( wpd_admin_page_url('settings') ) . '">' . esc_html__( 'Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) . '</a>';
 		}
 		
-		$new_links[] = '<a href="' . esc_url( 'https://wpdavies.dev/docs/alpha-insights/' ) . '" target="_blank">' . esc_html__( 'Docs', 'wpd-alpha-insights' ) . '</a>';	
+		$new_links[] = '<a href="' . esc_url( 'https://wpdavies.dev/docs/alpha-insights/' ) . '" target="_blank">' . esc_html__( 'Docs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) . '</a>';	
 
 		if ( ! WPD_AI_PRO ) {
 
@@ -973,7 +963,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 			);
 			
 			// Add the "Upgrade to Pro" link at the beginning
-			$new_links[] = '<a href="' . esc_url($upgrade_url) . '" target="_blank" style="color: #2271b1; font-weight: 600;">' . esc_html__('Upgrade to Pro', 'wpd-alpha-insights') . '</a>';
+			$new_links[] = '<a href="' . esc_url($upgrade_url) . '" target="_blank" style="color: #2271b1; font-weight: 600;">' . esc_html__('Upgrade to Pro', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') . '</a>';
 			
 		}
 

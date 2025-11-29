@@ -53,7 +53,7 @@ class WPD_Report_API {
         if (!current_user_can('manage_woocommerce')) {
             return new WP_Error(
                 'rest_forbidden',
-                __('Sorry, you are not allowed to access this endpoint.', 'wpd-alpha-insights'),
+                __('Sorry, you are not allowed to access this endpoint.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                 array('status' => 403)
             );
         }

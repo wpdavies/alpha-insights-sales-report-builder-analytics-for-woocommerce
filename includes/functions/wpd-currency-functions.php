@@ -246,7 +246,7 @@ function wpd_fetch_currency_exchange_rates_open_exchange() {
 	$app_id = get_option( 'wpd_profit_tracking_oer_api_key' );
 
 	if ( empty($app_id) ) {
-		wpd_notice( __( 'You need to get an Open Exchange Rates API key for us to be able to download the latest currencies.', 'wpd-alpha-insights' ) );
+		wpd_notice( __( 'You need to get an Open Exchange Rates API key for us to be able to download the latest currencies.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
 	}
 
 	// Currency data fetch point

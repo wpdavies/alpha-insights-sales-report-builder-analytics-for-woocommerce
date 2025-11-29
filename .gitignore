@@ -1,6 +1,0 @@
-# ===========================================
-# Alpha Insights - .gitignore
-# ===========================================
-# This file ensures any development files or any other files that are not needed in the production environment are not included in the plugin zip
-
-debug.php
