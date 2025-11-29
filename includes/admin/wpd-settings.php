@@ -248,7 +248,7 @@ function wpd_ai_register_settings() {
 				} else {
 					// Nonce verification failed - show error but don't die
 					add_action( 'admin_notices', function() {
-						echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__( 'Security check failed. Please try again.', WPD_AI_TEXT_DOMAIN ) . '</p></div>';
+						echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__( 'Security check failed. Please try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) . '</p></div>';
 					} );
 				}
 			}
@@ -465,11 +465,11 @@ function wpd_save_settings() {
 
 			if ( $delete_cache === true ) {
 				wpd_notice(
-					__( 'Your reports cache will be updated in the background to reflect your new calculation settings.', WPD_AI_TEXT_DOMAIN )
+					__( 'Your reports cache will be updated in the background to reflect your new calculation settings.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
 				);
 			} else {
 				wpd_notice( 
-					 __( 'We could not refresh your cache, try using the cache refresh buttons at the bottom of this page to reflect your new calculation settings.', WPD_AI_TEXT_DOMAIN )
+					 __( 'We could not refresh your cache, try using the cache refresh buttons at the bottom of this page to reflect your new calculation settings.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
 				);
 			}
 
@@ -609,7 +609,7 @@ function wpd_save_settings() {
 		if ( $save_status === true ) {
 
 			wpd_notice( 
-				sprintf( __( '%s settings have been updated', WPD_AI_TEXT_DOMAIN ), $setting )
+				sprintf( __( '%s settings have been updated', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $setting )
 			);
 
 		}

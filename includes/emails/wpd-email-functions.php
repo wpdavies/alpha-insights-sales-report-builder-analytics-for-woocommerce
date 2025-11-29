@@ -62,7 +62,7 @@ function wpd_email( $email, $preview = false, $args = array() ) {
 			require_once( WPD_AI_PATH . 'includes/emails/wpd-email-template_profit_report.php' );
 			$mail_message 	= ob_get_clean();
 			$mail_to 		= $profit_report_settings['recipients'];
-			( ! empty( $args['subject'] ) ) ? $mail_subject = $args['subject'] : $mail_subject = __( $site_name . ' Profit Report', WPD_AI_TEXT_DOMAIN );
+			( ! empty( $args['subject'] ) ) ? $mail_subject = $args['subject'] : $mail_subject = sprintf( __( '%s Profit Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $site_name );
 
 			// Check if message is empty
 			if (empty(trim($mail_message))) {
@@ -76,7 +76,7 @@ function wpd_email( $email, $preview = false, $args = array() ) {
 			wpd_write_log('ERROR generating profit report email: ' . $e->getMessage(), 'email');
 			$mail_message = '<p>Error generating profit report. Please check your store configuration.</p>';
 			$mail_to = $admin_email; // Fallback to admin
-			$mail_subject = __( $site_name . ' Profit Report - Error', WPD_AI_TEXT_DOMAIN );
+			$mail_subject = sprintf( __( '%s Profit Report - Error', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $site_name );
 		}
 
 	} 
@@ -109,7 +109,7 @@ function wpd_email( $email, $preview = false, $args = array() ) {
 			require_once( WPD_AI_PATH . 'includes/emails/wpd-email-template_expense_report.php' );
 			$mail_message 	= ob_get_clean();
 			$mail_to 		= $expense_report_settings['recipients'];
-			( ! empty( $args['subject'] ) ) ? $mail_subject = $args['subject'] : $mail_subject 	= __( $site_name . ' Expense Report', WPD_AI_TEXT_DOMAIN );
+			( ! empty( $args['subject'] ) ) ? $mail_subject = $args['subject'] : $mail_subject 	= sprintf( __( '%s Expense Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $site_name );
 
 			// Check if message is empty
 			if (empty(trim($mail_message))) {
@@ -121,7 +121,7 @@ function wpd_email( $email, $preview = false, $args = array() ) {
 			wpd_write_log('ERROR generating expense report email: ' . $e->getMessage(), 'email');
 			$mail_message = '<p>Error generating expense report. Please check your store configuration.</p>';
 			$mail_to = $admin_email;
-			$mail_subject = __( $site_name . ' Expense Report - Error', WPD_AI_TEXT_DOMAIN );
+			$mail_subject = sprintf( __( '%s Expense Report - Error', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $site_name );
 		}
 
 	}
@@ -135,7 +135,7 @@ function wpd_email( $email, $preview = false, $args = array() ) {
 
 		$mail_send = false;
 		$response['email_sent'] = false;
-		$response['message'] = __( 'Email doesn\'t exist.', WPD_AI_TEXT_DOMAIN );
+		$response['message'] = __( 'Email doesn\'t exist.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 		wpd_write_log('Unknown email type requested: ' . $email, 'email');
 
 	}
@@ -179,7 +179,7 @@ function wpd_email( $email, $preview = false, $args = array() ) {
 
 		$response['email_sent_attempt'] = false;
 		$response['email_sent'] = false;
-		$response['message'] = __( 'couldn\'t send email', WPD_AI_TEXT_DOMAIN );
+		$response['message'] = __( 'couldn\'t send email', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 
 	}
 
@@ -210,7 +210,7 @@ function wpd_email_header( $heading, $subheading = null ) {
 
 	if ( $subheading === null ) {
 
-		$subheading = __( 'Created for ', WPD_AI_TEXT_DOMAIN ) . ' ' . $site_name;
+		$subheading = __( 'Created for ', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) . ' ' . $site_name;
 
 	}
 
