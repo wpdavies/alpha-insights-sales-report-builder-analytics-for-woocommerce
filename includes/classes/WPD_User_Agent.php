@@ -132,7 +132,7 @@ class WPD_User_Agent {
     public function __construct($agent = null)
     {
         if (!$agent && isset($_SERVER['HTTP_USER_AGENT'])) {
-            $agent = $_SERVER['HTTP_USER_AGENT'];
+            $agent = sanitize_text_field($_SERVER['HTTP_USER_AGENT']);
         }
         $this->agent = $agent;
         $this->parse();
