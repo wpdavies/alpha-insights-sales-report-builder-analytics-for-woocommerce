@@ -140,11 +140,6 @@ Yep, if you don't set costs using Alpha Insights, we'll default back to the nati
 = 1.0.0 =
 Initial release of Alpha Insights. Get started by configuring your product costs and creating your first report!
 
-== Support ==
-
-For support, feature requests, and documentation, please visit:
-https://wpdavies.dev/docs/alpha-insights/
-
 == Credits ==
 
 Developed by WP Davies
