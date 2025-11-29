@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * Plugin Name:         Alpha Insights
+ * Plugin Name:         Alpha Insights - WooCommerce Sales Report Builder & Analytics
  * Plugin URI:          https://wpdavies.dev/
  * Description:         The world's most powerful drag & drop WooCommerce reporting plugin.
  * Author:              WP Davies
