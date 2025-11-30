@@ -598,6 +598,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		// Functions
 		require_once( WPD_AI_PATH . 'includes/wpd-functions.php');
+		require_once( WPD_AI_PATH . 'includes/functions/wpd-license-functions.php');
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-hpos-compatability-functions.php');
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-currency-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-url-parsing-functions.php' );
