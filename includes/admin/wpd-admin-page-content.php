@@ -159,9 +159,9 @@ function wpd_settings_page() {
 
 						require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-google_ads_integration.php');
 
-					} elseif ( $subpage == 'webhooks' ) {
+					} elseif ( $subpage == 'integration' ) {
 
-						require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-webhooks.php');
+						require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-integrations.php');
 
 					} elseif ( $subpage == 'email' ) {
 

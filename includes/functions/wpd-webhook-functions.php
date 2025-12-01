@@ -29,7 +29,7 @@ function wpd_webhook_data_request( $from_date = null, $to_date = null, $JSON = t
 
 	} else {
 
-		$data_warehouse = new WPD_Data_Warehouse_React( array( 'date_preset' => 'all_time' ) );
+		$data_warehouse = new WPD_Data_Warehouse_React();
 		$data_warehouse->fetch_store_profit_data();
 
 	}

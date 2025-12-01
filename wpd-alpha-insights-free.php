@@ -82,6 +82,9 @@ class WPD_Alpha_Insights_Free_Plugin {
 		// Ensure log directory exists early
 		$this->ensure_log_directory();
 
+		// Register shutdown function to catch fatal/critical errors
+		register_shutdown_function( array( $this, 'log_fatal_errors' ) );
+
 		// Add links to plugin page
 		add_action( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'alpha_insights_plugin_action_links' ) );
 
@@ -549,6 +552,88 @@ class WPD_Alpha_Insights_Free_Plugin {
 	}
 
 	/**
+	 * Log fatal and critical errors that contain 'alpha-insights'
+	 * 
+	 * This shutdown function catches fatal errors, parse errors, core errors,
+	 * compile errors, and recoverable errors that are related to the plugin.
+	 */
+	public function log_fatal_errors() {
+
+		// Get the last error
+		$error = error_get_last();
+
+		// Only process if there's an error
+		if ( empty( $error ) || ! is_array( $error ) ) {
+			return;
+		}
+
+		// Define fatal/critical error types
+		$fatal_error_types = array(
+			E_ERROR,              // Fatal run-time errors
+			E_PARSE,              // Compile-time parse errors
+			E_CORE_ERROR,         // Fatal errors during PHP's initial startup
+			E_COMPILE_ERROR,      // Fatal compile-time errors
+			E_RECOVERABLE_ERROR,  // Catchable fatal errors
+		);
+
+		// Only log fatal/critical errors
+		if ( ! in_array( $error['type'], $fatal_error_types, true ) ) {
+			return;
+		}
+
+		// Check if error is related to alpha-insights
+		$error_message = isset( $error['message'] ) ? strtolower( $error['message'] ) : '';
+		$error_file    = isset( $error['file'] ) ? strtolower( $error['file'] ) : '';
+		$search_string = 'alpha-insights';
+
+		// Check if error message or file path contains 'alpha-insights'
+		if ( 
+			false === strpos( $error_message, $search_string ) && 
+			false === strpos( $error_file, $search_string ) 
+		) {
+			return;
+		}
+
+		// Build error log entry
+		$error_type_name = $this->get_error_type_name( $error['type'] );
+		$log_entry = sprintf(
+			"FATAL ERROR [%s]: %s\nFile: %s\nLine: %s\n",
+			$error_type_name,
+			$error['message'],
+			$error['file'],
+			$error['line']
+		);
+
+		// Log the error using wpd_write_log if available, otherwise use the private log method
+		if ( function_exists( 'wpd_write_log' ) ) {
+			wpd_write_log( $log_entry, 'fatal_error' );
+		} else {
+			$this->log( $log_entry, 'fatal_error' );
+		}
+
+	}
+
+	/**
+	 * Get human-readable error type name
+	 * 
+	 * @param int $error_type The error type constant
+	 * @return string Human-readable error type name
+	 */
+	private function get_error_type_name( $error_type ) {
+
+		$error_types = array(
+			E_ERROR             => 'E_ERROR',
+			E_PARSE             => 'E_PARSE',
+			E_CORE_ERROR        => 'E_CORE_ERROR',
+			E_COMPILE_ERROR     => 'E_COMPILE_ERROR',
+			E_RECOVERABLE_ERROR => 'E_RECOVERABLE_ERROR',
+		);
+
+		return isset( $error_types[ $error_type ] ) ? $error_types[ $error_type ] : 'UNKNOWN';
+
+	}
+
+	/**
 	 * Log events before files have been included
 	 *
 	 * @param mixed  $data
@@ -671,6 +756,11 @@ class WPD_Alpha_Insights_Free_Plugin {
 			new WPD_Google_Ads_Auth(); // Initialize Google Ads Auth (registers AJAX handlers)
 		} else {
 			require_once( WPD_AI_PATH . 'includes/classes/WPD_Alpha_Insights_Notices.php');
+		}
+
+		// Pro Integration Classes
+		if ( WPD_AI_PRO ) {
+			require_once( WPD_AI_PATH . 'includes/integrations/pro/WPD_StarShipIt.php');
 		}
 
 		// Register Relevant Actions

@@ -485,9 +485,9 @@ class WPD_Admin_Menu {
                         'icon'  => null,
                         'additional_classes' => array(),
                     ),
-                    'webhooks_settings' => array(
-                        'title' => __( 'Webhooks Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
-                        'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=webhooks',
+                    'integration_settings' => array(
+                        'title' => __( 'Integration Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                        'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=integration',
                         'icon'  => null,
                         'additional_classes' => array(),
                     ),

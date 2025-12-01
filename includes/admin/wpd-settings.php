@@ -44,7 +44,7 @@ function wpd_ai_register_settings() {
 	 * 	Default batch size for cache building (orders)
 	 * 
 	 **/
-	add_option( 'wpd_ai_cache_build_batch_size', 250 );
+	add_option( 'wpd_ai_cache_build_batch_size', 50 );
 
 	/**
 	 *
@@ -598,6 +598,9 @@ function wpd_save_settings() {
 		}
 
 	}
+
+	// Allow for hooking into saves
+	$saved = apply_filters( 'wpd_ai_save_settings', $saved );
 
 	/**
 	 *

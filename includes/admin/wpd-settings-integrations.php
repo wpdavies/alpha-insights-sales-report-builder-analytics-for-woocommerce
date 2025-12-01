@@ -14,20 +14,52 @@ defined( 'ABSPATH' ) || exit;
 // Load vars
 $webhook_data 				= get_option( 'wpd_ai_webhook_settings' );
 $json_output 				= wpd_webhook_data_request( null, null, false );
+$starshipit_api_key 		= get_option( 'wpd_ai_starshipit_api_key' );
+$starshipit_subscription_key = get_option( 'wpd_ai_starshipit_subscription_key' );
 
 ?>
 <div class="wpd-wrapper">
 	<div class="wpd-section-heading wpd-inline">
-		<?php _e( 'Webhook Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
+		<?php _e( 'Integration Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
 		<?php submit_button( __('Save Changes', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 'primary pull-right', 'submit', false); ?>
-		<a href="https://wpdavies.dev/documentation/alpha-insights/features/setting-up-a-webhook-integrating-with-third-party-apps/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" class="wpd-input button button-secondary pull-right" target="_blank" style="margin-right: 5px;">Documentation</a>
 	</div>
 </div>
 <div class="wpd-wrapper">
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'Webhook Export', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+				<th colspan="2">
+					<?php _e( 'Integrations', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
+					<?php if ( ! WPD_AI_PRO ) : ?>
+						<span class="wpd-ai-pro-setting-label"><?php _e( '(Pro Feature - Upgrade to unlock)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></span>
+					<?php endif; ?>
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr <?php if ( ! WPD_AI_PRO ) echo 'class="wpd-ai-pro-setting"'; ?>>
+				<td>
+					<label><?php _e( 'StarShipIt', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php _e( 'This is where we will sync your shipping costs with your orders.<br>Once you\'ve entered a value for both the API key and subscription key, you will need to save your settings to activate the integration. A daily schedule will run that will sync 50 orders at a time, fetching the shipping cost and automatically saving it to the order.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+				</td>
+				<td>
+					<input class="wpd-input" style="width: 100%;" type="text" name="wpd_ai_starshipit_api_key" value="<?php echo $starshipit_api_key ?>" placeholder="StarShipIt API Key">
+					<label for="wpd_ai_starshipit_api_key" class="wpd-meta wpd-block-label"><?php _e( 'The API key for your StarShipIt account', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<input class="wpd-input" style="width: 100%;" type="text" name="wpd_ai_starshipit_subscription_key" value="<?php echo $starshipit_subscription_key ?>" placeholder="StarShipIt Subscription Key">
+					<label for="wpd_ai_starshipit_subscription_key" class="wpd-meta wpd-block-label"><?php _e( 'The subscription key for your StarShipIt account', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<div class="wpd-wrapper">
+	<table class="wpd-table fixed widefat">
+		<thead>
+			<tr>
+				<th colspan="2">
+					<?php _e( 'Webhooks', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
+					<a href="https://wpdavies.dev/documentation/alpha-insights/features/setting-up-a-webhook-integrating-with-third-party-apps/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" class="wpd-input button button-secondary pull-right" target="_blank" style="margin-right: 5px;">Documentation</a>
+				</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -63,17 +95,6 @@ $json_output 				= wpd_webhook_data_request( null, null, false );
 					<?php endif; ?>
 				</td>
 			</tr>
-		</tbody>
-	</table>
-	<table class="wpd-table fixed widefat">
-		<thead>
-			<tr>
-				<th colspan="2">
-					<?php _e( 'Webhook Testing', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
-				</th>
-			</tr>
-		</thead>
-		<tbody>
 			<tr>
 				<td>
 					<label><?php _e( 'Send Webhook Now', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>

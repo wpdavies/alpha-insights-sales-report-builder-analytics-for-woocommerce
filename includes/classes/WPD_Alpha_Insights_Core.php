@@ -377,10 +377,12 @@ class WPD_Alpha_Insights_Core {
 	public function add_profit_to_wc_dashboard_widget() {
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpd_is_user_authorized_to_view_alpha_insights() ) return false;
+		if ( ! wpd_is_user_authorized_to_view_alpha_insights() || ! WPD_AI_PRO ) return false;
 
-		$start_date = date('Y-m-01'); 
-		$end_date 	= date('Y-m-d'); 
+		// Get dates in user's local timezone
+		$current_timestamp = current_time( 'timestamp' );
+		$start_date = date( 'Y-m-01', $current_timestamp ); // First of current month in local time
+		$end_date   = current_time( 'Y-m-d' ); // Today in local time 
 		$data_warehouse = new WPD_Data_Warehouse_React(
 			array(
 				'date_from' => $start_date,
@@ -389,7 +391,6 @@ class WPD_Alpha_Insights_Core {
 		);
 		$data_warehouse->fetch_store_profit_data();
 		$order_totals = $data_warehouse->get_data( 'orders', 'totals' );
-		$product_totals = $data_warehouse->get_data( 'products', 'totals' );
 		$store_profit = $data_warehouse->get_data( 'store_profit', 'totals' );
 
 		?>
@@ -425,7 +426,7 @@ class WPD_Alpha_Insights_Core {
 			</li>
 			<li class="wpd-status-widget-item net-profit-this-month">
 				<a href="<?php echo esc_url( wpd_admin_page_url('reports-orders') . '&wpd-report-from-date=' . esc_attr( $start_date ) . '&wpd-report-to-date=' . esc_attr( $end_date ) ); ?>">
-					<strong><?php echo absint( $product_totals['total_qty_sold'] ); ?></strong>Qty Sold This Month
+					<strong><?php echo floatval( $store_profit['average_store_margin'] ); ?>%</strong> Net Profit Margin
 				</a>
 			</li>
 		<?php
