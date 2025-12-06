@@ -139,7 +139,8 @@ class WPD_Session_Tracking {
      **/
     public function generate_unique_session_id() {
 
-        $random_token = md5($_SERVER['HTTP_USER_AGENT'] . time());
+        $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field($_SERVER['HTTP_USER_AGENT']) : '';
+        $random_token = md5($user_agent . time());
         return sanitize_text_field( 'wpd' . $random_token . time() );
 
     }
@@ -166,15 +167,15 @@ class WPD_Session_Tracking {
 
         // Priority 1: Cloudflare (most reliable for CF users)
         if ( ! empty( $_SERVER['HTTP_CF_CONNECTING_IP'] ) ) {
-            $ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
+            $ip = sanitize_text_field( $_SERVER['HTTP_CF_CONNECTING_IP'] );
         }
         // Priority 2: Other proxy headers
         elseif ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-            $ip = $_SERVER['HTTP_CLIENT_IP'];
+            $ip = sanitize_text_field( $_SERVER['HTTP_CLIENT_IP'] );
         }
         // Priority 3: X-Forwarded-For (may contain multiple IPs, take first)
         elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-            $forwarded_ips = $_SERVER['HTTP_X_FORWARDED_FOR'];
+            $forwarded_ips = sanitize_text_field( $_SERVER['HTTP_X_FORWARDED_FOR'] );
             // X-Forwarded-For can contain multiple IPs: "client, proxy1, proxy2"
             // Extract the first (original client) IP
             $ip_list = explode( ',', $forwarded_ips );
@@ -182,11 +183,11 @@ class WPD_Session_Tracking {
         }
         // Priority 4: X-Real-IP (some proxies use this)
         elseif ( ! empty( $_SERVER['HTTP_X_REAL_IP'] ) ) {
-            $ip = $_SERVER['HTTP_X_REAL_IP'];
+            $ip = sanitize_text_field( $_SERVER['HTTP_X_REAL_IP'] );
         }
         // Priority 5: Direct connection (fallback)
         elseif ( isset($_SERVER['REMOTE_ADDR']) && ! empty($_SERVER['REMOTE_ADDR']) ) {
-            $ip = $_SERVER['REMOTE_ADDR'];
+            $ip = sanitize_text_field( $_SERVER['REMOTE_ADDR'] );
         }
 
         // Validate IP address (basic check)
@@ -705,9 +706,12 @@ class WPD_Session_Tracking {
     private function set_session_cookie( $session_id, $expiry ) {
 
         // Determine if we're on HTTPS
-        $is_https = ( ! empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ) || 
-                    ( ! empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' ) ||
-                    ( ! empty($_SERVER['HTTP_CF_VISITOR']) && strpos($_SERVER['HTTP_CF_VISITOR'], '"scheme":"https"') !== false );
+        $https_value = isset($_SERVER['HTTPS']) ? sanitize_text_field($_SERVER['HTTPS']) : '';
+        $forwarded_proto = isset($_SERVER['HTTP_X_FORWARDED_PROTO']) ? sanitize_text_field($_SERVER['HTTP_X_FORWARDED_PROTO']) : '';
+        $cf_visitor = isset($_SERVER['HTTP_CF_VISITOR']) ? sanitize_text_field($_SERVER['HTTP_CF_VISITOR']) : '';
+        $is_https = ( ! empty($https_value) && $https_value !== 'off' ) || 
+                    ( ! empty($forwarded_proto) && $forwarded_proto === 'https' ) ||
+                    ( ! empty($cf_visitor) && strpos($cf_visitor, '"scheme":"https"') !== false );
 
         // Cookie options for better Cloudflare/WP Engine compatibility
         $cookie_options = array(
@@ -754,8 +758,8 @@ class WPD_Session_Tracking {
         // Priority 1: Try to get from cookie (set by JavaScript on frontend)
         if ( isset($_COOKIE['wpd_ai_referral_source']) && ! empty($_COOKIE['wpd_ai_referral_source']) ) {
 
-            // Get raw cookie value
-            $referral_url = $_COOKIE['wpd_ai_referral_source'];
+            // Get raw cookie value and sanitize immediately
+            $referral_url = sanitize_text_field( $_COOKIE['wpd_ai_referral_source'] );
 
             // Try decoding if it's URL-encoded (may be double-encoded)
             $decoded = rawurldecode($referral_url);
@@ -828,8 +832,8 @@ class WPD_Session_Tracking {
         // No PHP fallback to avoid capturing admin/login pages
         if ( isset($_COOKIE['wpd_ai_landing_page']) && ! empty($_COOKIE['wpd_ai_landing_page']) ) {
 
-            // Get raw cookie value
-            $landing_page = $_COOKIE['wpd_ai_landing_page'];
+            // Get raw cookie value and sanitize immediately
+            $landing_page = sanitize_text_field( $_COOKIE['wpd_ai_landing_page'] );
 
             // Try decoding if URL-encoded (may be double-encoded)
             $decoded = rawurldecode($landing_page);

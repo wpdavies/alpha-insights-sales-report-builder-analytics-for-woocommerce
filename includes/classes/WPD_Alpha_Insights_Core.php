@@ -1631,6 +1631,9 @@ class WPD_Alpha_Insights_Core {
 
 				foreach( $_POST['_wpd_ai_product_cost'] as $product_id => $product_cost ) {
 
+					// Sanitize product ID before use
+					$product_id = absint( $product_id );
+
 					// Save numeric values -> must check via wc_format_decimal in case they're using commas for decimal
 					if ( $product_cost && is_numeric( wc_format_decimal($product_cost) ) ) {
 

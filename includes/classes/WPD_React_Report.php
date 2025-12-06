@@ -735,7 +735,8 @@ class WPD_React_Report {
                 }
                 
                 if ($config === null) {
-                    self::log_error('WPD_React_Report: Invalid config format: ' . $_POST['config']);
+                    $config_sanitized = isset($_POST['config']) ? sanitize_text_field($_POST['config']) : '';
+                    self::log_error('WPD_React_Report: Invalid config format: ' . $config_sanitized);
                     self::log_error('WPD_React_Report: JSON decode error: ' . json_last_error_msg());
                     $config = array(); // Set empty array as fallback
                 }
@@ -1600,7 +1601,8 @@ class WPD_React_Report {
             // Check build mode from cookie (session-based, not report-specific)
             $build_mode_enabled = true; // Default to true
             if ( isset( $_COOKIE['wpd_build_mode'] ) ) {
-                $build_mode_enabled = $_COOKIE['wpd_build_mode'] === 'true';
+                $build_mode_value = sanitize_text_field( $_COOKIE['wpd_build_mode'] );
+                $build_mode_enabled = $build_mode_value === 'true';
             }
             
             // Override config with cookie value

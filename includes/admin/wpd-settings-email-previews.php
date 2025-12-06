@@ -11,7 +11,7 @@
  */
 defined( 'ABSPATH' ) || exit;
 
-if ( isset($_GET['email_preview']) && $_GET['email_preview'] === 'profit-report' ) {
+if ( isset($_GET['email_preview']) && sanitize_text_field( $_GET['email_preview'] ) === 'profit-report' ) {
 
 	?>
 	<div class="wpd-wrapper">
@@ -29,7 +29,7 @@ if ( isset($_GET['email_preview']) && $_GET['email_preview'] === 'profit-report'
 	wpd_email( 'wpd_profit_report', true );
 	wpd_javascript_email_ajax( '#send-email-profit-report', 'wpd_profit_report' );
 
-} elseif( isset($_GET['email_preview']) && $_GET['email_preview'] === 'expense-report' ) {
+} elseif( isset($_GET['email_preview']) && sanitize_text_field( $_GET['email_preview'] ) === 'expense-report' ) {
 
 	?>
 	<div class="wpd-wrapper">

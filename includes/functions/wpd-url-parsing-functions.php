@@ -97,7 +97,7 @@ function wpd_get_current_url_path_raw() {
 
 	if ( isset($_SERVER['REQUEST_URI']) ) {
 
-		return $_SERVER['REQUEST_URI'];
+		return sanitize_text_field( $_SERVER['REQUEST_URI'] );
 
 	} else {
 
@@ -119,7 +119,11 @@ function wpd_get_current_url_path_raw() {
  **/
 function wpd_get_current_url_raw() {
 
-	$actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+	$https_value = isset($_SERVER['HTTPS']) ? sanitize_text_field($_SERVER['HTTPS']) : '';
+	$scheme = ( ! empty($https_value) && $https_value === 'on' ? "https" : "http");
+	$host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field($_SERVER['HTTP_HOST']) : '';
+	$uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field($_SERVER['REQUEST_URI']) : '';
+	$actual_link = $scheme . "://" . $host . $uri;
 
 	return $actual_link;
 
@@ -139,8 +143,8 @@ function wpd_get_referral_url_raw() {
     // Return HTTP Referer if found
     if ( isset($_SERVER["HTTP_REFERER"]) && ! empty($_SERVER["HTTP_REFERER"]) ) {
 
-        // Capture raw referral URL
-        $referral_url = $_SERVER["HTTP_REFERER"];
+        // Capture raw referral URL and sanitize immediately
+        $referral_url = sanitize_text_field( $_SERVER["HTTP_REFERER"] );
 
         // Basic sanitization — ensures it's a valid URL
         $referral_url = filter_var($referral_url, FILTER_SANITIZE_URL);

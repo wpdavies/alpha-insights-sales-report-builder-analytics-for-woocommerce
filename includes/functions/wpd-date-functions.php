@@ -132,32 +132,3 @@ function wpd_calculate_time_difference( $from, $to = 0 ) {
 	return human_time_diff( $from, $to );
 
 }
-
-/**
- *
- *	Quick select date periods
- *
- */
-function wpd_quick_select_dates() {
-
-	$current_quick_select = null;
-
-	if ( isset($_COOKIE['wpd-date-quick-select']) && is_string($_COOKIE['wpd-date-quick-select']) ) {
-
-		$current_quick_select = $_COOKIE['wpd-date-quick-select'];
-
-	}
-
-	ob_start();
-	?>
-		<span class="wpd-quick-select-date<?php if ($current_quick_select === 'today') echo ' selected'; ?>" data-wpd-quick-select="today">Today</span>
-		<span class="wpd-quick-select-date<?php if ($current_quick_select === 'yesterday') echo ' selected'; ?>" data-wpd-quick-select="yesterday">Yesterday</span>
-		<span class="wpd-quick-select-date<?php if ($current_quick_select === 'this-month') echo ' selected'; ?>" data-wpd-quick-select="this-month">This Month</span>
-		<span class="wpd-quick-select-date<?php if ($current_quick_select === 'last-month') echo ' selected'; ?>" data-wpd-quick-select="last-month">Last Month</span>
-		<span class="wpd-quick-select-date<?php if ($current_quick_select === 'this-year') echo ' selected'; ?>" data-wpd-quick-select="this-year">This Year</span>
-		<span class="wpd-quick-select-date<?php if ($current_quick_select === 'last-year') echo ' selected'; ?>" data-wpd-quick-select="last-year">Last Year</span>
-		<span class="wpd-quick-select-date<?php if ($current_quick_select === 'all-time') echo ' selected'; ?>" data-wpd-quick-select="all-time">All Time</span>
-	<?php
-	return ob_get_clean();
-
-}

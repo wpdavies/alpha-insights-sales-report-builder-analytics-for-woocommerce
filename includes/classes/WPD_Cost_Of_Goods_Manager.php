@@ -322,15 +322,16 @@ class WPD_Cost_Of_Goods_Manager {
 
 		// Apply product type filter
 		if (!empty($filters['product_type'])) {
-			$args['post_type'] = $filters['product_type'] === 'variation' ? 'product_variation' : 'product';
-			if ($filters['product_type'] === 'variable' || $filters['product_type'] === 'simple') {
+			$product_type = sanitize_text_field($filters['product_type']);
+			$args['post_type'] = $product_type === 'variation' ? 'product_variation' : 'product';
+			if ($product_type === 'variable' || $product_type === 'simple') {
 				if (!isset($args['tax_query'])) {
 					$args['tax_query'] = [];
 				}
 				$args['tax_query'][] = [
 					'taxonomy' => 'product_type',
 					'field' => 'slug',
-					'terms' => $filters['product_type']
+					'terms' => $product_type
 				];
 				// If we have multiple tax queries, set relation
 				if (count($args['tax_query']) > 1) {
@@ -493,15 +494,16 @@ class WPD_Cost_Of_Goods_Manager {
 		}
 
 		if (!empty($filters['product_type'])) {
-			$args['post_type'] = $filters['product_type'] === 'variation' ? 'product_variation' : 'product';
-			if ($filters['product_type'] === 'variable' || $filters['product_type'] === 'simple') {
+			$product_type = sanitize_text_field($filters['product_type']);
+			$args['post_type'] = $product_type === 'variation' ? 'product_variation' : 'product';
+			if ($product_type === 'variable' || $product_type === 'simple') {
 				if (!isset($args['tax_query'])) {
 					$args['tax_query'] = [];
 				}
 				$args['tax_query'][] = [
 					'taxonomy' => 'product_type',
 					'field' => 'slug',
-					'terms' => $filters['product_type']
+					'terms' => $product_type
 				];
 				if (count($args['tax_query']) > 1) {
 					$args['tax_query']['relation'] = 'AND';
@@ -648,7 +650,8 @@ class WPD_Cost_Of_Goods_Manager {
 		}
 
 		// Get all products (no pagination for export)
-		$filters = isset($_GET['filters']) ? json_decode(stripslashes($_GET['filters']), true) : [];
+		$filters_raw = isset($_GET['filters']) ? sanitize_text_field( $_GET['filters'] ) : '';
+		$filters = ! empty( $filters_raw ) ? json_decode(stripslashes($filters_raw), true) : [];
 		
 		$args = [
 			'post_type' => ['product', 'product_variation'],
