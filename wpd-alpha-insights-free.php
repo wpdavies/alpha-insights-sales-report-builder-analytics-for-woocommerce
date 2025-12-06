@@ -3,17 +3,17 @@
  *
  * Plugin Name:         Alpha Insights - Sales Report Builder & Analytics For WooCommerce
  * Plugin URI:          https://wpdavies.dev/plugins/alpha-insights/
- * Description:         The world's most powerful drag & drop WooCommerce reporting plugin.
+ * Description:         A powerful and intuitive drag-and-drop reporting plugin designed for WooCommerce stores.
  * Author:              WP Davies
  * Author URI:          https://wpdavies.dev/
  *
  * Version:             	1.0.0
- * Requires at least:   	5.0.0
- * Tested up to:        	6.8.2
- * Requires PHP: 			7.4.0
+ * Requires at least:   	5.0
+ * Tested up to:        	6.9
+ * Requires PHP: 			7.4
  * Requires Plugins: 		woocommerce
- * WC requires at least: 	3.0.0
- * WC tested up to: 		10.3.5
+ * WC requires at least: 	3.0
+ * WC tested up to: 		10.3
  *
  * License:             GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -733,6 +733,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Admin_Menu.php');		
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Report_API.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Getting_Started.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPD_Data_Manager.php');
 
 		// Additional Classes - With Dependencies
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Data_Warehouse_React.php');
@@ -768,6 +769,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 		WPD_Cost_Of_Goods_Manager::register_ajax_actions();
 		WPD_Report_API::register_routes();
 		WPD_Expense_Management_React::register_ajax_actions();
+		WPD_Data_Manager::register_ajax_actions();
 
 	}
 

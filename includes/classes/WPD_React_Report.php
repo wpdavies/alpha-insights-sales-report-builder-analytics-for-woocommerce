@@ -1071,14 +1071,19 @@ class WPD_React_Report {
 
         $report_filters = new WPD_Report_Filters();
 
+        // Cache filter values to avoid duplicate queries
+        // These filters are used in multiple places, so we fetch them once
+        $traffic_sources = $report_filters->get_filter_values_traffic_sources();
+        $products = $report_filters->get_filter_values_products();
+
         $filter_data_map = array(
             'orders' => array(
                 'order_statuses' => array_merge( array( 'any' => 'Any' ), wc_get_order_statuses() ),
-                'traffic_sources' => $report_filters->get_filter_values_traffic_sources(),
+                'traffic_sources' => $traffic_sources,
                 'query_parameters' => $report_filters->get_filter_values_order_query_parameter_key_value_pairs()
             ),
             'products' => array(
-                'products' => $report_filters->get_filter_values_products(),
+                'products' => $products,
                 'product_categories' => $report_filters->get_filter_values_product_categories(),
                 'product_tags' => $report_filters->get_filter_values_product_tags()
             ),
@@ -1095,10 +1100,10 @@ class WPD_React_Report {
                 'expense_categories' => $report_filters->get_filter_values_expense_categories()
             ),
             'website_traffic' => array(
-                'traffic_sources' => $report_filters->get_filter_values_traffic_sources(),
+                'traffic_sources' => $traffic_sources,
                 'query_parameters' => $report_filters->get_filter_values_website_traffic_query_parameter_key_value_pairs(),
                 'session_contains_events' => $report_filters->get_filter_values_website_traffic_events(),
-                'products' => $report_filters->get_filter_values_products()
+                'products' => $products
             )
         );
 

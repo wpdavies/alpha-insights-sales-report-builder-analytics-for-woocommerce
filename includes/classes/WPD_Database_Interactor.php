@@ -762,4 +762,15 @@ class WPD_Database_Interactor {
 
     }
 
+    /**
+     * 
+     *  Get all table names set by Alpha Insights
+     * 
+     *  @return array
+     * 
+     **/
+    public function get_all_table_names() {
+        return array( $this->session_data_table, $this->events_table, $this->product_impressions_table, $this->order_calculations_table );
+    }
+
 }

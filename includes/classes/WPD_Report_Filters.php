@@ -30,6 +30,25 @@ class WPD_Report_Filters {
     private bool $is_transient_enabled = true;
 
     /**
+     * 
+     *  Batch size for processing large datasets
+     *  Used across all methods that fetch large amounts of data
+     * 
+     *  Default is 2500 for safe operation with 256MB PHP memory limit
+     *  Can be increased to 5000-10000 for servers with 512MB+ memory
+     * 
+     **/
+    private int $batch_size = 2500;
+
+    /**
+     * 
+     *  Instance-level cache to prevent duplicate queries within the same request
+     *  Even if transients are disabled, this prevents re-running expensive queries
+     * 
+     **/
+    private array $instance_cache = array();
+
+    /**
      *
      * Constructor
      *
@@ -38,6 +57,7 @@ class WPD_Report_Filters {
 
         // Allow filtering of the report filters class settings
         $this->is_transient_enabled = apply_filters( 'wpd_ai_report_filters_is_transient_enabled', $this->is_transient_enabled );
+        $this->batch_size = apply_filters( 'wpd_ai_report_filters_batch_size', $this->batch_size );
 
     }
 
@@ -51,11 +71,20 @@ class WPD_Report_Filters {
      **/
     public function get_filter_values_traffic_sources() {
 
+        // Check instance cache first
+        if ( isset( $this->instance_cache['traffic_sources'] ) ) {
+            return $this->instance_cache['traffic_sources'];
+        }
+
         $traffic_types = WPD_Traffic_Type::available_traffic_types();
         $traffic_types_array = array();
         foreach( $traffic_types as $traffic_type => $traffic_type_name ) {
             $traffic_types_array[$traffic_type_name] = $traffic_type_name;
         }
+
+        // Store in instance cache
+        $this->instance_cache['traffic_sources'] = $traffic_types_array;
+
         return $traffic_types_array;
 
     }
@@ -63,6 +92,7 @@ class WPD_Report_Filters {
     /**
      * 
      * 	List of available query parameter values for orders
+     *  Optimized for large stores using batched processing
      * 
      * 	@return array $array An associative array of all query parameter values.
      * 	Array structure is array[$query_parameter_value_raw] = $query_parameter_value.
@@ -70,10 +100,16 @@ class WPD_Report_Filters {
      **/
     public function get_filter_values_order_query_parameter_key_value_pairs() {
 
+        // Check instance cache first
+        if ( isset( $this->instance_cache['order_query_params'] ) ) {
+            return $this->instance_cache['order_query_params'];
+        }
+
         // Get results
         $results = get_transient( 'wpd_report_filters_order_query_parameter_values' );
 
         if ( $results && $this->is_transient_enabled ) {
+            $this->instance_cache['order_query_params'] = $results;
             return $results;
         }
 
@@ -83,69 +119,92 @@ class WPD_Report_Filters {
         $is_hpos_enabled = wpd_is_hpos_enabled();
     
         $meta_key = '_wpd_ai_landing_page';
-        $results = array();
-    
-        if ( $is_hpos_enabled ) {
-    
-            // HPOS mode — order meta table
-            $order_meta_table = $wpdb->prefix . 'wc_orders_meta';
-    
-            $query = $wpdb->prepare("
-                SELECT meta_value
-                FROM {$order_meta_table}
-                WHERE meta_key = %s
-                AND meta_value LIKE %s
-            ", $meta_key, '%' . $wpdb->esc_like( '?' ) . '%');
-    
-            $results = $wpdb->get_col( $query );
-    
-        } else {
-    
-            // Legacy posts/postmeta system
-            $query = $wpdb->prepare("
-                SELECT pm.meta_value
-                FROM {$wpdb->postmeta} pm
-                INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-                WHERE pm.meta_key = %s
-                AND pm.meta_value LIKE %s
-                AND p.post_type = 'shop_order'
-            ", $meta_key, '%' . $wpdb->esc_like( '?' ) . '%');
-    
-            $results = $wpdb->get_col( $query );
-        }
-    
-        if ( empty( $results ) ) {
-            return array();
-        }
-    
         $parsed_values = array();
+        
+        // Batch configuration
+        $max_batches = 1000; // Safety limit
+        $batch_count = 0;
+        $offset = 0;
+        $has_more = true;
     
-        foreach ( $results as $url ) {
-    
-            // Extract the query string
-            $params = wpd_get_query_params( $url );
+        while ( $has_more && $batch_count < $max_batches ) {
+            
+            if ( $is_hpos_enabled ) {
+        
+                // HPOS mode — order meta table
+                $order_meta_table = $wpdb->prefix . 'wc_orders_meta';
+        
+                $query = $wpdb->prepare("
+                    SELECT meta_value
+                    FROM {$order_meta_table}
+                    WHERE meta_key = %s
+                    AND meta_value LIKE %s
+                    LIMIT %d OFFSET %d
+                ", $meta_key, '%' . $wpdb->esc_like( '?' ) . '%', $this->batch_size, $offset);
+        
+                $results = $wpdb->get_col( $query );
+        
+            } else {
+        
+                // Legacy posts/postmeta system
+                $query = $wpdb->prepare("
+                    SELECT pm.meta_value
+                    FROM {$wpdb->postmeta} pm
+                    INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+                    WHERE pm.meta_key = %s
+                    AND pm.meta_value LIKE %s
+                    AND p.post_type = 'shop_order'
+                    LIMIT %d OFFSET %d
+                ", $meta_key, '%' . $wpdb->esc_like( '?' ) . '%', $this->batch_size, $offset);
+        
+                $results = $wpdb->get_col( $query );
+            }
+            
+            if ( empty( $results ) || ! is_array( $results ) ) {
+                $has_more = false;
+                break;
+            }
+        
+            // Process this batch
+            foreach ( $results as $url ) {
+        
+                // Extract the query string
+                $params = wpd_get_query_params( $url );
 
-            if ( empty( $params ) ) continue;
+                if ( empty( $params ) ) continue;
 
-            // Loop through params
-            foreach ( $params as $key => $value ) {
-                // Handle arrays (when query parameter appears multiple times)
-                $values_to_process = is_array( $value ) ? $value : array( $value );
-                
-                foreach ( $values_to_process as $single_value ) {
-                    // Skip if not a string (nested arrays or other types)
-                    if ( ! is_string( $single_value ) ) {
-                        continue;
-                    }
+                // Loop through params
+                foreach ( $params as $key => $value ) {
+                    // Handle arrays (when query parameter appears multiple times)
+                    $values_to_process = is_array( $value ) ? $value : array( $value );
                     
-                    $raw = $single_value;
-                    $clean = sanitize_text_field( $single_value );
-                    if ( wpd_is_valid_reporting_utm_key_value_pair( $key, $single_value ) ) {
-                        if ( ! isset( $parsed_values[ $key ] ) ) $parsed_values[ $key ] = array();
-                        $parsed_values[ $key ][$clean] = true;
+                    foreach ( $values_to_process as $single_value ) {
+                        // Skip if not a string (nested arrays or other types)
+                        if ( ! is_string( $single_value ) ) {
+                            continue;
+                        }
+                        
+                        $raw = $single_value;
+                        $clean = sanitize_text_field( $single_value );
+                        if ( wpd_is_valid_reporting_utm_key_value_pair( $key, $single_value ) ) {
+                            if ( ! isset( $parsed_values[ $key ] ) ) $parsed_values[ $key ] = array();
+                            $parsed_values[ $key ][$clean] = true;
+                        }
                     }
                 }
             }
+            
+            // Check if we got fewer results than batch size (last batch)
+            if ( count( $results ) < $this->batch_size ) {
+                $has_more = false;
+            }
+            
+            $offset += $this->batch_size;
+            $batch_count++;
+        }
+    
+        if ( empty( $parsed_values ) ) {
+            return array();
         }
 
         // Clean up the array
@@ -160,6 +219,9 @@ class WPD_Report_Filters {
     
         // Store transient
         if ( ! empty($parsed_values) ) set_transient( 'wpd_report_filters_order_query_parameter_values', $parsed_values, $this->transient_duration_in_seconds );
+
+        // Store in instance cache
+        $this->instance_cache['order_query_params'] = $parsed_values;
 
         return $parsed_values;
 
@@ -176,19 +238,21 @@ class WPD_Report_Filters {
      */
     public function get_filter_values_users() {
 
+        // Check instance cache first
+        if ( isset( $this->instance_cache['users'] ) ) {
+            return $this->instance_cache['users'];
+        }
+
         // Attempt transient
         $results = get_transient( 'wpd_report_filters_users' );
 
         if ( $results && $this->is_transient_enabled ) {
+            $this->instance_cache['users'] = $results;
             return $results;
         }
 
         global $wpdb;
         $results = array();
-
-        // Batch size for processing large user bases (configurable via filter)
-        // Larger batch sizes = fewer queries but more memory usage
-        $batch_size = apply_filters( 'wpd_ai_report_filters_users_batch_size', 5000 );
 
         // Whether to sort results (can be disabled for very large datasets via filter)
         $should_sort = apply_filters( 'wpd_ai_report_filters_users_should_sort', false );
@@ -198,7 +262,7 @@ class WPD_Report_Filters {
         $last_id = 0;
         $has_more = true;
         $batch_count = 0;
-        $max_batches = 1000; // Safety limit: 1000 batches × 5000 = 5M users max
+        $max_batches = 1000; // Safety limit: 1000 batches × batch_size = large max
 
         while ( $has_more && $batch_count < $max_batches ) {
             // Cursor-based pagination: much faster than OFFSET for large datasets
@@ -210,7 +274,7 @@ class WPD_Report_Filters {
                  ORDER BY ID ASC 
                  LIMIT %d",
                 $last_id,
-                $batch_size
+                $this->batch_size
             );
 
             $users = $wpdb->get_results( $query, ARRAY_A );
@@ -244,7 +308,7 @@ class WPD_Report_Filters {
             }
 
             // Check if we got fewer results than batch size (last batch)
-            if ( count( $users ) < $batch_size ) {
+            if ( count( $users ) < $this->batch_size ) {
                 $has_more = false;
             }
 
@@ -262,61 +326,129 @@ class WPD_Report_Filters {
             set_transient( 'wpd_report_filters_users', $results, $this->transient_duration_in_seconds );
         }
 
+        // Store in instance cache
+        $this->instance_cache['users'] = $results;
+
         return $results;
     }
 
     /**
      * 
      * 	List of products, including variations, in an associative array
+     *  Optimized for large stores using batched processing
      * 	
      * 	@return array $array An associative array of all products within this database.
      * 	Array structure is array[$product_id] = $product_label
      * 
-     *  @todo improve performance -> Potentially calling thousands of products here
-     * 
      **/
     public function get_filter_values_products() {
+
+        // Check instance cache first
+        if ( isset( $this->instance_cache['products'] ) ) {
+            return $this->instance_cache['products'];
+        }
 
         // Get results
         $results = get_transient( 'wpd_report_filters_products' );
 
         if ( $results && $this->is_transient_enabled ) {
+            $this->instance_cache['products'] = $results;
             return $results;
         }
+
+        global $wpdb;
 
         // Default response
         $results = array();
 
-        // Query Args
-        $args = array(
-            'post_type' 		=> array( 'product', 'product_variation' ),
-            'post_status' 		=> array( 'publish' ),
-            'fields' 			=> 'ids',
-            'posts_per_page' 	=> -1
-        );
+        // Safety limit
+        $max_batches = 1000; // 1000 batches × batch_size = large max
+        $batch_count = 0;
+        $offset = 0;
+        $has_more = true;
 
-        // Make Query
-        $query 					= new WP_Query( $args );
-        $product_ids 			= (array) $query->posts;
+        while ( $has_more && $batch_count < $max_batches ) {
+            
+            // Use direct SQL for better performance with large datasets
+            $query = $wpdb->prepare(
+                "SELECT ID, post_title 
+                 FROM {$wpdb->posts} 
+                 WHERE post_type IN ('product', 'product_variation')
+                 AND post_status = 'publish'
+                 ORDER BY ID ASC 
+                 LIMIT %d OFFSET %d",
+                $this->batch_size,
+                $offset
+            );
 
-        // Loop through product IDS
-        foreach( $product_ids as $product_id ) {
+            $products = $wpdb->get_results( $query, ARRAY_A );
 
-            // Capture Vars
-            $product_title 	= html_entity_decode( get_the_title( $product_id ) );
-            $product_sku 	= get_post_meta( $product_id, '_sku', true );
+            if ( empty( $products ) || ! is_array( $products ) ) {
+                $has_more = false;
+                break;
+            }
 
-            // Defaults
-            if ( empty($product_title) ) $product_title = 'Unknown';
-            if ( empty($product_sku) ) $product_sku = 'N/A';
+            // Get all product IDs for this batch to fetch SKUs efficiently
+            $product_ids = array_column( $products, 'ID' );
+            
+            // Fetch all SKUs for this batch in one query
+            if ( ! empty( $product_ids ) ) {
+                $placeholders = implode( ',', array_fill( 0, count( $product_ids ), '%d' ) );
+                $sku_query = $wpdb->prepare(
+                    "SELECT post_id, meta_value 
+                     FROM {$wpdb->postmeta} 
+                     WHERE meta_key = '_sku' 
+                     AND post_id IN ($placeholders)",
+                    ...$product_ids
+                );
+                
+                $skus_raw = $wpdb->get_results( $sku_query, ARRAY_A );
+                
+                // Create SKU lookup array
+                $skus = array();
+                foreach ( $skus_raw as $sku_row ) {
+                    $skus[ $sku_row['post_id'] ] = $sku_row['meta_value'];
+                }
+            }
 
-            // Load the resulting array
-            $results[$product_id] = $product_title . ' (' . $product_sku . ')';
+            // Process batch
+            foreach ( $products as $product ) {
+                $product_id = isset( $product['ID'] ) ? (int) $product['ID'] : 0;
+                
+                if ( empty( $product_id ) ) {
+                    continue;
+                }
 
+                // Get title
+                $product_title = isset( $product['post_title'] ) ? html_entity_decode( $product['post_title'] ) : 'Unknown';
+                if ( empty( $product_title ) ) {
+                    $product_title = 'Unknown';
+                }
+
+                // Get SKU from our batch lookup
+                $product_sku = isset( $skus[ $product_id ] ) ? $skus[ $product_id ] : 'N/A';
+                if ( empty( $product_sku ) ) {
+                    $product_sku = 'N/A';
+                }
+
+                // Load the resulting array
+                $results[ $product_id ] = $product_title . ' (' . $product_sku . ')';
+            }
+
+            // Check if we got fewer results than batch size (last batch)
+            if ( count( $products ) < $this->batch_size ) {
+                $has_more = false;
+            }
+
+            $offset += $this->batch_size;
+            $batch_count++;
         }
 
         // Store transient
         if ( ! empty($results) ) set_transient( 'wpd_report_filters_products', $results, $this->transient_duration_in_seconds );
+
+        // Store in instance cache
+        $this->instance_cache['products'] = $results;
 
         // Return Results
         return $results;
@@ -521,6 +653,7 @@ class WPD_Report_Filters {
     /**
      * 
      * 	List of available query parameter values from website traffic
+     *  Optimized for large stores using batched processing
      * 
      * 	@return array $array An associative array of all query parameter values.
      * 	Array structure is array[$query_parameter_value_slug] = $query_parameter_value_name.
@@ -528,10 +661,16 @@ class WPD_Report_Filters {
      **/
     public function get_filter_values_website_traffic_query_parameter_key_value_pairs() {
 
+        // Check instance cache first
+        if ( isset( $this->instance_cache['traffic_query_params'] ) ) {
+            return $this->instance_cache['traffic_query_params'];
+        }
+
         // Get results
         $results = get_transient( 'wpd_report_filters_website_traffic_query_parameter_values' );
 
         if ( $results && $this->is_transient_enabled ) {
+            $this->instance_cache['traffic_query_params'] = $results;
             return $results;
         }
 
@@ -540,57 +679,84 @@ class WPD_Report_Filters {
         $wpd_db = new WPD_Database_Interactor();
         $session_data_table = $wpd_db->session_data_table;
 
-        // Fetch session data
         // Validate table name for security
         $session_data_table = esc_sql( $session_data_table );
-        $session_sql_query = $wpdb->prepare(
-            "SELECT DISTINCT landing_page
-             FROM {$session_data_table}
-             WHERE landing_page LIKE %s",
-            '%' . $wpdb->esc_like( '?' ) . '%'
-        );
-
-        $results = $wpdb->get_col( $session_sql_query );
-
-        if ( $wpdb->last_error ) {
-            wpd_write_log( 'Error capturing session data from DB, dumping the error and query.', 'db_error' );
-            wpd_write_log( $wpdb->last_error, 'db_error' );
-            wpd_write_log( $wpdb->last_query, 'db_error' );
-            return false;
-        }
-
-        if ( empty( $results ) ) {
-            return array();
-        }
-    
+        
         $parsed_values = array();
-    
-        foreach ( $results as $url ) {
-    
-            // Extract the query string
-            $params = wpd_get_query_params( $url );
+        
+        // Batch configuration
+        $max_batches = 1000; // Safety limit
+        $batch_count = 0;
+        $offset = 0;
+        $has_more = true;
 
-            if ( empty( $params ) ) continue;
-    
-            // Loop through params
-            foreach ( $params as $key => $value ) {
-                // Handle arrays (when query parameter appears multiple times)
-                $values_to_process = is_array( $value ) ? $value : array( $value );
-                
-                foreach ( $values_to_process as $single_value ) {
-                    // Skip if not a string (nested arrays or other types)
-                    if ( ! is_string( $single_value ) ) {
-                        continue;
-                    }
+        while ( $has_more && $batch_count < $max_batches ) {
+            
+            // Fetch session data in batches
+            $session_sql_query = $wpdb->prepare(
+                "SELECT DISTINCT landing_page
+                 FROM {$session_data_table}
+                 WHERE landing_page LIKE %s
+                 LIMIT %d OFFSET %d",
+                '%' . $wpdb->esc_like( '?' ) . '%',
+                $this->batch_size,
+                $offset
+            );
+
+            $results = $wpdb->get_col( $session_sql_query );
+
+            if ( $wpdb->last_error ) {
+                wpd_write_log( 'Error capturing session data from DB, dumping the error and query.', 'db_error' );
+                wpd_write_log( $wpdb->last_error, 'db_error' );
+                wpd_write_log( $wpdb->last_query, 'db_error' );
+                return false;
+            }
+
+            if ( empty( $results ) || ! is_array( $results ) ) {
+                $has_more = false;
+                break;
+            }
+        
+            // Process this batch
+            foreach ( $results as $url ) {
+        
+                // Extract the query string
+                $params = wpd_get_query_params( $url );
+
+                if ( empty( $params ) ) continue;
+        
+                // Loop through params
+                foreach ( $params as $key => $value ) {
+                    // Handle arrays (when query parameter appears multiple times)
+                    $values_to_process = is_array( $value ) ? $value : array( $value );
                     
-                    $raw = $single_value;
-                    $clean = sanitize_text_field( $single_value );
-                    if ( wpd_is_valid_reporting_utm_key_value_pair( $key, $single_value ) ) {
-                        if ( ! isset( $parsed_values[ $key ] ) ) $parsed_values[ $key ] = array();
-                        $parsed_values[ $key ][$clean] = true;
+                    foreach ( $values_to_process as $single_value ) {
+                        // Skip if not a string (nested arrays or other types)
+                        if ( ! is_string( $single_value ) ) {
+                            continue;
+                        }
+                        
+                        $raw = $single_value;
+                        $clean = sanitize_text_field( $single_value );
+                        if ( wpd_is_valid_reporting_utm_key_value_pair( $key, $single_value ) ) {
+                            if ( ! isset( $parsed_values[ $key ] ) ) $parsed_values[ $key ] = array();
+                            $parsed_values[ $key ][$clean] = true;
+                        }
                     }
                 }
             }
+            
+            // Check if we got fewer results than batch size (last batch)
+            if ( count( $results ) < $this->batch_size ) {
+                $has_more = false;
+            }
+            
+            $offset += $this->batch_size;
+            $batch_count++;
+        }
+    
+        if ( empty( $parsed_values ) ) {
+            return array();
         }
 
         // Clean up the array
@@ -605,6 +771,9 @@ class WPD_Report_Filters {
 
         // Store transient
         if ( ! empty($parsed_values) ) set_transient( 'wpd_report_filters_website_traffic_query_parameter_values', $parsed_values, $this->transient_duration_in_seconds );
+
+        // Store in instance cache
+        $this->instance_cache['traffic_query_params'] = $parsed_values;
 
         // Return Results
         return $parsed_values;

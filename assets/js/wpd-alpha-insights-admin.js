@@ -378,37 +378,60 @@ jQuery(document).ready(function($) {
         var data = {
             'action': 'wpd_delete_log',
             'url'   : window.location.href,
-            'log_file' 	: logFile
+            'log_file' 	: logFile,
+            'nonce' : (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.nonce) ? wpdAlphaInsights.nonce : ''
         };
 
         // Make Request
         $.post(ajaxUrl, data, function( response ) {
 
-            response = JSON.parse( response );
+            // Handle both string and object responses
+            if (typeof response === 'string') {
+                try {
+                    response = JSON.parse( response );
+                } catch(e) {
+                    wpdPopNotification( 'fail', 'Hm, Something Is Not Quite Right', 'Invalid response from server.' );
+                    return;
+                }
+            }
 
             if ( response.success ) {
 
                 // Delete log text
-                logText = logContainer.find('pre').text('');
+                logContainer.find('pre').text('');
 
-                if (response.message) {
+                // Check for message in response or response.data
+                var message = response.message || (response.data && response.data.message) || 'Your request has been succesfully completed.';
 
-                    wpdPopNotification( 'success', 'Success!', response.message );
-                    
-                } else {
-
-                    wpdPopNotification( 'success', 'Success!', 'Your request has been succesfully completed.' );
-                
-                }
+                wpdPopNotification( 'success', 'Success!', message );
                 
             } else {
 
-                wpdPopNotification( 'fail', 'Hm, Something Is Not Quite Right', 'Your action could not be complete.' + ' ' + response.message);
+                // Handle error response format from wp_send_json_error()
+                // Format: {success: false, data: {message: "..."}}
+                var errorMessage = (response.data && response.data.message) ? response.data.message : (response.message || 'Your action could not be complete.');
+                
+                wpdPopNotification( 'fail', 'Hm, Something Is Not Quite Right', errorMessage );
 
             }
-        }).fail(function() {
+        }).fail(function( jqXHR, textStatus, errorThrown ) {
 
-            wpdPopNotification( 'fail', 'Hm, Something Is Not Quite Right', 'Your action could not be complete.' );
+            // Try to parse error response if available
+            var errorMessage = 'Your action could not be complete.';
+            if (jqXHR.responseText) {
+                try {
+                    var errorResponse = JSON.parse(jqXHR.responseText);
+                    if (errorResponse.data && errorResponse.data.message) {
+                        errorMessage = errorResponse.data.message;
+                    } else if (errorResponse.message) {
+                        errorMessage = errorResponse.message;
+                    }
+                } catch(e) {
+                    // If parsing fails, use default message
+                }
+            }
+
+            wpdPopNotification( 'fail', 'Hm, Something Is Not Quite Right', errorMessage );
 
         });
     });

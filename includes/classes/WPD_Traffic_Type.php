@@ -218,11 +218,11 @@ class WPD_Traffic_Type {
 
             // Few manual checks on ref url
             $site_host = parse_url(site_url(), PHP_URL_HOST);
-            $referring_domain = parse_url($referral_url, PHP_URL_HOST);
+            $referring_domain = !empty($referral_url) ? parse_url($referral_url, PHP_URL_HOST) : false;
 
             if ( empty($referral_url) || $referring_domain === $site_host ) {
                 $result = 'Direct';
-            } elseif ( strpos($referral_url, 'app://') !== false ) {
+            } elseif ( is_string($referral_url) && strpos($referral_url, 'app://') !== false ) {
                 $result = 'App';
             } else {
                 $result = 'Referral';
@@ -255,6 +255,11 @@ class WPD_Traffic_Type {
 
             foreach ($query_params as $key => $value) {
     
+                // Skip if value is an array (happens when same query param appears multiple times)
+                if (is_array($value)) {
+                    continue;
+                }
+    
                 $key   = strtolower($key);
                 $value = strtolower(trim($value));
     
@@ -279,6 +284,7 @@ class WPD_Traffic_Type {
                     $key === 'google_cid' ||   // Custom tracking param
                     ($key === 'gclsrc' && strpos($value, 'aw.') === 0) || // Google click source (e.g. aw.ds)
                     ($key === 'utm_source' && $value === 'google' && isset($query_params['utm_medium']) && 
+                        !is_array($query_params['utm_medium']) &&
                         in_array(strtolower($query_params['utm_medium']), ['cpc', 'paid', 'ppc'], true))
                 ) {
                     return 'Google Ads';

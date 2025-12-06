@@ -44,39 +44,6 @@ if ( isset($_POST['wpd_ai_debug_order_id']) && ! empty($_POST['wpd_ai_debug_orde
 
 }
 
-// Get all report class names 
-if ( isset($_POST['wpd_ai_debug_data_warehouse_report']) && ! empty($_POST['wpd_ai_debug_data_warehouse_report']) ) {
-
-    // Class Name
-    $report_class_name = sanitize_text_field($_POST['wpd_ai_debug_data_warehouse_report']);
-
-    if ( class_exists($report_class_name) ) {
-
-        // Output notice
-        wpd_admin_notice( sprintf( 'Outputting report data for "%s"', $report_class_name ));
-
-        // Init class
-        $report_object = new $report_class_name;
-
-        // Safety Check
-        if ( is_a($report_object, 'WPD_Report') ) {
-
-            $report_data = $report_object->get_data();
-
-        } else {
-
-            $report_data = array( 'Couldnt load this report.' );
-
-        }
-
-    } else {
-
-        wpd_admin_notice( sprintf( 'Couldnt find a report with class name "%s"', $report_class_name ));
-
-    }
-
-}
-
 ?>
 <div class="wpd-wrapper">
 	<div class="wpd-section-heading wpd-inline">
@@ -112,13 +79,6 @@ if ( isset($_POST['wpd_ai_debug_data_warehouse_report']) && ! empty($_POST['wpd_
                 <tr>
                     <td colspan="2">
                          <?php wpd_debug( $calculation, 'Order ' . $order_id . ' Data Dump' ); ?>
-                    </td>
-                </tr>
-            <?php endif; ?>
-            <?php if ( isset( $report_data ) ) : ?>
-                <tr>
-                    <td colspan="2">
-                         <?php wpd_debug( $report_data, $report_class_name ); ?>
                     </td>
                 </tr>
             <?php endif; ?>
@@ -219,3 +179,8 @@ if ( isset($_POST['wpd_ai_debug_data_warehouse_report']) && ! empty($_POST['wpd_
         });
     </script>
 <?php endif; ?>
+<!-- Data Management Table -->
+<?php
+$data_manager = WPD_Data_Manager::get_instance();
+$data_manager->render_data_management_table();
+?>
