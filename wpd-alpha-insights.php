@@ -681,6 +681,9 @@ class WPD_Alpha_Insights_Free_Plugin {
 	 */
 	public function include_plugin_files() {
 
+		// Required before the functions load
+		require_once( WPD_AI_PATH . 'includes/classes/WPD_Admin_Menu.php');		
+
 		// Functions
 		require_once( WPD_AI_PATH . 'includes/wpd-functions.php');
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-license-functions.php');
@@ -730,7 +733,6 @@ class WPD_Alpha_Insights_Free_Plugin {
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_CSV_Exporter.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Session_Tracking.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Task_Runner.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Admin_Menu.php');		
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Report_API.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Getting_Started.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Data_Manager.php');
