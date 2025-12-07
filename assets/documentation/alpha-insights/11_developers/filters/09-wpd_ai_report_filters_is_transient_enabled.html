@@ -1,0 +1,214 @@
+<h2>Filter: wpd_ai_report_filters_is_transient_enabled</h2>
+
+<p>Control whether report data caching (transients) is enabled or disabled.</p>
+
+<h3>Description</h3>
+
+<p>Alpha Insights caches report data using WordPress transients for performance. This filter allows you to disable caching globally or conditionally, which is useful for development, debugging, or real-time reporting requirements.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPD_Report_Filters.php</code></p>
+<p><strong>Method:</strong> <code>WPD_Report_Filters::__construct()</code></p>
+<p><strong>Line:</strong> ~66</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$is_enabled</td>
+        <td>bool</td>
+        <td>Whether transient caching is enabled (default: true)</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> bool</p>
+<p><strong>Description:</strong> True to enable caching, false to disable</p>
+
+<h3>Example Usage</h3>
+
+<h3>Disable Caching in Development</h3>
+
+<pre><code>add_filter( 'wpd_ai_report_filters_is_transient_enabled', 'disable_cache_in_dev' );
+
+function disable_cache_in_dev( $is_enabled ) {
+    
+    // Disable caching in development environment
+    if ( defined( 'WP_ENVIRONMENT_TYPE' ) && WP_ENVIRONMENT_TYPE === 'development' ) {
+        return false;
+    }
+    
+    return $is_enabled;
+}</code></pre>
+
+<h3>Disable Caching for Specific Users</h3>
+
+<pre><code>add_filter( 'wpd_ai_report_filters_is_transient_enabled', 'disable_cache_for_admins' );
+
+function disable_cache_for_admins( $is_enabled ) {
+    
+    // Administrators always see fresh data
+    if ( current_user_can( 'manage_options' ) ) {
+        return false;
+    }
+    
+    return $is_enabled;
+}</code></pre>
+
+<h3>Conditional Caching Based on Request</h3>
+
+<pre><code>add_filter( 'wpd_ai_report_filters_is_transient_enabled', 'conditional_caching' );
+
+function conditional_caching( $is_enabled ) {
+    
+    // Disable cache if force_refresh parameter is set
+    if ( isset( $_GET['force_refresh'] ) && $_GET['force_refresh'] === 'true' ) {
+        return false;
+    }
+    
+    // Disable cache for real-time reports
+    if ( isset( $_GET['report_type'] ) && $_GET['report_type'] === 'realtime' ) {
+        return false;
+    }
+    
+    return $is_enabled;
+}</code></pre>
+
+<h3>Disable During Business Hours</h3>
+
+<pre><code>add_filter( 'wpd_ai_report_filters_is_transient_enabled', 'disable_cache_business_hours' );
+
+function disable_cache_business_hours( $is_enabled ) {
+    
+    // Get current hour in store timezone
+    $current_hour = (int) current_time( 'H' );
+    
+    // Disable cache during business hours (9 AM - 5 PM) for fresh data
+    if ( $current_hour >= 9 && $current_hour < 17 ) {
+        return false;
+    }
+    
+    // Enable cache outside business hours
+    return $is_enabled;
+}</code></pre>
+
+<h3>Debug Mode Override</h3>
+
+<pre><code>add_filter( 'wpd_ai_report_filters_is_transient_enabled', 'debug_mode_no_cache' );
+
+function debug_mode_no_cache( $is_enabled ) {
+    
+    // Disable caching when WP_DEBUG is enabled
+    if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+        return false;
+    }
+    
+    return $is_enabled;
+}</code></pre>
+
+<h3>Completely Disable Caching</h3>
+
+<pre><code>add_filter( 'wpd_ai_report_filters_is_transient_enabled', '__return_false' );</code></pre>
+
+<h3>Best Practices</h3>
+
+<ul>
+    <li>Keep caching enabled in production for performance</li>
+    <li>Disable caching during development for accurate testing</li>
+    <li>Use conditional logic rather than blanket disabling</li>
+    <li>Consider performance impact before disabling cache</li>
+    <li>Provide users with a "refresh" button instead of disabling cache</li>
+</ul>
+
+<h3>Performance Impact</h3>
+
+<table>
+    <tr>
+        <th>Scenario</th>
+        <th>With Cache</th>
+        <th>Without Cache</th>
+    </tr>
+    <tr>
+        <td>Small Store (&lt;1,000 orders)</td>
+        <td>~0.1s</td>
+        <td>~0.5s</td>
+    </tr>
+    <tr>
+        <td>Medium Store (1,000-10,000 orders)</td>
+        <td>~0.2s</td>
+        <td>~2-3s</td>
+    </tr>
+    <tr>
+        <td>Large Store (&gt;10,000 orders)</td>
+        <td>~0.3s</td>
+        <td>~5-10s</td>
+    </tr>
+</table>
+
+<h3>Important Notes</h3>
+
+<ul>
+    <li>Disabling cache forces fresh database queries every time</li>
+    <li>Large stores may experience slow report loading without cache</li>
+    <li>Cache is automatically cleared when new orders are created</li>
+    <li>Default cache duration is 1 hour</li>
+    <li>This affects ALL reports, not individual report types</li>
+</ul>
+
+<h3>When to Disable Caching</h3>
+
+<h4>Good Reasons:</h4>
+<ul>
+    <li>Development and debugging</li>
+    <li>Testing report calculations</li>
+    <li>Real-time dashboards that need second-by-second accuracy</li>
+    <li>Troubleshooting data discrepancies</li>
+</ul>
+
+<h4>Bad Reasons:</h4>
+<ul>
+    <li>Reports seem "slow" (caching helps with this!)</li>
+    <li>Data updates infrequently (cache auto-clears on new orders)</li>
+    <li>You forgot about it (leaving it disabled in production)</li>
+</ul>
+
+<h3>Alternative: Clear Cache Manually</h3>
+
+<p>Instead of disabling cache, you can clear it manually:</p>
+
+<pre><code>// Clear all report caches
+delete_transient( 'wpd_ai_report_*' );
+
+// Or clear specific report cache
+delete_transient( 'wpd_ai_report_' . md5( $report_key ) );</code></pre>
+
+<h3>Debugging</h3>
+
+<pre><code>add_filter( 'wpd_ai_report_filters_is_transient_enabled', 'debug_cache_status' );
+
+function debug_cache_status( $is_enabled ) {
+    error_log( 'Alpha Insights Report Cache: ' . ( $is_enabled ? 'ENABLED' : 'DISABLED' ) );
+    return $is_enabled;
+}</code></pre>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_report_filters_allowed_keys_for_query_parameter_values.html'>wpd_ai_report_filters_allowed_keys_for_query_parameter_values</a> - Control report filter parameters</li>
+</ul>
+
+<h3>Related Classes</h3>
+
+<ul>
+    <li><code>WPD_Report_Filters</code> - Report filtering and caching system</li>
+    <li><code>WPD_Report_API</code> - Report data generation</li>
+</ul>
+</p>
+

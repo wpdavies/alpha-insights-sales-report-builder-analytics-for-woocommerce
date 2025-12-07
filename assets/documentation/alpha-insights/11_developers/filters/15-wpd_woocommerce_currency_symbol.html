@@ -1,0 +1,289 @@
+<h2>Filter: wpd_woocommerce_currency_symbol</h2>
+
+<p>Modify currency symbols used in Alpha Insights price displays.</p>
+
+<h3>Description</h3>
+
+<p>This filter allows you to customize or replace currency symbols for specific currencies. Useful for displaying custom symbols, adding regional variations, or supporting cryptocurrencies and custom currency codes.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/functions/wpd-currency-functions.php</code></p>
+<p><strong>Function:</strong> <code>wpd_get_woocommerce_currency_symbol()</code></p>
+<p><strong>Line:</strong> ~446</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$currency_symbol</td>
+        <td>string</td>
+        <td>The currency symbol for the given currency code</td>
+    </tr>
+    <tr>
+        <td>$currency</td>
+        <td>string</td>
+        <td>The three-letter currency code (e.g., 'USD', 'EUR', 'GBP')</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> string</p>
+<p><strong>Description:</strong> Modified currency symbol</p>
+
+<h3>Example Usage</h3>
+
+<h3>Add Cryptocurrency Symbols</h3>
+
+<pre><code>add_filter( 'wpd_woocommerce_currency_symbol', 'add_crypto_symbols', 10, 2 );
+
+function add_crypto_symbols( $symbol, $currency ) {
+    
+    $crypto_symbols = array(
+        'BTC' => '₿',
+        'ETH' => 'Ξ',
+        'LTC' => 'Ł',
+        'USDT' => '₮',
+        'DOGE' => 'Ð'
+    );
+    
+    if ( isset( $crypto_symbols[$currency] ) ) {
+        return $crypto_symbols[$currency];
+    }
+    
+    return $symbol;
+}</code></pre>
+
+<h3>Use Currency Code Instead of Symbol</h3>
+
+<pre><code>add_filter( 'wpd_woocommerce_currency_symbol', 'use_currency_code', 10, 2 );
+
+function use_currency_code( $symbol, $currency ) {
+    
+    // Display currency code (USD, EUR) instead of symbol ($, €)
+    return $currency;
+}</code></pre>
+
+<h3>Custom Symbol for Specific Currency</h3>
+
+<pre><code>add_filter( 'wpd_woocommerce_currency_symbol', 'custom_usd_symbol', 10, 2 );
+
+function custom_usd_symbol( $symbol, $currency ) {
+    
+    // Use "USD $" instead of just "$"
+    if ( $currency === 'USD' ) {
+        return 'USD $';
+    }
+    
+    // Use custom Euro symbol
+    if ( $currency === 'EUR' ) {
+        return 'EUR €';
+    }
+    
+    return $symbol;
+}</code></pre>
+
+<h3>Regional Currency Variations</h3>
+
+<pre><code>add_filter( 'wpd_woocommerce_currency_symbol', 'regional_symbols', 10, 2 );
+
+function regional_symbols( $symbol, $currency ) {
+    
+    // Different dollar symbol for different regions
+    $dollar_currencies = array( 'USD', 'CAD', 'AUD', 'NZD', 'SGD' );
+    
+    if ( in_array( $currency, $dollar_currencies ) ) {
+        // Show which dollar it is
+        return $currency . ' $';
+    }
+    
+    return $symbol;
+}</code></pre>
+
+<h3>Custom Internal Currency</h3>
+
+<pre><code>add_filter( 'wpd_woocommerce_currency_symbol', 'custom_currency', 10, 2 );
+
+function custom_currency( $symbol, $currency ) {
+    
+    // Add support for custom internal currency
+    if ( $currency === 'CREDITS' ) {
+        return 'CR';
+    }
+    
+    if ( $currency === 'POINTS' ) {
+        return 'P';
+    }
+    
+    return $symbol;
+}</code></pre>
+
+<h3>HTML-Enhanced Symbols</h3>
+
+<pre><code>add_filter( 'wpd_woocommerce_currency_symbol', 'html_symbols', 10, 2 );
+
+function html_symbols( $symbol, $currency ) {
+    
+    // Add styling or icons to symbols
+    if ( $currency === 'USD' ) {
+        return '<span class="currency-usd">$</span>';
+    }
+    
+    if ( $currency === 'EUR' ) {
+        return '<span class="currency-eur">€</span>';
+    }
+    
+    return $symbol;
+}</code></pre>
+
+<h3>Multi-Currency Store Symbol Prefix</h3>
+
+<pre><code>add_filter( 'wpd_woocommerce_currency_symbol', 'prefix_all_symbols', 10, 2 );
+
+function prefix_all_symbols( $symbol, $currency ) {
+    
+    // In multi-currency stores, always show currency code
+    $store_currencies = get_option( 'active_currencies', array( 'USD' ) );
+    
+    if ( count( $store_currencies ) > 1 ) {
+        return $currency . ' ' . $symbol;
+    }
+    
+    return $symbol;
+}</code></pre>
+
+<h3>Context-Aware Symbols</h3>
+
+<pre><code>add_filter( 'wpd_woocommerce_currency_symbol', 'context_aware_symbol', 10, 2 );
+
+function context_aware_symbol( $symbol, $currency ) {
+    
+    // In reports, use abbreviated symbol
+    if ( isset( $_GET['page'] ) && strpos( $_GET['page'], 'reports' ) !== false ) {
+        
+        $abbreviated = array(
+            'USD' => '$',
+            'EUR' => '€',
+            'GBP' => '£',
+            'JPY' => '¥'
+        );
+        
+        return isset( $abbreviated[$currency] ) ? $abbreviated[$currency] : $currency;
+    }
+    
+    return $symbol;
+}</code></pre>
+
+<h3>Best Practices</h3>
+
+<ul>
+    <li>Always return a string value</li>
+    <li>Keep symbols short (1-3 characters ideally)</li>
+    <li>Test with RTL languages if using directional symbols</li>
+    <li>Consider how symbols display at different sizes</li>
+    <li>Ensure symbols are distinguishable from each other</li>
+    <li>Use standard Unicode symbols when available</li>
+</ul>
+
+<h3>Important Notes</h3>
+
+<ul>
+    <li>This affects Alpha Insights displays only (not WooCommerce checkout)</li>
+    <li>Symbol must be UTF-8 compatible</li>
+    <li>HTML is allowed but use sparingly for performance</li>
+    <li>Empty string will hide the symbol</li>
+    <li>Filter runs every time a price is formatted</li>
+</ul>
+
+<h3>Default Supported Currencies</h3>
+
+<p>Alpha Insights inherits currency symbols from WooCommerce, including:</p>
+
+<ul>
+    <li><strong>USD</strong> - $ (US Dollar)</li>
+    <li><strong>EUR</strong> - € (Euro)</li>
+    <li><strong>GBP</strong> - £ (British Pound)</li>
+    <li><strong>JPY</strong> - ¥ (Japanese Yen)</li>
+    <li><strong>AUD</strong> - $ (Australian Dollar)</li>
+    <li><strong>CAD</strong> - $ (Canadian Dollar)</li>
+    <li><strong>CHF</strong> - CHF (Swiss Franc)</li>
+    <li>...and 100+ more currencies</li>
+</ul>
+
+<h3>Currency Code Format</h3>
+
+<p>Currency codes follow <strong>ISO 4217</strong> standard:</p>
+<ul>
+    <li>Always 3 uppercase letters</li>
+    <li>First 2 letters = country code</li>
+    <li>Last letter = currency name</li>
+    <li>Example: USD (US Dollar), EUR (Euro), JPY (Japanese Yen)</li>
+</ul>
+
+<h3>Unicode Symbols</h3>
+
+<p>Common currency symbols and their Unicode:</p>
+
+<pre><code>$   U+0024   Dollar
+€   U+20AC   Euro
+£   U+00A3   Pound
+¥   U+00A5   Yen
+₹   U+20B9   Indian Rupee
+₽   U+20BD   Russian Ruble
+₿   U+20BF   Bitcoin
+₺   U+20BA   Turkish Lira
+₴   U+20B4   Ukrainian Hryvnia
+₱   U+20B1   Philippine Peso</code></pre>
+
+<h3>CSS Styling</h3>
+
+<pre><code>/* Style currency symbols */
+.currency-usd {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.currency-eur {
+    color: #0066cc;
+    font-weight: 600;
+}
+
+.woocommerce-Price-currencySymbol {
+    font-weight: normal;
+    opacity: 0.8;
+}</code></pre>
+
+<h3>Debugging</h3>
+
+<pre><code>add_filter( 'wpd_woocommerce_currency_symbol', 'debug_currency_symbol', 999, 2 );
+
+function debug_currency_symbol( $symbol, $currency ) {
+    error_log( sprintf( 
+        'Currency: %s | Symbol: %s', 
+        $currency, 
+        $symbol 
+    ));
+    return $symbol;
+}</code></pre>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_price.html'>wpd_price</a> - Modify complete price HTML output</li>
+    <li><code>woocommerce_currency_symbols</code> - Modify base currency symbol array</li>
+</ul>
+
+<h3>Related Functions</h3>
+
+<ul>
+    <li><code>wpd_get_woocommerce_currency_symbol( $currency )</code> - Get currency symbol</li>
+    <li><code>wpd_get_store_currency()</code> - Get store's default currency</li>
+    <li><code>wpd_store_price( $price, $args )</code> - Format price for display</li>
+</ul>
+</p>

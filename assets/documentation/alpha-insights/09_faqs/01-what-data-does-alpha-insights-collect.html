@@ -1,0 +1,188 @@
+﻿<h2>What Data Does Alpha Insights Collect?</h2>
+<p>Alpha Insights collects various data types to calculate profit and provide insights. This guide explains exactly what
+    data is stored and how it's used.</p>
+<h3>Order and Sales Data</h3>
+<p>
+    <strong>What's collected:</strong>
+</p>
+<ul>
+    <li>Order totals and line items (from WooCommerce)</li>
+    <li>Product costs (manually entered by you)</li>
+    <li>Shipping and payment costs</li>
+    <li>Customer names and emails (from WooCommerce orders)</li>
+    <li>Order dates, statuses, and payment methods</li>
+</ul>
+<p>
+    <strong>Why it's needed:</strong> Essential for profit calculations
+</p>
+<p>
+    <strong>Where it's stored:</strong> Your WordPress database (same server as WooCommerce)
+</p>
+<p>
+    <strong>Retention:</strong> Permanent (business records)
+</p>
+<h3>Website Analytics Data</h3>
+<p>
+    <strong>What's collected (if enabled):</strong>
+</p>
+<ul>
+    <li>Page views and session duration</li>
+    <li>Traffic sources (referrer URLs)</li>
+    <li>Device types and browsers</li>
+    <li>Anonymized IP addresses (last segment removed)</li>
+    <li>Geographic location (city/country level)</li>
+</ul>
+<p>
+    <strong>Why it's needed:</strong> Connect traffic sources to profitable orders
+</p>
+<p>
+    <strong>Where it's stored:</strong> Your WordPress database
+</p>
+<p>
+    <strong>Retention:</strong> Configurable (30-365 days, or custom)
+</p>
+<h3>Advertising Data</h3>
+<p>
+    <strong>What's collected (if integrations enabled):</strong>
+</p>
+<ul>
+    <li>Campaign names and IDs</li>
+    <li>Daily ad spend by campaign</li>
+    <li>Campaign status (active/paused/ended)</li>
+    <li>Date ranges</li>
+</ul>
+<p>
+    <strong>Why it's needed:</strong> Calculate ROAS and attribute ad spend to orders
+</p>
+<p>
+    <strong>Where it's stored:</strong> Your WordPress database
+</p>
+<p>
+    <strong>Retention:</strong> Configurable (90 days - forever)
+</p>
+<h3>Expense Data</h3>
+<p>
+    <strong>What's collected:</strong>
+</p>
+<ul>
+    <li>Expense amounts, dates, and categories</li>
+    <li>Expense descriptions</li>
+    <li>Recurring schedules</li>
+</ul>
+<p>
+    <strong>Why it's needed:</strong> Calculate net profit after all business costs
+</p>
+<p>
+    <strong>Where it's stored:</strong> Your WordPress database
+</p>
+<p>
+    <strong>Retention:</strong> Permanent
+</p>
+<h3>What Alpha Insights Does NOT Collect</h3>
+<ul>
+    <li>Credit card numbers or payment details</li>
+    <li>Customer passwords</li>
+    <li>Full IP addresses (anonymized)</li>
+    <li>Ad creative content</li>
+    <li>Personal browsing history beyond your site</li>
+    <li>Form inputs or checkout data (beyond orders)</li>
+</ul>
+<h3>Data Sharing</h3>
+<h4>With Third Parties</h4>
+<p>
+    <strong>Alpha Insights does NOT share your data with third parties except:</strong>
+</p>
+<ul>
+    <li>
+        <strong>License verification:</strong> License key checked with WP Davies servers (no customer data shared)
+    </li>
+    <li>
+        <strong>Ad integrations:</strong> When YOU connect Facebook/Google Ads, Alpha Insights fetches data via their
+        APIs (you control this)
+    </li>
+</ul>
+<h4>On Your Server Only</h4>
+<ul>
+    <li>All profit data stays in your WordPress database</li>
+    <li>Not sent to external servers</li>
+    <li>Not shared with WP Davies or anyone else</li>
+    <li>You have complete control</li>
+</ul>
+<h3>GDPR Compliance</h3>
+<p>
+    <strong>Alpha Insights is GDPR compliant:</strong>
+</p>
+<ul>
+    <li>IP anonymization available</li>
+    <li>Cookie consent integration</li>
+    <li>Data retention controls</li>
+    <li>Data export tools (subject access requests)</li>
+    <li>Data deletion tools (right to erasure)</li>
+    <li>No unnecessary personal data collected</li>
+</ul>
+<h3>Customer Data Requests</h3>
+<p>Handle GDPR requests:</p>
+<ul>
+    <li>
+        <strong>Access:</strong> Export customer's order and session data via Settings → Data & Privacy
+    </li>
+    <li>
+        <strong>Deletion:</strong> Erase customer data (keeps anonymized order records for accounting)
+    </li>
+</ul>
+<h3>Data Security</h3>
+<h4>How Data is Protected</h4>
+<ul>
+    <li>Stored in WordPress database (same security as WooCommerce)</li>
+    <li>Database credentials protected by WordPress</li>
+    <li>API keys encrypted at rest</li>
+    <li>HTTPS encryption for all transmissions</li>
+    <li>WordPress user capabilities control access</li>
+    <li>No data exposed in frontend code</li>
+</ul>
+<h3>Controlling Data Collection</h3>
+<h4>Disable Analytics Tracking</h4>
+<p>Don't want visitor tracking?</p>
+<ol>
+    <li>Settings → General → Website Analytics</li>
+    <li>Toggle OFF</li>
+    <li>Only order/profit data collected</li>
+</ol>
+<h4>Reduce Data Retention</h4>
+<p>Keep less historical data:</p>
+<ol>
+    <li>Settings → Data & Privacy</li>
+    <li>Set Session Retention to 30 days (minimum)</li>
+    <li>Old data automatically deleted</li>
+</ol>
+<h3>Anonymize IPs</h3>
+<ol>
+    <li>Settings → Data & Privacy</li>
+    <li>Enable IP Anonymization</li>
+    <li>Last segment of IP addresses removed (192.168.1.0 instead of 192.168.1.100)</li>
+</ol>
+<h3>Data Portability</h3>
+<h4>Exporting Your Data</h4>
+<p>You can export all Alpha Insights data:</p>
+<ol>
+    <li>Go to Tools → Data Export</li>
+    <li>Select data types (orders, products, sessions, etc.)</li>
+    <li>Download as CSV or JSON</li>
+</ol>
+<p>
+    <strong>Use cases:</strong>
+</p>
+<ul>
+    <li>Backup before major changes</li>
+    <li>Import to other systems</li>
+    <li>Archive old data</li>
+    <li>Compliance requirements</li>
+</ul>
+<h3>Deleting Data</h3>
+<p>You can delete Alpha Insights data:</p>
+<ol>
+    <li>Settings → Data & Privacy → Manual Deletion</li>
+    <li>Select data types and date ranges</li>
+    <li>Export first (deletion is permanent!)</li>
+    <li>Confirm deletion</li>
+</ol>

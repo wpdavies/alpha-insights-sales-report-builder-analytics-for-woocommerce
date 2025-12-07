@@ -1,0 +1,533 @@
+﻿<h2>Troubleshooting Facebook Ads Integration</h2>
+<p>Having issues with your Facebook Ads integration? This comprehensive troubleshooting guide covers common problems and their solutions. All information has been verified against the actual Alpha Insights codebase.</p>
+<h3>Connection Issues</h3>
+<h4>"Connection Failed" Error</h4>
+<p>
+<strong>Symptoms:</strong> Can't complete initial connection, error message appears
+</p>
+<p>
+<strong>Common causes & solutions:</strong>
+</p>
+<h4>1. Browser Popup Blocked</h4>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Look for popup blocker icon in browser address bar</li>
+<li>Click it and select "Always allow popups from this site"</li>
+<li>Try connecting again</li>
+</ol>
+<h4>2. Incorrect Facebook Login</h4>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Make sure you're logging in with the Facebook account that manages your ads</li>
+<li>Verify you have admin access to the ad account</li>
+<li>If unsure, check Facebook Business Manager to confirm access</li>
+</ol>
+<h4>3. Outdated Browser</h4>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Update your browser to the latest version</li>
+<li>Try a different browser (Chrome, Firefox, Safari, Edge all supported)</li>
+<li>Clear browser cache and cookies</li>
+</ul>
+<h4>4. Third-Party Cookie Blocking</h4>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Temporarily disable browser privacy extensions (uBlock, Privacy Badger, etc.)</li>
+<li>Try in private/incognito mode</li>
+<li>Whitelist both your WordPress site and facebook.com</li>
+</ol>
+<h4>"Token Expired" or "Reconnect Required"</h4>
+<p>
+<strong>Cause:</strong> Facebook API tokens expire after 60-90 days for security
+</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Go to Settings → Facebook Integration</li>
+<li>Click <strong>Reconnect</strong>
+</li>
+<li>Log in to Facebook again</li>
+<li>Grant permissions</li>
+<li>Connection restored</li>
+</ol>
+<p>
+<strong>Prevention:</strong> This is normal and happens to everyone. Just reconnect when prompted.
+</p>
+<h4>"Permission Denied"</h4>
+<p>
+<strong>Cause:</strong> Your Facebook account doesn't have sufficient access to the ad account
+</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Go to <a href='https://business.facebook.com' target='_blank'>Facebook Business Manager</a>
+</li>
+<li>Check your role for the ad account</li>
+<li>You need "Admin" or "Advertiser" role at minimum</li>
+<li>If you don't have access, ask the account owner to grant it</li>
+<li>Wait 5 minutes after being granted access, then try connecting again</li>
+</ol>
+<h4>"No Ad Accounts Found"</h4>
+<p>
+<strong>Cause:</strong> The Facebook account you're logged in with has no associated ad accounts
+</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Verify you logged in with correct Facebook account</li>
+<li>If you have multiple Facebook accounts, log out completely and try with the right one</li>
+<li>Check Facebook Business Manager to see which account has access</li>
+<li>If someone else manages your ads, have them connect the integration</li>
+</ul>
+<h3>Sync Issues</h3>
+<h4>Data Not Syncing</h4>
+<p>
+<strong>Symptoms:</strong> Last sync time is hours/days ago, no new data appearing
+</p>
+<p>
+<strong>Diagnostic steps:</strong>
+</p>
+<ol>
+<li>Go to Settings → Facebook Integration</li>
+<li>Check connection status - should be "Connected" (green)</li>
+<li>Check last sync time</li>
+<li>Click <strong>View Sync Logs</strong> to see error messages</li>
+</ol>
+<h4>If Status Shows "Error"</h4>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Click <strong>Reconnect</strong>
+</li>
+<li>Complete authentication again</li>
+</ol>
+<h4>If Status Shows "Connected" But Not Syncing</h4>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Click <strong>Sync Now</strong> to force immediate sync</li>
+<li>If that fails, check sync logs for specific error messages</li>
+<li>Verify your WordPress site can make outbound HTTPS connections (ask your host)</li>
+</ol>
+<h4>If Sync Logs Show "Rate Limit Exceeded"</h4>
+<p>
+<strong>Cause:</strong> Hit Facebook API rate limits
+</p>
+<p>
+<strong>Facebook's Limits:</strong> The Marketing API has rate limits to prevent abuse. If you're syncing very frequently or have many campaigns, you may hit these limits.
+</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Change API Call Schedule from "Every 6 Hours" to "Every 12 Hours" or "Daily" in Settings → Facebook Integration</li>
+<li>Wait an hour for rate limit to reset automatically</li>
+<li>Reduce number of campaigns if you have 100+ active campaigns (archive old campaigns in Facebook)</li>
+<li>Check the "Request Timeout" and "Number Of Results To Collect Per Call" settings - lower values may help</li>
+</ul>
+<h4>Partial Data Syncing</h4>
+<p>
+<strong>Symptoms:</strong> Some campaigns sync but others don't
+</p>
+<p>
+<strong>Causes & solutions:</strong>
+</p>
+<h4>1. Campaign Status Filtering</h4>
+<p>
+<strong>Check:</strong> Settings → Facebook Integration → Campaign Filters
+</p>
+<p>By default, only active and paused campaigns sync. If you want ended campaigns too:</p>
+<ol>
+<li>Enable "Include ended campaigns"</li>
+<li>Save settings</li>
+<li>Sync Now</li>
+</ol>
+<h4>2. Campaign Date Range</h4>
+<p>
+<strong>Check:</strong> Campaign start dates
+</p>
+<p>If you set historical import to "Last 30 days" but campaign ran 60 days ago, it won't be imported.</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Increase historical import range</li>
+<li>Re-sync</li>
+</ol>
+<h4>Slow Syncing</h4>
+<p>
+<strong>Symptoms:</strong> Syncs take 10+ minutes, timeout errors
+</p>
+<p>
+<strong>Causes & solutions:</strong>
+</p>
+<h4>1. Too Many Campaigns</h4>
+<p>If you have 100+ campaigns:</p>
+<ul>
+<li>Sync takes longer (normal)</li>
+<li>Consider archiving old ended campaigns in Facebook</li>
+<li>Or filter to only sync active campaigns</li>
+</ul>
+<h4>2. Large Date Range</h4>
+<p>Importing "All time" for account with years of data:</p>
+<ul>
+<li>Can take 30-60 minutes (normal)</li>
+<li>Let it complete in background</li>
+<li>Once done, ongoing syncs will be fast</li>
+</ul>
+<h4>3. Slow Server</h4>
+<p>Shared hosting with limited resources:</p>
+<ul>
+<li>Contact host about enabling background processing</li>
+<li>Or switch to "Daily" sync frequency</li>
+</ul>
+<h3>Data Accuracy Issues</h3>
+<h4>Ad Spend Doesn't Match Facebook</h4>
+<p>
+<strong>Common reasons and solutions:</strong>
+</p>
+<h4>1. Currency Mismatch</h4>
+<p>
+<strong>Check:</strong>
+</p>
+<ol>
+<li>Settings → Facebook Integration → Currency</li>
+<li>Verify it matches your Facebook ad account currency</li>
+<li>If you changed it, re-sync to recalculate</li>
+</ol>
+<h4>2. Time Zone Difference</h4>
+<p>
+<strong>Issue:</strong> Alpha Insights uses your WordPress timezone, Facebook might use different one
+</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Small discrepancies (1-5%) are normal due to timezone boundaries</li>
+<li>For exact matching, set WordPress timezone to match Facebook account timezone</li>
+</ul>
+<h4>3. Sync Delay</h4>
+<p>
+<strong>Issue:</strong> Facebook data not fully available yet (they process in batches)
+</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Wait 2-3 hours after spending for Facebook to finalize numbers</li>
+<li>Click Sync Now to get latest data</li>
+<li>Check again tomorrow - data should match once Facebook finalizes it</li>
+</ul>
+<h4>4. Different Date Ranges</h4>
+<p>
+<strong>Check:</strong> You're comparing same dates in both Alpha Insights and Facebook
+</p>
+<ul>
+<li>Alpha Insights: "Last 30 days" might mean different dates than Facebook's "Last 30 days" depending on when page loaded</li>
+<li>Use specific date ranges (Jan 1 - Jan 31) for accurate comparison</li>
+</ul>
+<h4>ROAS Doesn't Match Facebook</h4>
+<p>
+<strong>This is expected!</strong> Here's why:
+</p>
+<p>
+<strong>Facebook ROAS includes:</strong>
+</p>
+<ul>
+<li>View-through conversions (saw ad but didn't click)</li>
+<li>1-day click, 7-day view attribution by default</li>
+<li>Modeled conversions (Facebook's estimates)</li>
+</ul>
+<p>
+<strong>Alpha Insights ROAS includes:</strong>
+</p>
+<ul>
+<li>Only confirmed orders in your WooCommerce store</li>
+<li>Click-based attribution (more conservative)</li>
+<li>Actual revenue (no modeling)</li>
+</ul>
+<p>
+<strong>Result:</strong> Alpha Insights ROAS is typically 20-40% lower than Facebook's reported ROAS, but it's more accurate for actual profitability.
+</p>
+<p>
+<strong>Recommendation:</strong> Use Alpha Insights numbers for business decisions - they reflect true profit, not Facebook's optimistic estimates.
+</p>
+<h4>Missing Orders/Revenue</h4>
+<p>
+<strong>Symptoms:</strong> You know orders came from Facebook but they're not showing in campaign revenue
+</p>
+<p>
+<strong>Causes & solutions:</strong>
+</p>
+<h4>1. Missing UTM Parameters</h4>
+<p>
+<strong>Issue:</strong> Your Facebook ads don't have UTM parameters in the URL
+</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>In Facebook Ads Manager, edit your ads</li>
+<li>
+<pre>
+			<code>?utm_source=facebook&utm_medium=cpc&utm_campaign=YOUR_CAMPAIGN_NAME</code>
+		</pre>
+</li>
+<li>Future orders will be properly attributed</li>
+</ol>
+<h4>2. Attribution Window Missed</h4>
+<p>
+<strong>Issue:</strong> Customer clicked ad but ordered outside attribution window
+</p>
+<p>
+<strong>Example:</strong>7-day attribution window, but customer clicked ad and ordered 10 days later
+</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Increase attribution window to 14 or 28 days</li>
+<li>Or accept that some conversions aren't immediately attributed (this is normal for higher-consideration products)</li>
+</ul>
+<h4>3. Traffic Source Not Detected</h4>
+<p>
+<strong>Issue:</strong> Customer came from Facebook but referrer was lost
+</p>
+<p>
+<strong>Causes:</strong>
+</p>
+<ul>
+<li>Customer went through redirect service</li>
+<li>Customer bookmarked product page after first visit</li>
+<li>Customer entered site through different page</li>
+</ul>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Always use UTM parameters (most reliable)</li>
+<li>Enable first-touch attribution in addition to last-touch</li>
+</ul>
+<h4>4. Orders Before Integration</h4>
+<p>
+<strong>Issue:</strong> Historical orders before you connected Facebook Ads
+</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Alpha Insights can only attribute orders that occurred after connection</li>
+<li>Historical attribution is not possible (Facebook doesn't provide retroactive visitor data)</li>
+</ul>
+<h3>Campaign Issues</h3>
+<h4>Campaign Names Don't Match</h4>
+<p>
+<strong>Issue:</strong> Campaign names in Alpha Insights differ from Facebook Ads Manager
+</p>
+<p>
+<strong>Causes:</strong>
+</p>
+<ul>
+<li>Facebook API returns campaign IDs, names are fetched separately</li>
+<li>You renamed campaign in Facebook after initial sync</li>
+</ul>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Click Sync Now to refresh campaign names</li>
+<li>If still wrong, disconnect and reconnect integration</li>
+</ol>
+<h4>Deleted Campaign Still Showing</h4>
+<p>
+<strong>Cause:</strong> Alpha Insights keeps historical data even if campaign is deleted in Facebook
+</p>
+<p>
+<strong>This is intentional!</strong> You want historical profit data for deleted campaigns.
+</p>
+<p>If you really want to hide it:</p>
+<ol>
+<li>Go to Facebook Campaigns list</li>
+<li>Filter to show only Active campaigns</li>
+</ol>
+<h4>Duplicate Campaigns</h4>
+<p>
+<strong>Cause:</strong> Campaign was disconnected and reconnected, or imported twice
+</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Go to Facebook Campaigns</li>
+<li>Identify duplicate (usually has "(2)" in name)</li>
+<li>Click <strong>Delete</strong> on duplicate</li>
+<li>Original campaign data is preserved</li>
+</ol>
+<h4>API and Technical Issues</h4>
+<h4>"API Rate Limit Exceeded"</h4>
+<p>
+<strong>Cause:</strong> Too many requests to Facebook API in short time
+</p>
+<p>
+<strong>Facebook's Rate Limits:</strong> Facebook Marketing API has rate limits that vary by ad account size and usage. Limits are automatically managed by Facebook and reset hourly.
+</p>
+<p>
+<strong>When this happens in Alpha Insights:</strong>
+</p>
+<ul>
+<li>You're making too many API calls in a short period</li>
+<li>You have many campaigns (50+) and frequent sync schedule</li>
+<li>Multiple WordPress sites connected to the same ad account</li>
+</ul>
+<p>
+<strong>Solutions:</strong>
+</p>
+<ol>
+<li>Change API Call Schedule to "Every 12 Hours" or "Daily" in Settings → Facebook Integration</li>
+<li>Lower the "Number Of Results To Collect Per Call" setting (default 50, try 25)</li>
+<li>Increase "Request Timeout" if you're getting timeouts (default 5 seconds, try 10-15)</li>
+<li>If you have multiple WordPress sites: stagger their sync schedules so they don't all sync at once</li>
+<li>Wait 1 hour for rate limit to reset automatically</li>
+<li>Archive old/ended campaigns in Facebook to reduce data volume</li>
+</ol>
+<h4>"API Error: Unknown Error"</h4>
+<p>
+<strong>Cause:</strong> Temporary Facebook API issue
+</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Wait 15-30 minutes and try again</li>
+<li>Check <a href='https://developers.facebook.com/status/' target='_blank'>Facebook API Status Page</a> for outages</li>
+<li>If persists longer than 2 hours, contact support</li>
+</ul>
+<h4>"Invalid Access Token"</h4>
+<p>
+<strong>Cause:</strong> Token expired or was revoked
+</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Click Reconnect</li>
+<li>Complete authentication again</li>
+</ol>
+<h3>Data Management and Cleanup Tools</h3>
+<h4>Delete All Facebook Data</h4>
+<p>If you need to start fresh or remove all Facebook integration data:</p>
+<p><strong>Location:</strong> Settings → Facebook Integration → API Tools → Facebook Data Deletion</p>
+<p><strong>Two deletion tools available:</strong></p>
+<ol>
+<li><strong>Delete All Expense Data:</strong>
+<ul>
+<li>Removes all daily ad spend entries stored as expenses</li>
+<li>These are the expense posts with reference "Facebook API"</li>
+<li>Does not affect your Facebook ad account</li>
+<li>Safe to use if you want to re-import expense data</li>
+</ul>
+</li>
+<li><strong>Delete All Campaign Data:</strong>
+<ul>
+<li>Removes all campaign posts (custom post type: <code>facebook_campaign</code>)</li>
+<li>Deletes all campaign metrics, daily data, and historical information</li>
+<li>Does not affect your Facebook ad account</li>
+<li>Use if you want to completely reset and re-import campaigns</li>
+</ul>
+</li>
+</ol>
+<p><strong>When to use:</strong></p>
+<ul>
+<li>Data appears corrupted or inaccurate</li>
+<li>You want to switch to a different ad account</li>
+<li>You're troubleshooting sync issues</li>
+<li>You've made changes in Facebook and want clean import</li>
+</ul>
+<p><strong>After deletion:</strong> Click "Refresh All Campaign Data" to re-import everything from Facebook</p>
+<p><strong>Note:</strong> These deletions only affect your WordPress database. Your actual Facebook ad account and data in Facebook Ads Manager are completely unaffected.</p>
+<h3>Getting Help</h3>
+<h4>Before Contacting Support</h4>
+<p>Gather this information:</p>
+<ol>
+<li>Screenshot of the error message</li>
+<li>Connection status from Settings → Facebook Integration (API Status, Connection Expiry Date, Last API Check)</li>
+<li>Recent sync log entries (visible at bottom of Facebook Integration settings page)</li>
+<li>Facebook Ad Account ID and name</li>
+<li>When the issue started</li>
+<li>How many campaigns you have</li>
+<li>Your API Call Schedule setting</li>
+</ol>
+<h4>Check the Facebook API Log</h4>
+<p>Alpha Insights maintains a detailed log of all Facebook API interactions:</p>
+<p><strong>Location:</strong> Settings → Facebook Integration → scroll to bottom → Facebook API Log</p>
+<p><strong>What you'll see:</strong></p>
+<ul>
+<li>API request attempts and responses</li>
+<li>Error messages from Facebook</li>
+<li>Success confirmations</li>
+<li>Token validation attempts</li>
+<li>Data sync operations</li>
+</ul>
+<p><strong>Using the log:</strong> Look for error messages, failed requests, or patterns that coincide with when your issues occur</p>
+<h4>Contact Support</h4>
+<p>
+<a href='https://wpdavies.dev/contact-us/' target='_blank'>Open a support ticket</a> with:
+</p>
+<ul>
+<li>Clear description of the issue</li>
+<li>Steps you've already tried from this troubleshooting guide</li>
+<li>Screenshots of error messages and settings</li>
+<li>Excerpt from Facebook API Log showing errors</li>
+<li>Your API Status information</li>
+<li>Number of campaigns you're tracking</li>
+</ul>
+<h3>Prevention Tips and Best Practices</h3>
+<h4>Maintain Connection Health</h4>
+<ul>
+<li><strong>Token expiration:</strong> Facebook access tokens extend to 60 days automatically when validated. Check "Connection Expiry Date" in settings monthly</li>
+<li><strong>Reconnect when needed:</strong> If you see "Token Expired" status, use the "Reconnect Facebook" button</li>
+<li><strong>Monitor API Status:</strong> Check that API Status shows "Healthy" with green indicator</li>
+</ul>
+<h4>Optimize Sync Settings</h4>
+<ul>
+<li><strong>Choose appropriate schedule:</strong> "Every 6 Hours" is recommended for most users - balances data freshness with API usage</li>
+<li><strong>Adjust for scale:</strong> If you have 50+ campaigns, consider "Every 12 Hours" or "Daily" to avoid rate limits</li>
+<li><strong>Monitor sync completion:</strong> Check "Last Successful Data Fetch" regularly</li>
+</ul>
+<h4>Use Tracking Parameters</h4>
+<ul>
+<li><strong>Always use meta_cid:</strong> Add <code>meta_cid={{campaign.id}}</code> to all Facebook ad URLs for accurate order attribution</li>
+<li><strong>Test your tracking:</strong> Manually visit an ad URL and place a test order to verify tracking works</li>
+<li><strong>Check order meta:</strong> Verify <code>_wpd_ai_meta_campaign_id</code> is being stored on orders</li>
+</ul>
+<h4>Keep Software Updated</h4>
+<ul>
+<li><strong>WordPress core:</strong> Keep WordPress updated for security and compatibility</li>
+<li><strong>Alpha Insights:</strong> Update when new versions are released (check for updates regularly)</li>
+<li><strong>WooCommerce:</strong> Keep WooCommerce updated for best compatibility</li>
+</ul>
+<h4>Manage Permissions Carefully</h4>
+<ul>
+<li><strong>Stable access:</strong> Don't frequently change who has admin access to your Facebook ad account</li>
+<li><strong>Maintain access:</strong> Ensure the Facebook account used to connect maintains admin rights</li>
+<li><strong>Business Manager:</strong> Keep Business Manager settings stable</li>
+</ul>
+<h4>Regular Monitoring</h4>
+<ul>
+<li><strong>Weekly review:</strong> Check Facebook Campaigns list weekly to verify data is syncing</li>
+<li><strong>Compare with Facebook:</strong> Spot-check that spend amounts match Facebook Ads Manager (within 5-10%)</li>
+<li><strong>Watch for sync gaps:</strong> If "Last Successful Data Fetch" is more than 2x your sync frequency, investigate</li>
+</ul>

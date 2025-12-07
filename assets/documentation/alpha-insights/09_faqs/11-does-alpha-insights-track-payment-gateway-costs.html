@@ -1,0 +1,205 @@
+﻿<h2>Does Alpha Insights Track Payment Gateway Costs?</h2>
+<p>
+<strong>Yes!</strong> Alpha Insights automatically calculates payment gateway fees for each order based on the payment method used, ensuring accurate profit calculations.
+</p>
+<h3>How It Works</h3>
+<h4>Automatic Fee Calculation</h4>
+<p>For each order, Alpha Insights:</p>
+<ol>
+<li>Detects payment method used (Stripe, PayPal, etc.)</li>
+<li>Looks up fee structure configured for that specific gateway</li>
+<li>Calculates fee based on order total: (Order Total × Percentage) + Static Fee</li>
+<li>Deducts fee from profit automatically</li>
+<li>If your payment plugin stores the actual fee charged (e.g., _stripe_fee meta), uses that exact amount instead</li>
+</ol>
+<h3>Supported Payment Gateways</h3>
+<h4>All WooCommerce Payment Gateways</h4>
+<p>Alpha Insights automatically detects <strong>all enabled payment gateways</strong> in your WooCommerce store, including:</p>
+<ul>
+<li><strong>Stripe</strong></li>
+<li><strong>PayPal</strong></li>
+<li><strong>Square</strong></li>
+<li><strong>Authorize.net</strong></li>
+<li><strong>WooCommerce Payments</strong></li>
+<li><strong>Bank Transfer (BACS)</strong></li>
+<li><strong>Check Payments</strong></li>
+<li><strong>Cash on Delivery (COD)</strong></li>
+<li><strong>Any third-party payment gateway plugin</strong></li>
+</ul>
+<p><strong>Note:</strong> Only payment gateways that are currently <strong>enabled</strong> in WooCommerce will appear in Alpha Insights settings.</p>
+<h3>Setting Up Gateway Fees</h3>
+<h4>Configuration Process</h4>
+<ol>
+<li>Go to <strong>Alpha Insights → Settings → General Settings</strong></li>
+<li>Scroll to <strong>Payment Gateway Costs</strong> section</li>
+<li>You'll see a table listing ALL your enabled payment gateways automatically</li>
+<li>For each gateway, configure:
+<ul>
+<li><strong>Percent Of Order Value:</strong> The percentage fee (e.g., 2.9 for 2.9%)</li>
+<li><strong>Static Fee:</strong> The fixed fee per transaction (e.g., 0.30)</li>
+</ul>
+</li>
+<li>The <strong>Default</strong> gateway applies to any payment method not specifically configured</li>
+<li>Click <strong>Save Changes</strong></li>
+</ol>
+<h4>Important Notes</h4>
+<ul>
+<li>Payment gateways are <strong>automatically detected</strong> - you don't need to add them manually</li>
+<li>If you enable a new payment gateway in WooCommerce, it will automatically appear in Alpha Insights settings</li>
+<li>If you disable a gateway in WooCommerce, it disappears from Alpha Insights settings</li>
+<li>The system uses the <strong>actual fee</strong> from your payment plugin if available (Stripe, PayPal, HitPay plugins store this)</li>
+</ul>
+<h3>Fee Structure Examples</h3>
+<p>
+<strong>Percentage + Fixed:</strong>
+</p>
+<pre>
+	<code>Stripe US: 2.9% + $0.30 Order of $100: Fee = ($100 Ã— 0.029) + $0.30 Fee = $2.90 + $0.30 = $3.20</code>
+</pre>
+<p>
+<strong>Percentage Only:</strong>
+</p>
+<pre>
+	<code>International card: 3.5% + $0.00 Order of $100: Fee = $100 Ã— 0.035 = $3.50</code>
+</pre>
+<p>
+<strong>Fixed Only:</strong>
+</p>
+<pre>
+	<code>Bank transfer: 0% + $1.50 Order of $100: Fee = $1.50</code>
+</pre>
+<h3>Different Rates by Card Type</h3>
+<p>If you have different rates:</p>
+<ul>
+<li>Domestic cards: 2.9% + $0.30</li>
+<li>International cards: 3.9% + $0.30</li>
+<li>Amex cards: 3.5% + $0.30</li>
+</ul>
+<p>
+<strong>Solution:</strong> Use average rate or set up separate payment methods in WooCommerce
+</p>
+<h4>Viewing Payment Fees</h4>
+<h3>In Order Details</h3>
+<ol>
+<li>Go to order in WooCommerce</li>
+<li>Scroll to Alpha Insights meta box</li>
+<li>See profit breakdown including payment fee</li>
+</ol>
+<p>
+<strong>Example:</strong>
+</p>
+<pre>
+	<code>Order #12345 Profit Breakdown: Revenue: $125.00 - Product Cost: $50.00 - Shipping Cost: $8.00 - Payment Fee: $3.93 (Stripe) = Profit: $63.07</code>
+</pre>
+<h4>In Reports</h4>
+<p>Payment fees appear in:</p>
+<ul>
+<li>Profit & Loss Statement (Payment Fees line)</li>
+<li>Order tables (Payment Fee column)</li>
+<li>Cost breakdown charts</li>
+<li>Total Costs metrics</li>
+</ul>
+<h3>Impact on Profit</h3>
+<h4>Example Impact</h4>
+<pre>
+	<code>Monthly Analysis: Revenue: $50,000 Payment Fees: $1,500 (3% average) Annual Impact: Revenue: $600,000 Payment Fees: $18,000 This $18,000 affects your net profit!</code>
+</pre>
+<h3>Why It Matters</h3>
+<ul>
+<li>3% fee on $50 order = $1.50</li>
+<li>If profit margin is 20% ($10), fee takes 15% of profit!</li>
+<li>Accurate profit calculation requires including these fees</li>
+</ul>
+<h4>Common Payment Fee Rates</h4>
+<h3>US Standard Rates</h3>
+<ul>
+<li>
+<strong>Stripe:</strong>2.9% + $0.30
+</li>
+<li>
+<strong>PayPal:</strong>2.9% + $0.30 (domestic), 4.4% + fixed fee (international)
+</li>
+<li>
+<strong>Square:</strong>2.6% + $0.10
+</li>
+<li>
+<strong>Authorize.net:</strong>2.9% + $0.30 (+ monthly gateway fee)
+</li>
+<li>
+<strong>Braintree:</strong>2.9% + $0.30
+</li>
+</ul>
+<h4>International Rates</h4>
+<ul>
+<li>Typically 1% higher than domestic</li>
+<li>Currency conversion fees may apply</li>
+<li>Check your processor's international pricing</li>
+</ul>
+<h3>Enterprise Rates</h3>
+<ul>
+<li>High-volume stores negotiate lower rates</li>
+<li>Can be as low as 1.9% + $0.20</li>
+<li>Update in Alpha Insights when rates change</li>
+</ul>
+<h4>Troubleshooting</h4>
+<h3>Issue: Payment fees seem wrong</h3>
+<p>
+<strong>Check:</strong>
+</p>
+<ul>
+<li>Fee structure entered correctly (% and $ amounts)</li>
+<li>Using correct payment method ID</li>
+<li>Your actual processor rates (check contract)</li>
+</ul>
+<h3>Issue: No payment fee calculated</h3>
+<p>
+<strong>Causes:</strong>
+</p>
+<ul>
+<li>Payment gateway not enabled in WooCommerce (only enabled gateways are detected)</li>
+<li>Both percentage and static fee are set to 0 for that gateway</li>
+<li>Free order (no payment processed)</li>
+<li>Order total is $0</li>
+</ul>
+<p>
+<strong>Solution:</strong> 
+</p>
+<ol>
+<li>Enable the payment gateway in WooCommerce → Settings → Payments</li>
+<li>Go to Alpha Insights → Settings → General Settings</li>
+<li>The gateway will appear automatically in the Payment Gateway Costs table</li>
+<li>Configure the fee structure for that gateway</li>
+<li>Save changes</li>
+</ol>
+<h4>Issue: Fee higher than expected</h4>
+<p>
+<strong>Check:</strong>
+</p>
+<ul>
+<li>International card rates are higher</li>
+<li>Amex typically charges more</li>
+<li>Currency conversion fees included</li>
+<li>Dispute fees or chargebacks</li>
+</ul>
+<h3>Optimizing Payment Costs</h3>
+<h4>Compare Gateway Fees</h4>
+<p>Use Alpha Insights to compare:</p>
+<ol>
+<li>Create report</li>
+<li>Group orders by payment method</li>
+<li>Calculate average fee % for each</li>
+<li>See which gateway is most expensive</li>
+</ol>
+<h3>Encourage Lower-Fee Methods</h3>
+<ul>
+<li>If bank transfer costs less, offer discount for using it</li>
+<li>Highlight lower-cost payment options</li>
+<li>Consider passing fees to customer (controversial but legal in some regions)</li>
+</ul>
+<h4>Negotiate Better Rates</h4>
+<p>Use Alpha Insights data:</p>
+<ul>
+<li>Show your monthly transaction volume</li>
+<li>Demonstrate growth trajectory</li>
+<li>Request volume discounts from processor</li>
+</ul>

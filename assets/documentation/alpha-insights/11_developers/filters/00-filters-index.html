@@ -1,0 +1,347 @@
+<h1>Alpha Insights Filters Reference</h1>
+
+<p>Complete guide to all available filters in Alpha Insights for developers. Use these filters to customize profit calculations, menu display, pricing, and more.</p>
+
+<hr>
+
+<h2>Quick Navigation</h2>
+
+<ul>
+    <li><a href="#cost-profit-filters">Cost &amp; Profit Calculation Filters</a></li>
+    <li><a href="#menu-navigation-filters">Menu &amp; Navigation Filters</a></li>
+    <li><a href="#price-currency-filters">Price &amp; Currency Filters</a></li>
+    <li><a href="#report-filters">Report &amp; Data Filters</a></li>
+    <li><a href="#woocommerce-filters">WooCommerce Compatibility Filters</a></li>
+</ul>
+
+<hr>
+
+<h2 id="cost-profit-filters">Cost &amp; Profit Calculation Filters</h2>
+
+<p>Filters that modify how costs and profits are calculated for products and orders.</p>
+
+<h3><a href="/documentation/alpha-insights/developers/filters/wpd_ai_cost_price_per_unit.html">wpd_ai_cost_price_per_unit</a></h3>
+<p><strong>Purpose:</strong> Filter product cost price before profit calculations</p>
+<p><strong>Use Case:</strong> Dynamic cost adjustments, ERP integration, volume-based costs</p>
+<p><strong>Parameters:</strong> <code>$cost_price_per_unit</code> (float), <code>$product_id</code> (int)</p>
+
+<h3><a href="/documentation/alpha-insights/developers/filters/wpd_ai_calculate_cost_profit_by_order.html">wpd_ai_calculate_cost_profit_by_order</a></h3>
+<p><strong>Purpose:</strong> Modify complete order profit calculation results</p>
+<p><strong>Use Case:</strong> Add custom costs, integrate external data, recalculate profit</p>
+<p><strong>Parameters:</strong> <code>$results</code> (array), <code>$order</code> (WC_Order)</p>
+
+<h3><a href="/documentation/alpha-insights/developers/filters/wpd_ai_custom_product_cost_options.html">wpd_ai_custom_product_cost_options</a></h3>
+<p><strong>Purpose:</strong> Register custom product-level cost types</p>
+<p><strong>Use Case:</strong> Add packaging costs, labor fees, custom charges</p>
+<p><strong>Parameters:</strong> <code>$custom_costs</code> (array), <code>$product_id</code> (int)</p>
+
+<h3><a href="/documentation/alpha-insights/developers/filters/wpd_ai_custom_product_cost_default_value.html">wpd_ai_custom_product_cost_default_value</a></h3>
+<p><strong>Purpose:</strong> Filter custom product cost values per line item</p>
+<p><strong>Use Case:</strong> Dynamic per-item costs, quantity discounts, customization fees</p>
+<p><strong>Parameters:</strong> <code>$cost</code> (float), <code>$slug</code> (string), <code>$order</code> (WC_Order), <code>$item</code> (WC_Order_Item_Product)</p>
+
+<h3><a href="/documentation/alpha-insights/developers/filters/wpd_ai_custom_order_cost_default_value.html">wpd_ai_custom_order_cost_default_value</a></h3>
+<p><strong>Purpose:</strong> Filter custom order-level cost values</p>
+<p><strong>Use Case:</strong> Insurance, handling fees, international charges</p>
+<p><strong>Parameters:</strong> <code>$cost</code> (float), <code>$slug</code> (string), <code>$order</code> (WC_Order)</p>
+
+<h3><a href="/documentation/alpha-insights/developers/filters/wpd_ai_order_shipping_cost_default_value.html">wpd_ai_order_shipping_cost_default_value</a></h3>
+<p><strong>Purpose:</strong> Filter shipping cost calculation for orders</p>
+<p><strong>Use Case:</strong> Weight-based costs, carrier integration, regional pricing</p>
+<p><strong>Parameters:</strong> <code>$shipping_cost</code> (float), <code>$order</code> (WC_Order)</p>
+
+<h3><a href="/documentation/alpha-insights/developers/filters/wpd_ai_order_payment_gateway_cost_default_value.html">wpd_ai_order_payment_gateway_cost_default_value</a></h3>
+<p><strong>Purpose:</strong> Filter payment gateway fee calculation</p>
+<p><strong>Use Case:</strong> Custom gateway fees, percentage calculations, tiered rates</p>
+<p><strong>Parameters:</strong> <code>$payment_cost</code> (float), <code>$order</code> (WC_Order)</p>
+
+<hr>
+
+<h2 id="menu-navigation-filters">Menu &amp; Navigation Filters</h2>
+
+<p>Filters for customizing the Alpha Insights admin menu and navigation.</p>
+
+<h3><a href="/documentation/alpha-insights/developers/filters/wpd_alpha_insights_menu_items.html">wpd_alpha_insights_menu_items</a></h3>
+<p><strong>Purpose:</strong> Modify menu structure (add/remove/reorder items)</p>
+<p><strong>Use Case:</strong> Custom menu pages, reorganize navigation, role-based menus</p>
+<p><strong>Parameters:</strong> <code>$menu_items</code> (array)</p>
+<p><strong>Recommended:</strong> Best filter for structural menu changes</p>
+
+<h3><a href="/documentation/alpha-insights/developers/filters/wpd_alpha_insights_menu_html.html">wpd_alpha_insights_menu_html</a></h3>
+<p><strong>Purpose:</strong> Modify complete rendered menu HTML</p>
+<p><strong>Use Case:</strong> Add branding, custom widgets, completely custom menu HTML</p>
+<p><strong>Parameters:</strong> <code>$menu_html</code> (string)</p>
+<p><strong>Advanced:</strong> Use only if you need HTML-level control</p>
+
+<h3><a href="/documentation/alpha-insights/developers/filters/wpd_alpha_insights_active_parent_menu_item.html">wpd_alpha_insights_active_parent_menu_item</a></h3>
+<p><strong>Purpose:</strong> Control which parent menu item is highlighted as active</p>
+<p><strong>Use Case:</strong> Custom page routing, context-based highlighting</p>
+<p><strong>Parameters:</strong> <code>$menu_key</code> (string|null)</p>
+
+<h3><a href="/documentation/alpha-insights/developers/filters/wpd_alpha_insights_active_submenu_item.html">wpd_alpha_insights_active_submenu_item</a></h3>
+<p><strong>Purpose:</strong> Control which submenu item is highlighted as active</p>
+<p><strong>Use Case:</strong> Custom submenu pages, query-based routing</p>
+<p><strong>Parameters:</strong> <code>$submenu_key</code> (string|null), <code>$parent_key</code> (string), <code>$children</code> (array)</p>
+
+<hr>
+
+<h2 id="price-currency-filters">Price &amp; Currency Filters</h2>
+
+<p>Filters for customizing how prices and currencies are displayed.</p>
+
+<h3><a href="/documentation/alpha-insights/developers/filters/wpd_price.html">wpd_price</a></h3>
+<p><strong>Purpose:</strong> Modify final price HTML output</p>
+<p><strong>Use Case:</strong> Color coding, tooltips, data attributes, custom formatting</p>
+<p><strong>Parameters:</strong> <code>$html</code> (string), <code>$price</code> (string), <code>$args</code> (array), <code>$unformatted</code> (float), <code>$original</code> (float)</p>
+<p><strong>Recommended:</strong> Best filter for price display customization</p>
+
+<h3><a href="/documentation/alpha-insights/developers/filters/wpd_woocommerce_currency_symbol.html">wpd_woocommerce_currency_symbol</a></h3>
+<p><strong>Purpose:</strong> Modify currency symbols</p>
+<p><strong>Use Case:</strong> Custom symbols, cryptocurrencies, regional variations</p>
+<p><strong>Parameters:</strong> <code>$symbol</code> (string), <code>$currency</code> (string)</p>
+
+<hr>
+
+<h2 id="report-filters">Report &amp; Data Filters</h2>
+
+<p>Filters for controlling report behavior and data processing.</p>
+
+<h3><a href="/documentation/alpha-insights/developers/filters/wpd_ai_report_filters_allowed_keys_for_query_parameter_values.html">wpd_ai_report_filters_allowed_keys_for_query_parameter_values</a></h3>
+<p><strong>Purpose:</strong> Add custom query parameters for report filtering</p>
+<p><strong>Use Case:</strong> Custom report filters, additional data filtering</p>
+<p><strong>Parameters:</strong> <code>$allowed_keys</code> (array)</p>
+<p><strong>Security:</strong> Controls which URL parameters are processed</p>
+
+<h3><a href="/documentation/alpha-insights/developers/filters/wpd_ai_report_filters_is_transient_enabled.html">wpd_ai_report_filters_is_transient_enabled</a></h3>
+<p><strong>Purpose:</strong> Enable or disable report data caching</p>
+<p><strong>Use Case:</strong> Development, debugging, real-time data requirements</p>
+<p><strong>Parameters:</strong> <code>$is_enabled</code> (bool)</p>
+<p><strong>Performance:</strong> Disabling cache affects report loading speed</p>
+
+<hr>
+
+<h2 id="woocommerce-filters">WooCommerce Compatibility Filters</h2>
+
+<p>Standard WooCommerce filters that Alpha Insights uses for compatibility.</p>
+
+<h3><a href="/documentation/alpha-insights/developers/filters/woocommerce-compatibility-filters.html">View All WooCommerce Filters</a></h3>
+
+<p>Alpha Insights respects and uses these WooCommerce core filters:</p>
+
+<ul>
+    <li><strong>raw_woocommerce_price</strong> - Filter raw price before formatting</li>
+    <li><strong>formatted_woocommerce_price</strong> - Filter formatted price string</li>
+    <li><strong>woocommerce_price_trim_zeros</strong> - Control decimal zero trimming</li>
+    <li><strong>woocommerce_currency_symbols</strong> - Modify currency symbol array</li>
+</ul>
+
+<p><strong>Note:</strong> Changes to these filters affect both WooCommerce and Alpha Insights.</p>
+
+<hr>
+
+<h2>Filter Usage Best Practices</h2>
+
+<h3>1. Choose the Right Filter</h3>
+<ul>
+    <li>Use specific filters (e.g., <code>wpd_ai_order_shipping_cost_default_value</code>) rather than general ones when possible</li>
+    <li>Prefer Alpha Insights filters (<code>wpd_*</code>) over WooCommerce filters for isolated changes</li>
+    <li>Use menu structure filters before HTML filters</li>
+</ul>
+
+<h3>2. Performance Considerations</h3>
+<ul>
+    <li>Many filters run on every page load - keep logic lightweight</li>
+    <li>Cache expensive operations (API calls, complex calculations)</li>
+    <li>Use early returns to minimize processing</li>
+    <li>Avoid database queries in frequently-called filters</li>
+</ul>
+
+<h3>3. Code Quality</h3>
+<ul>
+    <li>Always return the expected data type</li>
+    <li>Handle edge cases (null values, missing data)</li>
+    <li>Check if data exists before using it</li>
+    <li>Use WordPress sanitization functions</li>
+    <li>Document your custom filters for future reference</li>
+</ul>
+
+<h3>4. Testing</h3>
+<ul>
+    <li>Test with different user roles and capabilities</li>
+    <li>Verify with various currencies and formats</li>
+    <li>Check negative values, zero, and large numbers</li>
+    <li>Test mobile/responsive display</li>
+    <li>Use debugging to verify filter execution</li>
+</ul>
+
+<hr>
+
+<h2>Example: Adding a Custom Filter</h2>
+
+<pre><code>/**
+ * Add custom fulfillment cost to orders
+ * 
+ * @param float $cost Current cost value
+ * @param string $cost_slug Cost type identifier
+ * @param WC_Order $order Order object
+ * @return float Modified cost
+ */
+function my_custom_fulfillment_cost( $cost, $cost_slug, $order ) {
+    
+    // Only apply to fulfillment cost type
+    if ( $cost_slug !== 'fulfillment' ) {
+        return $cost;
+    }
+    
+    // Get order total
+    $order_total = $order->get_total();
+    
+    // Tiered fulfillment costs
+    if ( $order_total > 500 ) {
+        return 15.00; // Large orders
+    } elseif ( $order_total > 100 ) {
+        return 10.00; // Medium orders
+    }
+    
+    return 5.00; // Small orders
+}
+add_filter( 'wpd_ai_custom_order_cost_default_value', 'my_custom_fulfillment_cost', 10, 3 );
+</code></pre>
+
+<hr>
+
+<h2>Getting Help</h2>
+
+<h3>Documentation</h3>
+<ul>
+    <li>Each filter has detailed documentation with multiple examples</li>
+    <li>Check related filters for similar functionality</li>
+    <li>Review "Related Functions" section for helper functions</li>
+</ul>
+
+<h3>Debugging</h3>
+<ul>
+    <li>Use <code>error_log()</code> to log filter values</li>
+    <li>Set filter priority to 999 for debugging hooks</li>
+    <li>Check WordPress debug.log file for errors</li>
+    <li>Use browser developer tools for HTML/CSS issues</li>
+</ul>
+
+<h3>Common Issues</h3>
+<ul>
+    <li><strong>Filter not working:</strong> Check filter name spelling and priority</li>
+    <li><strong>Wrong data type:</strong> Ensure you return the correct type (float, string, array)</li>
+    <li><strong>Performance issues:</strong> Move expensive operations outside the filter</li>
+    <li><strong>Conflicts:</strong> Check for other plugins using the same filters</li>
+</ul>
+
+<hr>
+
+<h2>Filter Summary Table</h2>
+
+<table>
+    <tr>
+        <th>Filter Name</th>
+        <th>Category</th>
+        <th>Frequency</th>
+        <th>Difficulty</th>
+    </tr>
+    <tr>
+        <td>wpd_ai_cost_price_per_unit</td>
+        <td>Cost Calculation</td>
+        <td>High</td>
+        <td>Easy</td>
+    </tr>
+    <tr>
+        <td>wpd_ai_calculate_cost_profit_by_order</td>
+        <td>Cost Calculation</td>
+        <td>Medium</td>
+        <td>Advanced</td>
+    </tr>
+    <tr>
+        <td>wpd_ai_custom_product_cost_options</td>
+        <td>Cost Calculation</td>
+        <td>Low</td>
+        <td>Medium</td>
+    </tr>
+    <tr>
+        <td>wpd_ai_custom_product_cost_default_value</td>
+        <td>Cost Calculation</td>
+        <td>High</td>
+        <td>Medium</td>
+    </tr>
+    <tr>
+        <td>wpd_ai_custom_order_cost_default_value</td>
+        <td>Cost Calculation</td>
+        <td>Medium</td>
+        <td>Easy</td>
+    </tr>
+    <tr>
+        <td>wpd_ai_order_shipping_cost_default_value</td>
+        <td>Cost Calculation</td>
+        <td>Medium</td>
+        <td>Easy</td>
+    </tr>
+    <tr>
+        <td>wpd_ai_order_payment_gateway_cost_default_value</td>
+        <td>Cost Calculation</td>
+        <td>Medium</td>
+        <td>Easy</td>
+    </tr>
+    <tr>
+        <td>wpd_alpha_insights_menu_items</td>
+        <td>Menu</td>
+        <td>Low</td>
+        <td>Medium</td>
+    </tr>
+    <tr>
+        <td>wpd_alpha_insights_menu_html</td>
+        <td>Menu</td>
+        <td>Low</td>
+        <td>Advanced</td>
+    </tr>
+    <tr>
+        <td>wpd_alpha_insights_active_parent_menu_item</td>
+        <td>Menu</td>
+        <td>Medium</td>
+        <td>Easy</td>
+    </tr>
+    <tr>
+        <td>wpd_alpha_insights_active_submenu_item</td>
+        <td>Menu</td>
+        <td>Medium</td>
+        <td>Easy</td>
+    </tr>
+    <tr>
+        <td>wpd_price</td>
+        <td>Display</td>
+        <td>Very High</td>
+        <td>Medium</td>
+    </tr>
+    <tr>
+        <td>wpd_woocommerce_currency_symbol</td>
+        <td>Display</td>
+        <td>Very High</td>
+        <td>Easy</td>
+    </tr>
+    <tr>
+        <td>wpd_ai_report_filters_allowed_keys_for_query_parameter_values</td>
+        <td>Reports</td>
+        <td>Low</td>
+        <td>Easy</td>
+    </tr>
+    <tr>
+        <td>wpd_ai_report_filters_is_transient_enabled</td>
+        <td>Reports</td>
+        <td>Low</td>
+        <td>Easy</td>
+    </tr>
+</table>
+
+<p><em>Frequency: How often the filter runs | Difficulty: Implementation complexity</em></p>
+
+<hr>
+
+<p><strong>Last Updated:</strong> October 2025</p>
+<p><strong>Alpha Insights Version:</strong> 4.8.0+</p>
+</p>

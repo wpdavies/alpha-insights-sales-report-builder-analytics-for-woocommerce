@@ -1,0 +1,687 @@
+<h2>Export Features & Live Share Links</h2>
+
+<p>Alpha Insights provides powerful export capabilities and live sharing functionality to help you distribute your reports. This guide covers all export methods and configuration options based on the actual implementation.</p>
+
+<h3>Available Export Methods</h3>
+
+<ul>
+<li><strong>PDF Export:</strong> Professional reports generated via headless browser with full chart rendering</li>
+<li><strong>CSV Export:</strong> Comprehensive data export packaged as ZIP archive</li>
+<li><strong>Live Share Links:</strong> Secure, real-time shareable URLs with access control</li>
+</ul>
+
+<h4>PDF Export</h4>
+
+<h3>How PDF Export Works</h3>
+
+<p>Alpha Insights uses a sophisticated PDF generation system that:</p>
+
+<ol>
+<li>Creates a temporary live share link for your report (expires in 1 hour)</li>
+<li>Sends the live link URL to the WPDavies API endpoint</li>
+<li>Uses Puppeteer (headless Chrome) to render the report page</li>
+<li>Generates a high-quality PDF with all charts and visualizations</li>
+<li>Returns the PDF as base64 encoded data</li>
+<li>Saves the PDF file to your server</li>
+<li>Automatically cleans up the temporary live link</li>
+</ol>
+
+<h3>Technical Requirements</h3>
+
+<ul>
+<li><strong>Active License Required:</strong> PDF export requires a valid Alpha Insights license key</li>
+<li><strong>API Endpoint:</strong> Uses <code>https://wpdavies.dev/wp-json/wp-davies/v1/alpha-insights/generate/pdf</code></li>
+<li><strong>Timeout:</strong> 60 seconds for PDF generation</li>
+<li><strong>Storage Location:</strong> PDFs are saved in <code>wp-content/uploads/wp-davies/alpha-insights/exports/pdf_files/</code></li>
+</ul>
+
+<h3>How to Export to PDF</h3>
+
+<ol>
+<li>Open any report in Alpha Insights</li>
+<li>Click the <strong>Export</strong> button in the report toolbar</li>
+<li>Select <strong>Export as PDF</strong></li>
+<li>Wait for processing (10-60 seconds depending on report complexity)</li>
+<li>PDF automatically downloads to your computer</li>
+</ol>
+
+<h3>PDF File Naming</h3>
+
+<p>PDF files are automatically named using this format:</p>
+<pre><code>[sanitized-report-name]-[date-time-stamp].pdf
+
+Example: weekly-performance-report-2024-10-23-14-30-45.pdf</code></pre>
+
+<h3>What's Included in PDF Exports</h3>
+
+<ul>
+<li><strong>Report Header:</strong> Alpha Insights branding, report name, and date range</li>
+<li><strong>All Widgets:</strong> Metric cards, charts, tables exactly as shown in the report</li>
+<li><strong>Live Data:</strong> Current data at the time of PDF generation</li>
+<li><strong>Full Styling:</strong> Colors, fonts, and formatting preserved</li>
+</ul>
+
+<h3>PDF Export Best Practices</h3>
+
+<ul>
+<li><strong>Simplify Complex Reports:</strong> Very large reports (10+ widgets) may take longer to generate</li>
+<li><strong>Check Data First:</strong> Verify your filters and date range before exporting</li>
+<li><strong>Use Descriptive Names:</strong> The PDF filename is based on your report name</li>
+<li><strong>License Validation:</strong> Ensure your license is active before attempting export</li>
+</ul>
+
+<h3>Troubleshooting PDF Export</h3>
+
+<p><strong>Error: "You must have a valid license key to use this feature"</strong></p>
+<ul>
+<li>Go to Alpha Insights → Settings → License</li>
+<li>Verify your license key is entered and activated</li>
+<li>Click "Validate License" to refresh activation status</li>
+</ul>
+
+<p><strong>Error: "Report not found"</strong></p>
+<ul>
+<li>Save your report configuration before attempting PDF export</li>
+<li>Refresh the page and try again</li>
+</ul>
+
+<p><strong>Error: "API request failed" or "PDF generation API returned error"</strong></p>
+<ul>
+<li>Check your site's internet connectivity</li>
+<li>Verify your server can make outbound HTTPS requests to wpdavies.dev</li>
+<li>Check WordPress debug logs for detailed error messages</li>
+<li>Contact support if the issue persists</li>
+</ul>
+
+<p><strong>Warning: "Temporary live link could not be deleted"</strong></p>
+<ul>
+<li>PDF was generated successfully, but cleanup failed</li>
+<li>Manually delete the temp link from Report Settings if needed</li>
+<li>Temporary links auto-expire after 1 hour regardless</li>
+</ul>
+
+<h4>CSV Export</h4>
+
+<h3>How CSV Export Works</h3>
+
+<p>The CSV export system is highly sophisticated and handles complex nested data structures:</p>
+
+<ol>
+<li>Fetches all data from the report (orders, products, expenses, etc.)</li>
+<li>Intelligently analyzes the data structure for each entity</li>
+<li>Generates separate CSV files for different data types</li>
+<li>Packages all CSV files into a single ZIP archive</li>
+<li>Automatically cleans up temporary files</li>
+</ol>
+
+<h3>CSV Export Features</h3>
+
+<ul>
+<li><strong>Multiple CSV Files:</strong> One CSV per data type (orders, products, expenses, etc.)</li>
+<li><strong>Nested Data Support:</strong> Handles complex multi-dimensional arrays</li>
+<li><strong>Date-Based Data:</strong> Special formatting for time-series data</li>
+<li><strong>Categorized Data:</strong> Separate sections for different categories</li>
+<li><strong>UTF-8 Encoding:</strong> Full support for international characters with BOM</li>
+<li><strong>ZIP Compression:</strong> All CSVs packaged in a single download</li>
+</ul>
+
+<h3>How to Export to CSV</h3>
+
+<ol>
+<li>Open any report in Alpha Insights</li>
+<li>Click the <strong>Export</strong> button</li>
+<li>Select <strong>Export as CSV</strong></li>
+<li>Wait for data processing (varies by data size)</li>
+<li>ZIP file downloads automatically</li>
+<li>Extract the ZIP to access individual CSV files</li>
+</ol>
+
+<h3>CSV File Structure</h3>
+
+<p>The export creates multiple CSV files based on your report data:</p>
+
+<p><strong>Orders Data:</strong></p>
+<pre><code>orders_data_table_orders.csv
+orders_totals.csv
+orders_data_by_date.csv</code></pre>
+
+<p><strong>Products Data:</strong></p>
+<pre><code>products_data_table_products.csv
+products_by_category.csv
+products_totals.csv</code></pre>
+
+<p><strong>Expenses Data:</strong></p>
+<pre><code>expenses_data_table_expenses.csv
+expenses_totals.csv
+expenses_categorized_data.csv</code></pre>
+
+<h3>CSV Data Type Handling</h3>
+
+<p><strong>Data Tables:</strong> Standard tabular data with column headers</p>
+<ul>
+<li>First row contains formatted column headers</li>
+<li>Each subsequent row is a record</li>
+<li>Date columns (containing timestamps) automatically formatted as "Y-m-d H:i:s"</li>
+</ul>
+
+<p><strong>Totals:</strong> Key-value pairs</p>
+<ul>
+<li>Column 1: Metric name (formatted for readability)</li>
+<li>Column 2: Value</li>
+</ul>
+
+<p><strong>Data By Date:</strong> Time-series data</p>
+<ul>
+<li>First column: Dates in YYYY-MM-DD format</li>
+<li>Subsequent columns: Metrics for each date</li>
+<li>Handles multi-dimensional data (e.g., revenue by traffic source over time)</li>
+</ul>
+
+<p><strong>Categorized Data:</strong> Grouped data with category headers</p>
+<ul>
+<li>Category name rows separate different groups</li>
+<li>Blank rows between categories for readability</li>
+<li>Sub-data formatted appropriately (tables or key-value pairs)</li>
+</ul>
+
+<h3>CSV File Naming</h3>
+
+<p>ZIP archive naming format:</p>
+<pre><code>[report-name]_export_[timestamp].zip
+
+Example: sales-overview_export_2024-10-23_14-30-45.zip</code></pre>
+
+<h3>Storage & Cleanup</h3>
+
+<ul>
+<li><strong>CSV Files Location:</strong> <code>wp-content/uploads/wp-davies/alpha-insights/csv/</code></li>
+<li><strong>Temporary Files:</strong> <code>wp-content/uploads/wp-davies/alpha-insights/tmp/</code></li>
+<li><strong>Auto-Cleanup:</strong> Temporary files deleted after ZIP creation</li>
+<li><strong>Old File Cleanup:</strong> ZIP files older than 24 hours are automatically removed</li>
+<li><strong>Temp File Cleanup:</strong> Temporary CSV files older than 1 hour are automatically removed</li>
+</ul>
+
+<h3>CSV Export Best Practices</h3>
+
+<ul>
+<li><strong>Use Filters:</strong> Apply date ranges and filters before export to limit data size</li>
+<li><strong>Large Datasets:</strong> Stores with 10,000+ orders may create large ZIP files (10MB+)</li>
+<li><strong>Excel Compatibility:</strong> Files include UTF-8 BOM for proper Excel opening</li>
+<li><strong>Data Analysis:</strong> Perfect for importing into Excel, Google Sheets, or BI tools</li>
+</ul>
+
+<h3>Troubleshooting CSV Export</h3>
+
+<p><strong>Error: "No data available to export"</strong></p>
+<ul>
+<li>Your current filters returned no results</li>
+<li>Adjust date range or remove some filters</li>
+<li>Ensure your report has loaded data before exporting</li>
+</ul>
+
+<p><strong>Error: "ZipArchive class not available on this server"</strong></p>
+<ul>
+<li>Your PHP installation doesn't have ZIP support</li>
+<li>Contact your hosting provider to enable the PHP ZIP extension</li>
+</ul>
+
+<p><strong>Error: "Failed to create ZIP archive"</strong></p>
+<ul>
+<li>Check folder permissions on wp-content/uploads directory</li>
+<li>Ensure sufficient disk space is available</li>
+<li>Review error logs for detailed permission issues</li>
+</ul>
+
+<p><strong>Issue: Excel shows garbled characters</strong></p>
+<ul>
+<li>CSV files use UTF-8 encoding with BOM</li>
+<li>In Excel: Data → From Text/CSV → Select UTF-8 encoding</li>
+<li>Or open directly in Google Sheets (handles UTF-8 automatically)</li>
+</ul>
+
+<h4>Live Share Links</h4>
+
+<h3>What Are Live Share Links?</h3>
+
+<p>Live Share Links are secure, publicly accessible URLs that display your reports in real-time. Anyone with the link can view the report without needing WordPress access, and the data updates automatically to reflect current information.</p>
+
+<h3>Live Share Architecture</h3>
+
+<p>The system uses a sophisticated URL rewrite structure:</p>
+
+<pre><code>https://yoursite.com/alpha-insights/reports/[report-slug]/?secret_key=[unique-key]</code></pre>
+
+<ul>
+<li><strong>Custom Rewrite Rules:</strong> WordPress handles pretty URLs via rewrite tags</li>
+<li><strong>Secure Secret Keys:</strong> Randomly generated, impossible-to-guess tokens</li>
+<li><strong>Public Access:</strong> No WordPress login required</li>
+<li><strong>Real-Time Data:</strong> Reports fetch live data on every page load</li>
+</ul>
+
+<h3>How to Create a Live Share Link</h3>
+
+<ol>
+<li>Open the report you want to share</li>
+<li>Click <strong>Share</strong> button in the report toolbar</li>
+<li>Click <strong>Create Share Link</strong></li>
+<li>Configure settings:
+  <ul>
+    <li>Link name (for your reference)</li>
+    <li>Expiry date (optional)</li>
+    <li>Password protection (optional)</li>
+  </ul>
+</li>
+<li>Click <strong>Generate Link</strong></li>
+<li>Copy the URL and share it</li>
+</ol>
+
+<h3>Live Share Link Configuration</h3>
+
+<p><strong>Link Name:</strong></p>
+<ul>
+<li>Internal label to identify the link</li>
+<li>Shown on password entry screen</li>
+<li>Displayed in the live share header</li>
+</ul>
+
+<p><strong>Expiry Date:</strong></p>
+<ul>
+<li>Optional expiration date/time</li>
+<li>Link automatically stops working after expiry</li>
+<li>Set to null or far-future date for permanent links</li>
+<li>Format: YYYY-MM-DD HH:MM:SS in site timezone</li>
+</ul>
+
+<p><strong>Password Protection:</strong></p>
+<ul>
+<li>Optional password requirement</li>
+<li>Users must enter password before viewing report</li>
+<li>Passwords are hashed using WordPress's wp_hash_password()</li>
+<li>Password prompt displays link name for context</li>
+</ul>
+
+<h3>Live Share Link Storage</h3>
+
+<p>Links are stored in the report configuration option:</p>
+
+<pre><code>Option: wpd_dashboard_config_[report-slug]
+Structure:
+{
+  "live_share_links": [
+    {
+      "id": "unique-id",
+      "name": "Board Meeting Link",
+      "secret_key": "abc123xyz789",
+      "created_date": "2024-10-23 14:30:00",
+      "expiry_date": "2024-11-23 14:30:00",
+      "require_password": true,
+      "password": "$2y$10$hashed..."
+    }
+  ]
+}</code></pre>
+
+<h3>Live Share Security Features</h3>
+
+<p><strong>Secret Key Generation:</strong></p>
+<ul>
+<li>Uses PHP's uniqid() with more_entropy parameter</li>
+<li>Cryptographically secure random string</li>
+<li>Impossible to guess or brute-force</li>
+</ul>
+
+<p><strong>Password Hashing:</strong></p>
+<ul>
+<li>Uses WordPress's wp_hash_password() function</li>
+<li>Bcrypt hashing algorithm</li>
+<li>Never stored in plain text</li>
+</ul>
+
+<p><strong>HTTPS Encryption:</strong></p>
+<ul>
+<li>All live share pages use HTTPS</li>
+<li>Data transmitted securely</li>
+<li>No sensitive data exposed in URLs (except secret key)</li>
+</ul>
+
+<p><strong>Expiration Checking:</strong></p>
+<ul>
+<li>Server-side validation on every request</li>
+<li>Uses DateTime comparison in site timezone</li>
+<li>Shows "link has expired" error after expiry</li>
+</ul>
+
+<h3>Live Share Page Structure</h3>
+
+<p>The live share page is a minimal HTML page with:</p>
+
+<ul>
+<li><strong>Header Section:</strong>
+  <ul>
+    <li>Alpha Insights logo and branding</li>
+    <li>Report name and date range</li>
+    <li>Link name (for context)</li>
+  </ul>
+</li>
+<li><strong>Report Content:</strong>
+  <ul>
+    <li>Full React dashboard rendering</li>
+    <li>All widgets and visualizations</li>
+    <li>Real-time data fetching via AJAX</li>
+  </ul>
+</li>
+<li><strong>Scripts Loaded:</strong>
+  <ul>
+    <li>jQuery (from WordPress core)</li>
+    <li>React Dashboard bundle</li>
+    <li>Localized data with special live share nonce</li>
+  </ul>
+</li>
+</ul>
+
+<h3>Live Share Data Fetching</h3>
+
+<p>Live share pages use AJAX mode instead of REST API:</p>
+
+<ul>
+<li><strong>Force AJAX Mode:</strong> Set to true in localized data</li>
+<li><strong>Live Share Nonce:</strong> Special nonce that doesn't require user authentication</li>
+<li><strong>Live Share Auth:</strong> Passed as [report-slug]:[secret-key] for validation</li>
+<li><strong>AJAX Endpoint:</strong> Uses admin-ajax.php with nopriv action hooks</li>
+</ul>
+
+<h3>Managing Live Share Links</h3>
+
+<p><strong>View Active Links:</strong></p>
+<ol>
+<li>Open the report</li>
+<li>Click <strong>Share</strong> button</li>
+<li>See all active links with details:
+  <ul>
+    <li>Link name</li>
+    <li>Created date</li>
+    <li>Expiry date (if set)</li>
+    <li>Password status</li>
+  </ul>
+</li>
+</ol>
+
+<p><strong>Delete a Link:</strong></p>
+<ol>
+<li>Find the link in the share dialog</li>
+<li>Click <strong>Delete</strong> icon</li>
+<li>Confirm deletion</li>
+<li>Link immediately stops working</li>
+</ol>
+
+<p><strong>Regenerate a Link:</strong></p>
+<ul>
+<li>Delete the old link</li>
+<li>Create a new link with same settings</li>
+<li>Old URL will no longer work</li>
+<li>New URL will have different secret key</li>
+</ul>
+
+<h3>Live Share Use Cases</h3>
+
+<p><strong>Board/Investor Access:</strong></p>
+<ul>
+<li>Create permanent link with password protection</li>
+<li>Share with board members for always-current data</li>
+<li>No need to email updated reports monthly</li>
+</ul>
+
+<p><strong>Team Collaboration:</strong></p>
+<ul>
+<li>Share with marketing/sales teams</li>
+<li>Everyone sees the same real-time data</li>
+<li>No WordPress accounts needed for team members</li>
+</ul>
+
+<p><strong>Client Reporting (Agencies):</strong></p>
+<ul>
+<li>Give clients 24/7 access to their store performance</li>
+<li>Set expiration date at end of engagement</li>
+<li>Password protect for client security</li>
+</ul>
+
+<p><strong>Temporary Sharing:</strong></p>
+<ul>
+<li>Create 7-day link for specific meeting or review</li>
+<li>Link auto-expires after the event</li>
+<li>No need to manually revoke access</li>
+</ul>
+
+<h3>Live Share Best Practices</h3>
+
+<ul>
+<li><strong>Use Descriptive Names:</strong> Helps you identify links later</li>
+<li><strong>Set Expiration Dates:</strong> For temporary access needs</li>
+<li><strong>Password Protect:</strong> For sensitive financial data</li>
+<li><strong>Regular Cleanup:</strong> Delete unused links periodically</li>
+<li><strong>Monitor Usage:</strong> Keep track of who has access to what</li>
+</ul>
+
+<h3>Troubleshooting Live Share Links</h3>
+
+<p><strong>Error: "Invalid URL parameters"</strong></p>
+<ul>
+<li>URL is malformed or incomplete</li>
+<li>Ensure full URL including secret_key parameter</li>
+<li>Re-copy the URL from the share dialog</li>
+</ul>
+
+<p><strong>Error: "Report not found"</strong></p>
+<ul>
+<li>Report may have been deleted</li>
+<li>Report configuration is corrupted</li>
+<li>Contact site administrator</li>
+</ul>
+
+<p><strong>Error: "Invalid secret key"</strong></p>
+<ul>
+<li>Link may have been deleted</li>
+<li>Secret key is incorrect or incomplete</li>
+<li>Request new link from report owner</li>
+</ul>
+
+<p><strong>Error: "This live share link has expired"</strong></p>
+<ul>
+<li>Link expiration date has passed</li>
+<li>Contact report owner to create new link</li>
+<li>If you own the report, create a new link with later expiry</li>
+</ul>
+
+<p><strong>Error: "Invalid password"</strong></p>
+<ul>
+<li>Password entered incorrectly</li>
+<li>Passwords are case-sensitive</li>
+<li>Contact link creator for correct password</li>
+</ul>
+
+<p><strong>Page shows "Access Denied" icon but no specific message</strong></p>
+<ul>
+<li>General error in live share processing</li>
+<li>Check WordPress debug logs</li>
+<li>Verify rewrite rules are flushed (save Settings → Permalinks)</li>
+</ul>
+
+<h4>Export Configuration</h4>
+
+<h3>Report Configuration Structure</h3>
+
+<p>Each report stores its configuration including export settings in WordPress options:</p>
+
+<pre><code>Option Name: wpd_dashboard_config_[slug]
+
+Structure:
+{
+  "dashboard_id": "report-slug",
+  "name": "Report Name",
+  "filters": {...},
+  "widgets": [...],
+  "live_share_links": [...]
+}</code></pre>
+
+<h3>Filters Configuration</h3>
+
+<p>Filters are stored in the report configuration and affect what data is exported:</p>
+
+<pre><code>"filters": {
+  "date_preset": "last_30_days",
+  "date_from": "2024-09-23",
+  "date_to": "2024-10-23",
+  "comparison_date_selection": "previous_period",
+  "data_filters": {
+    "orders": {
+      "status": ["wc-completed", "wc-processing"],
+      "billing_email": [],
+      "product_ids": []
+    },
+    "products": {
+      "category": [],
+      "tag": []
+    }
+  }
+}</code></pre>
+
+<h3>Export File Locations</h3>
+
+<p>All exports are stored in organized directories:</p>
+
+<pre><code>Base Upload Directory:
+wp-content/uploads/wp-davies/alpha-insights/
+
+PDF Files:
+/exports/pdf_files/
+
+CSV ZIP Files:
+/csv/
+
+Temporary CSV Files:
+/tmp/ (auto-cleaned after 1 hour)</code></pre>
+
+<h3>Export Permissions</h3>
+
+<p>Export functionality requires specific WordPress capabilities:</p>
+
+<ul>
+<li><strong>CSV Export:</strong> Requires <code>manage_options</code> capability</li>
+<li><strong>PDF Export:</strong> Requires active license (checked server-side)</li>
+<li><strong>Live Share Links:</strong> Requires <code>manage_options</code> to create</li>
+<li><strong>Viewing Live Shares:</strong> No WordPress login required (public access with secret key)</li>
+</ul>
+
+<h3>Export API Reference</h3>
+
+<p><strong>CSV Export AJAX Action:</strong></p>
+<pre><code>Action: wpd_export_all_data_csv
+Method: POST
+Nonce: wpd_ajax_nonce
+Parameters:
+  - dashboard_id: Report slug
+  - report_name: Optional display name
+Response:
+  - success: boolean
+  - message: string
+  - zip_url: download URL
+  - filename: ZIP filename</code></pre>
+
+<p><strong>PDF Export AJAX Action:</strong></p>
+<pre><code>Action: wpd_export_react_report_to_pdf
+Method: POST
+Nonce: wpd_ajax_nonce
+Parameters:
+  - report_slug: Report slug
+Response:
+  - success: boolean
+  - download_link: Public URL
+  - file_name: PDF filename
+  - file_size: File size in bytes
+  - error_messages: Error string if failed</code></pre>
+
+<p><strong>Create Live Share Link AJAX Action:</strong></p>
+<pre><code>Action: wpd_create_live_share_link
+Method: POST
+Nonce: wpd_ajax_nonce
+Parameters:
+  - dashboard_id: Report slug
+  - link_name: Display name
+  - expiry_date: YYYY-MM-DD HH:MM:SS (optional)
+  - password: Plain text password (optional)
+  - require_password: boolean
+Response:
+  - success: boolean
+  - message: string
+  - data: {link: {id, secret_key, ...}}</code></pre>
+
+<h3>Developer Integration</h3>
+
+<p>Developers can programmatically generate exports:</p>
+
+<p><strong>Generate PDF:</strong></p>
+<pre><code>$result = wpd_generate_pdf_from_report_slug( 'report-slug' );
+
+if ( $result['success'] ) {
+    $pdf_url = $result['download_link'];
+    $pdf_path = $result['server_file'];
+}</code></pre>
+
+<p><strong>Create CSV Export:</strong></p>
+<pre><code>$exporter = new WPD_CSV_Exporter();
+$result = $exporter->export_all_data_to_zip(
+    $all_data,
+    'Report Name'
+);
+
+if ( $result['success'] ) {
+    $zip_url = $result['zip_url'];
+}</code></pre>
+
+<p><strong>Create Live Share Link:</strong></p>
+<pre><code>$report = new WPD_React_Report( 'report-slug' );
+$result = $report->create_live_share_link(
+    'report-slug',
+    'Link Name',
+    '2024-12-31 23:59:59', // expiry
+    'password123',         // password (optional)
+    true                   // require_password
+);</code></pre>
+
+<h3>Technical Considerations</h3>
+
+<p><strong>Server Requirements:</strong></p>
+<ul>
+<li>PHP 7.4+ with ZipArchive extension for CSV export</li>
+<li>Sufficient memory for large data exports (512MB+ recommended)</li>
+<li>Outbound HTTPS access for PDF generation API</li>
+<li>WordPress rewrite rules enabled for live share URLs</li>
+</ul>
+
+<p><strong>Performance Optimization:</strong></p>
+<ul>
+<li>CSV exports process data in chunks to avoid memory limits</li>
+<li>PDF generation uses external API to avoid server load</li>
+<li>Live share pages cache aggressively on client-side</li>
+<li>Auto-cleanup prevents disk space issues</li>
+</ul>
+
+<p><strong>Security Measures:</strong></p>
+<ul>
+<li>All AJAX actions verify WordPress nonces</li>
+<li>Capability checks ensure proper permissions</li>
+<li>Live share secret keys are cryptographically random</li>
+<li>Passwords are hashed using WordPress standards</li>
+<li>File paths validated to prevent directory traversal</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+

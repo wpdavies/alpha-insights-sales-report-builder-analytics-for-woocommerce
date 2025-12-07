@@ -1,0 +1,267 @@
+<h2>Filter: wpd_alpha_insights_menu_html</h2>
+
+<p>Modify the complete HTML output of the Alpha Insights custom navigation menu.</p>
+
+<h3>Description</h3>
+
+<p>This filter allows you to modify or replace the entire HTML structure of the Alpha Insights admin menu before it's rendered. Use this for complete menu customization, adding branding elements, or integrating third-party UI components.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPD_Admin_Menu.php</code></p>
+<p><strong>Method:</strong> <code>WPD_Admin_Menu::output_alpha_insights_menu()</code></p>
+<p><strong>Line:</strong> ~274</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$menu_html</td>
+        <td>string</td>
+        <td>Complete HTML markup of the menu</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> string</p>
+<p><strong>Description:</strong> Modified menu HTML</p>
+
+<h3>Example Usage</h3>
+
+<h3>Add Custom Branding Header</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_menu_html', 'add_custom_branding' );
+
+function add_custom_branding( $menu_html ) {
+    
+    $branding = '
+    &lt;div class="custom-menu-header" style="padding: 20px; background: #f8f9fa; border-bottom: 2px solid #007cba; margin-bottom: 20px;"&gt;
+        &lt;img src="/wp-content/uploads/company-logo.png" alt="Company Logo" style="max-width: 200px;"&gt;
+        &lt;h1 style="margin: 10px 0 0 0; font-size: 24px;"&gt;Store Analytics Dashboard&lt;/h1&gt;
+    &lt;/div&gt;
+    ';
+    
+    // Prepend branding before menu
+    return $branding . $menu_html;
+}</code></pre>
+
+<h3>Add Quick Stats Widget</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_menu_html', 'add_quick_stats' );
+
+function add_quick_stats( $menu_html ) {
+    
+    // Get today's stats
+    $today_orders = wpd_get_todays_order_count();
+    $today_revenue = wpd_get_todays_revenue();
+    
+    $stats_widget = sprintf(
+        '&lt;div class="ai-quick-stats" style="padding: 15px; background: #fff; border: 1px solid #ddd; margin: 0 20px 20px; border-radius: 4px;"&gt;
+            &lt;h3&gt;Today\'s Performance&lt;/h3&gt;
+            &lt;p&gt;&lt;strong&gt;Orders:&lt;/strong&gt; %d&lt;/p&gt;
+            &lt;p&gt;&lt;strong&gt;Revenue:&lt;/strong&gt; %s&lt;/p&gt;
+        &lt;/div&gt;',
+        $today_orders,
+        wc_price( $today_revenue )
+    );
+    
+    // Insert after menu
+    return $menu_html . $stats_widget;
+}</code></pre>
+
+<h3>Add Custom CSS Classes</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_menu_html', 'add_custom_classes' );
+
+function add_custom_classes( $menu_html ) {
+    
+    // Add custom wrapper class for styling
+    $menu_html = str_replace(
+        'class="alpha-insights-menu"',
+        'class="alpha-insights-menu custom-branded-menu"',
+        $menu_html
+    );
+    
+    return $menu_html;
+}</code></pre>
+
+<h3>Add Help Documentation Link</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_menu_html', 'add_help_link' );
+
+function add_help_link( $menu_html ) {
+    
+    $help_link = '
+    &lt;div class="ai-help-section" style="padding: 20px; text-align: center; border-top: 1px solid #ddd; margin-top: 20px;"&gt;
+        &lt;a href="https://docs.example.com/alpha-insights" target="_blank" class="button button-secondary"&gt;
+            📚 View Documentation
+        &lt;/a&gt;
+        &lt;a href="mailto:support@example.com" class="button button-secondary" style="margin-left: 10px;"&gt;
+            ✉️ Contact Support
+        &lt;/a&gt;
+    &lt;/div&gt;
+    ';
+    
+    return $menu_html . $help_link;
+}</code></pre>
+
+<h3>Inject Custom JavaScript</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_menu_html', 'inject_custom_js' );
+
+function inject_custom_js( $menu_html ) {
+    
+    $custom_script = '
+    &lt;script&gt;
+    jQuery(document).ready(function($) {
+        // Add custom menu interactions
+        $(\'.alpha-insights-menu-item\').hover(
+            function() {
+                $(this).addClass(\'menu-hover\');
+            },
+            function() {
+                $(this).removeClass(\'menu-hover\');
+            }
+        );
+        
+        // Track menu clicks
+        $(\'.alpha-insights-menu-item a\').on(\'click\', function() {
+            var menuItem = $(this).text();
+            console.log(\'Menu clicked:\', menuItem);
+            // Send to analytics
+        });
+    });
+    &lt;/script&gt;
+    ';
+    
+    return $menu_html . $custom_script;
+}</code></pre>
+
+<h3>Add Notification Badge</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_menu_html', 'add_notification_badges' );
+
+function add_notification_badges( $menu_html ) {
+    
+    // Count pending expense reports
+    $pending_expenses = get_pending_expense_count();
+    
+    if ( $pending_expenses > 0 ) {
+        // Add badge to Expenses menu item
+        $badge = '&lt;span class="update-plugins count-' . $pending_expenses . '"&gt;
+                    &lt;span class="update-count"&gt;' . $pending_expenses . '&lt;/span&gt;
+                 &lt;/span&gt;';
+        
+        $menu_html = str_replace(
+            '&gt;Manage Expenses&lt;/a&gt;',
+            '&gt;Manage Expenses ' . $badge . '&lt;/a&gt;',
+            $menu_html
+        );
+    }
+    
+    return $menu_html;
+}</code></pre>
+
+<h3>Replace Menu with Custom Structure</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_menu_html', 'completely_custom_menu' );
+
+function completely_custom_menu( $menu_html ) {
+    
+    // Replace with completely custom menu
+    return '
+    &lt;div class="my-custom-analytics-menu"&gt;
+        &lt;nav&gt;
+            &lt;ul&gt;
+                &lt;li&gt;&lt;a href="' . admin_url('admin.php?page=dashboard') . '"&gt;Dashboard&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a href="' . admin_url('admin.php?page=reports') . '"&gt;Reports&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a href="' . admin_url('admin.php?page=settings') . '"&gt;Settings&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/nav&gt;
+    &lt;/div&gt;
+    ';
+}</code></pre>
+
+<h3>Best Practices</h3>
+
+<ul>
+    <li>Maintain accessibility standards (ARIA labels, keyboard navigation)</li>
+    <li>Keep menu performance in mind (avoid heavy operations)</li>
+    <li>Test responsive behavior on different screen sizes</li>
+    <li>Use WordPress core CSS classes for consistency</li>
+    <li>Escape user-generated content properly</li>
+    <li>Preserve original menu structure if only making minor changes</li>
+</ul>
+
+<h3>Important Notes</h3>
+
+<ul>
+    <li>This filter receives the complete menu HTML as a string</li>
+    <li>Modifying HTML directly requires careful string manipulation</li>
+    <li>Consider using <code>wpd_alpha_insights_menu_items</code> filter for structural changes</li>
+    <li>Changes affect all users who can see the Alpha Insights menu</li>
+    <li>Custom HTML must be properly escaped for security</li>
+</ul>
+
+<h3>Menu Structure</h3>
+
+<p>The default menu HTML includes:</p>
+<ul>
+    <li>Navigation wrapper container</li>
+    <li>Menu item list (ul/li structure)</li>
+    <li>Active state indicators</li>
+    <li>Icon elements</li>
+    <li>Submenu containers</li>
+</ul>
+
+<h3>CSS Customization</h3>
+
+<p>You can add custom CSS to style your menu modifications:</p>
+
+<pre><code>add_action( 'admin_head', 'custom_menu_styles' );
+
+function custom_menu_styles() {
+    echo '&lt;style&gt;
+        .custom-menu-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+        }
+        .ai-quick-stats {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    &lt;/style&gt;';
+}</code></pre>
+
+<h3>Debugging</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_menu_html', 'debug_menu_html', 999 );
+
+function debug_menu_html( $menu_html ) {
+    // Log menu HTML length
+    error_log( 'Menu HTML size: ' . strlen( $menu_html ) . ' bytes' );
+    
+    // Add debug comment
+    return '&lt;!-- Alpha Insights Menu (Modified) --&gt;' . $menu_html;
+}</code></pre>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_alpha_insights_menu_items.html'>wpd_alpha_insights_menu_items</a> - Modify menu structure (recommended for adding/removing items)</li>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_alpha_insights_active_parent_menu_item.html'>wpd_alpha_insights_active_parent_menu_item</a> - Control active parent menu</li>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_alpha_insights_active_submenu_item.html'>wpd_alpha_insights_active_submenu_item</a> - Control active submenu</li>
+</ul>
+
+<h3>Related Classes</h3>
+
+<ul>
+    <li><code>WPD_Admin_Menu</code> - Admin menu generation and rendering</li>
+</ul>
+</p>

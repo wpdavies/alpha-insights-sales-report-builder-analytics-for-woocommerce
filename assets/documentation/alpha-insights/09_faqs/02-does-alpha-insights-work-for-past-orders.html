@@ -1,0 +1,124 @@
+﻿<h2>Does Alpha Insights Work for Past Orders?</h2>
+<p>
+    <strong>Short answer: Yes!</strong> Alpha Insights automatically calculates profit for all your existing WooCommerce
+    orders, not just new ones.
+</p>
+<h3>How It Works</h3>
+<p>When you install and activate Alpha Insights:</p>
+<ol>
+    <li>
+        <strong>Order Discovery:</strong> Plugin scans all existing WooCommerce orders
+    </li>
+    <li>
+        <strong>Profit Calculation:</strong> Calculates profit for each order based on current product costs
+    </li>
+    <li>
+        <strong>Background Processing:</strong> Processes historical data in background (doesn't slow your site)
+    </li>
+    <li>
+        <strong>Reporting:</strong> Historical orders immediately appear in reports
+    </li>
+</ol>
+<h3>What Gets Calculated</h3>
+<p>
+    <strong>For historical orders, Alpha Insights calculates:</strong>
+</p>
+<ul>
+    <li>Product costs (using current cost or cost at order date if available)</li>
+    <li>Shipping costs (estimated if not tracked previously)</li>
+    <li>Payment gateway fees (based on payment method)</li>
+    <li>Allocated expenses (if you add expenses retroactively)</li>
+    <li>Ad spend attribution (from integration sync start date)</li>
+</ul>
+<h3>Processing Time</h3>
+<p>
+    <strong>Small stores (under 1,000 orders):</strong>1-5 minutes
+</p>
+<p>
+    <strong>Medium stores (1,000 - 10,000 orders):</strong>10-30 minutes
+</p>
+<p>
+    <strong>Large stores (10,000+ orders):</strong>1-3 hours
+</p>
+<p>Processing happens in background - you can use Alpha Insights immediately while it completes</p>
+<h4>Historical Accuracy</h4>
+<h3>If You Add Product Costs After Orders</h3>
+<p>Orders use the product cost you enter, even if sold before you added the cost.</p>
+<p>
+    <strong>Example:</strong>
+</p>
+<ul>
+    <li>Product sold on Jan 1, 2023</li>
+    <li>You install Alpha Insights on Jan 1, 2024</li>
+    <li>You enter product cost: $25</li>
+    <li>Jan 1, 2023 order profit is calculated using $25 cost</li>
+</ul>
+<p>
+    <strong>For more accuracy:</strong> If you know costs changed over time, you can set date-specific costs in product
+    settings
+</p>
+<h3>Ad Spend Attribution</h3>
+<p>
+    <strong>Important:</strong> Facebook/Google Ads data can only be synced from connection date forward
+</p>
+<ul>
+    <li>Orders before connecting ads: No ad spend attributed (still shows gross profit)</li>
+    <li>Orders after connecting ads: Full ad spend attribution</li>
+</ul>
+<h3>Viewing Historical Data</h3>
+<p>Once processing completes:</p>
+<ol>
+    <li>Go to <strong>Alpha Insights → Reports</strong>
+    </li>
+    <li>Select date range including historical dates</li>
+    <li>All orders appear with profit calculations</li>
+</ol>
+<h3>Updating Historical Costs</h3>
+<p>If you later update product costs, historical orders recalculate automatically:</p>
+<ol>
+    <li>Edit product</li>
+    <li>Update cost field</li>
+    <li>Save</li>
+    <li>All orders for that product recalculate (takes 1-5 minutes)</li>
+</ol>
+<h3>Limitations</h3>
+<p>
+    <strong>What can't be tracked historically:</strong>
+</p>
+<ul>
+    <li>Exact visitor sessions before installation (can't retroactively track website visits)</li>
+    <li>Ad spend before integration connection</li>
+    <li>Email opens/clicks before installation</li>
+</ul>
+<p>
+    <strong>But profit calculations still work!</strong> You get gross profit (revenue - costs) even without the traffic
+    attribution data.
+</p>
+<h3>Best Practices for Historical Data</h3>
+<ol>
+    <li>
+        <strong>Add product costs ASAP:</strong> The sooner you add costs, the more accurate historical profit is
+    </li>
+    <li>
+        <strong>Connect ad accounts early:</strong> To get ad spend attribution going forward
+    </li>
+    <li>
+        <strong>Use average costs if uncertain:</strong> An estimate is better than nothing
+    </li>
+    <li>
+        <strong>Document cost changes:</strong> Note when supplier prices changed for more accurate historical view
+    </li>
+</ol>
+<h3>Common Questions</h3>
+<p>
+    <strong>Q: Will historical processing slow down my site?</strong>
+</p>
+<p>A: No, it runs in background with low priority. Your site performs normally.</p>
+<p>
+    <strong>Q: Can I exclude certain old orders?</strong>
+</p>
+<p>A: Yes, use order status filters or date range filters in reports.</p>
+<p>
+    <strong>Q: What if I had different costs in the past?</strong>
+</p>
+<p>A: Use date-specific cost feature to set costs that were effective during different time periods.</p>

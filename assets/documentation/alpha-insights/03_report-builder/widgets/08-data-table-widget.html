@@ -1,0 +1,443 @@
+﻿<h2>Data Table Widget</h2>
+<p>The Data Table widget displays detailed row-by-row data in a spreadsheet-like format with sorting, searching, and pagination. Perfect for showing detailed information that users can explore and interact with.</p>
+<h3>When to Use</h3>
+<ul>
+<li>Display detailed lists (products, orders, customers, campaigns)</li>
+<li>Show precise values alongside visualizations</li>
+<li>Provide export-ready data</li>
+<li>Allow users to search and sort data themselves</li>
+<li>Show many rows of data with multiple columns</li>
+</ul>
+<h4>Configuration Options</h4>
+<h3>Content Settings</h3>
+<h4>Title (Required)</h4>
+<p>
+<strong>Examples:</strong>"All Products", "Recent Orders", "Campaign Performance", "Top Customers"
+</p>
+<h3>Data Table (Required)</h3>
+<p>
+<strong>What it is:</strong> The data source for the table
+</p>
+<p>
+<strong>Available data tables:</strong>
+</p>
+<ul>
+<li>
+<strong>Orders:</strong> All orders with profit details
+</li>
+<li>
+<strong>Products:</strong> Product performance data
+</li>
+<li>
+<strong>Customers:</strong> Customer information and lifetime value
+</li>
+<li>
+<strong>Categories:</strong> Product category performance
+</li>
+<li>
+<strong>Traffic Sources:</strong> Traffic source analytics
+</li>
+<li>
+<strong>Sessions:</strong> Website visitor sessions
+</li>
+<li>
+<strong>Campaigns:</strong> Ad campaign performance (Facebook & Google)
+</li>
+<li>
+<strong>Expenses:</strong> Expense records
+</li>
+<li>
+<strong>Coupons:</strong> Coupon usage and performance
+</li>
+<li>
+<strong>Subscriptions:</strong> Subscription orders
+</li>
+</ul>
+<h3>Display Columns (Required)</h3>
+<p>
+<strong>What it is:</strong> Which columns to show in the table
+</p>
+<p>
+<strong>How to configure:</strong>
+</p>
+<ol>
+<li>Select from available columns (multi-select dropdown)</li>
+<li>Reorder by dragging column names</li>
+<li>Each data table has unique columns available</li>
+</ol>
+<p>
+<strong>Example columns for Orders table:</strong>
+</p>
+<ul>
+<li>Order Number</li>
+<li>Date</li>
+<li>Customer Name</li>
+<li>Status</li>
+<li>Total (order amount)</li>
+<li>Cost (total costs)</li>
+<li>Profit</li>
+<li>Margin (%)</li>
+<li>Payment Method</li>
+<li>Shipping Method</li>
+<li>Traffic Source</li>
+<li>Campaign</li>
+</ul>
+<p>
+<strong>Example columns for Products table:</strong>
+</p>
+<ul>
+<li>Product Name</li>
+<li>SKU</li>
+<li>Category</li>
+<li>Units Sold</li>
+<li>Revenue</li>
+<li>Cost</li>
+<li>Profit</li>
+<li>Margin (%)</li>
+<li>Stock Status</li>
+<li>Average Unit Price</li>
+</ul>
+<h3>Results Per Page</h3>
+<p>
+<strong>Options:</strong>5, 10, 25, 50, 100, 200 rows per page
+</p>
+<p>
+<strong>Default:</strong>50 rows
+</p>
+<p>
+<strong>Choose based on:</strong>
+</p>
+<ul>
+<li>Report purpose (overview vs detailed analysis)</li>
+<li>Expected data volume</li>
+<li>User preference</li>
+</ul>
+<h3>Max Records to Fetch</h3>
+<p>
+<strong>Options:</strong> No Limit, 100, 250, 500, 1000, 2500
+</p>
+<p>
+<strong>Default:</strong>500
+</p>
+<p>
+<strong>What it does:</strong> Limits total records fetched from database for performance
+</p>
+<p>
+<strong>Recommendation:</strong>
+</p>
+<ul>
+<li>Small stores: No limit or 1000</li>
+<li>Medium stores: 500-1000</li>
+<li>Large stores: 250-500 (faster loading)</li>
+</ul>
+<h4>Advanced Settings</h4>
+<h3>Enable Sorting</h3>
+<p>
+<strong>Default:</strong> On
+</p>
+<p>
+<strong>When enabled:</strong> Users can click column headers to sort
+</p>
+<p>
+<strong>When to disable:</strong> When you want to enforce specific sort order
+</p>
+<h4>Enable Search</h4>
+<p>
+<strong>Default:</strong> On
+</p>
+<p>
+<strong>When enabled:</strong> Search box appears above table for filtering rows
+</p>
+<p>
+<strong>Searches:</strong> All visible columns
+</p>
+<h3>Default Sort Column</h3>
+<p>
+<strong>What it is:</strong> Which column to sort by initially
+</p>
+<p>
+<strong>Examples:</strong>
+</p>
+<ul>
+<li>Orders table: Sort by Date (descending) for recent first</li>
+<li>Products table: Sort by Profit (descending) for top performers</li>
+<li>Customers table: Sort by LTV (descending) for best customers</li>
+</ul>
+<h3>Default Sort Direction</h3>
+<p>
+<strong>Options:</strong>
+</p>
+<ul>
+<li>
+<strong>Ascending (asc):</strong> A-Z, 0-9, oldest-newest
+</li>
+<li>
+<strong>Descending (desc):</strong> Z-A, 9-0, newest-oldest
+</li>
+</ul>
+<p>
+<strong>Recommendations:</strong>
+</p>
+<ul>
+<li>Date columns: Descending (newest first)</li>
+<li>Profit/Revenue: Descending (highest first)</li>
+<li>Name columns: Ascending (A-Z)</li>
+</ul>
+<h3>Data Filters</h3>
+<p>
+<strong>What it is:</strong> Additional filters applied only to this table widget
+</p>
+<p>
+<strong>Examples:</strong>
+</p>
+<ul>
+<li>Show only orders with profit >$50</li>
+<li>Show only products in "Clothing" category</li>
+<li>Show only customers from "California"</li>
+</ul>
+<p>
+<strong>Use for:</strong> Creating focused tables within broader reports
+</p>
+<h4>Design Settings</h4>
+<h3>Responsive Width</h3>
+<p>
+<strong>Recommendation:</strong>12 columns (full width) - tables need horizontal space
+</p>
+<h4>Icon and Color Theme</h4>
+<p>
+<strong>Icon:</strong> Displays in table header
+</p>
+<p>
+<strong>Color:</strong> Affects table header and accent colors
+</p>
+<h3>Max Height</h3>
+<p>
+<strong>Range:</strong>200-2000 pixels (default: 360px)
+</p>
+<p>
+<strong>What it does:</strong> Sets maximum table container height - table scrolls vertically if content exceeds
+</p>
+<p>
+<strong>Recommendations:</strong>
+</p>
+<ul>
+<li>Dashboard tables: 360-450px</li>
+<li>Detail tables: 500-700px</li>
+<li>Full data exports: No max height (toggle off)</li>
+</ul>
+<h3>No Max Height Toggle</h3>
+<p>
+<strong>When enabled:</strong> Table expands to show all rows (no scrolling)
+</p>
+<p>
+<strong>Use for:</strong> Small datasets (< 25 rows), print-friendly reports</p>
+<p>
+<strong>Caution:</strong> Can create very long reports if many rows
+</p>
+<h4>Table Features</h4>
+<h3>Column Sorting</h3>
+<p>Click any column header to sort:</p>
+<ul>
+<li>First click: Sort ascending</li>
+<li>Second click: Sort descending</li>
+<li>Third click: Remove sort (back to default)</li>
+</ul>
+<p>Sort indicator (‘ “) shows current sort direction</p>
+<h3>Search Functionality</h3>
+<p>Search box filters table in real-time:</p>
+<ul>
+<li>Type any text</li>
+<li>Table instantly filters to matching rows</li>
+<li>Searches across all visible columns</li>
+<li>Case-insensitive</li>
+</ul>
+<p>
+<strong>Example:</strong> Type "shirt" to see all products/orders containing "shirt"
+</p>
+<h4>Pagination</h4>
+<p>Navigate through pages:</p>
+<ul>
+<li>Page numbers at bottom</li>
+<li>Previous/Next buttons</li>
+<li>Jump to specific page</li>
+<li>Shows: "Showing 1-50 of 347 results"</li>
+</ul>
+<h3>Column Reordering</h3>
+<p>Drag column headers to reorder columns (when in edit mode)</p>
+<h4>Row Selection</h4>
+<p>Click row to:</p>
+<ul>
+<li>View detailed information</li>
+<li>Navigate to order/product/customer page</li>
+<li>See full data breakdown</li>
+</ul>
+<h3>Example Configurations</h3>
+<h4>Example 1: Recent Orders</h4>
+<pre>
+	<code>Title: Recent Orders Data Table: Orders Display Columns: - Order Number - Date - Customer Name - Total - Profit - Margin % - Status Default Sort: Date (descending) Results Per Page: 25 Enable Search: On Enable Sorting: On</code>
+</pre>
+<h4>Example 2: Top Products by Profit</h4>
+<pre>
+	<code>Title: Top 50 Products by Profit Data Table: Products Display Columns: - Product Name - SKU - Units Sold - Revenue - Cost - Profit - Margin % Default Sort: Profit (descending) Max Records: 50 Results Per Page: 50</code>
+</pre>
+<h4>Example 3: Customer Leaderboard</h4>
+<pre>
+	<code>Title: Top Customers by Lifetime Value Data Table: Customers Display Columns: - Customer Name - Email - Orders Count - Total Spent - Total Profit - Average Order Value - First Order Date Default Sort: Total Profit (descending) Results Per Page: 25</code>
+</pre>
+<h4>Example 4: Campaign Performance</h4>
+<pre>
+	<code>Title: All Campaigns Performance Data Table: Campaigns Display Columns: - Campaign Name - Platform (Facebook/Google) - Ad Spend - Revenue - Orders - ROAS - Profit - Status Default Sort: Profit (descending) Enable Search: On</code>
+</pre>
+<h3>Best Practices</h3>
+<h3>Column Selection</h3>
+<ul>
+<li>
+<strong>Include identifier:</strong> Always include name/number column first
+</li>
+<li>
+<strong>Include key metrics:</strong> Revenue, Profit, Margin for financial tables
+</li>
+<li>
+<strong>Limit columns:</strong>6-10 columns ideal for readability
+</li>
+<li>
+<strong>Order logically:</strong> ID → Details → Metrics → Status
+</li>
+</ul>
+<h4>Sorting Strategy</h4>
+<ul>
+<li>Sort by most important column by default</li>
+<li>Usually: Profit, Revenue, Date, or LTV</li>
+<li>Use descending to show top performers first</li>
+</ul>
+<h3>Pagination</h3>
+<ul>
+<li>Dashboard tables: 10-25 rows per page</li>
+<li>Analysis tables: 50 rows per page</li>
+<li>Export tables: 100-200 rows per page</li>
+</ul>
+<h4>Performance</h4>
+<ul>
+<li>Limit max records for large datasets</li>
+<li>Use filters to reduce data volume</li>
+<li>Don't show all 10,000 orders - filter to recent or apply criteria</li>
+</ul>
+<h3>Table + Chart Combinations</h3>
+<h3>Chart Above, Table Below</h3>
+<p>Common pattern:</p>
+<ol>
+<li>Metric cards at top (Revenue, Profit, Orders)</li>
+<li>Bar/Line chart in middle (visual trend)</li>
+<li>Data table at bottom (detailed rows)</li>
+</ol>
+<p>Users get overview (cards), trends (chart), and details (table)</p>
+<h4>Chart + Filtered Table</h4>
+<p>Chart shows all data, table shows subset:</p>
+<ul>
+<li>Pie chart: Revenue by all categories</li>
+<li>Data table: Only top 10 categories (filtered)</li>
+</ul>
+<h3>Exporting Table Data</h3>
+<p>When report is exported:</p>
+<ul>
+<li>
+<strong>PDF:</strong> Table included with current filters/sorting
+</li>
+<li>
+<strong>CSV:</strong> All rows exported (respects max records limit)
+</li>
+<li>
+<strong>Excel:</strong> Table formatted with columns and data
+</li>
+</ul>
+<h4>Common Use Cases by Data Table Type</h4>
+<h3>Orders Table</h3>
+<p>
+<strong>Use for:</strong>
+</p>
+<ul>
+<li>Recent order monitoring</li>
+<li>Profit analysis by order</li>
+<li>Order status tracking</li>
+<li>Identifying low-profit orders</li>
+</ul>
+<h4>Products Table</h4>
+<p>
+<strong>Use for:</strong>
+</p>
+<ul>
+<li>Product profitability ranking</li>
+<li>Inventory decisions (what to restock)</li>
+<li>Identifying losers to discontinue</li>
+<li>SKU-level analysis</li>
+</ul>
+<h3>Customers Table</h3>
+<p>
+<strong>Use for:</strong>
+</p>
+<ul>
+<li>VIP customer identification</li>
+<li>Customer segmentation</li>
+<li>Lifetime value analysis</li>
+<li>Repeat purchase tracking</li>
+</ul>
+<h4>Campaigns Table</h4>
+<p>
+<strong>Use for:</strong>
+</p>
+<ul>
+<li>Ad campaign comparison</li>
+<li>ROAS ranking</li>
+<li>Budget allocation decisions</li>
+<li>Platform comparison</li>
+</ul>
+<h3>Troubleshooting</h3>
+<h4>Issue: Table loading very slowly</h4>
+<p>
+<strong>Solutions:</strong>
+</p>
+<ul>
+<li>Reduce max records to fetch (500 or less)</li>
+<li>Apply filters to limit data</li>
+<li>Reduce results per page</li>
+<li>Remove unnecessary columns</li>
+</ul>
+<h3>Issue: Columns cut off or not visible</h3>
+<p>
+<strong>Solutions:</strong>
+</p>
+<ul>
+<li>Ensure widget is full width (12 columns)</li>
+<li>Reduce number of columns displayed</li>
+<li>Table automatically becomes horizontally scrollable on mobile</li>
+</ul>
+<h4>Issue: Search not finding results</h4>
+<p>
+<strong>Check:</strong>
+</p>
+<ul>
+<li>Search is enabled in settings</li>
+<li>Text exists in visible columns (searches only shown columns)</li>
+<li>Check spelling and try partial matches</li>
+</ul>
+<h3>Issue: Cannot click rows</h3>
+<p>
+<strong>Note:</strong> Row clicking depends on data table type
+</p>
+<ul>
+<li>Orders: Opens WooCommerce order page</li>
+<li>Products: Opens product edit page</li>
+<li>Some tables: Opens detail modal</li>
+</ul>
+<h3>Related Widgets</h3>
+<ul>
+<li>
+<a href='/documentation/alpha-insights/report-builder/widgets/simple-table-widget.html'>Simple Table Widget</a>- Cleaner, simpler table format
+</li>
+<li>
+<a href='/documentation/alpha-insights/report-builder/widgets/bar-chart-widget.html'>Bar Chart Widget</a>- Visual comparison
+</li>
+<li>
+<a href='/documentation/alpha-insights/report-builder/widgets/metric-list-widget.html'>Metric List Widget</a>- Summary metrics
+</li>
+</ul>

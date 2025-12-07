@@ -1,0 +1,125 @@
+﻿<h2>Filter: wpd_ai_cost_price_per_unit
+</h2>
+<p>Filter the cost price retrieved for a product before it's used in profit calculations. Allows dynamic cost adjustments based on product, date, quantity, or any custom logic.
+</p>
+<h3>Description
+</h3>
+<p>This filter runs when retrieving the cost price for any product. It's called by <code>wpd_get_cost_price_by_product_id()</code> and affects all profit calculations using that product.
+</p>
+<h4>Location
+</h4>
+<p><strong>File:</strong><code>includes/wpd-functions.php</code>
+</p>
+<p><strong>Function:</strong><code>wpd_get_cost_price_by_product_id()</code>
+</p>
+<p><strong>Line:</strong>~274
+</p>
+<h3>Parameters
+</h3>
+<table>
+<tr>
+<th>Parameter
+</th>
+<th>Type
+</th>
+<th>Description
+</th>
+</tr>
+<tr>
+<td>$cost_price_per_unit
+</td>
+<td>float
+</td>
+<td>The cost price retrieved from product meta
+</td>
+</tr>
+<tr>
+<td>$product_id
+</td>
+<td>int
+</td>
+<td>ID of the product
+</td>
+</tr>
+</table>
+<h4>Return
+</h4>
+<p><strong>Type:</strong> float
+</p>
+<p><strong>Description:</strong> Modified cost price per unit
+</p>
+<h3>Example Usage
+</h3>
+<h3>Add Percentage Markup to All Costs
+</h3>
+<pre><code>add_filter( 'wpd_ai_cost_price_per_unit', 'add_cost_markup', 10, 2 ); function add_cost_markup( $cost, $product_id ) { // Add 10% markup to account for additional handling return $cost * 1.10; }</code>
+</pre>
+<h3>Different Costs by Product Category
+</h3>
+<pre><code>add_filter( 'wpd_ai_cost_price_per_unit', 'category_based_cost_adjustment', 10, 2 ); function category_based_cost_adjustment( $cost, $product_id ) { $product = wc_get_product( $product_id ); if ( ! $product ) { return $cost; } // Check if product is in "Fragile" category if ( $product->is_type( 'simple' ) && has_term( 'fragile', 'product_cat', $product_id ) ) { // Add $3 for extra packaging $cost += 3.00; } return $cost; }</code>
+</pre>
+<h3>Volume-Based Cost Adjustment
+</h3>
+<pre><code>add_filter( 'wpd_ai_cost_price_per_unit', 'volume_discount_cost', 10, 2 ); function volume_discount_cost( $cost, $product_id ) { // Get total units sold this month for this product $units_this_month = get_product_units_sold_this_month( $product_id ); // Apply volume discount from supplier if ( $units_this_month >100 ) { // High volume: 15% cost reduction $cost = $cost * 0.85; } elseif ( $units_this_month >50 ) { // Medium volume: 10% cost reduction $cost = $cost * 0.90; } return $cost; }</code>
+</pre>
+<h3>Seasonal Cost Adjustments
+</h3>
+<pre><code>add_filter( 'wpd_ai_cost_price_per_unit', 'seasonal_cost_adjustment', 10, 2 ); function seasonal_cost_adjustment( $cost, $product_id ) { $current_month = date( 'n' ); // Supplier charges more during summer (June-August) if ( in_array( $current_month, [6, 7, 8] ) ) { $cost = $cost * 1.15; // 15% summer premium } return $cost; }</code>
+</pre>
+<h3>Integration with External Inventory System
+</h3>
+<pre><code>add_filter( 'wpd_ai_cost_price_per_unit', 'erp_cost_override', 10, 2 ); function erp_cost_override( $cost, $product_id ) { // Get product SKU $product = wc_get_product( $product_id ); $sku = $product ? $product->get_sku() : ''; if ( empty( $sku ) ) { return $cost; } // Fetch current cost from ERP system (cached for performance) $erp_cost = wp_cache_get( 'erp_cost_' . $sku, 'my_erp_costs' ); if ( false === $erp_cost ) { // Not in cache, fetch from API $erp_cost = my_erp_api_get_product_cost( $sku ); // Cache for 1 hour wp_cache_set( 'erp_cost_' . $sku, $erp_cost, 'my_erp_costs', 3600 ); } // Use ERP cost if available, otherwise fall back to Alpha Insights cost return $erp_cost ? (float) $erp_cost : $cost; }</code>
+</pre>
+<h3>Product-Type Specific Logic
+</h3>
+<pre><code>add_filter( 'wpd_ai_cost_price_per_unit', 'subscription_cost_adjustment', 10, 2 ); function subscription_cost_adjustment( $cost, $product_id ) { $product = wc_get_product( $product_id ); // For subscription products, adjust for monthly value if ( $product && class_exists( 'WC_Subscriptions_Product' ) ) { if ( WC_Subscriptions_Product::is_subscription( $product ) ) { // Account for acquisition cost spread over subscription lifetime $expected_lifetime_months = 12; // Average subscriber stays 12 months $cost = $cost / $expected_lifetime_months; } } return $cost; }</code>
+</pre>
+<h3>Best Practices
+</h3>
+<ul>
+<li>Always return a float value
+</li>
+<li>Handle cases where product doesn't exist gracefully
+</li>
+<li>Cache expensive operations (API calls, complex queries)
+</li>
+<li>Use early returns for better readability
+</li>
+<li>Test with variable products (variations have different costs)
+</li>
+<li>Document your custom logic for future reference
+</li>
+</ul>
+<h3>Important Notes
+</h3>
+<ul>
+<li>Filter runs every time cost is retrieved (frequently!)
+</li>
+<li>Results are cached, but filter still runs on cache misses
+</li>
+<li>Don't make database queries inside this filter if possible
+</li>
+<li>Return original cost if your logic doesn't apply
+</li>
+</ul>
+<h3>Debugging
+</h3>
+<pre><code>add_filter( 'wpd_ai_cost_price_per_unit', 'debug_cost_retrieval', 999, 2 ); function debug_cost_retrieval( $cost, $product_id ) { error_log( sprintf( 'Product #%d cost: $%s', $product_id, number_format( $cost, 2 ) )); return $cost; }</code>
+</pre>
+<h3>Related Filters
+</h3>
+<ul>
+<li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_custom_product_cost_options.html'>wpd_ai_custom_product_cost_options</a>- Register custom cost types
+</li>
+<li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_custom_product_cost_default_value.html'>wpd_ai_custom_product_cost_default_value</a>- Filter custom cost values
+</li>
+</ul>
+<h3>Related Functions
+</h3>
+<ul>
+<li><code>wpd_get_cost_price_by_product_id( $product_id )</code>- Retrieve product cost
+</li>
+<li><code>wpd_calculate_cost_profit_by_order( $order_id )</code>- Calculate order profit
+</li>
+</ul>
+</p>

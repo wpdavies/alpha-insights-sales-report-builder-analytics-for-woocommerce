@@ -1,0 +1,124 @@
+﻿<h2>Webhook Integration Examples</h2>
+<p>Practical examples of webhook integrations with popular platforms. Copy these setups to automate your profit tracking workflows.</p>
+<h4>Example 1: Slack Daily Summary</h4>
+<p>
+<strong>Goal:</strong> Post daily profit summary to Slack channel every morning
+</p>
+<p>
+<strong>Setup:</strong>
+</p>
+<ol>
+<li>In Slack, create incoming webhook for #analytics channel</li>
+<li>
+<ul>
+<li>Event: Daily Summary Complete</li>
+<li>URL: Your Slack webhook URL</li>
+<li>Format: Slack</li>
+</ul>
+</li>
+<li>Save and enable</li>
+</ol>
+<p>
+<strong>Result:</strong> Message like "ðŸ“Š Yesterday's Performance: $2,450 revenue, $892 profit (36.4% margin), 23 orders"
+</p>
+<h4>Example 2: Google Sheets Order Log</h4>
+<p>
+<strong>Goal:</strong> Add row to spreadsheet for every order with profit data
+</p>
+<p>
+<strong>Via Zapier:</strong>
+</p>
+<ol>
+<li>Trigger: Webhooks by Zapier → Catch Hook</li>
+<li>Action: Google Sheets → Create Spreadsheet Row</li>
+<li>
+<ul>
+<li>Order ID → A column</li>
+<li>Date → B column</li>
+<li>Revenue → C column</li>
+<li>Profit → D column</li>
+<li>Margin → E column</li>
+</ul>
+</li>
+</ol>
+<h4>Example 3: Low Profit Alert Email</h4>
+<p>
+<strong>Goal:</strong> Send email when order has negative or very low profit
+</p>
+<p>
+<strong>Via Make:</strong>
+</p>
+<ol>
+<li>Webhook trigger with filter: profit< $5</li>
+<li>Email module: Send to owner@store.com</li>
+<li>Subject: " ï¸ Low Profit Order #{{order_id}}"</li>
+<li>Body: Include order details and profit breakdown</li>
+</ol>
+<h4>Example 4: High-Value Customer to CRM</h4>
+<p>
+<strong>Goal:</strong> Add customers with LTV >$500 to CRM
+</p>
+<p>
+<strong>Via Zapier:</strong>
+</p>
+<ol>
+<li>Trigger: Webhook (Order Created)</li>
+<li>Filter: customer.lifetime_value >500</li>
+<li>Action: Add to HubSpot/Salesforce as VIP contact</li>
+</ol>
+<h4>Example 5: SMS for Daily Goals</h4>
+<p>
+<strong>Goal:</strong> Text message when daily profit exceeds goal
+</p>
+<p>
+<strong>Via Zapier:</strong>
+</p>
+<ol>
+<li>Trigger: Webhook (Goal Achievement)</li>
+<li>Action: SMS by Zapier → Send message</li>
+<li>Text: "ðŸŽ‰ Daily goal achieved! ${{profit}} profit today"</li>
+</ol>
+<h4>Example 6: Airtable Profit Database</h4>
+<p>
+<strong>Goal:</strong> Build Airtable database of all orders with profit
+</p>
+<p>
+<strong>Via Make:</strong>
+</p>
+<ol>
+<li>Webhook trigger (Order Created)</li>
+<li>Airtable: Create record</li>
+<li>Include: Order details, profit, margin, traffic source, campaign</li>
+</ol>
+<h4>Example 7: Facebook Conversions API</h4>
+<p>
+<strong>Goal:</strong> Send conversion data back to Facebook with profit value
+</p>
+<ol>
+<li>Webhook (Order Created with Facebook source)</li>
+<li>Make HTTP request to Facebook Conversions API</li>
+<li>Include profit as custom parameter</li>
+</ol>
+<h3>Common Webhook Patterns</h3>
+<h4>Filtering</h4>
+<p>Only trigger for specific conditions:</p>
+<ul>
+<li>profit >$100 (high-value orders)</li>
+<li>margin< 20% (low-margin orders)</li>
+<li>traffic_source = "facebook" (specific source)</li>
+</ul>
+<h3>Multi-Step Workflows</h3>
+<ol>
+<li>Receive webhook</li>
+<li>Check condition</li>
+<li>If true → Send to Slack AND add to Sheets</li>
+<li>If false → Do nothing</li>
+</ol>
+<h4>Data Transformation</h4>
+<p>Format webhook data before sending elsewhere:</p>
+<ul>
+<li>Convert currency</li>
+<li>Calculate additional metrics</li>
+<li>Format dates</li>
+<li>Truncate long text</li>
+</ul>

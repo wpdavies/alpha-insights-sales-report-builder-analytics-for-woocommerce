@@ -1,0 +1,240 @@
+<h2>Filter: wpd_ai_custom_order_cost_default_value</h2>
+
+<p>Filter the default value for custom order-level costs before they are used in profit calculations.</p>
+
+<h3>Description</h3>
+
+<p>This filter allows you to programmatically set or modify custom order costs such as insurance, handling fees, or any other order-level expenses. Unlike product-level costs, these apply once per order regardless of the number of items.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPD_Order_Calculator.php</code></p>
+<p><strong>Method:</strong> <code>WPD_Order_Calculator::get_custom_order_costs()</code></p>
+<p><strong>Line:</strong> ~725</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$custom_cost_value</td>
+        <td>float</td>
+        <td>The default cost value for this custom cost type</td>
+    </tr>
+    <tr>
+        <td>$cost_slug</td>
+        <td>string</td>
+        <td>The unique slug identifier for this custom cost</td>
+    </tr>
+    <tr>
+        <td>$order</td>
+        <td>WC_Order</td>
+        <td>The WooCommerce order object</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> float</p>
+<p><strong>Description:</strong> Modified custom cost value</p>
+
+<h3>Example Usage</h3>
+
+<h3>Add Insurance Cost Based on Order Value</h3>
+
+<pre><code>add_filter( 'wpd_ai_custom_order_cost_default_value', 'dynamic_insurance_cost', 10, 3 );
+
+function dynamic_insurance_cost( $cost, $cost_slug, $order ) {
+    
+    // Only apply to insurance cost
+    if ( $cost_slug !== 'insurance' ) {
+        return $cost;
+    }
+    
+    $order_total = $order->get_total();
+    
+    // Tiered insurance rates
+    if ( $order_total > 500 ) {
+        return 25.00; // High-value orders
+    } elseif ( $order_total > 200 ) {
+        return 12.00; // Medium-value orders
+    } elseif ( $order_total > 100 ) {
+        return 5.00;  // Standard orders
+    }
+    
+    return 0; // No insurance for small orders
+}</code></pre>
+
+<h3>International Handling Fee</h3>
+
+<pre><code>add_filter( 'wpd_ai_custom_order_cost_default_value', 'international_handling', 10, 3 );
+
+function international_handling( $cost, $cost_slug, $order ) {
+    
+    if ( $cost_slug !== 'international_handling' ) {
+        return $cost;
+    }
+    
+    // Check if international order
+    $shipping_country = $order->get_shipping_country();
+    $store_country = WC()->countries->get_base_country();
+    
+    if ( $shipping_country !== $store_country ) {
+        // Add customs paperwork handling
+        return 15.00;
+    }
+    
+    return 0; // No fee for domestic orders
+}</code></pre>
+
+<h3>Wholesale vs Retail Fulfillment</h3>
+
+<pre><code>add_filter( 'wpd_ai_custom_order_cost_default_value', 'wholesale_fulfillment', 10, 3 );
+
+function wholesale_fulfillment( $cost, $cost_slug, $order ) {
+    
+    if ( $cost_slug !== 'fulfillment_fee' ) {
+        return $cost;
+    }
+    
+    // Check customer role
+    $customer_id = $order->get_customer_id();
+    if ( $customer_id ) {
+        $user = get_userdata( $customer_id );
+        if ( in_array( 'wholesale_customer', $user->roles ) ) {
+            // Lower fulfillment fee for wholesale
+            return 8.00;
+        }
+    }
+    
+    // Standard retail fulfillment fee
+    return 15.00;
+}</code></pre>
+
+<h3>Fragile Item Handling</h3>
+
+<pre><code>add_filter( 'wpd_ai_custom_order_cost_default_value', 'fragile_handling_fee', 10, 3 );
+
+function fragile_handling_fee( $cost, $cost_slug, $order ) {
+    
+    if ( $cost_slug !== 'special_handling' ) {
+        return $cost;
+    }
+    
+    $has_fragile = false;
+    
+    // Check if order contains fragile products
+    foreach ( $order->get_items() as $item ) {
+        $product = $item->get_product();
+        if ( $product && has_term( 'fragile', 'product_cat', $product->get_id() ) ) {
+            $has_fragile = true;
+            break;
+        }
+    }
+    
+    return $has_fragile ? 10.00 : 0;
+}</code></pre>
+
+<h3>Seasonal Peak Fee</h3>
+
+<pre><code>add_filter( 'wpd_ai_custom_order_cost_default_value', 'seasonal_peak_fee', 10, 3 );
+
+function seasonal_peak_fee( $cost, $cost_slug, $order ) {
+    
+    if ( $cost_slug !== 'peak_season_fee' ) {
+        return $cost;
+    }
+    
+    $order_date = $order->get_date_created();
+    $month = (int) $order_date->format('n');
+    
+    // November and December (holiday season)
+    if ( in_array( $month, [11, 12] ) ) {
+        return 7.50; // Peak season surcharge
+    }
+    
+    return 0;
+}</code></pre>
+
+<h3>Integration with ERP System</h3>
+
+<pre><code>add_filter( 'wpd_ai_custom_order_cost_default_value', 'erp_custom_costs', 10, 3 );
+
+function erp_custom_costs( $cost, $cost_slug, $order ) {
+    
+    // Fetch actual costs from ERP system
+    $order_number = $order->get_order_number();
+    $erp_costs = my_erp_get_order_costs( $order_number );
+    
+    if ( $erp_costs && isset( $erp_costs[$cost_slug] ) ) {
+        return (float) $erp_costs[$cost_slug];
+    }
+    
+    return $cost;
+}</code></pre>
+
+<h3>Best Practices</h3>
+
+<ul>
+    <li>Always return a float value</li>
+    <li>Check the <code>$cost_slug</code> to target specific cost types</li>
+    <li>Return original cost if your logic doesn't apply</li>
+    <li>Cache expensive operations (API calls, database queries)</li>
+    <li>Test with various order scenarios</li>
+</ul>
+
+<h3>Important Notes</h3>
+
+<ul>
+    <li>This filter sets the DEFAULT value - manually entered values in order meta will override it</li>
+    <li>Custom order costs must be registered in plugin settings first</li>
+    <li>Filter runs every time order costs are calculated</li>
+    <li>Order-level costs apply once per order (not per item)</li>
+    <li>Use this for costs that don't vary by product or quantity</li>
+</ul>
+
+<h3>How Custom Order Costs Work</h3>
+
+<p>Custom order costs are configured in:<br>
+<strong>Alpha Insights → Settings → Custom Costs → Order-Level Costs</strong></p>
+
+<p>Each custom cost needs:</p>
+<ul>
+    <li><strong>Slug:</strong> unique identifier (e.g., 'insurance', 'handling')</li>
+    <li><strong>Label:</strong> display name in admin</li>
+    <li><strong>Default Value:</strong> fallback amount (can be filtered with this hook)</li>
+</ul>
+
+<h3>Debugging</h3>
+
+<pre><code>add_filter( 'wpd_ai_custom_order_cost_default_value', 'debug_custom_costs', 999, 3 );
+
+function debug_custom_costs( $cost, $cost_slug, $order ) {
+    error_log( sprintf( 
+        'Order #%d - Custom Cost "%s": $%s',
+        $order->get_id(),
+        $cost_slug,
+        number_format( $cost, 2 )
+    ));
+    return $cost;
+}</code></pre>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_custom_product_cost_default_value.html'>wpd_ai_custom_product_cost_default_value</a> - Product-level custom costs</li>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_calculate_cost_profit_by_order.html'>wpd_ai_calculate_cost_profit_by_order</a> - Modify complete profit calculation</li>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_order_shipping_cost_default_value.html'>wpd_ai_order_shipping_cost_default_value</a> - Shipping cost calculation</li>
+</ul>
+
+<h3>Related Functions</h3>
+
+<ul>
+    <li><code>wpd_calculate_cost_profit_by_order( $order_id )</code> - Calculate order profit</li>
+    <li><code>wpd_get_custom_order_cost_options()</code> - Retrieve registered custom order costs</li>
+</ul>
+</p>

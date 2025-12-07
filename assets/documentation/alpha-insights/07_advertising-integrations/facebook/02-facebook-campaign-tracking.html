@@ -1,0 +1,414 @@
+﻿<h2>Facebook Campaign Tracking and ROAS Analysis</h2>
+<p>Once Facebook Ads is connected, Alpha Insights automatically tracks your campaign performance and calculates profitability metrics. This guide shows you how to view campaign data, understand metrics from Facebook's API, and analyze your ad performance.</p>
+<h3>Accessing Facebook Campaign Data</h3>
+<h4>Campaign List View</h4>
+<p>The primary way to view your Facebook campaigns:</p>
+<ol>
+<li>Go to <strong>Alpha Insights → Facebook Campaigns</strong> in your WordPress admin</li>
+<li>See all campaigns in a sortable table with key metrics</li>
+<li>Columns display: Campaign Name, Start Date, Ad Spend, Website Views (Outbound Clicks), Leads, Orders, Conversion Rate, Revenue, and ROAS</li>
+<li>Click any campaign title to view detailed campaign data</li>
+<li>Use the Ad Account filter at the top to filter by specific ad accounts (if you've connected multiple over time)</li>
+<li>Click column headers to sort by that metric</li>
+</ol>
+<h4>Expenses View</h4>
+<p>View daily ad spend as expenses:</p>
+<ol>
+<li>Go to <strong>Alpha Insights → Expenses</strong>
+</li>
+<li>Filter by "Facebook Ads" category to see only ad spend</li>
+<li>Each entry represents one day of ad spend</li>
+<li>These expenses are automatically included in your profit calculations</li>
+</ol>
+<h4>Dashboard View</h4>
+<p>See ad spend in context of overall business performance:</p>
+<ol>
+<li>Go to <strong>Alpha Insights → Dashboard</strong>
+</li>
+<li>Facebook ad spend is included in your total expenses</li>
+<li>Affects your overall profit calculations automatically</li>
+</ol>
+<h3>Understanding Campaign Metrics</h3>
+<p><strong>Important:</strong> These metrics come directly from Facebook Marketing API and represent Facebook's tracking of campaign performance.</p>
+<h4>Ad Spend</h4>
+<p>
+<strong>What it is:</strong> Total amount spent on this campaign (from Facebook's data)
+</p>
+<p>
+<strong>Example:</strong> $1,250 spent on "Summer Sale" campaign
+</p>
+<p>
+<strong>Source:</strong> Synced from Facebook Marketing API
+</p>
+<p>
+<strong>Updates:</strong> Based on your API call schedule (Daily, Every 12 Hours, or Every 6 Hours)
+</p>
+<p>
+<strong>Currency:</strong> Automatically converted to your store currency if different from ad account currency
+</p>
+<h4>Impressions</h4>
+<p>
+<strong>What it is:</strong> Number of times your ads were shown
+</p>
+<p>
+<strong>Source:</strong> Facebook Marketing API
+</p>
+<h4>Clicks</h4>
+<p>
+<strong>What it is:</strong> Total clicks on your ads (all clicks, including likes, shares, etc.)
+</p>
+<p>
+<strong>Source:</strong> Facebook Marketing API
+</p>
+<h4>Website Views (Outbound Clicks)</h4>
+<p>
+<strong>What it is:</strong> Number of clicks that left Facebook and went to your website
+</p>
+<p>
+<strong>Source:</strong> Facebook Marketing API field: <code>outbound_clicks</code>
+</p>
+<p>
+<strong>Why it matters:</strong> This is the actual traffic sent to your site, used for conversion rate calculations
+</p>
+<h4>Leads</h4>
+<p>
+<strong>What it is:</strong> Number of lead form submissions from this campaign
+</p>
+<p>
+<strong>Source:</strong> Facebook Marketing API (action_type: <code>lead</code>)
+</p>
+<p>
+<strong>Note:</strong> Only applicable if your campaign uses Facebook lead forms
+</p>
+<h4>Orders (Purchases)</h4>
+<p>
+<strong>What it is:</strong> Number of purchases Facebook tracked from this campaign
+</p>
+<p>
+<strong>Source:</strong> Facebook Marketing API (action_type: <code>purchase</code>)
+</p>
+<p>
+<strong>How tracked:</strong> Via Facebook Pixel on your site tracking purchase events
+</p>
+<p>
+<strong>Note:</strong> This is Facebook's attribution, which may differ from Alpha Insights' order matching using <code>meta_cid</code> parameter
+</p>
+<h4>Revenue (Purchase Value)</h4>
+<p>
+<strong>What it is:</strong> Total purchase value Facebook tracked from this campaign
+</p>
+<p>
+<strong>Source:</strong> Facebook Marketing API (action_values for <code>purchase</code> action type)
+</p>
+<p>
+<strong>How tracked:</strong> Via Facebook Pixel purchase event value
+</p>
+<p>
+<strong>Currency:</strong> Automatically converted to your store currency if needed
+</p>
+<h4>ROAS (Return on Ad Spend)</h4>
+<p>
+<strong>What it is:</strong> Revenue generated per dollar spent on ads (as reported by Facebook)
+</p>
+<p>
+<strong>Formula:</strong> <code>Purchase Value ÷ Ad Spend</code>
+</p>
+<p>
+<strong>Example:</strong> $4,800 revenue ÷ $1,250 spend = 3.84 ROAS
+</p>
+<p>
+<strong>What it means:</strong> For every $1 spent, Facebook tracked $3.84 in purchase value
+</p>
+<p>
+<strong>Interpreting ROAS:</strong>
+</p>
+<ul>
+<li><strong>Below 1.0:</strong> Losing money - revenue less than ad spend</li>
+<li><strong>1.0 - 2.0:</strong> Breaking even to slight profit (before product costs)</li>
+<li><strong>2.0 - 3.0:</strong> Moderate profitability</li>
+<li><strong>3.0 - 5.0:</strong> Good profitability, sustainable campaigns</li>
+<li><strong>Above 5.0:</strong> Excellent! These campaigns are winners</li>
+</ul>
+<p>
+<strong>Code Reference:</strong> Calculated at line 976 of <code>WPD_Facebook_API.php</code>
+</p>
+<h4>Profit (Facebook's Simple Calculation)</h4>
+<p>
+<strong>What it is:</strong> Simple profit calculated from Facebook's data
+</p>
+<p>
+<strong>Formula:</strong> <code>Purchase Value - Ad Spend</code>
+</p>
+<p>
+<strong>Example:</strong> $4,800 - $1,250 = $3,550 profit
+</p>
+<p>
+<strong>Important Note:</strong> This is a simplified profit that does NOT account for:
+</p>
+<ul>
+<li>Product costs (COGS)</li>
+<li>Shipping costs</li>
+<li>Payment processing fees</li>
+<li>Other business expenses</li>
+</ul>
+<p>
+<strong>Why it matters:</strong> This gives you a quick profitability indicator, but for true profit analysis, you should use Alpha Insights' full profit reports which factor in all costs.
+</p>
+<p>
+<strong>Code Reference:</strong> Calculated at line 979 of <code>WPD_Facebook_API.php</code>
+</p>
+<h4>Conversion Rate</h4>
+<p>
+<strong>What it is:</strong> Percentage of website visitors (from ads) who made a purchase
+</p>
+<p>
+<strong>Formula:</strong> <code>(Purchases ÷ Outbound Clicks) × 100</code>
+</p>
+<p>
+<strong>Example:</strong> (48 ÷ 2,400) × 100 = 2.0% conversion rate
+</p>
+<p>
+<strong>Why it matters:</strong> Shows how effective your landing page and offer are at converting traffic
+</p>
+<p>
+<strong>Note:</strong> Uses Outbound Clicks (website views) not total clicks, giving you accurate site conversion rate
+</p>
+<p>
+<strong>Code Reference:</strong> Calculated at line 970 of <code>WPD_Facebook_API.php</code> using <code>wpd_calculate_percentage()</code> helper function
+</p>
+<h3>Viewing Campaign Details</h3>
+<h4>Individual Campaign Page</h4>
+<p>Click any campaign title in the Facebook Campaigns list to view detailed campaign data:</p>
+<p><strong>Campaign Information Displayed:</strong></p>
+<ul>
+<li><strong>Account Name:</strong> Which Facebook ad account this campaign belongs to</li>
+<li><strong>Campaign ID:</strong> Facebook's unique identifier for this campaign</li>
+<li><strong>Campaign Spend:</strong> Total ad spend in account currency</li>
+<li><strong>Campaign Impressions:</strong> Total number of impressions</li>
+<li><strong>Campaign Clicks:</strong> Total clicks on ads</li>
+<li><strong>Outbound Clicks:</strong> Clicks that visited your website</li>
+<li><strong>Campaign Start:</strong> Date campaign began</li>
+<li><strong>Campaign Stop:</strong> Most recent date with activity</li>
+<li><strong>Days Active:</strong> Number of days campaign has been running</li>
+<li><strong>Campaign ROAS:</strong> Return on ad spend</li>
+<li><strong>Campaign Revenue:</strong> Total purchase value tracked</li>
+<li><strong>Campaign Purchases:</strong> Number of purchases</li>
+<li><strong>Campaign Leads:</strong> Number of leads (if applicable)</li>
+<li><strong>Last Updated:</strong> When this data was last synced from Facebook</li>
+</ul>
+<h4>Daily Campaign Data</h4>
+<p>Alpha Insights stores day-by-day performance data for each campaign (stored in <code>_wpd_daily_data</code> meta field):</p>
+<p><strong>Daily Metrics Tracked:</strong></p>
+<ul>
+<li>Date</li>
+<li>Daily spend (raw and converted)</li>
+<li>Outbound clicks</li>
+<li>Add to cart actions</li>
+<li>Purchases</li>
+<li>Purchase value</li>
+<li>Leads</li>
+<li>Daily ROAS</li>
+<li>Impressions</li>
+</ul>
+<p><strong>Note:</strong> Daily data is available in the database and can be used for custom reports or analytics. The individual campaign page shows aggregate totals.</p>
+<h3>Analyzing Campaign Performance</h3>
+<h4>Sorting and Filtering Campaigns</h4>
+<p>On the Facebook Campaigns list page, you can:</p>
+<ul>
+<li><strong>Sort by any column:</strong> Click column headers to sort campaigns by that metric (Start Date, Ad Spend, Website Views, Leads, Orders, Conversion Rate, Revenue, or ROAS)</li>
+<li><strong>Filter by Ad Account:</strong> Use the dropdown at the top to filter campaigns by specific ad account</li>
+<li><strong>Search campaigns:</strong> Use the search box to find specific campaigns by name</li>
+</ul>
+<h4>Identifying Top Performers</h4>
+<p>To find your best campaigns:</p>
+<ol>
+<li>Go to <strong>Facebook Campaigns</strong></li>
+<li>Click the <strong>ROAS</strong> column header to sort by ROAS (highest first)</li>
+<li>Look for campaigns with ROAS > 3.0 and significant revenue</li>
+<li>These are your winners - consider scaling budget in Facebook Ads Manager</li>
+</ol>
+<h4>Identifying Poor Performers</h4>
+<p>To find underperforming campaigns:</p>
+<ol>
+<li>Go to <strong>Facebook Campaigns</strong></li>
+<li>Click the <strong>ROAS</strong> column header twice to sort ascending (lowest first)</li>
+<li>Look for campaigns with ROAS < 2.0 or negative profit</li>
+<li>Consider pausing these campaigns or optimizing them in Facebook Ads Manager</li>
+</ol>
+<h4>Understanding the Data Storage</h4>
+<p><strong>Database Schema:</strong></p>
+<ul>
+<li><strong>Post Type:</strong> <code>facebook_campaign</code></li>
+<li><strong>Taxonomy:</strong> <code>ad_account</code> (for categorizing by ad account)</li>
+<li><strong>Meta Fields:</strong> Campaign data stored in various meta fields prefixed with <code>_wpd_campaign_</code> and <code>_wpd_totals_data</code>, <code>_wpd_daily_data</code></li>
+</ul>
+<h3>Optimizing Based on Data</h3>
+<h4>Scaling Winners</h4>
+<p><strong>Identify:</strong> Campaigns with ROAS >4.0 and positive profit</p>
+<p><strong>What Alpha Insights shows you:</strong></p>
+<ul>
+<li>Which campaigns have the highest ROAS</li>
+<li>Which campaigns drive the most revenue</li>
+<li>Conversion rates by campaign</li>
+<li>Days active for each campaign</li>
+</ul>
+<p><strong>Action in Facebook Ads Manager:</strong></p>
+<ol>
+<li>Note the campaign characteristics (audience, creative theme, offer)</li>
+<li>Increase budget gradually (10-20% increases)</li>
+<li>Monitor Alpha Insights to see if ROAS maintains as you scale</li>
+<li>Create similar campaigns (lookalike audiences from winners)</li>
+</ol>
+<h4>Pausing Losers</h4>
+<p><strong>Identify:</strong> Campaigns with ROAS < 2.0 or negative profit</p>
+<p><strong>What Alpha Insights shows you:</strong></p>
+<ul>
+<li>Campaigns sorted by lowest ROAS</li>
+<li>Total spend on unprofitable campaigns</li>
+<li>Conversion rates (identify traffic vs. conversion issues)</li>
+</ul>
+<p><strong>Action in Facebook Ads Manager:</strong></p>
+<ol>
+<li>Pause the campaign to stop spending</li>
+<li>Analyze why it failed:
+<ul>
+<li>Low outbound clicks? → Ad creative problem</li>
+<li>High clicks, low conversions? → Landing page or offer problem</li>
+<li>Zero purchases? → Wrong audience</li>
+</ul>
+</li>
+<li>Don't repeat same mistakes in future campaigns</li>
+</ol>
+<h4>Optimizing Moderate Performers</h4>
+<p><strong>Identify:</strong> Campaigns with ROAS 2.5-3.5</p>
+<p><strong>What Alpha Insights shows you:</strong></p>
+<ul>
+<li>Conversion rate data (identify where the funnel breaks)</li>
+<li>Daily performance trends (some days better than others?)</li>
+<li>Comparison to other campaigns</li>
+</ul>
+<p><strong>Actions to test in Facebook Ads Manager:</strong></p>
+<ul>
+<li><strong>Narrow audience:</strong> Target more specific interests or demographics</li>
+<li><strong>Improve creative:</strong> Test new images, videos, or ad copy</li>
+<li><strong>Adjust offer:</strong> Add urgency, better discount, or bonus</li>
+<li><strong>Optimize landing page:</strong> A/B test to improve conversion rate</li>
+<li><strong>Exclude low performers:</strong> Use placement or audience exclusions</li>
+</ul>
+<h4>Analyzing Performance Trends</h4>
+<p><strong>Using Daily Data:</strong></p>
+<p>Alpha Insights stores daily performance data for each campaign. While not visible in the default UI, this data is available in the database (<code>_wpd_daily_data</code> meta field) and can be used to identify:</p>
+<ul>
+<li>Which days of the week perform best</li>
+<li>Performance trends over time (improving or declining?)</li>
+<li>Seasonal patterns</li>
+<li>Impact of budget changes on performance</li>
+</ul>
+<p><strong>Data Fields Available Per Day:</strong></p>
+<ul>
+<li>Date</li>
+<li>Spend</li>
+<li>Outbound clicks</li>
+<li>Add to cart events</li>
+<li>Purchases</li>
+<li>Purchase value</li>
+<li>Leads</li>
+<li>ROAS</li>
+<li>Impressions</li>
+</ul>
+<h3>Understanding Attribution in Alpha Insights</h3>
+<h4>Two Types of Data: Facebook's vs. Your Store's</h4>
+<p><strong>1. Facebook's Attribution (what you see in campaign metrics):</strong></p>
+<ul>
+<li>Purchases, Revenue, and ROAS shown in Alpha Insights come from Facebook Marketing API</li>
+<li>These are tracked by Facebook Pixel on your site</li>
+<li>Facebook uses their own attribution model (typically 7-day click, 1-day view)</li>
+<li>This data shows what Facebook thinks their campaigns achieved</li>
+</ul>
+<p><strong>2. Alpha Insights' Order Attribution (using meta_cid parameter):</strong></p>
+<ul>
+<li>Alpha Insights can match your actual WooCommerce orders to specific campaigns</li>
+<li>Uses the <code>meta_cid={{campaign.id}}</code> parameter in your ad URLs</li>
+<li>When customers visit via an ad with this parameter, it's stored with their order</li>
+<li>This enables true profit calculations per campaign in your Alpha Insights reports</li>
+</ul>
+<h4>How to Set Up Order Attribution</h4>
+<p><strong>Add this to your Facebook ad URLs:</strong></p>
+<pre><code>meta_cid={{campaign.id}}</code></pre>
+<p><strong>Full URL example:</strong></p>
+<pre><code>https://yourstore.com/products?meta_cid={{campaign.id}}</code></pre>
+<p><strong>What happens:</strong></p>
+<ol>
+<li>Facebook replaces <code>{{campaign.id}}</code> with the actual campaign ID</li>
+<li>Alpha Insights captures the <code>meta_cid</code> parameter from the landing page URL</li>
+<li>When the visitor places an order, the campaign ID is stored in order meta: <code>_wpd_ai_meta_campaign_id</code></li>
+<li>You can then run reports showing actual orders and profit by campaign</li>
+</ol>
+<p><strong>Code Reference:</strong> Order campaign ID attribution happens in <code>set_order_campaign_id_via_query_param()</code> method (lines 417-473 of <code>WPD_Facebook_API.php</code>)</p>
+<h4>Important Notes About Attribution</h4>
+<ul>
+<li><strong>No configurable attribution window:</strong> Orders are matched based on the landing page parameter, not time-based windows</li>
+<li><strong>Matches happen on order creation:</strong> The campaign ID is captured when customers first land on your site</li>
+<li><strong>Last 30 days by default:</strong> The <code>set_order_campaign_id_via_query_param()</code> method checks the last 30 days of orders by default</li>
+<li><strong>Facebook's data vs. your data:</strong> Numbers may differ between Facebook's reported purchases and your actual order attribution</li>
+</ul>
+<h3>Troubleshooting Campaign Data</h3>
+<h4>Issue: Campaign shows but no purchase data</h4>
+<p><strong>Possible reasons:</strong></p>
+<ul>
+<li>Campaign just launched (no purchases tracked yet)</li>
+<li>Facebook Pixel not installed or not tracking purchase events</li>
+<li>Purchases happening but not being sent to Facebook</li>
+</ul>
+<p><strong>Check:</strong></p>
+<ol>
+<li>Verify Facebook Pixel is installed on your site</li>
+<li>Check Pixel is tracking purchase events in Facebook Events Manager</li>
+<li>Wait for next sync (data updates based on your API call schedule)</li>
+<li>For Alpha Insights order attribution, verify <code>meta_cid={{campaign.id}}</code> is in your ad URLs</li>
+</ol>
+<h4>Issue: Revenue doesn't match Facebook Ads Manager</h4>
+<p><strong>Why they differ:</strong></p>
+<ul>
+<li>Facebook uses "view-through" attribution (saw ad but didn't click), Alpha Insights shows only what Facebook's API reports</li>
+<li>Different time zones between your WordPress site and Facebook</li>
+<li>Sync timing - data may not be fully processed yet</li>
+<li>Currency conversion if your ad account uses different currency than your store</li>
+</ul>
+<p><strong>This is normal!</strong> Small discrepancies (5-10%) are expected. Large differences indicate a tracking issue.</p>
+<h4>Issue: Spend amounts don't match Facebook Ads Manager</h4>
+<p><strong>Check:</strong></p>
+<ul>
+<li>Verify you're comparing the same date ranges</li>
+<li>Check if currency conversion is being applied (look for "currency_converted" field = 1 in campaign data)</li>
+<li>Wait for next sync - Facebook data isn't always immediately finalized</li>
+<li>Click <strong>Refresh All Campaign Data</strong> to force a sync</li>
+</ul>
+<h3>Best Practices</h3>
+<h4>Review Campaign Performance Regularly</h4>
+<ol>
+<li>Weekly: Review campaigns in Alpha Insights → Facebook Campaigns</li>
+<li>Sort by ROAS to identify top and bottom performers</li>
+<li>Make budget adjustments in Facebook Ads Manager based on data</li>
+<li>Monitor how changes affect performance in subsequent syncs</li>
+</ol>
+<h4>Set ROAS Goals by Campaign Type</h4>
+<p>Different campaign objectives should have different targets:</p>
+<ul>
+<li><strong>Prospecting (cold audiences):</strong> ROAS 2.5-3.5 acceptable</li>
+<li><strong>Retargeting:</strong> ROAS 5.0-8.0 expected</li>
+<li><strong>Lookalike audiences:</strong> ROAS 3.5-5.0 typical</li>
+</ul>
+<p><strong>Remember:</strong> These are Facebook's tracked ROAS numbers. Your actual profit may differ after accounting for COGS and other expenses.</p>
+<h4>Use Campaign Tracking Consistently</h4>
+<p>For best results with Alpha Insights order attribution:</p>
+<pre><code>meta_cid={{campaign.id}}</code></pre>
+<p>Add this parameter to ALL Facebook ad URLs to enable order-level tracking and profit calculations per campaign.</p>
+<h4>Understand Data Limitations</h4>
+<ul>
+<li><strong>Historical limit:</strong> Facebook API provides up to 37 months of historical data</li>
+<li><strong>Pixel accuracy:</strong> Purchase data depends on Facebook Pixel tracking accuracy</li>
+<li><strong>Campaign-level only:</strong> Data is aggregated at campaign level, not ad-level</li>
+<li><strong>Simple profit formula:</strong> Facebook profit shown is Revenue - Ad Spend only (doesn't include COGS or other costs)</li>
+</ul>
+

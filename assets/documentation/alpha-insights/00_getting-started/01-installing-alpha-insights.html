@@ -1,0 +1,131 @@
+﻿<h2>Installing Alpha Insights on Your WordPress Site</h2>
+<p>Installing Alpha Insights is quick and straightforward. This guide will walk you through the entire process, from
+    downloading the plugin to verifying it's working correctly.</p>
+<h3>Before You Begin</h3>
+<p>Make sure you have:</p>
+<ul>
+    <li>
+        <strong>WordPress 5.0 or higher</strong> installed on your website
+    </li>
+    <li>
+        <strong>WooCommerce 3.0 or higher</strong> activated and configured
+    </li>
+    <li>
+        <strong>Administrator access</strong> to your WordPress dashboard
+    </li>
+    <li>
+        <strong>Your Alpha Insights download file</strong>(should be named something like
+        <code>wpd-alpha-insights-pro-x.x.x.zip</code>)
+    </li>
+    <li>
+        <strong>Your license key</strong> from your purchase confirmation email, your account dashboard, or the checkout page
+    </li>
+</ul>
+<h3>Where to Download Alpha Insights</h3>
+<p>If you haven't downloaded the plugin yet, you can get it from:</p>
+<ul>
+    <li>
+        <strong>Your purchase confirmation email</strong>- Look for a download button or link
+    </li>
+    <li>
+        <strong>The order success page</strong>- Immediately after completing your purchase
+    </li>
+    <li>
+        <strong>Your WP Davies account</strong>- Visit <a href='https://wpdavies.dev/my-account/'
+            target='_blank'>wpdavies.dev/my-account</a> and go to the Downloads section
+    </li>
+</ul>
+<p>You have unlimited downloads for the duration of your subscription, so you can always re-download the latest version.
+</p>
+<h3>Installation Method 1: Upload via WordPress Dashboard (Recommended)</h3>
+<p>This is the easiest method and works for most WordPress installations.</p>
+<h4>Step 1: Access the Plugin Upload Screen</h4>
+<ol>
+    <li>Log in to your WordPress admin dashboard</li>
+    <li>Navigate to <strong>Plugins → Add New</strong> in the left sidebar</li>
+    <li>Click the <strong>Upload Plugin</strong> button at the top of the page</li>
+</ol>
+<h4>Step 2: Upload the Plugin File</h4>
+<ol>
+    <li>Click <strong>Choose File</strong> and select your downloaded <code>wpd-alpha-insights-pro-x.x.x.zip</code> file
+    </li>
+    <li>Click <strong>Install Now</strong>
+    </li>
+    <li>Wait for the upload and installation to complete (usually takes 10-30 seconds)</li>
+</ol>
+<h4>Step 3: Activate the Plugin</h4>
+<ol>
+    <li>Once installation is complete, click <strong>Activate Plugin</strong>
+    </li>
+    <li>You'll be redirected to your plugins page</li>
+    <li>Look for "Alpha Insights Pro" in your plugin list - it should show as activated with a blue highlight</li>
+</ol>
+<h3>Installation Method 2: FTP/File Manager Upload</h3>
+<p>If your server has upload size restrictions or the dashboard method doesn't work, use this method.</p>
+<h4>Step 1: Extract the Plugin</h4>
+<ol>
+    <li>Unzip the <code>wpd-alpha-insights-pro-x.x.x.zip</code> file on your computer</li>
+    <li>You should see a folder named <code>wp-davies-alpha-insights</code>
+    </li>
+</ol>
+<h4>Step 2: Upload via FTP or File Manager</h4>
+<ol>
+    <li>Connect to your website using an FTP client (like FileZilla) or your hosting control panel's file manager</li>
+    <li>Navigate to <code>/wp-content/plugins/</code>
+    </li>
+    <li>Upload the entire <code>wp-davies-alpha-insights</code> folder to this directory</li>
+    <li>Wait for all files to upload completely</li>
+</ol>
+<h4>Step 3: Activate in WordPress</h4>
+<ol>
+    <li>Go to your WordPress dashboard</li>
+    <li>Navigate to <strong>Plugins → Installed Plugins</strong>
+    </li>
+    <li>Find "Alpha Insights Pro" and click <strong>Activate</strong>
+    </li>
+</ol>
+<h3>Verifying Successful Installation</h3>
+<p>After activation, you should see:</p>
+<ul>
+    <li>A new <strong>"Alpha Insights"</strong> menu item in your WordPress admin sidebar (usually between WooCommerce
+        and Appearance)</li>
+    <li>The plugin listed in your active plugins with version information</li>
+</ul>
+<h4>Installation Troubleshooting</h4>
+<h3>Issue: "The uploaded file exceeds the upload_max_filesize directive"</h3>
+<p>
+    <strong>Solution:</strong> Your server has file upload size restrictions. Either:
+</p>
+<ul>
+    <li>Use Installation Method 2 (FTP upload) instead</li>
+    <li>Contact your hosting provider to temporarily increase your PHP upload limit</li>
+    <li>Add this line to your wp-config.php:<code>@ini_set('upload_max_filesize', '64M');</code>
+    </li>
+</ul>
+<h3>Issue: "Plugin could not be activated because it triggered a fatal error"</h3>
+<p>
+    <strong>Solution:</strong> This usually means a compatibility issue. Check that:
+</p>
+<ul>
+    <li>You're running PHP 7.4 or higher (Alpha Insights requires modern PHP)</li>
+    <li>WooCommerce is installed and activated</li>
+    <li>You don't have another version of Alpha Insights already installed</li>
+</ul>
+<h3>Issue: "Destination folder already exists"</h3>
+<p>
+    <strong>Solution:</strong> An old version might be installed. Either:
+</p>
+<ul>
+    <li>Deactivate and delete the old version first</li>
+    <li>Or rename the existing folder via FTP, then install the new version</li>
+</ul>
+<h3>What Happens During Installation?</h3>
+<p>When Alpha Insights is activated, it automatically:</p>
+<ul>
+    <li>Creates custom database tables to store profit analytics data</li>
+    <li>Registers custom post types for expenses, Facebook campaigns, and Google Ads campaigns</li>
+    <li>Sets up default settings and configurations</li>
+    <li>Schedules background tasks to process historical order data</li>
+    <li>Initializes the reporting engine</li>
+</ul>
+<p>You don't need to do anything manually - the plugin handles all technical setup automatically.</p>

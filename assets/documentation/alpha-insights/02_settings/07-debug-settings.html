@@ -1,0 +1,480 @@
+<h2>Debug Settings</h2>
+<p>The Debug Settings page provides powerful tools for troubleshooting, analyzing order calculations, reviewing system logs, and monitoring performance. This page is essential for diagnosing issues, verifying calculations, and understanding how Alpha Insights processes your data.</p>
+
+<h3>Accessing Debug Settings</h3>
+<ol>
+<li>Go to <strong>Alpha Insights → Settings</strong></li>
+<li>Navigate to the <strong>Debug</strong> settings page</li>
+<li>You'll see debugging tools and system logs</li>
+</ol>
+
+<h3>Who Should Use Debug Settings</h3>
+<ul>
+<li><strong>Store owners:</strong> Verify specific order calculations</li>
+<li><strong>Developers:</strong> Troubleshoot integration issues</li>
+<li><strong>Support team:</strong> Diagnose problems with guidance from WP Davies support</li>
+<li><strong>Advanced users:</strong> Deep dive into plugin operations</li>
+</ul>
+
+<p><strong>Note:</strong> This page contains technical information. If you're just getting started, you may not need to use these tools.</p>
+
+<h2>Debug Order Calculations</h2>
+<p>The most useful tool on this page - see complete calculation breakdown for any specific order.</p>
+
+<h3>Debug Order ID</h3>
+
+<h4>What It Does</h4>
+<p>Produces a complete output of all calculations, costs, and data for a specific order. This shows you exactly how Alpha Insights calculated profit for that order.</p>
+
+<h4>How to Use</h4>
+<ol>
+<li>Find the order ID you want to debug
+<ul>
+<li>Go to WooCommerce → Orders</li>
+<li>Find the order (e.g., #5469)</li>
+<li>Note the order ID number</li>
+</ul>
+</li>
+<li>On Debug Settings page, enter order ID in "Debug order ID" field</li>
+<li>Click <strong>Debug</strong> button</li>
+<li>Page reloads and shows complete calculation output below</li>
+</ol>
+
+<h3>Order Data Dump Output</h3>
+<p>When you debug an order, you'll see a detailed data dump including:</p>
+
+<h4>Order Information</h4>
+<ul>
+<li><strong>Order ID:</strong> WooCommerce order number</li>
+<li><strong>Order total:</strong> Total amount customer paid</li>
+<li><strong>Order status:</strong> Current order status</li>
+<li><strong>Payment method:</strong> How customer paid</li>
+<li><strong>Shipping method:</strong> How order will ship</li>
+<li><strong>Order date:</strong> When order was placed</li>
+<li><strong>Currency:</strong> Order currency</li>
+</ul>
+
+<h4>Revenue Breakdown</h4>
+<ul>
+<li><strong>Order total:</strong> Full amount charged</li>
+<li><strong>Subtotal:</strong> Before tax and shipping</li>
+<li><strong>Tax:</strong> Tax amount collected</li>
+<li><strong>Shipping charged:</strong> Shipping fee charged to customer</li>
+<li><strong>Discounts:</strong> Coupon or discount amounts</li>
+<li><strong>Refunds:</strong> Any refunded amounts</li>
+</ul>
+
+<h4>Cost Breakdown</h4>
+<ul>
+<li><strong>Product costs (COGS):</strong> Per product and total</li>
+<li><strong>Custom product costs:</strong> Any custom cost fields per product</li>
+<li><strong>Shipping cost:</strong> What you paid carrier</li>
+<li><strong>Payment gateway fee:</strong> Processing fee</li>
+<li><strong>Custom order costs:</strong> Any custom order-level costs</li>
+<li><strong>Total costs:</strong> Sum of all costs</li>
+</ul>
+
+<h4>Profit Calculations</h4>
+<ul>
+<li><strong>Gross profit:</strong> Revenue minus order costs</li>
+<li><strong>Gross margin:</strong> Profit as percentage</li>
+<li><strong>Net profit:</strong> After additional expenses (if applicable)</li>
+<li><strong>Net margin:</strong> Net profit percentage</li>
+</ul>
+
+<h4>Line Item Details</h4>
+<p>For each product in the order:</p>
+<ul>
+<li>Product name and ID</li>
+<li>Quantity ordered</li>
+<li>Price per unit</li>
+<li>Cost of goods per unit</li>
+<li>Custom costs per unit</li>
+<li>Line item profit</li>
+<li>Line item margin</li>
+</ul>
+
+<h4>Order Meta Data</h4>
+<ul>
+<li>All order meta fields</li>
+<li>Alpha Insights custom meta</li>
+<li>Calculation overrides (if any)</li>
+<li>Tracking data (campaigns, UTM, GCLID)</li>
+<li>Custom field values</li>
+</ul>
+
+<h3>When to Debug an Order</h3>
+
+<p><strong>Verify calculations:</strong></p>
+<ul>
+<li>Order profit seems incorrect</li>
+<li>Want to understand specific cost breakdown</li>
+<li>Checking if costs are being applied correctly</li>
+</ul>
+
+<p><strong>Troubleshoot issues:</strong></p>
+<ul>
+<li>Negative profit on unexpected order</li>
+<li>Costs not matching expectations</li>
+<li>Missing cost data</li>
+<li>Incorrect margin calculations</li>
+</ul>
+
+<p><strong>Support requests:</strong></p>
+<ul>
+<li>WP Davies support asks for order debug data</li>
+<li>Providing detailed information about calculation issue</li>
+<li>Comparing calculations between orders</li>
+</ul>
+
+<h3>Understanding Debug Output</h3>
+
+<p><strong>Green values:</strong> Positive amounts (revenue, profit)</p>
+<p><strong>Red values:</strong> Negative amounts (costs, refunds, losses)</p>
+<p><strong>Bold labels:</strong> Key calculation fields</p>
+
+<p><strong>Nested arrays:</strong> Related data grouped together</p>
+<ul>
+<li>Line items under "items"</li>
+<li>Costs under "cost_breakdown"</li>
+<li>Meta data under "order_meta"</li>
+</ul>
+
+<h2>WP Davies Logs</h2>
+<p>View system logs from Alpha Insights operations.</p>
+
+<h3>Log Display</h3>
+<p>The log section shows all available log files in a split-panel interface:</p>
+
+<p><strong>Left panel:</strong> List of available logs</p>
+<ul>
+<li>Each log file listed by name</li>
+<li>Click log name to view contents</li>
+<li>Active log highlighted</li>
+<li>Scrollable if many logs</li>
+</ul>
+
+<p><strong>Right panel:</strong> Log contents</p>
+<ul>
+<li>Shows entries from selected log</li>
+<li>Most recent entries at bottom</li>
+<li>Timestamped entries</li>
+<li>Color-coded by severity (errors in red, etc.)</li>
+</ul>
+
+<h3>Common Log Files</h3>
+
+<p><strong>Facebook API Log:</strong></p>
+<ul>
+<li>Facebook connection attempts</li>
+<li>Data sync operations</li>
+<li>API errors and responses</li>
+<li>Campaign data fetching</li>
+</ul>
+
+<p><strong>Google Ads API Log:</strong></p>
+<ul>
+<li>Google Ads connection status</li>
+<li>Sync operations</li>
+<li>Conversion tracking events</li>
+<li>API errors</li>
+</ul>
+
+<p><strong>General System Log:</strong></p>
+<ul>
+<li>Plugin activation/deactivation</li>
+<li>Database updates</li>
+<li>Cache operations</li>
+<li>System errors</li>
+</ul>
+
+<p><strong>Calculation Log:</strong></p>
+<ul>
+<li>Order calculation events</li>
+<li>Cost updates</li>
+<li>Batch processing</li>
+</ul>
+
+<h3>Reading Log Entries</h3>
+<p>Each log entry typically includes:</p>
+
+<p><strong>Timestamp:</strong> When event occurred</p>
+<ul>
+<li>Format: "2024-10-22 14:35:22"</li>
+<li>Uses WordPress timezone</li>
+</ul>
+
+<p><strong>Severity level:</strong></p>
+<ul>
+<li><strong>ERROR:</strong> Something failed (red)</li>
+<li><strong>WARNING:</strong> Potential issue (yellow)</li>
+<li><strong>INFO:</strong> General information (blue)</li>
+<li><strong>DEBUG:</strong> Detailed technical info (gray)</li>
+</ul>
+
+<p><strong>Message:</strong> Description of what happened</p>
+<ul>
+<li>Human-readable explanation</li>
+<li>May include IDs, URLs, or values</li>
+<li>Technical details for debugging</li>
+</ul>
+
+<h3>Log Management</h3>
+
+<p><strong>Automatic cleanup:</strong></p>
+<ul>
+<li>Logs over 10MB are automatically deleted</li>
+<li>Prevents excessive disk space usage</li>
+<li>Keeps most recent entries</li>
+</ul>
+
+<p><strong>Manual log clearing:</strong></p>
+<ul>
+<li>Currently requires FTP/file manager access</li>
+<li>Logs stored in uploads folder</li>
+<li>Can delete log files manually if needed</li>
+</ul>
+
+<h3>Using Logs for Troubleshooting</h3>
+
+<p><strong>Facebook sync issues:</strong></p>
+<ol>
+<li>Open Facebook API Log</li>
+<li>Look for ERROR entries</li>
+<li>Check error messages</li>
+<li>Note timestamps of failures</li>
+<li>Provide to support if needed</li>
+</ol>
+
+<p><strong>Google Ads problems:</strong></p>
+<ol>
+<li>Review Google Ads API Error Log</li>
+<li>Check for authentication errors</li>
+<li>Look for API quota issues</li>
+<li>Verify conversion tracking events</li>
+</ol>
+
+<p><strong>Calculation discrepancies:</strong></p>
+<ol>
+<li>Check Calculation Log</li>
+<li>Look for order-specific entries</li>
+<li>Identify when calculation was last updated</li>
+<li>See if overrides were applied</li>
+</ol>
+
+<h2>Performance Reports</h2>
+<p>If available, shows performance metrics for various plugin operations.</p>
+
+<h3>Performance Metrics</h3>
+<p>Performance report table includes:</p>
+
+<p><strong>Report Type:</strong> What operation was measured</p>
+<ul>
+<li>Order data fetch</li>
+<li>Product cost calculation</li>
+<li>Report generation</li>
+<li>Cache operations</li>
+<li>API calls</li>
+</ul>
+
+<p><strong>Metrics displayed:</strong></p>
+<ul>
+<li><strong>Execution time:</strong> How long operation took (milliseconds)</li>
+<li><strong>Memory usage:</strong> RAM used during operation</li>
+<li><strong>Query count:</strong> Number of database queries</li>
+<li><strong>Cache hits:</strong> How often cache was used</li>
+<li><strong>API calls:</strong> External API requests made</li>
+</ul>
+
+<h3>Understanding Performance Data</h3>
+
+<p><strong>Good performance indicators:</strong></p>
+<ul>
+<li>Low execution times (&lt;1000ms)</li>
+<li>Efficient memory usage (&lt;50MB)</li>
+<li>Minimal database queries (&lt;100)</li>
+<li>High cache hit ratio (&gt;80%)</li>
+</ul>
+
+<p><strong>Performance issues:</strong></p>
+<ul>
+<li>Very long execution times (&gt;5000ms)</li>
+<li>High memory usage (&gt;256MB)</li>
+<li>Excessive queries (&gt;500)</li>
+<li>Low cache effectiveness (&lt;50%)</li>
+</ul>
+
+<h3>When to Check Performance</h3>
+<ul>
+<li>Site feels slow when viewing reports</li>
+<li>Dashboard takes long to load</li>
+<li>Experiencing timeouts</li>
+<li>Server resource issues</li>
+<li>Optimizing large stores</li>
+</ul>
+
+<h2>Debugging Best Practices</h2>
+
+<h3>Order Debugging</h3>
+<ul>
+<li><strong>Start with specific order:</strong> Debug individual problematic orders first</li>
+<li><strong>Compare similar orders:</strong> Debug working order vs problem order</li>
+<li><strong>Check recent changes:</strong> Debug order after making settings changes</li>
+<li><strong>Document findings:</strong> Screenshot or copy debug data when reporting issues</li>
+</ul>
+
+<h3>Log Review</h3>
+<ul>
+<li><strong>Check logs after errors:</strong> Immediately after seeing an error</li>
+<li><strong>Look for patterns:</strong> Recurring errors indicate systematic issues</li>
+<li><strong>Note timestamps:</strong> Correlate log entries with observed issues</li>
+<li><strong>Start with recent entries:</strong> Most recent issues are at bottom</li>
+</ul>
+
+<h3>Performance Monitoring</h3>
+<ul>
+<li><strong>Regular checks:</strong> Review performance monthly</li>
+<li><strong>After updates:</strong> Check performance after plugin updates</li>
+<li><strong>When issues arise:</strong> First place to look for slow performance</li>
+<li><strong>Before optimization:</strong> Baseline metrics before making changes</li>
+</ul>
+
+<h2>Working with Support</h2>
+
+<h3>Providing Debug Information</h3>
+<p>When contacting WP Davies support, they may ask for debug data:</p>
+
+<p><strong>Order debug data:</strong></p>
+<ol>
+<li>Debug the specific order in question</li>
+<li>Take screenshot of output or copy text</li>
+<li>Note the order ID clearly</li>
+<li>Include in support ticket</li>
+</ol>
+
+<p><strong>Log excerpts:</strong></p>
+<ol>
+<li>Navigate to relevant log file</li>
+<li>Screenshot error entries</li>
+<li>Include timestamps</li>
+<li>Note which log file</li>
+</ol>
+
+<p><strong>Performance data:</strong></p>
+<ol>
+<li>Screenshot performance report table</li>
+<li>Note which operations are slow</li>
+<li>Include store size context (order count)</li>
+</ol>
+
+<h3>What NOT to Share Publicly</h3>
+<p><strong>Sensitive data in debug output:</strong></p>
+<ul>
+<li>Customer names and addresses</li>
+<li>Full order details</li>
+<li>Payment information</li>
+<li>Access tokens or API keys</li>
+<li>License keys</li>
+</ul>
+
+<p><strong>Share with support only:</strong> Debug data should only go to official WP Davies support channels</p>
+
+<h2>Common Debug Scenarios</h2>
+
+<h3>Scenario: Negative Profit on Order</h3>
+<ol>
+<li>Note the order ID</li>
+<li>Go to Debug Settings</li>
+<li>Enter order ID and click Debug</li>
+<li>Review cost breakdown</li>
+<li>Identify which cost is unexpectedly high</li>
+<li>Check if product cost is correct</li>
+<li>Verify payment gateway fee calculation</li>
+<li>Confirm shipping cost is accurate</li>
+</ol>
+
+<h3>Scenario: Facebook Sync Not Working</h3>
+<ol>
+<li>Go to Debug Settings</li>
+<li>Open Facebook API Log</li>
+<li>Look for ERROR entries</li>
+<li>Check error message</li>
+<li>Common issues:
+<ul>
+<li>"Token expired" → Reconnect Facebook</li>
+<li>"Permission denied" → Check ad account access</li>
+<li>"Rate limit" → Wait and sync will resume</li>
+</ul>
+</li>
+</ol>
+
+<h3>Scenario: Reports Loading Slowly</h3>
+<ol>
+<li>Go to Debug Settings</li>
+<li>Review Performance Reports</li>
+<li>Identify slow operations</li>
+<li>Check execution times</li>
+<li>If report generation is slow:
+<ul>
+<li>Clear report cache (General Settings)</li>
+<li>Reduce date range being queried</li>
+<li>Contact support if consistently slow</li>
+</ul>
+</li>
+</ol>
+
+<h3>Scenario: Missing Product Costs</h3>
+<ol>
+<li>Debug an order with the affected product</li>
+<li>Review line item details</li>
+<li>Check product cost field</li>
+<li>If showing 0 or default:
+<ul>
+<li>Go to Cost of Goods Manager</li>
+<li>Verify product has cost entered</li>
+<li>Save cost if missing</li>
+<li>Clear cache</li>
+<li>Debug order again to verify</li>
+</ul>
+</li>
+</ol>
+
+<h2>Advanced Debugging</h2>
+
+<h3>For Developers</h3>
+<p>If you're a developer working with Alpha Insights:</p>
+
+<p><strong>Use WordPress debug constants:</strong></p>
+<ul>
+<li>Enable <code>WP_DEBUG</code> in wp-config.php</li>
+<li>Set <code>WP_DEBUG_LOG</code> to true</li>
+<li>Alpha Insights will log more detailed information</li>
+</ul>
+
+<p><strong>Query Monitor plugin:</strong></p>
+<ul>
+<li>Install Query Monitor</li>
+<li>See database queries from Alpha Insights</li>
+<li>Identify slow queries</li>
+<li>Monitor API calls</li>
+</ul>
+
+<p><strong>Browser developer tools:</strong></p>
+<ul>
+<li>Check AJAX requests in Network tab</li>
+<li>View console for JavaScript errors</li>
+<li>Monitor API responses</li>
+</ul>
+
+<h2>Summary</h2>
+<p>Debug Settings provide:</p>
+<ul>
+<li><strong>Order debugging:</strong> Complete calculation breakdowns for any order</li>
+<li><strong>System logs:</strong> Detailed operation history and error tracking</li>
+<li><strong>Performance monitoring:</strong> Identify slow operations and bottlenecks</li>
+<li><strong>Troubleshooting tools:</strong> Essential for diagnosing issues</li>
+<li><strong>Support assistance:</strong> Data needed for effective support</li>
+</ul>
+
+<p>While you may not need Debug Settings for everyday use, they're invaluable when something doesn't look right or when you need to verify how Alpha Insights is calculating your store's profitability. Keep this page bookmarked for troubleshooting needs!</p>
+

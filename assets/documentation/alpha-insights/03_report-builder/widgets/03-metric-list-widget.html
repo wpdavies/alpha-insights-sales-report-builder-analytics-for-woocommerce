@@ -1,0 +1,204 @@
+﻿<h2>Metric List Widget</h2>
+<p>The Metric List widget displays multiple metrics in a compact list format. Perfect for showing related KPIs together in one widget instead of creating separate metric cards.</p>
+<h3>When to Use</h3>
+<ul>
+<li>Display multiple related metrics in one space-efficient widget</li>
+<li>Create compact dashboards with many metrics</li>
+<li>Group related KPIs together (all cost metrics, all revenue metrics)</li>
+<li>Show detailed metric breakdowns with sub-values</li>
+</ul>
+<h4>Configuration Options</h4>
+<h3>Content Settings</h3>
+<h4>Title (Required)</h4>
+<p>
+<strong>Examples:</strong> "Revenue Breakdown", "Cost Summary", "Performance Metrics"
+</p>
+<h3>Configure Metrics (Required)</h3>
+<p>
+<strong>What it is:</strong> Array of metrics to display in the list
+</p>
+<p>
+<strong>How to configure:</strong>
+</p>
+<ol>
+<li>Click <strong>Add Metric</strong>
+</li>
+<li>Configure each metric:
+<ul>
+<li>
+<strong>Metric:</strong> Select from available metrics (Revenue, Profit, Orders, etc.)
+</li>
+<li>
+<strong>Label:</strong> Custom label for this metric (optional, uses default if empty)
+</li>
+<li>
+<strong>Icon:</strong> Optional icon to display next to metric
+</li>
+<li>
+<strong>Color:</strong> Color theme for this metric
+</li>
+</ul>
+</li>
+<li>Click <strong>Add Metric</strong> again to add more</li>
+<li>Drag to reorder metrics in the list</li>
+</ol>
+<p>
+<strong>Recommended:</strong> 3-8 metrics per list widget
+</p>
+<h3>Change Indicator</h3>
+<p>
+<strong>Options:</strong>
+</p>
+<ul>
+<li>
+<strong>Previous Period:</strong> Show % change vs previous equivalent period
+</li>
+<li>
+<strong>Previous Year:</strong> Show % change vs same period last year
+</li>
+<li>
+<strong>None:</strong> Don't show comparisons
+</li>
+</ul>
+<p>
+<strong>Note:</strong> Applied to all metrics in the list
+</p>
+<h4>Design Settings</h4>
+<h3>Responsive Width</h3>
+<p>
+<strong>Desktop/Tablet/Mobile Columns (1-12):</strong>
+</p>
+<ul>
+<li>Full width: 12 columns</li>
+<li>Half width: 6 columns</li>
+<li>Third width: 4 columns</li>
+</ul>
+<p>
+<strong>Recommended:</strong> 4-6 columns on desktop for sidebar-style metric lists
+</p>
+<h4>Advanced Settings</h4>
+<h3>Enable Real-Time Data</h3>
+<p>
+<strong>Options:</strong> On/Off
+</p>
+<p>
+<strong>When enabled:</strong> Metrics auto-refresh every 30 seconds
+</p>
+<h3>Visual Layout</h3>
+<pre>
+	<code>┌─────────────────────────────────┐
+│      Revenue Breakdown          │
+├─────────────────────────────────┤
+│ [attach_money] Total Revenue    │
+│             $45,230    ↑ 12.5%  │
+├─────────────────────────────────┤
+│ [bar_chart] Gross Profit        │
+│             $18,092    ↑ 8.3%   │
+├─────────────────────────────────┤
+│ [trending_up] Net Profit        │
+│             $12,450    ↑ 15.2%  │
+├─────────────────────────────────┤
+│ [percent] Profit Margin         │
+│             27.5%      ↑ 2.1%   │
+└─────────────────────────────────┘</code>
+</pre>
+<h4>Example Configurations</h4>
+<h4>Example 1: Revenue Breakdown</h4>
+<p>
+<strong>Title:</strong> "Revenue Breakdown"
+</p>
+<p>
+<strong>Metrics configured:</strong>
+</p>
+<ol>
+<li>Total Revenue (icon: attach_money, color: blue)</li>
+<li>Tax Collected (icon: receipt, color: gray)</li>
+<li>Revenue Excl. Tax (icon: shopping_cart, color: blue)</li>
+<li>Shipping Revenue (icon: local_shipping, color: purple)</li>
+</ol>
+<h4>Example 2: Cost Summary</h4>
+<p>
+<strong>Title:</strong> "Cost Summary"
+</p>
+<p>
+<strong>Metrics:</strong>
+</p>
+<ol>
+<li>Total Costs (icon: account_balance_wallet, color: red)</li>
+<li>Product Costs (icon: inventory_2, color: orange)</li>
+<li>Shipping Costs (icon: local_shipping, color: orange)</li>
+<li>Payment Fees (icon: receipt, color: orange)</li>
+<li>Ad Spend (icon: activity, color: red)</li>
+<li>Operating Expenses (icon: receipt, color: red)</li>
+</ol>
+<h4>Example 3: Customer Metrics</h4>
+<p>
+<strong>Title:</strong> "Customer Analytics"
+</p>
+<p>
+<strong>Metrics:</strong>
+</p>
+<ol>
+<li>Total Customers (icon: people, color: purple)</li>
+<li>New Customers (icon: people, color: green)</li>
+<li>Returning Customers (icon: repeat, color: blue)</li>
+<li>Average LTV (icon: trending_up, color: green)</li>
+<li>Repeat Purchase Rate (icon: percent, color: purple)</li>
+</ol>
+<h3>Best Practices</h3>
+<h3>Metric Selection</h3>
+<ul>
+<li>Group related metrics together (all revenue, all costs, all customer metrics)</li>
+<li>Order by importance (most important at top)</li>
+<li>Limit to 6-8 metrics maximum for readability</li>
+<li>Use consistent color coding (costs = red/orange, revenue = blue, profit = green)</li>
+</ul>
+<h4>Layout Tips</h4>
+<ul>
+<li>Use in sidebar alongside main chart (6 cols metric list + 6 cols chart)</li>
+<li>Place at top of report for overview</li>
+<li>Full width (12 cols) if displaying many metrics</li>
+</ul>
+<h3>When to Use Metric List vs Multiple Metric Cards</h3>
+<p>
+<strong>Use Metric List when:</strong>
+</p>
+<ul>
+<li>Showing 4+ related metrics</li>
+<li>Space is limited</li>
+<li>Metrics are supplementary to main visualization</li>
+</ul>
+<p>
+<strong>Use Multiple Metric Cards when:</strong>
+</p>
+<ul>
+<li>Showing 2-4 primary KPIs</li>
+<li>Each metric equally important</li>
+<li>Want prominent display at report top</li>
+</ul>
+<h4>Common Use Cases</h4>
+<h3>Dashboard Sidebar</h3>
+<p>6-column metric list on left, 6-column chart on right:</p>
+<ul>
+<li>Metrics: Revenue, Profit, Orders, AOV, Margin, ROAS</li>
+<li>Chart: Revenue trend line chart</li>
+</ul>
+<h4>Cost Breakdown Panel</h4>
+<p>All cost components in one list:</p>
+<ul>
+<li>Product Costs, Shipping, Fees, Ad Spend, Expenses, Total Costs</li>
+</ul>
+<h3>Performance Scorecard</h3>
+<p>Key performance indicators:</p>
+<ul>
+<li>Conversion Rate, AOV, CLV, Repeat Rate, Cart Abandonment, Refund Rate</li>
+</ul>
+<h3>Related Widgets</h3>
+<ul>
+<li>
+<a href='/documentation/alpha-insights/report-builder/widgets/metric-card-widget.html'>Metric Card Widget</a> - Single metric display
+</li>
+<li>
+<a href='/documentation/alpha-insights/report-builder/widgets/simple-table-widget.html'>Simple Table Widget</a> - Tabular metric display
+</li>
+</ul>

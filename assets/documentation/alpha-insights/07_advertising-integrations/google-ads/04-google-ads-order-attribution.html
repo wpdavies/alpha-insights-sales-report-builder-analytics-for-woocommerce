@@ -1,0 +1,919 @@
+<h2>Google Ads Order Attribution</h2>
+
+<p>Understanding how Alpha Insights attributes your actual WooCommerce orders to specific Google Ads campaigns is essential for accurate profit analysis and campaign optimization. This guide explains the technical details of how order attribution works for Google Ads and how to set it up correctly.</p>
+
+<h3>What is Order Attribution?</h3>
+
+<p>Order attribution is the process of matching your WooCommerce orders to the specific Google Ads campaign that drove the customer to your store. This enables Alpha Insights to calculate true profit by campaign, accounting for actual product costs, shipping, fees, and all other expenses—not just the revenue metrics from Google's API.</p>
+
+<h4>Two Types of Data in Alpha Insights</h4>
+
+<p><strong>1. Google Ads API Data (Campaign Performance Metrics)</strong></p>
+<ul>
+<li>Synced from Google Ads API</li>
+<li>Shows: Ad spend, clicks, impressions, conversions tracked by Google</li>
+<li>Uses Google's conversion tracking and attribution</li>
+<li>Good for: Comparing to Google Ads interface, monitoring spend</li>
+<li>Limitation: Doesn't include your actual costs (COGS, shipping, fees)</li>
+</ul>
+
+<p><strong>2. Alpha Insights Order Attribution (Your Actual Orders)</strong></p>
+<ul>
+<li>Matches real WooCommerce orders to campaigns</li>
+<li>Enables true profit calculations including all costs</li>
+<li>Shows which products sold from each campaign</li>
+<li>Tracks customer lifetime value by acquisition campaign</li>
+<li>More accurate for business decisions</li>
+</ul>
+
+<h3>How Google Ads Order Attribution Works</h3>
+
+<p>Google Ads attribution in Alpha Insights uses <strong>two methods</strong>, with the <code>google_cid</code> parameter being the primary and most reliable method:</p>
+
+<h4>Method 1: google_cid Parameter (Primary Method) ★ REQUIRED</h4>
+
+<p><strong>CRITICAL:</strong> To enable order attribution, you MUST add the <code>google_cid</code> parameter to all your Google ad URLs.</p>
+
+<p><strong>Parameter format:</strong></p>
+<pre><code>google_cid={campaignid}</code></pre>
+
+<p><strong>How it works:</strong></p>
+<ol>
+<li>You manually add <code>google_cid={campaignid}</code> to your ad URLs</li>
+<li>Google replaces <code>{campaignid}</code> with the actual campaign ID</li>
+<li>Customer clicks ad and lands on: <code>https://yourstore.com/products?google_cid=987654321</code></li>
+<li>Alpha Insights captures the landing page with <code>google_cid</code> in first-party cookie</li>
+<li>Customer completes checkout and places order</li>
+<li>Alpha Insights extracts the campaign ID from <code>google_cid</code> parameter</li>
+<li>Campaign ID saved directly to order: <code>_wpd_ai_google_campaign_id</code></li>
+<li>Order permanently linked to Google Ads campaign</li>
+</ol>
+
+<p><strong>Why this is the primary method:</strong></p>
+<ul>
+<li>Simple and reliable—direct campaign ID extraction</li>
+<li>No API lookups required—immediate attribution</li>
+<li>Works for all Google Ads campaign types (Search, Shopping, Display, Video, Performance Max)</li>
+<li>No time limitations—works regardless of order age</li>
+<li>100% attribution accuracy when parameter is present</li>
+</ul>
+
+<p><strong>Example setup:</strong></p>
+<pre><code>Original URL:
+https://yourstore.com/products
+
+With tracking parameter:
+https://yourstore.com/products?google_cid={campaignid}
+
+If URL already has parameters:
+https://yourstore.com/products?utm_source=google&google_cid={campaignid}
+</code></pre>
+
+<h4>Method 2: GCLID Auto-Tagging (Supplementary Method)</h4>
+
+<p><strong>GCLID (Google Click Identifier)</strong> is a unique parameter that Google automatically adds to your landing page URLs when auto-tagging is enabled. Alpha Insights can attempt to match GCLIDs to campaigns via the Google Ads API as a supplementary attribution method.</p>
+
+<p><strong>How it works:</strong></p>
+<ol>
+<li>Auto-tagging enabled in Google Ads</li>
+<li>Google automatically appends GCLID to landing URLs: <code>https://yourstore.com/products?gclid=Cj0KCQiA...</code></li>
+<li>Alpha Insights captures landing page with GCLID</li>
+<li>Background process queries Google Ads API to match GCLID to campaign ID</li>
+<li>Campaign ID saved to order if match found</li>
+</ol>
+
+<p><strong>Important limitations of GCLID method:</strong></p>
+<ul>
+<li><strong>90-day API limit:</strong> Google Ads API only provides GCLID data for the last 90 days</li>
+<li><strong>API dependency:</strong> Requires active Google Ads API connection</li>
+<li><strong>Rate limiting:</strong> Lookups are throttled to respect API limits</li>
+<li><strong>Date-specific matching:</strong> Can fail if order date doesn't match click date</li>
+<li><strong>Not guaranteed:</strong> API lookups can fail for various technical reasons</li>
+</ul>
+
+<p><strong>Recommendation:</strong> Always use the <code>google_cid</code> parameter as your primary attribution method. GCLID can provide supplementary attribution but should not be relied upon as the sole method.</p>
+
+<h3>Required Setup: Add google_cid Parameter</h3>
+
+<p><strong>CRITICAL:</strong> For accurate order attribution, you MUST add the <code>google_cid</code> parameter to all your Google ad URLs.</p>
+
+<h4>How to Add google_cid to Your Ad URLs</h4>
+
+<p><strong>In Google Ads:</strong></p>
+
+<ol>
+<li>Go to your <strong>Google Ads</strong> account</li>
+<li>Navigate to <strong>Campaigns</strong></li>
+<li>Click on the campaign you want to edit</li>
+<li>Go to <strong>Settings</strong></li>
+<li>Expand <strong>Additional settings</strong></li>
+<li>Click <strong>Campaign URL options</strong></li>
+<li>In the <strong>Tracking template</strong> or <strong>Final URL suffix</strong> field, add:<br>
+<code>google_cid={campaignid}</code></li>
+<li>If using <strong>Final URL suffix</strong>: <code>?google_cid={campaignid}</code><br>
+(use <code>&google_cid={campaignid}</code> if your URLs already have parameters)</li>
+<li>Click <strong>Save</strong></li>
+</ol>
+
+<p><strong>Alternative: Add to individual ads</strong></p>
+<ul>
+<li>Edit each ad's destination URL directly</li>
+<li>Append <code>?google_cid={campaignid}</code> to the URL</li>
+<li>Example: <code>https://yourstore.com/products?google_cid={campaignid}</code></li>
+</ul>
+
+<p><strong>What happens:</strong></p>
+<ul>
+<li>Google automatically replaces <code>{campaignid}</code> with the actual campaign ID</li>
+<li>Every ad click includes the campaign ID in the URL</li>
+<li>Alpha Insights can directly attribute orders to specific campaigns</li>
+</ul>
+
+<p><strong>Verification:</strong></p>
+<p>After adding the parameter, click one of your own ads and check the URL you land on. You should see:</p>
+<pre><code>https://yourstore.com/products?google_cid=1234567890</code></pre>
+
+<p>If you see the <code>google_cid</code> parameter with a numeric campaign ID, it's working correctly!</p>
+
+<h4>Optional: Enable Auto-Tagging for Supplementary GCLID Tracking</h4>
+
+<p>In addition to the required <code>google_cid</code> parameter, you can optionally enable auto-tagging for supplementary GCLID tracking:</p>
+
+<ol>
+<li>Go to <strong>Google Ads → Settings → Account settings</strong></li>
+<li>Scroll to <strong>Tracking</strong> section</li>
+<li>Check: <strong>"Tag the URL that people click through from my ad"</strong></li>
+<li>Click <strong>Save</strong></li>
+</ol>
+
+<p><strong>Note:</strong> This is optional and provides backup attribution, but <code>google_cid</code> remains the primary method.</p>
+
+<h3>Understanding the Attribution Process</h3>
+
+<h4>The Complete Attribution Flow</h4>
+
+<ol>
+<li><strong>Customer clicks Google ad</strong>
+<ul>
+<li>Auto-tagging adds GCLID to landing URL</li>
+<li>Example: <code>yourstore.com/products?gclid=Cj0KCQiA8vOsBhCkAR...</code></li>
+</ul>
+</li>
+
+<li><strong>Landing page captured</strong>
+<ul>
+<li>Alpha Insights JavaScript detects landing page</li>
+<li>Full URL stored in first-party cookie: <code>wpd_ai_landing_page</code></li>
+<li>Referrer stored in cookie: <code>wpd_ai_referral_source</code></li>
+</ul>
+</li>
+
+<li><strong>Customer browses and shops</strong>
+<ul>
+<li>Session tracked, cookies persist across pages</li>
+<li>Customer can leave and return (within cookie lifetime)</li>
+</ul>
+</li>
+
+<li><strong>Order is created at checkout</strong>
+<ul>
+<li>Landing page saved to order meta: <code>_wpd_ai_landing_page</code></li>
+<li>Referral saved to order meta: <code>_wpd_ai_referral_source</code></li>
+<li>GCLID extracted from landing page URL</li>
+</ul>
+</li>
+
+<li><strong>Background: GCLID lookup (within 90 days)</strong>
+<ul>
+<li>Alpha Insights queries Google Ads API with GCLID</li>
+<li>API returns campaign ID for that click</li>
+<li>Campaign ID saved to order: <code>_wpd_ai_google_campaign_id</code></li>
+<li>Order now linked to specific Google Ads campaign</li>
+</ul>
+</li>
+
+<li><strong>Order appears in campaign reports</strong>
+<ul>
+<li>Revenue, costs, and profit attributed to campaign</li>
+<li>Product-level detail available</li>
+<li>True profit calculated with COGS</li>
+</ul>
+</li>
+</ol>
+
+<h4>Visual Flow Diagram (Primary Method: google_cid)</h4>
+
+<pre><code>Google Ad Click
+     ↓
+Landing: yourstore.com/products?google_cid=987654321
+     ↓
+Cookie Stored: wpd_ai_landing_page = "yourstore.com/products?google_cid=987654321"
+     ↓
+Customer Browses & Adds to Cart
+     ↓
+Order Created (#5002)
+     ↓
+Order Meta Saved:
+  _wpd_ai_landing_page = "yourstore.com/products?google_cid=987654321"
+     ↓
+Attribution Process:
+  Extract google_cid from query params → Campaign ID = "987654321"
+     ↓
+Order Meta Updated:
+  _wpd_ai_google_campaign_id = "987654321"
+     ↓
+Report: Order #5002 attributed to Campaign 987654321
+</code></pre>
+
+<p><strong>If GCLID auto-tagging also enabled (supplementary):</strong></p>
+<pre><code>Landing: yourstore.com/products?google_cid=987654321&gclid=Cj0KCQiA...
+     ↓
+Primary attribution: google_cid extracted immediately
+Backup attribution: GCLID can be looked up via API if google_cid fails
+</code></pre>
+
+<h4>Code Reference</h4>
+
+<p><strong>Order attribution logic:</strong></p>
+<ul>
+<li><code>WPD_Alpha_Insights_Core->save_landing_page_to_order_meta()</code> (lines 1312-1357)</li>
+<li><code>WPD_Google_Ads_API->set_order_campaign_id_via_query_param()</code> (lines 676-732)</li>
+<li><code>WPD_Google_Ads_API->set_order_campaign_id_via_api_last_x_days()</code> (lines 741-855)</li>
+<li><code>WPD_Google_Ads_API->api_fetch_campaign_id_by_gclid()</code> (lines 1701-1738)</li>
+</ul>
+
+<h3>Understanding Attribution Behavior</h3>
+
+<h4>GCLID API Lookup Process</h4>
+
+<p><strong>How GCLID-to-Campaign Matching Works:</strong></p>
+
+<ol>
+<li><strong>Order created with GCLID in landing page</strong></li>
+<li><strong>Alpha Insights marks order for lookup</strong>
+<ul>
+<li>Sets temporary meta: <code>_wpd_ai_google_api_campaign_id_check</code></li>
+</ul>
+</li>
+<li><strong>Background process queries Google API</strong>
+<ul>
+<li>Sends GCLID and order date to Google Ads API</li>
+<li>API query: <code>SELECT campaign.id, campaign.name FROM click_view WHERE segments.date = 'YYYY-MM-DD' AND click_view.gclid = 'GCLID'</code></li>
+</ul>
+</li>
+<li><strong>Campaign ID returned and saved</strong>
+<ul>
+<li>Saves to order meta: <code>_wpd_ai_google_campaign_id</code></li>
+<li>Order now attributed to campaign</li>
+</ul>
+</li>
+</ol>
+
+<p><strong>Important Limitations:</strong></p>
+<ul>
+<li><strong>90-day limit:</strong> Google Ads API only provides GCLID data for the last 90 days</li>
+<li><strong>Rate limiting:</strong> Lookups are throttled (0.5 second delay between requests) to respect API limits</li>
+<li><strong>Batch processing:</strong> Checks up to 250 orders at a time</li>
+<li><strong>Date-specific:</strong> Query must specify the exact date the click occurred (order creation date used)</li>
+</ul>
+
+<p><strong>What happens if GCLID lookup fails:</strong></p>
+<ul>
+<li>Order keeps GCLID in landing page but no campaign ID assigned</li>
+<li>Will retry on next scheduled lookup</li>
+<li>After 90 days, GCLID cannot be matched via API (too old)</li>
+<li>Order may be categorized as "unknown" in campaign-specific reports</li>
+</ul>
+
+<h4>Cookie Lifetime and Session Tracking</h4>
+
+<p><strong>Cookie Duration:</strong> 10 minutes by default (refreshes with activity)</p>
+
+<p><strong>What this means:</strong></p>
+<ul>
+<li>Customer clicks ad → cookie created with landing page (including GCLID)</li>
+<li>Cookie refreshes every 10 minutes while browsing</li>
+<li>If customer leaves site and returns within 10 minutes (inactive), cookie persists</li>
+<li>If inactive >10 minutes, cookie expires</li>
+<li><strong>Important:</strong> Once order is created, attribution is saved permanently to order meta</li>
+</ul>
+
+<p><strong>Example scenario:</strong></p>
+<ol>
+<li>Customer clicks Google ad at 2:00 PM → lands with GCLID</li>
+<li>Browses products for 5 minutes</li>
+<li>Leaves site at 2:05 PM</li>
+<li>Returns directly (not via ad) at 2:08 PM</li>
+<li>Cookie still has original GCLID landing page</li>
+<li>Places order at 2:12 PM</li>
+<li>Order attributed to original Google ad campaign ✓</li>
+</ol>
+
+<h4>Attribution Window</h4>
+
+<p><strong>No Fixed Attribution Window:</strong> Unlike Google's conversion tracking (which uses 30-day or 90-day windows), Alpha Insights doesn't use time-based attribution windows.</p>
+
+<p><strong>How it works instead:</strong></p>
+<ul>
+<li>Attribution based on GCLID or <code>google_cid</code> in landing page</li>
+<li>If customer's landing page contains GCLID, order is attributed to that campaign (if within 90-day API lookup window)</li>
+<li>There's no time limit between click and purchase from a tracking perspective</li>
+<li>Attribution is "last-click" based on stored landing page cookie</li>
+</ul>
+
+<p><strong>Practical limitation:</strong></p>
+<ul>
+<li>Cookie lifetime limits how long attribution persists (customer must order while cookie is active or soon after)</li>
+<li>GCLID API lookup only works for orders within 90 days of the original click</li>
+<li>Most orders are attributed within hours or days of initial click</li>
+</ul>
+
+<h4>Retroactive Attribution</h4>
+
+<p>Alpha Insights can automatically process recent orders and match GCLIDs to campaigns:</p>
+
+<p><strong>Automatic Processing Methods:</strong></p>
+
+<p><strong>1. Query Parameter Method (google_cid)</strong></p>
+<ul>
+<li><strong>Function:</strong> <code>set_order_campaign_id_via_query_param()</code></li>
+<li><strong>Checks:</strong> Last 30 days of orders</li>
+<li><strong>Looks for:</strong> <code>google_cid</code> parameter in landing page</li>
+<li><strong>Action:</strong> Extracts campaign ID, saves to order meta</li>
+<li><strong>Use case:</strong> If you manually added <code>google_cid</code> to URLs</li>
+</ul>
+
+<p><strong>2. GCLID API Lookup Method (Primary)</strong></p>
+<ul>
+<li><strong>Function:</strong> <code>set_order_campaign_id_via_api_last_x_days()</code></li>
+<li><strong>Checks:</strong> Last 30-90 days of orders (configurable)</li>
+<li><strong>Looks for:</strong> GCLID in landing page</li>
+<li><strong>Action:</strong> Queries Google API with GCLID, gets campaign ID, saves to order</li>
+<li><strong>Limit:</strong> Only works for orders <90 days old (Google API restriction)</li>
+<li><strong>Throttling:</strong> 0.5 second delay between requests</li>
+</ul>
+
+<p><strong>When these run:</strong></p>
+<ul>
+<li>Automatically during scheduled API sync processes</li>
+<li>Can be triggered manually in Alpha Insights settings</li>
+<li>Runs in batches to avoid overwhelming the API</li>
+</ul>
+
+<h4>Orders Without Campaign Attribution</h4>
+
+<p><strong>An order will NOT be attributed to a specific Google Ads campaign if:</strong></p>
+<ul>
+<li>Landing page URL doesn't contain GCLID or <code>google_cid</code></li>
+<li>Auto-tagging was disabled when ad was clicked</li>
+<li>GCLID lookup failed (API error, order too old, etc.)</li>
+<li>Customer came from a source other than Google Ads</li>
+<li>Order was created manually in WP Admin</li>
+<li>Landing page cookie was missing at checkout</li>
+<li>GCLID was present but order is >90 days old (API won't match it)</li>
+</ul>
+
+<p><strong>How these orders appear in reports:</strong></p>
+<ul>
+<li>Orders without a campaign ID are categorized as <strong>"unknown"</strong> in Google campaign reports</li>
+<li>They still appear in your overall store reports (Orders, Products, Customers, etc.)</li>
+<li>They're excluded from Google Ads campaign-specific profit calculations</li>
+<li>Orders with GCLID but failed lookup may show in a pending state</li>
+</ul>
+
+<p><strong>Technical Note:</strong> In the data warehouse code, when querying orders by Google campaign, if no <code>_wpd_ai_google_campaign_id</code> is found but a GCLID exists, the order is assigned <code>campaign_id = 'unknown'</code> and grouped separately.</p>
+
+<h3>Viewing Attributed Orders</h3>
+
+<p>Once orders are attributed to Google Ads campaigns, you can view them in Alpha Insights reports to analyze performance and profitability.</p>
+
+<h4>Google Ads Report</h4>
+
+<p>The primary way to view attributed orders is through the dedicated Google Ads report:</p>
+
+<p><strong>Access: Alpha Insights → Reports → Google Ads</strong></p>
+
+<p><strong>What you'll see:</strong></p>
+<ul>
+<li><strong>Campaign Overview:</strong> All Google Ads campaigns with attributed metrics</li>
+<li><strong>Ad Spend:</strong> Total spend per campaign (from Google Ads API)</li>
+<li><strong>Attributed Orders:</strong> Number of orders matched to each campaign via <code>google_cid</code> or GCLID</li>
+<li><strong>Net Sales:</strong> Total revenue from attributed orders (including tax)</li>
+<li><strong>Gross Profit:</strong> Profit from attributed orders (revenue minus costs, before ad spend)</li>
+<li><strong>Net Profit:</strong> True profit (gross profit minus ad spend)</li>
+<li><strong>ROAS:</strong> Return on ad spend based on actual attributed orders</li>
+<li><strong>Order Count:</strong> Number of orders attributed to each campaign</li>
+<li><strong>Cost Per Order:</strong> Average cost to acquire each order</li>
+<li><strong>Clicks & Impressions:</strong> Campaign engagement metrics from Google API</li>
+<li><strong>Conversion Rate:</strong> Percentage of clicks that resulted in orders</li>
+</ul>
+
+<p><strong>Report Features:</strong></p>
+<ul>
+<li>Filter by date range to analyze specific time periods</li>
+<li>Sort campaigns by profit, ROAS, or spend</li>
+<li>View trends over time with data by date charts</li>
+<li>Compare multiple campaigns side-by-side</li>
+<li>Filter by campaign type (Search, Shopping, Display, Video, Performance Max)</li>
+<li>Export data for external analysis</li>
+</ul>
+
+<p><strong>Key Metrics:</strong></p>
+<ul>
+<li><code>campaign_order_count</code> - Total number of orders attributed to campaigns</li>
+<li><code>campaign_order_revenue</code> - Net sales from attributed orders</li>
+<li><code>campaign_order_profit</code> - Gross profit (before ad spend)</li>
+<li><code>campaign_actual_profit</code> - Net profit (after ad spend)</li>
+<li><code>campaign_revenue_roas</code> - Revenue ROAS based on attributed orders</li>
+<li><code>campaign_cost_per_order</code> - Average acquisition cost per order</li>
+</ul>
+
+<h4>Individual Campaign View</h4>
+
+<p>Click on any campaign in the Google Ads report to see detailed attribution:</p>
+
+<ul>
+<li><strong>Order List:</strong> All orders attributed to this specific campaign</li>
+<li><strong>Product Breakdown:</strong> Which products were sold from this campaign</li>
+<li><strong>Customer Details:</strong> New vs. returning customers from this campaign</li>
+<li><strong>Profit Analysis:</strong> True profit with all costs factored in (COGS, shipping, fees)</li>
+<li><strong>Performance Trends:</strong> How the campaign performed over time</li>
+<li><strong>Campaign Type:</strong> Search, Shopping, Display, etc.</li>
+</ul>
+
+<h4>Custom Reports</h4>
+
+<p>You can also create custom reports to analyze Google Ads attribution:</p>
+
+<p><strong>Access: Alpha Insights → Reports → Create New Report</strong></p>
+
+<p><strong>Select Entity:</strong> Google Campaigns</p>
+
+<p><strong>Available Data:</strong></p>
+<ul>
+<li><code>google_campaigns:campaigns</code> - Campaign-level metrics</li>
+<li><code>google_campaigns:orders</code> - Individual attributed orders</li>
+<li><code>google_campaigns:products</code> - Products sold via campaigns</li>
+</ul>
+
+<p><strong>Example Use Cases:</strong></p>
+<ul>
+<li>Build a dashboard showing only profitable campaigns (filter by Net Profit > 0)</li>
+<li>Compare Search vs. Shopping campaign performance</li>
+<li>Analyze which products perform best in Google Ads</li>
+<li>Track customer acquisition cost by campaign type</li>
+<li>Compare Google Ads performance to Facebook Ads</li>
+</ul>
+
+<h4>Order Details (Individual Order View)</h4>
+
+<p>For troubleshooting or verification, you can view attribution data on individual orders:</p>
+
+<p><strong>Access: WooCommerce → Orders → [Order ID]</strong></p>
+
+<p>Alpha Insights adds an attribution panel showing:</p>
+<ul>
+<li><strong>Traffic Source:</strong> Detected source (e.g., "Google")</li>
+<li><strong>Referral Source:</strong> Referrer URL</li>
+<li><strong>Landing Page:</strong> First page visited</li>
+<li><strong>Query Parameters:</strong> All URL parameters including <code>google_cid</code> or <code>gclid</code></li>
+<li><strong>Google Campaign:</strong> Which campaign this order is attributed to</li>
+</ul>
+
+<p><strong>Example query parameters you might see:</strong></p>
+<pre><code>google_cid: 1234567890
+gclid: Cj0KCQiA8vOsBhCkARIsAGITMepH...
+utm_source: google
+utm_medium: cpc
+</code></pre>
+
+<p><strong>Use this for:</strong></p>
+<ul>
+<li>Verifying attribution is working correctly</li>
+<li>Troubleshooting why an order wasn't attributed</li>
+<li>Checking if <code>google_cid</code> parameter is present</li>
+<li>Manually adjusting campaign attribution if needed</li>
+</ul>
+
+<h4>Data Warehouse (For Developers)</h4>
+
+<p>The React data warehouse provides programmatic access to attributed orders:</p>
+
+<ul>
+<li><strong>Entity:</strong> <code>google_campaigns</code></li>
+<li><strong>Orders Index:</strong> <code>google_campaigns:orders</code></li>
+<li><strong>Query Method:</strong> Fetches orders with <code>_wpd_ai_google_campaign_id</code> meta key OR orders with GCLID in landing page</li>
+<li><strong>Grouping:</strong> Orders grouped by campaign ID for aggregation</li>
+<li><strong>Unknown Orders:</strong> Orders without campaign ID are grouped as "unknown"</li>
+</ul>
+
+<p><strong>Available Columns:</strong> All standard order columns plus campaign-specific metrics</p>
+
+<h3>Troubleshooting Attribution Issues</h3>
+
+<h4>Issue: Orders Not Being Attributed</h4>
+
+<p><strong>Symptom:</strong> Campaign has ad spend but no orders showing in Alpha Insights campaign reports</p>
+
+<p><strong>Possible Causes & Solutions:</strong></p>
+
+<ol>
+<li><strong>Missing google_cid parameter in ad URLs</strong> ★ MOST COMMON
+<ul>
+<li><strong>Check:</strong> Review your ad destination URLs in Google Ads</li>
+<li><strong>Fix:</strong> Add <code>?google_cid={campaignid}</code> to all ad URLs</li>
+<li><strong>Impact:</strong> All future clicks will include campaign ID for attribution</li>
+<li><strong>Note:</strong> Won't affect clicks that already happened before adding parameter</li>
+<li><strong>This is the #1 reason for missing attribution</strong></li>
+</ul>
+</li>
+
+<li><strong>Parameter added incorrectly</strong>
+<ul>
+<li><strong>Check:</strong> Make sure you're using <code>google_cid</code> exactly (case-sensitive, underscore not hyphen)</li>
+<li><strong>Common mistakes:</strong> <code>google-cid</code> or <code>googlecid</code> or <code>gclid</code> or <code>campaign_id</code> won't work</li>
+<li><strong>Correct:</strong> <code>google_cid={campaignid}</code></li>
+<li><strong>Verify:</strong> Click your own ad and check the URL includes <code>google_cid=</code> with a number</li>
+</ul>
+</li>
+
+<li><strong>Landing pages don't preserve query parameters</strong>
+<ul>
+<li><strong>Issue:</strong> Some page builders or redirects strip <code>google_cid</code> from URLs</li>
+<li><strong>Check:</strong> Click your own ad, verify <code>google_cid</code> appears in browser address bar after page loads</li>
+<li><strong>Fix:</strong> Ensure redirects use 301 or 302 and preserve query parameters</li>
+<li><strong>Technical:</strong> Check for JavaScript that manipulates URLs and removes parameters</li>
+</ul>
+</li>
+
+<li><strong>Landing page tracking not working</strong>
+<ul>
+<li><strong>Check:</strong> Look at an order in WooCommerce → Orders → Order details</li>
+<li><strong>Look for:</strong> Alpha Insights attribution panel with query parameters</li>
+<li><strong>If missing:</strong> Landing page tracking may not be functioning</li>
+<li><strong>Verify:</strong> Alpha Insights JavaScript is loaded on your site</li>
+</ul>
+</li>
+
+<li><strong>Orders placed before parameter was added</strong>
+<ul>
+<li><strong>Explanation:</strong> Attribution only works for orders where customer landed via URL with <code>google_cid</code></li>
+<li><strong>Solution:</strong> Future orders will be attributed once parameter is in place</li>
+<li><strong>Tip:</strong> Run retroactive attribution function for last 30 days if you just added the parameter</li>
+</ul>
+</li>
+
+<li><strong>Cookies blocked or cleared</strong>
+<ul>
+<li><strong>Explanation:</strong> If customer blocks cookies or clears them before checkout, attribution is lost</li>
+<li><strong>Limitation:</strong> This affects all cookie-based tracking, no workaround</li>
+<li><strong>Impact:</strong> Generally affects <5% of orders</li>
+</ul>
+</li>
+</ol>
+
+<h4>Issue: Wrong Campaign Attribution</h4>
+
+<p><strong>Symptom:</strong> Order attributed to wrong Google campaign</p>
+
+<p><strong>Possible Causes:</strong></p>
+<ul>
+<li><strong>Customer clicked multiple ads:</strong> Last click wins (most recent GCLID)</li>
+<li><strong>Cross-device tracking:</strong> Google tracks same user across devices, but Alpha Insights uses cookie-based tracking (different device = new session)</li>
+<li><strong>Manual testing:</strong> Clicking your own ads repeatedly overwrites cookie with newest GCLID</li>
+<li><strong>GCLID lookup date mismatch:</strong> API queried wrong date for GCLID</li>
+</ul>
+
+<p><strong>Manual Override:</strong> You can manually change the attributed campaign in WooCommerce → Orders → Order Details → Alpha Insights attribution panel → Select different campaign from dropdown</p>
+
+<h4>Issue: GCLID Present But No Campaign Match</h4>
+
+<p><strong>Symptom:</strong> Order has GCLID in landing page but <code>_wpd_ai_google_campaign_id</code> is empty</p>
+
+<p><strong>Possible Reasons:</strong></p>
+<ol>
+<li><strong>API lookup hasn't run yet</strong>
+<ul>
+<li>Lookup happens in background, may take time</li>
+<li>Wait for next scheduled sync</li>
+</ul>
+</li>
+<li><strong>API lookup failed</strong>
+<ul>
+<li>Check error logs in Alpha Insights → Settings → Debug</li>
+<li>May need to retry attribution process</li>
+</ul>
+</li>
+<li><strong>Order date doesn't match click date</strong>
+<ul>
+<li>API looks for GCLID on order creation date</li>
+<li>If customer clicked days earlier, lookup may fail</li>
+<li>Function attempts date with ±1 day variance (commented out in code to reduce API requests)</li>
+</ul>
+</li>
+<li><strong>GCLID expired or invalid</strong>
+<ul>
+<li>GCLID may be malformed</li>
+<li>Check that full GCLID is present in landing page URL</li>
+</ul>
+</li>
+</ol>
+
+<h3>Best Practices for Accurate Attribution</h3>
+
+<h4>1. Use google_cid on ALL Google Ads ★ REQUIRED</h4>
+
+<p><strong>This is absolutely essential:</strong></p>
+<ul>
+<li>Add <code>?google_cid={campaignid}</code> to every single ad you create</li>
+<li>Without this parameter, orders cannot be attributed to specific campaigns</li>
+<li>Create a checklist or SOP for your team when launching ads</li>
+<li>Audit existing ads and add the parameter retroactively</li>
+<li>This is the primary and most reliable attribution method</li>
+</ul>
+
+<h4>2. Optionally Enable Auto-Tagging for Backup</h4>
+
+<p><strong>For supplementary tracking:</strong></p>
+<ul>
+<li>Enable auto-tagging in Google Ads settings</li>
+<li>GCLID provides backup attribution in some cases</li>
+<li>Not a replacement for <code>google_cid</code> due to 90-day API limit and other limitations</li>
+<li>Can help catch some orders that might otherwise be unattributed</li>
+</ul>
+
+<p><strong>Recommended setup:</strong></p>
+<pre><code>Primary: google_cid={campaignid} (REQUIRED)
+Supplementary: Auto-tagging enabled (optional backup)</code></pre>
+
+<h4>3. Test Your Attribution Setup</h4>
+
+<p><strong>Testing steps:</strong></p>
+<ol>
+<li>Add <code>google_cid={campaignid}</code> to one of your ad URLs</li>
+<li>Click your own ad (or use Preview mode)</li>
+<li>Verify <code>google_cid</code> appears in landing page URL with a campaign ID number</li>
+<li>Place a test order on your site</li>
+<li>Go to WooCommerce → Orders → Your test order</li>
+<li>Check Alpha Insights attribution panel</li>
+<li>Verify <code>google_cid</code> appears in query parameters</li>
+<li>Verify "Google Campaign" dropdown shows correct campaign</li>
+<li>Check the Google Ads report to confirm order appears under that campaign</li>
+</ol>
+
+<h4>4. Monitor Attribution Success Rate</h4>
+
+<p>Regularly check:</p>
+<ul>
+<li>How many orders have <code>google_cid</code> in landing page</li>
+<li>How many orders have <code>_wpd_ai_google_campaign_id</code> assigned</li>
+<li>Percentage of "unknown" orders in Google campaign reports</li>
+</ul>
+
+<p><strong>Good indicators:</strong></p>
+<ul>
+<li>Most orders from Google Ads have <code>google_cid</code> parameter (>90%)</li>
+<li>Attribution rate matches parameter presence (>95%)</li>
+<li>Low percentage of unknown orders from Google traffic (<10%)</li>
+</ul>
+
+<p><strong>Red flags:</strong></p>
+<ul>
+<li>Many orders from Google but no <code>google_cid</code> → parameter not added to ads</li>
+<li>Parameters present but no campaign match → tracking or extraction issue</li>
+<li>High unknown order percentage (>30%) → attribution not working</li>
+</ul>
+
+<h4>5. Understand Data Discrepancies</h4>
+
+<p>Expect differences between:</p>
+<ul>
+<li><strong>Google Ads interface</strong> (Google's conversion tracking)</li>
+<li><strong>Alpha Insights API data</strong> (synced from Google)</li>
+<li><strong>Alpha Insights order attribution</strong> (GCLID + actual orders)</li>
+</ul>
+
+<p><strong>Why they differ:</strong></p>
+<ul>
+<li>Google may count conversions on different devices (cross-device tracking)</li>
+<li>Google uses view-through conversions (saw ad, didn't click)</li>
+<li>Alpha Insights uses click-only attribution (must have GCLID)</li>
+<li>Different attribution windows</li>
+<li>Some orders may fail GCLID lookup</li>
+</ul>
+
+<p><strong>Which to trust?</strong> Use Alpha Insights order attribution for business decisions—it's based on your actual orders with real costs. Use Google metrics for comparison to their reported performance.</p>
+
+<h3>Alternative Tracking: UTM Parameters</h3>
+
+<h4>Using Standard UTM Parameters</h4>
+
+<p>While not necessary with auto-tagging, you can also use UTM parameters for additional tracking:</p>
+
+<pre><code>?utm_source=google&utm_medium=cpc&utm_campaign={campaignid}</code></pre>
+
+<p><strong>Benefits:</strong></p>
+<ul>
+<li>Works with other analytics tools (Google Analytics, etc.)</li>
+<li>Human-readable campaign names in URLs</li>
+<li>Consistent with other marketing channels</li>
+</ul>
+
+<p><strong>Limitations:</strong></p>
+<ul>
+<li>Doesn't enable campaign attribution in Alpha Insights (GCLID or <code>google_cid</code> required)</li>
+<li>Useful for traffic analysis but not order attribution</li>
+</ul>
+
+<p><strong>Best practice:</strong> Use auto-tagging (GCLID) for attribution, UTM parameters for traffic analysis.</p>
+
+<h3>Technical Implementation Details</h3>
+
+<h4>Database Schema</h4>
+
+<p><strong>Order Meta Keys:</strong></p>
+<pre><code>_wpd_ai_landing_page                    (Full landing URL with GCLID/parameters)
+_wpd_ai_referral_source                 (Referrer URL, e.g. google.com)
+_wpd_ai_google_campaign_id              (Campaign ID from GCLID lookup or google_cid)
+_wpd_ai_google_api_campaign_id_check    (Temporary flag: GCLID lookup attempted)
+</code></pre>
+
+<p><strong>Campaign Post Type:</strong></p>
+<pre><code>Post Type: google_ad_campaign
+Taxonomy: ad_account
+Meta Fields: _wpd_campaign_id, _wpd_campaign_name, _wpd_campaign_spend, etc.
+</code></pre>
+
+<h4>Key PHP Functions</h4>
+
+<p><strong>1. Save Landing Page to Order</strong></p>
+<pre><code>Method: WPD_Alpha_Insights_Core->save_landing_page_to_order_meta($order)
+Hook: woocommerce_checkout_order_processed
+Action: Reads cookies, saves landing page and referral to order meta,
+        extracts google_cid if present and saves to _wpd_ai_google_campaign_id
+</code></pre>
+
+<p><strong>2. Retroactive Attribution via Query Parameter</strong></p>
+<pre><code>Method: WPD_Google_Ads_API->set_order_campaign_id_via_query_param($days)
+Action: Queries last X days of orders with google_cid in landing page,
+        extracts campaign ID, saves to order meta
+Default: 30 days
+</code></pre>
+
+<p><strong>3. GCLID Lookup via API</strong></p>
+<pre><code>Method: WPD_Google_Ads_API->set_order_campaign_id_via_api_last_x_days($days, $hard_refresh)
+Action: Queries orders with GCLID, looks up campaign ID via Google Ads API,
+        saves campaign ID to order meta
+Default: 30 days
+Limit: 90 days (Google API restriction)
+Throttling: 0.5 second delay between requests
+</code></pre>
+
+<p><strong>4. API Campaign Lookup by GCLID</strong></p>
+<pre><code>Method: WPD_Google_Ads_API->api_fetch_campaign_id_by_gclid($gclid, $date)
+API Query: SELECT campaign.id, campaign.name FROM click_view 
+           WHERE segments.date = 'YYYY-MM-DD' AND click_view.gclid = 'GCLID'
+Returns: Campaign ID or false if not found
+</code></pre>
+
+<p><strong>5. Query Orders by Campaign</strong></p>
+<pre><code>Method: WPD_Data_Warehouse_React->get_google_campaign_order_data($date_from, $date_to)
+Action: Fetches orders with _wpd_ai_google_campaign_id OR orders with GCLID,
+        groups by campaign ID, calculates metrics
+Returns: Array of order data indexed by campaign ID
+Note: Orders with GCLID but no campaign ID are marked as "unknown"
+</code></pre>
+
+<h4>JavaScript Tracking</h4>
+
+<p><strong>File:</strong> <code>wpd-alpha-insights-event-tracking.js</code></p>
+
+<p><strong>Key Functions:</strong></p>
+<ul>
+<li>Captures landing page URL on first page load (including GCLID)</li>
+<li>Stores in first-party cookie: <code>wpd_ai_landing_page</code></li>
+<li>Cookie refreshes on subsequent page views</li>
+<li>Available at checkout for order attribution</li>
+<li>No modification of GCLID—preserved exactly as provided by Google</li>
+</ul>
+
+<h4>Data Warehouse Integration</h4>
+
+<p><strong>Entity:</strong> <code>google_campaigns</code></p>
+
+<p><strong>Available Indexes:</strong></p>
+<ul>
+<li><code>campaigns</code> - Campaign performance metrics from Google Ads API</li>
+<li><code>orders</code> - Orders attributed to campaigns via GCLID/google_cid</li>
+<li><code>products</code> - Products sold via campaigns</li>
+</ul>
+
+<p><strong>Order Query Logic (conceptual):</strong></p>
+<pre><code>// Get orders with campaign ID
+SELECT orders WHERE _wpd_ai_google_campaign_id = 'campaign_123'
+
+// Get orders with GCLID (may not have campaign ID yet)
+SELECT orders WHERE _wpd_ai_landing_page LIKE '%gclid=%'
+
+// Combined for comprehensive reporting
+</code></pre>
+
+<h3>Comparing Attribution Models</h3>
+
+<h4>Google Ads Conversion Tracking vs Alpha Insights Attribution</h4>
+
+<table border="1" cellpadding="10" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+<tr style="background-color: #f5f5f5;">
+<th>Factor</th>
+<th>Google Ads</th>
+<th>Alpha Insights</th>
+</tr>
+<tr>
+<td>Method</td>
+<td>Conversion tracking tag</td>
+<td>GCLID + first-party cookie + order meta</td>
+</tr>
+<tr>
+<td>Attribution Window</td>
+<td>30 days (default, configurable)</td>
+<td>No time limit (based on landing page cookie)</td>
+</tr>
+<tr>
+<td>View-Through Conversions</td>
+<td>Yes (optional)</td>
+<td>No (click required)</td>
+</tr>
+<tr>
+<td>Cross-Device Tracking</td>
+<td>Yes (Google account-based)</td>
+<td>No (cookie-based, single device)</td>
+</tr>
+<tr>
+<td>Data Shown In</td>
+<td>Google Ads interface, Alpha Insights API metrics</td>
+<td>Alpha Insights order reports</td>
+</tr>
+<tr>
+<td>Includes COGS</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Product-Level Detail</td>
+<td>Limited</td>
+<td>Full detail (product, quantity, costs)</td>
+</tr>
+<tr>
+<td>Best For</td>
+<td>Comparing to Google reports, optimization in Google Ads</td>
+<td>True profit analysis, business decisions</td>
+</tr>
+</table>
+
+<h4>Why Numbers Differ</h4>
+
+<p>You'll often see different order/revenue numbers between:</p>
+<ul>
+<li><strong>Google Ads Interface</strong> (Google's conversion tracking)</li>
+<li><strong>Alpha Insights Campaign Metrics</strong> (API data from Google)</li>
+<li><strong>Alpha Insights Order Attribution</strong> (GCLID/google_cid tracking)</li>
+</ul>
+
+<p><strong>This is normal!</strong> Each system measures differently:</p>
+<ul>
+<li><strong>Google tracks cross-device:</strong> Customer clicks on mobile, converts on desktop → counted by Google, may not be matched by Alpha Insights (different cookies)</li>
+<li><strong>Google uses view-through:</strong> Customer saw ad but didn't click, later purchased → counted by Google, not by Alpha Insights</li>
+<li><strong>Alpha Insights requires click:</strong> Must have GCLID from actual ad click</li>
+<li><strong>GCLID lookup can fail:</strong> Order has GCLID but API lookup fails → not attributed</li>
+<li><strong>Different time frames:</strong> Google reports on click date, Alpha Insights on order date</li>
+</ul>
+
+<p><strong>Typical discrepancy:</strong> Google Ads may report 20-40% more conversions than Alpha Insights attributes (due to cross-device and view-through conversions).</p>
+
+<p><strong>Which to trust?</strong> Use Alpha Insights order attribution for business decisions and profit analysis. Use Google Ads metrics for campaign optimization within the Google Ads platform.</p>
+
+<h3>Summary</h3>
+
+<p>Google Ads order attribution in Alpha Insights works by:</p>
+
+<ol>
+<li><strong>Requiring</strong> the <code>google_cid={campaignid}</code> parameter in all ad URLs (PRIMARY METHOD)</li>
+<li><strong>Capturing</strong> landing page URLs with <code>google_cid</code> when customers click ads</li>
+<li><strong>Storing</strong> landing page data in first-party cookies</li>
+<li><strong>Extracting</strong> campaign ID directly from <code>google_cid</code> parameter</li>
+<li><strong>Saving</strong> campaign ID to order meta when orders are created</li>
+<li><strong>Linking</strong> orders to campaigns for true profit reporting</li>
+<li><strong>Optionally</strong> using GCLID auto-tagging as supplementary attribution</li>
+</ol>
+
+<p><strong>Key Takeaways:</strong></p>
+<ul>
+<li><strong>google_cid parameter MUST be added</strong> to all ad URLs for attribution</li>
+<li><strong>This is the primary method</strong>—simple, reliable, and has no time limitations</li>
+<li><strong>Auto-tagging/GCLID is optional</strong> and provides supplementary attribution with limitations</li>
+<li><strong>Without google_cid</strong>, orders cannot be reliably attributed to specific campaigns</li>
+<li><strong>Attribution enables true profit tracking</strong> by campaign with all costs included</li>
+</ul>
+
+<p>For questions about setting up attribution or troubleshooting issues, see the <a href='/documentation/alpha-insights/advertising-integrations/google-ads/google-ads-troubleshooting.html'>Google Ads Troubleshooting Guide</a>.</p>
+

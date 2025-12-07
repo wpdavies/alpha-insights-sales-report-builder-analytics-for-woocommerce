@@ -1,0 +1,449 @@
+<h2>Webhook Settings</h2>
+<p>Webhooks allow you to automatically send your Alpha Insights data to third-party platforms like Zapier, Make (formerly Integromat), Google Sheets, Slack, or custom applications. Set up scheduled exports of your profit and performance data to integrate with your existing tools and workflows.</p>
+
+<h3>Accessing Webhook Settings</h3>
+<ol>
+<li>Go to <strong>Alpha Insights → Settings</strong></li>
+<li>Navigate to the <strong>Webhooks</strong> settings page</li>
+<li>You'll see webhook configuration options</li>
+</ol>
+
+<h3>What Are Webhooks?</h3>
+<p>Webhooks are automated HTTP POST requests that send data from Alpha Insights to a URL endpoint you specify. Think of them as automatic data pushes that happen on a schedule.</p>
+
+<h3>Common Use Cases</h3>
+<ul>
+<li><strong>Google Sheets integration:</strong> Push daily profit data to spreadsheet (via Zapier/Make)</li>
+<li><strong>Slack notifications:</strong> Send performance summaries to team channel</li>
+<li><strong>Discord alerts:</strong> Post profit reports to Discord server</li>
+<li><strong>Custom dashboards:</strong> Feed data into business intelligence tools</li>
+<li><strong>Accounting software:</strong> Sync revenue and expense data</li>
+<li><strong>Data warehousing:</strong> Send to data warehouse for analysis</li>
+<li><strong>Email reports:</strong> Trigger custom email reports through third-party services</li>
+<li><strong>SMS alerts:</strong> Send text alerts via Twilio when profit goals hit</li>
+</ul>
+
+<h2>Webhook Export Configuration</h2>
+
+<h3>Webhook URL</h3>
+<p><strong>What it is:</strong> The endpoint where Alpha Insights will POST your data</p>
+
+<p><strong>Format:</strong> Must be a valid HTTPS URL</p>
+
+<p><strong>Examples:</strong></p>
+<ul>
+<li><strong>Zapier:</strong> <code>https://hooks.zapier.com/hooks/catch/12345/abcdef/</code></li>
+<li><strong>Make:</strong> <code>https://hook.us1.make.com/abc123def456</code></li>
+<li><strong>Custom API:</strong> <code>https://api.yourdomain.com/alpha-insights-webhook</code></li>
+<li><strong>N8n:</strong> <code>https://your-n8n.com/webhook/alpha-insights</code></li>
+</ul>
+
+<p><strong>How to configure:</strong></p>
+<ol>
+<li>Get webhook URL from your destination platform (Zapier, Make, etc.)</li>
+<li>Paste URL into "Webhook URL" field</li>
+<li>Click <strong>Save Changes</strong></li>
+</ol>
+
+<p><strong>Important:</strong> URL must be accessible from the internet - Alpha Insights sends data FROM your server TO this URL</p>
+
+<h3>Schedule Webhook Export</h3>
+<p><strong>What it does:</strong> Controls when Alpha Insights sends data to your webhook</p>
+
+<p><strong>Options:</strong></p>
+<ul>
+<li><strong>Don't Schedule Export:</strong> Manual only - use "Test Webhook" button to send</li>
+<li><strong>Daily:</strong> Sends yesterday's data once per day (~1 AM)</li>
+<li><strong>Weekly:</strong> Sends last week's data once per week (Monday ~1 AM)</li>
+<li><strong>Monthly:</strong> Sends last month's data once per month (1st ~1 AM)</li>
+</ul>
+
+<p><strong>Timing details:</strong></p>
+<ul>
+<li>Daily: Runs at approximately 1 AM start of the day</li>
+<li>Weekly: Monday morning at 1 AM with previous week's data (Mon-Sun)</li>
+<li>Monthly: 1st of month at 1 AM with previous complete month's data</li>
+<li>Times are approximate, depend on WordPress cron</li>
+</ul>
+
+<p><strong>Data periods:</strong></p>
+<ul>
+<li><strong>Daily schedule:</strong> Exports previous day (e.g., Tuesday morning sends Monday's data)</li>
+<li><strong>Weekly schedule:</strong> Exports previous week Monday-Sunday</li>
+<li><strong>Monthly schedule:</strong> Exports previous complete calendar month</li>
+</ul>
+
+<p><strong>Last run tracking:</strong> If configured, page shows "Your last successful webhook ran on [date]"</p>
+
+<h2>Webhook Testing</h2>
+
+<h3>Test Webhook Function</h3>
+<p><strong>What it does:</strong> Immediately sends test data to your webhook URL</p>
+
+<h4>How to Test</h4>
+<ol>
+<li>Enter or verify your webhook URL</li>
+<li>Click <strong>Save Changes</strong> to save the URL</li>
+<li>Click <strong>Test Webhook</strong> button</li>
+<li>Alpha Insights immediately sends data to your URL</li>
+<li>Check your receiving application to verify data arrived</li>
+<li>Review webhook test data output on page to see what was sent</li>
+</ol>
+
+<p><strong>Testing workflow:</strong></p>
+<ol>
+<li>Set up webhook receiver (Zapier, Make, etc.)</li>
+<li>Get webhook URL from receiver</li>
+<li>Paste URL in Alpha Insights</li>
+<li>Save changes</li>
+<li>Click "Test Webhook"</li>
+<li>Verify data arrived at destination</li>
+<li>If successful, enable schedule</li>
+</ol>
+
+<h3>Webhook Test Data Output</h3>
+<p>On the settings page, you'll see a preview of the data that will be sent.</p>
+
+<p><strong>What's shown:</strong></p>
+<ul>
+<li>Complete JSON structure of webhook payload</li>
+<li>Uses sample data for preview purposes</li>
+<li>Shows exactly what format your endpoint will receive</li>
+<li>Pretty-printed JSON for easy reading</li>
+</ul>
+
+<p><strong>Use this to:</strong></p>
+<ul>
+<li>Design your webhook receiver</li>
+<li>Map fields in Zapier/Make</li>
+<li>Understand data structure</li>
+<li>Write custom integration code</li>
+</ul>
+
+<h2>Webhook Data Format</h2>
+
+<h3>JSON Payload Structure</h3>
+<p>Alpha Insights sends data as JSON in the POST request body.</p>
+
+<p><strong>Typical data included:</strong></p>
+<ul>
+<li><strong>Date range:</strong> Start and end dates for the period</li>
+<li><strong>Store information:</strong> Store name, URL, currency</li>
+<li><strong>Revenue metrics:</strong> Total revenue, order count</li>
+<li><strong>Cost breakdown:</strong> Product costs, shipping, payment fees</li>
+<li><strong>Profit metrics:</strong> Gross profit, net profit, margins</li>
+<li><strong>Order details:</strong> Average order value, products sold</li>
+<li><strong>Expense summary:</strong> Total expenses by category</li>
+<li><strong>Top products:</strong> Best-selling or most profitable products</li>
+<li><strong>Campaign data:</strong> Ad spend and ROAS (if applicable)</li>
+</ul>
+
+<p><strong>Example structure:</strong></p>
+<pre>
+{
+  "store_name": "Your Store Name",
+  "store_url": "https://yourstore.com",
+  "currency": "USD",
+  "date_range": {
+    "start": "2024-10-15",
+    "end": "2024-10-22",
+    "period": "last_7_days"
+  },
+  "revenue": {
+    "total": 12450.00,
+    "orders": 143,
+    "average_order_value": 87.06
+  },
+  "costs": {
+    "total": 7558.00,
+    "product_cogs": 5800.00,
+    "shipping": 950.00,
+    "payment_fees": 408.00,
+    "other": 400.00
+  },
+  "profit": {
+    "gross_profit": 4892.00,
+    "gross_margin": 39.3,
+    "expenses": 645.00,
+    "net_profit": 4247.00,
+    "net_margin": 34.1
+  },
+  "products_sold": 287,
+  "refunds": 450.00
+}
+</pre>
+
+<p><strong>Note:</strong> Actual structure shown in "Webhook Test Data Output" section on settings page</p>
+
+<h3>HTTP Request Details</h3>
+<p><strong>Method:</strong> POST</p>
+<p><strong>Content-Type:</strong> application/json</p>
+<p><strong>Body:</strong> JSON payload with your data</p>
+<p><strong>Timeout:</strong> 30 seconds</p>
+<p><strong>Expected response:</strong> 200 OK status code</p>
+
+<h2>Integration Examples</h2>
+
+<h3>Zapier Integration</h3>
+<ol>
+<li>In Zapier, create new Zap</li>
+<li>Choose "Webhooks by Zapier" as trigger</li>
+<li>Select "Catch Hook"</li>
+<li>Copy the webhook URL provided</li>
+<li>Paste URL into Alpha Insights webhook settings</li>
+<li>Click "Test Webhook" in Alpha Insights</li>
+<li>In Zapier, click "Test Trigger" - it should receive the data</li>
+<li>Map the data fields to your action (Google Sheets, Slack, etc.)</li>
+<li>Enable schedule in Alpha Insights</li>
+</ol>
+
+<p><strong>Popular Zapier actions:</strong></p>
+<ul>
+<li>Add row to Google Sheets</li>
+<li>Send message to Slack</li>
+<li>Send email via Gmail</li>
+<li>Create task in project management tool</li>
+</ul>
+
+<h3>Make (Integromat) Integration</h3>
+<ol>
+<li>Create new scenario in Make</li>
+<li>Add "Webhooks" module</li>
+<li>Select "Custom webhook"</li>
+<li>Create new webhook, copy URL</li>
+<li>Paste URL into Alpha Insights</li>
+<li>Test webhook in Alpha Insights</li>
+<li>Make receives data - parse JSON structure</li>
+<li>Add modules to process data (router, data transforms, etc.)</li>
+<li>Connect to destination (Google Sheets, databases, etc.)</li>
+</ol>
+
+<h3>Google Sheets Direct (via Zapier/Make)</h3>
+<p><strong>What you can do:</strong></p>
+<ul>
+<li>Daily profit tracking spreadsheet</li>
+<li>Automatic monthly reports</li>
+<li>Historical performance database</li>
+<li>Charts and visualizations</li>
+</ul>
+
+<p><strong>Typical setup:</strong></p>
+<ol>
+<li>Create Google Sheet with columns matching webhook data</li>
+<li>Use Zapier or Make to receive webhook</li>
+<li>Map webhook fields to spreadsheet columns</li>
+<li>Each webhook creates new row in sheet</li>
+<li>Build charts and pivot tables on top</li>
+</ol>
+
+<h3>Slack Notifications</h3>
+<p><strong>Setup:</strong></p>
+<ol>
+<li>Use Zapier or Make</li>
+<li>Receive webhook from Alpha Insights</li>
+<li>Format message with profit data</li>
+<li>Send to Slack channel</li>
+</ol>
+
+<p><strong>Example Slack message:</strong></p>
+<pre>
+📊 Daily Performance Report
+━━━━━━━━━━━━━━━━━━━
+💰 Revenue: $2,450
+✅ Profit: $892 (36.4% margin)
+📦 Orders: 23
+📈 AOV: $106.52
+</pre>
+
+<h3>Custom Application</h3>
+<p>If you're building a custom receiver:</p>
+
+<p><strong>Endpoint requirements:</strong></p>
+<ul>
+<li>Accept POST requests</li>
+<li>Parse JSON from request body</li>
+<li>Return 200 OK status code</li>
+<li>Handle within 30 seconds</li>
+<li>HTTPS recommended for security</li>
+</ul>
+
+<p><strong>Example PHP receiver:</strong></p>
+<pre>
+&lt;?php
+// Get JSON from webhook
+$json = file_get_contents('php://input');
+$data = json_decode($json, true);
+
+// Process data
+$revenue = $data['revenue']['total'];
+$profit = $data['profit']['net_profit'];
+
+// Store in database, send alerts, etc.
+// ...
+
+// Return success
+http_response_code(200);
+echo json_encode(['status' => 'success']);
+?&gt;
+</pre>
+
+<h2>Saving Your Settings</h2>
+<ol>
+<li>Configure webhook URL</li>
+<li>Select schedule (or leave as "Don't Schedule" for manual only)</li>
+<li>Click <strong>Save Changes</strong></li>
+<li>Test webhook to verify</li>
+<li>Scheduled webhooks will run automatically</li>
+</ol>
+
+<h2>Troubleshooting</h2>
+
+<h3>Webhook Not Sending</h3>
+<p><strong>Check:</strong></p>
+<ol>
+<li>Webhook URL is correct (no typos)</li>
+<li>URL is accessible from the internet</li>
+<li>Schedule is configured (not "Don't Schedule")</li>
+<li>WordPress cron is running</li>
+<li>Test webhook works manually</li>
+</ol>
+
+<h3>Test Webhook Fails</h3>
+<p><strong>Common causes:</strong></p>
+<ul>
+<li><strong>Invalid URL:</strong> Check URL format and spelling</li>
+<li><strong>Endpoint down:</strong> Verify destination is online</li>
+<li><strong>Firewall blocking:</strong> Ensure endpoint allows connections from your server</li>
+<li><strong>SSL certificate issues:</strong> Make sure destination has valid HTTPS certificate</li>
+<li><strong>Timeout:</strong> Endpoint must respond within 30 seconds</li>
+</ul>
+
+<h3>Data Not Arriving at Destination</h3>
+<p><strong>Check:</strong></p>
+<ol>
+<li>Webhook URL saved correctly in settings</li>
+<li>Test webhook shows success</li>
+<li>Check destination platform's webhook history/logs</li>
+<li>Verify endpoint is processing POSTs correctly</li>
+<li>Look for error messages in webhook receiver</li>
+</ol>
+
+<h3>Wrong Data in Webhook</h3>
+<p><strong>Check:</strong></p>
+<ul>
+<li>WordPress timezone matches your location</li>
+<li>Order statuses configured correctly</li>
+<li>Cache is up to date (clear if needed)</li>
+<li>Schedule matches expected period (daily/weekly/monthly)</li>
+</ul>
+
+<h3>Webhook Sending at Wrong Time</h3>
+<p><strong>Cause:</strong> WordPress cron dependency</p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li>WordPress cron requires site traffic to trigger</li>
+<li>Install "WP Cron Control" for reliable scheduling</li>
+<li>Or set up server cron job (advanced)</li>
+<li>Verify WordPress timezone setting is correct</li>
+</ul>
+
+<h2>Best Practices</h2>
+
+<h3>Setup</h3>
+<ul>
+<li><strong>Test first:</strong> Always test webhook before enabling schedule</li>
+<li><strong>Use HTTPS:</strong> Secure endpoints for data protection</li>
+<li><strong>Verify format:</strong> Review test data output to understand structure</li>
+<li><strong>Start simple:</strong> Begin with one integration, add more later</li>
+<li><strong>Document mapping:</strong> Keep notes on which fields go where</li>
+</ul>
+
+<h3>Security</h3>
+<ul>
+<li>Use HTTPS endpoints only</li>
+<li>Don't expose webhook URLs publicly</li>
+<li>Consider adding authentication to your endpoint</li>
+<li>Validate incoming data in your receiver</li>
+<li>Monitor webhook logs for unauthorized access</li>
+</ul>
+
+<h3>Reliability</h3>
+<ul>
+<li>Ensure endpoint responds quickly (&lt;30 seconds)</li>
+<li>Return 200 OK even if processing async</li>
+<li>Have error handling in your receiver</li>
+<li>Monitor destination for failed deliveries</li>
+<li>Consider adding retry logic in receiver</li>
+</ul>
+
+<h3>Data Usage</h3>
+<ul>
+<li><strong>Google Sheets:</strong> Perfect for daily tracking and historical trends</li>
+<li><strong>Slack:</strong> Great for team notifications and alerts</li>
+<li><strong>Database:</strong> Store for advanced analytics and BI tools</li>
+<li><strong>Email:</strong> Send formatted reports to stakeholders</li>
+<li><strong>Dashboards:</strong> Feed real-time business dashboards</li>
+</ul>
+
+<h2>Advanced Use Cases</h2>
+
+<h3>Multi-Destination Webhooks</h3>
+<p>Alpha Insights supports one webhook URL, but you can use Zapier/Make to fan out to multiple destinations:</p>
+<ol>
+<li>Point Alpha Insights webhook to Zapier/Make</li>
+<li>In Zapier/Make, create multiple paths</li>
+<li>Send to Google Sheets AND Slack AND database</li>
+<li>Single webhook, multiple destinations</li>
+</ol>
+
+<h3>Conditional Logic</h3>
+<p>Use Zapier/Make to add conditions:</p>
+<ul>
+<li>Only send Slack alert if profit below threshold</li>
+<li>Add to different sheets based on performance</li>
+<li>Trigger email only on weekdays</li>
+<li>Format differently for different recipients</li>
+</ul>
+
+<h3>Data Transformation</h3>
+<p>Process data before sending to destination:</p>
+<ul>
+<li>Calculate additional metrics</li>
+<li>Format currency differently</li>
+<li>Combine with data from other sources</li>
+<li>Create charts/graphs before sending</li>
+</ul>
+
+<h2>Webhook vs Email Reports</h2>
+
+<p><strong>Use Webhooks when:</strong></p>
+<ul>
+<li>Need data in other systems (Google Sheets, databases)</li>
+<li>Want to build custom integrations</li>
+<li>Need machine-readable data (JSON)</li>
+<li>Want to process or transform data</li>
+<li>Building automated workflows</li>
+</ul>
+
+<p><strong>Use Email Reports when:</strong></p>
+<ul>
+<li>Need human-readable summaries</li>
+<li>Want formatted reports in inbox</li>
+<li>No technical integration needed</li>
+<li>Simple notification requirements</li>
+</ul>
+
+<p><strong>Use both when:</strong> You want automated data exports AND human-readable summaries</p>
+
+<h2>Summary</h2>
+<p>Webhook settings provide:</p>
+<ul>
+<li><strong>Flexible integration:</strong> Connect to any platform via webhooks</li>
+<li><strong>Automated exports:</strong> Scheduled data delivery</li>
+<li><strong>Structured data:</strong> JSON format for easy processing</li>
+<li><strong>Multiple use cases:</strong> Spreadsheets, alerts, custom apps, BI tools</li>
+<li><strong>Set and forget:</strong> Configure once, runs automatically</li>
+</ul>
+
+<p>Webhooks unlock the power to integrate Alpha Insights with your existing tools and workflows, enabling automated reporting, custom analytics, and seamless data flow across your business systems!</p>
+

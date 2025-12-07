@@ -1,0 +1,852 @@
+<h2>Event Types Reference</h2>
+
+<p>Alpha Insights tracks a comprehensive set of events to understand visitor behavior and eCommerce activity. This reference guide documents every event type tracked by the system, when they're triggered, what data they capture, and how to use them in your analysis.</p>
+
+<h3>Event Overview</h3>
+
+<p>Events are individual actions taken by visitors on your website. Each event is stored with:</p>
+
+<ul>
+<li><strong>Timestamp:</strong> When the event occurred (GMT)</li>
+<li><strong>Session ID:</strong> Which session the event belongs to</li>
+<li><strong>Event type:</strong> What action was taken</li>
+<li><strong>Context:</strong> Page URL, object ID/type, product ID, etc.</li>
+<li><strong>Value:</strong> Monetary value if applicable (for transactions)</li>
+<li><strong>Additional data:</strong> Event-specific metadata (JSON)</li>
+</ul>
+
+<h4>Event Categories</h4>
+
+<p>Events are organized into these categories:</p>
+
+<ul>
+<li><strong>Page Events:</strong> Page views and navigation</li>
+<li><strong>Product Events:</strong> Product interactions</li>
+<li><strong>Cart Events:</strong> Shopping cart activity</li>
+<li><strong>Checkout Events:</strong> Checkout process</li>
+<li><strong>Transaction Events:</strong> Completed purchases</li>
+<li><strong>User Events:</strong> Authentication actions</li>
+<li><strong>Form Events:</strong> Form submissions</li>
+<li><strong>WooCommerce Events:</strong> WC-specific actions</li>
+</ul>
+
+<h3>Page Events</h3>
+
+<h4>page_view</h4>
+
+<p><strong>Description:</strong> Tracks when a visitor views any page on your website</p>
+
+<p><strong>When triggered:</strong></p>
+<ul>
+<li>Automatically on every page load</li>
+<li>Fires on <code>document.ready</code></li>
+<li>Tracked via JavaScript</li>
+</ul>
+
+<p><strong>Data captured:</strong></p>
+
+<table>
+<tr>
+<th>Field</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td>page_href</td>
+<td>Full URL of page viewed</td>
+<td>https://store.com/products/t-shirt</td>
+</tr>
+<tr>
+<td>object_type</td>
+<td>WordPress post type</td>
+<td>page, post, product, category</td>
+</tr>
+<tr>
+<td>object_id</td>
+<td>WordPress post/page ID</td>
+<td>123</td>
+</tr>
+<tr>
+<td>product_id</td>
+<td>Product ID (if product page)</td>
+<td>123 (or 0 if not product)</td>
+</tr>
+</table>
+
+<p><strong>Special handling:</strong></p>
+<ul>
+<li>If page is checkout page (ID matches <code>wc_get_page_id('checkout')</code>), also triggers <code>init_checkout</code> event</li>
+<li>If page is cart page (ID matches <code>wc_get_page_id('cart')</code>), also triggers <code>viewed_cart_page</code> event</li>
+<li>Product pages automatically set product_id field</li>
+</ul>
+
+<p><strong>Use in analysis:</strong></p>
+<ul>
+<li>Calculate total page views</li>
+<li>Determine pages per session</li>
+<li>Identify most popular pages</li>
+<li>Analyze navigation patterns</li>
+<li>Calculate bounce rate (1 page view = bounce)</li>
+</ul>
+
+<p><strong>Example query:</strong></p>
+<pre><code>SELECT page_href, COUNT(*) as views
+FROM wp_wpd_ai_events
+WHERE event_type = 'page_view'
+AND date_created_gmt >= '2024-01-01'
+GROUP BY page_href
+ORDER BY views DESC
+LIMIT 10;</code></pre>
+
+<h3>Product Events</h3>
+
+<h4>product_click</h4>
+
+<p><strong>Description:</strong> Tracks when a visitor clicks on a product link in category/shop pages</p>
+
+<p><strong>When triggered:</strong></p>
+<ul>
+<li>User clicks any <code>&lt;a&gt;</code> tag inside <code>.products .product</code> container</li>
+<li>Typically on shop, category, or archive pages</li>
+<li>Tracked via JavaScript click event</li>
+</ul>
+
+<p><strong>Data captured:</strong></p>
+
+<table>
+<tr>
+<th>Field</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td>product_id</td>
+<td>Product clicked</td>
+<td>123</td>
+</tr>
+<tr>
+<td>object_id</td>
+<td>Same as product_id</td>
+<td>123</td>
+</tr>
+<tr>
+<td>object_type</td>
+<td>Always "product"</td>
+<td>product</td>
+</tr>
+<tr>
+<td>page_href</td>
+<td>Page where click occurred</td>
+<td>https://store.com/shop</td>
+</tr>
+</table>
+
+<p><strong>Technical implementation:</strong></p>
+<ul>
+<li>Product ID captured from hidden element with class <code>.wpd-ai-event-tracking-product-id</code> and data attribute <code>data-product-id</code></li>
+<li>This element added automatically by <code>WPD_WooCommerce_Events->add_product_id_to_product_loop_item()</code></li>
+</ul>
+
+<p><strong>Use in analysis:</strong></p>
+<ul>
+<li>Identify most clicked products</li>
+<li>Calculate click-through rate from category to product page</li>
+<li>Measure product interest vs actual views</li>
+<li>Compare clicks to purchases (conversion funnel)</li>
+</ul>
+
+<h4>product_page_view</h4>
+
+<p><strong>Description:</strong> A <code>page_view</code> event where <code>object_type = 'product'</code></p>
+
+<p><strong>When triggered:</strong> When visitor views a product page</p>
+
+<p><strong>Data captured:</strong> Same as <code>page_view</code> but with product-specific fields populated</p>
+
+<p><strong>Use in analysis:</strong></p>
+<ul>
+<li>Count product page views</li>
+<li>Identify most viewed products</li>
+<li>Calculate view-to-purchase rate</li>
+<li>Compare product interest across categories</li>
+</ul>
+
+<p><strong>Example query:</strong></p>
+<pre><code>SELECT product_id, COUNT(*) as views
+FROM wp_wpd_ai_events
+WHERE event_type = 'page_view'
+AND object_type = 'product'
+AND date_created_gmt >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+GROUP BY product_id
+ORDER BY views DESC
+LIMIT 20;</code></pre>
+
+<h4>product_purchase</h4>
+
+<p><strong>Description:</strong> Individual product purchase within an order</p>
+
+<p><strong>When triggered:</strong></p>
+<ul>
+<li>Order status changes to a paid status (processing, completed)</li>
+<li>Tracked server-side via <code>woocommerce_order_status_changed</code> hook</li>
+<li>One event per line item in order</li>
+</ul>
+
+<p><strong>Data captured:</strong></p>
+
+<table>
+<tr>
+<th>Field</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td>product_id</td>
+<td>Product purchased</td>
+<td>123</td>
+</tr>
+<tr>
+<td>variation_id</td>
+<td>Variation ID (if variable product)</td>
+<td>456 (or 0)</td>
+</tr>
+<tr>
+<td>event_quantity</td>
+<td>Quantity purchased</td>
+<td>2</td>
+</tr>
+<tr>
+<td>event_value</td>
+<td>Line item total (after discounts)</td>
+<td>45.00</td>
+</tr>
+<tr>
+<td>object_id</td>
+<td>Order ID</td>
+<td>789</td>
+</tr>
+<tr>
+<td>object_type</td>
+<td>Always "order"</td>
+<td>order</td>
+</tr>
+</table>
+
+<p><strong>Use in analysis:</strong></p>
+<ul>
+<li>Identify bestselling products</li>
+<li>Calculate product revenue</li>
+<li>Analyze product purchase frequency</li>
+<li>Compare product performance</li>
+</ul>
+
+<h3>Cart Events</h3>
+
+<h4>add_to_cart</h4>
+
+<p><strong>Description:</strong> Tracks when a product is added to cart</p>
+
+<p><strong>When triggered:</strong></p>
+<ul>
+<li>Server-side via <code>woocommerce_add_to_cart</code> hook</li>
+<li>Fires after product successfully added to cart</li>
+<li>Most reliable cart tracking (server-side)</li>
+</ul>
+
+<p><strong>Data captured:</strong></p>
+
+<table>
+<tr>
+<th>Field</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td>product_id</td>
+<td>Product added</td>
+<td>123</td>
+</tr>
+<tr>
+<td>variation_id</td>
+<td>Variation (if applicable)</td>
+<td>456 (or 0)</td>
+</tr>
+<tr>
+<td>event_quantity</td>
+<td>Quantity added</td>
+<td>1</td>
+</tr>
+<tr>
+<td>event_value</td>
+<td>Product price × quantity</td>
+<td>29.99</td>
+</tr>
+</table>
+
+<p><strong>Hook parameters captured:</strong></p>
+<pre><code>woocommerce_add_to_cart($cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data)</code></pre>
+
+<p><strong>Use in analysis:</strong></p>
+<ul>
+<li>Calculate add-to-cart rate (adds / product views)</li>
+<li>Identify most added products</li>
+<li>Track cart abandonment (adds without transactions)</li>
+<li>Measure product interest</li>
+</ul>
+
+<p><strong>Funnel analysis:</strong></p>
+<pre><code>Product Views → Add to Cart → Init Checkout → Transaction
+     1000            250             100              75
+                   25% rate         40% rate       75% rate</code></pre>
+
+<h4>viewed_cart_page</h4>
+
+<p><strong>Description:</strong> Visitor views the cart page</p>
+
+<p><strong>When triggered:</strong></p>
+<ul>
+<li>Automatically when cart page is viewed</li>
+<li>Derived from <code>page_view</code> event on cart page</li>
+<li>Processed server-side in REST API handler</li>
+</ul>
+
+<p><strong>Data captured:</strong></p>
+<ul>
+<li>Standard page view data</li>
+<li>Page URL is cart page</li>
+<li>Object ID matches <code>wc_get_page_id('cart')</code></li>
+</ul>
+
+<p><strong>Use in analysis:</strong></p>
+<ul>
+<li>Count cart page views</li>
+<li>Calculate cart abandonment rate</li>
+<li>Measure checkout funnel dropoff</li>
+<li>Identify sessions with cart views but no purchase</li>
+</ul>
+
+<h4>wc_cart_emptied</h4>
+
+<p><strong>Description:</strong> Cart is emptied by user or system</p>
+
+<p><strong>When triggered:</strong></p>
+<ul>
+<li>User clicks "clear cart" or similar action</li>
+<li>Triggered by WooCommerce JavaScript event</li>
+<li>Tracked via JavaScript listener</li>
+</ul>
+
+<p><strong>Use in analysis:</strong></p>
+<ul>
+<li>Measure cart abandonment patterns</li>
+<li>Identify frustration points</li>
+<li>Analyze pre-purchase behavior</li>
+</ul>
+
+<h3>Checkout Events</h3>
+
+<h4>init_checkout</h4>
+
+<p><strong>Description:</strong> User begins checkout process</p>
+
+<p><strong>When triggered:</strong></p>
+<ul>
+<li>Automatically when checkout page is viewed</li>
+<li>Derived from <code>page_view</code> event on checkout page</li>
+<li>Processed server-side in REST API handler</li>
+</ul>
+
+<p><strong>Data captured:</strong></p>
+<ul>
+<li>Standard page view data</li>
+<li>Page URL is checkout page</li>
+<li>Object ID matches <code>wc_get_page_id('checkout')</code></li>
+</ul>
+
+<p><strong>Use in analysis:</strong></p>
+<ul>
+<li>Count checkout initiations</li>
+<li>Calculate checkout abandonment rate</li>
+<li>Measure conversion funnel</li>
+<li>Identify checkout dropoff</li>
+</ul>
+
+<p><strong>Funnel example:</strong></p>
+<pre><code>Cart Views: 150
+Init Checkout: 100 (66.7% continue to checkout)
+Transactions: 75 (75% complete purchase)</code></pre>
+
+<h4>viewed_checkout_page</h4>
+
+<p><strong>Description:</strong> Same as <code>init_checkout</code> (tracked as separate event type for clarity)</p>
+
+<h4>checkout_error</h4>
+
+<p><strong>Description:</strong> Error occurs during checkout process</p>
+
+<p><strong>When triggered:</strong></p>
+<ul>
+<li>WooCommerce fires <code>checkout_error</code> JavaScript event</li>
+<li>Form validation fails</li>
+<li>Payment gateway error</li>
+<li>Tracked via JavaScript with 300ms delay (to capture error messages)</li>
+</ul>
+
+<p><strong>Data captured:</strong></p>
+
+<table>
+<tr>
+<th>Field</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td>page_href</td>
+<td>Checkout page URL</td>
+<td>https://store.com/checkout</td>
+</tr>
+<tr>
+<td>additional_data</td>
+<td>JSON with error details</td>
+<td>{"error_message": "Invalid credit card"}</td>
+</tr>
+</table>
+
+<p><strong>Error message capture:</strong></p>
+<ul>
+<li>Reads text from <code>.woocommerce-error</code> and <code>.woocommerce-notices-wrapper</code> elements</li>
+<li>Stored in <code>additional_data->error_message</code></li>
+<li>300ms delay allows AJAX-loaded errors to appear</li>
+</ul>
+
+<p><strong>Use in analysis:</strong></p>
+<ul>
+<li>Identify common checkout errors</li>
+<li>Measure checkout friction</li>
+<li>Calculate error rate (errors / checkout initiations)</li>
+<li>Prioritize checkout improvements</li>
+<li>Track payment gateway issues</li>
+</ul>
+
+<p><strong>Example analysis:</strong></p>
+<pre><code>SELECT JSON_EXTRACT(additional_data, '$.error_message') as error,
+       COUNT(*) as occurrences
+FROM wp_wpd_ai_events
+WHERE event_type = 'checkout_error'
+AND date_created_gmt >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+GROUP BY error
+ORDER BY occurrences DESC;</code></pre>
+
+<h4>updated_checkout</h4>
+
+<p><strong>Description:</strong> Checkout form is updated/recalculated</p>
+
+<p><strong>When triggered:</strong></p>
+<ul>
+<li>Shipping method changed</li>
+<li>Billing/shipping address changed</li>
+<li>Coupon applied</li>
+<li>WooCommerce fires <code>updated_checkout</code> event</li>
+</ul>
+
+<p><strong>Use in analysis:</strong></p>
+<ul>
+<li>Measure checkout engagement</li>
+<li>Count form interactions</li>
+<li>Identify checkout complexity</li>
+</ul>
+
+<h4>payment_method_selected</h4>
+
+<p><strong>Description:</strong> User selects payment method</p>
+
+<p><strong>When triggered:</strong></p>
+<ul>
+<li>User clicks different payment option</li>
+<li>WooCommerce fires <code>payment_method_selected</code> event</li>
+</ul>
+
+<p><strong>Use in analysis:</strong></p>
+<ul>
+<li>Track payment method preferences</li>
+<li>Identify payment gateway issues</li>
+<li>Measure checkout progression</li>
+</ul>
+
+<h4>updated_shipping_method</h4>
+
+<p><strong>Description:</strong> User changes shipping method</p>
+
+<p><strong>When triggered:</strong></p>
+<ul>
+<li>User selects different shipping option</li>
+<li>WooCommerce fires <code>updated_shipping_method</code> event</li>
+</ul>
+
+<p><strong>Use in analysis:</strong></p>
+<ul>
+<li>Track shipping preferences</li>
+<li>Measure shipping cost sensitivity</li>
+<li>Identify free shipping impact</li>
+</ul>
+
+<h4>applied_coupon</h4>
+
+<p><strong>Description:</strong> Coupon code applied to cart/checkout</p>
+
+<p><strong>When triggered:</strong></p>
+<ul>
+<li>User successfully applies coupon</li>
+<li>WooCommerce fires <code>applied_coupon</code> event</li>
+</ul>
+
+<p><strong>Use in analysis:</strong></p>
+<ul>
+<li>Track coupon usage</li>
+<li>Measure promotion effectiveness</li>
+<li>Identify discount-driven purchases</li>
+</ul>
+
+<h4>removed_coupon</h4>
+
+<p><strong>Description:</strong> Coupon removed from cart/checkout</p>
+
+<p><strong>When triggered:</strong></p>
+<ul>
+<li>User removes coupon</li>
+<li>WooCommerce fires <code>removed_coupon</code> event</li>
+</ul>
+
+<h3>Transaction Events</h3>
+
+<h4>transaction</h4>
+
+<p><strong>Description:</strong> Order successfully placed and paid</p>
+
+<p><strong>When triggered:</strong></p>
+<ul>
+<li>Order status changes to paid status (processing, completed)</li>
+<li>Tracked server-side via <code>woocommerce_order_status_changed</code> hook</li>
+<li>One event per order</li>
+<li>Most important conversion event</li>
+</ul>
+
+<p><strong>Data captured:</strong></p>
+
+<table>
+<tr>
+<th>Field</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td>event_value</td>
+<td>Order total (after discounts, before tax)</td>
+<td>95.50</td>
+</tr>
+<tr>
+<td>event_quantity</td>
+<td>Total items in order</td>
+<td>3</td>
+</tr>
+<tr>
+<td>object_id</td>
+<td>Order ID</td>
+<td>789</td>
+</tr>
+<tr>
+<td>object_type</td>
+<td>Always "order"</td>
+<td>order</td>
+</tr>
+</table>
+
+<p><strong>Use in analysis:</strong></p>
+<ul>
+<li>Calculate total revenue</li>
+<li>Count transactions</li>
+<li>Calculate conversion rate (transactions / sessions)</li>
+<li>Measure average order value</li>
+<li>Link orders to traffic sources</li>
+<li>Calculate profit per session</li>
+</ul>
+
+<p><strong>Key metrics:</strong></p>
+<pre><code>Conversion Rate = (Transactions / Sessions) × 100
+Revenue Per Session = Total Revenue / Total Sessions
+Average Order Value = Total Revenue / Total Transactions</code></pre>
+
+<h3>User Events</h3>
+
+<h4>log_in</h4>
+
+<p><strong>Description:</strong> User successfully logs in</p>
+
+<p><strong>When triggered:</strong></p>
+<ul>
+<li>Server-side via <code>wp_login</code> hook</li>
+<li>Also via <code>woocommerce_customer_login</code> hook</li>
+<li>Fires after successful authentication</li>
+</ul>
+
+<p><strong>Data captured:</strong></p>
+<ul>
+<li>User ID populated</li>
+<li>Login page URL</li>
+<li>Timestamp</li>
+</ul>
+
+<p><strong>Use in analysis:</strong></p>
+<ul>
+<li>Track returning customers</li>
+<li>Measure account usage</li>
+<li>Analyze logged-in vs guest checkout</li>
+</ul>
+
+<h4>log_out</h4>
+
+<p><strong>Description:</strong> User logs out</p>
+
+<p><strong>When triggered:</strong></p>
+<ul>
+<li>Server-side via <code>wp_logout</code> hook</li>
+<li>Fires before user session ends</li>
+</ul>
+
+<p><strong>Use in analysis:</strong></p>
+<ul>
+<li>Track session end behavior</li>
+<li>Measure account engagement</li>
+</ul>
+
+<h3>Form Events</h3>
+
+<h4>form_submit</h4>
+
+<p><strong>Description:</strong> Any form on the site is submitted</p>
+
+<p><strong>When triggered:</strong></p>
+<ul>
+<li>JavaScript listener on all <code>&lt;form&gt;</code> submit events</li>
+<li>Fires before form actually submits</li>
+<li>Tracked via jQuery <code>$('body').on('submit', 'form')</code></li>
+</ul>
+
+<p><strong>Data captured:</strong></p>
+
+<table>
+<tr>
+<th>Field</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td>additional_data</td>
+<td>Form metadata (JSON)</td>
+<td>See below</td>
+</tr>
+</table>
+
+<p><strong>additional_data structure:</strong></p>
+<pre><code>{
+  "form_id": ".search-form",  // or ID/name if available
+  "form_element_id": "searchform",
+  "form_element_name": "s",
+  "form_element_class": "search-form header-search",
+  "form_element_action": "/search",
+  "form_method": "get"
+}</code></pre>
+
+<p><strong>Security:</strong></p>
+<ul>
+<li>Password fields explicitly filtered out</li>
+<li>Form data itself NOT stored (only metadata)</li>
+<li>Privacy-safe tracking</li>
+</ul>
+
+<p><strong>Use in analysis:</strong></p>
+<ul>
+<li>Track search usage</li>
+<li>Measure contact form submissions</li>
+<li>Identify most-used forms</li>
+<li>Calculate form conversion rates</li>
+</ul>
+
+<h3>Event Data Structure</h3>
+
+<p><strong>Standard fields for all events:</strong></p>
+
+<pre><code>{
+  // Identity
+  "session_id": "wpd5f4dcc3b5aa76...",
+  "ip_address": "192.168.1.1",
+  "user_id": 0,  // 0 = guest, >0 = logged in user
+  
+  // Context
+  "page_href": "https://yourstore.com/products/t-shirt",
+  "object_type": "product",  // post type or 'order'
+  "object_id": 123,          // post/page/product/order ID
+  
+  // Event details
+  "event_type": "page_view",
+  "event_quantity": 1,
+  "event_value": 0.00,       // monetary value
+  
+  // Product context (if applicable)
+  "product_id": 123,         // 0 if not product-related
+  "variation_id": 0,         // 0 if not variation
+  
+  // Metadata
+  "date_created_gmt": "2024-03-15 14:30:25",
+  "additional_data": "{}"    // JSON string
+}</code></pre>
+
+<h3>Event Filtering & Analysis</h3>
+
+<p>Events can be filtered in reports using the Report Builder. See <a href='/documentation/alpha-insights/report-builder/using-report-filters.html'>Using Report Filters</a> for complete filtering options.</p>
+
+<h4>Common Queries</h4>
+
+<p><strong>1. Count events by type:</strong></p>
+<pre><code>SELECT event_type, COUNT(*) as count
+FROM wp_wpd_ai_events
+WHERE date_created_gmt >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+GROUP BY event_type
+ORDER BY count DESC;</code></pre>
+
+<p><strong>2. Page view count:</strong></p>
+<pre><code>SELECT COUNT(*) as page_views
+FROM wp_wpd_ai_events
+WHERE event_type = 'page_view'
+AND date_created_gmt >= '2024-01-01';</code></pre>
+
+<p><strong>3. Conversion funnel:</strong></p>
+<pre><code>SELECT 
+  SUM(CASE WHEN event_type = 'product_page_view' THEN 1 ELSE 0 END) as product_views,
+  SUM(CASE WHEN event_type = 'add_to_cart' THEN 1 ELSE 0 END) as add_to_carts,
+  SUM(CASE WHEN event_type = 'init_checkout' THEN 1 ELSE 0 END) as checkouts,
+  SUM(CASE WHEN event_type = 'transaction' THEN 1 ELSE 0 END) as transactions
+FROM wp_wpd_ai_events
+WHERE date_created_gmt >= DATE_SUB(NOW(), INTERVAL 30 DAY);</code></pre>
+
+<p><strong>4. Events per session:</strong></p>
+<pre><code>SELECT session_id, 
+       COUNT(*) as events,
+       SUM(CASE WHEN event_type = 'page_view' THEN 1 ELSE 0 END) as page_views
+FROM wp_wpd_ai_events
+WHERE date_created_gmt >= DATE_SUB(NOW(), INTERVAL 1 DAY)
+GROUP BY session_id
+ORDER BY events DESC
+LIMIT 10;</code></pre>
+
+<h4>Using Events in Reports</h4>
+
+<p><strong>In Report Builder:</strong></p>
+<ul>
+<li>Filter by event type: <code>session_contains_event</code> filter</li>
+<li>Analyze sessions with specific events</li>
+<li>Compare sessions with/without events</li>
+</ul>
+
+<p><strong>Example analyses:</strong></p>
+<ul>
+<li>Sessions with checkout errors vs those without</li>
+<li>Sessions with form submissions</li>
+<li>Sessions with product clicks but no purchases</li>
+<li>Sessions with multiple page views (engaged visitors)</li>
+</ul>
+
+<h3>Custom Event Tracking</h3>
+
+<p>You can track custom events beyond the standard eCommerce events. For advanced custom implementations, see the <a href='/documentation/alpha-insights/developers/overview/developer-introduction.html'>Developer Documentation</a>.</p>
+
+<h4>JavaScript Custom Events</h4>
+
+<pre><code>// Track custom button click
+var payload = {
+  event_type: 'custom_button_click',
+  event_value: 0,
+  additional_data: {
+    button_text: 'Learn More',
+    button_location: 'homepage_hero'
+  }
+};
+WpdAiEventTracking(payload);</code></pre>
+
+<h4>PHP Custom Events</h4>
+
+<pre><code>// Track custom action server-side
+$event_data = array(
+  'event_type'     => 'video_watched',
+  'event_quantity' => 1,
+  'event_value'    => 0,
+  'object_id'      => get_the_ID(),
+  'object_type'    => 'page',
+  'additional_data' => array(
+    'video_id' => 'intro-video',
+    'duration_seconds' => 120
+  )
+);
+wpd_send_woocommerce_event($event_data);</code></pre>
+
+<h3>Event Tracking Best Practices</h3>
+
+<ul>
+<li><strong>Don't over-track:</strong> Too many events can clutter data and slow site</li>
+<li><strong>Use meaningful event names:</strong> Descriptive, consistent naming</li>
+<li><strong>Include context in additional_data:</strong> Store relevant metadata</li>
+<li><strong>Test custom events:</strong> Verify they appear in Realtime Dashboard</li>
+<li><strong>Document custom events:</strong> Maintain list of custom event types</li>
+<li><strong>Clean up unused events:</strong> Periodically review and remove</li>
+<li><strong>Consider performance:</strong> Each event = database write</li>
+</ul>
+
+<h3>Event Limitations</h3>
+
+<ul>
+<li><strong>Rate limiting:</strong> Max 60 events per minute per IP</li>
+<li><strong>No retroactive tracking:</strong> Only tracks from enablement forward</li>
+<li><strong>Cookie dependency:</strong> Requires cookies enabled</li>
+<li><strong>JavaScript dependency:</strong> Most events require JS enabled</li>
+<li><strong>Session-based:</strong> Events tied to sessions (10-minute timeout)</li>
+<li><strong>Single-domain:</strong> Doesn't track cross-domain behavior</li>
+</ul>
+
+<h3>Troubleshooting Event Tracking</h3>
+
+<p><strong>Events not appearing:</strong></p>
+<ul>
+<li>Check if analytics is enabled (Settings → General Settings)</li>
+<li>Verify you're not in excluded user role</li>
+<li>Check browser console for JavaScript errors</li>
+<li>Test REST API endpoint manually</li>
+<li>Check rate limiting (transient: <code>wpd_ai_rate_limit_{ip}</code>)</li>
+</ul>
+
+<p><strong>Some events missing:</strong></p>
+<ul>
+<li>Check if bot (user agent filtered)</li>
+<li>Verify cookies are enabled</li>
+<li>Check if landing page cookie is set</li>
+<li>Review server logs for errors</li>
+</ul>
+
+<p><strong>Events show wrong data:</strong></p>
+<ul>
+<li>Check if custom theme overrides WC templates</li>
+<li>Verify product ID elements exist on category pages</li>
+<li>Check if AJAX is interfering with tracking</li>
+<li>Review JavaScript console for errors</li>
+</ul>
+
+<h4>Next Steps</h4>
+
+<ul>
+<li>Review <a href='/documentation/alpha-insights/website-traffic/technical-architecture.html'>Technical Architecture</a> for implementation details</li>
+<li>Read <a href='/documentation/alpha-insights/website-traffic/session-management.html'>Session Management</a> to understand event grouping</li>
+<li>Check <a href='/documentation/alpha-insights/website-traffic/troubleshooting-website-traffic.html'>Troubleshooting Guide</a> for common issues</li>
+<li>See <a href='/documentation/alpha-insights/report-builder/using-report-filters.html'>Report Filters</a> to filter by event types</li>
+<li>Learn about <a href='/documentation/alpha-insights/report-builder/widgets/data-table-widget.html'>Data Table Widget</a> to display event data</li>
+<li>Explore <a href='/documentation/alpha-insights/developers/overview/developer-introduction.html'>Developer Documentation</a> for custom events</li>
+</ul>
+

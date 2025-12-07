@@ -1,0 +1,171 @@
+﻿<h2>Filter: wpd_ai_custom_product_cost_options
+</h2>
+<p>This filter allows developers to programmatically register custom product cost options that appear in the product edit screen.
+</p>
+<h3>Description
+</h3>
+<p>Use this filter to add custom cost types to products (beyond the standard COGS). Custom product costs can be static fees, percentages of sell price, or both combined.
+</p>
+<h4>Location
+</h4>
+<p><strong>File:</strong><code>includes/functions/wpd-custom-cost-functions.php</code>
+</p>
+<p><strong>Function:</strong><code>wpd_get_custom_product_cost_options()</code>
+</p>
+<h3>Parameters
+</h3>
+<table>
+<tr>
+<th>Parameter
+</th>
+<th>Type
+</th>
+<th>Description
+</th>
+</tr>
+<tr>
+<td>$custom_product_costs
+</td>
+<td>array
+</td>
+<td>Existing array of custom product costs (initially empty or from settings)
+</td>
+</tr>
+<tr>
+<td>$product_id
+</td>
+<td>int
+</td>
+<td>The ID of the product being edited
+</td>
+</tr>
+</table>
+<h4>Return
+</h4>
+<p><strong>Type:</strong> array
+</p>
+<p><strong>Description:</strong> Associative array of custom product cost options
+</p>
+<h3>Array Structure
+</h3>
+<pre><code>array( 'unique_slug' =>array( 'label' =>'Display Label', 'description' =>'Helper text for admin', 'placeholder' =>'0.00', 'static_fee' =>5.00, // Fixed amount per unit 'percent_of_sell_price' =>10.5 // Percentage of sell price ) )</code>
+</pre>
+<h4>Example Usage
+</h4>
+<h3>Add Packaging Cost Option
+</h3>
+<pre><code>add_filter( 'wpd_ai_custom_product_cost_options', 'my_custom_product_costs', 10, 2 ); function my_custom_product_costs( $custom_costs, $product_id ) { // Add packaging cost option $custom_costs['packaging_cost'] = array( 'label' =>'Packaging Cost', 'description' =>'Cost of packaging materials for this product', 'placeholder' =>'2.50', 'static_fee' =>2.50, // Default $2.50 per unit 'percent_of_sell_price' =>0 // Not percentage-based ); return $custom_costs; }</code>
+</pre>
+<h3>Add Shipping Supplies Cost
+</h3>
+<pre><code>add_filter( 'wpd_ai_custom_product_cost_options', 'add_shipping_supplies_cost', 10, 2 ); function add_shipping_supplies_cost( $custom_costs, $product_id ) { $custom_costs['shipping_supplies'] = array( 'label' =>'Shipping Supplies', 'description' =>'Boxes, tape, packing materials', 'placeholder' =>'0.00', 'static_fee' =>3.00, 'percent_of_sell_price' =>0 ); return $custom_costs; }</code>
+</pre>
+<h3>Add Labor Cost (Percentage-Based)
+</h3>
+<pre><code>add_filter( 'wpd_ai_custom_product_cost_options', 'add_labor_cost', 10, 2 ); function add_labor_cost( $custom_costs, $product_id ) { // Labor cost as 15% of sell price $custom_costs['labor_cost'] = array( 'label' =>'Labor Cost', 'description' =>'Assembly and quality control labor', 'placeholder' =>'0.00', 'static_fee' =>0, 'percent_of_sell_price' =>15.0 // 15% of sell price ); return $custom_costs; }</code>
+</pre>
+<h3>Combined Static + Percentage
+</h3>
+<pre><code>add_filter( 'wpd_ai_custom_product_cost_options', 'add_fulfillment_cost', 10, 2 ); function add_fulfillment_cost( $custom_costs, $product_id ) { // $5 base + 3% of price $custom_costs['fulfillment_fee'] = array( 'label' =>'3PL Fulfillment Fee', 'description' =>'Third-party fulfillment center fee', 'placeholder' =>'0.00', 'static_fee' =>5.00, // $5 base fee 'percent_of_sell_price' =>3.0 // + 3% of price ); return $custom_costs; }</code>
+</pre>
+<h3>Product-Specific Logic
+</h3>
+<pre><code>add_filter( 'wpd_ai_custom_product_cost_options', 'conditional_custom_costs', 10, 2 ); function conditional_custom_costs( $custom_costs, $product_id ) { // Only add custom assembly cost for specific category $product = wc_get_product( $product_id ); if ( $product && $product->is_type('variable') ) { // Variable products get assembly cost $custom_costs['assembly_cost'] = array( 'label' =>'Custom Assembly', 'description' =>'Required for customizable products', 'static_fee' =>15.00, 'percent_of_sell_price' =>0 ); } return $custom_costs; }</code>
+</pre>
+<h4>Field Definitions
+</h4>
+<h3>label (string, required)
+</h3>
+<p>Display name shown in product edit screen
+</p>
+<h4>description (string, optional)
+</h4>
+<p>Helper text displayed below the input field
+</p>
+<h3>placeholder (string/float, optional)
+</h3>
+<p>Placeholder text in the input field
+</p>
+<h4>static_fee (float, optional)
+</h4>
+<p>Fixed dollar amount added per unit. Set to <code>null</code> or <code>0</code> if not used.
+</p>
+<h3>percent_of_sell_price (float, optional)
+</h3>
+<p>Percentage of product sell price (0-100). Set to <code>null</code> or <code>0</code> if not used.
+</p>
+<h3>Calculation Logic
+</h3>
+<p>For each unit sold, the custom cost calculated as:
+</p>
+<pre><code>Cost = (Sell Price Ã— (percent_of_sell_price / 100)) + static_fee</code>
+</pre>
+<p><strong>Example with $50 product:</strong>
+</p>
+<ul>
+<li>static_fee = $5
+</li>
+<li>percent_of_sell_price = 10
+</li>
+<li>Cost = ($50 Ã— 0.10) + $5 = $10
+</li>
+</ul>
+<h3>Where Costs Appear
+</h3>
+<p>Once registered, custom costs:
+</p>
+<ul>
+<li>Appear in product edit screen (WooCommerce → Products → Edit)
+</li>
+<li>Can be set per product or per variation
+</li>
+<li>Are included in profit calculations automatically
+</li>
+<li>Show in Cost of Goods Manager
+</li>
+<li>Appear in order profit breakdowns
+</li>
+</ul>
+<h3>Best Practices
+</h3>
+<ul>
+<li>Use unique, descriptive slugs (e.g., 'packaging_cost' not 'cost1')
+</li>
+<li>Provide helpful descriptions for store admins
+</li>
+<li>Set reasonable default values
+</li>
+<li>Use either static_fee OR percent_of_sell_price, or both
+</li>
+<li>Test with variable products to ensure compatibility
+</li>
+</ul>
+<h3>Notes
+</h3>
+<ul>
+<li>Filter runs every time product costs are fetched
+</li>
+<li>Results are cached per product for performance
+</li>
+<li>Can register multiple custom costs (each with unique slug)
+</li>
+<li>Custom costs are optional - users can leave them blank
+</li>
+</ul>
+<h3>Related Filters
+</h3>
+<ul>
+<li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_custom_product_cost_default_value.html'>wpd_ai_custom_product_cost_default_value</a>- Filter default value per line item
+</li>
+<li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_custom_order_cost_default_value.html'>wpd_ai_custom_order_cost_default_value</a>- Order-level custom costs
+</li>
+</ul>
+<h3>Related Functions
+</h3>
+<ul>
+<li><code>wpd_get_custom_product_cost_options( $product_id )</code>- Retrieve custom costs for a product
+</li>
+<li><code>wpd_get_additional_costs_by_product_id( $product_id )</code>- Get calculated custom costs
+</li>
+</ul>
+</p>

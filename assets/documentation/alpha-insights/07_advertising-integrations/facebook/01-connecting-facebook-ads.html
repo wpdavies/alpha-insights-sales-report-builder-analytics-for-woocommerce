@@ -1,0 +1,433 @@
+﻿<h2>Connecting Facebook Ads to Alpha Insights</h2>
+<p>Connecting your Facebook Ads account allows Alpha Insights to automatically track your ad spend and calculate true Return on Ad Spend (ROAS). This guide walks you through the complete setup process using Facebook Marketing API v22.0.</p>
+<h3>Why Connect Facebook Ads?</h3>
+<ul>
+<li>
+<strong>Automatic ad spend tracking</strong>- No manual data entry needed
+</li>
+<li>
+<strong>Real-time ROAS calculations</strong>- See if ads are profitable immediately
+</li>
+<li>
+<strong>Campaign-level insights</strong>- Know which specific campaigns drive profit
+</li>
+<li>
+<strong>Attribution matching</strong>- Connect ad clicks to actual orders
+</li>
+<li>
+<strong>Historical data sync</strong>- Import past ad spend automatically
+</li>
+</ul>
+<h3>Before You Begin</h3>
+<h4>Requirements</h4>
+<p>Active Facebook Ads account with running or past campaigns</p>
+<p>Admin access to the Facebook Ad Account you want to connect</p>
+<p>Facebook Business Manager account (recommended but not required)</p>
+<p>Alpha Insights Pro license activated</p>
+<h4>What You'll Need</h4>
+<ul>
+<li>Your Facebook login credentials</li>
+<li>Access to the Facebook account that manages your ads</li>
+<li>5-10 minutes for setup</li>
+</ul>
+<h3>Step-by-Step Connection Process</h3>
+<h4>Step 1: Access Facebook Integration Settings</h4>
+<ol>
+<li>Log in to your WordPress admin dashboard</li>
+<li>Go to <strong>Alpha Insights → Settings</strong>
+</li>
+<li>Click the <strong>Facebook Integration</strong> tab</li>
+</ol>
+<h4>Step 2: Start Connection</h4>
+<ol>
+<li>Click the <strong>Connect Facebook Ads</strong> button</li>
+<li>A popup window will appear</li>
+</ol>
+<h4>Step 3: Log In to Facebook</h4>
+<ol>
+<li>In the popup, log in with your Facebook account</li>
+<li>Use the account that has access to your ad account</li>
+<li>If you're already logged in to Facebook in your browser, it may skip this step</li>
+</ol>
+<h4>Step 4: Grant Permissions</h4>
+<p>Facebook will ask for permissions. Alpha Insights needs:</p>
+<ul>
+<li><strong>ads_read</strong>- Read your ad campaign data, ad spend, and account details</li>
+</ul>
+<p>
+<strong>Important:</strong> Alpha Insights only READS your ad data. It is read-only access and cannot create, modify, or delete ads or campaigns.
+</p>
+<ol start="1">
+<li>Review the permissions</li>
+<li>Click <strong>Continue</strong> or <strong>Allow</strong>
+</li>
+</ol>
+<h4>Step 5: Select Ad Account</h4>
+<ol>
+<li>You'll see a list of ad accounts you have access to</li>
+<li>Select the ad account you want to track</li>
+<li>Click <strong>Connect Account</strong>
+</li>
+</ol>
+<p>
+<strong>Tip:</strong> The ad account ID is shown in parentheses (e.g., "My Store Ads (act_123456789)")
+</p>
+<h4>Step 6: Fetch All Historical Data</h4>
+<p>After successful connection, you'll see a confirmation screen:</p>
+<ol>
+<li>A success message showing "Successfully Connected!" with your account name</li>
+<li>A <strong>Fetch All Data</strong> button</li>
+<li>Information explaining this will load all historical ad spend data</li>
+<li>Click <strong>Fetch All Data</strong> to begin importing your data</li>
+</ol>
+<p>
+<strong>Note:</strong> This initial data fetch loads all available historical data (up to 37 months). After this, data will automatically sync on your configured schedule.
+</p>
+<h4>Alternative: Fetch Data Later</h4>
+<p>If you prefer to configure settings first before fetching data:</p>
+<ol>
+<li>You can skip the "Fetch All Data" step by closing the modal</li>
+<li>Go to <strong>Settings → Facebook Integration</strong></li>
+<li>Configure your sync settings (described below)</li>
+<li>Click <strong>Refresh All Campaign Data</strong> when ready</li>
+</ol>
+<h4>Step 7: Configure Sync Settings</h4>
+<p>Back in Alpha Insights, configure:</p>
+<h4>API Call Schedule</h4>
+<p>Choose how often Alpha Insights queries Facebook API for ad spend and campaign insights:</p>
+<ul>
+<li>
+<strong>Daily</strong> - Minimal API usage, data updates once per day
+</li>
+<li>
+<strong>Every 12 Hours</strong> - Balanced approach, updates twice daily
+</li>
+<li>
+<strong>Every 6 Hours</strong> (recommended) - More frequent updates for active campaigns
+</li>
+</ul>
+<p>
+<strong>Recommendation:</strong> Every 6 hours for active campaigns provides good balance between data freshness and API usage.
+</p>
+<h4>Historical Data Import</h4>
+<p>When you first connect, Alpha Insights automatically imports all available historical data from your Facebook ad account:</p>
+<ul>
+<li>Facebook Marketing API provides access to up to <strong>37 months</strong> of historical data</li>
+<li>All past campaigns, ad spend, and metrics are automatically imported</li>
+<li>Initial import happens in the background and may take 5-30 minutes depending on data volume</li>
+<li>You can manually refresh data anytime using the "Refresh All Campaign Data" button</li>
+</ul>
+<h4>Currency Settings</h4>
+<p><strong>Automatic Currency Detection and Conversion:</strong></p>
+<ul>
+<li>Alpha Insights automatically detects your Facebook ad account currency</li>
+<li>If your ad account currency differs from your WooCommerce store currency, all monetary values are automatically converted</li>
+<li>Converted values are marked in the data and both original and converted amounts are stored</li>
+<li>Exchange rates are applied at the time of data sync</li>
+</ul>
+<h4>Step 8: Data Fetch Complete</h4>
+<p>If data fetch is successful:</p>
+<ol>
+<li>You'll see an "All Set!" message</li>
+<li>The success message shows how many campaigns were found and synced</li>
+<li>The page will automatically reload to show your updated connection status</li>
+<li>You can also click <strong>Done</strong> to reload immediately</li>
+</ol>
+<h4>If Data Fetch Fails</h4>
+<p>In case of large ad accounts or temporary API issues, you may see:</p>
+<ul>
+<li>A warning message: "Connection Successful - However, we couldn't fetch your data at this time"</li>
+<li>Your account IS connected (authentication worked)</li>
+<li>Helpful suggestions for next steps:
+<ul>
+<li>Try fetching data again later from the Facebook settings page</li>
+<li>Consider adjusting date range settings for large ad accounts</li>
+</ul>
+</li>
+<li>Click <strong>Done</strong> - the page reloads to show your active connection</li>
+<li>You can manually fetch data anytime using the "Refresh All Campaign Data" button in settings</li>
+</ul>
+<p>
+<strong>Important:</strong> A data fetch failure does NOT mean your connection failed. Your Facebook account is connected and you can fetch data later from the settings page.
+</p>
+<h4>Step 9: Verify Connection</h4>
+<p>You should see:</p>
+<ul>
+<li>Status:<strong>Connected</strong>(green)</li>
+<li>Connected account name</li>
+<li>Last sync time (should be recent)</li>
+<li>Initial sync starting</li>
+</ul>
+<h3>What Happens Next?</h3>
+<h4>Initial Sync</h4>
+<p>Alpha Insights immediately begins syncing your ad data:</p>
+<ol>
+<li>
+<strong>First 1-2 minutes:</strong> Fetches list of campaigns
+</li>
+<li>
+<strong>Next 5-15 minutes:</strong> Imports historical ad spend data (up to 37 months)
+</li>
+<li>
+<strong>Ongoing:</strong> Syncs new data based on your API call schedule setting
+</li>
+</ol>
+<p>You can use Alpha Insights during this process - data will appear as it's imported.</p>
+<h4>What Data Is Synced?</h4>
+<p>Alpha Insights imports from Facebook Marketing API:</p>
+<ul>
+<li><strong>Campaign names and IDs</strong></li>
+<li><strong>Campaign objectives</strong> (e.g., purchases, leads, traffic)</li>
+<li><strong>Daily ad spend</strong> per campaign (stored as expenses)</li>
+<li><strong>Campaign performance metrics:</strong> impressions, clicks, outbound clicks, leads, purchases, purchase value</li>
+<li><strong>Campaign ROAS</strong> (calculated from Facebook's purchase data)</li>
+<li><strong>Conversion rates</strong></li>
+<li><strong>Date ranges</strong> campaigns ran</li>
+<li><strong>Ad account information</strong> (name, ID, currency)</li>
+</ul>
+<p>
+<strong>Not synced (privacy/relevance):</strong>
+</p>
+<ul>
+<li>Ad creative content (images, videos, copy)</li>
+<li>Audience targeting details</li>
+<li>Individual ad-level performance (data is aggregated to campaign level)</li>
+</ul>
+<h4>Campaign Tracking with UTM Parameters</h4>
+<p>To accurately track which orders come from specific Facebook campaigns, Alpha Insights uses the <code>meta_cid</code> parameter:</p>
+<p><strong>Required Setup:</strong> Add this to your Facebook ad URLs:</p>
+<pre><code>meta_cid={{campaign.id}}</code></pre>
+<p><strong>Full URL Example:</strong></p>
+<pre><code>https://yourstore.com/product?meta_cid={{campaign.id}}</code></pre>
+<p><strong>How it works:</strong></p>
+<ul>
+<li>The <code>{{campaign.id}}</code> placeholder is automatically replaced by Facebook with the actual campaign ID</li>
+<li>Alpha Insights captures this parameter from the landing page URL when customers visit</li>
+<li>When they place an order (within the attribution period), it's matched to the specific campaign</li>
+<li>This enables accurate profit calculations per campaign in your reports</li>
+</ul>
+<p><strong>Note:</strong> Orders are also attributed based on traffic source referrer (facebook.com), but the <code>meta_cid</code> parameter provides the most accurate campaign-level attribution.</p>
+<h3>Verifying Everything Works</h3>
+<h4>Check Campaign List</h4>
+<ol>
+<li>Go to <strong>Alpha Insights → Facebook Campaigns</strong>
+</li>
+<li>You should see a list of your campaigns</li>
+<li>Verify campaign names match your Facebook Ads Manager</li>
+<li>Check that ad spend amounts look correct</li>
+<li>Each campaign should show: Ad Spend, Website Views (Outbound Clicks), Leads, Orders, Conversion Rate, Revenue, and ROAS</li>
+</ol>
+<h4>Check Expenses</h4>
+<ol>
+<li>Go to <strong>Alpha Insights → Expenses</strong>
+</li>
+<li>Filter by "Facebook Ads" category</li>
+<li>You should see daily ad spend entries</li>
+<li>Each entry titled "Facebook Ads | [Account Name] | [Date]"</li>
+<li>Verify amounts match your daily spend in Facebook Ads Manager</li>
+</ol>
+<h4>Check Dashboard</h4>
+<ol>
+<li>Go to <strong>Alpha Insights → Dashboard</strong>
+</li>
+<li>Look for the "Ad Spend" metric</li>
+<li>Should show Facebook ad spend for the selected period</li>
+<li>Ad spend from Facebook is automatically included in your profit calculations</li>
+</ol>
+<p>If you see data in all three places, your connection is working perfectly!</p>
+<h3>Troubleshooting Connection Issues</h3>
+<h4>Issue: "Connection failed" error</h4>
+<p>
+<strong>Possible causes:</strong>
+</p>
+<ul>
+<li>Popup was blocked by browser</li>
+<li>Facebook login credentials incorrect</li>
+<li>Temporary Facebook API issue</li>
+</ul>
+<p>
+<strong>Solutions:</strong>
+</p>
+<ol>
+<li>Allow popups for your WordPress site</li>
+<li>Try again in incognito/private browsing mode</li>
+<li>Log out of Facebook completely, then try connecting again</li>
+<li>Wait 10 minutes and retry (temporary API issues)</li>
+</ol>
+<h4>Issue: "Permission denied"</h4>
+<p>
+<strong>Cause:</strong> You don't have sufficient access to the ad account
+</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Verify you have at least "Advertiser" role in Facebook Business Manager</li>
+<li>Admin access to the ad account is required</li>
+<li>If someone else manages ads, have them connect the account</li>
+<li>Request admin access from the ad account owner</li>
+<li>Wait 5 minutes after permissions are granted before trying to connect</li>
+</ul>
+<h4>Issue: "No ad accounts found"</h4>
+<p>
+<strong>Cause:</strong> The Facebook account you logged in with has no ad accounts
+</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Verify you logged in with the correct Facebook account</li>
+<li>Check Facebook Business Manager to confirm you have ad accounts</li>
+<li>Ask to be added to the ad account if it's managed by someone else</li>
+</ul>
+<h4>Issue: "Ad spend not showing up"</h4>
+<p>
+<strong>Check:</strong>
+</p>
+<ol>
+<li>Connection status shows "Healthy" (green)</li>
+<li>Last sync time is recent (check Settings → Facebook Integration)</li>
+<li>If you skipped the "Fetch All Data" step during connection, you need to fetch data manually:
+<ul>
+<li>Go to Settings → Facebook Integration</li>
+<li>Click <strong>Refresh All Campaign Data</strong> button</li>
+<li>Wait 1-5 minutes for data to load</li>
+</ul>
+</li>
+<li>Verify campaigns are active and have spend in Facebook Ads Manager</li>
+<li>Check date range in Alpha Insights includes days with ad spend</li>
+<li>Data fetch can take 5-30 minutes depending on account size</li>
+</ol>
+<h4>Issue: "Ad spend amounts don't match Facebook"</h4>
+<p>
+<strong>Common reasons:</strong>
+</p>
+<ul>
+<li>Currency auto-conversion - Alpha Insights converts to your store currency if different</li>
+<li>Time zone difference - minor discrepancies normal due to timezone boundaries</li>
+<li>Sync timing - Facebook data isn't finalized immediately</li>
+<li>Data still processing - initial sync can take time</li>
+</ul>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Wait 2-3 hours after spending for Facebook to finalize their numbers</li>
+<li>Click <strong>Refresh All Campaign Data</strong> to get latest data</li>
+<li>Check again tomorrow - data should match once Facebook finalizes it</li>
+<li>Verify you're comparing the same date ranges in both systems</li>
+<li>Check if currency conversion is being applied (look for "currency_converted" in campaign data)</li>
+</ol>
+<h3>Connecting Multiple Ad Accounts</h3>
+<p><strong>Note:</strong> Currently, Alpha Insights supports connecting <strong>one Facebook ad account</strong> at a time.</p>
+<p>If you need to switch to a different ad account:</p>
+<ol>
+<li>Go to Settings → Facebook Integration</li>
+<li>Click <strong>Remove Connection</strong>
+</li>
+<li>Follow the connection process again with the new ad account</li>
+<li>Note: Historical data from the previous account will remain in your database unless you delete it using the data deletion tools</li>
+</ol>
+<h3>Managing Your Connection</h3>
+<h4>Viewing Connection Status</h4>
+<p>Go to Settings → Facebook Integration to see:</p>
+<ul>
+<li>
+<strong>API Status:</strong> Healthy / Error / Not Configured (with status indicator)
+</li>
+<li>
+<strong>Connected account:</strong> Account name (automatically fetched)
+</li>
+<li>
+<strong>Connection Expiry Date:</strong> When the access token will expire (max 60 days)
+</li>
+<li>
+<strong>Last API Check:</strong> When the API status was last verified
+</li>
+<li>
+<strong>Daily Expenses Stored:</strong> Number of daily ad spend records
+</li>
+<li>
+<strong>Campaigns Stored:</strong> Number of campaigns being tracked
+</li>
+<li>
+<strong>Last Successful Data Fetch:</strong> When data was last synced
+</li>
+<li>
+<strong>Next Scheduled Data Fetch:</strong> When the next automatic sync will occur
+</li>
+</ul>
+<h4>Manual Sync</h4>
+<p>Force an immediate data sync:</p>
+<ol>
+<li>Go to Settings → Facebook Integration</li>
+<li>Click <strong>Refresh All Campaign Data</strong>
+</li>
+<li>Wait for completion (can take 1-5 minutes depending on data volume)</li>
+<li>Check "Last Successful Data Fetch" time updates</li>
+</ol>
+<p>
+<strong>When to use:</strong> Just launched a new campaign, need immediate update, or troubleshooting sync issues
+</p>
+<h4>Reconnecting</h4>
+<p>If connection expires or shows errors:</p>
+<ol>
+<li>Go to Settings → Facebook Integration</li>
+<li>Click <strong>Reconnect Facebook</strong> button</li>
+<li>Log in to Facebook again in the popup</li>
+<li>Grant ads_read permission</li>
+<li>Select your ad account</li>
+<li>Save settings</li>
+<li>Connection restored</li>
+</ol>
+<p>
+<strong>Note:</strong> Facebook access tokens automatically extend to 60 days when validated. The system checks token validity on every API call. If token expires, reconnect using the button.
+</p>
+<h4>Disconnecting</h4>
+<p>To remove the connection:</p>
+<ol>
+<li>Go to Settings → Facebook Integration</li>
+<li>Click <strong>Remove Connection</strong>
+</li>
+<li>Confirm disconnection</li>
+<li>Historical data remains in your database but no new data syncs</li>
+<li>Use the data deletion tools if you want to remove historical data</li>
+</ol>
+<h3>Privacy and Security</h3>
+<h4>What Alpha Insights Can Access</h4>
+<p><strong>With ads_read permission, Alpha Insights can access:</strong></p>
+<ul>
+<li>Campaign names, IDs, and objectives</li>
+<li>Ad spend amounts (daily and campaign totals)</li>
+<li>Campaign performance metrics (impressions, clicks, leads, purchases, ROAS)</li>
+<li>Campaign dates and status (active, paused, ended)</li>
+<li>Ad account information (name, ID, currency)</li>
+</ul>
+<p><strong>Alpha Insights CANNOT:</strong></p>
+<ul>
+<li>Create, edit, pause, or delete ads or campaigns</li>
+<li>Access ad creative content (images, videos, ad copy)</li>
+<li>See audience targeting details or custom audiences</li>
+<li>View or modify ad account settings</li>
+<li>Access Facebook Pixel data beyond what's in campaign metrics</li>
+<li>Make any changes to your ad account</li>
+</ul>
+<p><strong>This is read-only access</strong> - Alpha Insights can only view data, not modify anything.</p>
+<h4>Data Storage</h4>
+<ul>
+<li>All data stored locally in your WordPress database (not on external servers)</li>
+<li>Campaign data stored as custom post type: <code>facebook_campaign</code></li>
+<li>Daily ad spend stored as expenses with "Facebook Ads" category</li>
+<li>Access tokens stored in WordPress options table</li>
+<li>No ad creative content is stored</li>
+<li>No personal customer data from Facebook is stored</li>
+<li>Data can be deleted using the data deletion tools in settings</li>
+</ul>
+<h4>Compliance</h4>
+<ul>
+<li>GDPR compliant - only necessary advertising data collected</li>
+<li>No personal customer data shared with Facebook</li>
+<li>All API communication uses secure HTTPS</li>
+<li>Access tokens automatically extend to maintain secure connection</li>
+<li>Follows Facebook Marketing API Terms of Service</li>
+</ul>

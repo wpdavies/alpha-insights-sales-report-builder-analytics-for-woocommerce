@@ -1,0 +1,367 @@
+﻿<h2>Pie Chart Widget</h2>
+<p>The Pie Chart widget displays data as slices of a circle, showing how individual parts contribute to the whole. Perfect for visualizing proportions and percentages at a glance.</p>
+<h3>When to Use</h3>
+<ul>
+<li>Show how categories contribute to a total (revenue by category, traffic source breakdown)</li>
+<li>Display proportions and percentages</li>
+<li>Visualize composition (what makes up your revenue, costs, or traffic)</li>
+<li>Compare relative sizes of segments</li>
+</ul>
+<h3>When NOT to Use</h3>
+<ul>
+<li>Showing trends over time (use line chart)</li>
+<li>Comparing exact values (use bar chart)</li>
+<li>More than 7-8 categories (use bar chart or table)</li>
+<li>Values that don't sum to a meaningful whole</li>
+</ul>
+<h4>Configuration Options</h4>
+<h3>Content Settings</h3>
+<h4>Title (Required)</h4>
+<p>
+<strong>Examples:</strong> "Revenue by Category", "Traffic Source Breakdown", "Expense Distribution"
+</p>
+<h3>Data Type (Required)</h3>
+<p>
+<strong>Options:</strong>
+</p>
+<ul>
+<li>
+<strong>Categorized Data (default):</strong> Pre-grouped categories (Product Categories, Traffic Sources, etc.)
+</li>
+<li>
+<strong>Data Tables:</strong> Tabular data sources converted to pie slices
+</li>
+</ul>
+<p>
+<strong>Recommended:</strong> Categorized Data for most use cases
+</p>
+<h3>Metric (Required)</h3>
+<p>
+<strong>What it is:</strong> The data source and value to visualize
+</p>
+<p>
+<strong>Available categorized metrics:</strong>
+</p>
+<ul>
+<li>
+<strong>Product Performance:</strong> By category, by tag, by individual product
+</li>
+<li>
+<strong>Traffic Sources:</strong> Traffic source breakdown
+</li>
+<li>
+<strong>Geographic Data:</strong> By country, by state/region
+</li>
+<li>
+<strong>Order Data:</strong> By status, by payment method, by shipping method
+</li>
+<li>
+<strong>Customer Segments:</strong> New vs returning, by location
+</li>
+<li>
+<strong>Campaign Data:</strong> By campaign, by platform
+</li>
+<li>
+<strong>Expense Categories:</strong> Operating, Marketing, Personnel, etc.
+</li>
+</ul>
+<p>
+<strong>How to select:</strong> Use searchable dropdown with dot notation (e.g., "products.categorized_data.by_category")
+</p>
+<h3>Metric Field (Optional)</h3>
+<p>
+<strong>What it is:</strong> Specific field to measure within the selected metric
+</p>
+<p>
+<strong>Examples for Product Categories:</strong>
+</p>
+<ul>
+<li>total_revenue - Revenue per category</li>
+<li>total_profit - Profit per category</li>
+<li>units_sold - Units sold per category</li>
+<li>order_count - Orders per category</li>
+</ul>
+<p>
+<strong>Leave blank to use default field (usually total_revenue)</strong>
+</p>
+<h4>Design Settings</h4>
+<h3>Responsive Width</h3>
+<p>
+<strong>Desktop/Tablet/Mobile Columns (1-12)</strong>
+</p>
+<p>
+<strong>Recommended:</strong>
+</p>
+<ul>
+<li>Standalone pie chart: 6 columns</li>
+<li>Side-by-side comparison: 6 columns each</li>
+<li>Small accent chart: 4 columns</li>
+</ul>
+<h3>Color Theme</h3>
+<p>
+<strong>Options:</strong> Blue, Green, Purple, Orange, Red, Gray
+</p>
+<p>
+<strong>What it does:</strong> Provides base color palette - slices use variations of this color
+</p>
+<p>
+<strong>Tip:</strong> Use color that matches the data meaning (Green for profit, Blue for revenue, Red for costs)
+</p>
+<h3>Show Legend</h3>
+<p>
+<strong>Options:</strong> On/Off (default: On)
+</p>
+<p>
+<strong>What it shows:</strong> List of categories with their colors below the chart
+</p>
+<p>
+<strong>When to disable:</strong> When categories are obvious or space is limited
+</p>
+<h3>Chart Height</h3>
+<p>
+<strong>Range:</strong> 200-1000 pixels (default: 450px)
+</p>
+<p>
+<strong>Recommendations:</strong>
+</p>
+<ul>
+<li>3-5 slices: 350-400px</li>
+<li>6-8 slices: 450-500px</li>
+<li>Adjust for legend size</li>
+</ul>
+<h4>Visual Display</h4>
+<h3>Pie Chart Appearance</h3>
+<pre>
+	<code>Revenue by Category
+
+    ╱───────╲
+   ╱    30%  ╲
+  │   40%     │
+  │     20%   │
+   ╲   10%   ╱
+    ╲───────╱
+
+Clothing (40%)
+Accessories (30%)
+Shoes (20%)
+Other (10%)</code>
+</pre>
+<h3>Slice Details</h3>
+<ul>
+<li>Each slice represents one category</li>
+<li>Slice size proportional to value</li>
+<li>Colors automatically assigned</li>
+<li>Labels can show outside slices</li>
+<li>Percentages display on hover or in legend</li>
+</ul>
+<h4>Example Configurations</h4>
+<h4>Example 1: Revenue by Product Category</h4>
+<pre>
+	<code>Title: Revenue Distribution by Category
+Data Type: Categorized Data
+Metric: products.categorized_data.by_category
+Metric Field: total_revenue
+Color: Blue
+Show Legend: On
+Height: 450px
+Width: 6 columns</code>
+</pre>
+<p>
+<strong>Result:</strong> Shows what % of revenue each category generates
+</p>
+<h4>Example 2: Traffic Source Breakdown</h4>
+<pre>
+	<code>Title: Traffic Sources
+Data Type: Categorized Data
+Metric: analytics.categorized_data.traffic_sources
+Metric Field: session_count
+Color: Purple
+Show Legend: On
+Height: 400px
+Width: 6 columns</code>
+</pre>
+<p>
+<strong>Result:</strong> Visualizes traffic composition (Organic 45%, Paid 30%, Social 15%, etc.)
+</p>
+<h4>Example 3: Expense Distribution</h4>
+<pre>
+	<code>Title: Operating Expenses by Category
+Data Type: Categorized Data
+Metric: expenses.categorized_data.by_category
+Metric Field: total_amount
+Color: Red
+Show Legend: On
+Height: 450px</code>
+</pre>
+<h4>Example 4: Order Status Distribution</h4>
+<pre>
+	<code>Title: Orders by Status
+Data Type: Categorized Data
+Metric: orders.categorized_data.by_status
+Metric Field: order_count
+Color: Gray
+Show Legend: On</code>
+</pre>
+<h3>Best Practices</h3>
+<h3>Slice Quantity</h3>
+<ul>
+<li>
+<strong>3-5 slices:</strong> Ideal for clear visualization
+</li>
+<li>
+<strong>6-7 slices:</strong> Still readable
+</li>
+<li>
+<strong>8+ slices:</strong> Getting crowded - consider grouping small categories into "Other"
+</li>
+</ul>
+<h4>Small Slice Handling</h4>
+<p>Categories under 5% of total:</p>
+<ul>
+<li>Combine into "Other" category</li>
+<li>Or use bar chart instead for better comparison</li>
+</ul>
+<h3>Color Selection</h3>
+<ul>
+<li>Use color theme that reflects data nature</li>
+<li>Ensure sufficient contrast between adjacent slices</li>
+<li>System automatically assigns color variations</li>
+</ul>
+<h4>Label Display</h4>
+<ul>
+<li>Always enable legend for clarity</li>
+<li>For small slices, labels may appear outside with connecting lines</li>
+<li>Percentages show on hover</li>
+</ul>
+<h3>Common Use Cases</h3>
+<h4>Revenue Composition Analysis</h4>
+<p>Understand what generates your revenue:</p>
+<ul>
+<li>Metric: Product Categories</li>
+<li>Field: Revenue</li>
+<li>Shows which categories are revenue drivers</li>
+</ul>
+<h3>Profit Distribution</h3>
+<p>See where profit comes from:</p>
+<ul>
+<li>Metric: Product Categories</li>
+<li>Field: Profit</li>
+<li>Compare to revenue pie to see margin differences</li>
+</ul>
+<h4>Marketing Channel Mix</h4>
+<p>Visualize traffic sources:</p>
+<ul>
+<li>Metric: Traffic Sources</li>
+<li>Field: Sessions or Order Count</li>
+<li>Shows dependency on different channels</li>
+</ul>
+<h3>Geographic Revenue</h3>
+<p>Understand geographic distribution:</p>
+<ul>
+<li>Metric: Geographic Data by Country</li>
+<li>Field: Revenue</li>
+<li>Identify top markets</li>
+</ul>
+<h4>Interpreting Pie Charts</h4>
+<h3>Dominant Slices</h3>
+<p>
+<strong>Large slices (30%+):</strong> Major contributors, critical to performance
+</p>
+<p>
+<strong>Action:</strong> Protect and optimize these categories
+</p>
+<h4>Small Slices</h4>
+<p>
+<strong>Tiny slices (<5%):</strong> Minor contributors
+</p>
+<p>
+<strong>Action:</strong> Either grow them or consider discontinuing
+</p>
+<h3>Balanced Distribution</h3>
+<p>
+<strong>Many similar-sized slices:</strong> Diversified portfolio
+</p>
+<p>
+<strong>Good:</strong> Less risky, not dependent on one category
+</p>
+<p>
+<strong>Bad:</strong> May lack focus, spreading resources thin
+</p>
+<h4>Highly Concentrated</h4>
+<p>
+<strong>One slice 70%+:</strong> Heavy dependency on one category
+</p>
+<p>
+<strong>Risk:</strong> If that category fails, business struggles
+</p>
+<p>
+<strong>Action:</strong> Consider diversifying
+</p>
+<h3>Comparing Pie Charts</h3>
+<h3>Side-by-Side Analysis</h3>
+<p>Create two pie charts next to each other (6 cols each):</p>
+<p>
+<strong>Example 1: Revenue vs Profit by Category</strong>
+</p>
+<ul>
+<li>Left pie: Revenue by Category</li>
+<li>Right pie: Profit by Category</li>
+<li>Insight: See if high-revenue categories are also high-profit</li>
+</ul>
+<p>
+<strong>Example 2: This Year vs Last Year</strong>
+</p>
+<ul>
+<li>Left pie: Category distribution this Q4</li>
+<li>Right pie: Category distribution last Q4</li>
+<li>Insight: How has product mix changed?</li>
+</ul>
+<h4>Troubleshooting</h4>
+<h3>Issue: Too many slices, chart unreadable</h3>
+<p>
+<strong>Solutions:</strong>
+</p>
+<ul>
+<li>Apply data filter to show only top N categories</li>
+<li>Group small categories into "Other"</li>
+<li>Switch to bar chart for better comparison</li>
+</ul>
+<h4>Issue: No data showing</h4>
+<p>
+<strong>Check:</strong>
+</p>
+<ul>
+<li>Selected metric has data for date range</li>
+<li>Metric field is correct</li>
+<li>Filters aren't excluding all data</li>
+</ul>
+<h3>Issue: Colors too similar</h3>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Try different color theme</li>
+<li>Reduce number of slices</li>
+<li>System auto-assigns varied colors within theme</li>
+</ul>
+<h4>Issue: Labels overlapping</h4>
+<p>
+<strong>Solutions:</strong>
+</p>
+<ul>
+<li>Increase chart height</li>
+<li>Reduce number of slices</li>
+<li>Enable legend, disable direct labels</li>
+</ul>
+<h3>Related Widgets</h3>
+<ul>
+<li>
+<a href='/documentation/alpha-insights/report-builder/widgets/doughnut-chart-widget.html'>Doughnut Chart Widget</a> - Similar with center hole
+</li>
+<li>
+<a href='/documentation/alpha-insights/report-builder/widgets/bar-chart-widget.html'>Bar Chart Widget</a> - Better for many categories
+</li>
+<li>
+<a href='/documentation/alpha-insights/report-builder/widgets/simple-table-widget.html'>Simple Table Widget</a> - Exact values
+</li>
+</ul>

@@ -1,0 +1,339 @@
+<h2>Filter: wpd_alpha_insights_menu_items</h2>
+
+<p>Modify the Alpha Insights menu structure by adding, removing, or reordering menu items.</p>
+
+<h3>Description</h3>
+
+<p>This is the recommended filter for customizing the Alpha Insights navigation menu. It provides a structured array of menu items that you can modify before the menu is rendered. Perfect for adding custom pages, removing unwanted sections, or reorganizing the navigation.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPD_Admin_Menu.php</code></p>
+<p><strong>Method:</strong> <code>WPD_Admin_Menu::register_alpha_insights_menu()</code></p>
+<p><strong>Line:</strong> ~561</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$alpha_insights_menu</td>
+        <td>array</td>
+        <td>Multi-dimensional array of menu items and submenus</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> array</p>
+<p><strong>Description:</strong> Modified menu structure array</p>
+
+<h3>Menu Item Structure</h3>
+
+<pre><code>array(
+    'menu-slug' => array(
+        'label' => 'Display Name',
+        'url' => admin_url('admin.php?page=menu-slug'),
+        'icon' => '&lt;svg&gt;...&lt;/svg&gt;', // Optional icon HTML
+        'order' => 10, // Optional ordering
+        'children' => array( // Optional submenu items
+            'submenu-slug' => array(
+                'label' => 'Submenu Item',
+                'url' => admin_url('admin.php?page=submenu-slug'),
+                'order' => 1
+            )
+        )
+    )
+)</code></pre>
+
+<h3>Example Usage</h3>
+
+<h3>Add Custom Menu Item</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_menu_items', 'add_custom_menu_item' );
+
+function add_custom_menu_item( $menu ) {
+    
+    // Add new top-level menu item
+    $menu['custom-analytics'] = array(
+        'label' => 'Custom Analytics',
+        'url' => admin_url('admin.php?page=custom-analytics'),
+        'icon' => '&lt;svg width="20" height="20"&gt;&lt;path d="M10 2L2 7v10l8 5 8-5V7z"/&gt;&lt;/svg&gt;',
+        'order' => 50,
+        'children' => array(
+            'overview' => array(
+                'label' => 'Overview',
+                'url' => admin_url('admin.php?page=custom-analytics&subpage=overview'),
+                'order' => 1
+            ),
+            'detailed' => array(
+                'label' => 'Detailed Reports',
+                'url' => admin_url('admin.php?page=custom-analytics&subpage=detailed'),
+                'order' => 2
+            )
+        )
+    );
+    
+    return $menu;
+}</code></pre>
+
+<h3>Remove Menu Items</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_menu_items', 'remove_unwanted_items' );
+
+function remove_unwanted_items( $menu ) {
+    
+    // Remove specific menu items
+    unset( $menu['website-traffic'] ); // Remove Website Traffic section
+    unset( $menu['integrations'] ); // Remove Integrations section
+    
+    // Remove specific submenu item
+    if ( isset( $menu['reports']['children']['product-performance'] ) ) {
+        unset( $menu['reports']['children']['product-performance'] );
+    }
+    
+    return $menu;
+}</code></pre>
+
+<h3>Reorder Menu Items</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_menu_items', 'reorder_menu' );
+
+function reorder_menu( $menu ) {
+    
+    // Change order values to reorder menu
+    if ( isset( $menu['dashboard'] ) ) {
+        $menu['dashboard']['order'] = 1;
+    }
+    
+    if ( isset( $menu['reports'] ) ) {
+        $menu['reports']['order'] = 2;
+    }
+    
+    if ( isset( $menu['expenses'] ) ) {
+        $menu['expenses']['order'] = 3;
+    }
+    
+    if ( isset( $menu['settings'] ) ) {
+        $menu['settings']['order'] = 99; // Move to end
+    }
+    
+    return $menu;
+}</code></pre>
+
+<h3>Rename Menu Items</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_menu_items', 'rename_menu_items' );
+
+function rename_menu_items( $menu ) {
+    
+    // Change "Reports" to "Analytics"
+    if ( isset( $menu['reports'] ) ) {
+        $menu['reports']['label'] = 'Analytics';
+    }
+    
+    // Change "Expenses" to "Costs"
+    if ( isset( $menu['expenses'] ) ) {
+        $menu['expenses']['label'] = 'Cost Management';
+    }
+    
+    return $menu;
+}</code></pre>
+
+<h3>Add Submenu Items</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_menu_items', 'add_custom_submenu' );
+
+function add_custom_submenu( $menu ) {
+    
+    // Add custom submenu under Reports
+    if ( isset( $menu['reports']['children'] ) ) {
+        $menu['reports']['children']['custom-report'] = array(
+            'label' => 'Custom Report',
+            'url' => admin_url('admin.php?page=reports&subpage=custom-report'),
+            'order' => 999
+        );
+    }
+    
+    return $menu;
+}</code></pre>
+
+<h3>Conditional Menu Items</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_menu_items', 'conditional_menu_items' );
+
+function conditional_menu_items( $menu ) {
+    
+    // Only show advanced features to administrators
+    if ( ! current_user_can( 'manage_options' ) ) {
+        unset( $menu['advanced-settings'] );
+    }
+    
+    // Show integration menu only if API is connected
+    if ( ! get_option( 'my_api_connected' ) ) {
+        unset( $menu['integrations'] );
+    }
+    
+    // Add wholesale menu for wholesale users
+    $user = wp_get_current_user();
+    if ( in_array( 'wholesale_customer', $user->roles ) ) {
+        $menu['wholesale-reports'] = array(
+            'label' => 'Wholesale Reports',
+            'url' => admin_url('admin.php?page=wholesale-reports'),
+            'order' => 25
+        );
+    }
+    
+    return $menu;
+}</code></pre>
+
+<h3>Group Related Items</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_menu_items', 'group_menu_items' );
+
+function group_menu_items( $menu ) {
+    
+    // Create new "Marketing" parent menu
+    $menu['marketing'] = array(
+        'label' => 'Marketing',
+        'url' => admin_url('admin.php?page=marketing'),
+        'order' => 30,
+        'children' => array()
+    );
+    
+    // Move Facebook Ads under Marketing
+    if ( isset( $menu['facebook-ads'] ) ) {
+        $menu['marketing']['children']['facebook-ads'] = $menu['facebook-ads'];
+        unset( $menu['facebook-ads'] );
+    }
+    
+    // Move Google Ads under Marketing
+    if ( isset( $menu['google-ads'] ) ) {
+        $menu['marketing']['children']['google-ads'] = $menu['google-ads'];
+        unset( $menu['google-ads'] );
+    }
+    
+    return $menu;
+}</code></pre>
+
+<h3>Add External Links</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_menu_items', 'add_external_links' );
+
+function add_external_links( $menu ) {
+    
+    $menu['help-docs'] = array(
+        'label' => 'Documentation',
+        'url' => 'https://docs.example.com',
+        'icon' => '&lt;svg&gt;...&lt;/svg&gt;',
+        'order' => 100,
+        'external' => true // Add custom flag
+    );
+    
+    return $menu;
+}</code></pre>
+
+<h3>Best Practices</h3>
+
+<ul>
+    <li>Use unique slugs for custom menu items</li>
+    <li>Check if menu items exist before modifying them</li>
+    <li>Use the 'order' property to control menu sequence</li>
+    <li>Keep menu structure shallow (max 2-3 levels)</li>
+    <li>Test menu with different user roles and capabilities</li>
+    <li>Provide fallback icons or use existing ones</li>
+</ul>
+
+<h3>Important Notes</h3>
+
+<ul>
+    <li>Menu items are cached - clear cache after changes</li>
+    <li>URLs should use <code>admin_url()</code> for WordPress compatibility</li>
+    <li>Lower order numbers appear first in the menu</li>
+    <li>Children inherit parent visibility/capability requirements</li>
+    <li>Custom pages need to be registered separately</li>
+</ul>
+
+<h3>Default Menu Items</h3>
+
+<p>Alpha Insights includes these default menu items:</p>
+<ul>
+    <li><code>dashboard</code> - Main dashboard</li>
+    <li><code>reports</code> - Report builder</li>
+    <li><code>expenses</code> - Expense management</li>
+    <li><code>cost-of-goods</code> - Cost of goods manager</li>
+    <li><code>website-traffic</code> - Traffic analytics</li>
+    <li><code>advertising</code> - Ad campaign tracking</li>
+    <li><code>integrations</code> - Third-party integrations</li>
+    <li><code>settings</code> - Plugin settings</li>
+</ul>
+
+<h3>Menu Item Properties</h3>
+
+<table>
+    <tr>
+        <th>Property</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>label</td>
+        <td>string</td>
+        <td>Yes</td>
+        <td>Display text</td>
+    </tr>
+    <tr>
+        <td>url</td>
+        <td>string</td>
+        <td>Yes</td>
+        <td>Link destination</td>
+    </tr>
+    <tr>
+        <td>icon</td>
+        <td>string</td>
+        <td>No</td>
+        <td>SVG icon HTML</td>
+    </tr>
+    <tr>
+        <td>order</td>
+        <td>int</td>
+        <td>No</td>
+        <td>Menu position</td>
+    </tr>
+    <tr>
+        <td>children</td>
+        <td>array</td>
+        <td>No</td>
+        <td>Submenu items</td>
+    </tr>
+</table>
+
+<h3>Debugging</h3>
+
+<pre><code>add_filter( 'wpd_alpha_insights_menu_items', 'debug_menu_structure', 999 );
+
+function debug_menu_structure( $menu ) {
+    error_log( 'Alpha Insights Menu Structure:' );
+    error_log( print_r( $menu, true ) );
+    return $menu;
+}</code></pre>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_alpha_insights_menu_html.html'>wpd_alpha_insights_menu_html</a> - Modify rendered menu HTML</li>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_alpha_insights_active_parent_menu_item.html'>wpd_alpha_insights_active_parent_menu_item</a> - Control active parent</li>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_alpha_insights_active_submenu_item.html'>wpd_alpha_insights_active_submenu_item</a> - Control active submenu</li>
+</ul>
+
+<h3>Related Classes</h3>
+
+<ul>
+    <li><code>WPD_Admin_Menu</code> - Menu management class</li>
+</ul>
+</p>

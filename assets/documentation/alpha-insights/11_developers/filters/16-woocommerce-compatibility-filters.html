@@ -1,0 +1,324 @@
+<h2>WooCommerce Compatibility Filters</h2>
+
+<p>Alpha Insights uses several standard WooCommerce filters to ensure compatibility and consistent behavior with WooCommerce core.</p>
+
+<h3>Overview</h3>
+
+<p>These are native WooCommerce filters that Alpha Insights respects and utilizes. They are documented here for reference when customizing price display and currency handling in Alpha Insights.</p>
+
+<hr>
+
+<h2>Filter: raw_woocommerce_price</h2>
+
+<h3>Description</h3>
+
+<p>Filter the raw numeric price value before any formatting is applied. This is the first filter in the price formatting pipeline.</p>
+
+<h4>Location in Alpha Insights</h4>
+
+<p><strong>File:</strong> <code>includes/wpd-functions.php</code></p>
+<p><strong>Function:</strong> <code>wpd_store_price()</code></p>
+<p><strong>Line:</strong> ~1158</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$raw_price</td>
+        <td>float</td>
+        <td>Raw price value (absolute value if negative)</td>
+    </tr>
+    <tr>
+        <td>$original_price</td>
+        <td>float|string</td>
+        <td>Original price before processing</td>
+    </tr>
+</table>
+
+<h3>Example Usage</h3>
+
+<pre><code>add_filter( 'raw_woocommerce_price', 'modify_raw_price', 10, 2 );
+
+function modify_raw_price( $price, $original_price ) {
+    
+    // Round to nearest dollar
+    if ( abs( $price ) > 100 ) {
+        return round( $price, 0 );
+    }
+    
+    return $price;
+}</code></pre>
+
+<hr>
+
+<h2>Filter: formatted_woocommerce_price</h2>
+
+<h3>Description</h3>
+
+<p>Filter the price after it has been formatted with thousands separators and decimal places, but before HTML markup is added.</p>
+
+<h4>Location in Alpha Insights</h4>
+
+<p><strong>File:</strong> <code>includes/wpd-functions.php</code></p>
+<p><strong>Function:</strong> <code>wpd_store_price()</code></p>
+<p><strong>Line:</strong> ~1170</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$formatted_price</td>
+        <td>string</td>
+        <td>Formatted price string (e.g., "1,234.56")</td>
+    </tr>
+    <tr>
+        <td>$price</td>
+        <td>float</td>
+        <td>Unformatted price value</td>
+    </tr>
+    <tr>
+        <td>$decimals</td>
+        <td>int</td>
+        <td>Number of decimal places</td>
+    </tr>
+    <tr>
+        <td>$decimal_separator</td>
+        <td>string</td>
+        <td>Decimal separator character</td>
+    </tr>
+    <tr>
+        <td>$thousand_separator</td>
+        <td>string</td>
+        <td>Thousand separator character</td>
+    </tr>
+    <tr>
+        <td>$original_price</td>
+        <td>float|string</td>
+        <td>Original price value</td>
+    </tr>
+</table>
+
+<h3>Example Usage</h3>
+
+<pre><code>add_filter( 'formatted_woocommerce_price', 'customize_formatted_price', 10, 6 );
+
+function customize_formatted_price( $formatted, $price, $decimals, $dec_sep, $thou_sep, $original ) {
+    
+    // Add custom thousand separator styling
+    $formatted = str_replace( $thou_sep, '<span class="thousand-sep">' . $thou_sep . '</span>', $formatted );
+    
+    return $formatted;
+}</code></pre>
+
+<hr>
+
+<h2>Filter: woocommerce_price_trim_zeros</h2>
+
+<h3>Description</h3>
+
+<p>Control whether trailing zeros after the decimal point should be removed from prices.</p>
+
+<h4>Location in Alpha Insights</h4>
+
+<p><strong>File:</strong> <code>includes/wpd-functions.php</code></p>
+<p><strong>Function:</strong> <code>wpd_store_price()</code></p>
+<p><strong>Line:</strong> ~1172</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$trim_zeros</td>
+        <td>bool</td>
+        <td>Whether to trim trailing zeros (default: false)</td>
+    </tr>
+</table>
+
+<h3>Example Usage</h3>
+
+<h4>Enable Zero Trimming</h4>
+
+<pre><code>add_filter( 'woocommerce_price_trim_zeros', '__return_true' );</code></pre>
+
+<p><strong>Result:</strong></p>
+<ul>
+    <li>$10.00 becomes $10</li>
+    <li>$15.50 stays $15.50</li>
+    <li>$20.10 becomes $20.1</li>
+</ul>
+
+<h4>Conditional Zero Trimming</h4>
+
+<pre><code>add_filter( 'woocommerce_price_trim_zeros', 'conditional_trim_zeros' );
+
+function conditional_trim_zeros( $trim ) {
+    
+    // Only trim zeros for whole dollar amounts
+    global $current_price;
+    
+    if ( isset( $current_price ) && floor( $current_price ) == $current_price ) {
+        return true;
+    }
+    
+    return false;
+}</code></pre>
+
+<hr>
+
+<h2>Filter: woocommerce_currency_symbols</h2>
+
+<h3>Description</h3>
+
+<p>Modify the complete array of currency symbols used by WooCommerce and Alpha Insights.</p>
+
+<h4>Location in Alpha Insights</h4>
+
+<p><strong>File:</strong> <code>includes/functions/wpd-currency-functions.php</code></p>
+<p><strong>Function:</strong> <code>wpd_get_woocommerce_currency_symbol()</code></p>
+<p><strong>Line:</strong> ~279</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$symbols</td>
+        <td>array</td>
+        <td>Associative array of currency codes to symbols</td>
+    </tr>
+</table>
+
+<h3>Example Usage</h3>
+
+<h4>Add Custom Currency</h4>
+
+<pre><code>add_filter( 'woocommerce_currency_symbols', 'add_custom_currencies' );
+
+function add_custom_currencies( $symbols ) {
+    
+    // Add cryptocurrencies
+    $symbols['BTC'] = '฿';
+    $symbols['ETH'] = 'Ξ';
+    
+    // Add custom internal currency
+    $symbols['CREDITS'] = 'CR';
+    
+    // Modify existing symbol
+    $symbols['USD'] = 'US$';
+    
+    return $symbols;
+}</code></pre>
+
+<h4>Replace All Symbols with Codes</h4>
+
+<pre><code>add_filter( 'woocommerce_currency_symbols', 'use_currency_codes' );
+
+function use_currency_codes( $symbols ) {
+    
+    // Replace all symbols with their currency codes
+    foreach ( $symbols as $code => $symbol ) {
+        $symbols[$code] = $code;
+    }
+    
+    return $symbols;
+}</code></pre>
+
+<hr>
+
+<h2>Important Compatibility Notes</h2>
+
+<h3>Filter Priority</h3>
+
+<p>These filters are applied in this order during price formatting:</p>
+
+<ol>
+    <li><code>raw_woocommerce_price</code> - Modify raw number</li>
+    <li><code>formatted_woocommerce_price</code> - Modify formatted string</li>
+    <li><code>woocommerce_price_trim_zeros</code> - Trim zeros if enabled</li>
+    <li><code>wpd_price</code> - Final HTML output (Alpha Insights specific)</li>
+</ol>
+
+<h3>WooCommerce Compatibility</h3>
+
+<ul>
+    <li>These filters maintain compatibility with WooCommerce core</li>
+    <li>Changes affect both WooCommerce and Alpha Insights</li>
+    <li>Test in both WooCommerce frontend and Alpha Insights admin</li>
+    <li>Some third-party WooCommerce plugins may also use these filters</li>
+</ul>
+
+<h3>Best Practices</h3>
+
+<ul>
+    <li>Use Alpha Insights specific filters (<code>wpd_*</code>) when possible</li>
+    <li>Only use WooCommerce filters when you need global changes</li>
+    <li>Test thoroughly with different price values and currencies</li>
+    <li>Consider multi-currency plugin compatibility</li>
+    <li>Document any modifications for future reference</li>
+</ul>
+
+<h3>Performance Considerations</h3>
+
+<ul>
+    <li>These filters run on EVERY price display</li>
+    <li>Keep logic lightweight and fast</li>
+    <li>Avoid database queries or API calls</li>
+    <li>Cache results when possible</li>
+    <li>Use early returns to minimize processing</li>
+</ul>
+
+<h3>Debugging All Price Filters</h3>
+
+<pre><code>// Log all price filter stages
+add_filter( 'raw_woocommerce_price', 'debug_raw_price', 999, 2 );
+function debug_raw_price( $price, $original ) {
+    error_log( '1. Raw Price: ' . $price );
+    return $price;
+}
+
+add_filter( 'formatted_woocommerce_price', 'debug_formatted_price', 999, 6 );
+function debug_formatted_price( $formatted, $price, $decimals, $dec_sep, $thou_sep, $original ) {
+    error_log( '2. Formatted Price: ' . $formatted );
+    return $formatted;
+}
+
+add_filter( 'wpd_price', 'debug_final_price', 999, 5 );
+function debug_final_price( $return, $price, $args, $unformatted, $original ) {
+    error_log( '3. Final HTML: ' . $return );
+    return $return;
+}</code></pre>
+
+<h3>Related Alpha Insights Filters</h3>
+
+<ul>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_price.html'>wpd_price</a> - Alpha Insights specific price HTML filter</li>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_woocommerce_currency_symbol.html'>wpd_woocommerce_currency_symbol</a> - Alpha Insights specific symbol filter</li>
+</ul>
+
+<h3>WooCommerce Documentation</h3>
+
+<p>For more information about these filters, see:</p>
+<ul>
+    <li><a href="https://woocommerce.com/document/woocommerce-filters/" target="_blank">WooCommerce Filters Documentation</a></li>
+    <li><a href="https://github.com/woocommerce/woocommerce/wiki/Price-Filters" target="_blank">WooCommerce Price Filters Reference</a></li>
+</ul>
+</p>

@@ -1,0 +1,287 @@
+﻿<h2>Troubleshooting Performance Issues</h2>
+<p>Having slow reports or performance issues? This comprehensive troubleshooting guide helps you diagnose and fix common
+    performance problems.</p>
+<h3>Common Performance Issues</h3>
+<h3>Issue: Reports Take Long to Load</h3>
+<p>
+    <strong>Symptoms:</strong> Reports take 15+ seconds to load
+</p>
+<p>
+    <strong>Diagnostic steps:</strong>
+</p>
+<ol>
+    <li>Check date range - is it "All Time"?</li>
+    <li>Count widgets - more than 10?</li>
+    <li>Check data table row limits - unlimited?</li>
+    <li>View system status - low memory?</li>
+</ol>
+<p>
+    <strong>Solutions (in order of impact):</strong>
+</p>
+<ol>
+    <li>Reduce date range to Last 30 Days (biggest impact)</li>
+    <li>Limit data tables to 500 records max</li>
+    <li>Remove unnecessary widgets (keep 5-8)</li>
+    <li>Optimize database tables</li>
+</ol>
+<h3>Issue: Dashboard Very Slow</h3>
+<p>
+    <strong>Solutions:</strong>
+</p>
+<ol>
+    <li>Settings → General → Dashboard Widgets</li>
+    <li>Disable widgets you don't use daily</li>
+    <li>Set default date range to Last 7 Days</li>
+</ol>
+<h3>Issue: Timeout Errors</h3>
+<p>
+    <strong>Error message:</strong>"Request timeout" or "Maximum execution time exceeded"
+</p>
+<p>
+    <strong>Causes:</strong>
+</p>
+<ul>
+    <li>PHP max execution time too low (under 60 seconds)</li>
+    <li>Very large data set being processed</li>
+    <li>Server under heavy load</li>
+</ul>
+<p>
+    <strong>Solutions:</strong>
+</p>
+<ol>
+    <li>Contact host to increase PHP max_execution_time to 120-300 seconds</li>
+    <li>Reduce report complexity</li>
+    <li>Enable background processing</li>
+    <li>Upgrade hosting if consistently timing out</li>
+</ol>
+<h3>Issue: Memory Limit Errors</h3>
+<p>
+    <strong>Error:</strong>"Allowed memory size exhausted"
+</p>
+<p>
+    <strong>Solutions:</strong>
+</p>
+<ol>
+    <li>Check Tools → System Status → PHP Memory Limit</li>
+    <li>Should be 256MB minimum, 512MB recommended</li>
+    <li>Contact host to increase memory limit</li>
+    <li>Or add to wp-config.php:<code>define('WP_MEMORY_LIMIT', '512M');</code>
+    </li>
+</ol>
+<h3>Issue: Background Tasks Not Processing</h3>
+<p>
+    <strong>Symptoms:</strong> Historical data not processing, tasks queued but not completing
+</p>
+<p>
+    <strong>Check:</strong>
+</p>
+<ol>
+    <li>Tools → Background Tasks</li>
+    <li>See task queue status</li>
+    <li>Check last processed time</li>
+</ol>
+<p>
+    <strong>Solutions:</strong>
+</p>
+<ol>
+    <li>Verify WP-Cron is enabled</li>
+    <li>Check server can make loopback requests</li>
+    <li>Contact host to enable system cron</li>
+    <li>Try manual trigger: Tools → Force Process Background Tasks</li>
+</ol>
+<h4>Diagnostic Tools</h4>
+<h3>System Status Check</h3>
+<ol>
+    <li>Alpha Insights → Tools → System Status</li>
+    <li>
+        <ul>
+            <li>PHP version and settings</li>
+            <li>WordPress environment</li>
+            <li>Database information</li>
+            <li>Active plugins</li>
+            <li>Server configuration</li>
+        </ul>
+    </li>
+    <li>Look for red X marks (issues)</li>
+</ol>
+<h3>Performance Test</h3>
+<ol>
+    <li>Tools → Performance Test</li>
+    <li>Click <strong>Run Test</strong>
+    </li>
+    <li>
+        <ul>
+            <li>Database query speed</li>
+            <li>Report generation time</li>
+            <li>Widget rendering speed</li>
+        </ul>
+    </li>
+    <li>See results and recommendations</li>
+</ol>
+<h4>Slow Query Log</h4>
+<ol>
+    <li>Tools → Debug → Slow Query Log</li>
+    <li>See which queries take longest</li>
+    <li>Identify problematic reports or widgets</li>
+</ol>
+<h3>Server-Level Issues</h3>
+<h3>Shared Hosting Limitations</h3>
+<p>
+    <strong>Common problems:</strong>
+</p>
+<ul>
+    <li>Limited CPU resources</li>
+    <li>Low memory limits</li>
+    <li>Restricted execution time</li>
+</ul>
+<p>
+    <strong>Solutions:</strong>
+</p>
+<ul>
+    <li>Optimize aggressively (reduce date ranges, limit data)</li>
+    <li>Or upgrade to VPS/managed WordPress hosting</li>
+</ul>
+<h3>Resource Conflicts</h3>
+<p>
+    <strong>Other plugins using resources:</strong>
+</p>
+<ol>
+    <li>Disable other plugins temporarily</li>
+    <li>Test Alpha Insights performance</li>
+    <li>Re-enable plugins one at a time</li>
+    <li>Identify conflicting plugin</li>
+</ol>
+<h4>Database Server Performance</h4>
+<p>
+    <strong>If database itself is slow:</strong>
+</p>
+<ul>
+    <li>Contact host about MySQL/MariaDB optimization</li>
+    <li>Consider dedicated database server</li>
+</ul>
+<h3>Plugin-Specific Solutions</h3>
+<h3>Background Processing</h3>
+<p>
+    <strong>If server has limited resources:</strong>
+</p>
+<ul>
+    <li>Set to "Conservative" mode</li>
+    <li>Reduces simultaneous tasks</li>
+    <li>Slower but more stable</li>
+</ul>
+<h4>Disable Unnecessary Features</h4>
+<p>
+    <strong>If you don't use certain features:</strong>
+</p>
+<ul>
+    <li>Disable real-time analytics</li>
+    <li>Disable unused integrations</li>
+    <li>Turn off features you don't need</li>
+</ul>
+<h3>Fixing Specific Slow Reports</h3>
+<h3>Slow Product Report</h3>
+<p>
+    <strong>If Products report very slow:</strong>
+</p>
+<ol>
+    <li>Filter to specific category</li>
+    <li>Limit to top 100 products</li>
+    <li>Remove complex calculated columns</li>
+    <li>Use simpler widgets</li>
+</ol>
+<h4>Slow Customer Report</h4>
+<p>
+    <strong>Solutions:</strong>
+</p>
+<ul>
+    <li>Limit to customers with orders in date range</li>
+    <li>Don't calculate LTV for all customers (only top customers)</li>
+    <li>Set max records to 500</li>
+</ul>
+<h3>Slow Campaign Report</h3>
+<p>
+    <strong>Solutions:</strong>
+</p>
+<ul>
+    <li>Filter to active campaigns only</li>
+    <li>Exclude ended campaigns older than 90 days</li>
+    <li>Reduce date range</li>
+</ul>
+<h4>Network and API Issues</h4>
+<h3>Slow Ad Integration Syncs</h3>
+<p>
+    <strong>If Facebook/Google sync very slow:</strong>
+</p>
+<ul>
+    <li>Reduce sync frequency (hourly → every 6 hours)</li>
+    <li>Limit campaigns being synced</li>
+    <li>Check API quota usage</li>
+</ul>
+<h4>External API Timeouts</h4>
+<p>
+    <strong>Solutions:</strong>
+</p>
+<ul>
+    <li>Verify server can make outbound HTTPS requests</li>
+    <li>Check firewall not blocking API calls</li>
+    <li>Temporarily disable and re-enable integration</li>
+</ul>
+<h3>Browser-Side Performance</h3>
+<h3>Slow Dashboard Rendering</h3>
+<p>
+    <strong>If dashboard loads but displays slowly:</strong>
+</p>
+<ul>
+    <li>Clear browser cache</li>
+    <li>Disable browser extensions</li>
+    <li>Try different browser</li>
+    <li>Update to latest browser version</li>
+</ul>
+<h4>Charts Not Rendering</h4>
+<p>
+    <strong>Solutions:</strong>
+</p>
+<ul>
+    <li>Disable ad blockers (they can interfere)</li>
+    <li>Allow JavaScript for your site</li>
+    <li>Check browser console for errors (F12)</li>
+</ul>
+<h3>Getting Help</h3>
+<h3>Before Contacting Support</h3>
+<p>
+    <strong>Gather this information:</strong>
+</p>
+<ol>
+    <li>Screenshot of System Status page</li>
+    <li>Which specific reports are slow</li>
+    <li>Approximate number of orders in store</li>
+    <li>Hosting provider name</li>
+    <li>What you've tried already</li>
+</ol>
+<h3>Enable Debug Mode</h3>
+<ol>
+    <li>Settings → Advanced → Debug Mode</li>
+    <li>Enable debug logging</li>
+    <li>Reproduce slow issue</li>
+    <li>Check debug logs (Tools → Logs)</li>
+    <li>Include log excerpt when contacting support</li>
+</ol>
+<h3>Contact Support</h3>
+<p>
+    <a href='https://wpdavies.dev/contact-us/' target='_blank'>Open support ticket</a> with:
+</p>
+<ul>
+    <li>Detailed description of issue</li>
+    <li>System status screenshot</li>
+    <li>Steps to reproduce</li>
+    <li>Any error messages</li>
+</ul>
+<h3>Prevention Tips</h3>
+<ul>
+    <li>Start with reasonable date ranges</li>
+    <li>Don't create overly complex reports</li>
+    <li>Optimize database monthly</li>
+    <li>Monitor performance trends</li>
+    <li>Keep hosting resources adequate for store size</li>
+    <li>Clean up data regularly</li>
+</ul>

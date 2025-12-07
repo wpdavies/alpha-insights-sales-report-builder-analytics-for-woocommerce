@@ -1,0 +1,612 @@
+<h2>Google Ads Integration Troubleshooting</h2>
+<p>Having issues with your Google Ads integration? This guide covers common problems and their solutions to get your Google Ads data syncing correctly.</p>
+<h3>Connection Problems</h3>
+<h4>"No Google Ads accounts found"</h4>
+<p>
+<strong>Symptoms:</strong> Can't select account during connection
+</p>
+<p>
+<strong>Causes & Solutions:</strong>
+</p>
+<h5>1. Wrong Google Account</h5>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Sign out of Google completely</li>
+<li>In Alpha Insights, try connecting again</li>
+<li>Sign in with the Google account that manages your ads (check Google Ads → Settings → Account access)</li>
+</ol>
+<h5>2. No Access to Any Ad Accounts</h5>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Go to <a href='https://ads.google.com' target='_blank'>ads.google.com</a>
+</li>
+<li>Verify you can see at least one ad account</li>
+<li>If not, request access from account owner</li>
+<li>Need at least "Standard" access level</li>
+</ul>
+<h5>3. Recently Created Account</h5>
+<p>
+<strong>Issue:</strong> Brand new Google Ads accounts may take 24 hours to be API-accessible
+</p>
+<p>
+<strong>Solution:</strong> Wait 24 hours after creating account, then try connecting
+</p>
+<h4>"Permission denied" or "Insufficient access"</h4>
+<p>
+<strong>Cause:</strong> Your account role is too limited
+</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Go to Google Ads → Tools → Account access</li>
+<li>Find your email address in the list</li>
+<li>
+<ul>
+<li>Admin - Full access, works perfectly</li>
+<li>Standard - Can view data, works</li>
+<li>Read-only - Cannot access API data</li>
+<li>Email-only - Cannot access API data</li>
+</ul>
+</li>
+<li>If Read-only or Email-only, request upgrade from account owner</li>
+<li>Wait 5 minutes after permission change</li>
+<li>Try connecting again</li>
+</ol>
+<h4>"OAuth error" or "Authentication failed"</h4>
+<p>
+<strong>Common causes:</strong>
+</p>
+<h5>1. Popup Blocked</h5>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Look for popup blocker icon in browser address bar</li>
+<li>Allow popups from your site</li>
+<li>Try connecting again</li>
+</ul>
+<h5>2. Didn't Complete All Permission Screens</h5>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Make sure you clicked "Allow" on all Google permission screens</li>
+<li>There may be 2-3 screens - complete all of them</li>
+</ul>
+<h5>3. Browser Privacy Settings</h5>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Try in incognito/private mode</li>
+<li>Or temporarily disable browser extensions (uBlock, Privacy Badger)</li>
+<li>Complete connection</li>
+<li>Can re-enable extensions after</li>
+</ul>
+<h4>"Connection expired" or "Token invalid"</h4>
+<p>
+<strong>Cause:</strong> Google API token expired (happens periodically)
+</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Go to Settings → Google Ads</li>
+<li>Click <strong>Refresh Token</strong>
+</li>
+<li>Re-authenticate with Google</li>
+<li>Connection restored</li>
+</ol>
+<p>
+<strong>Note:</strong> This is normal and happens to all users eventually. Just refresh when notified.
+</p>
+<p>
+<strong>Technical Details:</strong> Refresh tokens are stored in <code>wpd_ai_google_ads_api_refresh_token</code> option and access tokens are refreshed automatically via the <code>api_refresh_access_token()</code> method using the Google OAuth 2.0 token endpoint.
+</p>
+<h3>Sync Issues</h3>
+<h4>Data Not Syncing</h4>
+<p>
+<strong>Symptoms:</strong> Last sync time is old, no new data appearing
+</p>
+<p>
+<strong>Diagnostic steps:</strong>
+</p>
+<ol>
+<li>Go to Settings → Google Ads</li>
+<li>Check connection status (should be green "Connected")</li>
+<li>Check last sync time</li>
+<li>Click <strong>View Sync Logs</strong> for error messages</li>
+</ol>
+<h4>If Status Shows "Error" or "Disconnected"</h4>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Click <strong>Refresh Token</strong>
+</li>
+<li>Re-authenticate</li>
+<li>Click <strong>Sync Now</strong>
+</li>
+</ol>
+<h4>If Status is "Connected" But Last Sync is Old</h4>
+<p>
+<strong>Check WordPress cron:</strong>
+</p>
+<ol>
+<li>Go to Settings → Performance</li>
+<li>Check if "WordPress Cron Disabled" warning appears</li>
+<li>If so, contact your host to enable WP-Cron</li>
+<li>Or manually trigger: click <strong>Sync Now</strong>
+</li>
+</ol>
+<p>
+<strong>Technical Details:</strong> Syncing is managed by WordPress Action Scheduler. Check scheduled actions with <code>as_next_scheduled_action('wpd_scheduled_google_ads_sync')</code>. Sync frequency options: daily, 12-hrs, 6-hrs stored in settings.
+</p>
+<h4>If Sync Logs Show Errors</h4>
+<p>
+<strong>Common error messages:</strong>
+</p>
+<p>
+<strong>"Rate limit exceeded"</strong>
+</p>
+<ul>
+<li>Reduce sync frequency to "Every 6 hours" or "Daily"</li>
+<li>Wait 1 hour for quota to reset</li>
+<li>Try again</li>
+</ul>
+<p>
+<strong>"Invalid customer ID"</strong>
+</p>
+<ul>
+<li>Your ad account may have been closed or suspended</li>
+<li>Check Google Ads directly to verify account is active</li>
+<li>If account changed, disconnect and reconnect</li>
+</ul>
+<p>
+<strong>"Report definition error"</strong>
+</p>
+<ul>
+<li>Temporary Google Ads API issue</li>
+<li>Wait 30 minutes and try again</li>
+<li>If persists, contact support</li>
+</ul>
+<h4>Only Some Campaigns Syncing</h4>
+<p>
+<strong>Symptoms:</strong> See some campaigns but others are missing
+</p>
+<p>
+<strong>Causes & Solutions:</strong>
+</p>
+<h5>1. Campaign Type Filtering</h5>
+<p>
+<strong>Check:</strong> Settings → Google Ads → Campaign Types
+</p>
+<ol>
+<li>Verify campaign types are selected (Search, Shopping, Display, etc.)</li>
+<li>If missing type is unchecked, check it</li>
+<li>Save and click Sync Now</li>
+</ol>
+<h5>2. Campaign Status Filtering</h5>
+<p>
+<strong>By default:</strong> Only active and paused campaigns sync
+</p>
+<ol>
+<li>Go to Settings → Google Ads</li>
+<li>Enable "Include ended campaigns" if you want historical data</li>
+<li>Save and sync</li>
+</ol>
+<h5>3. Campaign Date Range</h5>
+<p>
+<strong>Issue:</strong> Campaign ran before your historical import range
+</p>
+<p>
+<strong>Example:</strong> You imported "Last 30 days" but campaign ran 60 days ago
+</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Increase historical import range to "Last 90 days" or "Last year"</li>
+<li>Click <strong>Re-import Historical Data</strong>
+</li>
+<li>Wait for import to complete</li>
+</ol>
+<h5>4. Manager (MCC) Account Filtering</h5>
+<p>If using MCC account:</p>
+<ol>
+<li>Go to Settings → Google Ads → Manage Accounts</li>
+<li>Verify the client account is selected</li>
+<li>If not, check it and save</li>
+</ol>
+<h3>Slow Syncing</h3>
+<p>
+<strong>Symptoms:</strong> Syncs take 5+ minutes or time out
+</p>
+<p>
+<strong>Causes & Solutions:</strong>
+</p>
+<h5>1. Large Number of Campaigns</h5>
+<p>If you have 50+ campaigns:</p>
+<ul>
+<li>Syncing takes longer (normal)</li>
+<li>Consider archiving old ended campaigns in Google Ads</li>
+<li>Or filter to sync only active campaigns</li>
+</ul>
+<h5>2. Large Historical Import</h5>
+<p>Importing "All time" with years of data:</p>
+<ul>
+<li>Can take 30-90 minutes for initial import (normal)</li>
+<li>Let it complete in background</li>
+<li>Future syncs will be much faster</li>
+</ul>
+<h5>3. Shared Hosting Limitations</h5>
+<p>Low-resource hosting:</p>
+<ul>
+<li>Contact host about increasing PHP execution time</li>
+<li>Or reduce sync frequency to "Daily"</li>
+<li>Consider upgrading hosting if running large store</li>
+</ul>
+<h3>Data Accuracy Issues</h3>
+<h4>Spend Doesn't Match Google Ads</h4>
+<p>
+<strong>Common reasons:</strong>
+</p>
+<h5>1. Currency Mismatch</h5>
+<p>
+<strong>Check:</strong>
+</p>
+<ol>
+<li>Settings → Google Ads → Currency</li>
+<li>Should match your Google Ads account currency</li>
+<li>If different, change it and re-sync</li>
+</ol>
+<p>
+<strong>Technical Details:</strong> Currency is automatically detected from <code>$this->customer_accounts[$this->customer_id]['currencyCode']</code> via Google Ads API
+</p>
+<h5>2. Time Zone Differences</h5>
+<p>
+<strong>Issue:</strong> Google Ads uses account timezone, Alpha Insights uses WordPress timezone
+</p>
+<p>
+<strong>Result:</strong> Small discrepancies at day boundaries (1-5% difference)
+</p>
+<p>
+<strong>Solution for exact matching:</strong>
+</p>
+<ol>
+<li>Go to WordPress → Settings → General</li>
+<li>Set timezone to match Google Ads account timezone</li>
+<li>Re-sync data</li>
+</ol>
+<h5>3. Data Processing Delay</h5>
+<p>
+<strong>Issue:</strong> Google Ads finalizes spend numbers with 2-3 hour delay
+</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Compare yesterday's data, not today's</li>
+<li>Today's spend may not match until evening</li>
+<li>Check again tomorrow - should match once finalized</li>
+</ul>
+<h5>4. Campaign Filters</h5>
+<p>
+<strong>Check:</strong> You're comparing same campaigns in both systems
+</p>
+<ul>
+<li>Alpha Insights: Verify which campaign types are included</li>
+<li>Google Ads: Make sure you're viewing same campaign types</li>
+</ul>
+<h5>5. Date Range Calculation</h5>
+<p>
+<strong>Issue:</strong>"Last 30 days" means different dates depending on when checked
+</p>
+<p>
+<strong>Solution:</strong> Use specific date ranges ("Jan 1 - Jan 31") for comparisons
+</p>
+<h3>ROAS Doesn't Match Google Ads</h3>
+<p>
+<strong>This is expected and normal!</strong>
+</p>
+<p>
+<strong>Why they differ:</strong>
+</p>
+<table>
+<tr>
+<th>Aspect</th>
+<th>Google Ads</th>
+<th>Alpha Insights</th>
+</tr>
+<tr>
+<td>Conversions</td>
+<td>Includes view-through (saw ad, didn't click)</td>
+<td>Click-through only</td>
+</tr>
+<tr>
+<td>Attribution</td>
+<td>30-day click, 1-day view default</td>
+<td>7-day click default</td>
+</tr>
+<tr>
+<td>Revenue</td>
+<td>At time of conversion</td>
+<td>WooCommerce order total</td>
+</tr>
+<tr>
+<td>Modeling</td>
+<td>Uses statistical modeling</td>
+<td>Actual orders only</td>
+</tr>
+</table>
+<p>
+<strong>Result:</strong> Alpha Insights ROAS is typically 20-40% lower than Google's reported ROAS
+</p>
+<p>
+<strong>Which to trust?</strong> Alpha Insights - it shows actual profit based on real orders, not Google's estimates
+</p>
+<h4>Missing Revenue / Orders</h4>
+<p>
+<strong>Symptoms:</strong> Campaign shows spend but no attributed revenue
+</p>
+<p>
+<strong>Causes & Solutions:</strong>
+</p>
+<h5>1. Auto-Tagging Not Enabled</h5>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Go to Google Ads → Settings → Account settings</li>
+<li>Under "Tracking", enable <strong>Auto-tagging</strong>
+</li>
+<li>Click Save</li>
+<li>Future clicks will be properly tagged with GCLID</li>
+</ol>
+<p>This is the most common cause!</p>
+<p>
+<strong>Technical Details:</strong> GCLID is captured and stored in <code>_wpd_ai_landing_page</code> order meta. The method <code>get_gclid_from_landing_page()</code> extracts GCLID from landing page URLs for attribution.
+</p>
+<h5>2. UTM Parameters Missing</h5>
+<p>If not using auto-tagging, you need UTM parameters:</p>
+<pre>
+	<code>?utm_source=google&utm_medium=cpc&utm_campaign={campaignid}</code>
+</pre>
+<p>
+<strong>Or better yet, use Alpha Insights' recommended parameter:</strong>
+</p>
+<pre>
+	<code>?google_cid={campaignid}</code>
+</pre>
+<p>Add these to your destination URLs in Google Ads</p>
+<p>
+<strong>Technical Details:</strong> The UTM tracking key <code>google_cid</code> is defined in the API class and used by <code>set_order_campaign_id_via_query_param()</code> to match orders to campaigns.
+</p>
+<h5>3. Attribution Window Too Short</h5>
+<p>
+<strong>Issue:</strong> Customers clicking ads but converting outside window
+</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Go to Settings → Google Ads → Attribution Window</li>
+<li>Increase from 7 days to 14 or 28 days</li>
+<li>Especially important for high-consideration products</li>
+</ol>
+<h5>4. Orders Before Connection</h5>
+<p>
+<strong>Issue:</strong> Can't attribute orders that happened before integration was connected
+</p>
+<p>
+<strong>This is expected:</strong> Attribution only works going forward from connection date
+</p>
+<h5>5. Traffic Source Not Detected</h5>
+<p>
+<strong>Possible reasons:</strong>
+</p>
+<ul>
+<li>Customer used different device/browser</li>
+<li>Cookies were blocked/cleared</li>
+<li>Used incognito mode</li>
+<li>Long time between click and purchase</li>
+</ul>
+<p>
+<strong>This is normal:</strong> Some attribution loss (10-20%) is expected
+</p>
+<h3>Campaign Display Issues</h3>
+<h4>Campaign Names Are Wrong or Garbled</h4>
+<p>
+<strong>Cause:</strong> Character encoding issue or sync glitch
+</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Click <strong>Sync Now</strong> to refresh campaign names</li>
+<li>If still wrong, disconnect and reconnect integration</li>
+</ol>
+<h4>Duplicate Campaigns Showing</h4>
+<p>
+<strong>Cause:</strong> Campaign was reconnected or imported twice
+</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Go to Google Ads Campaigns list</li>
+<li>Identify duplicate (check campaign IDs - duplicates have same ID)</li>
+<li>Delete the duplicate entry</li>
+</ol>
+<p>
+<strong>Technical Details:</strong> Campaign IDs are stored in post meta <code>_wpd_campaign_id</code>. Each campaign should have a unique ID from Google Ads API.
+</p>
+<h4>Deleted Campaign Still Appears</h4>
+<p>
+<strong>This is intentional!</strong> Historical data is preserved even if campaign deleted in Google Ads
+</p>
+<p>
+<strong>To hide:</strong>
+</p>
+<ul>
+<li>Filter campaign list to show "Active only"</li>
+<li>Or manually archive the campaign in Alpha Insights</li>
+</ul>
+<h3>Manager (MCC) Account Issues</h3>
+<h4>Can't See Client Accounts</h4>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Verify you connected with Manager account credentials</li>
+<li>Check you have manager access in Google Ads MCC</li>
+<li>Refresh connection and select Manager account specifically</li>
+</ol>
+<h4>Some Client Accounts Missing</h4>
+<p>
+<strong>Check:</strong>
+</p>
+<ol>
+<li>Settings → Google Ads → Manage Accounts</li>
+<li>Verify client accounts are selected</li>
+<li>If not listed, may not have API access enabled</li>
+<li>Enable API access in Google Ads MCC for that client</li>
+</ol>
+<h4>API and Technical Errors</h4>
+<h4>"API Rate Limit Exceeded"</h4>
+<p>
+<strong>Cause:</strong> Too many API requests
+</p>
+<p>
+<strong>Google Ads limits:</strong>15,000 operations per day per account
+</p>
+<p>
+<strong>Solutions:</strong>
+</p>
+<ul>
+<li>Reduce sync frequency to "Daily"</li>
+<li>Reduce number of campaigns being synced</li>
+<li>If using multiple tools accessing Google Ads API, coordinate usage</li>
+<li>Wait 24 hours for quota to reset</li>
+</ul>
+<h4>"Internal Error" or "Unknown Error"</h4>
+<p>
+<strong>Cause:</strong> Temporary Google Ads API issue
+</p>
+<p>
+<strong>Solution:</strong>
+</p>
+<ul>
+<li>Wait 30 minutes and try again</li>
+<li>Check <a href='https://ads-developers.googleblog.com/' target='_blank'>Google Ads API blog</a> for service issues</li>
+<li>If persists beyond 2 hours, contact support</li>
+</ul>
+<p>
+<strong>Technical Details:</strong> Alpha Insights uses Google Ads API v20. API errors are logged in <code>wpd_google_ads_api_error_log</code> option for debugging.
+</p>
+<h4>"Customer not found" or "Invalid customer ID"</h4>
+<p>
+<strong>Causes:</strong>
+</p>
+<ul>
+<li>Google Ads account was closed or suspended</li>
+<li>Account ID changed (rare)</li>
+<li>Lost access to account</li>
+</ul>
+<p>
+<strong>Solution:</strong>
+</p>
+<ol>
+<li>Verify account still exists in Google Ads</li>
+<li>Check account status is active</li>
+<li>If account changed, disconnect and reconnect with new account</li>
+</ol>
+<h3>Getting Additional Help</h3>
+<h4>Before Contacting Support</h4>
+<p>Collect this information:</p>
+<ul>
+<li>Screenshot of error message</li>
+<li>Connection status from Settings → Google Ads</li>
+<li>Recent sync log entries</li>
+<li>Google Ads customer ID (format: 123-456-7890)</li>
+<li>When issue started</li>
+<li>What you've tried already</li>
+</ul>
+<h4>Enable Debug Logging</h4>
+<ol>
+<li>Go to Settings → General → Advanced</li>
+<li>Enable <strong>Debug Mode</strong>
+</li>
+<li>Try the failing action again</li>
+<li>Go to Settings → Logs</li>
+<li>Copy relevant log entries</li>
+</ol>
+<h4>Check API Status</h4>
+<p>Verify Google Ads API is operational:</p>
+<ul>
+<li>
+<a href='https://ads-developers.googleblog.com/' target='_blank'>Google Ads API Blog</a>
+</li>
+<li>
+<a href='https://status.cloud.google.com/' target='_blank'>Google Cloud Status</a>
+</li>
+</ul>
+<h4>Contact Support</h4>
+<p>
+<a href='https://wpdavies.dev/contact-us/' target='_blank'>Open a support ticket</a> with:
+</p>
+<ul>
+<li>Description of issue</li>
+<li>Steps to reproduce</li>
+<li>Screenshots</li>
+<li>Debug logs</li>
+<li>Google Ads customer ID</li>
+</ul>
+<p>We typically respond within 24 hours!</p>
+<h4>Prevention Tips</h4>
+<ul>
+<li>Enable auto-tagging in Google Ads</li>
+<li>Keep WordPress and Alpha Insights updated</li>
+<li>Don't change Google Ads account access frequently</li>
+<li>Monitor sync status weekly</li>
+<li>Refresh token proactively if you see "expires soon" warning</li>
+</ul>
+<h4>Technical Implementation Notes</h4>
+<p>For developers and advanced troubleshooting:</p>
+<ul>
+<li>
+<strong>API Class:</strong> <code>WPD_Google_Ads_API</code> located in <code>includes/classes/WPD_Google_Ads_API.php</code>
+</li>
+<li>
+<strong>API Version:</strong> Google Ads API v20
+</li>
+<li>
+<strong>Authentication:</strong> OAuth 2.0 with refresh tokens stored in <code>wpd_ai_google_ads_api_refresh_token</code>
+</li>
+<li>
+<strong>Campaign Storage:</strong> Custom post type <code>google_ad_campaign</code> with taxonomy <code>ad_account</code>
+</li>
+<li>
+<strong>Data Syncing:</strong> Managed by WordPress Action Scheduler
+</li>
+<li>
+<strong>API Queries:</strong> Uses Google Ads Query Language (GAQL) to fetch campaign metrics
+</li>
+<li>
+<strong>Error Logging:</strong> Errors stored in <code>wpd_google_ads_api_error_log</code> and <code>wpd_google_ads_api_log</code> options
+</li>
+<li>
+<strong>GCLID Capture:</strong> Landing pages stored in <code>_wpd_ai_landing_page</code> order meta
+</li>
+<li>
+<strong>Campaign Attribution:</strong> Methods <code>set_order_campaign_id_via_query_param()</code> and <code>api_fetch_campaign_id_by_gclid()</code>
+</li>
+<li>
+<strong>Conversion Actions:</strong> Can create profit and add-to-cart conversion actions via <code>api_create_profit_conversion_action()</code> and <code>api_create_add_to_cart_conversion_action()</code>
+</li>
+</ul>

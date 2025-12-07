@@ -1,0 +1,616 @@
+﻿<h2>Google Ads Campaign Tracking</h2>
+<p>Track your Google Ads campaigns across Search, Shopping, Display, and Video to understand true profitability and ROAS. This guide covers viewing campaign data, analyzing performance, and optimizing based on profit insights.</p>
+<h3>Viewing Google Ads Campaigns</h3>
+<h4>Campaign Dashboard</h4>
+<ol>
+<li>Go to <strong>Alpha Insights → Google Ads Campaigns</strong>
+</li>
+<li>See all campaigns with key metrics</li>
+</ol>
+<p>
+<strong>Note:</strong> Campaigns are stored as WordPress custom post types (<code>google_ad_campaign</code>) for efficient data management and reporting.
+</p>
+<h4>Main Dashboard Integration</h4>
+<ol>
+<li>Go to <strong>Alpha Insights → Dashboard</strong>
+</li>
+<li>Google Ads spend included in total ad spend</li>
+<li>Filter to view Google Ads separately</li>
+</ol>
+<h3>Campaign Types and Tracking</h3>
+<h4>Search Campaigns</h4>
+<p>
+<strong>What they are:</strong> Text ads on Google search results
+</p>
+<p>
+<strong>Tracked metrics:</strong>
+</p>
+<ul>
+<li>Cost (total spend)</li>
+<li>Clicks</li>
+<li>Average CPC</li>
+<li>Attributed revenue</li>
+<li>ROAS</li>
+<li>Profit</li>
+</ul>
+<p>
+<strong>Unique insights:</strong>
+</p>
+<ul>
+<li>See which search campaigns drive highest profit</li>
+<li>Compare branded vs non-branded campaign performance</li>
+<li>Understand if search intent leads to better ROAS than cold traffic</li>
+</ul>
+<h4>Shopping Campaigns</h4>
+<p>
+<strong>What they are:</strong> Product feed ads with images and prices
+</p>
+<p>
+<strong>Tracked metrics:</strong>
+</p>
+<ul>
+<li>Cost per campaign</li>
+<li>Revenue by product</li>
+<li>ROAS by product category</li>
+<li>Profit margin by product</li>
+</ul>
+<p>
+<strong>Unique insights:</strong>
+</p>
+<ul>
+<li>Which products are profitable in Shopping ads vs unprofitable</li>
+<li>Compare Shopping ROAS to Search ROAS</li>
+<li>Identify products to bid higher on (high profit) vs lower (low profit)</li>
+</ul>
+<h4>Display Campaigns</h4>
+<p>
+<strong>What they are:</strong> Banner ads across Google Display Network
+</p>
+<p>
+<strong>Tracked metrics:</strong>
+</p>
+<ul>
+<li>Cost and impressions</li>
+<li>Click-through rate</li>
+<li>Attributed conversions</li>
+<li>ROAS (typically lower than Search)</li>
+</ul>
+<p>
+<strong>Insights:</strong>
+</p>
+<ul>
+<li>Display often has lower immediate ROAS but builds brand awareness</li>
+<li>Track assisted conversions (customer saw Display ad, later searched and bought)</li>
+</ul>
+<h4>Video Campaigns (YouTube)</h4>
+<p>
+<strong>What they are:</strong> Video ads on YouTube and partner sites
+</p>
+<p>
+<strong>Tracked metrics:</strong>
+</p>
+<ul>
+<li>Cost per campaign</li>
+<li>Views and view rate</li>
+<li>Attributed revenue</li>
+<li>ROAS</li>
+</ul>
+<h4>Performance Max Campaigns</h4>
+<p>
+<strong>What they are:</strong> Google's automated campaigns across all networks
+</p>
+<p>
+<strong>Tracked metrics:</strong>
+</p>
+<ul>
+<li>Combined spend across all placements</li>
+<li>Aggregate ROAS</li>
+<li>Profit across all traffic types</li>
+</ul>
+<p>
+<strong>Note:</strong> Performance Max combines Search, Display, YouTube, Gmail - Alpha Insights tracks as one campaign
+</p>
+<h3>Key Google Ads Metrics</h3>
+<h4>Cost / Ad Spend</h4>
+<p>
+<strong>What it is:</strong> Total amount spent on campaign
+</p>
+<p>
+<strong>Synced from:</strong> Google Ads daily spend data
+</p>
+<p>
+<strong>Updates:</strong> Based on your sync frequency (every 6 hours recommended)
+</p>
+<p>
+<strong>Data source:</strong> Retrieved from <code>metrics.cost_micros</code> via Google Ads API v20 and converted from micros
+</p>
+<h4>Clicks</h4>
+<p>
+<strong>What it is:</strong> Number of clicks on your ads
+</p>
+<p>
+<strong>Why it matters:</strong> Compare to orders to calculate conversion rate
+</p>
+<p>
+<strong>Data source:</strong> Retrieved from <code>metrics.clicks</code> via Google Ads API
+</p>
+<h4>Impressions</h4>
+<p>
+<strong>What it is:</strong> How many times ads were shown
+</p>
+<p>
+<strong>Useful for:</strong> Understanding reach and visibility
+</p>
+<p>
+<strong>Data source:</strong> Retrieved from <code>metrics.impressions</code> via Google Ads API
+</p>
+<h4>Average CPC (Cost Per Click)</h4>
+<p>
+<strong>Formula:</strong> Cost / Clicks
+</p>
+<p>
+<strong>Example:</strong>$500 spend / 250 clicks = $2.00 CPC
+</p>
+<p>
+<strong>Use to:</strong> Compare campaign efficiency, identify high/low competition keywords
+</p>
+<p>
+<strong>Data source:</strong> Retrieved from <code>metrics.average_cpc</code> via Google Ads API (converted from micros)
+</p>
+<h4>CTR (Click-Through Rate)</h4>
+<p>
+<strong>Formula:</strong>(Clicks / Impressions) Ã— 100
+</p>
+<p>
+<strong>Example:</strong>(250 / 10,000) Ã— 100 = 2.5% CTR
+</p>
+<p>
+<strong>Benchmarks:</strong>
+</p>
+<ul>
+<li>Search campaigns: 2-5% is typical</li>
+<li>Display campaigns: 0.5-1% is typical</li>
+<li>Shopping campaigns: 0.5-2% is typical</li>
+</ul>
+<p>
+<strong>Calculation:</strong> Alpha Insights calculates CTR as <code>(Clicks / Impressions) × 100</code>
+</p>
+<h4>Attributed Revenue</h4>
+<p>
+<strong>What it is:</strong> Revenue from orders attributed to this campaign
+</p>
+<p>
+<strong>Attribution based on:</strong>
+</p>
+<ul>
+<li>GCLID (Google Click ID) stored in landing page - primary method</li>
+<li>UTM parameter <code>google_cid={campaignid}</code> matching specific campaign</li>
+<li>UTM parameters (utm_source=google, utm_medium=cpc)</li>
+<li>Traffic source = google</li>
+</ul>
+<p>
+<strong>Note:</strong> Google Ads API returns <code>metrics.conversions_value</code> which represents revenue tracked by Google, but Alpha Insights primarily uses WooCommerce order data matched via GCLID and campaign parameters for more accurate attribution.
+</p>
+<h4>ROAS (Return on Ad Spend)</h4>
+<p>
+<strong>Formula:</strong> Revenue / Cost
+</p>
+<p>
+<strong>Example:</strong>$3,200 revenue / $800 spend = 4.0 ROAS
+</p>
+<p>
+<strong>Google Ads Benchmarks by Campaign Type:</strong>
+</p>
+<ul>
+<li>
+<strong>Search (branded):</strong>5-10 ROAS
+</li>
+<li>
+<strong>Search (non-branded):</strong>3-6 ROAS
+</li>
+<li>
+<strong>Shopping:</strong>3-5 ROAS
+</li>
+<li>
+<strong>Display:</strong>1.5-3 ROAS
+</li>
+<li>
+<strong>Video:</strong>1-2 ROAS (awareness-focused)
+</li>
+</ul>
+<p>
+<strong>Calculation:</strong> Alpha Insights calculates ROAS as <code>Conversion Value / Cost</code> where conversion value comes from <code>metrics.conversions_value</code> via Google Ads API
+</p>
+<h4>Profit</h4>
+<p>
+<strong>Formula:</strong> Revenue - (Product Costs + Shipping + Fees + Ad Spend + Expenses)
+</p>
+<p>
+<strong>Example:</strong>
+</p>
+<pre>
+	<code>Revenue: $3,200 - Product costs: $1,280 (40% COGS) - Shipping: $160 - Payment fees: $95 - Ad spend: $800 - Allocated expenses: $320 = Profit: $545</code>
+</pre>
+<p>
+<strong>How it's calculated:</strong> Alpha Insights calculates campaign profit as <code>Conversion Value - Cost</code> for API-sourced data. For more accurate profit calculations including product costs, use Alpha Insights' order-based reporting where GCLID and campaign parameters link orders to campaigns.
+</p>
+<h5>Profit Margin</h5>
+<p>
+<strong>Formula:</strong>(Profit / Revenue) Ã— 100
+</p>
+<p>
+<strong>Example:</strong>($545 / $3,200) Ã— 100 = 17% margin
+</p>
+<h5>Cost Per Order</h5>
+<p>
+<strong>Formula:</strong> Ad Spend / Orders
+</p>
+<p>
+<strong>Example:</strong>$800 / 32 orders = $25 per order
+</p>
+<p>
+<strong>Compare to:</strong> Your average profit per order to ensure sustainable acquisition
+</p>
+<h5>Conversion Rate</h5>
+<p>
+<strong>Formula:</strong>(Orders / Clicks) Ã— 100
+</p>
+<p>
+<strong>Example:</strong>(32 / 400) Ã— 100 = 8% conversion rate
+</p>
+<p>
+<strong>Benchmarks:</strong>
+</p>
+<ul>
+<li>Search campaigns: 3-8%</li>
+<li>Shopping campaigns: 2-5%</li>
+<li>Display campaigns: 1-3%</li>
+</ul>
+<p>
+<strong>Calculation:</strong> Alpha Insights calculates conversion rate as <code>(Conversions / Clicks) × 100</code> where conversions come from <code>metrics.conversions</code> via Google Ads API
+</p>
+<h4>Campaign Data Storage</h4>
+<p>All campaign performance data is stored in WordPress as custom post types with the following structure:</p>
+<ul>
+<li>
+<strong>Post Type:</strong> <code>google_ad_campaign</code>
+</li>
+<li>
+<strong>Post Meta Fields:</strong> _wpd_campaign_name, _wpd_campaign_id, _wpd_campaign_spend, _wpd_campaign_impressions, _wpd_campaign_clicks, _wpd_campaign_average_cpc, _wpd_campaign_average_ctr, _wpd_campaign_conversions, _wpd_campaign_conversion_value, _wpd_campaign_roas, _wpd_campaign_conversion_rate, _wpd_campaign_profit, _wpd_campaign_daily_data (array), _wpd_campaign_status, _wpd_campaign_start, _wpd_campaign_stop, _wpd_campaign_currency
+</li>
+<li>
+<strong>Taxonomy:</strong> <code>ad_account</code> - Used to categorize campaigns by Google Ads account
+</li>
+</ul>
+<h3>Analyzing Campaign Performance</h3>
+<h4>Campaign List View</h4>
+<p>The campaigns list shows:</p>
+<table>
+<tr>
+<th>Column</th>
+<th>What It Shows</th>
+</tr>
+<tr>
+<td>Campaign Name</td>
+<td>Name from Google Ads</td>
+</tr>
+<tr>
+<td>Type</td>
+<td>Search, Shopping, Display, etc.</td>
+</tr>
+<tr>
+<td>Status</td>
+<td>Active, Paused, Ended</td>
+</tr>
+<tr>
+<td>Spend</td>
+<td>Total cost for date range</td>
+</tr>
+<tr>
+<td>Revenue</td>
+<td>Attributed sales</td>
+</tr>
+<tr>
+<td>ROAS</td>
+<td>Return on ad spend</td>
+</tr>
+<tr>
+<td>Profit</td>
+<td>True profit after all costs</td>
+</tr>
+<tr>
+<td>Orders</td>
+<td>Number of attributed orders</td>
+</tr>
+</table>
+<h4>Sorting and Filtering</h4>
+<p>
+<strong>Sort by:</strong>
+</p>
+<ul>
+<li>Profit (descending) - See most profitable campaigns first</li>
+<li>ROAS (descending) - See most efficient campaigns</li>
+<li>Spend (descending) - See where money is going</li>
+</ul>
+<p>
+<strong>Filter by:</strong>
+</p>
+<ul>
+<li>Campaign type (Search, Shopping, Display)</li>
+<li>Status (Active only, or include paused/ended)</li>
+<li>Date range</li>
+<li>Performance thresholds (e.g., ROAS >3.0)</li>
+</ul>
+<h3>Campaign Detail View</h3>
+<p>Click any campaign to see:</p>
+<h4>Performance Trend</h4>
+<ul>
+<li>Daily spend, revenue, ROAS over time</li>
+<li>Identify performance changes</li>
+<li>Correlate with campaign changes you made</li>
+</ul>
+<p>
+<strong>Data source:</strong> Daily campaign performance is stored in post meta field <code>_wpd_campaign_daily_data</code> as an array
+</p>
+<h4>Product Performance (Shopping campaigns)</h4>
+<ul>
+<li>Which products sold from this campaign</li>
+<li>Revenue and profit per product</li>
+<li>Identify top performers vs underperformers</li>
+</ul>
+<h4>Geographic Performance</h4>
+<ul>
+<li>Orders by location</li>
+<li>ROAS by region</li>
+<li>Identify geo targets to increase/decrease</li>
+</ul>
+<h4>Device Breakdown</h4>
+<ul>
+<li>Mobile vs Desktop vs Tablet</li>
+<li>ROAS by device type</li>
+<li>Optimize bids by device</li>
+</ul>
+<h3>Google Ads Reports</h3>
+<h4>Pre-Built Reports</h4>
+<p>
+<strong>Note:</strong> Report availability depends on your Alpha Insights configuration. These reports combine Google Ads API data with WooCommerce order data for comprehensive profit analysis.
+</p>
+<h5>1. Google Ads Overview</h5>
+<p>Complete performance snapshot:</p>
+<ul>
+<li>Total spend, revenue, ROAS</li>
+<li>Spend by campaign type</li>
+<li>Top 10 campaigns by profit</li>
+<li>Trending performance over time</li>
+</ul>
+<h5>2. Search Campaign Performance</h5>
+<p>Detailed Search campaign analysis:</p>
+<ul>
+<li>All Search campaigns ranked by ROAS</li>
+<li>Branded vs non-branded comparison</li>
+<li>Conversion rates by campaign</li>
+</ul>
+<h5>3. Shopping Campaign Analysis</h5>
+<p>Product-level insights:</p>
+<ul>
+<li>Products ranked by Shopping campaign profit</li>
+<li>ROAS by product category</li>
+<li>Recommendations on bid adjustments</li>
+</ul>
+<h5>4. Campaign Type Comparison</h5>
+<p>Compare Search vs Shopping vs Display:</p>
+<ul>
+<li>ROAS by type</li>
+<li>Cost per order by type</li>
+<li>Profit margin by type</li>
+</ul>
+<h4>Creating Custom Google Ads Reports</h4>
+<ol>
+<li>Go to <strong>Reports → Create New</strong>
+</li>
+<li>
+<ul>
+<li>Traffic Source = Google Ads</li>
+<li>Campaign type = (Select specific type)</li>
+<li>Date range</li>
+</ul>
+</li>
+<li>
+<ul>
+<li>Metric cards: Spend, Revenue, ROAS, Profit</li>
+<li>Bar chart: Campaigns by profit</li>
+<li>Line chart: ROAS trend over time</li>
+<li>Data table: All campaigns with metrics</li>
+</ul>
+</li>
+<li>Save report</li>
+</ol>
+<h3>Optimization Strategies</h3>
+<h4>For High ROAS Campaigns (5.0+)</h4>
+<p>
+<strong>Action: Scale up</strong>
+</p>
+<ol>
+<li>Increase daily budget in Google Ads</li>
+<li>Expand to similar keywords/products</li>
+<li>Increase bids to gain more impression share</li>
+<li>Create similar campaigns targeting related audiences</li>
+</ol>
+<p>
+<strong>Monitor:</strong> ROAS may decrease slightly as you scale (normal), but should stay profitable
+</p>
+<h4>For Moderate ROAS Campaigns (2.5-4.0)</h4>
+<p>
+<strong>Action: Optimize</strong>
+</p>
+<ul>
+<li>
+<strong>Review search terms:</strong> Add negative keywords for low-performing searches
+</li>
+<li>
+<strong>Adjust bids:</strong> Increase on high-converting terms, decrease on low-converting
+</li>
+<li>
+<strong>Improve landing pages:</strong> Better conversion rate improves ROAS without changing ad spend
+</li>
+<li>
+<strong>Test ad copy:</strong> Better CTR means lower CPC
+</li>
+<li>
+<strong>Refine targeting:</strong> Exclude locations/devices with poor performance
+</li>
+</ul>
+<h4>For Low ROAS Campaigns (< 2.5)</h4>
+<p>
+<strong>Action: Fix or pause</strong>
+</p>
+<ol>
+<li>Check if campaign has enough data (need 20+ clicks minimum)</li>
+<li>If new, give it 7-14 days to optimize</li>
+<li>
+<ul>
+<li>Wrong audience/keywords?</li>
+<li>Weak ad copy?</li>
+<li>Poor landing page?</li>
+<li>Product margins too low?</li>
+</ul>
+</li>
+<li>Make significant changes or pause campaign</li>
+</ol>
+<h3>Shopping Campaign Optimization</h3>
+<p>
+<strong>Based on Alpha Insights product profit data:</strong>
+</p>
+<h4>High-Profit Products</h4>
+<ul>
+<li>Increase bids by 20-50%</li>
+<li>Ensure always in stock</li>
+<li>Add to high-priority campaign</li>
+</ul>
+<h4>Low-Profit Products</h4>
+<ul>
+<li>Decrease bids or exclude entirely</li>
+<li>Consider raising prices before excluding</li>
+<li>Move to low-priority campaign</li>
+</ul>
+<h4>Negative Profit Products</h4>
+<ul>
+<li>Exclude from Shopping feed immediately</li>
+<li>Losing money on every sale!</li>
+</ul>
+<h3>Google Ads vs Facebook Ads Comparison</h3>
+<p>With both integrated, compare platforms:</p>
+<h4>Typical Performance Differences</h4>
+<table>
+<tr>
+<th>Metric</th>
+<th>Google Ads</th>
+<th>Facebook Ads</th>
+</tr>
+<tr>
+<td>ROAS</td>
+<td>Higher (3-6)</td>
+<td>Lower (2-4)</td>
+</tr>
+<tr>
+<td>Intent</td>
+<td>High (searching for product)</td>
+<td>Low (discovery)</td>
+</tr>
+<tr>
+<td>CPC</td>
+<td>Higher ($1-5)</td>
+<td>Lower ($0.50-2)</td>
+</tr>
+<tr>
+<td>Conversion Rate</td>
+<td>Higher (5-10%)</td>
+<td>Lower (2-5%)</td>
+</tr>
+<tr>
+<td>Volume</td>
+<td>Limited by search demand</td>
+<td>Larger audience potential</td>
+</tr>
+</table>
+<h4>Budget Allocation Strategy</h4>
+<p>
+<strong>If Google Ads has higher ROAS:</strong>
+</p>
+<ul>
+<li>Allocate 60-70% of budget to Google</li>
+<li>Use Facebook for awareness and retargeting</li>
+</ul>
+<p>
+<strong>If Facebook Ads has higher ROAS:</strong>
+</p>
+<ul>
+<li>This is unusual but possible for certain products</li>
+<li>Allocate accordingly</li>
+<li>Ensure Google Ads targeting is optimized</li>
+</ul>
+<p>
+<strong>Balanced approach:</strong>
+</p>
+<ul>
+<li>Google captures bottom-of-funnel (ready to buy)</li>
+<li>Facebook feeds top-of-funnel (builds awareness)</li>
+<li>Use both together for full-funnel strategy</li>
+</ul>
+<h3>Troubleshooting Tracking Issues</h3>
+<h4>Revenue Not Attributed Correctly</h4>
+<p>
+<strong>Ensure UTM parameters are set:</strong>
+</p>
+<ol>
+<li>In Google Ads, go to Settings → Account settings</li>
+<li>Enable Auto-tagging (GCLID)</li>
+<li>Or manually add UTM parameters to destination URLs</li>
+</ol>
+<p>
+<strong>UTM format:</strong>
+</p>
+<pre>
+	<code>?utm_source=google&utm_medium=cpc&utm_campaign={campaignid}</code>
+</pre>
+<p>
+<strong>Or better, use Alpha Insights' recommended parameter:</strong>
+</p>
+<pre>
+	<code>?google_cid={campaignid}</code>
+</pre>
+<h4>Spend Doesn't Match Google Ads</h4>
+<p>
+<strong>Check:</strong>
+</p>
+<ul>
+<li>Date ranges match exactly</li>
+<li>Time zones are consistent</li>
+<li>All campaign types are included in both</li>
+<li>Click Sync Now to get latest data</li>
+</ul>
+<p>
+<strong>Note:</strong> Spend data comes from <code>metrics.cost_micros</code> in the Google Ads API and is converted from micros (divided by 1,000,000) for display
+</p>
+<h4>Missing Campaigns</h4>
+<p>
+<strong>Verify:</strong>
+</p>
+<ol>
+<li>Campaign type is selected in sync settings</li>
+<li>Campaign has spend during date range</li>
+<li>Campaign status (ended campaigns may be filtered out)</li>
+</ol>
+<p>
+<strong>Note:</strong> Campaigns are queried from the Google Ads API using: <code>SELECT segments.date, campaign.id, campaign.name, campaign.start_date, campaign.end_date, campaign.status, metrics.clicks, metrics.impressions, metrics.cost_micros, metrics.average_cpc, metrics.conversions, metrics.conversions_value FROM campaign</code>
+</p>
+<h3>Best Practices</h3>
+<ul>
+<li>Review Google Ads performance weekly</li>
+<li>Use profit data (not just ROAS) for optimization decisions</li>
+<li>Keep Auto-tagging enabled in Google Ads</li>
+<li>Compare campaign types to find best performers</li>
+<li>Scale winners gradually (10-20% budget increases)</li>
+<li>Pause losers quickly (don't wait months)</li>
+<li>Combine Google Ads + Facebook for full-funnel strategy</li>
+</ul>
