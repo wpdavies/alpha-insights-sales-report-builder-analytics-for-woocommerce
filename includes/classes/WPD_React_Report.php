@@ -3199,8 +3199,9 @@ class WPD_React_Report {
                 
                 // Build message based on imported and skipped counts
                 if ( $imported_count > 0 && $skipped_count > 0 ) {
+                    /* translators: 1: Number of imported reports, 2: Number of skipped reports */
                     $response['message'] = sprintf( 
-                        __( 'Successfully imported %d reports. %d reports were already installed and skipped.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 
+                        __( 'Successfully imported %1$d reports. %2$d reports were already installed and skipped.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 
                         $imported_count,
                         $skipped_count
                     );

@@ -236,6 +236,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 			$this->version_check = false;
 
 			// Fail Message
+			/* translators: %s: Minimum required PHP version */
 			$message[] = sprintf(
 				__( 'Alpha Insights has not been fully activated as it requires at least PHP %s to run correctly. Please upgrade your PHP version to use this plugin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 				WPD_AI_MIN_PHP_VER
@@ -256,6 +257,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 			$this->version_check = false;
 
 			// Fail message
+			/* translators: 1: Minimum required WordPress version, 2: Current WordPress version */
 			$message[] = sprintf(
 				__( 'Alpha Insights requires at least WordPress version %1$s to run. Please upgrade WordPress to use this plugin. You are currently using version %2$s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 				WPD_AI_MIN_WP_VER,
@@ -294,6 +296,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 			$this->version_check = false;
 
 			// Fail Message
+			/* translators: 1: Minimum required WooCommerce version, 2: Current WooCommerce version */
 			$message[] = sprintf(
 				__( 'Alpha Insights requires at least WooCommerce version %1$s to run. Please upgrade WooCommerce to use this plugin. You are currently using version %2$s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 				WPD_AI_MIN_WC_VER,

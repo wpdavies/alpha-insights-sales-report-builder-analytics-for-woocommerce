@@ -837,7 +837,8 @@ function wpd_delete_all_google_api_expense_data_ajax_function() {
 			if ( $found === 0 ) {
 				$response['message'] = __( 'No ad expenses were found, all good.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 			} else {
-				$response['message'] = sprintf( __( 'Sucesfully deleted %s out of %s Google API expenses.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), absint( $deleted ), absint( $found ) );
+				/* translators: 1: Number of deleted expenses, 2: Total number of expenses found */
+				$response['message'] = sprintf( __( 'Sucesfully deleted %1$s out of %2$s Google API expenses.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), absint( $deleted ), absint( $found ) );
 			}
 
 		} else {
@@ -887,7 +888,8 @@ function wpd_delete_all_google_api_campaign_data_ajax_function() {
 			if ( $found === 0 ) {
 				$response['message'] = __( 'No campaign data was found, all good.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 			} else {
-				$response['message'] = sprintf( __( 'Sucesfully deleted %s out of %s Google API campaign data points.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), absint( $deleted ), absint( $found ) );
+				/* translators: 1: Number of deleted campaign data points, 2: Total number of campaign data points found */
+				$response['message'] = sprintf( __( 'Sucesfully deleted %1$s out of %2$s Google API campaign data points.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), absint( $deleted ), absint( $found ) );
 			}
 
 		} else {
@@ -995,7 +997,8 @@ function wpd_create_google_conversion_action_ajax_function() {
 				// Return response for fallback case
 				$response['success'] = true;
 				$fallback_message = $re_enabled ? __( 'enabled it', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) : __( 'it was already enabled', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
-				$response['message'] = sprintf( __( 'Found existing conversion action "%s" and %s. Please refresh the page to see the updated status. You can view this conversion action in your Google Ads account under Goals > Summary.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $action_name, $fallback_message );
+				/* translators: 1: Conversion action name, 2: Status message (enabled it / it was already enabled) */
+				$response['message'] = sprintf( __( 'Found existing conversion action "%1$s" and %2$s. Please refresh the page to see the updated status. You can view this conversion action in your Google Ads account under Goals > Summary.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $action_name, $fallback_message );
 				
 			} else {
 				
@@ -1180,7 +1183,8 @@ function wpd_scan_order_gclids_ajax_function() {
 				$errors = isset( $result['errors'] ) ? absint( $result['errors'] ) : 0;
 				$gclids_found = isset( $result['gclids_found'] ) ? absint( $result['gclids_found'] ) : 0;
 
-				$response['message'] = sprintf( __( '%d Orders were checked, we found %d GCLIDs, associated %d orders to campaigns and there were %d API errors.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $orders_checked, $gclids_found, $updates, $errors );
+				/* translators: 1: Number of orders checked, 2: Number of GCLIDs found, 3: Number of orders associated, 4: Number of API errors */
+				$response['message'] = sprintf( __( '%1$d Orders were checked, we found %2$d GCLIDs, associated %3$d orders to campaigns and there were %4$d API errors.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $orders_checked, $gclids_found, $updates, $errors );
 				
 			}
 
@@ -1336,7 +1340,8 @@ function wpd_create_google_add_to_cart_conversion_action_ajax_function() {
 				// Return response for fallback case
 				$response['success'] = true;
 				$fallback_message = $re_enabled ? __( 'enabled it', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) : __( 'it was already enabled', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
-				$response['message'] = sprintf( __( 'Found existing Add To Cart conversion action "%s" and %s. Please refresh the page to see the updated status. You can view this conversion action in your Google Ads account under Goals > Summary.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $action_name, $fallback_message );
+				/* translators: 1: Add To Cart conversion action name, 2: Status message (enabled it / it was already enabled) */
+				$response['message'] = sprintf( __( 'Found existing Add To Cart conversion action "%1$s" and %2$s. Please refresh the page to see the updated status. You can view this conversion action in your Google Ads account under Goals > Summary.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $action_name, $fallback_message );
 				
 			} else {
 				

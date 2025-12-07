@@ -81,7 +81,10 @@ wpd_write_log('Profit report data prepared - Orders: ' . $total_order_data['tota
         <tr>
             <td valign="top" class="mcnTextBlockInner">
 				<div class="mcnTextContent">
-					<p style="color: #03aaed;font-size: 19px; text-align: center;"><?php printf( __( 'Showing results from %s to %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $from_date, $to_date ); ?>.</p>
+					<?php
+					/* translators: 1: Start date, 2: End date */
+					?>
+					<p style="color: #03aaed;font-size: 19px; text-align: center;"><?php printf( __( 'Showing results from %1$s to %2$s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $from_date, $to_date ); ?>.</p>
 				    <table border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable">
 				        <tbody>
 				        	<tr>

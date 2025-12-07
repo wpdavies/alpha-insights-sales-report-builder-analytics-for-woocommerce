@@ -353,7 +353,8 @@ class WPD_Alpha_Insights_Core {
 					array (
 
 						'id'          => '_wpd_ai_custom_product_costs['.$item_id.']['.$custom_cost_slug.']',
-						'label' 	  => sprintf( __( '%s Per Unit (%s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $custom_cost_data['label'] ), esc_html( wpd_store_currency_string() ) ),
+						/* translators: 1: Custom cost label, 2: Currency code */
+						'label' 	  => sprintf( __( '%1$s Per Unit (%2$s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $custom_cost_data['label'] ), esc_html( wpd_store_currency_string() ) ),
 						'value'       => $custom_cost_meta_value,
 						'data_type'   => 'price',
 						'placeholder' => strip_tags( wc_price( $default_calculated_value ) ),
@@ -560,8 +561,9 @@ class WPD_Alpha_Insights_Core {
 
 				$order_currency = $order_data['order_currency'];
 				$original_amount = wpd_store_price( $item->get_total(), array('currency' => $order_currency) );
+				/* translators: 1: Currency code, 2: Original amount */
 				$currency_conversion_string = sprintf( 
-					__( 'This order was paid for in %s. <br>The original amount is %s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 
+					__( 'This order was paid for in %1$s. <br>The original amount is %2$s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 
 					$order_currency, 
 					$original_amount 
 				);
@@ -874,7 +876,8 @@ class WPD_Alpha_Insights_Core {
 
 						woocommerce_wp_text_input( array(
 							'id' => '_wpd_ai_custom_order_cost_' . $cost_slug,
-							'label' => sprintf( __( '%s (%s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $cost_data['label'] ), esc_html( wpd_store_currency_string() ) ) . ':',
+							/* translators: 1: Cost label, 2: Currency code */
+							'label' => sprintf( __( '%1$s (%2$s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $cost_data['label'] ), esc_html( wpd_store_currency_string() ) ) . ':',
 							'value' => $custom_order_cost_value, // Need to figure out
 							'placeholder' => esc_attr( strip_tags( wc_price( $custom_order_cost_placeholder ) ) ),
 							'wrapper_class' => 'form-field-wide',
