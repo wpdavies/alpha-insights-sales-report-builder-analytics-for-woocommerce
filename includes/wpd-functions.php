@@ -1505,7 +1505,7 @@ function wpd_fetch_for_updates() {
 
 		// Build Vars
 		$plugin_data_request = $api_endpoint . '?' . $query_params;
-		$alpha_insights_plugin_file = WPD_AI_PATH . '/wpd-alpha-insights-free.php';
+		$alpha_insights_plugin_file = WPD_AI_PATH . '/wpd-alpha-insights.php';
 
 		// Load updater
 		$alpha_insights_updater = Puc_v4_Factory::buildUpdateChecker( $plugin_data_request, $alpha_insights_plugin_file, '' );

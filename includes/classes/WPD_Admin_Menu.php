@@ -765,7 +765,7 @@ class WPD_Admin_Menu {
     public function get_all_third_level_menus_ajax() {
 
         // Verify nonce
-        if ( ! isset($_POST['nonce']) || ! wp_verify_nonce($_POST['nonce'], WPD_AI_AJAX_NONCE_ACTION) ) {
+        if ( ! isset($_POST['nonce']) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array( 'message' => 'Invalid nonce' ) );
             return;
         }

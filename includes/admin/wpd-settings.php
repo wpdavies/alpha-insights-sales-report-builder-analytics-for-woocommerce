@@ -243,7 +243,7 @@ function wpd_ai_register_settings() {
 			// Security: Only allow authorized users to save settings
 			if ( wpd_is_user_authorized_to_view_alpha_insights() ) {
 				// Verify nonce for settings form submission
-				if ( isset( $_POST['wpd_alpha_insights_settings_nonce'] ) && wp_verify_nonce( $_POST['wpd_alpha_insights_settings_nonce'], 'wpd_alpha_insights_settings' ) ) {
+				if ( isset( $_POST['wpd_alpha_insights_settings_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpd_alpha_insights_settings_nonce'] ) ), 'wpd_alpha_insights_settings' ) ) {
 					wpd_save_settings();
 				} else {
 					// Nonce verification failed - show error but don't die

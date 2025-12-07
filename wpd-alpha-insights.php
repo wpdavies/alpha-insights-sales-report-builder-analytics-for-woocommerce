@@ -195,7 +195,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 		}
 		
 		// Get free plugin file path
-		$pro_plugin_file = 'wp-davies-alpha-insights/wpd-alpha-insights-free.php';
+		$pro_plugin_file = 'wp-davies-alpha-insights/wpd-alpha-insights.php';
 		
 		// Check if free version is active
 		if ( is_plugin_active( $pro_plugin_file ) || class_exists( 'WPD_Alpha_Insights_Plugin' ) ) {
@@ -363,7 +363,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 		}
 		
 		// Check for and deactivate free version on activation
-		$pro_plugin_file = 'wp-davies-alpha-insights/wpd-alpha-insights-free.php';
+		$pro_plugin_file = 'wp-davies-alpha-insights/wpd-alpha-insights.php';
 		if ( is_plugin_active( $pro_plugin_file ) || class_exists( 'WPD_Alpha_Insights_Plugin' ) ) {
 			deactivate_plugins( plugin_basename( __FILE__ ) );
 			set_transient( 'wpd_ai_free_deactivated_by_pro', true, 30 );
@@ -681,6 +681,9 @@ class WPD_Alpha_Insights_Free_Plugin {
 	 */
 	public function include_plugin_files() {
 
+		// Required before the functions load
+		require_once( WPD_AI_PATH . 'includes/classes/WPD_Admin_Menu.php');		
+
 		// Functions
 		require_once( WPD_AI_PATH . 'includes/wpd-functions.php');
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-license-functions.php');
@@ -730,7 +733,6 @@ class WPD_Alpha_Insights_Free_Plugin {
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_CSV_Exporter.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Session_Tracking.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Task_Runner.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Admin_Menu.php');		
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Report_API.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Getting_Started.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Data_Manager.php');

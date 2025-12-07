@@ -1264,14 +1264,14 @@ class WPD_Data_Manager {
             // Pro version - construct path from WPD_AI_PATH constant
             if ( defined( 'WPD_AI_PATH' ) ) {
                 // WPD_AI_PATH is the plugin directory path, so we need to get the relative path
-                $pro_plugin_file = 'wp-davies-alpha-insights/wpd-alpha-insights-free.php';
+                $pro_plugin_file = 'wp-davies-alpha-insights/wpd-alpha-insights.php';
                 if ( file_exists( WP_PLUGIN_DIR . '/' . $pro_plugin_file ) ) {
                     $plugin_files[] = $pro_plugin_file;
                 }
             }
 
             // Free version (check if it exists)
-            $free_plugin_file = 'wp-davies-alpha-insights-free/wpd-alpha-insights-free.php';
+            $free_plugin_file = 'alpha-insights-sales-report-builder-analytics-for-woocommerce/wpd-alpha-insights.php';
             if ( file_exists( WP_PLUGIN_DIR . '/' . $free_plugin_file ) ) {
                 $plugin_files[] = $free_plugin_file;
             }

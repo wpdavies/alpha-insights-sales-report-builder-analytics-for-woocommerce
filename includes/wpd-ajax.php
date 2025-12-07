@@ -27,7 +27,7 @@ if ( ! function_exists( 'wpd_verify_ajax_request' ) ) {
 		}
 		// Verify nonce
 		$nonce_key = isset( $_POST['nonce'] ) ? 'nonce' : 'security';
-		if ( ! isset( $_POST[ $nonce_key ] ) || ! wp_verify_nonce( $_POST[ $nonce_key ], $nonce_action ) ) {
+		if ( ! isset( $_POST[ $nonce_key ] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ $nonce_key ] ) ), $nonce_action ) ) {
 			wp_send_json_error( array( 
 				'message' => __( 'Security check failed. Please refresh the page and try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) 
 			) );
