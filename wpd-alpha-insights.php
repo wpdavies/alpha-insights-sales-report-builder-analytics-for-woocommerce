@@ -54,6 +54,13 @@ class WPD_Alpha_Insights_Free_Plugin {
 	public $version_check = true;
 
 	/**
+	 * Stores the cached compatibility check results to avoid running checks multiple times
+	 *
+	 * @var array|null
+	 */
+	private $compatibility_check_result = null;
+
+	/**
 	 * Get singleton instance
 	 *
 	 * @return WPD_Alpha_Insights_Free_Plugin
@@ -97,18 +104,16 @@ class WPD_Alpha_Insights_Free_Plugin {
 		// Fires when plugin is updated (outside compatibility check - just schedules tasks)
 		add_action( 'upgrader_process_complete', array( $this, 'plugin_updated' ), 10, 2 );
 
-		// Checks for compatibility with versions
-		$this->check_compatability_and_return_notices();
-
+		// Checks for compatibility with versions (run once and cache result)
+		$this->compatibility_check_result = $this->check_compatability_and_return_notices();
+		
 		// If we are all good, load the plugin
 		if ( $this->is_plugin_compatible() ) {
-
 			// Load the plugin
 			add_action( 'plugins_loaded', array( $this, 'initialize_plugin' ), 20 );
-
 		}
 
-		// Output plugin init admin notices
+		// Output plugin init admin notices (hook only fires in admin area)
 		add_action( 'admin_notices', array( $this, 'output_alpha_insights_init_admin_notices' ) );
 
 		// Process any pending post-installation/update tasks
@@ -212,134 +217,180 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 	/**
 	 * Check for compatibility with this WP install
+	 * 
+	 * Checks all compatibility requirements and collects all notices instead of returning early.
+	 * This allows multiple issues to be reported at once.
 	 *
-	 * @return array
+	 * @since 1.0.0
+	 * @return array Array with 'notices' (array of messages) and 'version_check' (bool)
 	 */
 	public function check_compatability_and_return_notices() {
+
+		// Ensure constants are defined before checking
+		if ( ! defined( 'WPD_AI_MIN_PHP_VER' ) || ! defined( 'WPD_AI_MIN_WP_VER' ) || ! defined( 'WPD_AI_MIN_WC_VER' ) ) {
+			// Constants not yet defined, return safe defaults
+			return array(
+				'notices' => array(),
+				'version_check' => true
+			);
+		}
 
 		// WP Version
 		global $wp_version;
 
-		// Message array
-		$message = array();
+		// Message array - collect ALL issues, don't return early
+		$notices = array();
+		$is_compatible = true;
 
-		// Default, empty
-		$results = array(
-			'notices' 		=> $message,
-			'version_check' => $this->version_check
-		);
-
-		// Is PHP version correct
+		// Check PHP version
 		if ( version_compare( PHP_VERSION, WPD_AI_MIN_PHP_VER, '<' ) ) {
-			
-			// Set version check to fail
-			$this->version_check = false;
-
-			// Fail Message
+			$is_compatible = false;
 			/* translators: %s: Minimum required PHP version */
-			$message[] = sprintf(
-				__( 'Alpha Insights has not been fully activated as it requires at least PHP %s to run correctly. Please upgrade your PHP version to use this plugin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
-				WPD_AI_MIN_PHP_VER
+			$notices[] = sprintf(
+				__( 'Alpha Insights requires at least PHP %s to run correctly. You are currently using PHP %s. Please upgrade your PHP version to use this plugin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+				esc_html( WPD_AI_MIN_PHP_VER ),
+				esc_html( PHP_VERSION )
 			);
-
-			// Return Results
-			return array(
-				'notices' => $message,
-				'version_check' => $this->version_check
-			);
-
 		}
 
-		// Is WP Version Correct
+		// Check WordPress version
 		if ( version_compare( $wp_version, WPD_AI_MIN_WP_VER, '<' ) ) {
-			
-			// Set version check to fail
-			$this->version_check = false;
-
-			// Fail message
+			$is_compatible = false;
 			/* translators: 1: Minimum required WordPress version, 2: Current WordPress version */
-			$message[] = sprintf(
-				__( 'Alpha Insights requires at least WordPress version %1$s to run. Please upgrade WordPress to use this plugin. You are currently using version %2$s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
-				WPD_AI_MIN_WP_VER,
-				$wp_version
+			$notices[] = sprintf(
+				__( 'Alpha Insights requires at least WordPress version %1$s to run. You are currently using version %2$s. Please upgrade WordPress to use this plugin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+				esc_html( WPD_AI_MIN_WP_VER ),
+				esc_html( $wp_version )
 			);
-
-			// Return Results
-			return array(
-				'notices' => $message,
-				'version_check' => $this->version_check
-			);
-
 		}
 
-		// Is WC active
-		if ( ! defined('WC_VERSION') ) {
-
-			// Set version check to fail
-			$this->version_check = false;
-
-			// Fail Message
-			$message[] = __( 'WooCommerce must be installed and activated in order to use Alpha Insights.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
-
-			// Return Results
-			return array(
-				'notices' => $message,
-				'version_check' => $this->version_check
-			);
-
+		// Check if WooCommerce is active - use multiple methods for reliability
+		$woocommerce_active = false;
+		$woocommerce_version = null;
+		
+		// Method 1: Check if WooCommerce class exists (most reliable when WooCommerce is loaded)
+		if ( class_exists( 'WooCommerce' ) ) {
+			$woocommerce_active = true;
+			// WC_VERSION should be defined if class exists, but check anyway
+			if ( defined( 'WC_VERSION' ) ) {
+				$woocommerce_version = WC_VERSION;
+			}
 		}
-
-		// Is WC version correct
-		if ( version_compare( WC_VERSION, WPD_AI_MIN_WC_VER, '<' ) ) {
-
-			// Set version check to fail
-			$this->version_check = false;
-
-			// Fail Message
+		
+		// Method 2: If class doesn't exist yet, check if plugin is active (early check)
+		if ( ! $woocommerce_active ) {
+			// Include plugin.php if needed
+			if ( ! function_exists( 'is_plugin_active' ) ) {
+				require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+			}
+			
+			// Check if WooCommerce plugin is active
+			if ( is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
+				$woocommerce_active = true;
+				// Try to get version from plugin data if constant isn't defined yet
+				if ( ! defined( 'WC_VERSION' ) && function_exists( 'get_plugin_data' ) ) {
+					$plugin_file = WP_PLUGIN_DIR . '/woocommerce/woocommerce.php';
+					if ( file_exists( $plugin_file ) ) {
+						$plugin_data = get_plugin_data( $plugin_file, false, false );
+						if ( isset( $plugin_data['Version'] ) ) {
+							$woocommerce_version = $plugin_data['Version'];
+						}
+					}
+				} elseif ( defined( 'WC_VERSION' ) ) {
+					$woocommerce_version = WC_VERSION;
+				}
+			}
+		} elseif ( defined( 'WC_VERSION' ) ) {
+			$woocommerce_version = WC_VERSION;
+		}
+		
+		// If WooCommerce is not active, show error
+		if ( ! $woocommerce_active ) {
+			$is_compatible = false;
+			$notices[] = __( 'Alpha Insights requires WooCommerce to be installed and activated. Please install and activate WooCommerce to use this plugin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
+		} elseif ( ! empty( $woocommerce_version ) && version_compare( $woocommerce_version, WPD_AI_MIN_WC_VER, '<' ) ) {
+			// Check WooCommerce version (only if we have a version to check)
+			$is_compatible = false;
 			/* translators: 1: Minimum required WooCommerce version, 2: Current WooCommerce version */
-			$message[] = sprintf(
-				__( 'Alpha Insights requires at least WooCommerce version %1$s to run. Please upgrade WooCommerce to use this plugin. You are currently using version %2$s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
-				WPD_AI_MIN_WC_VER,
-				WC_VERSION
+			$notices[] = sprintf(
+				__( 'Alpha Insights requires at least WooCommerce version %1$s to run. You are currently using version %2$s. Please upgrade WooCommerce to use this plugin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+				esc_html( WPD_AI_MIN_WC_VER ),
+				esc_html( $woocommerce_version )
 			);
-
-			// Return Results
-			return array(
-				'notices' => $message,
-				'version_check' => $this->version_check
-			);
-
 		}
+
+		// Update version check property
+		$this->version_check = $is_compatible;
 
 		// Check DB Version - Schedule deferred update instead of immediate
-		$installed_db_version = get_option( 'wpd_ai_db_version', null );
-		if ( is_string($installed_db_version) && version_compare( $installed_db_version, WPD_AI_DB_VERSION, '<' ) ) {
-			// Schedule DB update to run when classes are loaded
-			update_option( 'wpd_ai_pending_db_update', true );
-			$this->log( 'Database version check detected outdated schema, scheduled deferred update.' );
+		if ( defined( 'WPD_AI_DB_VERSION' ) ) {
+			$installed_db_version = get_option( 'wpd_ai_db_version', null );
+			if ( is_string( $installed_db_version ) && version_compare( $installed_db_version, WPD_AI_DB_VERSION, '<' ) ) {
+				// Schedule DB update to run when classes are loaded
+				update_option( 'wpd_ai_pending_db_update', true );
+				$this->log( 'Database version check detected outdated schema, scheduled deferred update.' );
+			}
 		}
 
-		// Returns empty default
-		return $results;
+		// Return all collected notices
+		return array(
+			'notices' => $notices,
+			'version_check' => $is_compatible
+		);
 
 	}
 
 	/**
 	 * Output error notice if we don't have dependencies
+	 * 
+	 * Safely outputs compatibility notices only in admin area and not during AJAX requests.
+	 * Uses cached compatibility check results to avoid running checks multiple times.
+	 *
+	 * @since 1.0.0
+	 * @return void
 	 */
 	public function output_plugin_dependency_notices() {
 
-		$version_check = $this->check_compatability_and_return_notices();
+		// Only output in admin area
+		if ( ! is_admin() ) {
+			return;
+		}
+
+		// Don't output during AJAX requests
+		if ( wp_doing_ajax() ) {
+			return;
+		}
+
+		// Don't output during autosave
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
+		// Use cached compatibility check results if available, otherwise run check
+		if ( null === $this->compatibility_check_result ) {
+			$this->compatibility_check_result = $this->check_compatability_and_return_notices();
+		}
+
+		$version_check = $this->compatibility_check_result;
+		
+		// Validate notices array
+		if ( ! isset( $version_check['notices'] ) || ! is_array( $version_check['notices'] ) ) {
+			return;
+		}
+
 		$notice_messages = $version_check['notices'];
 
-		if ( is_array($notice_messages) && ! empty($notice_messages) ) {
-
+		// Output notices if any exist
+		if ( ! empty( $notice_messages ) ) {
 			foreach ( $notice_messages as $message ) {
-
-				echo '<div class="wpd-notice notice notice-error is-dismissible"><p>' . esc_html( $message ) . '</p></div>';
-
+				// Ensure message is a string and not empty
+				if ( is_string( $message ) && ! empty( trim( $message ) ) ) {
+					printf(
+						'<div class="wpd-notice notice notice-error is-dismissible"><p>%s</p></div>',
+						wp_kses_post( $message )
+					);
+				}
 			}
-
 		}
 
 	}
@@ -684,9 +735,6 @@ class WPD_Alpha_Insights_Free_Plugin {
 	 */
 	public function include_plugin_files() {
 
-		// Required before the functions load
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Admin_Menu.php');		
-
 		// Functions
 		require_once( WPD_AI_PATH . 'includes/wpd-functions.php');
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-license-functions.php');
@@ -728,6 +776,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 		}
 
 		// Additional Classes -> No Dependencies
+		require_once( WPD_AI_PATH . 'includes/classes/WPD_Admin_Menu.php');		
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Action_Scheduler.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Order_Calculator.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Database_Interactor.php');
@@ -1040,13 +1089,14 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		$new_links = array();
 
-		// Check if function exists before using
-		if ( function_exists( 'wpd_admin_page_url' ) ) {
-			$new_links[] = '<a href="' . esc_url( wpd_admin_page_url('settings') ) . '">' . esc_html__( 'Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) . '</a>';
-		}
+		// Settings
+		$link = admin_url( 'admin.php') . '?page=wpd-settings';
+		$new_links[] = '<a href="' . esc_url( $link ) . '">' . esc_html__( 'Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) . '</a>';
 		
+		// Docs
 		$new_links[] = '<a href="' . esc_url( 'https://wpdavies.dev/docs/alpha-insights/' ) . '" target="_blank">' . esc_html__( 'Docs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) . '</a>';	
 
+		// Upgrade to Pro
 		if ( ! WPD_AI_PRO ) {
 
 			// Build upgrade URL with query parameters for tracking
