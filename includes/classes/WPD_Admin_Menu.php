@@ -231,7 +231,7 @@ class WPD_Admin_Menu {
                     <?php foreach( $alpha_insights_menu as $key => $item ) : ?>
                         <span class="wpd-ai-menu-item-container">
                             <!-- Actual Menu Item -->
-                            <a class="wpd-nav-tab nav-tab <?php echo implode(' ', $item['additional_classes']) ?> <?php echo ( $active_parent_menu_item == $key ) ? 'nav-tab-active' : '' ?>" href="<?php echo $item['url'] ?>"<?php echo ( isset($item['target']) ) ? ' target="' . $item['target'] . '"' : ''; ?>><?php echo $item['title'] ?></a>
+                            <a class="wpd-nav-tab nav-tab <?php echo esc_attr( implode(' ', $item['additional_classes']) ); ?> <?php echo esc_attr( ( $active_parent_menu_item == $key ) ? 'nav-tab-active' : '' ); ?>" href="<?php echo esc_url( $item['url'] ); ?>"<?php echo ( isset($item['target']) ) ? ' target="' . esc_attr( $item['target'] ) . '"' : ''; ?>><?php echo esc_html( $item['title'] ); ?></a>
                             <!-- Dropdown Menu -->
                             <?php if ( isset($item['children']) && is_array($item['children']) && count($item['children']) > 1 ) : ?>
                                 <ul class="wpd-ai-dropdown-submenu">

@@ -76,8 +76,8 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Default Product Cost Price', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?> (%)</label>
-					<div class="wpd-meta"><?php _e( 'This will be a fallback setting for products in which you haven\'t entered a cost price. This is calculated as a percentage of the given product\'s retail price. Use the configure COGS Per Product to manage costs per product (recommended).', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Default Product Cost Price', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?> (%)</label>
+					<div class="wpd-meta"><?php esc_html_e( 'This will be a fallback setting for products in which you haven\'t entered a cost price. This is calculated as a percentage of the given product\'s retail price. Use the configure COGS Per Product to manage costs per product (recommended).', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 					<div class="wpd-meta">Our cost price hierarchy works as follows:</div>
 					<div class="wpd-meta">1. Value saved for a product in the Alpha Insights Cost of Goods Manager (recommended)</div>
 					<div class="wpd-meta">2. Fall back to WooCommerce Native COGS if set -> WooCommerce 10.0+</div>
@@ -133,7 +133,7 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'Report Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+				<th colspan="2"><?php esc_html_e( 'Report Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -388,8 +388,8 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 		<tbody>
 			<tr>
 				<td>
-					<label><?php _e( 'Product Admin Columns', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'Select which columns you would like to display in the Product Admin List section in your WP Dashboard.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Product Admin Columns', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'Select which columns you would like to display in the Product Admin List section in your WP Dashboard.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input wpd-combo-select" name="wpd_ai_admin_custom_columns[products][]" value="" multiple="multiple" placeholder="Select Columns">
@@ -432,8 +432,8 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'User Admin Columns', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'Select which columns you would like to display in the Users List section in your WP Dashboard.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'User Admin Columns', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'Select which columns you would like to display in the Users List section in your WP Dashboard.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input wpd-combo-select" name="wpd_ai_admin_custom_columns[users][]" value="" multiple="multiple" placeholder="Select Columns">
@@ -465,8 +465,8 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 		<tbody>
 			<tr>
 				<td>
-					<label><?php _e( 'Limit Plugin Visibility', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'Choose which user roles can view this plugin. Those who are denied access will not see any part of the plugin.<br>Administrators will always have access.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Limit Plugin Visibility', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'Choose which user roles can view this plugin. Those who are denied access will not see any part of the plugin.<br>Administrators will always have access.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input wpd-combo-select" name="wpd_ai_plugin_visibility[]" multiple="multiple" placeholder="Select Role Type(s) To Include">
@@ -495,13 +495,13 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Load Modern WP Admin Skin', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'Load our custom stylesheet which will override core admin appearance settings to help modernize your admin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Load Modern WP Admin Skin', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'Load our custom stylesheet which will override core admin appearance settings to help modernize your admin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_admin_style_override">
-						<option value="0" <?php echo wpd_selected_option( '0', $admin_style_override ) ?> ><?php _e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="1" <?php echo wpd_selected_option( '1', $admin_style_override ) ?> ><?php _e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="0" <?php echo esc_attr( wpd_selected_option( '0', $admin_style_override ) ); ?> ><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="1" <?php echo esc_attr( wpd_selected_option( '1', $admin_style_override ) ); ?> ><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
 					</select>
 				</td>
 			</tr>
@@ -524,7 +524,7 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'Debugging, Tools & Cache', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+				<th colspan="2"><?php esc_html_e( 'Debugging, Tools & Cache', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -557,13 +557,13 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Upgrade Database', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'Run this function to manually update your database to the latest version.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
-					<div class="wpd-meta"><?php _e( 'Installed Version', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>: <?php echo get_option('wpd_ai_db_version'); ?></div>
-					<div class="wpd-meta"><?php _e( 'Required Version', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>: <?php echo WPD_AI_DB_VERSION ?></div>
+					<label><?php esc_html_e( 'Upgrade Database', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'Run this function to manually update your database to the latest version.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<div class="wpd-meta"><?php esc_html_e( 'Installed Version', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>: <?php echo esc_html( get_option('wpd_ai_db_version') ); ?></div>
+					<div class="wpd-meta"><?php esc_html_e( 'Required Version', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>: <?php echo esc_html( WPD_AI_DB_VERSION ); ?></div>
 				</td>
 				<td>
-					<a class="button btn wpd-input" id="wpd-update_db_manually"><?php _e( 'Update Database', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
+					<a class="button btn wpd-input" id="wpd-update_db_manually"><?php esc_html_e( 'Update Database', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></a>
 				</td>
 			</tr>
 		</tbody>

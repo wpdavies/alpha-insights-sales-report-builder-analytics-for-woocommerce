@@ -296,7 +296,7 @@ function wpd_email_button( $text, $url ) {
 		                    <tbody>
 		                        <tr>
 		                            <td align="center" valign="middle" class="mcnButtonContent" style="font-family: Helvetica; font-size: 18px; padding: 18px;">
-		                                <a class="mcnButton " title="<?php echo $text; ?>" href="<?php echo $url; ?>" target="_blank" style="letter-spacing: -0.5px;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;"><?php echo $text; ?></a>
+		                                <a class="mcnButton " title="<?php echo esc_attr( $text ); ?>" href="<?php echo esc_url( $url ); ?>" target="_blank" style="letter-spacing: -0.5px;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;"><?php echo esc_html( $text ); ?></a>
 		                            </td>
 		                        </tr>
 		                    </tbody>

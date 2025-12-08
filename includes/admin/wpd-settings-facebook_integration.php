@@ -127,13 +127,13 @@ defined( 'ABSPATH' ) || exit;
 			</tr>
 			<tr style="display:none;">
 				<td>
-					<label><?php _e( 'Collect Daily Ad Spend (Stored as an expense)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This will check your ad spend per day for your ad account and log it as an expense within Alpha Insights. This will run automatically as per your schedule.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Collect Daily Ad Spend (Stored as an expense)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'This will check your ad spend per day for your ad account and log it as an expense within Alpha Insights. This will run automatically as per your schedule.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_facebook_integration[collect_daily_ad_spend]">
-						<option value="true" <?php echo wpd_selected_option( 'true', $facebook_settings['collect_daily_ad_spend'] ) ?> ><?php _e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="false" <?php echo wpd_selected_option( 'false', $facebook_settings['collect_daily_ad_spend'] ) ?> ><?php _e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="true" <?php echo esc_attr( wpd_selected_option( 'true', $facebook_settings['collect_daily_ad_spend'] ) ); ?> ><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="false" <?php echo esc_attr( wpd_selected_option( 'false', $facebook_settings['collect_daily_ad_spend'] ) ); ?> ><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
 					</select>
 				</td>
 			</tr>
@@ -161,7 +161,7 @@ defined( 'ABSPATH' ) || exit;
 							);
 						}
 					?>
-					<a href="<?php echo( wpd_admin_page_url('add-expense-type') ) ?>" class="wpd-input button button-secondary">Add New Category</a>
+					<a href="<?php echo esc_url( wpd_admin_page_url('add-expense-type') ); ?>" class="wpd-input button button-secondary">Add New Category</a>
 				</td>
 			</tr>
 			<tr>

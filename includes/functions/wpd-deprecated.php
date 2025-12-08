@@ -242,7 +242,7 @@ function wpd_chart_defaults() {
 					hoverBorderWidth: 15,
 					hoverRadius: 5,
 					pointStyle: "circle",
-					radius: <?php echo $point_radius ?>, // 0 to get rid of point <- Create setting for this
+					radius: <?php echo esc_js( $point_radius ); ?>, // 0 to get rid of point <- Create setting for this
 				};
 				Chart.defaults.elements.square = {
 					backgroundColor: "rgba(0,0,0,0.1)",
@@ -390,11 +390,11 @@ if ( ! function_exists( 'wpd_export_to_csv_icon' ) ) {
 	function wpd_export_to_csv_icon( $id = null, $text = 'Export To CSV' ) {
 
 	?>
-		<div class="wpd-download-csv wpd-download" id="<?php echo $id; ?>">
+		<div class="wpd-download-csv wpd-download" id="<?php echo esc_attr( $id ); ?>">
 			<div class="wpd-icon">
 				<span class="dashicons dashicons-media-spreadsheet"></span>
 			</div>
-			<p><?php echo $text ?></p>
+			<p><?php echo esc_html( $text ); ?></p>
 		</div>
 	<?php
 
@@ -860,17 +860,17 @@ if ( ! function_exists('wpd_javascript_ajax') ) {
 		?>
 		<div id="wpd-csv-export">
 			<div class="wpd-loading" style="text-align: center;">
-				<?php echo wpd_preloader( 100 ); ?>
-				<?php echo wpd_success( 100, false ); ?>
-				<p class="wpd-loading-message"><?php _e( 'Processing Your Data', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>...</p>
+				<?php echo wp_kses_post( wpd_preloader( 100 ) ); ?>
+				<?php echo wp_kses_post( wpd_success( 100, false ) ); ?>
+				<p class="wpd-loading-message"><?php esc_html_e( 'Processing Your Data', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>...</p>
 				<div class="wpd-results"></div>
-				<div class="wpd-cta"><a href="#" class="wpd-button" id="wpd-csv-download" style="display:none;" target="_blank"><?php _e( 'Download File', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></a></div>
+				<div class="wpd-cta"><a href="#" class="wpd-button" id="wpd-csv-download" style="display:none;" target="_blank"><?php esc_html_e( 'Download File', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></a></div>
 				<p class="wpd-results-summary wpd-meta"></p>
 			</div>
 		</div>
 		<script type="text/javascript">
 			jQuery(document).ready(function($) {
-				jQuery('<?php echo $click_selector; ?>').click(function(e) {
+				jQuery('<?php echo esc_js( $click_selector ); ?>').click(function(e) {
 
 					e.preventDefault();
 
@@ -882,7 +882,7 @@ if ( ! function_exists('wpd_javascript_ajax') ) {
 	            	$('#wpd-csv-download').hide();
 	            	$('.wpd-results-summary').text('');
 
-					var additionalData = <?php echo $additional_data ?>;
+					var additionalData = <?php echo wp_json_encode( $additional_data ); ?>;
 
 					 ///open the dialog window
 		       		$("#wpd-csv-export").dialog("open");
@@ -893,7 +893,7 @@ if ( ! function_exists('wpd_javascript_ajax') ) {
 					<?php endif; ?>
 		            var data = {
 
-		                'action': '<?php echo $ajax_action; ?>',
+		                'action': '<?php echo esc_js( $ajax_action ); ?>',
 		                'url'   : window.location.href,
 		                'form' : formData,
 						'additional_data' : additionalData
@@ -908,11 +908,11 @@ if ( ! function_exists('wpd_javascript_ajax') ) {
 			            	var url = response.download_link;
 			            	$('.wpd-preloader').hide();
 			            	$('.wpd-success').show();
-			            	$('.wpd-loading-message').text('<?php _e( 'Success!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ?>');
-			            	$('.wpd-results').text( '<?php _e( 'Your CSV was succesfully created, click the link to download.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ?>');
+			            	$('.wpd-loading-message').text('<?php echo esc_js( __( 'Success!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>');
+			            	$('.wpd-results').text( '<?php echo esc_js( __( 'Your CSV was succesfully created, click the link to download.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>');
 			            	$('#wpd-csv-download').attr('href', url);
 			            	$('#wpd-csv-download').show();
-	            			$('.wpd-results-summary').text( (response.rows_found - 1) + ' <?php _e( 'records were found', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ?>.');
+	            			$('.wpd-results-summary').text( (response.rows_found - 1) + ' <?php echo esc_js( __( 'records were found', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>.');
 
 	            			if ( response.file_type == 'PDF' ) {
 
@@ -942,8 +942,8 @@ if ( ! function_exists('wpd_javascript_ajax') ) {
 		            }).fail(function( xhr, textStatus, errorThrown ) {
 
 		            	$('.wpd-preloader').hide();
-		            	$('.wpd-loading-message').text('<?php _e('Something went wrong.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>');
-		            	$('.wpd-results').text('<?php _e('Hm, something went wrong. We were unable to create your document. Check the console for errors.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>');
+		            	$('.wpd-loading-message').text('<?php echo esc_js( __('Something went wrong.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>');
+		            	$('.wpd-results').text('<?php echo esc_js( __('Hm, something went wrong. We were unable to create your document. Check the console for errors.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>');
 
 		            }).done(function(response) {
 

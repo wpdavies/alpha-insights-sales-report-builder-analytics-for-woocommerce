@@ -138,13 +138,13 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 			</tr>
 			<tr style="display:none;">
 				<td>
-					<label><?php _e( 'Collect Campaign Insights', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This will check your ad account for campaigns and build some basic reports based on those campaigns.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Collect Campaign Insights', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'This will check your ad account for campaigns and build some basic reports based on those campaigns.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_google_ads_api[collect_campaign_insights]">
-						<option value="true" <?php echo wpd_selected_option( 'true', $collect_campaign_insights ) ?> ><?php _e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="false" <?php echo wpd_selected_option( 'false', $collect_campaign_insights ) ?> ><?php _e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="true" <?php echo esc_attr( wpd_selected_option( 'true', $collect_campaign_insights ) ); ?> ><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="false" <?php echo esc_attr( wpd_selected_option( 'false', $collect_campaign_insights ) ); ?> ><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
 					</select>
 				</td>
 			</tr>
@@ -189,12 +189,12 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Ad Account Age (Years)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'When we do an all time search, we\'ll check back this many years to fetch and store data. Defaults to 10 years.<br>You will want this number larger than your account age, but large queries may time out.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Ad Account Age (Years)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'When we do an all time search, we\'ll check back this many years to fetch and store data. Defaults to 10 years.<br>You will want this number larger than your account age, but large queries may time out.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<input class="wpd-input" min="1" max="25" type="number" name="wpd_ai_google_ads_api[account_age_years]" value="<?php echo esc_attr( $account_age_years ); ?>" step="1" placeholder="10">
-					<label for="wpd_ai_google_ads_api[account_age_years]" class="wpd-meta wpd-block-label"><?php _e( 'Default: 10', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>		
+					<label for="wpd_ai_google_ads_api[account_age_years]" class="wpd-meta wpd-block-label"><?php esc_html_e( 'Default: 10', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>		
 				</td>
 			</tr>
 		</tbody>
@@ -241,12 +241,12 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Conversion Action for Add To Cart', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<label><?php esc_html_e( 'Conversion Action for Add To Cart', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
 					<div class="wpd-meta">
 						<?php if ( ! empty($add_to_cart_conversion_action_details) ) : ?>
-							<?php _e( 'A conversion action has been created and configured for tracking Add To Cart events. Every time an Add To Cart event is detected with a GCLID, the event will be sent to this conversion action. You can view this conversion action in your Google Ads account under Goals > Summary and then clicking View All Conversions.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
+							<?php esc_html_e( 'A conversion action has been created and configured for tracking Add To Cart events. Every time an Add To Cart event is detected with a GCLID, the event will be sent to this conversion action. You can view this conversion action in your Google Ads account under Goals > Summary and then clicking View All Conversions.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
 						<?php else: ?>
-							<?php _e( 'Create a conversion action that will be used to track Add To Cart events. Every time an Add To Cart event is detected with a GCLID, the event will be sent to this conversion action. You can view this conversion action in your Google Ads account under Goals > Summary and then clicking View All Conversions.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
+							<?php esc_html_e( 'Create a conversion action that will be used to track Add To Cart events. Every time an Add To Cart event is detected with a GCLID, the event will be sent to this conversion action. You can view this conversion action in your Google Ads account under Goals > Summary and then clicking View All Conversions.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
 						<?php endif; ?>
 					</div>
 				</td>
@@ -287,8 +287,8 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 					<div class="">Campaigns Stored</div>
 				</td>
 				<td>
-					<div class=""><?php echo $expense_count ?></div>
-					<div class=""><?php echo $campaign_count ?></div>
+					<div class=""><?php echo esc_html( $expense_count ); ?></div>
+					<div class=""><?php echo esc_html( $campaign_count ); ?></div>
 				</td>
 			</tr>
 			<tr>
@@ -296,7 +296,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 					<div class="">Last Succesful Data Fetch</div>
 				</td>
 				<td>
-					<div class=""><?php echo $last_data_fetch; ?></div>
+					<div class=""><?php echo esc_html( $last_data_fetch ); ?></div>
 				</td>
 			</tr>
 			<tr>
@@ -304,7 +304,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 					<div class="">Next Scheduled Data Fetch</div>
 				</td>
 				<td>
-					<div class=""><?php echo $next_data_fetch ?></div>
+					<div class=""><?php echo esc_html( $next_data_fetch ); ?></div>
 				</td>
 			</tr>
 		</tbody>
@@ -323,7 +323,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 				</td>
 				<td>
 					<a href="#refresh" class="wpd-input button button-secondary" id="wpd-refresh-google-api-data">Refresh All Campaign Data</a>
-					<br><span class="wpd-meta"><?php echo $last_data_fetch ?></span>
+					<br><span class="wpd-meta"><?php echo esc_html( $last_data_fetch ); ?></span>
 				</td>
 			</tr>
 			<tr>

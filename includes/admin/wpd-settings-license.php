@@ -32,10 +32,10 @@ if ( $license_status === 'active' ) {
 ?>
 <?php if ( $license_status === 'expired' ) : ?>
 	<div class="wpd-white-block">
-		<div class="wpd-section-heading"><?php _e( 'Your License Has Expired', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
-		<p><?php _e( 'Looks like your license has expired, to resume your profit reporting you will need to renew your license.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></p>
-		<p><strong><?php _e( 'Use code "RENEWAL20" to take 20% off your next payment.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></strong></p>
-		<p><a href="https://wpdavies.dev/my-account/subscriptions/?utm_campaign=Expired+License&utm_source=Alpha+Insights+Plugin" class="wpd-input button button-primary wpd-license-action" target="_blank"><?php _e( 'Click here to renew', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></a></p>
+		<div class="wpd-section-heading"><?php esc_html_e( 'Your License Has Expired', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+		<p><?php esc_html_e( 'Looks like your license has expired, to resume your profit reporting you will need to renew your license.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></p>
+		<p><strong><?php esc_html_e( 'Use code "RENEWAL20" to take 20% off your next payment.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></strong></p>
+		<p><a href="https://wpdavies.dev/my-account/subscriptions/?utm_campaign=Expired+License&utm_source=Alpha+Insights+Plugin" class="wpd-input button button-primary wpd-license-action" target="_blank"><?php esc_html_e( 'Click here to renew', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></a></p>
 	</div>
 <?php endif; ?>
 <div class="wpd-wrapper">
@@ -49,8 +49,8 @@ if ( $license_status === 'active' ) {
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th><?php _e( 'Your License', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
-				<td><?php _e( 'License Status:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?> <strong class="wpd-license-status"><?php echo $license_status; ?></strong> <?php echo $license_action ?></td>
+				<th><?php esc_html_e( 'Your License', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+				<td><?php esc_html_e( 'License Status:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?> <strong class="wpd-license-status"><?php echo esc_html( $license_status ); ?></strong> <?php echo wp_kses_post( $license_action ); ?></td>
 			</tr>
 		</thead>
 		<tbody>
@@ -86,10 +86,10 @@ if ( $license_status === 'active' ) {
 			</tr>
 			<tr>
 				<td>
-					<?php _e( 'Last Updated', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
+					<?php esc_html_e( 'Last Updated', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
 					<div class="wpd-meta">The last time your license data was checked and updated.</div>
 				</td>
-				<td><?php echo (isset($license_data['last_updated']) && ! empty($license_data['last_updated'])) ? date( 'l jS F\, Y \a\t g\:ia', strtotime($license_data['last_updated']) ) : null; ?></td>
+				<td><?php echo esc_html( (isset($license_data['last_updated']) && ! empty($license_data['last_updated'])) ? date( 'l jS F\, Y \a\t g\:ia', strtotime($license_data['last_updated']) ) : '' ); ?></td>
 			</tr>
 			<tr>
 				<td><?php esc_html_e( 'Manage Your License', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?><div class="wpd-meta"><?php esc_html_e( 'Visit your account area on WP Davies to manage your license.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div></td>

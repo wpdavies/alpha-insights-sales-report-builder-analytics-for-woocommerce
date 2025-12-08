@@ -59,7 +59,7 @@ function wpd_debug( $data, $title = false, $var_dump = false, $file = false ) {
 	$html_output = ob_get_clean();
 
 	// Output the HTML
-	echo $html_output;
+	echo wp_kses_post( $html_output );
 
 }
 

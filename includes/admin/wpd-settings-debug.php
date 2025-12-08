@@ -147,7 +147,7 @@ if ( isset($_POST['wpd_ai_debug_order_id']) && ! empty($_POST['wpd_ai_debug_orde
                                 <?php $i = 0; ?>
                                 <?php foreach($log_files as $log) : ?>
                                     <?php if ( ! is_array($log) ) continue; ?>
-                                    <div class="wpd-debug-log-option<?php if ( $i == 0 ) echo ' active'; ?>" data-log="<?php echo sanitize_title($log['title']); ?>"><span class="wpd-log-title"><?php echo $log['title'] ?></span></div>
+                                    <div class="wpd-debug-log-option<?php if ( $i == 0 ) echo ' active'; ?>" data-log="<?php echo esc_attr( sanitize_title($log['title']) ); ?>"><span class="wpd-log-title"><?php echo esc_html( $log['title'] ); ?></span></div>
                                     <?php $i++; ?>
                                 <?php endforeach; ?>
                             </div>

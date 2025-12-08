@@ -194,8 +194,8 @@ class WPD_Alpha_Insights_Core {
 						<p><strong>Last Login Date:</strong> <?php echo esc_html( $last_login_date ); ?></p>
 						<p><strong>Total Session Count:</strong> <?php echo absint( $session_count ); ?></p>
 						<p><strong>Total Order Count:</strong> <?php echo absint( $order_count ); ?></p>
-						<p><strong>Lifetime Value:</strong> <?php echo wc_price( $lifetime_value ); ?></p>
-						<p><strong>Average Order Value:</strong> <?php echo wc_price( $average_order_value ); ?></p>
+						<p><strong>Lifetime Value:</strong> <?php echo wp_kses_post( wc_price( $lifetime_value ) ); ?></p>
+						<p><strong>Average Order Value:</strong> <?php echo wp_kses_post( wc_price( $average_order_value ) ); ?></p>
 						<p><strong>Conversion Rate:</strong> <?php echo esc_html( $conversion_rate ); ?>%</p>
 						<p><strong>Last Updated:</strong> <?php echo esc_html( $last_updated_date ); ?></p>
 					</td>
@@ -418,7 +418,7 @@ class WPD_Alpha_Insights_Core {
 			</li>
 			<li class="wpd-status-widget-item net-profit-this-month">
 				<a href="<?php echo esc_url( wpd_admin_page_url('reports-orders') . '&wpd-report-from-date=' . esc_attr( $start_date ) . '&wpd-report-to-date=' . esc_attr( $end_date ) ); ?>">
-					<strong><?php echo wc_price( $store_profit['total_store_profit'] ); ?></strong>Net Profit This Month
+					<strong><?php echo wp_kses_post( wc_price( $store_profit['total_store_profit'] ) ); ?></strong>Net Profit This Month
 				</a>
 			</li>
 			<li class="wpd-status-widget-item gross-profit-this-month">
@@ -472,7 +472,7 @@ class WPD_Alpha_Insights_Core {
 				<tr class="wpd-order-meta-summary">
 					<td class="label">Sales Tax:</td>
 					<td width="1%"></td>
-					<td class="total"><?php echo wc_price( $order_data['total_order_tax'] ); ?></td>
+					<td class="total"><?php echo wp_kses_post( wc_price( $order_data['total_order_tax'] ) ); ?></td>
 				</tr>
 			<?php endif; ?>
 			<tr class="wpd-order-meta-summary">
@@ -483,7 +483,7 @@ class WPD_Alpha_Insights_Core {
 			<tr class="wpd-order-meta-summary">
 	            <td class="label">Net Profit:</td>
 	            <td width="1%"></td>
-	            <td class="total"><?php echo wc_price( $order_data['total_order_profit'] ); ?></td>
+	            <td class="total"><?php echo wp_kses_post( wc_price( $order_data['total_order_profit'] ) ); ?></td>
 	        </tr>
 			<tr class="wpd-order-meta-summary">
 	            <td class="label">Margin:</td>
@@ -582,7 +582,7 @@ class WPD_Alpha_Insights_Core {
 								</tr>
 								<tr>
 									<th><?php esc_html_e( 'Cost Of Goods:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
-									<td><?php echo wpd_store_price( $product_data['total_product_cogs'] ) ?></td>
+									<td><?php echo wp_kses_post( wpd_store_price( $product_data['total_product_cogs'] ) ); ?></td>
 								</tr>
 								<?php if ( $product_data['total_custom_product_cost'] ) : ?>
 									<tr>
@@ -591,8 +591,8 @@ class WPD_Alpha_Insights_Core {
 									</tr>
 								<?php endif; ?>
 								<tr>
-									<th><?php _e( 'Profit:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
-									<td><?php echo wpd_store_price( $product_data['total_profit'] )?></td>
+									<th><?php esc_html_e( 'Profit:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+									<td><?php echo wp_kses_post( wpd_store_price( $product_data['total_profit'] ) ); ?></td>
 								</tr>
 								<tr>
 									<th><?php esc_html_e( 'Margin:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
@@ -750,7 +750,7 @@ class WPD_Alpha_Insights_Core {
 		
 		// Calculate conversion rate
 		$conversion_rate = ( $session_count == 0 || $order_count == 0 ) ? 'N/A' : wpd_calculate_percentage( $order_count, $session_count ) . '%';?>
-		<?php if ( ! wpd_is_license_active() ) : ?><a href="<?php echo wpd_invalid_license_url() ?>" class="button wpd-input button-primary wpd-license-inactive-button">Please activate Alpha Insights.</a><?php endif; ?>
+		<?php if ( ! wpd_is_license_active() ) : ?><a href="<?php echo esc_url( wpd_invalid_license_url() ); ?>" class="button wpd-input button-primary wpd-license-inactive-button">Please activate Alpha Insights.</a><?php endif; ?>
 		<style type="text/css">
 			div#wpd-ai-dashboard-summary .postbox-header h2::before {
 				content: '';
@@ -906,7 +906,7 @@ class WPD_Alpha_Insights_Core {
 						</tr>
 						<tr>
 							<td><strong>Landing Page</strong></td>
-							<td><?php echo wpd_strip_query_parameters_from_url( $landing_page ); ?></td>
+							<td><?php echo esc_html( wpd_strip_query_parameters_from_url( $landing_page ) ); ?></td>
 						</tr>
 						<tr>
 							<td colspan="2">
@@ -927,7 +927,7 @@ class WPD_Alpha_Insights_Core {
 								<select class="wpd-input" name="wpd_ai_order_meta_campaign_id">
 									<option value="">No Meta Campaign</option>
 									<?php foreach( $all_meta_campaigns as $campaign_id => $campaign_name ) : ?>
-										<option value="<?php echo esc_attr( $campaign_id ); ?>" <?php echo wpd_selected_option( $campaign_id, $meta_campaign_id ); ?>><?php echo esc_html( $campaign_name ); ?></option>
+										<option value="<?php echo esc_attr( $campaign_id ); ?>" <?php echo esc_attr( wpd_selected_option( $campaign_id, $meta_campaign_id ) ); ?>><?php echo esc_html( $campaign_name ); ?></option>
 									<?php endforeach; ?>
 								</select>
 							</td>
@@ -948,7 +948,7 @@ class WPD_Alpha_Insights_Core {
 			</div>
 			<div class="wpd-order-customer-activity wpd-stats-grid">
 			<div class="wpd-order-stat">
-					<div class="wpd-order-stat-data wpd-statistic"><?php echo ucfirst($new_returning_customer); ?></div>
+					<div class="wpd-order-stat-data wpd-statistic"><?php echo esc_html( ucfirst($new_returning_customer) ); ?></div>
 					<div class="wpd-order-stat-label wpd-meta">New vs Returning</div>
 				</div>
 				<div class="wpd-order-stat">
@@ -960,7 +960,7 @@ class WPD_Alpha_Insights_Core {
 					<div class="wpd-order-stat-label wpd-meta">Total Order Count</div>
 				</div>
 				<div class="wpd-order-stat">
-					<div class="wpd-order-stat-data wpd-statistic"><?php echo wc_price( $average_order_value ); ?></div>
+					<div class="wpd-order-stat-data wpd-statistic"><?php echo wp_kses_post( wc_price( $average_order_value ) ); ?></div>
 					<div class="wpd-order-stat-label wpd-meta">AOV</div>
 				</div>
 				<div class="wpd-order-stat">
@@ -1250,11 +1250,11 @@ class WPD_Alpha_Insights_Core {
 
 				if ( empty( $calculated_profit ) ) {
 
-					echo wpd_store_price( 0 );
+					echo wp_kses_post( wpd_store_price( 0 ) );
 
 				} else {
 
-					echo wpd_store_price( $calculated_profit );
+					echo wp_kses_post( wpd_store_price( $calculated_profit ) );
 
 				}
 
@@ -1286,7 +1286,7 @@ class WPD_Alpha_Insights_Core {
 			$landing_page_url_raw 		= $order_data['landing_page_url'];
 			$traffic_type 			 	= $order_data['traffic_source'];
 
-			echo '<mark class="wpd-order-acquisition-channel order-status tips '.strtolower( $traffic_type ).'" data-tip="'.$referral_source_url.'"><span>'.$traffic_type .'</span></mark>';
+			echo '<mark class="wpd-order-acquisition-channel order-status tips ' . esc_attr( strtolower( $traffic_type ) ) . '" data-tip="' . esc_attr( $referral_source_url ) . '"><span>' . esc_html( $traffic_type ) . '</span></mark>';
 
 	    } else if ( $column == 'wpd_ai_campaign' ) {
 
@@ -1436,7 +1436,7 @@ class WPD_Alpha_Insights_Core {
 		<div id="wpd-ai-cost-of-goods" class="panel woocommerce_options_panel">
 			<div class="wpd-wrapper">
 				<?php if ( ! $is_bundle ) : ?>
-					<?php if ( ! wpd_is_license_active() ) : ?><a href="<?php echo wpd_invalid_license_url() ?>" class="button wpd-input button-primary wpd-license-inactive-button">Please activate Alpha Insights.</a><?php endif; ?>
+					<?php if ( ! wpd_is_license_active() ) : ?><a href="<?php echo esc_url( wpd_invalid_license_url() ); ?>" class="button wpd-input button-primary wpd-license-inactive-button">Please activate Alpha Insights.</a><?php endif; ?>
 					<table class="wpd-table fixed widefat <?php if ( ! wpd_is_license_active()) echo 'wpd-license-inactive'; ?>">
 						<thead>
 							<tr>
@@ -1549,9 +1549,9 @@ class WPD_Alpha_Insights_Core {
 										$margin	= wpd_calculate_margin($profit, $current_price);
 
 									?>
-									<td><?php echo wc_price( $current_price ); ?></td>
-									<td><?php echo wc_price( $cost_price ); ?></td>
-									<td><?php echo wc_price( $profit ); ?></td>
+									<td><?php echo wp_kses_post( wc_price( $current_price ) ); ?></td>
+									<td><?php echo wp_kses_post( wc_price( $cost_price ) ); ?></td>
+									<td><?php echo wp_kses_post( wc_price( $profit ) ); ?></td>
 									<td><?php echo esc_html( $margin ); ?>%</td>
 								</tr>
 							<?php endif; ?>
@@ -1584,11 +1584,11 @@ class WPD_Alpha_Insights_Core {
 												</div>
 											</td>
 											<td>
-												<?php echo wc_price( $variation->get_price() ); ?>
+												<?php echo wp_kses_post( wc_price( $variation->get_price() ) ); ?>
 											</td>
 											<td>
 												<?php $profit = (float) $variation->get_price() - (float) wpd_get_cost_price_by_product_id($variation_id); ?>
-												<?php echo wc_price( $profit ); ?>
+												<?php echo wp_kses_post( wc_price( $profit ) ); ?>
 											</td>
 											<td>
 												<?php
@@ -1790,7 +1790,7 @@ class WPD_Alpha_Insights_Core {
 			} else {
 
 				// Simple product
-				echo wc_price( wpd_get_cost_price_by_product_id( $post_id ) );
+				echo wp_kses_post( wc_price( wpd_get_cost_price_by_product_id( $post_id ) ) );
 
 			}
 

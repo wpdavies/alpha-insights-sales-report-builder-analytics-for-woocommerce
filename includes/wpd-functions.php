@@ -88,8 +88,8 @@ function wpd_documentation_modal_html() {
 						</div>
 						<div class="wpd-docs-support-content">
 							<a href="https://wpdavies.dev/my-account/my-tickets/" target="_blank" class="wpd-docs-support-link">
-								<h4 class="wpd-docs-support-title"><?php _e('Open A Support Ticket', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></h4>
-								<p class="wpd-docs-support-text"><?php _e('Get personalized help from our support team', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
+								<h4 class="wpd-docs-support-title"><?php esc_html_e('Open A Support Ticket', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></h4>
+								<p class="wpd-docs-support-text"><?php esc_html_e('Get personalized help from our support team', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
 							</a>
 						</div>
 					</div>
@@ -1084,7 +1084,7 @@ function wpd_template_locate( $template_category, $template_name ) {
 
 	} else {
 
-		echo __( 'Template not found', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) . ' (' . $template_file . ')';
+		echo esc_html__( 'Template not found', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) . ' (' . esc_html( $template_file ) . ')';
 
 	}
 

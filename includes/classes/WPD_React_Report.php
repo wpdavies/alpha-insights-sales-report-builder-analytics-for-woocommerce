@@ -152,7 +152,7 @@ class WPD_React_Report {
         }
 
         // Output the React dashboard container
-        echo '<div id="wpd-react-dashboard"' . $config_attr . '></div>';
+        echo '<div id="wpd-react-dashboard"' . esc_attr( $config_attr ) . '></div>';
         echo '<!-- React Dashboard Container Created -->';
         
     }
