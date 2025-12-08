@@ -33,9 +33,9 @@ wpd_email_header( sprintf( __( '%s Expense Report', 'alpha-insights-sales-report
 					<p style="color: #03aaed;font-size: 19px; text-align: center;"><?php
 						printf(
 							/* translators: 1: Start date, 2: End date */
-							__( 'Showing results from %1$s to %2$s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
-							$from_date,
-							$to_date
+							esc_html__( 'Showing results from %1$s to %2$s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+							esc_html( $from_date ),
+							esc_html( $to_date )
 						);
 					?>.</p>
 				    <table border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable">

@@ -119,7 +119,7 @@ class WPD_Getting_Started {
                             </div>
                             
                             <div class="wpd-gs-dashboard-preview">
-                                <img src="<?php echo WPD_AI_URL_PATH . 'assets/img/Alpha-Insights-Dashboard-Example.png'; ?>" alt="<?php esc_attr_e('Alpha Insights Dashboard Preview', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>" class="wpd-gs-dashboard-image">
+                                <img src="<?php echo esc_url( WPD_AI_URL_PATH . 'assets/img/Alpha-Insights-Dashboard-Example.png' ); ?>" alt="<?php esc_attr_e('Alpha Insights Dashboard Preview', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>" class="wpd-gs-dashboard-image">
                                 
                                 <div class="wpd-gs-value-props">
                                     <div class="wpd-gs-value-prop">

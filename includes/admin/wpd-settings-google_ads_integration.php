@@ -64,7 +64,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 ?>
 <div class="wpd-wrapper">
 	<div class="wpd-section-heading wpd-inline">
-		<?php _e( 'Google Ads API', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
+		<?php esc_html_e( 'Google Ads API', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
 		<?php submit_button( __('Save Changes', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 'primary pull-right', 'submit', false); ?>
 		<?php if( $is_configured ) : ?>
 			<a href="#" class="wpd-input button button-secondary pull-right" id="wpd-refresh-google-api-data-top" style="margin-right: 5px;">Refresh All Campaign Data</a>
@@ -76,15 +76,15 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'API Connection', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+				<th colspan="2"><?php esc_html_e( 'API Connection', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<?php if ( $google_auth ) : ?>
 			<tr>
 				<td colspan="2">
-					<label style="display: block; margin-bottom: 12px; font-weight: 600;"><?php _e( 'Connect To Google Ads', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta" style="margin-bottom: 16px;"><?php _e( 'Connect your Google Ads account to track campaign performance and ad spend directly within Alpha Insights.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label style="display: block; margin-bottom: 12px; font-weight: 600;"><?php esc_html_e( 'Connect To Google Ads', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta" style="margin-bottom: 16px;"><?php esc_html_e( 'Connect your Google Ads account to track campaign performance and ad spend directly within Alpha Insights.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 					<?php $google_auth->render_auth_ui(); ?>
 				</td>
 			</tr>
@@ -95,7 +95,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 		<thead>
 			<tr>
 				<th colspan="2">
-					<?php _e( 'Alpha Campaign Profit Tracking', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
+					<?php esc_html_e( 'Alpha Campaign Profit Tracking', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
 				</th>
 			</tr>
 		</thead>
@@ -118,21 +118,21 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'API Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+				<th colspan="2"><?php esc_html_e( 'API Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr>
 				<td>
-					<label><?php _e( 'API Call Schedule', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'How often to query the Google API for your ad spend & campaign insights. This regular schedule will always check through the past 30 days of data and create or update accordingly. To update all time data use the Refresh All Data button.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'API Call Schedule', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'How often to query the Google API for your ad spend & campaign insights. This regular schedule will always check through the past 30 days of data and create or update accordingly. To update all time data use the Refresh All Data button.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_google_ads_api[api_call_schedule]">
-						<option value="daily" <?php echo wpd_selected_option( 'daily', $api_call_schedule ) ?> ><?php _e( 'Daily', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="12-hrs" <?php echo wpd_selected_option( '12-hrs', $api_call_schedule ) ?> ><?php _e( 'Every 12 Hours', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="6-hrs" <?php echo wpd_selected_option( '6-hrs', $api_call_schedule ) ?> ><?php _e( 'Every 6 Hours', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="3-hrs" <?php echo wpd_selected_option( '3-hrs', $api_call_schedule ) ?> ><?php _e( 'Every 3 Hours', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="daily" <?php echo esc_attr( wpd_selected_option( 'daily', $api_call_schedule ) ); ?> ><?php esc_html_e( 'Daily', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="12-hrs" <?php echo esc_attr( wpd_selected_option( '12-hrs', $api_call_schedule ) ); ?> ><?php esc_html_e( 'Every 12 Hours', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="6-hrs" <?php echo esc_attr( wpd_selected_option( '6-hrs', $api_call_schedule ) ); ?> ><?php esc_html_e( 'Every 6 Hours', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="3-hrs" <?php echo esc_attr( wpd_selected_option( '3-hrs', $api_call_schedule ) ); ?> ><?php esc_html_e( 'Every 3 Hours', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
 					</select>
 				</td>
 			</tr>
@@ -150,20 +150,20 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 			</tr>
 			<tr style="display:none;">
 				<td>
-					<label><?php _e( 'Collect Daily Ad Spend (Stored as an expense)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This will check your ad spend per day for your ad account and log it as an expense within Alpha Insights. This will run automatically as per your schedule.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Collect Daily Ad Spend (Stored as an expense)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'This will check your ad spend per day for your ad account and log it as an expense within Alpha Insights. This will run automatically as per your schedule.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_google_ads_api[collect_daily_ad_spend]">
-						<option value="true" <?php echo wpd_selected_option( 'true', $collect_daily_ad_spend ) ?> ><?php _e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="false" <?php echo wpd_selected_option( 'false', $collect_daily_ad_spend ) ?> ><?php _e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="true" <?php echo esc_attr( wpd_selected_option( 'true', $collect_daily_ad_spend ) ); ?> ><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="false" <?php echo esc_attr( wpd_selected_option( 'false', $collect_daily_ad_spend ) ); ?> ><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
 					</select>
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Ad Spend Expense Category', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'Which expense category would you like us to save this in.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Ad Spend Expense Category', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'Which expense category would you like us to save this in.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<?php
@@ -184,7 +184,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 							);
 						}
 					?>
-					<a href="<?php echo( wpd_admin_page_url('add-expense-type') ) ?>" class="wpd-input button button-secondary">Add New Category</a>
+					<a href="<?php echo esc_url( wpd_admin_page_url('add-expense-type') ); ?>" class="wpd-input button button-secondary">Add New Category</a>
 				</td>
 			</tr>
 			<tr>
@@ -193,7 +193,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 					<div class="wpd-meta"><?php _e( 'When we do an all time search, we\'ll check back this many years to fetch and store data. Defaults to 10 years.<br>You will want this number larger than your account age, but large queries may time out.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
-					<input class="wpd-input" min="1" max="25" type="number" name="wpd_ai_google_ads_api[account_age_years]" value="<?php echo $account_age_years ?>" step="1" placeholder="10">
+					<input class="wpd-input" min="1" max="25" type="number" name="wpd_ai_google_ads_api[account_age_years]" value="<?php echo esc_attr( $account_age_years ); ?>" step="1" placeholder="10">
 					<label for="wpd_ai_google_ads_api[account_age_years]" class="wpd-meta wpd-block-label"><?php _e( 'Default: 10', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>		
 				</td>
 			</tr>
@@ -202,18 +202,18 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'Conversion Action for Tracking Order Profit Value & Add To Carts', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+				<th colspan="2"><?php esc_html_e( 'Conversion Action for Tracking Order Profit Value & Add To Carts', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr>
 				<td>
-					<label><?php _e( 'Conversion Action for Tracking Order Profit Value', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<label><?php esc_html_e( 'Conversion Action for Tracking Order Profit Value', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
 					<div class="wpd-meta">
 						<?php if ( ! empty($profit_conversion_action_details) ) : ?>
-							<?php _e( 'A conversion action has been created and configured for tracking order profit value. Every time an order is detected with a GCLID, the profit value will be sent to this conversion action. You can view this conversion action in your Google Ads account under Goals > Summary and then clicking View All Conversions.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
+							<?php esc_html_e( 'A conversion action has been created and configured for tracking order profit value. Every time an order is detected with a GCLID, the profit value will be sent to this conversion action. You can view this conversion action in your Google Ads account under Goals > Summary and then clicking View All Conversions.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
 						<?php else: ?>
-							<?php _e( 'Create a conversion action that will be used to pass the profit value of an order back to Google Ads. Every time an order is detected with a GCLID, the profit value will be sent to this conversion action. You can view this conversion action in your Google Ads account under Goals > Summary and then clicking View All Conversions.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
+							<?php esc_html_e( 'Create a conversion action that will be used to pass the profit value of an order back to Google Ads. Every time an order is detected with a GCLID, the profit value will be sent to this conversion action. You can view this conversion action in your Google Ads account under Goals > Summary and then clicking View All Conversions.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
 						<?php endif; ?>
 					</div>
 				</td>
@@ -221,7 +221,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 					<?php if ( ! empty($profit_conversion_action_details) ) : ?>
 						<div style="margin-bottom: 15px;">
 							<strong>Current Conversion Action: </strong>
-							<span><?php echo esc_html($profit_conversion_action_details['name']) ?> (ID: <?php echo esc_html($profit_conversion_action_details['id']) ?>) <?php echo wpd_status_circle("success") ?></span>
+							<span><?php echo esc_html($profit_conversion_action_details['name']); ?> (ID: <?php echo esc_html($profit_conversion_action_details['id']); ?>) <?php echo wp_kses_post( wpd_status_circle("success") ); ?></span>
 						</div>
 						<div style="margin-bottom: 15px;">
 							<a href="#ajax" class="wpd-input button button-secondary" id="wpd-delete-conversion-action">Delete Conversion Action</a>
@@ -230,7 +230,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 					<?php else: ?>
 						<div style="margin-bottom: 15px;">
 							<strong>Status: </strong>
-							<span>No conversion action configured <?php echo wpd_status_circle("error") ?></span>
+							<span>No conversion action configured <?php echo wp_kses_post( wpd_status_circle("error") ); ?></span>
 						</div>
 						<?php if ( $is_configured ) : ?>
 							<a href="#ajax" class="wpd-input button button-primary" id="wpd-create-conversion-action">Create Conversion Action</a>
@@ -254,7 +254,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 					<?php if ( ! empty($add_to_cart_conversion_action_details) ) : ?>
 						<div style="margin-bottom: 15px;">
 							<strong>Current Conversion Action: </strong>
-							<span><?php echo esc_html($add_to_cart_conversion_action_details['name']) ?> (ID: <?php echo esc_html($add_to_cart_conversion_action_details['id']) ?>) <?php echo wpd_status_circle("success") ?></span>
+							<span><?php echo esc_html($add_to_cart_conversion_action_details['name']); ?> (ID: <?php echo esc_html($add_to_cart_conversion_action_details['id']); ?>) <?php echo wp_kses_post( wpd_status_circle("success") ); ?></span>
 						</div>
 						<div style="margin-bottom: 15px;">
 							<a href="#ajax" class="wpd-input button button-secondary" id="wpd-delete-add-to-cart-conversion-action">Delete Conversion Action</a>
@@ -263,7 +263,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 					<?php else: ?>
 						<div style="margin-bottom: 15px;">
 							<strong>Status: </strong>
-							<span>No conversion action configured <?php echo wpd_status_circle("error") ?></span>
+							<span>No conversion action configured <?php echo wp_kses_post( wpd_status_circle("error") ); ?></span>
 						</div>
 						<?php if ( $is_configured ) : ?>
 							<a href="#ajax" class="wpd-input button button-primary" id="wpd-create-add-to-cart-conversion-action">Create Add To Cart Conversion Action</a>
@@ -277,7 +277,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'API Data', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+				<th colspan="2"><?php esc_html_e( 'API Data', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -312,14 +312,14 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'API Tools', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+				<th colspan="2"><?php esc_html_e( 'API Tools', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr>
 				<td>
-					<label><?php _e( 'Refresh all API Data', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This function will create / update the Ad Spend & Campaign Insights for your ad account for the number of years set on this settings page. It will not delete anything, just update it using the latest data from the API. Use this sparingly, it is a large request for both the Google API and your website. It is only really required to fetch all time data once you\'ve established a connection.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Refresh all API Data', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'This function will create / update the Ad Spend & Campaign Insights for your ad account for the number of years set on this settings page. It will not delete anything, just update it using the latest data from the API. Use this sparingly, it is a large request for both the Google API and your website. It is only really required to fetch all time data once you\'ve established a connection.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<a href="#refresh" class="wpd-input button button-secondary" id="wpd-refresh-google-api-data">Refresh All Campaign Data</a>
@@ -328,8 +328,8 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 			</tr>
 			<tr>
 				<td>
-				<label><?php _e( 'API Status', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This will check your current API status and display the latest status message.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+				<label><?php esc_html_e( 'API Status', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'This will check your current API status and display the latest status message.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<a href="#" class="wpd-input button button-secondary" id="wpd-test-api-status">Check API Status</a>
@@ -337,8 +337,8 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 			</tr>	
 			<tr>
 				<td>
-					<label><?php _e( 'Data Deletion', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'These tools will delete the data that we have stored in your database from the Google Ads API calls. This will not effect your Google Ad account or any stored expenses or campaigns that were not created by the API.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Data Deletion', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'These tools will delete the data that we have stored in your database from the Google Ads API calls. This will not effect your Google Ad account or any stored expenses or campaigns that were not created by the API.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<a href="#" class="wpd-input button button-secondary" id="wpd-delete-all-expense-data">Delete All Expense Data</a>

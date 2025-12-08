@@ -979,15 +979,15 @@ class WPD_Data_Warehouse_React {
 
         ob_start(); ?>
         <div class="wpd-product-display">
-            <div class="wpd-product-image-wrapper"><img src="<?php echo $product_data['product_image']; ?>" class="wpd-product-thumbnail"></div>
+            <div class="wpd-product-image-wrapper"><img src="<?php echo esc_url( $product_data['product_image'] ); ?>" class="wpd-product-thumbnail"></div>
             <div class="wpd-product-info-wrapper">
-                <a href="<?php echo $product_data['product_link']; ?>" target="_blank"><?php echo $product_data['product_name']; ?></a>
-                <span class="wpd-product-sku wpd-subtext"><?php echo $product_data['product_sku']; ?></span>
+                <a href="<?php echo esc_url( $product_data['product_link'] ); ?>" target="_blank"><?php echo esc_html( $product_data['product_name'] ); ?></a>
+                <span class="wpd-product-sku wpd-subtext"><?php echo esc_html( $product_data['product_sku'] ); ?></span>
                 <?php if ( isset($product_data['variation_attributes']) && ! empty($product_data['variation_attributes']) && is_array($product_data['variation_attributes']) ) : ?>
                     <div class="wpd-product-variation-attributes">
                         <?php foreach ( $product_data['variation_attributes'] as $attribute => $value ) : ?>
                             <?php if ( empty($attribute) || empty($value) ) : continue; endif; ?>
-                            <span class="wpd-product-variation-attribute"><?php echo $attribute . ': ' . $value; ?></span>
+                            <span class="wpd-product-variation-attribute"><?php echo esc_html( $attribute . ': ' . $value ); ?></span>
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>

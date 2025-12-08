@@ -151,7 +151,7 @@ function wpd_email( $email, $preview = false, $args = array() ) {
 	 */
 	if ( $preview ) {
 
-		echo '<div class="wpd-email-preview">' . $mail_message . '</div>';
+		echo '<div class="wpd-email-preview">' . wp_kses_post( $mail_message ) . '</div>';
 		$response['action'] = 'Email Preview';
 		$mail_send = false;
 
@@ -244,8 +244,8 @@ function wpd_table_row_report_data( $label, $value ) {
 	?>
         <tr>
     		<td align="center "colspan="2" valign="top"  style="border-bottom: solid 2px #eaeaea;">
-    			<h2 style="text-align:center;"><?php echo $value ?></h2>
-    			<p style="text-align:center;"><?php echo $label; ?></p>
+    			<h2 style="text-align:center;"><?php echo esc_html( $value ); ?></h2>
+    			<p style="text-align:center;"><?php echo esc_html( $label ); ?></p>
     		</td>
     	</tr>
 	<?php
@@ -324,7 +324,7 @@ function wpd_email_image( $image ) {
 	                        <tbody>
 	                        	<tr>
 	                           		<td class="mcnImageContent" valign="top" style="padding-right: 9px; padding-left: 9px; padding-top: 0; padding-bottom: 0; text-align:center;">
-	                                	<img align="center" alt="" src="<?php echo $image; ?>" width="564" style="max-width:750px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
+	                                	<img align="center" alt="" src="<?php echo esc_url( $image ); ?>" width="564" style="max-width:750px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
 		                            </td>
 		                        </tr>
 		                    </tbody>

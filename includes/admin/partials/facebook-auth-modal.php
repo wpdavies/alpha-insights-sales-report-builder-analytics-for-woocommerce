@@ -45,7 +45,7 @@ defined( 'ABSPATH' ) || exit;
     
     <div class="wpd-fb-actions">
         <button type="button" class="button button-primary wpd-fb-connect-btn" id="wpd-fb-connect-btn">
-            <?php echo $status['is_connected'] ? 'Reconnect Facebook' : 'Connect to Facebook'; ?>
+            <?php echo esc_html( $status['is_connected'] ? 'Reconnect Facebook' : 'Connect to Facebook' ); ?>
         </button>
         
         <?php if ( $status['is_connected'] ) : ?>

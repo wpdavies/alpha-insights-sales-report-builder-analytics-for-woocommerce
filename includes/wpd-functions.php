@@ -28,8 +28,8 @@ function wpd_admin_notification_pop() {
 				<tr>
 					<td class="wpd-notification-pop-icon"><?php wpd_preloader( 40 ); ?></td>
 					<td>
-						<div class="wpd-notification-pop-title"><?php _e( 'Processing', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>...</div>
-						<div class="wpd-meta wpd-notification-pop-subtitle"><?php _e( 'We are working on it!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></div>
+						<div class="wpd-notification-pop-title"><?php esc_html_e( 'Processing', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>...</div>
+						<div class="wpd-meta wpd-notification-pop-subtitle"><?php esc_html_e( 'We are working on it!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></div>
 					</td>
 				</tr>
 			</tbody>
@@ -63,8 +63,8 @@ function wpd_documentation_modal_html() {
 					<div class="wpd-docs-brand-logo-row">
 						<img src="<?php echo esc_url($logo_icon_url); ?>" alt="Alpha Insights Icon" class="wpd-docs-brand-logo-icon" />
 						<div class="wpd-docs-brand-logo-text">
-							<div class="wpd-docs-brand-title"><?php _e('Alpha Insights', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></div>
-							<div class="wpd-docs-brand-subtitle"><?php _e('Intelligent Profit Reports', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></div>
+							<div class="wpd-docs-brand-title"><?php esc_html_e('Alpha Insights', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></div>
+							<div class="wpd-docs-brand-subtitle"><?php esc_html_e('Intelligent Profit Reports', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></div>
 						</div>
 					</div>
 				</div>
@@ -103,7 +103,7 @@ function wpd_documentation_modal_html() {
 						</div>
 						<div class="wpd-docs-support-content">
 							<a href="mailto:support@wpdavies.dev" class="wpd-docs-support-link">
-								<h4 class="wpd-docs-support-title"><?php _e('Email Us', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></h4>
+								<h4 class="wpd-docs-support-title"><?php esc_html_e('Email Us', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></h4>
 								<p class="wpd-docs-support-text">support@wpdavies.dev</p>
 							</a>
 						</div>
@@ -121,10 +121,10 @@ function wpd_documentation_modal_html() {
 						</svg>
 					</div>
 					<div class="wpd-docs-upgrade-content">
-						<h4 class="wpd-docs-upgrade-title"><?php _e('Upgrade to Pro', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></h4>
-						<p class="wpd-docs-upgrade-text"><?php _e('Unlock advanced features, priority support, and more', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
+						<h4 class="wpd-docs-upgrade-title"><?php esc_html_e('Upgrade to Pro', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></h4>
+						<p class="wpd-docs-upgrade-text"><?php esc_html_e('Unlock advanced features, priority support, and more', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
 						<a href="https://wpdavies.dev/plugins/alpha-insights/pricing/?utm_campaign=Alpha+Insights+Help+Modal&utm_source=Alpha+Insights+Plugin" target="_blank" class="wpd-docs-upgrade-button">
-							<?php _e('Upgrade Now', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>
+							<?php esc_html_e('Upgrade Now', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>
 							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 								<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
 								<polyline points="15 3 21 3 21 9"></polyline>
@@ -141,7 +141,7 @@ function wpd_documentation_modal_html() {
 			<div class="wpd-docs-modal-content">
 				<!-- Header -->
 				<div class="wpd-docs-modal-header">
-					<h2 class="wpd-docs-modal-title"><?php _e('Documentation', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></h2>
+					<h2 class="wpd-docs-modal-title"><?php esc_html_e('Documentation', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></h2>
 					<button type="button" class="wpd-docs-modal-close" aria-label="<?php esc_attr_e('Close', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>">
 						&times;
 					</button>
@@ -170,7 +170,7 @@ function wpd_documentation_modal_html() {
 					<div class="wpd-docs-viewer">
 						<div class="wpd-docs-loading">
 							<div class="wpd-docs-loading-spinner"></div>
-							<p><?php _e('Loading documentation...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
+							<p><?php esc_html_e('Loading documentation...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
 						</div>
 					</div>
 				</div>
@@ -724,9 +724,9 @@ if ( ! function_exists( 'wpd_tooltip' ) ) {
 		( $primary ) ? $class = 'primary' : $class = 'secondary';
 
 		?>
-		<span class="wpd-tooltip <?php echo $class ?>">
+		<span class="wpd-tooltip <?php echo esc_attr( $class ); ?>">
 			<span class="dashicons dashicons-info"></span>
-			<span class="tooltiptext"><?php echo $string; ?></span>
+			<span class="tooltiptext"><?php echo esc_html( $string ); ?></span>
 		</span>
 		<?php
 
@@ -830,7 +830,7 @@ if ( ! function_exists( 'wpd_preloader' ) ) {
 		if ( $return ) {
 			return $result;
 		} else {
-			echo $result;
+			echo wp_kses_post( $result );
 		}
 
 	}
@@ -860,7 +860,7 @@ if ( ! function_exists( 'wpd_success' ) ) {
 		if ( $return ) {
 			return $result;
 		} else {
-			echo $result;
+			echo wp_kses_post( $result );
 		}
 
 	}
@@ -890,7 +890,7 @@ if ( ! function_exists( 'wpd_failure' ) ) {
 		if ( $return ) {
 			return $result;
 		} else {
-			echo $result;
+			echo wp_kses_post( $result );
 		}
 
 	}
@@ -986,7 +986,7 @@ if ( ! function_exists( 'wpd_output_notices' ) ) {
  */
 function wpd_admin_notice( $string, $status = 'success' ) {
 
-	echo '<div class="wpd-notice notice notice-' . $status . ' is-dismissible"><p>' . $string . '</p></div>';
+	echo '<div class="wpd-notice notice notice-' . esc_attr( $status ) . ' is-dismissible"><p>' . esc_html( $string ) . '</p></div>';
 
 }
 
@@ -1010,11 +1010,11 @@ if ( ! function_exists( 'wpd_checkbox' ) ) {
 
 		?>
 		    <div class="wpd-checkbox-container">
-				<label for="<?php echo $name; ?>" class="wpd-checkbox-label">
-					<input type="checkbox" name="<?php echo $name; ?>" value="1" id="<?php echo $name; ?>" class="wpd-input wpd-checkbox" <?php echo $checked ?>>
+				<label for="<?php echo esc_attr( $name ); ?>" class="wpd-checkbox-label">
+					<input type="checkbox" name="<?php echo esc_attr( $name ); ?>" value="1" id="<?php echo esc_attr( $name ); ?>" class="wpd-input wpd-checkbox" <?php echo esc_attr( $checked ); ?>>
 					<span class="checkbox-custom rectangular"></span>
 				</label>
-				<span class="wpd-checkbox-text"><?php echo $label; ?></span>
+				<span class="wpd-checkbox-text"><?php echo esc_html( $label ); ?></span>
 			</div>
 		<?php
 
@@ -1164,8 +1164,8 @@ function wpd_store_price( $price, $args = array() ) {
 	}
 
 	// Issue here
-	$formatted_price = ( $negative ? '-' : '' ) . sprintf( $args['price_format'], '<span class="woocommerce-Price-currencySymbol">' . wpd_get_woocommerce_currency_symbol( $args['currency'] ) . '</span>', $price );
-	$return          = '<span class="woocommerce-Price-amount amount"><bdi>' . $formatted_price . '</bdi></span>';
+	$formatted_price = ( $negative ? '-' : '' ) . sprintf( $args['price_format'], '<span class="woocommerce-Price-currencySymbol">' . esc_html( wpd_get_woocommerce_currency_symbol( $args['currency'] ) ) . '</span>', esc_html( $price ) );
+	$return          = '<span class="woocommerce-Price-amount amount"><bdi>' . wp_kses_post( $formatted_price ) . '</bdi></span>';
 
 	if ( $args['ex_tax_label'] && wc_tax_enabled() ) {
 		$return .= ' <small class="woocommerce-Price-taxLabel tax_label">' . WC()->countries->ex_tax_or_vat() . '</small>';

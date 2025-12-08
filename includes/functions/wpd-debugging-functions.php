@@ -47,9 +47,9 @@ function wpd_debug( $data, $title = false, $var_dump = false, $file = false ) {
 	ob_start(); ?>
 	<div class="wpd-debug-container">
 		<!-- Additional Elements -->
-		<?php if ( isset( $additional_elements ) ) echo $additional_elements; ?>
+		<?php if ( isset( $additional_elements ) ) echo wp_kses_post( $additional_elements ); ?>
 		<!-- Heading -->
-		<h2><?php echo $heading; ?></h2>
+		<h2><?php echo esc_html( $heading ); ?></h2>
 		<!-- Debug Output -->
 		<pre><?php ( $var_dump === true ) ? var_dump( $data ) : print_r( $data ); ?> </pre>
 	</div>

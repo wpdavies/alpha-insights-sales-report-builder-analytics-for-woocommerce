@@ -37,11 +37,11 @@ defined( 'ABSPATH' ) || exit;
 	}
 
 ?>
-<?php echo $api_setup_instructions ?>
+<?php echo wp_kses_post( $api_setup_instructions ); ?>
 
 <div class="wpd-wrapper">
 	<div class="wpd-section-heading wpd-inline">
-		<?php _e( 'Facebook API', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
+		<?php esc_html_e( 'Facebook API', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
 		<?php submit_button( __('Save Changes', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 'primary pull-right', 'submit', false); ?>
 		<?php if( $facebook_settings['api_status'] == 'Healthy' ) : ?>
 			<a href="#" class="wpd-input button button-secondary pull-right" id="wpd-refresh-facebook-api-data-top" style="margin-right: 5px;">Refresh All Campaign Data</a>
@@ -53,15 +53,15 @@ defined( 'ABSPATH' ) || exit;
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'API Connection', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+				<th colspan="2"><?php esc_html_e( 'API Connection', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<?php if ( $facebook_auth ) : ?>
 			<tr>
 				<td colspan="2">
-					<label style="display: block; margin-bottom: 12px; font-weight: 600;"><?php _e( 'Connect To Facebook', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta" style="margin-bottom: 16px;"><?php _e( 'Connect your Facebook Ads account to track campaign performance and ad spend directly within Alpha Insights.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label style="display: block; margin-bottom: 12px; font-weight: 600;"><?php esc_html_e( 'Connect To Facebook', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta" style="margin-bottom: 16px;"><?php esc_html_e( 'Connect your Facebook Ads account to track campaign performance and ad spend directly within Alpha Insights.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 					<?php $facebook_auth->render_auth_ui(); ?>
 				</td>
 			</tr>
@@ -72,7 +72,7 @@ defined( 'ABSPATH' ) || exit;
 		<thead>
 			<tr>
 				<th colspan="2">
-					<?php _e( 'Alpha Campaign Profit Tracking', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
+					<?php esc_html_e( 'Alpha Campaign Profit Tracking', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
 				</th>
 			</tr>
 		</thead>
@@ -95,33 +95,33 @@ defined( 'ABSPATH' ) || exit;
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'API Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+				<th colspan="2"><?php esc_html_e( 'API Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr>
 				<td>
-					<label><?php _e( 'API Call Schedule', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'How often to query the Facebook API for your ad spend & campaign insights.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'API Call Schedule', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'How often to query the Facebook API for your ad spend & campaign insights.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_facebook_integration[facebook_api_call_schedule]">
-						<option value="daily" <?php echo wpd_selected_option( 'daily', $facebook_settings['facebook_api_call_schedule'] ) ?> ><?php _e( 'Daily', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="12-hrs" <?php echo wpd_selected_option( '12-hrs', $facebook_settings['facebook_api_call_schedule'] ) ?> ><?php _e( 'Every 12 Hours', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="6-hrs" <?php echo wpd_selected_option( '6-hrs', $facebook_settings['facebook_api_call_schedule'] ) ?> ><?php _e( 'Every 6 Hours', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="3-hrs" <?php echo wpd_selected_option( '3-hrs', $facebook_settings['facebook_api_call_schedule'] ) ?> ><?php _e( 'Every 3 Hours', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="daily" <?php echo esc_attr( wpd_selected_option( 'daily', $facebook_settings['facebook_api_call_schedule'] ) ); ?> ><?php esc_html_e( 'Daily', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="12-hrs" <?php echo esc_attr( wpd_selected_option( '12-hrs', $facebook_settings['facebook_api_call_schedule'] ) ); ?> ><?php esc_html_e( 'Every 12 Hours', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="6-hrs" <?php echo esc_attr( wpd_selected_option( '6-hrs', $facebook_settings['facebook_api_call_schedule'] ) ); ?> ><?php esc_html_e( 'Every 6 Hours', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="3-hrs" <?php echo esc_attr( wpd_selected_option( '3-hrs', $facebook_settings['facebook_api_call_schedule'] ) ); ?> ><?php esc_html_e( 'Every 3 Hours', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
 					</select>
 				</td>
 			</tr>
 			<tr style="display:none;">
 				<td>
-					<label><?php _e( 'Collect Campaign Insights', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This will check your ad account for campaigns and build some basic reports based on those campaigns.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Collect Campaign Insights', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'This will check your ad account for campaigns and build some basic reports based on those campaigns.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_facebook_integration[collect_campaign_insights]">
-						<option value="true" <?php echo wpd_selected_option( 'true', $facebook_settings['collect_campaign_insights'] ) ?> ><?php _e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="false" <?php echo wpd_selected_option( 'false', $facebook_settings['collect_campaign_insights'] ) ?> ><?php _e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="true" <?php echo esc_attr( wpd_selected_option( 'true', $facebook_settings['collect_campaign_insights'] ) ); ?> ><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="false" <?php echo esc_attr( wpd_selected_option( 'false', $facebook_settings['collect_campaign_insights'] ) ); ?> ><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
 					</select>
 				</td>
 			</tr>
@@ -139,8 +139,8 @@ defined( 'ABSPATH' ) || exit;
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Ad Spend Expense Category', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'Which expense category would you like us to save this in.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Ad Spend Expense Category', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'Which expense category would you like us to save this in.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<?php
@@ -166,22 +166,22 @@ defined( 'ABSPATH' ) || exit;
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Request Timeout', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'HTTP Timeout Request in seconds. Extend this number if you are having timeout issues. Usually a response will be complete within 5 seconds (default).', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Request Timeout', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'HTTP Timeout Request in seconds. Extend this number if you are having timeout issues. Usually a response will be complete within 5 seconds (default).', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
-					<input class="wpd-input" min="5" max="60" type="number" name="wpd_ai_facebook_integration[request_timeout]" value="<?php echo $facebook_settings['request_timeout'] ?>" step="1" placeholder="5">		
-					<label for="wpd_ai_facebook_integration[request_timeout]" class="wpd-meta wpd-block-label"><?php _e( 'Number between 5-60', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>			
+					<input class="wpd-input" min="5" max="60" type="number" name="wpd_ai_facebook_integration[request_timeout]" value="<?php echo esc_attr( $facebook_settings['request_timeout'] ); ?>" step="1" placeholder="5">		
+					<label for="wpd_ai_facebook_integration[request_timeout]" class="wpd-meta wpd-block-label"><?php esc_html_e( 'Number between 5-60', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>			
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Number Of Results To Collect Per Call', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'How many results Facebook should return, they tell us if there are more results to grab which we automatically do. Only change this if you are getting timeout errors, it may help.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Number Of Results To Collect Per Call', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'How many results Facebook should return, they tell us if there are more results to grab which we automatically do. Only change this if you are getting timeout errors, it may help.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
-					<input class="wpd-input" min="1" max="500" type="number" name="wpd_ai_facebook_integration[api_limit_per_page]" value="<?php echo $facebook_settings['api_limit_per_page'] ?>" step="1" placeholder="50">
-					<label for="wpd_ai_facebook_integration[api_limit_per_page]" class="wpd-meta wpd-block-label"><?php _e( 'Default: 50', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>		
+					<input class="wpd-input" min="1" max="500" type="number" name="wpd_ai_facebook_integration[api_limit_per_page]" value="<?php echo esc_attr( $facebook_settings['api_limit_per_page'] ); ?>" step="1" placeholder="50">
+					<label for="wpd_ai_facebook_integration[api_limit_per_page]" class="wpd-meta wpd-block-label"><?php esc_html_e( 'Default: 50', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>		
 				</td>
 			</tr>
 		</tbody>
@@ -189,7 +189,7 @@ defined( 'ABSPATH' ) || exit;
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'API Data', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+				<th colspan="2"><?php esc_html_e( 'API Data', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -199,8 +199,8 @@ defined( 'ABSPATH' ) || exit;
 					<div class="">Campaigns Stored</div>
 				</td>
 				<td>
-					<div class=""><?php echo $data_count['expenses'] ?></div>
-					<div class=""><?php echo $data_count['campaigns'] ?></div>
+					<div class=""><?php echo esc_html( $data_count['expenses'] ); ?></div>
+					<div class=""><?php echo esc_html( $data_count['campaigns'] ); ?></div>
 				</td>
 			</tr>
 			<tr>
@@ -208,7 +208,7 @@ defined( 'ABSPATH' ) || exit;
 					<div class="">Last Succesful Data Fetch</div>
 				</td>
 				<td>
-					<div class=""><?php if ( function_exists('wpd_facebook_last_updated') ) echo wpd_facebook_last_updated( $facebook_settings ) ?></div>
+					<div class=""><?php if ( function_exists('wpd_facebook_last_updated') ) echo esc_html( wpd_facebook_last_updated( $facebook_settings ) ); ?></div>
 				</td>
 			</tr>
 			<tr>
@@ -216,7 +216,7 @@ defined( 'ABSPATH' ) || exit;
 					<div class="">Next Scheduled Data Fetch</div>
 				</td>
 				<td>
-					<div class=""><?php echo ( $next_api_call ) ? wpd_calculate_time_difference( $next_api_call ) : 'N/A' ?></div>
+					<div class=""><?php echo esc_html( ( $next_api_call ) ? wpd_calculate_time_difference( $next_api_call ) : 'N/A' ); ?></div>
 				</td>
 			</tr>
 		</tbody>
@@ -224,24 +224,24 @@ defined( 'ABSPATH' ) || exit;
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'API Tools', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+				<th colspan="2"><?php esc_html_e( 'API Tools', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr>
 				<td>
-					<label><?php _e( 'Refresh all API Data', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This function will create / update the Ad Spend & Campaign Insights for your ad account for all time.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Refresh all API Data', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'This function will create / update the Ad Spend & Campaign Insights for your ad account for all time.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<a href="#" class="wpd-input button button-secondary" id="wpd-refresh-facebook-api-data">Refresh All Campaign Data</a>
-					<br><span class="wpd-meta">Last Updated <?php if ( function_exists('wpd_facebook_last_updated') ) echo wpd_facebook_last_updated( $facebook_settings ) ?></span>
+					<br><span class="wpd-meta">Last Updated <?php if ( function_exists('wpd_facebook_last_updated') ) echo esc_html( wpd_facebook_last_updated( $facebook_settings ) ); ?></span>
 				</td>
 			</tr>
 			<tr>
 				<td>
-				<label><?php _e( 'API Status', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This will check your current API status and display the latest status message.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+				<label><?php esc_html_e( 'API Status', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'This will check your current API status and display the latest status message.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<a href="#" class="wpd-input button button-secondary" id="wpd-test-api-status">Check API Status</a>
@@ -249,8 +249,8 @@ defined( 'ABSPATH' ) || exit;
 			</tr>	
 			<tr>
 				<td>
-					<label><?php _e( 'Facebook Data Deletion', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'These tools will delete the data that we have stored in your database from the Facebook API calls. This will not effect your Facebook ad account.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Facebook Data Deletion', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'These tools will delete the data that we have stored in your database from the Facebook API calls. This will not effect your Facebook ad account.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<a href="#" class="wpd-input button button-secondary" id="wpd-delete-all-expense-data">Delete All Expense Data</a>
@@ -262,7 +262,7 @@ defined( 'ABSPATH' ) || exit;
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'Important Information', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+				<th colspan="2"><?php esc_html_e( 'Important Information', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>

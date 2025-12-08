@@ -37,19 +37,19 @@ if ( ! isset($inventory_report_settings['frequency']['monthly']) ) $inventory_re
 ?>
 <div class="wpd-wrapper">
 	<div class="wpd-section-heading wpd-inline">
-		<?php _e( 'Email Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?>
+		<?php esc_html_e( 'Email Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?>
 		<?php submit_button( __( 'Save Changes', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'primary pull-right wpd-input', 'submit', false); ?>
 	</div>
 </div>
 <div class="wpd-wrapper">
 	<table class="wpd-table fixed widefat">
 		<thead>
-			<th colspan="2"><?php _e( 'Appearance Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></th>
+			<th colspan="2"><?php esc_html_e( 'Appearance Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></th>
 		</thead>
 		<tbody>
 			<tr>
 			<th>
-				<label><?php _e( 'Would you like to include our header and footer?', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?><div class="wpd-meta"><?php _e( 'Sometimes this helps with formatting if you\'ve got other html email templates already adding headers and footers.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></div></label>
+				<label><?php esc_html_e( 'Would you like to include our header and footer?', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?><div class="wpd-meta"><?php esc_html_e( 'Sometimes this helps with formatting if you\'ve got other html email templates already adding headers and footers.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></div></label>
 			</th>
 			<td>
 				<?php wpd_checkbox( 'wpd-email[appearance][header]', isset($appearance_settings['header']) ? $appearance_settings['header'] : null, __( 'Header', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>
@@ -62,20 +62,20 @@ if ( ! isset($inventory_report_settings['frequency']['monthly']) ) $inventory_re
 <div class="wpd-wrapper">
 	<table class="wpd-table fixed widefat">
 		<thead>
-			<th colspan="2" style="<?php echo $header_styles; ?>"><?php _e( 'Email #1 - Profit Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></th>
+			<th colspan="2" style="<?php echo esc_attr( $header_styles ); ?>"><?php esc_html_e( 'Email #1 - Profit Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></th>
 		</thead>
 		<tbody>
 			<tr>
 			<th>
-				<label><?php _e( 'Comma Seperated List Of Recipient', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></label>
+				<label><?php esc_html_e( 'Comma Seperated List Of Recipient', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></label>
 			</th>
 			<td>
-				<input type="text" name="wpd-email[profit-report][recipients]" class="wpd-input full-width" value="<?php echo isset($profit_report_settings['recipients']) ? $profit_report_settings['recipients'] : ''; ?>" placeholder="<?php echo $admin_email ?>">
+				<input type="text" name="wpd-email[profit-report][recipients]" class="wpd-input full-width" value="<?php echo esc_attr( isset($profit_report_settings['recipients']) ? $profit_report_settings['recipients'] : '' ); ?>" placeholder="<?php echo esc_attr( $admin_email ); ?>">
 			</td>
 			</tr>
 			<tr>
 				<th>
-					<label><?php _e( 'How Often This Email Should Be Sent?', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></label>
+					<label><?php esc_html_e( 'How Often This Email Should Be Sent?', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></label>
 				</th>
 				<td>
 					<?php wpd_checkbox( 'wpd-email[profit-report][frequency][daily]', $profit_report_settings['frequency']['daily'], __( 'Daily', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>
@@ -84,7 +84,7 @@ if ( ! isset($inventory_report_settings['frequency']['monthly']) ) $inventory_re
 				</td>
 			</tr>
 			<tr>
-			<th><?php _e( 'What would you like to include?', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></th>
+			<th><?php esc_html_e( 'What would you like to include?', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></th>
 			<td>
 				<?php wpd_checkbox( 'wpd-email[profit-report][details][order_revenue]', isset($profit_report_settings['details']['order_revenue']) ? $profit_report_settings['details']['order_revenue'] : null, __( 'Net Sales (Incl. Tax)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>
 				<?php wpd_checkbox( 'wpd-email[profit-report][details][order_cost]', isset($profit_report_settings['details']['order_cost']) ? $profit_report_settings['details']['order_cost'] : null, __( 'Total Order Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>
@@ -101,8 +101,8 @@ if ( ! isset($inventory_report_settings['frequency']['monthly']) ) $inventory_re
 			</tr>
 			<tr>
 				<td colspan="2" style="background-color: #fbfbfb;">
-					<a href="<?php echo wpd_admin_page_url( 'settings-emails-preview-profit-report' ); ?>" class="wpd-input button secondary-button pull-right" target="_blank"><?php _e( 'Preview Email', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
-					<a href="#" class="wpd-input button secondary-button pull-right" id="send-email-profit-report"><?php _e( 'Send Test Email', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
+					<a href="<?php echo esc_url( wpd_admin_page_url( 'settings-emails-preview-profit-report' ) ); ?>" class="wpd-input button secondary-button pull-right" target="_blank"><?php esc_html_e( 'Preview Email', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
+					<a href="#" class="wpd-input button secondary-button pull-right" id="send-email-profit-report"><?php esc_html_e( 'Send Test Email', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
 				</td>
 			</tr>
 		</tbody>
@@ -111,20 +111,20 @@ if ( ! isset($inventory_report_settings['frequency']['monthly']) ) $inventory_re
 <div class="wpd-wrapper">
 	<table class="wpd-table fixed widefat">
 		<thead>
-			<th colspan="2" style="<?php echo $header_styles; ?>"><?php _e( 'Email #2 - Expense Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></th>
+			<th colspan="2" style="<?php echo esc_attr( $header_styles ); ?>"><?php esc_html_e( 'Email #2 - Expense Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></th>
 		</thead>
 		<tbody>
 			<tr>
 			<th>
-				<label><?php _e( 'Comma Seperated List Of Recipient', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></label>
+				<label><?php esc_html_e( 'Comma Seperated List Of Recipient', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></label>
 			</th>
 			<td>
-				<input type="text" name="wpd-email[expense-report][recipients]" class="wpd-input full-width" value="<?php echo isset($expense_report_settings['recipients']) ? $expense_report_settings['recipients'] : ''; ?>" placeholder="<?php echo $admin_email ?>">
+				<input type="text" name="wpd-email[expense-report][recipients]" class="wpd-input full-width" value="<?php echo esc_attr( isset($expense_report_settings['recipients']) ? $expense_report_settings['recipients'] : '' ); ?>" placeholder="<?php echo esc_attr( $admin_email ); ?>">
 			</td>
 			</tr>
 			<tr>
 				<th>
-					<label><?php _e( 'How Often This Email Should Be Sent?', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></label>
+					<label><?php esc_html_e( 'How Often This Email Should Be Sent?', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></label>
 				</th>
 				<td>
 					<?php wpd_checkbox( 'wpd-email[expense-report][frequency][daily]', $expense_report_settings['frequency']['daily'], __( 'Daily', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>
@@ -133,7 +133,7 @@ if ( ! isset($inventory_report_settings['frequency']['monthly']) ) $inventory_re
 				</td>
 			</tr>
 			<tr>
-			<th><?php _e( 'What would you like to include?', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></th>
+			<th><?php esc_html_e( 'What would you like to include?', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></th>
 			<td>
 				<?php wpd_checkbox( 'wpd-email[expense-report][details][total_expenses_paid]', isset($expense_report_settings['details']['total_expenses_paid']) ? $expense_report_settings['details']['total_expenses_paid'] : null, __( 'Total Expenses Paid', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>
 				<?php wpd_checkbox( 'wpd-email[expense-report][details][total_no_expenses]', isset($expense_report_settings['details']['total_no_expenses']) ? $expense_report_settings['details']['total_no_expenses'] : null, __( 'Total No. Expenses', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>
@@ -144,8 +144,8 @@ if ( ! isset($inventory_report_settings['frequency']['monthly']) ) $inventory_re
 			</tr>
 			<tr>
 				<td colspan="2" style="background-color: #fbfbfb;">
-					<a href="<?php echo wpd_admin_page_url( 'settings-emails-preview-expense-report' ); ?>" class="wpd-input button secondary-button pull-right" target="_blank"><?php _e( 'Preview Email', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
-					<a href="#" class="wpd-input button secondary-button pull-right" id="send-email-expense-report"><?php _e( 'Send Test Email', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
+					<a href="<?php echo esc_url( wpd_admin_page_url( 'settings-emails-preview-expense-report' ) ); ?>" class="wpd-input button secondary-button pull-right" target="_blank"><?php esc_html_e( 'Preview Email', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
+					<a href="#" class="wpd-input button secondary-button pull-right" id="send-email-expense-report"><?php esc_html_e( 'Send Test Email', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
 				</td>
 			</tr>
 		</tbody>

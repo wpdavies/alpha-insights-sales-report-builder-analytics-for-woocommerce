@@ -231,8 +231,8 @@ function wpd_chart_defaults() {
 					borderJoinStyle: "round",
 					borderWidth: 2,
 					capBezierPoints: true,
-					fill: <?php echo $fill ?>, // <- Create setting for this
-					tension: <?php echo $tension ?>, // Lower value is more linear (0-1), 0.25 is okay <- Create setting for this
+					fill: <?php echo esc_js( $fill ); ?>, // <- Create setting for this
+					tension: <?php echo esc_js( $tension ); ?>, // Lower value is more linear (0-1), 0.25 is okay <- Create setting for this
 				};
 				Chart.defaults.elements.point = {
 					backgroundColor: "rgba(0,0,0,0.1)",
@@ -274,13 +274,13 @@ function wpd_per_page_selector( $per_page = 25 ) {
 
 	?>
 		<span class="wpd-per-page-wrapper">
-			<label for="wpd-per-page"><?php _e( 'Per Page', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></label>
+			<label for="wpd-per-page"><?php esc_html_e( 'Per Page', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></label>
 			<select name="wpd-per-page" class="wpd-input">
 				<?php 
 					$per_page_array = array( '25', '50', '100', '250', '500', 'all' );	
 					foreach( $per_page_array as $per_page_array_value ) {
 						( $per_page_array_value == $per_page ) ? $selected = 'selected="selected"' : $selected = '';
-						echo '<option value="' . $per_page_array_value . '" ' . $selected . '>' . $per_page_array_value . '</option>';
+						echo '<option value="' . esc_attr( $per_page_array_value ) . '" ' . esc_attr( $selected ) . '>' . esc_html( $per_page_array_value ) . '</option>';
 					}
 				?>
 			</select>

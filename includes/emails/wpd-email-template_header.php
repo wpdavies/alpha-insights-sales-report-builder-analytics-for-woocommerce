@@ -32,7 +32,7 @@ $options = get_option( 'wpd_ai_email_settings' );
 																	<tbody>
 																		<tr>
 																			<td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
-																				<h1 style="text-align: center;"><span style="color:#FFFFFF"><?php echo $heading ?></span></h1>
+																				<h1 style="text-align: center;"><span style="color:#FFFFFF"><?php echo esc_html( $heading ); ?></span></h1>
 																			</td>
 																		</tr>
 																	</tbody>
@@ -50,7 +50,7 @@ $options = get_option( 'wpd_ai_email_settings' );
 																		<tr>
 																			<td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 																				<div style="text-align: center;">
-																					<font color="#ffffff"><?php echo $subheading; ?></font>
+																					<font color="#ffffff"><?php echo esc_html( $subheading ); ?></font>
 																				</div>
 																			</td>
 																		</tr>

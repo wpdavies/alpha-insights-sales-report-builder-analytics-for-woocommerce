@@ -40,7 +40,7 @@ if ( $license_status === 'active' ) {
 <?php endif; ?>
 <div class="wpd-wrapper">
 	<div class="wpd-section-heading wpd-inline">
-		Alpha Insights <?php _e( 'License Manager', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
+		Alpha Insights <?php esc_html_e( 'License Manager', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
 		<?php submit_button( __( 'Save Changes', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'wpd-input primary pull-right', 'submit', false ); ?>
 		<?php echo '<a href="#" class="wpd-input button button-secondary wpd-license-action pull-right" style="margin-right: 10px;" id="wpd-refresh-license">Refresh License</a>'; ?>
 	</div>
@@ -56,33 +56,33 @@ if ( $license_status === 'active' ) {
 		<tbody>
 			<tr>
 				<td>
-					<label><?php _e( 'Your License Key', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'Enter the license key provided to you on purchase, this can be found in your order confirmation email or in your account area on', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?> <a href="https://wpdavies.dev/my-account/orders/?utm_campaign=Alpha+Insights+License&utm_source=Alpha+Insights+Plugin" target="_blank">WP Davies</a>.</div>
+					<label><?php esc_html_e( 'Your License Key', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'Enter the license key provided to you on purchase, this can be found in your order confirmation email or in your account area on', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?> <a href="https://wpdavies.dev/my-account/orders/?utm_campaign=Alpha+Insights+License&utm_source=Alpha+Insights+Plugin" target="_blank">WP Davies</a>.</div>
 				</td>
-				<td><input class="wpd-input" type="text" value="<?php echo $license_key ?>" placeholder="Your License Key" name="wpd_ai_api_key" style="width: 100%;"></td>
+				<td><input class="wpd-input" type="text" value="<?php echo esc_attr( $license_key ); ?>" placeholder="Your License Key" name="wpd_ai_api_key" style="width: 100%;"></td>
 			</tr>
 			<tr>
-				<td><?php _e( 'License Status', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></td>
-				<td><?php echo ( isset( $license_details['license_status'] ) ) ? $license_details['license_status'] : null; ?></td>
+				<td><?php esc_html_e( 'License Status', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></td>
+				<td><?php echo esc_html( ( isset( $license_details['license_status'] ) ) ? $license_details['license_status'] : '' ); ?></td>
 			</tr>
 			<tr>
-				<td><?php _e( 'License Owner', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></td>
-				<td><?php echo ( isset( $license_details['owner_first_name'] ) ) ? $license_details['owner_first_name'] . ' ' . $license_details['owner_last_name'] : null;  ?></td>
+				<td><?php esc_html_e( 'License Owner', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></td>
+				<td><?php echo esc_html( ( isset( $license_details['owner_first_name'] ) ) ? $license_details['owner_first_name'] . ' ' . $license_details['owner_last_name'] : '' ); ?></td>
 			</tr>
 			<tr>
-				<td><?php _e( 'Max Number Of Uses', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></td>
-				<td><?php echo ( isset( $license_details['max_instance_number'] ) ) ? $license_details['max_instance_number'] : null;  ?></td>
+				<td><?php esc_html_e( 'Max Number Of Uses', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></td>
+				<td><?php echo esc_html( ( isset( $license_details['max_instance_number'] ) ) ? $license_details['max_instance_number'] : '' ); ?></td>
 			</tr>
 			<tr>
-				<td><?php _e( 'Number Of Uses Remaining', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></td>
-				<td><?php echo ( isset( $license_details['number_use_remaining'] ) ) ? $license_details['number_use_remaining'] : null;  ?></td>
+				<td><?php esc_html_e( 'Number Of Uses Remaining', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></td>
+				<td><?php echo esc_html( ( isset( $license_details['number_use_remaining'] ) ) ? $license_details['number_use_remaining'] : '' ); ?></td>
 			</tr>
 			<tr>
 				<td>
-					<?php _e( 'Expiration Date', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
+					<?php esc_html_e( 'Expiration Date', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
 					<div class="wpd-meta">Your license expiry date is automatically updated as your subscription continues.<br>Each succesful payment during your subscription will push your expiry date out further.</div>
 				</td>
-				<td><?php echo (isset($license_details['expiration_date']) && ! empty($license_details['expiration_date'])) ? date( 'l jS F\, Y', strtotime($license_details['expiration_date']) ) : null; ?></td>
+				<td><?php echo esc_html( (isset($license_details['expiration_date']) && ! empty($license_details['expiration_date'])) ? date( 'l jS F\, Y', strtotime($license_details['expiration_date']) ) : '' ); ?></td>
 			</tr>
 			<tr>
 				<td>
@@ -92,8 +92,8 @@ if ( $license_status === 'active' ) {
 				<td><?php echo (isset($license_data['last_updated']) && ! empty($license_data['last_updated'])) ? date( 'l jS F\, Y \a\t g\:ia', strtotime($license_data['last_updated']) ) : null; ?></td>
 			</tr>
 			<tr>
-				<td><?php _e( 'Manage Your License', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?><div class="wpd-meta"><?php _e( 'Visit your account area on WP Davies to manage your license.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div></td>
-				<td><a href="https://wpdavies.dev/my-account/?utm_campaign=Alpha+Insights+Manage+License&utm_source=Alpha+Insights+Plugin" target="_blank" class="wpd-input button button-secondary"><?php _e( 'Manage Your License', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></a></td>
+				<td><?php esc_html_e( 'Manage Your License', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?><div class="wpd-meta"><?php esc_html_e( 'Visit your account area on WP Davies to manage your license.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div></td>
+				<td><a href="https://wpdavies.dev/my-account/?utm_campaign=Alpha+Insights+Manage+License&utm_source=Alpha+Insights+Plugin" target="_blank" class="wpd-input button button-secondary"><?php esc_html_e( 'Manage Your License', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></a></td>
 			</tr>
 		</tbody>
 	</table>

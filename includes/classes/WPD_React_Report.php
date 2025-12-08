@@ -3247,7 +3247,7 @@ class WPD_React_Report {
         $saved = update_option( 'wpd_dashboard_config_' . $dashboard_id, $report_data, false );
         
         if ( ! $saved ) {
-            throw new Exception( 'Failed to save report: ' . $dashboard_id );
+            throw new Exception( 'Failed to save report: ' . esc_html( $dashboard_id ) );
         }
     }
 

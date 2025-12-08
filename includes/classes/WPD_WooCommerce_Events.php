@@ -1075,7 +1075,7 @@ class WPD_WooCommerce_Events extends WPD_Session_Tracking {
 	public function add_product_id_to_product_loop_item() {
 
 		$id = get_the_ID();
-		echo '<span class="wpd-ai-event-tracking-product-id" style="display:none;" data-product-id="' . $id . '"></span>';
+		echo '<span class="wpd-ai-event-tracking-product-id" style="display:none;" data-product-id="' . esc_attr( $id ) . '"></span>';
 
 	}
 
