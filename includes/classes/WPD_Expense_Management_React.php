@@ -630,8 +630,18 @@ class WPD_Expense_Management_React {
 
         try {
             // Decode JSON if it's a string (sent from FormData)
-            $expenses_raw = isset($_POST['expenses']) ? $_POST['expenses'] : array();
-            $expenses = is_string($expenses_raw) ? json_decode(stripslashes($expenses_raw), true) : $expenses_raw;
+            $expenses_raw = isset($_POST['expenses']) ? wp_unslash( $_POST['expenses'] ) : array();
+            if ( is_string( $expenses_raw ) ) {
+                // Sanitize the JSON string before decoding
+                $expenses_raw = sanitize_textarea_field( $expenses_raw );
+                $expenses = json_decode( $expenses_raw, true );
+                // Sanitize decoded JSON array according to WordPress standards
+                if ( is_array( $expenses ) ) {
+                    $expenses = wpd_sanitize_json_decoded_array( $expenses );
+                }
+            } else {
+                $expenses = $expenses_raw;
+            }
             
             if ( ! WPD_AI_PRO ) {
                 wp_send_json_error(array('message' => 'This feature is only available in the Pro version.'));
@@ -1294,7 +1304,14 @@ class WPD_Expense_Management_React {
         check_ajax_referer(WPD_AI_AJAX_NONCE_ACTION, 'nonce');
 
         try {
-            $expense_ids = isset($_POST['expense_ids']) ? json_decode(stripslashes($_POST['expense_ids']), true) : array();
+            $expense_ids_raw = isset($_POST['expense_ids']) ? sanitize_textarea_field( wp_unslash( $_POST['expense_ids'] ) ) : '';
+            $expense_ids = ! empty( $expense_ids_raw ) ? json_decode( $expense_ids_raw, true ) : array();
+            // Sanitize decoded JSON array - ensure all IDs are integers
+            if ( is_array( $expense_ids ) ) {
+                $expense_ids = array_map( 'absint', wpd_sanitize_json_decoded_array( $expense_ids ) );
+            } else {
+                $expense_ids = array();
+            }
 
             if ( ! WPD_AI_PRO ) {
                 wp_send_json_error(array('message' => 'This feature is only available in the Pro version.'));
@@ -1307,7 +1324,7 @@ class WPD_Expense_Management_React {
 
             $deleted_count = 0;
             foreach ($expense_ids as $expense_id) {
-                $expense_id = intval($expense_id);
+                $expense_id = absint( $expense_id );
                 if ($expense_id && get_post_type($expense_id) === 'expense') {
                     if (wp_delete_post($expense_id, true)) {
                         $deleted_count++;
@@ -1338,7 +1355,14 @@ class WPD_Expense_Management_React {
         check_ajax_referer(WPD_AI_AJAX_NONCE_ACTION, 'nonce');
 
         try {
-            $expense_ids = isset($_POST['expense_ids']) ? json_decode(stripslashes($_POST['expense_ids']), true) : array();
+            $expense_ids_raw = isset($_POST['expense_ids']) ? sanitize_textarea_field( wp_unslash( $_POST['expense_ids'] ) ) : '';
+            $expense_ids = ! empty( $expense_ids_raw ) ? json_decode( $expense_ids_raw, true ) : array();
+            // Sanitize decoded JSON array - ensure all IDs are integers
+            if ( is_array( $expense_ids ) ) {
+                $expense_ids = array_map( 'absint', wpd_sanitize_json_decoded_array( $expense_ids ) );
+            } else {
+                $expense_ids = array();
+            }
             
             if ( ! WPD_AI_PRO ) {
                 wp_send_json_error(array('message' => 'This feature is only available in the Pro version.'));
@@ -1362,7 +1386,7 @@ class WPD_Expense_Management_React {
 
             $updated_count = 0;
             foreach ($expense_ids as $expense_id) {
-                $expense_id = intval($expense_id);
+                $expense_id = absint( $expense_id );
                 if ($expense_id && get_post_type($expense_id) === 'expense') {
                     if (isset($update_data['paid'])) {
                         update_post_meta($expense_id, '_wpd_paid', $update_data['paid'] ? '1' : '0');
@@ -1500,7 +1524,14 @@ class WPD_Expense_Management_React {
 
         try {
             $taxonomy = isset($_POST['taxonomy']) ? sanitize_text_field($_POST['taxonomy']) : '';
-            $term_ids = isset($_POST['term_ids']) ? json_decode(stripslashes($_POST['term_ids']), true) : array();
+            $term_ids_raw = isset($_POST['term_ids']) ? sanitize_textarea_field( wp_unslash( $_POST['term_ids'] ) ) : '';
+            $term_ids = ! empty( $term_ids_raw ) ? json_decode( $term_ids_raw, true ) : array();
+            // Sanitize decoded JSON array - ensure all term IDs are integers
+            if ( is_array( $term_ids ) ) {
+                $term_ids = array_map( 'absint', wpd_sanitize_json_decoded_array( $term_ids ) );
+            } else {
+                $term_ids = array();
+            }
 
             if ( ! WPD_AI_PRO ) {
                 wp_send_json_error(array('message' => 'This feature is only available in the Pro version.'));
@@ -2069,9 +2100,16 @@ class WPD_Expense_Management_React {
         check_ajax_referer(WPD_AI_AJAX_NONCE_ACTION, 'nonce');
 
         try {
-            $expense_ids = isset($_POST['expense_ids']) ? json_decode(stripslashes($_POST['expense_ids']), true) : array();
+            $expense_ids_raw = isset($_POST['expense_ids']) ? sanitize_textarea_field( wp_unslash( $_POST['expense_ids'] ) ) : '';
+            $expense_ids = ! empty( $expense_ids_raw ) ? json_decode( $expense_ids_raw, true ) : array();
+            // Sanitize decoded JSON array - ensure all IDs are integers
+            if ( is_array( $expense_ids ) ) {
+                $expense_ids = array_map( 'absint', wpd_sanitize_json_decoded_array( $expense_ids ) );
+            } else {
+                $expense_ids = array();
+            }
             $taxonomy = isset($_POST['taxonomy']) ? sanitize_text_field($_POST['taxonomy']) : '';
-            $term_id = isset($_POST['term_id']) ? intval($_POST['term_id']) : 0;
+            $term_id = isset($_POST['term_id']) ? absint( $_POST['term_id'] ) : 0;
 
             if ( ! WPD_AI_PRO ) {
                 wp_send_json_error(array('message' => 'This feature is only available in the Pro version.'));

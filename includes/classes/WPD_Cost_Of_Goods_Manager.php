@@ -650,8 +650,12 @@ class WPD_Cost_Of_Goods_Manager {
 		}
 
 		// Get all products (no pagination for export)
-		$filters_raw = isset($_GET['filters']) ? sanitize_text_field( $_GET['filters'] ) : '';
-		$filters = ! empty( $filters_raw ) ? json_decode(stripslashes($filters_raw), true) : [];
+		$filters_raw = isset($_GET['filters']) ? sanitize_textarea_field( wp_unslash( $_GET['filters'] ) ) : '';
+		$filters = ! empty( $filters_raw ) ? json_decode( $filters_raw, true ) : [];
+		// Sanitize decoded JSON array according to WordPress standards
+		if ( ! empty( $filters ) && is_array( $filters ) ) {
+			$filters = wpd_sanitize_json_decoded_array( $filters );
+		}
 		
 		$args = [
 			'post_type' => ['product', 'product_variation'],

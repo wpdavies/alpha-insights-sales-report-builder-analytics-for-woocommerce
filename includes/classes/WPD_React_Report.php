@@ -608,7 +608,6 @@ class WPD_React_Report {
                 return;
             }
         }
-        }
 
         // Check capability
         if ( ! current_user_can( 'manage_options' ) ) {
@@ -849,15 +848,8 @@ class WPD_React_Report {
      */
     public static function create_report_ajax_handler() {
         // Check nonce for security
-        if ( ! empty($_POST['nonce']) ) {
-            $nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ) );
-            if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
-                wp_send_json_error( array(
-                    'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
-                ) );
-                return;
-            }
-        }
+        $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+        if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
                 'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
@@ -898,9 +890,11 @@ class WPD_React_Report {
         
         // If a full config is provided (for duplicate mode), decode and merge it
         if (!empty($_POST['report_config'])) {
-            $full_config_json = sanitize_textarea_field($_POST['report_config']);
-            $full_config = json_decode(stripslashes($full_config_json), true);
+            $full_config_json = sanitize_textarea_field( wp_unslash( $_POST['report_config'] ) );
+            $full_config = json_decode( $full_config_json, true );
             if (json_last_error() === JSON_ERROR_NONE && is_array($full_config)) {
+                // Sanitize decoded JSON array according to WordPress standards
+                $full_config = wpd_sanitize_json_decoded_array( $full_config );
                 // Merge the full config with the basic fields, preferring the basic fields for metadata
                 $report_config = array_merge($full_config, $report_config);
             }
@@ -920,15 +914,8 @@ class WPD_React_Report {
      */
     public static function update_report_ajax_handler() {
         // Check nonce for security
-        if ( ! empty($_POST['nonce']) ) {
-            $nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ) );
-            if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
-                wp_send_json_error( array(
-                    'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
-                ) );
-                return;
-            }
-        }
+        $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+        if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
                 'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
@@ -978,15 +965,8 @@ class WPD_React_Report {
      */
     public static function delete_report_ajax_handler() {
         // Check nonce for security
-        if ( ! empty($_POST['nonce']) ) {
-            $nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ) );
-            if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
-                wp_send_json_error( array(
-                    'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
-                ) );
-                return;
-            }
-        }
+        $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+        if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
                 'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
@@ -1023,15 +1003,8 @@ class WPD_React_Report {
      */
     public static function get_uncached_order_count_ajax_handler() {
         // Check nonce for security
-        if ( ! empty($_POST['nonce']) ) {
-            $nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ) );
-            if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
-                wp_send_json_error( array(
-                    'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
-                ) );
-                return;
-            }
-        }
+        $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+        if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
                 'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
@@ -1058,15 +1031,8 @@ class WPD_React_Report {
      */
     public static function build_order_cache_batch_ajax_handler() {
         // Check nonce for security
-        if ( ! empty($_POST['nonce']) ) {
-            $nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ) );
-            if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
-                wp_send_json_error( array(
-                    'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
-                ) );
-                return;
-            }
-        }
+        $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+        if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
                 'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
@@ -1098,15 +1064,8 @@ class WPD_React_Report {
      */
     public static function mark_cache_complete_ajax_handler() {
         // Check nonce for security
-        if ( ! empty($_POST['nonce']) ) {
-            $nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ) );
-            if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
-                wp_send_json_error( array(
-                    'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
-                ) );
-                return;
-            }
-        }
+        $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+        if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
                 'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
