@@ -2167,7 +2167,7 @@ class WPD_Data_Manager {
         $truncated_count = $data_manager->truncate_all_database_tables();
         
         if ( $truncated_count > 0 ) {
-            wp_send_json_success( array(
+            wp_send_json_success( array( 
                 'message' => sprintf(
                     /* translators: %d: Number of tables cleared */
                     __( '%d table(s) cleared successfully.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),

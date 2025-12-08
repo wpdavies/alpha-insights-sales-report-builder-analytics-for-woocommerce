@@ -315,7 +315,7 @@ class WPD_Alpha_Insights_Core {
 			/* translators: %s: Currency code */
 			'label' => sprintf( __( 'Cost Of Goods Per Unit (%s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $currency_string ),
 			'value' => $line_item_cogs,
-			'placeholder' => esc_attr( strip_tags( wc_price( $default_line_item_cogs ) ) ),
+			'placeholder' => esc_attr( wp_strip_all_tags( wc_price( $default_line_item_cogs ) ) ),
 			'wrapper_class' => 'form-field-wide wpd-line-item-cogs',
 			'data_type' => 'price',
 			'style' => 'max-width: 150px; display: block;'
@@ -358,7 +358,7 @@ class WPD_Alpha_Insights_Core {
 						'label' 	  => sprintf( __( '%1$s Per Unit (%2$s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $custom_cost_data['label'] ), esc_html( wpd_store_currency_string() ) ),
 						'value'       => $custom_cost_meta_value,
 						'data_type'   => 'price',
-						'placeholder' => strip_tags( wc_price( $default_calculated_value ) ),
+						'placeholder' => wp_strip_all_tags( wc_price( $default_calculated_value ) ),
 						'wrapper_class' => 'form-field-wide wpd-line-item-cogs',
 						'style' => 'max-width: 150px; display: block;'
 
@@ -562,11 +562,11 @@ class WPD_Alpha_Insights_Core {
 
 				$order_currency = $order_data['order_currency'];
 				$original_amount = wpd_store_price( $item->get_total(), array('currency' => $order_currency) );
-				$currency_conversion_string = sprintf(
+				$currency_conversion_string = sprintf( 
 					/* translators: 1: Currency code, 2: Original amount */
-					__( 'This order was paid for in %1$s. <br>The original amount is %2$s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
-					$order_currency,
-					$original_amount
+					__( 'This order was paid for in %1$s. <br>The original amount is %2$s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 
+					$order_currency, 
+					$original_amount 
 				);
 
 			}
@@ -812,7 +812,7 @@ class WPD_Alpha_Insights_Core {
 						/* translators: %s: Currency code */
 						'label' => sprintf( __( 'Total Product Cost Of Goods (%s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $currency_string ) . ':',
 						'value' => $meta_total_product_cost,
-						'placeholder' => strip_tags( wc_price( $total_product_cost ) ),
+						'placeholder' => wp_strip_all_tags( wc_price( $total_product_cost ) ),
 						'wrapper_class' => 'form-field-wide',
 						'data_type' => 'price'
 					) );
@@ -833,7 +833,7 @@ class WPD_Alpha_Insights_Core {
 									/* translators: %s: Currency code */
 									'label' => sprintf( __( 'Total Product Custom Costs (%s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), wpd_store_currency_string() ) . ':',
 									'value' => $meta_total_order_product_custom_cost,
-									'placeholder' => strip_tags( wc_price( $order_data['total_product_custom_costs'] ) ),
+									'placeholder' => wp_strip_all_tags( wc_price( $order_data['total_product_custom_costs'] ) ),
 									'wrapper_class' => 'form-field-wide',
 									'data_type' => 'price'
 								) );
@@ -851,7 +851,7 @@ class WPD_Alpha_Insights_Core {
 						/* translators: %s: Currency code */
 						'label' => sprintf( __( 'Total Shipping Cost (%s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), wpd_store_currency_string() ) . ':',
 						'value' => $meta_total_shipping_cost,
-						'placeholder' => strip_tags( wc_price( $total_shipping_cost ) ),
+						'placeholder' => wp_strip_all_tags( wc_price( $total_shipping_cost ) ),
 						'wrapper_class' => 'form-field-wide',
 						'data_type' => 'price'
 					) );
@@ -861,7 +861,7 @@ class WPD_Alpha_Insights_Core {
 						/* translators: %s: Currency code */
 						'label' => sprintf( __( 'Payment Gateway Cost (%s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), wpd_store_currency_string() ) . ':',
 						'value' => $meta_payment_gateway_cost,
-						'placeholder' => esc_attr( strip_tags( wc_price( $payment_gateway_cost ) ) ),
+						'placeholder' => esc_attr( wp_strip_all_tags( wc_price( $payment_gateway_cost ) ) ),
 						'wrapper_class' => 'form-field-wide',
 						'data_type' => 'price'
 					) );
@@ -884,7 +884,7 @@ class WPD_Alpha_Insights_Core {
 							/* translators: 1: Cost label, 2: Currency code */
 							'label' => sprintf( __( '%1$s (%2$s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $cost_data['label'] ), esc_html( wpd_store_currency_string() ) ) . ':',
 							'value' => $custom_order_cost_value, // Need to figure out
-							'placeholder' => esc_attr( strip_tags( wc_price( $custom_order_cost_placeholder ) ) ),
+							'placeholder' => esc_attr( wp_strip_all_tags( wc_price( $custom_order_cost_placeholder ) ) ),
 							'wrapper_class' => 'form-field-wide',
 							'data_type' => 'price'
 						) );
@@ -1455,7 +1455,7 @@ class WPD_Alpha_Insights_Core {
 									<?php
 										$default_cost = wpd_get_default_cost_price_by_product_id($product_id);
 										$placeholder_text = $default_cost > 0 
-											? 'Default: ' . strip_tags(wc_price($default_cost))
+											? 'Default: ' . wp_strip_all_tags(wc_price($default_cost))
 											: 'No cost price set';
 										
 										woocommerce_wp_text_input (
@@ -1514,7 +1514,7 @@ class WPD_Alpha_Insights_Core {
 														'data_type'   => 'price',
 														'description' => '',
 														'label' 	  => '',
-														'placeholder' => esc_attr( 'Current Settings: ' . strip_tags( wc_price( $custom_cost_data['static_fee'] ) ) ),
+														'placeholder' => esc_attr( 'Current Settings: ' . wp_strip_all_tags( wc_price( $custom_cost_data['static_fee'] ) ) ),
 														'wrapper_class' => 'form-field-wide',
 
 													)
@@ -1601,7 +1601,7 @@ class WPD_Alpha_Insights_Core {
 															'data_type'   => 'price',
 															'description' => '',
 															'label' 	  => '',
-															'placeholder' => esc_attr( 'Default: ' . strip_tags( wc_price( wpd_get_default_cost_price_by_product_id( $variation_id ) ) ) ),
+															'placeholder' => esc_attr( 'Default: ' . wp_strip_all_tags( wc_price( wpd_get_default_cost_price_by_product_id( $variation_id ) ) ) ),
 															'wrapper_class' => 'form-field-wide',
 
 														)

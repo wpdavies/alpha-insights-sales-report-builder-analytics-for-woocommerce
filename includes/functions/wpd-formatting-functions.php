@@ -49,7 +49,7 @@ function wpd_clean_string( $string ) {
  */
 function wpd_sanitize_url( $url ) {
 
-	return strip_tags( stripslashes( filter_var($url, FILTER_VALIDATE_URL) ) );
+	return wp_strip_all_tags( stripslashes( filter_var($url, FILTER_VALIDATE_URL) ) );
 
 }
 

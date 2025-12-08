@@ -7572,14 +7572,14 @@ class WPD_Data_Warehouse_React {
         $url = htmlspecialchars_decode( $url );
         $result['url'] = $url;
 
-        $parsed_url = parse_url( $url );
+        $parsed_url = wp_parse_url( $url );
 
         if ( isset($parsed_url['path']) && ! empty($parsed_url['path']) ) {
             $result['path'] = $parsed_url['path'];
         }
 
         // Only collect query params
-        $query_parameters = parse_url( $url, PHP_URL_QUERY );
+        $query_parameters = wp_parse_url( $url, PHP_URL_QUERY );
 
         if ( ! empty($query_parameters) ) {
 

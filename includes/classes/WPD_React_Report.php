@@ -606,7 +606,7 @@ class WPD_React_Report {
                     'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
                 ) );
                 return;
-            }
+        }
         }
 
         // Check capability
@@ -690,7 +690,7 @@ class WPD_React_Report {
             }
             
             if ($json_error !== JSON_ERROR_NONE) {
-                wp_send_json_error( array(
+                wp_send_json_error( array( 
                     'message' => sprintf(
                         /* translators: %s: JSON error message */
                         __( 'Invalid JSON configuration data: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
@@ -853,7 +853,7 @@ class WPD_React_Report {
     public static function create_report_ajax_handler() {
         // Check nonce for security
         $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-        if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
+            if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
                 'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
@@ -923,7 +923,7 @@ class WPD_React_Report {
     public static function update_report_ajax_handler() {
         // Check nonce for security
         $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-        if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
+            if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
                 'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
@@ -978,7 +978,7 @@ class WPD_React_Report {
     public static function delete_report_ajax_handler() {
         // Check nonce for security
         $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-        if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
+            if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
                 'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
@@ -1016,7 +1016,7 @@ class WPD_React_Report {
     public static function get_uncached_order_count_ajax_handler() {
         // Check nonce for security
         $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-        if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
+            if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
                 'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
@@ -1044,7 +1044,7 @@ class WPD_React_Report {
     public static function build_order_cache_batch_ajax_handler() {
         // Check nonce for security
         $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-        if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
+            if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
                 'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
@@ -1077,7 +1077,7 @@ class WPD_React_Report {
     public static function mark_cache_complete_ajax_handler() {
         // Check nonce for security
         $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-        if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
+            if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
             wp_send_json_error( array(
                 'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
@@ -2771,7 +2771,7 @@ class WPD_React_Report {
 
             if ( $saved !== false ) {
                 $response['success'] = true;
-                $response['message'] = sprintf(
+                $response['message'] = sprintf( 
                     /* translators: %s: Report name or slug */
                     __( 'Mandatory report "%s" has been automatically installed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
                     $report_data['name'] ?? $report_slug
@@ -3171,23 +3171,23 @@ class WPD_React_Report {
                 
                 // Build message based on imported and skipped counts
                 if ( $imported_count > 0 && $skipped_count > 0 ) {
-                    $response['message'] = sprintf(
+                    $response['message'] = sprintf( 
                         /* translators: 1: Number of imported reports, 2: Number of skipped reports */
-                        __( 'Successfully imported %1$d reports. %2$d reports were already installed and skipped.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                        __( 'Successfully imported %1$d reports. %2$d reports were already installed and skipped.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 
                         $imported_count,
                         $skipped_count
                     );
                 } elseif ( $imported_count > 0 ) {
-                    $response['message'] = sprintf(
+                    $response['message'] = sprintf( 
                         /* translators: %d: Number of imported reports */
-                        __( 'Successfully imported %d default reports.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
-                        $imported_count
+                        __( 'Successfully imported %d default reports.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 
+                        $imported_count 
                     );
                 } else {
-                    $response['message'] = sprintf(
+                    $response['message'] = sprintf( 
                         /* translators: %d: Number of skipped reports */
-                        __( 'All %d reports were already installed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
-                        $skipped_count
+                        __( 'All %d reports were already installed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 
+                        $skipped_count 
                     );
                 }
                 
@@ -3276,10 +3276,10 @@ class WPD_React_Report {
             
             if ( $existing_report && ! $overwrite ) {
                 $response['success'] = false;
-                $response['message'] = sprintf(
+                $response['message'] = sprintf( 
                     /* translators: %s: Report dashboard ID/slug */
-                    __( 'Report with slug "%s" already exists. Please enable overwrite to replace it.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
-                    $dashboard_id
+                    __( 'Report with slug "%s" already exists. Please enable overwrite to replace it.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 
+                    $dashboard_id 
                 );
                 return $response;
             }

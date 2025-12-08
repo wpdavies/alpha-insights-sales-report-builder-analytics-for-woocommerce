@@ -397,7 +397,7 @@ class WPD_WooCommerce_Events extends WPD_Session_Tracking {
 			}
 
 			// Page Href is not from the same domain
-			$domain_url = parse_url( get_site_url(), PHP_URL_HOST );
+			$domain_url = wp_parse_url( get_site_url(), PHP_URL_HOST );
 			if ( ! str_contains($data['page_href'], $domain_url) ) {
 				return true;
 			}

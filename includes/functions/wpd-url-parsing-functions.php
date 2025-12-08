@@ -25,7 +25,7 @@ if ( ! function_exists( 'wpd_parse_query_params' ) ) {
 
 	function wpd_parse_query_params( $url ) {
 
-		parse_str( parse_url( $url, PHP_URL_QUERY ), $query_params );
+		parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_params );
 
 		return $query_params;
 
@@ -71,11 +71,11 @@ function wpd_get_query_params( $url ) {
 	} else {
 		
         $url = htmlspecialchars_decode( $url );
-		$parsed_url = parse_url( $url, PHP_URL_QUERY );
+		$parsed_url = wp_parse_url( $url, PHP_URL_QUERY );
 		if ( empty($parsed_url) ) {
 			return $query_params;
 		}
-		parse_str( parse_url( $url, PHP_URL_QUERY ), $query_params );
+		parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_params );
 
 	}
 
@@ -150,10 +150,10 @@ function wpd_get_referral_url_raw() {
         $referral_url = filter_var($referral_url, FILTER_SANITIZE_URL);
 
         // Try get domain from referral URL
-        $referring_domain = parse_url($referral_url, PHP_URL_HOST);
+        $referring_domain = wp_parse_url($referral_url, PHP_URL_HOST);
 
         // Get current site host
-        $site_host = parse_url(site_url(), PHP_URL_HOST);
+        $site_host = wp_parse_url(site_url(), PHP_URL_HOST);
 
         // Check if referral URL is our own domain, and return null if so
         if ( $referring_domain === $site_host ) {

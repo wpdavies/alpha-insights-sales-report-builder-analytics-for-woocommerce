@@ -106,7 +106,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		// Checks for compatibility with versions (run once and cache result)
 		$this->compatibility_check_result = $this->check_compatability_and_return_notices();
-		
+
 		// If we are all good, load the plugin
 		if ( $this->is_plugin_compatible() ) {
 			// Load the plugin
@@ -217,7 +217,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 	/**
 	 * Check for compatibility with this WP install
-	 * 
+	 *
 	 * Checks all compatibility requirements and collects all notices instead of returning early.
 	 * This allows multiple issues to be reported at once.
 	 *
@@ -257,7 +257,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 		if ( version_compare( $wp_version, WPD_AI_MIN_WP_VER, '<' ) ) {
 			$is_compatible = false;
 			$notices[] = sprintf(
-				/* translators: 1: Minimum required WordPress version, 2: Current WordPress version */
+			/* translators: 1: Minimum required WordPress version, 2: Current WordPress version */
 				__( 'Alpha Insights requires at least WordPress version %1$s to run. You are currently using version %2$s. Please upgrade WordPress to use this plugin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 				esc_html( WPD_AI_MIN_WP_VER ),
 				esc_html( $wp_version )
@@ -312,7 +312,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 			// Check WooCommerce version (only if we have a version to check)
 			$is_compatible = false;
 			$notices[] = sprintf(
-				/* translators: 1: Minimum required WooCommerce version, 2: Current WooCommerce version */
+			/* translators: 1: Minimum required WooCommerce version, 2: Current WooCommerce version */
 				__( 'Alpha Insights requires at least WooCommerce version %1$s to run. You are currently using version %2$s. Please upgrade WooCommerce to use this plugin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 				esc_html( WPD_AI_MIN_WC_VER ),
 				esc_html( $woocommerce_version )
@@ -324,12 +324,12 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		// Check DB Version - Schedule deferred update instead of immediate
 		if ( defined( 'WPD_AI_DB_VERSION' ) ) {
-			$installed_db_version = get_option( 'wpd_ai_db_version', null );
+		$installed_db_version = get_option( 'wpd_ai_db_version', null );
 			if ( is_string( $installed_db_version ) && version_compare( $installed_db_version, WPD_AI_DB_VERSION, '<' ) ) {
-				// Schedule DB update to run when classes are loaded
-				update_option( 'wpd_ai_pending_db_update', true );
-				$this->log( 'Database version check detected outdated schema, scheduled deferred update.' );
-			}
+			// Schedule DB update to run when classes are loaded
+			update_option( 'wpd_ai_pending_db_update', true );
+			$this->log( 'Database version check detected outdated schema, scheduled deferred update.' );
+		}
 		}
 
 		// Return all collected notices

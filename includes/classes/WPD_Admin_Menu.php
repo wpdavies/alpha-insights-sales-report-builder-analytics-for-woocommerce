@@ -663,8 +663,8 @@ class WPD_Admin_Menu {
         foreach ( $children as $key => $child ) {
             if ( isset($child['url']) ) {
                 // Parse both URLs to compare them properly
-                $child_url_parts = parse_url($child['url']);
-                $current_url_parts = parse_url($current_url);
+                $child_url_parts = wp_parse_url($child['url']);
+                $current_url_parts = wp_parse_url($current_url);
 
                 // Compare query strings
                 if ( isset($child_url_parts['query']) && isset($current_url_parts['query']) ) {

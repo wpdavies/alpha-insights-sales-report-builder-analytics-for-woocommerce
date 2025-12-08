@@ -417,7 +417,7 @@ class WPD_Cost_Of_Goods_Manager {
 				'cost' => $cost,
 				'meta_cost' => $meta_cost, // null if not set, 0 if set to 0, value if set
 				'default_cost' => (float) $default_cost, // The default/fallback value
-				'default_cost_formatted' => strip_tags(wc_price($default_cost)), // Formatted for placeholder
+				'default_cost_formatted' => wp_strip_all_tags(wc_price($default_cost)), // Formatted for placeholder
 				'margin' => $margin,
 				'profit' => $profit,
 				'stock_quantity' => $stock_quantity ?: 0,

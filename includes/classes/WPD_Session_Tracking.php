@@ -753,7 +753,7 @@ class WPD_Session_Tracking {
         // Default
         $referral_url = '';
 
-        $site_host = parse_url(site_url(), PHP_URL_HOST);
+        $site_host = wp_parse_url(site_url(), PHP_URL_HOST);
 
         // Priority 1: Try to get from cookie (set by JavaScript on frontend)
         if ( isset($_COOKIE['wpd_ai_referral_source']) && ! empty($_COOKIE['wpd_ai_referral_source']) ) {
@@ -784,7 +784,7 @@ class WPD_Session_Tracking {
 
             // Validate the domain - must be external (not our own site)
             if ( ! empty($referral_url) ) {
-                $referring_domain = parse_url($referral_url, PHP_URL_HOST);
+                $referring_domain = wp_parse_url($referral_url, PHP_URL_HOST);
                 if ( empty($referring_domain) || $referring_domain === $site_host ) {
                     $referral_url = '';
                 }
