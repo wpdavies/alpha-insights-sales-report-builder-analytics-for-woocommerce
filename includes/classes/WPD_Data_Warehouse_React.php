@@ -1324,9 +1324,14 @@ class WPD_Data_Warehouse_React {
 
             // Memory Check
 			if ( wpd_is_memory_usage_greater_than(90) ) {
-				/* translators: 1: Number of processed orders/subscriptions, 2: Total number of orders/subscriptions, 3: PHP memory limit */
-				$this->set_error( 
-					sprintf( __( 'You\'ve exhausted your memory usage after %1$s out of %2$s orders. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %3$s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $subscription_id, $total_db_records, $memory_limit ) 
+				$this->set_error(
+					sprintf(
+						/* translators: 1: Number of processed orders/subscriptions, 2: Total number of orders/subscriptions, 3: PHP memory limit */
+						__( 'You\'ve exhausted your memory usage after %1$s out of %2$s orders. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %3$s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						$subscription_id,
+						$total_db_records,
+						$memory_limit
+					)
 				);
 				break;
 			}
@@ -1400,9 +1405,14 @@ class WPD_Data_Warehouse_React {
 
             // Memory Check
 			if ( wpd_is_memory_usage_greater_than(90) ) {
-				/* translators: 1: Number of processed orders/subscriptions, 2: Total number of orders/subscriptions, 3: PHP memory limit */
-				$this->set_error( 
-					sprintf( __( 'You\'ve exhausted your memory usage after %1$s out of %2$s orders. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %3$s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $subscription_id, $total_db_records, $memory_limit ) 
+				$this->set_error(
+					sprintf(
+						/* translators: 1: Number of processed orders/subscriptions, 2: Total number of orders/subscriptions, 3: PHP memory limit */
+						__( 'You\'ve exhausted your memory usage after %1$s out of %2$s orders. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %3$s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						$subscription_id,
+						$total_db_records,
+						$memory_limit
+					)
 				);
 				break;
 			}
@@ -2095,9 +2105,14 @@ class WPD_Data_Warehouse_React {
 
                 // Memory Check
                 if ( wpd_is_memory_usage_greater_than(90) ) {
-                    /* translators: 1: Number of processed orders, 2: Total number of orders, 3: PHP memory limit */
-                    $this->set_error( 
-                        sprintf( __( 'You\'ve exhausted your memory usage after %1$s out of %2$s orders. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %3$s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $total_order_count, $total_db_records, $memory_limit ) 
+                    $this->set_error(
+                        sprintf(
+                            /* translators: 1: Number of processed orders, 2: Total number of orders, 3: PHP memory limit */
+                            __( 'You\'ve exhausted your memory usage after %1$s out of %2$s orders. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %3$s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                            $total_order_count,
+                            $total_db_records,
+                            $memory_limit
+                        )
                     );
                     break;
                 }
@@ -4003,9 +4018,12 @@ class WPD_Data_Warehouse_React {
 			if ( wpd_is_memory_usage_greater_than(90) ) {
 
 				$memory_limit = ini_get('memory_limit');
-				/* translators: %s: PHP memory limit */
-				$this->set_error( 
-					sprintf( __( 'You\'ve exhausted your memory usage. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $memory_limit ) 
+				$this->set_error(
+					sprintf(
+						/* translators: %s: PHP memory limit */
+						__( 'You\'ve exhausted your memory usage. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						$memory_limit
+					)
 				);
 
 				break; // Break the entire process if were hitting the memory limits
@@ -6639,9 +6657,12 @@ class WPD_Data_Warehouse_React {
                 // Memory Check
                 if ( wpd_is_memory_usage_greater_than(90) ) {
                     $memory_limit = ini_get('memory_limit');
-                    /* translators: %s: PHP memory limit */
-                    $this->set_error( 
-                        sprintf( __( 'You\'ve exhausted your memory usage. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $memory_limit ) 
+                    $this->set_error(
+                        sprintf(
+                            /* translators: %s: PHP memory limit */
+                            __( 'You\'ve exhausted your memory usage. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                            $memory_limit
+                        )
                     );
                     break;
                 }

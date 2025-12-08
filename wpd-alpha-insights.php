@@ -245,8 +245,8 @@ class WPD_Alpha_Insights_Free_Plugin {
 		// Check PHP version
 		if ( version_compare( PHP_VERSION, WPD_AI_MIN_PHP_VER, '<' ) ) {
 			$is_compatible = false;
-			/* translators: 1: Minimum required PHP version, 2: Current PHP version */
 			$notices[] = sprintf(
+				/* translators: 1: Minimum required PHP version, 2: Current PHP version */
 				__( 'Alpha Insights requires at least PHP %1$s to run correctly. You are currently using PHP %2$s. Please upgrade your PHP version to use this plugin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 				esc_html( WPD_AI_MIN_PHP_VER ),
 				esc_html( PHP_VERSION )
@@ -256,8 +256,8 @@ class WPD_Alpha_Insights_Free_Plugin {
 		// Check WordPress version
 		if ( version_compare( $wp_version, WPD_AI_MIN_WP_VER, '<' ) ) {
 			$is_compatible = false;
-			/* translators: 1: Minimum required WordPress version, 2: Current WordPress version */
 			$notices[] = sprintf(
+				/* translators: 1: Minimum required WordPress version, 2: Current WordPress version */
 				__( 'Alpha Insights requires at least WordPress version %1$s to run. You are currently using version %2$s. Please upgrade WordPress to use this plugin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 				esc_html( WPD_AI_MIN_WP_VER ),
 				esc_html( $wp_version )
@@ -311,8 +311,8 @@ class WPD_Alpha_Insights_Free_Plugin {
 		} elseif ( ! empty( $woocommerce_version ) && version_compare( $woocommerce_version, WPD_AI_MIN_WC_VER, '<' ) ) {
 			// Check WooCommerce version (only if we have a version to check)
 			$is_compatible = false;
-			/* translators: 1: Minimum required WooCommerce version, 2: Current WooCommerce version */
 			$notices[] = sprintf(
+				/* translators: 1: Minimum required WooCommerce version, 2: Current WooCommerce version */
 				__( 'Alpha Insights requires at least WooCommerce version %1$s to run. You are currently using version %2$s. Please upgrade WooCommerce to use this plugin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 				esc_html( WPD_AI_MIN_WC_VER ),
 				esc_html( $woocommerce_version )

@@ -562,11 +562,11 @@ class WPD_Alpha_Insights_Core {
 
 				$order_currency = $order_data['order_currency'];
 				$original_amount = wpd_store_price( $item->get_total(), array('currency' => $order_currency) );
-				/* translators: 1: Currency code, 2: Original amount */
-				$currency_conversion_string = sprintf( 
-					__( 'This order was paid for in %1$s. <br>The original amount is %2$s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 
-					$order_currency, 
-					$original_amount 
+				$currency_conversion_string = sprintf(
+					/* translators: 1: Currency code, 2: Original amount */
+					__( 'This order was paid for in %1$s. <br>The original amount is %2$s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+					$order_currency,
+					$original_amount
 				);
 
 			}

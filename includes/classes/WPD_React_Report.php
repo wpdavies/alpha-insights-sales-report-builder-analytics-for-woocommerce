@@ -690,9 +690,12 @@ class WPD_React_Report {
             }
             
             if ($json_error !== JSON_ERROR_NONE) {
-                /* translators: %s: JSON error message */
-                wp_send_json_error( array( 
-                    'message' => sprintf( __( 'Invalid JSON configuration data: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( json_last_error_msg() ) )
+                wp_send_json_error( array(
+                    'message' => sprintf(
+                        /* translators: %s: JSON error message */
+                        __( 'Invalid JSON configuration data: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                        esc_html( json_last_error_msg() )
+                    )
                 ) );
                 return;
             }
@@ -869,9 +872,12 @@ class WPD_React_Report {
         $required_fields = array('report_slug');
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
-                /* translators: %s: Field name */
                 wp_send_json_error( array(
-                    'message' => sprintf(__('Missing required field: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), esc_html($field))
+                    'message' => sprintf(
+                        /* translators: %s: Field name */
+                        __('Missing required field: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                        esc_html($field)
+                    )
                 ) );
                 return;
             }
@@ -936,9 +942,12 @@ class WPD_React_Report {
         $required_fields = array('report_name', 'report_slug');
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
-                /* translators: %s: Field name */
                 wp_send_json_error( array(
-                    'message' => sprintf(__('Missing required field: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), esc_html($field))
+                    'message' => sprintf(
+                        /* translators: %s: Field name */
+                        __('Missing required field: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                        esc_html($field)
+                    )
                 ) );
                 return;
             }
@@ -2762,8 +2771,8 @@ class WPD_React_Report {
 
             if ( $saved !== false ) {
                 $response['success'] = true;
-                /* translators: %s: Report name or slug */
-                $response['message'] = sprintf( 
+                $response['message'] = sprintf(
+                    /* translators: %s: Report name or slug */
                     __( 'Mandatory report "%s" has been automatically installed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
                     $report_data['name'] ?? $report_slug
                 );
@@ -3162,23 +3171,23 @@ class WPD_React_Report {
                 
                 // Build message based on imported and skipped counts
                 if ( $imported_count > 0 && $skipped_count > 0 ) {
-                    /* translators: 1: Number of imported reports, 2: Number of skipped reports */
-                    $response['message'] = sprintf( 
-                        __( 'Successfully imported %1$d reports. %2$d reports were already installed and skipped.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 
+                    $response['message'] = sprintf(
+                        /* translators: 1: Number of imported reports, 2: Number of skipped reports */
+                        __( 'Successfully imported %1$d reports. %2$d reports were already installed and skipped.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
                         $imported_count,
                         $skipped_count
                     );
                 } elseif ( $imported_count > 0 ) {
-                    /* translators: %d: Number of imported reports */
-                    $response['message'] = sprintf( 
-                        __( 'Successfully imported %d default reports.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 
-                        $imported_count 
+                    $response['message'] = sprintf(
+                        /* translators: %d: Number of imported reports */
+                        __( 'Successfully imported %d default reports.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                        $imported_count
                     );
                 } else {
-                    /* translators: %d: Number of skipped reports */
-                    $response['message'] = sprintf( 
-                        __( 'All %d reports were already installed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 
-                        $skipped_count 
+                    $response['message'] = sprintf(
+                        /* translators: %d: Number of skipped reports */
+                        __( 'All %d reports were already installed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                        $skipped_count
                     );
                 }
                 
@@ -3267,10 +3276,10 @@ class WPD_React_Report {
             
             if ( $existing_report && ! $overwrite ) {
                 $response['success'] = false;
-                /* translators: %s: Report dashboard ID/slug */
-                $response['message'] = sprintf( 
-                    __( 'Report with slug "%s" already exists. Please enable overwrite to replace it.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 
-                    $dashboard_id 
+                $response['message'] = sprintf(
+                    /* translators: %s: Report dashboard ID/slug */
+                    __( 'Report with slug "%s" already exists. Please enable overwrite to replace it.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                    $dashboard_id
                 );
                 return $response;
             }

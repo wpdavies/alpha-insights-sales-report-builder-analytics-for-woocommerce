@@ -1280,8 +1280,8 @@ class WPD_Data_Manager {
             if ( ! empty( $plugin_files ) ) {
                 deactivate_plugins( $plugin_files );
                 $result['deactivated_plugins'] = $plugin_files;
-                /* translators: %d: Number of plugins deactivated */
                 $result['message'] = sprintf(
+                    /* translators: %d: Number of plugins deactivated */
                     __( 'All plugin data deleted and %d plugin(s) deactivated successfully.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
                     count( $plugin_files )
                 );
@@ -1291,8 +1291,8 @@ class WPD_Data_Manager {
 
         } catch ( Exception $e ) {
             $result['success'] = false;
-            /* translators: %s: Error message */
             $result['message'] = sprintf(
+                /* translators: %s: Error message */
                 __( 'Error during deletion/deactivation: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
                 $e->getMessage()
             );
@@ -2167,9 +2167,12 @@ class WPD_Data_Manager {
         $truncated_count = $data_manager->truncate_all_database_tables();
         
         if ( $truncated_count > 0 ) {
-            /* translators: %d: Number of tables cleared */
-            wp_send_json_success( array( 
-                'message' => sprintf( __( '%d table(s) cleared successfully.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $truncated_count )
+            wp_send_json_success( array(
+                'message' => sprintf(
+                    /* translators: %d: Number of tables cleared */
+                    __( '%d table(s) cleared successfully.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                    $truncated_count
+                )
             ) );
         } else {
             wp_send_json_error( array( 'message' => __( 'Failed to clear tables.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
