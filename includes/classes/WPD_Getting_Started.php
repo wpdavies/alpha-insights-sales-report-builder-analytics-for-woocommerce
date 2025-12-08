@@ -331,7 +331,7 @@ class WPD_Getting_Started {
                                                 <?php esc_html_e('Update Cost of Goods', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>
                                             </h4>
                                             <p><?php esc_html_e('Add actual supplier costs for your products instead of using default percentages.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
-                                            <a href="<?php echo wpd_admin_page_url( 'cost-of-goods-manager' ); ?>" class="wpd-gs-link"><?php esc_html_e('Go to Cost Manager →', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></a>
+                                            <a href="<?php echo esc_url( wpd_admin_page_url( 'cost-of-goods-manager' ) ); ?>" class="wpd-gs-link"><?php esc_html_e('Go to Cost Manager →', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></a>
                                         </div>
                                     </div>
                                     
@@ -362,7 +362,7 @@ class WPD_Getting_Started {
                                                 <?php endif; ?>
                                             </h4>
                                             <p><?php esc_html_e('Track rent, software subscriptions, salaries, and other costs for complete P&L reports.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
-                                            <a href="<?php echo admin_url( 'admin.php?page=' . WPD_Admin_Menu::$manage_expenses_slug ); ?>" class="wpd-gs-link"><?php esc_html_e('Open Expense Manager →', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></a>
+                                            <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . WPD_Admin_Menu::$manage_expenses_slug ) ); ?>" class="wpd-gs-link"><?php esc_html_e('Open Expense Manager →', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></a>
                                         </div>
                                     </div>
                                     

@@ -91,10 +91,9 @@ $starshipit_subscription_key = get_option( 'wpd_ai_starshipit_subscription_key' 
 					<input type="hidden" name="wpd_ai_webhook_settings[webhook_schedule_last_run]" value="<?php echo esc_attr( $webhook_data['webhook_schedule_last_run'] ); ?>">
 					<div class="wpd-meta">Your webhook will run at roughly 1am at the start of your period.</div>
 					<?php if ( ! empty($webhook_data['webhook_schedule_last_run']) ) : ?>
-						<?php
+						<p><?php
 						/* translators: %s: Date and time when the webhook last ran */
-						?>
-						<p><?php printf( esc_html__( 'Your last successful webhook ran on %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $webhook_data['webhook_schedule_last_run'] ) ); ?></p>
+						printf( esc_html__( 'Your last successful webhook ran on %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $webhook_data['webhook_schedule_last_run'] ) ); ?></p>
 					<?php endif; ?>
 				</td>
 			</tr>

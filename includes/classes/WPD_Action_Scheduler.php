@@ -16,7 +16,6 @@ defined( 'ABSPATH' ) || exit;
 class WPD_Action_Scheduler {
 
     public const EVENT_GROUP_SLUG                   = 'WP Davies';
-    public const SINGLE_EVENT_REBUILD_ORDER_CACHE   = 'wpd_rebuild_order_cache';
     public const SINGLE_EVENT_REBUILD_PRODUCT_CACHE = 'wpd_rebuild_product_cache';
     public const SINGLE_EVENT_TRACK_GOOGLE_ADS_ORDER_PROFIT_CONVERSION = 'wpd_google_ads_track_order_profit_conversion';
     public const SINGLE_EVENT_TRACK_GOOGLE_ADS_ADD_TO_CART_CONVERSION = 'wpd_google_ads_track_add_to_cart_conversion';
@@ -47,7 +46,6 @@ class WPD_Action_Scheduler {
         add_action( 'wpd_schedule_analytics_table_object_id_check',     'wpd_set_post_id_post_type_on_null_events_analytics_table' );
 
         // All single action hooks will need to run off this
-        add_action( self::SINGLE_EVENT_REBUILD_ORDER_CACHE,             'wpd_update_all_orders_cache');
         add_action( self::SINGLE_EVENT_REBUILD_PRODUCT_CACHE,           'wpd_delete_all_product_cache');
         add_action( self::SINGLE_EVENT_TRACK_GOOGLE_ADS_ORDER_PROFIT_CONVERSION, 'wpd_google_ads_track_profit_conversion_from_order_id', 10, 1);
         add_action( self::SINGLE_EVENT_TRACK_GOOGLE_ADS_ADD_TO_CART_CONVERSION, 'wpd_google_ads_track_add_to_cart_conversion_from_landing_page', 10, 2);

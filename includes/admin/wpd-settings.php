@@ -648,7 +648,7 @@ function wpd_output_additional_notices() {
 
 			// Redirect away from ntoice if they've updated their settings
 			$license_page = wpd_admin_page_url( 'settings-license' );
-			wp_redirect( $license_page );
+			wp_safe_redirect( $license_page );
 			exit;
 
 		}
