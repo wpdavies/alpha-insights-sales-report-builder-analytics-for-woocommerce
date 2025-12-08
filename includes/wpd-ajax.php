@@ -181,6 +181,7 @@ function wpd_reset_order_meta() {
 	if ( is_numeric($deleted_rows) ) {
 
 		$response['success']	= true;
+		/* translators: %d: Number of rows deleted */
 		$response['message']	= sprintf( __( '%d rows were deleted.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $deleted_rows );
 
 	} else {
@@ -217,6 +218,7 @@ function wpd_delete_order_line_item_cogs_ajax() {
 	if ( is_numeric($deleted_rows) ) {
 
 		$response['success']	= true;
+		/* translators: %d: Number of rows deleted */
 		$response['message']	= sprintf( __( '%d rows were deleted.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $deleted_rows );
 
 	} else {
@@ -441,6 +443,7 @@ function wpd_activate_license_ajax_function() {
 
 		$response['success'] = false;
 		$error_message = isset( $activate['message'] ) ? sanitize_text_field( $activate['message'] ) : '';
+		/* translators: %s: Error message */
 		$response['message'] = sprintf( __( 'Could not activate license, %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $error_message );
 
 	} else {
@@ -482,6 +485,7 @@ function wpd_refresh_license_ajax_function() {
 	if ( $license_status ) {
 
 		$response['success'] = true;
+		/* translators: %s: License status */
 		$response['message'] = sprintf( __( 'Your license is currently %s. All your license details have been updated, please refresh this page.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $license_status ) );
 
 	} else {
@@ -515,6 +519,7 @@ function wpd_refresh_all_facebook_api_data_ajax_function() {
 
 		$campaigns_found = isset( $result['campaigns_found'] ) ? absint( $result['campaigns_found'] ) : 0;
 		$response['success'] = true;
+		/* translators: %s: Number of campaigns found */
 		$response['message'] = sprintf( __( 'Success! %s campaign were found, we\'ve created and updated all of your Facebook data, please refresh this page.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $campaigns_found );
 
 	} else {
@@ -551,6 +556,7 @@ function wpd_delete_all_facebook_api_expense_data_ajax_function() {
 		if ( $result ) {
 	
 			$response['success'] = true;
+			/* translators: %s: Number of data points deleted */
 			$response['message'] = sprintf( __( 'Sucesfully deleted %s Facebook API Ad Spend data points.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), absint( $result ) );
 	
 		} else {
@@ -594,6 +600,7 @@ function wpd_delete_all_facebook_api_campaign_data_ajax_function() {
 		if ( $result ) {
 	
 			$response['success'] = true;
+			/* translators: %s: Number of data points deleted */
 			$response['message'] = sprintf( __( 'Sucesfully deleted %s Facebook API campaign data points.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), absint( $result ) );
 	
 		} else {
@@ -1004,6 +1011,7 @@ function wpd_create_google_conversion_action_ajax_function() {
 				
 				// Return response for normal creation
 				$response['success'] = true;
+				/* translators: %s: Conversion action name */
 				$response['message'] = sprintf( __( 'Successfully created conversion action "%s". Please refresh the page to see the updated status. You can view this conversion action in your Google Ads account under Goals > Summary.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $action_name );
 				
 			}
@@ -1059,6 +1067,7 @@ function wpd_delete_google_conversion_action_ajax_function() {
 			// Return response
 			$action_id = isset( $delete_result['conversion_action_id'] ) ? absint( $delete_result['conversion_action_id'] ) : 0;
 			$response['success'] = true;
+			/* translators: %d: Conversion action ID */
 			$response['message'] = sprintf( __( 'Successfully deleted conversion action (ID: %d). Please refresh the page to see the updated status.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $action_id );
 
 		} else {
@@ -1116,10 +1125,10 @@ function wpd_scan_utm_campaigns_via_order_ajax_function() {
 
 				if ( $result === false ) {
 					$response['message'] = __( 'Make sure you configure utm_campaign values against campaigns on the settings page before you run this function.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
-				}
-				elseif ( $result === 0 ) {
+				} elseif ( $result === 0 ) {
 					$response['message'] = __( 'No matches were found between your configured utm_campaigns and the values found in your orders. Check the stored query parameters on an order to determine the utm_campaign.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 				} else {
+					/* translators: %d: Number of orders updated */
 					$response['message'] = sprintf( __( 'Succesfully updated %d orders via your configured utm_campaigns', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), absint( $result ) );
 				}
 				
@@ -1182,8 +1191,7 @@ function wpd_scan_order_gclids_ajax_function() {
 				$updates = isset( $result['updates'] ) ? absint( $result['updates'] ) : 0;
 				$errors = isset( $result['errors'] ) ? absint( $result['errors'] ) : 0;
 				$gclids_found = isset( $result['gclids_found'] ) ? absint( $result['gclids_found'] ) : 0;
-
-				/* translators: 1: Number of orders checked, 2: Number of GCLIDs found, 3: Number of orders associated, 4: Number of API errors */
+				/* translators: 1: Number of orders checked, 2: Number of GCLIDs found, 3: Number of orders updated, 4: Number of API errors */
 				$response['message'] = sprintf( __( '%1$d Orders were checked, we found %2$d GCLIDs, associated %3$d orders to campaigns and there were %4$d API errors.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $orders_checked, $gclids_found, $updates, $errors );
 				
 			}
@@ -1347,6 +1355,7 @@ function wpd_create_google_add_to_cart_conversion_action_ajax_function() {
 				
 				// Return response for normal creation
 				$response['success'] = true;
+				/* translators: %s: Add To Cart conversion action name */
 				$response['message'] = sprintf( __( 'Successfully created Add To Cart conversion action "%s". Please refresh the page to see the updated status. You can view this conversion action in your Google Ads account under Goals > Summary.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $action_name );
 				
 			}
@@ -1452,6 +1461,7 @@ function wpd_load_documentation_ajax() {
 
 		$response['success'] = true;
 		$response['data']    = $docs_data;
+		/* translators: %d: Number of documentation files loaded */
 		$response['message'] = sprintf(__('Loaded %d documentation files.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), count($docs_data, COUNT_RECURSIVE) - count($docs_data));
 
 	} catch (Exception $e) {

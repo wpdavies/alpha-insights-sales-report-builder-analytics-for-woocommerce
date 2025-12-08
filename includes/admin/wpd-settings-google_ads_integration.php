@@ -139,7 +139,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 			<tr style="display:none;">
 				<td>
 					<label><?php _e( 'Collect Campaign Insights', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This will check your ad account for campaigns and build some basic reports based on those campaigns.' ); ?></div>
+					<div class="wpd-meta"><?php _e( 'This will check your ad account for campaigns and build some basic reports based on those campaigns.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_google_ads_api[collect_campaign_insights]">

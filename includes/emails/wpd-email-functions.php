@@ -62,6 +62,7 @@ function wpd_email( $email, $preview = false, $args = array() ) {
 			require_once( WPD_AI_PATH . 'includes/emails/wpd-email-template_profit_report.php' );
 			$mail_message 	= ob_get_clean();
 			$mail_to 		= $profit_report_settings['recipients'];
+			/* translators: %s: Site name */
 			( ! empty( $args['subject'] ) ) ? $mail_subject = $args['subject'] : $mail_subject = sprintf( __( '%s Profit Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $site_name );
 
 			// Check if message is empty
@@ -76,6 +77,7 @@ function wpd_email( $email, $preview = false, $args = array() ) {
 			wpd_write_log('ERROR generating profit report email: ' . $e->getMessage(), 'email');
 			$mail_message = '<p>Error generating profit report. Please check your store configuration.</p>';
 			$mail_to = $admin_email; // Fallback to admin
+			/* translators: %s: Site name */
 			$mail_subject = sprintf( __( '%s Profit Report - Error', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $site_name );
 		}
 
@@ -109,6 +111,7 @@ function wpd_email( $email, $preview = false, $args = array() ) {
 			require_once( WPD_AI_PATH . 'includes/emails/wpd-email-template_expense_report.php' );
 			$mail_message 	= ob_get_clean();
 			$mail_to 		= $expense_report_settings['recipients'];
+			/* translators: %s: Site name */
 			( ! empty( $args['subject'] ) ) ? $mail_subject = $args['subject'] : $mail_subject 	= sprintf( __( '%s Expense Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $site_name );
 
 			// Check if message is empty
@@ -121,6 +124,7 @@ function wpd_email( $email, $preview = false, $args = array() ) {
 			wpd_write_log('ERROR generating expense report email: ' . $e->getMessage(), 'email');
 			$mail_message = '<p>Error generating expense report. Please check your store configuration.</p>';
 			$mail_to = $admin_email;
+			/* translators: %s: Site name */
 			$mail_subject = sprintf( __( '%s Expense Report - Error', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $site_name );
 		}
 

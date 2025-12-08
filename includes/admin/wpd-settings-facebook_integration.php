@@ -116,7 +116,7 @@ defined( 'ABSPATH' ) || exit;
 			<tr style="display:none;">
 				<td>
 					<label><?php _e( 'Collect Campaign Insights', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This will check your ad account for campaigns and build some basic reports based on those campaigns.' ); ?></div>
+					<div class="wpd-meta"><?php _e( 'This will check your ad account for campaigns and build some basic reports based on those campaigns.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_facebook_integration[collect_campaign_insights]">

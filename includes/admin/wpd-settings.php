@@ -611,6 +611,7 @@ function wpd_save_settings() {
 
 		if ( $save_status === true ) {
 
+			/* translators: %s: Settings section name */
 			wpd_notice( 
 				sprintf( __( '%s settings have been updated', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $setting )
 			);

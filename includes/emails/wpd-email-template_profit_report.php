@@ -75,7 +75,9 @@ $total_store_profit_data = array_merge(array('total_store_profit' => 0), $total_
 wpd_write_log('Profit report data prepared - Orders: ' . $total_order_data['total_order_count'] . ', Revenue: ' . $total_order_data['total_order_revenue'], 'email');
 
 ?>
-<?php wpd_email_header( sprintf( __( '%s Profit Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'Alpha Insights' ) ); ?>
+<?php 
+/* translators: %s: Plugin or site name */
+wpd_email_header( sprintf( __( '%s Profit Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'Alpha Insights' ) ); ?>
 <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnCodeBlock">
     <tbody class="mcnTextBlockOuter">
         <tr>

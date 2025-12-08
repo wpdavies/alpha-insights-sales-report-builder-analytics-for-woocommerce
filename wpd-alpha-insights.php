@@ -245,9 +245,9 @@ class WPD_Alpha_Insights_Free_Plugin {
 		// Check PHP version
 		if ( version_compare( PHP_VERSION, WPD_AI_MIN_PHP_VER, '<' ) ) {
 			$is_compatible = false;
-			/* translators: %s: Minimum required PHP version */
+			/* translators: 1: Minimum required PHP version, 2: Current PHP version */
 			$notices[] = sprintf(
-				__( 'Alpha Insights requires at least PHP %s to run correctly. You are currently using PHP %s. Please upgrade your PHP version to use this plugin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+				__( 'Alpha Insights requires at least PHP %1$s to run correctly. You are currently using PHP %2$s. Please upgrade your PHP version to use this plugin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 				esc_html( WPD_AI_MIN_PHP_VER ),
 				esc_html( PHP_VERSION )
 			);

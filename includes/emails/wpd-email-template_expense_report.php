@@ -20,7 +20,9 @@ defined( 'ABSPATH' ) || exit;
 $from_date 						= $expense_reports->get_date_from(WPD_AI_PHP_PRETTY_DATE); 	// date in the past
 $to_date						= $expense_reports->get_date_to(WPD_AI_PHP_PRETTY_DATE); 	// current date
 ?>
-<?php wpd_email_header( sprintf( __( '%s Expense Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'Alpha Insights' ) ); ?>
+<?php 
+/* translators: %s: Plugin or site name */
+wpd_email_header( sprintf( __( '%s Expense Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'Alpha Insights' ) ); ?>
 <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnCodeBlock">
     <tbody class="mcnTextBlockOuter">
         <tr>
@@ -47,12 +49,16 @@ $to_date						= $expense_reports->get_date_to(WPD_AI_PHP_PRETTY_DATE); 	// curre
 						                	<?php endif; ?>
 						               		<?php if ( $expense_report_settings['details']['parent_expenses'] ) : ?>
 						               			<?php foreach( $expense_report_categorized['parent_expense_type_categories'] as $key => $value ) : ?>
-							                    	<?php wpd_table_row_report_data( sprintf( __( 'Spent On %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), wpd_clean_string($key) ), wc_price( $value['total_amount'] ) ); ?>
+							                    	<?php 
+							                    	/* translators: %s: Expense category name */
+							                    	wpd_table_row_report_data( sprintf( __( 'Spent On %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), wpd_clean_string($key) ), wc_price( $value['total_amount'] ) ); ?>
 							                	<?php endforeach; ?>
 						                	<?php endif; ?>
 						               		<?php if ( $expense_report_settings['details']['child_expenses'] ) : ?>
 						               			<?php foreach( $expense_report_categorized['child_expense_type_categories'] as $key => $value ) : ?>
-							                    	<?php wpd_table_row_report_data( sprintf( __( 'Spent On %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), wpd_clean_string( $key ) ), wc_price( $value['total_amount'] ) ); ?>
+							                    	<?php 
+							                    	/* translators: %s: Expense category name */
+							                    	wpd_table_row_report_data( sprintf( __( 'Spent On %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), wpd_clean_string( $key ) ), wc_price( $value['total_amount'] ) ); ?>
 							                    <?php endforeach; ?>
 						                	<?php endif; ?>
 					                	</tbody>

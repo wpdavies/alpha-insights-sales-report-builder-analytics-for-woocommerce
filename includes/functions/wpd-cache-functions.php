@@ -62,6 +62,7 @@ function wpd_delete_all_product_cache() {
 	if ( $products_IDs ) {
 
 		$response['success']			= true;
+		/* translators: 1: Total number of products found, 2: Number of products with cache refreshed */
 		$response['message']	= sprintf( __( '%1$d products were found, %2$d products have had their cache refreshed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $total_records, $records_updated );
 
 	} else {

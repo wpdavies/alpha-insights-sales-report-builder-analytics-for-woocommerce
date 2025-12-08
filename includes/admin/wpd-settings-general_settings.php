@@ -350,7 +350,7 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 			<tr>
 				<td>
 					<label><?php _e( 'Exclude These Roles From Tracking', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This will prevent these user roles from being tracked on your website.' ); ?></div>
+					<div class="wpd-meta"><?php _e( 'This will prevent these user roles from being tracked on your website.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input wpd-combo-select" name="wpd_ai_analytics[exclude_roles][]" value="" multiple="multiple" placeholder="Select Role Type(s) To Exclude">

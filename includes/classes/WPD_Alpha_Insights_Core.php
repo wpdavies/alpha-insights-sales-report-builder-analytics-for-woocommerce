@@ -312,6 +312,7 @@ class WPD_Alpha_Insights_Core {
 		$currency_string = wpd_store_currency_string();
 		woocommerce_wp_text_input( array(
 			'id' => 'line-item-cogs[' . $item_id . ']',
+			/* translators: %s: Currency code */
 			'label' => sprintf( __( 'Cost Of Goods Per Unit (%s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $currency_string ),
 			'value' => $line_item_cogs,
 			'placeholder' => esc_attr( strip_tags( wc_price( $default_line_item_cogs ) ) ),
@@ -808,6 +809,7 @@ class WPD_Alpha_Insights_Core {
 					$currency_string = wpd_store_currency_string();
 					woocommerce_wp_text_input( array(
 						'id' => 'total_product_cost',
+						/* translators: %s: Currency code */
 						'label' => sprintf( __( 'Total Product Cost Of Goods (%s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $currency_string ) . ':',
 						'value' => $meta_total_product_cost,
 						'placeholder' => strip_tags( wc_price( $total_product_cost ) ),
@@ -828,6 +830,7 @@ class WPD_Alpha_Insights_Core {
 
 								woocommerce_wp_text_input( array(
 									'id' => '_wpd_ai_total_order_product_custom_cost',
+									/* translators: %s: Currency code */
 									'label' => sprintf( __( 'Total Product Custom Costs (%s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), wpd_store_currency_string() ) . ':',
 									'value' => $meta_total_order_product_custom_cost,
 									'placeholder' => strip_tags( wc_price( $order_data['total_product_custom_costs'] ) ),
@@ -845,6 +848,7 @@ class WPD_Alpha_Insights_Core {
 
 					woocommerce_wp_text_input( array(
 						'id' => 'total_shipping_cost',
+						/* translators: %s: Currency code */
 						'label' => sprintf( __( 'Total Shipping Cost (%s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), wpd_store_currency_string() ) . ':',
 						'value' => $meta_total_shipping_cost,
 						'placeholder' => strip_tags( wc_price( $total_shipping_cost ) ),
@@ -854,6 +858,7 @@ class WPD_Alpha_Insights_Core {
 
 					woocommerce_wp_text_input( array(
 						'id' => 'payment_gateway_cost',
+						/* translators: %s: Currency code */
 						'label' => sprintf( __( 'Payment Gateway Cost (%s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), wpd_store_currency_string() ) . ':',
 						'value' => $meta_payment_gateway_cost,
 						'placeholder' => esc_attr( strip_tags( wc_price( $payment_gateway_cost ) ) ),
@@ -1964,7 +1969,7 @@ class WPD_Alpha_Insights_Core {
 
 		}
 
-		$columns['posts'] = __( 'Posts' ); // Last
+		$columns['posts'] = __( 'Posts', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); // Last
 
 		return $columns;
 
