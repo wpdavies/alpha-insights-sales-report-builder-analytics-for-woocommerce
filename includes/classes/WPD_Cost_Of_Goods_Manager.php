@@ -278,9 +278,15 @@ class WPD_Cost_Of_Goods_Manager {
 		$page = isset($_POST['page']) ? absint( wp_unslash( $_POST['page'] ) ) : 1;
 		$per_page = isset($_POST['per_page']) ? absint( wp_unslash( $_POST['per_page'] ) ) : 25;
 		$filters_raw = isset($_POST['filters']) ? wp_unslash( $_POST['filters'] ) : '[]';
-		$filters = json_decode( $filters_raw, true );
-		if ( json_last_error() !== JSON_ERROR_NONE || ! is_array( $filters ) ) {
-			$filters = [];
+		
+		// Handle both array and JSON string inputs
+		if ( is_array( $filters_raw ) ) {
+			$filters = $filters_raw;
+		} else {
+			$filters = json_decode( $filters_raw, true );
+			if ( json_last_error() !== JSON_ERROR_NONE || ! is_array( $filters ) ) {
+				$filters = [];
+			}
 		}
 		if ( function_exists( 'wpd_sanitize_json_decoded_array' ) && ! empty( $filters ) ) {
 			$filters = wpd_sanitize_json_decoded_array( $filters );
