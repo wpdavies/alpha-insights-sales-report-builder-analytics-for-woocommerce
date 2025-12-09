@@ -339,7 +339,7 @@ function wpd_cleanup_analytics_data( $days_ago = 30 ) {
 	wpd_write_log( 'Cleaning up analytics data in the last ' . $days_ago_string, 'db_cleanup' );
 
 	// Number of days to check
-	$start_date = date("Y-m-d H:i:s", strtotime($days_ago_string));
+	$start_date = gmdate("Y-m-d H:i:s", strtotime($days_ago_string));
 
 	// Prepare query using wpdb->prepare() for security
 	$sql_query = $wpdb->prepare(

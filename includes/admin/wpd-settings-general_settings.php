@@ -576,63 +576,58 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 <?php wpd_javascript_ajax_action( '#wpd-reset-order-meta', 'wpd_reset_order_meta' ); ?>
 <?php wpd_javascript_ajax_action( '#wpd-delete-order-line-item-cogs', 'wpd_delete_order_line_item_cogs' ); ?>
 <?php wpd_javascript_ajax_action( '#wpd-update_db_manually', 'wpd-update_db_manually' ); ?>
-<script type="text/javascript">
-	jQuery(document).ready(function($) {
-		$('.wpd-delete-custom-order-cost').click(function() {
-			let targetRow = $(this).closest('tr').remove();
-		});
-	});
-</script>
-<script type="text/javascript">
-	jQuery(document).ready(function($) {
-		jQuery('.wpd-data-point').click(function(e) {
+<?php
 
-			// Prevent anything else
-			e.preventDefault();
-
-			// Show pop notification
-			wpdPopNotification( 'loading', '<?php echo esc_js( __( 'Processing...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>', '<?php echo esc_js( __( 'We are working on it!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>' );
-
-			// Get value
-			let customOrderCostName = jQuery(this).data('val');
-
-			// Some data cleaning
-			if ( customOrderCostName.length < 4 ) {
-				wpdPopNotification( 'fail', 'Hm, Something Is Not Quite Right', 'We couldnt locate the custom order cost key.');
-				return false;
+$delete_data_point_script = "
+jQuery(document).ready(function($) {
+	jQuery('.wpd-data-point').click(function(e) {
+		// Prevent anything else
+		e.preventDefault();
+		// Show pop notification
+		wpdPopNotification( 'loading', '" . esc_js( __( 'Processing...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ) . "', '" . esc_js( __( 'We are working on it!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ) . "' );
+		// Get value
+		let customOrderCostName = jQuery(this).data('val');
+		// Some data cleaning
+		if ( customOrderCostName.length < 4 ) {
+			wpdPopNotification( 'fail', 'Hm, Something Is Not Quite Right', 'We couldnt locate the custom order cost key.');
+			return false;
+		}
+		// Pass in the data
+		let data = {
+			'action': 'wpd_delete_custom_order_cost',
+			'url'   : window.location.href,
+			'value' : customOrderCostName,
+			'nonce' : (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.nonce) ? wpdAlphaInsights.nonce : ''
+		};
+		var ajaxurl = '" . esc_url( admin_url('admin-ajax.php') ) . "';
+		$.post(ajaxurl, data)
+		.done(function( response ) {
+			var parsedResponse = wpdHandleAjaxResponse(
+				response,
+				'" . esc_js( __( 'Your request has been successfully completed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ) . "',
+				'" . esc_js( __( 'Your action could not be completed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ) . "'
+			);
+			if (parsedResponse && parsedResponse.success) {
+				window.postMessage(parsedResponse, \"*\");
 			}
-
-			// Pass in the data
-			let data = {
-				'action': 'wpd_delete_custom_order_cost',
-				'url'   : window.location.href,
-				'value' : customOrderCostName,
-				'nonce' : (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.nonce) ? wpdAlphaInsights.nonce : ''
-			};
-			var ajaxurl = '<?php echo esc_url( admin_url('admin-ajax.php') ); ?>';
-			$.post(ajaxurl, data)
-			.done(function( response ) {
-				var parsedResponse = wpdHandleAjaxResponse(
-					response,
-					'<?php echo esc_js( __( 'Your request has been successfully completed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>',
-					'<?php echo esc_js( __( 'Your action could not be completed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>'
-				);
-				if (parsedResponse && parsedResponse.success) {
-					window.postMessage(parsedResponse, "*"); // jQuery(window).on("message", function(e) {});
+		})
+		.fail(function( jqXHR, textStatus, errorThrown ) {
+			var errorMessage = '" . esc_js( __( 'Your action could not be completed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ) . "';
+			if (jqXHR.responseText) {
+				try {
+					var errorResponse = JSON.parse(jqXHR.responseText);
+					errorMessage = wpdExtractResponseMessage(errorResponse, errorMessage);
+				} catch(e) {
+					// If we can't parse the error, use default message
 				}
-			})
-			.fail(function( jqXHR, textStatus, errorThrown ) {
-				var errorMessage = '<?php echo esc_js( __( 'Your action could not be completed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>';
-				if (jqXHR.responseText) {
-					try {
-						var errorResponse = JSON.parse(jqXHR.responseText);
-						errorMessage = wpdExtractResponseMessage(errorResponse, errorMessage);
-					} catch(e) {
-						// If we can't parse the error, use default message
-					}
-				}
-				wpdPopNotification( 'fail', '<?php echo esc_js( __( 'Request Failed', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>', errorMessage );
-			});
+			}
+			wpdPopNotification( 'fail', '" . esc_js( __( 'Request Failed', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ) . "', errorMessage );
 		});
 	});
-</script>
+});";
+
+// Ensure the main admin script is enqueued
+wp_enqueue_script( 'wpd-alpha-insights-admin' );
+wp_add_inline_script( 'wpd-alpha-insights-admin', $delete_custom_order_cost_script );
+wp_add_inline_script( 'wpd-alpha-insights-admin', $delete_data_point_script );
+?>

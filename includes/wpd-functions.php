@@ -195,31 +195,6 @@ function wpd_setup_notice_hook() {
 
 /**
  *
- *	If we dont have our menu
- *	
- */
-add_action( 'admin_footer', 'wpd_ai_no_menu_found' );
-function wpd_ai_no_menu_found() {
-
-	if ( ! is_wpd_page() ) {
-		return false;
-	}
-	?>
-	<script type="text/javascript">
-		jQuery(document).ready(function($) {
-			var wpd_ai_notice_string = 'PLEASE NOTE: The Alpha Insights menu could not be loaded, this may be due to a plugin preventing WordPress notices from showing. Please remove any plugins which may effect WordPress notices, we have a setting to remove notices if you would like to maintain that functionality.';
-			var wpd_ai_menu_notice = '<div class="wpd-notice notice notice-success is-dismissible"><p>' + wpd_ai_notice_string + '</p></div>';
-			if ( ! $('#wpd-ai-menu').length ) {
-		        $('.wrap').prepend(wpd_ai_menu_notice);
-		    }
-		});
-	</script>
-	<?php
-
-}
-
-/**
- *
  *	Calculate the profit of an order by order_id or order object.
  *
  * 	Will return an associative array with detailed calculations for this order.

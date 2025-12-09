@@ -275,11 +275,18 @@ class WPD_Cost_Of_Goods_Manager {
 			wp_send_json_error(['message' => 'Insufficient permissions']);
 		}
 
-		$page = isset($_POST['page']) ? absint($_POST['page']) : 1;
-		$per_page = isset($_POST['per_page']) ? absint($_POST['per_page']) : 25;
-		$filters = isset($_POST['filters']) ? $_POST['filters'] : [];
-		$sort_by = isset($_POST['sort_by']) ? sanitize_text_field($_POST['sort_by']) : 'name';
-		$sort_order = isset($_POST['sort_order']) ? sanitize_text_field($_POST['sort_order']) : 'asc';
+		$page = isset($_POST['page']) ? absint( wp_unslash( $_POST['page'] ) ) : 1;
+		$per_page = isset($_POST['per_page']) ? absint( wp_unslash( $_POST['per_page'] ) ) : 25;
+		$filters_raw = isset($_POST['filters']) ? wp_unslash( $_POST['filters'] ) : '[]';
+		$filters = json_decode( $filters_raw, true );
+		if ( json_last_error() !== JSON_ERROR_NONE || ! is_array( $filters ) ) {
+			$filters = [];
+		}
+		if ( function_exists( 'wpd_sanitize_json_decoded_array' ) && ! empty( $filters ) ) {
+			$filters = wpd_sanitize_json_decoded_array( $filters );
+		}
+		$sort_by = isset($_POST['sort_by']) ? sanitize_text_field( wp_unslash( $_POST['sort_by'] ) ) : 'name';
+		$sort_order = isset($_POST['sort_order']) ? sanitize_text_field( wp_unslash( $_POST['sort_order'] ) ) : 'asc';
 
 		// Build WP_Query args
 		$args = [
@@ -591,8 +598,8 @@ class WPD_Cost_Of_Goods_Manager {
 			wp_send_json_error(['message' => 'Insufficient permissions']);
 		}
 
-		$product_id = isset($_POST['product_id']) ? absint($_POST['product_id']) : 0;
-		$cost = isset($_POST['cost']) ? sanitize_text_field($_POST['cost']) : '';
+		$product_id = isset($_POST['product_id']) ? absint( wp_unslash( $_POST['product_id'] ) ) : 0;
+		$cost = isset($_POST['cost']) ? sanitize_text_field( wp_unslash( $_POST['cost'] ) ) : '';
 
 		if (!$product_id) {
 			wp_send_json_error(['message' => 'Invalid product ID']);
@@ -673,8 +680,9 @@ class WPD_Cost_Of_Goods_Manager {
 
 		// Set headers for CSV download
 		header('Content-Type: text/csv');
-		header('Content-Disposition: attachment; filename="cost-of-goods-' . date('Y-m-d') . '.csv"');
+		header('Content-Disposition: attachment; filename="cost-of-goods-' . gmdate('Y-m-d') . '.csv"');
 		
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- Direct output to browser for CSV download is acceptable.
 		$output = fopen('php://output', 'w');
 		
 		// Headers
@@ -714,6 +722,7 @@ class WPD_Cost_Of_Goods_Manager {
 			]);
 		}
 
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Direct output to browser for CSV download is acceptable.
 		fclose($output);
 		exit;
 	}
@@ -728,9 +737,9 @@ class WPD_Cost_Of_Goods_Manager {
 			wp_send_json_error(['message' => 'Insufficient permissions']);
 		}
 
-		$identifier = isset($_POST['identifier']) ? sanitize_text_field($_POST['identifier']) : '';
-		$identifier_type = isset($_POST['identifier_type']) ? sanitize_text_field($_POST['identifier_type']) : 'sku';
-		$cost = isset($_POST['cost']) ? sanitize_text_field($_POST['cost']) : '';
+		$identifier = isset($_POST['identifier']) ? sanitize_text_field( wp_unslash( $_POST['identifier'] ) ) : '';
+		$identifier_type = isset($_POST['identifier_type']) ? sanitize_text_field( wp_unslash( $_POST['identifier_type'] ) ) : 'sku';
+		$cost = isset($_POST['cost']) ? sanitize_text_field( wp_unslash( $_POST['cost'] ) ) : '';
 
 		if (!$identifier) {
 			wp_send_json_error(['message' => 'Missing product identifier']);
@@ -804,7 +813,7 @@ class WPD_Cost_Of_Goods_Manager {
 			wp_send_json_error(['message' => 'Insufficient permissions']);
 		}
 
-		$source_meta_key = isset($_POST['source_meta_key']) ? sanitize_text_field($_POST['source_meta_key']) : '';
+		$source_meta_key = isset($_POST['source_meta_key']) ? sanitize_text_field( wp_unslash( $_POST['source_meta_key'] ) ) : '';
 
 		if (!$source_meta_key) {
 			wp_send_json_error(['message' => 'Source meta key is required']);
@@ -902,10 +911,13 @@ class WPD_Cost_Of_Goods_Manager {
 			'_min_sale_price_variation_id',
 		];
 
-		$excluded_keys_placeholders = implode(',', array_fill(0, count($excluded_keys), '%s'));
+		// Build placeholder string for NOT IN clause
+		$placeholders = implode(',', array_fill(0, count($excluded_keys), '%s'));
 
 		// Get all unique meta keys from products/variations
 		// We'll filter for numeric values in PHP for better compatibility
+		// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- The query is dynamically built with placeholders and then prepared.
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are from trusted source.
 		$meta_keys_raw = $wpdb->get_results($wpdb->prepare(
 			"SELECT 
 				pm.meta_key,
@@ -915,11 +927,11 @@ class WPD_Cost_Of_Goods_Manager {
 			INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
 			WHERE p.post_type IN ('product', 'product_variation')
 			AND p.post_status = 'publish'
-			AND pm.meta_key NOT IN ($excluded_keys_placeholders)
+			AND pm.meta_key NOT IN ($placeholders)
 			AND pm.meta_value != ''
 			AND pm.meta_value IS NOT NULL
 			ORDER BY pm.meta_key ASC",
-			...$excluded_keys
+			$excluded_keys
 		), ARRAY_A);
 
 		// Group by meta_key and count, filtering for numeric values
@@ -967,8 +979,8 @@ class WPD_Cost_Of_Goods_Manager {
 			wp_send_json_error(['message' => 'Insufficient permissions']);
 		}
 
-		$source_meta_key = isset($_POST['source_meta_key']) ? sanitize_text_field($_POST['source_meta_key']) : '';
-		$overwrite = isset($_POST['overwrite']) ? filter_var($_POST['overwrite'], FILTER_VALIDATE_BOOLEAN) : false;
+		$source_meta_key = isset($_POST['source_meta_key']) ? sanitize_text_field( wp_unslash( $_POST['source_meta_key'] ) ) : '';
+		$overwrite = isset($_POST['overwrite']) ? filter_var( wp_unslash( $_POST['overwrite'] ), FILTER_VALIDATE_BOOLEAN) : false;
 
 		if (!$source_meta_key) {
 			wp_send_json_error(['message' => 'Source meta key is required']);

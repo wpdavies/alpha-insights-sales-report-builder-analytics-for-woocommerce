@@ -655,34 +655,3 @@ function wpd_output_additional_notices() {
 	}
 
 }
-
-/**
- *
- *	Prevent notices if setting is enabled
- *
- */
-add_action('admin_head', 'wpd_hide_wp_notices');
-function wpd_hide_wp_notices() {
-
-	$prevent_notices = get_option( 'wpd_ai_prevent_wp_notices' );
-
-	if ( $prevent_notices ) {
-
-		?>
-		<style type="text/css">
-			/* Hide admin notices on my pages */
-			.notice, .updated, .update-nag {
-			    display: none !important;
-			}
-			.woocommerce-embed-page .woocommerce-store-alerts {
-			    display: none;
-			}
-			.notice.wpd-notice, .plugin-update .notice {
-			    display: block !important;
-			}
-	  	</style>
-		<?php
-
-	}
-
-}

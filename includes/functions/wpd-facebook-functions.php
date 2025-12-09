@@ -81,7 +81,7 @@ function wpd_next_fb_api_call() {
 
 	if ( $timestamp ) {
 		// Convert to store’s local time
-		return strtotime( get_date_from_gmt( date( 'Y-m-d H:i:s', $timestamp ) ) );
+		return strtotime( get_date_from_gmt( gmdate( 'Y-m-d H:i:s', $timestamp ) ) );
 	}
 
 	return false;

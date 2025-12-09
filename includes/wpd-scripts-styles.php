@@ -41,6 +41,7 @@ function wpd_ai_admin_enqueue() {
 	wp_register_script( 'wpd-alpha-insights-wordpress-admin', WPD_AI_URL_PATH . 'assets/js/wpd-alpha-insights-wordpress-admin.js', array( 'jquery' ), WPD_AI_VER, true );
 	wp_register_script( 'wpd-submenu-scroll', WPD_AI_URL_PATH . 'assets/js/wpd-submenu-scroll.js', array( 'jquery' ), WPD_AI_VER, true );
 	wp_register_script( 'wpd-easy-select', WPD_AI_URL_PATH . 'assets/js/js-easy-select.js', array( 'jquery' ), false, true ); // 2.9.xx
+	wp_register_script( 'wpd-data-manager', WPD_AI_URL_PATH . 'assets/js/wpd-data-manager.js', array( 'jquery' ), WPD_AI_VER, true );
 
 	/**
 	 *
@@ -102,6 +103,28 @@ function wpd_ai_admin_enqueue() {
 		wp_enqueue_script( 'wpd-submenu-scroll' );
 	}
 	wp_enqueue_script( 'wpd-easy-select' );
+
+	$prevent_notices = get_option( 'wpd_ai_prevent_wp_notices' );
+
+	if ( $prevent_notices ) {
+		// Enqueue the WordPress admin style first
+		wp_enqueue_style( 'wpd-alpha-insights-wordpress-admin' );
+		
+		// Add inline style to hide notices
+		$hide_notices_css = "
+		/* Hide admin notices on my pages */
+		.notice, .updated, .update-nag {
+		    display: none !important;
+		}
+		.woocommerce-embed-page .woocommerce-store-alerts {
+		    display: none;
+		}
+		.notice.wpd-notice, .plugin-update .notice {
+		    display: block !important;
+		}";
+		
+		wp_add_inline_style( 'wpd-alpha-insights-wordpress-admin', $hide_notices_css );
+	}
 
 }
 

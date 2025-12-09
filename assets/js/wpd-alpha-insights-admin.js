@@ -1123,3 +1123,68 @@ jQuery(document).ready(function($) {
     });
 
 });
+/**
+ * Delete custom order cost
+ */
+jQuery(document).ready(function($) {
+	$('.wpd-delete-custom-order-cost').click(function() {
+		let targetRow = $(this).closest('tr').remove();
+	});
+});
+jQuery(document).ready(function($) {
+	jQuery('.wpd-data-point').click(function(e) {
+		// Prevent anything else
+		e.preventDefault();
+		// Show pop notification
+		wpdPopNotification( 'loading', 'Processing...', 'We are working on it!' );
+		// Get value
+		let customOrderCostName = jQuery(this).data('val');
+		// Some data cleaning
+		if ( customOrderCostName.length < 4 ) {
+			wpdPopNotification( 'fail', 'Hm, Something Is Not Quite Right', 'We couldnt locate the custom order cost key.');
+			return false;
+		}
+		// Pass in the data
+		let data = {
+			'action': 'wpd_delete_custom_order_cost',
+			'url'   : window.location.href,
+			'value' : customOrderCostName,
+			'nonce' : (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.nonce) ? wpdAlphaInsights.nonce : ''
+		};
+        let ajaxUrl = wpdAlphaInsights.ajax_url;
+		$.post(ajaxUrl, data)
+		.done(function( response ) {
+			var parsedResponse = wpdHandleAjaxResponse(
+				response,
+				'Your request has been successfully completed.',
+				'Your action could not be completed.'
+			);
+			if (parsedResponse && parsedResponse.success) {
+				window.postMessage(parsedResponse, "*");
+			}
+		})
+		.fail(function( jqXHR, textStatus, errorThrown ) {
+			var errorMessage = 'Your action could not be completed.';
+			if (jqXHR.responseText) {
+				try {
+					var errorResponse = JSON.parse(jqXHR.responseText);
+					errorMessage = wpdExtractResponseMessage(errorResponse, errorMessage);
+				} catch(e) {
+					// If we can't parse the error, use default message
+				}
+			}
+			wpdPopNotification( 'fail', 'Request Failed', errorMessage );
+		});
+	});
+});
+jQuery(document).ready(function($) {
+    $('.wpd-debug-log-option').click(function() {
+        let targetLog = $(this).data('log');
+        if ( targetLog ) {
+            $('.wpd-debug-log-option').removeClass('active');
+            $('.wpd-debug-log-output').hide();
+            $('.wpd-debug-log-output.' + targetLog).show();
+            $('.wpd-debug-log-option[data-log=\"'+ targetLog +'\"]').addClass('active');
+        }
+    });
+});

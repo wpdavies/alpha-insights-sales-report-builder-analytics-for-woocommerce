@@ -82,14 +82,14 @@ if ( $license_status === 'active' ) {
 					<?php esc_html_e( 'Expiration Date', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
 					<div class="wpd-meta">Your license expiry date is automatically updated as your subscription continues.<br>Each succesful payment during your subscription will push your expiry date out further.</div>
 				</td>
-				<td><?php echo esc_html( (isset($license_details['expiration_date']) && ! empty($license_details['expiration_date'])) ? date( 'l jS F\, Y', strtotime($license_details['expiration_date']) ) : '' ); ?></td>
+				<td><?php echo esc_html( (isset($license_details['expiration_date']) && ! empty($license_details['expiration_date'])) ? gmdate( 'l jS F\, Y', strtotime($license_details['expiration_date']) ) : '' ); ?></td>
 			</tr>
 			<tr>
 				<td>
 					<?php esc_html_e( 'Last Updated', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
 					<div class="wpd-meta">The last time your license data was checked and updated.</div>
 				</td>
-				<td><?php echo esc_html( (isset($license_data['last_updated']) && ! empty($license_data['last_updated'])) ? date( 'l jS F\, Y \a\t g\:ia', strtotime($license_data['last_updated']) ) : '' ); ?></td>
+				<td><?php echo esc_html( (isset($license_data['last_updated']) && ! empty($license_data['last_updated'])) ? gmdate( 'l jS F\, Y \a\t g\:ia', strtotime($license_data['last_updated']) ) : '' ); ?></td>
 			</tr>
 			<tr>
 				<td><?php esc_html_e( 'Manage Your License', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?><div class="wpd-meta"><?php esc_html_e( 'Visit your account area on WP Davies to manage your license.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div></td>

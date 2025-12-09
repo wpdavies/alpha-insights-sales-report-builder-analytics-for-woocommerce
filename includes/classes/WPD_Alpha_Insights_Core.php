@@ -165,7 +165,7 @@ class WPD_Alpha_Insights_Core {
 		$average_order_value 				= $user_data['average_order_value'];
 		$conversion_rate 					= $user_data['conversion_rate'];
 		$last_updated 						= get_user_meta( $user->ID, '_wpd_ai_last_updated', true );
-		$last_updated_date 					= ( ! empty($last_updated) && is_numeric($last_updated) ) ? get_date_from_gmt( date( WPD_AI_PHP_ISO_DATETIME, $last_updated ), WPD_AI_PHP_PRETTY_DATETIME) : 'Not Set';
+		$last_updated_date 					= ( ! empty($last_updated) && is_numeric($last_updated) ) ? get_date_from_gmt( gmdate( WPD_AI_PHP_ISO_DATETIME, $last_updated ), WPD_AI_PHP_PRETTY_DATETIME) : 'Not Set';
 		
 		// Logo Avatar
 		$logo = '<span class="wpd-plugin-logo" style="vertical-align: middle; margin-right: 10px;"><img height="50" src="' . esc_url( WPD_AI_URL_PATH ) . '/assets/img/Alpha-Insights-Icon-Large.png" class="alpha-insights-menu-logo"></span>';
@@ -383,7 +383,7 @@ class WPD_Alpha_Insights_Core {
 
 		// Get dates in user's local timezone
 		$current_timestamp = current_time( 'timestamp' );
-		$start_date = date( 'Y-m-01', $current_timestamp ); // First of current month in local time
+		$start_date = gmdate( 'Y-m-01', $current_timestamp ); // First of current month in local time
 		$end_date   = current_time( 'Y-m-d' ); // Today in local time 
 		$data_warehouse = new WPD_Data_Warehouse_React(
 			array(

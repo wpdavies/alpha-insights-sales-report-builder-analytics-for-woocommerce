@@ -181,3 +181,99 @@ function wpd_get_valid_reporting_utm_keys() {
 	return apply_filters( 'wpd_ai_valid_reporting_utm_keys', $valid_utm_keys );
 
 }
+
+/**
+ * Sanitize and decode JSON config data from POST request
+ * 
+ * Handles unslashing, URL decoding, HTML entity decoding, and JSON parsing
+ * with fallback handling for double-escaped JSON.
+ * 
+ * @since 5.0.0
+ * 
+ * @param string|array $raw_data The raw POST data (string or already unslashed)
+ * @param bool $url_decode Whether to URL decode the data (default: true for form-urlencoded)
+ * @return array|WP_Error Decoded config array on success, WP_Error on failure
+ */
+function wpd_sanitize_and_decode_json_config( $raw_data, $url_decode = true ) {
+	
+	// Handle array input (already processed)
+	if ( is_array( $raw_data ) ) {
+		return $raw_data;
+	}
+	
+	// Ensure we have a string
+	if ( ! is_string( $raw_data ) ) {
+		return new WP_Error(
+			'invalid_input',
+			__( 'Config data must be a string or array.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
+		);
+	}
+	
+	// Return empty array if empty
+	if ( empty( trim( $raw_data ) ) ) {
+		return array();
+	}
+	
+	// Unslash if needed (check if it looks like it needs unslashing)
+	$config_json = wp_unslash( $raw_data );
+	
+	// URL decode if requested (for form-urlencoded POST data)
+	if ( $url_decode ) {
+		$config_json = urldecode( $config_json );
+	}
+	
+	// Decode HTML entities if present (e.g., &quot; -> ")
+	$config_json = html_entity_decode( $config_json, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+	
+	// First try to decode normally
+	$config_data = json_decode( $config_json, true );
+	$json_error = json_last_error();
+	
+	// If that fails, try to decode the escaped JSON (double-encoded case)
+	if ( $json_error !== JSON_ERROR_NONE ) {
+		$unescaped_json = stripslashes( $config_json );
+		$config_data = json_decode( $unescaped_json, true );
+		$json_error = json_last_error();
+	}
+	
+	// If still failing, try removing outer quotes
+	if ( $json_error !== JSON_ERROR_NONE ) {
+		$trimmed_json = trim( $config_json, '"' );
+		$trimmed_json = stripslashes( $trimmed_json );
+		$config_data = json_decode( $trimmed_json, true );
+		$json_error = json_last_error();
+	}
+	
+	// If all attempts failed, return error
+	if ( $json_error !== JSON_ERROR_NONE ) {
+		return new WP_Error(
+			'json_decode_failed',
+			sprintf(
+				/* translators: %s: JSON error message */
+				__( 'Failed to parse JSON configuration: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+				esc_html( json_last_error_msg() )
+			),
+			array(
+				'json_error' => $json_error,
+				'json_error_msg' => json_last_error_msg(),
+				'raw_data_preview' => substr( $raw_data, 0, 200 ),
+			)
+		);
+	}
+	
+	// Ensure we got an array
+	if ( ! is_array( $config_data ) ) {
+		return new WP_Error(
+			'invalid_config_format',
+			__( 'Decoded config must be an array.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
+		);
+	}
+	
+	// Sanitize the decoded array if the function exists
+	if ( function_exists( 'wpd_sanitize_json_decoded_array' ) ) {
+		$config_data = wpd_sanitize_json_decoded_array( $config_data );
+	}
+	
+	return $config_data;
+	
+}

@@ -157,6 +157,7 @@ class WPD_Data_Manager {
                 // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
                 $query = "SELECT DISTINCT option_name FROM $wpdb->options WHERE " . implode( ' OR ', $like_conditions );
                 $query = $wpdb->prepare( $query, $prepared_values );
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
                 $results = $wpdb->get_col( $query );
                 if ( ! empty( $results ) && is_array( $results ) ) {
                     $transient_values = $results;
@@ -252,6 +253,7 @@ class WPD_Data_Manager {
                 ",
                 $wpdb->esc_like( $prefix ) . '%'
             );
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
             $results = $wpdb->get_col( $query );
             if ( ! empty( $results ) && is_array( $results ) ) {
                 $dynamic_options = array_merge( $dynamic_options, $results );
@@ -314,6 +316,7 @@ class WPD_Data_Manager {
             $wpdb->esc_like( '_wpd_ai_' ) . '%',
             $wpdb->esc_like( '_wpd_' ) . '%'
         );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
         $dynamic_keys = $wpdb->get_col( $query );
 
         return array_unique( array_merge( $static_keys, $dynamic_keys ? $dynamic_keys : array() ) );
@@ -366,6 +369,7 @@ class WPD_Data_Manager {
             ",
             $wpdb->esc_like( '_wpd_ai_custom_order_cost_' ) . '%'
         );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
         $custom_order_costs = $wpdb->get_col( $query );
         if ( ! empty( $custom_order_costs ) && is_array( $custom_order_costs ) ) {
             $dynamic_keys = array_merge( $dynamic_keys, $custom_order_costs );
@@ -382,6 +386,7 @@ class WPD_Data_Manager {
             
             if ( $table_exists === $orders_meta_table ) {
                 // Get all Alpha Insights order meta keys from HPOS table
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
                 $query = $wpdb->prepare(
                     "
                     SELECT DISTINCT(meta_key)
@@ -390,6 +395,7 @@ class WPD_Data_Manager {
                     ",
                     $wpdb->esc_like( '_wpd_ai_' ) . '%'
                 );
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
                 $hpos_keys = $wpdb->get_col( $query );
                 if ( ! empty( $hpos_keys ) && is_array( $hpos_keys ) ) {
                     $dynamic_keys = array_merge( $dynamic_keys, $hpos_keys );
@@ -409,6 +415,7 @@ class WPD_Data_Manager {
             $wpdb->esc_like( '_wpd_ai_' ) . '%',
             $wpdb->esc_like( '_wpd_' ) . '%'
         );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
         $legacy_order_keys = $wpdb->get_col( $query );
         if ( ! empty( $legacy_order_keys ) && is_array( $legacy_order_keys ) ) {
             $dynamic_keys = array_merge( $dynamic_keys, $legacy_order_keys );
@@ -450,6 +457,7 @@ class WPD_Data_Manager {
             ",
             $wpdb->esc_like( '_wpd_' ) . '%'
         );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
         $dynamic_keys = $wpdb->get_col( $query );
 
         return array_unique( array_merge( $static_keys, $dynamic_keys ? $dynamic_keys : array() ) );
@@ -505,6 +513,7 @@ class WPD_Data_Manager {
             ",
             $wpdb->esc_like( '_wpd_' ) . '%'
         );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
         $dynamic_keys = $wpdb->get_col( $query );
 
         return array_unique( array_merge( $static_keys, $dynamic_keys ? $dynamic_keys : array() ) );
@@ -560,6 +569,7 @@ class WPD_Data_Manager {
             ",
             $wpdb->esc_like( '_wpd_' ) . '%'
         );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
         $dynamic_keys = $wpdb->get_col( $query );
 
         return array_unique( array_merge( $static_keys, $dynamic_keys ? $dynamic_keys : array() ) );
@@ -649,6 +659,7 @@ class WPD_Data_Manager {
                 ) );
                 
                 if ( $table_exists === $orders_meta_table ) {
+                    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
                     $deleted = $wpdb->query( $wpdb->prepare(
                         "DELETE FROM $orders_meta_table WHERE meta_key = %s",
                         $meta_key
@@ -875,6 +886,7 @@ class WPD_Data_Manager {
         $deleted_count = 0;
 
         foreach ( $order_item_meta_keys as $meta_key ) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
             $deleted = $wpdb->query( $wpdb->prepare(
                 "DELETE FROM $item_meta_table WHERE meta_key = %s",
                 $meta_key
@@ -951,6 +963,7 @@ class WPD_Data_Manager {
             ) );
             
             if ( $table_exists === $orders_meta_table ) {
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
                 $deleted = $wpdb->query( $wpdb->prepare(
                     "DELETE FROM $orders_meta_table WHERE meta_key LIKE %s",
                     $wpdb->esc_like( '_wpd_ai_custom_order_cost_' ) . '%'
@@ -994,6 +1007,7 @@ class WPD_Data_Manager {
             
             if ( $table_exists === $orders_meta_table ) {
                 $deleted = $wpdb->query( $wpdb->prepare(
+                    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
                     "DELETE FROM $orders_meta_table WHERE meta_key = %s",
                     $meta_key
                 ) );
@@ -1044,6 +1058,8 @@ class WPD_Data_Manager {
                 ",
                 $group_slug
             );
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are from trusted source.
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
             $group_actions = $wpdb->get_results( $query, ARRAY_A );
             
             if ( ! empty( $group_actions ) && is_array( $group_actions ) ) {
@@ -1051,6 +1067,7 @@ class WPD_Data_Manager {
             }
             
             // Also get actions with hooks starting with 'wpd_' (in case they're not in our group)
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
             $query = $wpdb->prepare(
                 "
                 SELECT a.action_id, a.hook, a.status, a.scheduled_date_gmt, a.args, a.group_id
@@ -1060,6 +1077,7 @@ class WPD_Data_Manager {
                 ",
                 $wpdb->esc_like( 'wpd_' ) . '%'
             );
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
             $hook_actions = $wpdb->get_results( $query, ARRAY_A );
             
             if ( ! empty( $hook_actions ) && is_array( $hook_actions ) ) {
@@ -1172,6 +1190,7 @@ class WPD_Data_Manager {
         
         if ( $actions_table_exists === $actions_table ) {
             // Get group ID
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
             $group_id = $wpdb->get_var( $wpdb->prepare(
                 "SELECT group_id FROM $groups_table WHERE slug = %s",
                 $group_slug
@@ -1179,6 +1198,7 @@ class WPD_Data_Manager {
             
             if ( $group_id ) {
                 // Get all action IDs for this group
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
                 $action_ids = $wpdb->get_col( $wpdb->prepare(
                     "SELECT action_id FROM $actions_table WHERE group_id = %d AND status IN ('pending', 'in-progress')",
                     $group_id
@@ -1322,10 +1342,12 @@ class WPD_Data_Manager {
         
         $placeholders = implode( ',', array_fill( 0, count( $transient_names ), '%s' ) );
         // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholders are dynamically built but properly prepared.
         $query = $wpdb->prepare(
             "SELECT COUNT(DISTINCT option_name) FROM $wpdb->options WHERE option_name IN ($placeholders)",
             $transient_names
         );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
         return (int) $wpdb->get_var( $query );
     }
 
@@ -1350,10 +1372,13 @@ class WPD_Data_Manager {
         
         $placeholders = implode( ',', array_fill( 0, count( $transient_names ), '%s' ) );
         // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+        // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholders are dynamically built but properly prepared.
         $query = $wpdb->prepare(
             "SELECT DISTINCT option_name FROM $wpdb->options WHERE option_name IN ($placeholders)",
             $transient_names
         );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
         $existing_transients = $wpdb->get_col( $query );
         
         foreach ( $existing_transients as $transient_option_name ) {
@@ -1389,10 +1414,12 @@ class WPD_Data_Manager {
         global $wpdb;
         $placeholders = implode( ',', array_fill( 0, count( $option_keys ), '%s' ) );
         // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholders are dynamically built but properly prepared.
         $query = $wpdb->prepare(
             "SELECT COUNT(DISTINCT option_name) FROM $wpdb->options WHERE option_name IN ($placeholders)",
             $option_keys
         );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
         return (int) $wpdb->get_var( $query );
     }
 
@@ -1412,10 +1439,12 @@ class WPD_Data_Manager {
         $details = array();
         $placeholders = implode( ',', array_fill( 0, count( $option_keys ), '%s' ) );
         // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholders are dynamically built but properly prepared.
         $query = $wpdb->prepare(
             "SELECT option_name FROM $wpdb->options WHERE option_name IN ($placeholders)",
             $option_keys
         );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
         $existing_keys = $wpdb->get_col( $query );
         
         foreach ( $existing_keys as $key ) {
@@ -1451,10 +1480,12 @@ class WPD_Data_Manager {
         // Optimize: Use single query with WHERE IN instead of looping
         $placeholders = implode( ',', array_fill( 0, count( $meta_keys ), '%s' ) );
         // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholders are dynamically built but properly prepared.
         $query = $wpdb->prepare(
             "SELECT COUNT(*) FROM $wpdb->postmeta WHERE meta_key IN ($placeholders)",
             $meta_keys
         );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
         $count += (int) $wpdb->get_var( $query );
         
         // Count from HPOS orders meta table if enabled
@@ -1467,10 +1498,12 @@ class WPD_Data_Manager {
             
             if ( $table_exists === $orders_meta_table ) {
                 // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name and placeholders are from trusted source.
                 $query = $wpdb->prepare(
                     "SELECT COUNT(*) FROM $orders_meta_table WHERE meta_key IN ($placeholders)",
                     $meta_keys
                 );
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
                 $count += (int) $wpdb->get_var( $query );
             }
         }
@@ -1506,6 +1539,7 @@ class WPD_Data_Manager {
         if ( ! empty( $meta_keys ) ) {
             $placeholders = implode( ',', array_fill( 0, count( $meta_keys ), '%s' ) );
             // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholders are dynamically built but properly prepared.
             $query = $wpdb->prepare(
                 "
                 SELECT COUNT(*)
@@ -1516,6 +1550,7 @@ class WPD_Data_Manager {
                 ",
                 $meta_keys
             );
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
             $meta_count = (int) $wpdb->get_var( $query );
         }
         
@@ -1559,6 +1594,7 @@ class WPD_Data_Manager {
         if ( ! empty( $meta_keys ) ) {
             $placeholders = implode( ',', array_fill( 0, count( $meta_keys ), '%s' ) );
             // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholders are dynamically built but properly prepared.
             $query = $wpdb->prepare(
                 "
                 SELECT COUNT(*)
@@ -1569,6 +1605,7 @@ class WPD_Data_Manager {
                 ",
                 $meta_keys
             );
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
             $meta_count = (int) $wpdb->get_var( $query );
         }
         
@@ -1612,6 +1649,7 @@ class WPD_Data_Manager {
         if ( ! empty( $meta_keys ) ) {
             $placeholders = implode( ',', array_fill( 0, count( $meta_keys ), '%s' ) );
             // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholders are dynamically built but properly prepared.
             $query = $wpdb->prepare(
                 "
                 SELECT COUNT(*)
@@ -1622,6 +1660,7 @@ class WPD_Data_Manager {
                 ",
                 $meta_keys
             );
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
             $meta_count = (int) $wpdb->get_var( $query );
         }
         
@@ -1657,6 +1696,7 @@ class WPD_Data_Manager {
         
         // Count from postmeta (for legacy installations)
         // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholders are dynamically built but properly prepared.
         $query = $wpdb->prepare(
             "
             SELECT pm.meta_key, COUNT(*) as count
@@ -1668,6 +1708,7 @@ class WPD_Data_Manager {
             ",
             $meta_keys
         );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
         $results = $wpdb->get_results( $query, ARRAY_A );
         
         // Build counts map
@@ -1685,10 +1726,12 @@ class WPD_Data_Manager {
             
             if ( $table_exists === $orders_meta_table ) {
                 // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name and placeholders are from trusted source.
                 $query = $wpdb->prepare(
                     "SELECT meta_key, COUNT(*) as count FROM $orders_meta_table WHERE meta_key IN ($placeholders) GROUP BY meta_key",
                     $meta_keys
                 );
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
                 $hpos_results = $wpdb->get_results( $query, ARRAY_A );
                 
                 // Add HPOS counts to existing counts
@@ -1756,6 +1799,7 @@ class WPD_Data_Manager {
         // Optimize: Get all counts in a single query using GROUP BY
         $placeholders = implode( ',', array_fill( 0, count( $meta_keys ), '%s' ) );
         // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholders are dynamically built but properly prepared.
         $query = $wpdb->prepare(
             "
             SELECT pm.meta_key, COUNT(*) as count
@@ -1767,6 +1811,7 @@ class WPD_Data_Manager {
             ",
             $meta_keys
         );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
         $results = $wpdb->get_results( $query, ARRAY_A );
         
         // Build details array
@@ -1896,6 +1941,7 @@ class WPD_Data_Manager {
             // Get table size in MB
             // Use DB_NAME constant instead of $wpdb->dbname for WordPress.org compliance
             $db_name = defined( 'DB_NAME' ) ? DB_NAME : $wpdb->dbname;
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement for table size cannot use prepared statements for table names.
             $size_query = $wpdb->prepare(
                 "SELECT 
                     ROUND(((DATA_LENGTH + INDEX_LENGTH) / 1024 / 1024), 2) AS size_mb
@@ -1905,6 +1951,7 @@ class WPD_Data_Manager {
                 $db_name,
                 $table_name
             );
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
             $size_mb = $wpdb->get_var( $size_query );
             $size_mb = $size_mb ? (float) $size_mb : 0;
             
@@ -2021,7 +2068,7 @@ class WPD_Data_Manager {
             return;
         }
         
-        $entity_type = sanitize_text_field( $_POST['entity_type'] );
+        $entity_type = sanitize_text_field( wp_unslash( $_POST['entity_type'] ) );
         $data_manager = self::get_instance();
         $result = false;
         $message = '';
@@ -2108,7 +2155,7 @@ class WPD_Data_Manager {
             return;
         }
         
-        $table_name = sanitize_text_field( $_POST['table_name'] );
+        $table_name = sanitize_text_field( wp_unslash( $_POST['table_name'] ) );
         $data_manager = self::get_instance();
         
         if ( $data_manager->delete_database_table( $table_name ) ) {
@@ -2138,7 +2185,7 @@ class WPD_Data_Manager {
             return;
         }
         
-        $table_name = sanitize_text_field( $_POST['table_name'] );
+        $table_name = sanitize_text_field( wp_unslash( $_POST['table_name'] ) );
         $data_manager = self::get_instance();
         
         if ( $data_manager->truncate_database_table( $table_name ) ) {
@@ -2199,8 +2246,8 @@ class WPD_Data_Manager {
             return;
         }
         
-        $entity_type = sanitize_text_field( $_POST['entity_type'] );
-        $meta_key = sanitize_text_field( $_POST['meta_key'] );
+        $entity_type = sanitize_text_field( wp_unslash( $_POST['entity_type'] ) );
+        $meta_key = sanitize_text_field( wp_unslash( $_POST['meta_key'] ) );
         $data_manager = self::get_instance();
         $result = false;
         
@@ -2237,8 +2284,8 @@ class WPD_Data_Manager {
             return;
         }
         
-        $entity_type = sanitize_text_field( $_POST['entity_type'] );
-        $item_key = sanitize_text_field( $_POST['item_key'] );
+        $entity_type = sanitize_text_field( wp_unslash( $_POST['entity_type'] ) );
+        $item_key = sanitize_text_field( wp_unslash( $_POST['item_key'] ) );
         $result = false;
         
         if ( $entity_type === 'transients' ) {
@@ -2309,8 +2356,8 @@ class WPD_Data_Manager {
             return;
         }
         
-        $entity_type = sanitize_text_field( $_POST['entity_type'] );
-        $meta_type = sanitize_text_field( $_POST['meta_type'] );
+        $entity_type = sanitize_text_field( wp_unslash( $_POST['entity_type'] ) );
+        $meta_type = sanitize_text_field( wp_unslash( $_POST['meta_type'] ) );
         $data_manager = self::get_instance();
         $result = false;
         
@@ -2504,591 +2551,52 @@ class WPD_Data_Manager {
                 </tbody>
             </table>
         </div>
-        <style type="text/css">
-            .wpd-sub-row {
-                background-color: #f9f9f9;
-            }
-            .wpd-sub-row:hover {
-                background-color: #f0f0f0;
-            }
-            .wpd-entity-row-expandable {
-                cursor: pointer;
-            }
-            .wpd-entity-row-expandable:hover {
-                background-color: #f7f7f7;
-            }
-            .wpd-toggle-icon {
-                color: #2271b1;
-                transition: transform 0.2s;
-            }
-            .wpd-entity-row-expandable.expanded .wpd-toggle-icon {
-                transform: rotate(180deg);
-            }
-            .wpd-entity-row-expandable .button {
-                cursor: pointer;
-            }
-            .wpd-sub-row td {
-                width: auto;
-            }
-            .wpd-sub-row td:first-child {
-                width: 30%;
-            }
-            .wpd-sub-row td:nth-child(2) {
-                width: 40%;
-            }
-            .wpd-sub-row td:nth-child(3) {
-                width: 15%;
-            }
-            .wpd-sub-row td:nth-child(4) {
-                width: 15%;
-            }
-        </style>
-        <script type="text/javascript">
-            jQuery(document).ready(function($) {
-                // Load data via AJAX on page load
-                var ajaxUrl = '<?php echo esc_js( admin_url( 'admin-ajax.php' ) ); ?>';
-                var nonce = '<?php echo esc_js( wp_create_nonce( WPD_AI_AJAX_NONCE_ACTION ) ); ?>';
-                var cachedData = null; // Cache the AJAX response
-                
-                // Fetch all data
-                $.ajax({
-                    url: ajaxUrl,
-                    type: 'POST',
-                    data: {
-                        action: 'wpd_get_data_management_counts',
-                        nonce: nonce
-                    },
-                    success: function(response) {
-                        if (response.success && response.data) {
-                            cachedData = response.data; // Cache the data
-                            populateTableData(response.data);
-                        } else {
-                            showError('<?php echo esc_js( __( 'Failed to load data. Please refresh the page.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                        }
-                    },
-                    error: function() {
-                        showError('<?php echo esc_js( __( 'Error loading data. Please refresh the page.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                    }
-                });
-                
-                function populateTableData(data) {
-                    // Update counts for each entity
-                    $.each(data, function(entityType, entityData) {
-                        var $countCell = $('.wpd-count-' + entityType);
-                        var $deleteButton = $('.wpd-delete-entity[data-entity-type="' + entityType + '"]');
-                        
-                        // Update count
-                        $countCell.html('<span class="wpd-statistic-value">' + formatNumber(entityData.count) + '</span>');
-                        
-                        // Enable/disable delete button
-                        if (entityData.count > 0) {
-                            $deleteButton.prop('disabled', false);
-                        }
-                        
-                        // Enable/disable clear all tables button for database tables
-                        if (entityType === 'database_tables') {
-                            var $clearAllButton = $('.wpd-clear-all-tables');
-                            if (entityData.count > 0) {
-                                $clearAllButton.prop('disabled', false);
-                            }
-                        }
-                    });
-                }
-                
-                function formatNumber(num) {
-                    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                }
-                
-                function showError(message) {
-                    $('.wpd-statistic').each(function() {
-                        $(this).html('<span style="color: #d63638;">' + message + '</span>');
-                    });
-                }
-                
-                // Toggle sub-rows
-                $('.wpd-entity-row-expandable').on('click', function(e) {
-                    // Don't toggle if clicking the delete button
-                    if ($(e.target).closest('.button').length) {
-                        return;
-                    }
-                    
-                    var entityType = $(this).data('entity-type');
-                    var $subRowContainer = $('.wpd-sub-row-container.wpd-sub-row-' + entityType);
-                    var $row = $(this);
-                    var $subRows = $subRowContainer.nextAll('.wpd-sub-row-' + entityType);
-                    
-                    if ($subRows.is(':visible')) {
-                        $subRows.slideUp();
-                        $row.removeClass('expanded');
-                    } else {
-                        // Load sub-row data if not already loaded
-                        if ($subRows.length === 0) {
-                            loadSubRowData(entityType, $subRowContainer);
-                            // Wait a moment for rows to be inserted, then show them
-                            setTimeout(function() {
-                                $subRowContainer.nextAll('.wpd-sub-row-' + entityType).slideDown();
-                                $row.addClass('expanded');
-                            }, 50);
-                        } else {
-                            $subRows.slideDown();
-                            $row.addClass('expanded');
-                        }
-                    }
-                });
-                
-                function loadSubRowData(entityType, $container) {
-                    // Use cached data if available, otherwise fetch
-                    if (cachedData && cachedData[entityType]) {
-                        renderSubRows(entityType, cachedData[entityType].details, $container);
-                    } else {
-                        // Fallback: fetch if cache not available
-                        $.ajax({
-                            url: ajaxUrl,
-                            type: 'POST',
-                            data: {
-                                action: 'wpd_get_data_management_counts',
-                                nonce: nonce
-                            },
-                            success: function(response) {
-                                if (response.success && response.data) {
-                                    cachedData = response.data; // Cache the data
-                                    if (response.data[entityType]) {
-                                        renderSubRows(entityType, response.data[entityType].details, $container);
-                                    }
-                                }
-                            }
-                        });
-                    }
-                }
-                
-                function renderSubRows(entityType, details, $container) {
-                    // Remove any existing sub-rows for this entity type
-                    $container.nextAll('.wpd-sub-row-' + entityType).remove();
-                    
-                    // Hide the loading container
-                    $container.hide();
-                    
-                    if (!details || details.length === 0) {
-                        var $emptyRow = $('<tr class="wpd-sub-row wpd-sub-row-' + entityType + '"><td colspan="4" style="padding: 10px; text-align: center; color: #666;"><?php echo esc_js( __( 'No items found.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></td></tr>');
-                        $container.after($emptyRow);
-                        return;
-                    }
-                    
-                    $.each(details, function(index, item) {
-                        var $row = $('<tr class="wpd-sub-row wpd-sub-row-' + entityType + '"></tr>');
-                        
-                        if (entityType === 'database_tables') {
-                            $row.html(
-                                '<td style="padding-left: 40px;">' +
-                                    '<span class="wpd-meta">' + escapeHtml(item.friendly_name) + '</span><br>' +
-                                    '<code style="font-size: 11px; color: #666;">' + escapeHtml(item.table_name) + '</code>' +
-                                '</td>' +
-                                '<td>' +
-                                    '<span class="wpd-meta"><?php echo esc_js( __( 'Records:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?> <strong>' + formatNumber(item.record_count) + '</strong></span><br>' +
-                                    '<span class="wpd-meta"><?php echo esc_js( __( 'Size:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?> <strong>' + parseFloat(item.size_mb).toFixed(2) + ' MB</strong></span>' +
-                                '</td>' +
-                                '<td><span class="wpd-statistic">' + formatNumber(item.record_count) + '</span></td>' +
-                                '<td>' +
-                                    '<button type="button" class="button button-small wpd-truncate-table" ' +
-                                    'data-table-name="' + escapeHtml(item.table_name) + '" ' +
-                                    'data-table-friendly="' + escapeHtml(item.friendly_name) + '" ' +
-                                    'style="margin-right: 5px;">' +
-                                    '<?php echo esc_js( __( 'Clear', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>' +
-                                    '</button>' +
-                                    '<button type="button" class="button button-small button-link-delete wpd-delete-table" ' +
-                                    'data-table-name="' + escapeHtml(item.table_name) + '" ' +
-                                    'data-table-friendly="' + escapeHtml(item.friendly_name) + '">' +
-                                    '<?php echo esc_js( __( 'Delete', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>' +
-                                    '</button>' +
-                                '</td>'
-                            );
-                        } else if (entityType === 'orders' || entityType === 'products') {
-                            $row.html(
-                                '<td style="padding-left: 40px;">' +
-                                    '<strong>' + escapeHtml(item.friendly_name) + '</strong><br>' +
-                                    '<code style="font-size: 11px; color: #666;">' + escapeHtml(item.meta_key) + '</code>' +
-                                '</td>' +
-                                '<td><span class="wpd-meta">' + escapeHtml($('.wpd-entity-row[data-entity-type="' + entityType + '"]').find('strong').text()) + ' <?php echo esc_js( __( 'meta key', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></span></td>' +
-                                '<td><span class="wpd-statistic">' + formatNumber(item.count) + '</span></td>' +
-                                '<td>' +
-                                    '<button type="button" class="button button-small button-link-delete wpd-delete-meta-key" ' +
-                                    'data-entity-type="' + entityType + '" ' +
-                                    'data-meta-key="' + escapeHtml(item.meta_key) + '" ' +
-                                    'data-meta-friendly="' + escapeHtml(item.friendly_name) + '">' +
-                                    '<?php echo esc_js( __( 'Delete', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>' +
-                                    '</button>' +
-                                '</td>'
-                            );
-                        } else if (entityType === 'transients' || entityType === 'options') {
-                            $row.html(
-                                '<td style="padding-left: 40px;">' +
-                                    '<strong>' + escapeHtml(item.friendly_name) + '</strong><br>' +
-                                    '<code style="font-size: 11px; color: #666;">' + escapeHtml(item.key) + '</code>' +
-                                '</td>' +
-                                '<td><span class="wpd-meta">' + escapeHtml($('.wpd-entity-row[data-entity-type="' + entityType + '"]').find('strong').text()) + ' <?php echo esc_js( __( 'entry', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></span></td>' +
-                                '<td><span class="wpd-statistic">1</span></td>' +
-                                '<td>' +
-                                    '<button type="button" class="button button-small button-link-delete wpd-delete-single-item" ' +
-                                    'data-entity-type="' + entityType + '" ' +
-                                    'data-item-key="' + escapeHtml(item.key) + '" ' +
-                                    'data-item-friendly="' + escapeHtml(item.friendly_name) + '">' +
-                                    '<?php echo esc_js( __( 'Delete', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>' +
-                                    '</button>' +
-                                '</td>'
-                            );
-                        } else if (entityType === 'scheduled_tasks') {
-                            var scheduledDate = item.scheduled_date ? '<br><?php echo esc_js( __( 'Scheduled:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?> <strong>' + escapeHtml(item.scheduled_date) + '</strong>' : '';
-                            $row.html(
-                                '<td style="padding-left: 40px;">' +
-                                    '<strong>' + escapeHtml(item.friendly_name) + '</strong><br>' +
-                                    '<code style="font-size: 11px; color: #666;">' + escapeHtml(item.hook) + '</code>' +
-                                '</td>' +
-                                '<td>' +
-                                    '<span class="wpd-meta"><?php echo esc_js( __( 'Status:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?> <strong>' + escapeHtml(item.status) + '</strong>' + scheduledDate + '</span>' +
-                                '</td>' +
-                                '<td><span class="wpd-statistic">1</span></td>' +
-                                '<td>' +
-                                    '<button type="button" class="button button-small button-link-delete wpd-delete-scheduled-task" ' +
-                                    'data-action-id="' + escapeHtml(item.action_id) + '" ' +
-                                    'data-hook="' + escapeHtml(item.hook) + '" ' +
-                                    'data-hook-friendly="' + escapeHtml(item.friendly_name) + '">' +
-                                    '<?php echo esc_js( __( 'Delete', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>' +
-                                    '</button>' +
-                                '</td>'
-                            );
-                        } else {
-                            // Post type sub-rows (expenses, facebook_campaigns, google_campaigns)
-                            $row.html(
-                                '<td style="padding-left: 40px;"><strong>' + escapeHtml(item.label) + '</strong></td>' +
-                                '<td><span class="wpd-meta">' + escapeHtml($('.wpd-entity-row[data-entity-type="' + entityType + '"]').find('strong').text()) + ' ' + escapeHtml(item.label.toLowerCase()) + '</span></td>' +
-                                '<td><span class="wpd-statistic">' + formatNumber(item.count) + '</span></td>' +
-                                '<td>' +
-                                    '<button type="button" class="button button-small button-link-delete wpd-delete-post-type-meta" ' +
-                                    'data-entity-type="' + entityType + '" ' +
-                                    'data-meta-type="' + escapeHtml(item.label.toLowerCase()) + '">' +
-                                    '<?php echo esc_js( __( 'Delete', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>' +
-                                    '</button>' +
-                                '</td>'
-                            );
-                        }
-                        
-                        // Insert the row after the container (which is the loading placeholder)
-                        $container.after($row);
-                    });
-                }
-                
-                function escapeHtml(text) {
-                    var map = {
-                        '&': '&amp;',
-                        '<': '&lt;',
-                        '>': '&gt;',
-                        '"': '&quot;',
-                        "'": '&#039;'
-                    };
-                    return text ? text.replace(/[&<>"']/g, function(m) { return map[m]; }) : '';
-                }
-                
-                // Handle delete entity button clicks
-                $(document).on('click', '.wpd-delete-entity', function(e) {
-                    e.stopPropagation();
-                    var $button = $(this);
-                    var entityType = $button.data('entity-type');
-                    var entityName = $button.data('entity-name');
-                    
-                    if (!confirm('<?php echo esc_js( __( 'Are you sure you want to delete all', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?> ' + entityName + '? <?php echo esc_js( __( 'This action cannot be undone.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>')) {
-                        return;
-                    }
-                    
-                    var originalText = $button.text();
-                    $button.prop('disabled', true).text('<?php echo esc_js( __( 'Deleting...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                    
-                    $.ajax({
-                        url: ajaxUrl,
-                        type: 'POST',
-                        data: {
-                            action: 'wpd_delete_entity',
-                            entity_type: entityType,
-                            nonce: nonce
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                // Reload the page to refresh data
-                                location.reload();
-                            } else {
-                                alert(response.data && response.data.message ? response.data.message : '<?php echo esc_js( __( 'Failed to delete.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                                $button.prop('disabled', false).text(originalText);
-                            }
-                        },
-                        error: function() {
-                            alert('<?php echo esc_js( __( 'Error occurred. Please try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                            $button.prop('disabled', false).text(originalText);
-                        }
-                    });
-                });
-                
-                // Handle delete table button clicks
-                $(document).on('click', '.wpd-delete-table', function(e) {
-                    e.stopPropagation();
-                    var $button = $(this);
-                    var tableName = $button.data('table-name');
-                    var tableFriendly = $button.data('table-friendly');
-                    
-                    if (!confirm('<?php echo esc_js( __( 'Are you sure you want to delete the table', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?> "' + tableFriendly + '"? <?php echo esc_js( __( 'This action cannot be undone.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>')) {
-                        return;
-                    }
-                    
-                    $button.prop('disabled', true).text('<?php echo esc_js( __( 'Deleting...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                    
-                    $.ajax({
-                        url: ajaxUrl,
-                        type: 'POST',
-                        data: {
-                            action: 'wpd_delete_table',
-                            table_name: tableName,
-                            nonce: nonce
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                // Reload the page to refresh data
-                                location.reload();
-                            } else {
-                                alert(response.data && response.data.message ? response.data.message : '<?php echo esc_js( __( 'Failed to delete table.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                                $button.prop('disabled', false).text('<?php echo esc_js( __( 'Delete', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                            }
-                        },
-                        error: function() {
-                            alert('<?php echo esc_js( __( 'Error occurred. Please try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                            $button.prop('disabled', false).text('<?php echo esc_js( __( 'Delete', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                        }
-                    });
-                });
-                
-                // Handle truncate table button clicks
-                $(document).on('click', '.wpd-truncate-table', function(e) {
-                    e.stopPropagation();
-                    var $button = $(this);
-                    var tableName = $button.data('table-name');
-                    var tableFriendly = $button.data('table-friendly');
-                    
-                    if (!confirm('<?php echo esc_js( __( 'Are you sure you want to clear all data from the table', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?> "' + tableFriendly + '"? <?php echo esc_js( __( 'This action cannot be undone.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>')) {
-                        return;
-                    }
-                    
-                    $button.prop('disabled', true).text('<?php echo esc_js( __( 'Clearing...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                    
-                    $.ajax({
-                        url: ajaxUrl,
-                        type: 'POST',
-                        data: {
-                            action: 'wpd_truncate_table',
-                            table_name: tableName,
-                            nonce: nonce
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                // Reload the page to refresh data
-                                location.reload();
-                            } else {
-                                alert(response.data && response.data.message ? response.data.message : '<?php echo esc_js( __( 'Failed to clear table.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                                $button.prop('disabled', false).text('<?php echo esc_js( __( 'Clear', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                            }
-                        },
-                        error: function() {
-                            alert('<?php echo esc_js( __( 'Error occurred. Please try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                            $button.prop('disabled', false).text('<?php echo esc_js( __( 'Clear', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                        }
-                    });
-                });
-                
-                // Handle delete meta key button clicks
-                $(document).on('click', '.wpd-delete-meta-key', function(e) {
-                    e.stopPropagation();
-                    var $button = $(this);
-                    var entityType = $button.data('entity-type');
-                    var metaKey = $button.data('meta-key');
-                    var metaFriendly = $button.data('meta-friendly');
-                    
-                    if (!confirm('<?php echo esc_js( __( 'Are you sure you want to delete the meta key', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?> "' + metaFriendly + '"? <?php echo esc_js( __( 'This action cannot be undone.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>')) {
-                        return;
-                    }
-                    
-                    $button.prop('disabled', true).text('<?php echo esc_js( __( 'Deleting...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                    
-                    $.ajax({
-                        url: ajaxUrl,
-                        type: 'POST',
-                        data: {
-                            action: 'wpd_delete_meta_key',
-                            entity_type: entityType,
-                            meta_key: metaKey,
-                            nonce: nonce
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                // Reload the page to refresh data
-                                location.reload();
-                            } else {
-                                alert(response.data && response.data.message ? response.data.message : '<?php echo esc_js( __( 'Failed to delete meta key.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                                $button.prop('disabled', false).text('<?php echo esc_js( __( 'Delete', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                            }
-                        },
-                        error: function() {
-                            alert('<?php echo esc_js( __( 'Error occurred. Please try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                            $button.prop('disabled', false).text('<?php echo esc_js( __( 'Delete', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                        }
-                    });
-                });
-                
-                // Handle delete single item button clicks
-                $(document).on('click', '.wpd-delete-single-item', function(e) {
-                    e.stopPropagation();
-                    var $button = $(this);
-                    var entityType = $button.data('entity-type');
-                    var itemKey = $button.data('item-key');
-                    var itemFriendly = $button.data('item-friendly');
-                    
-                    if (!confirm('<?php echo esc_js( __( 'Are you sure you want to delete', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?> "' + itemFriendly + '"? <?php echo esc_js( __( 'This action cannot be undone.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>')) {
-                        return;
-                    }
-                    
-                    $button.prop('disabled', true).text('<?php echo esc_js( __( 'Deleting...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                    
-                    $.ajax({
-                        url: ajaxUrl,
-                        type: 'POST',
-                        data: {
-                            action: 'wpd_delete_single_item',
-                            entity_type: entityType,
-                            item_key: itemKey,
-                            nonce: nonce
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                // Reload the page to refresh data
-                                location.reload();
-                            } else {
-                                alert(response.data && response.data.message ? response.data.message : '<?php echo esc_js( __( 'Failed to delete item.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                                $button.prop('disabled', false).text('<?php echo esc_js( __( 'Delete', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                            }
-                        },
-                        error: function() {
-                            alert('<?php echo esc_js( __( 'Error occurred. Please try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                            $button.prop('disabled', false).text('<?php echo esc_js( __( 'Delete', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                        }
-                    });
-                });
-                
-                // Handle delete scheduled task button clicks
-                $(document).on('click', '.wpd-delete-scheduled-task', function(e) {
-                    e.stopPropagation();
-                    var $button = $(this);
-                    var actionId = $button.data('action-id');
-                    var hookFriendly = $button.data('hook-friendly');
-                    
-                    if (!confirm('<?php echo esc_js( __( 'Are you sure you want to delete the scheduled task', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?> "' + hookFriendly + '"? <?php echo esc_js( __( 'This action cannot be undone.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>')) {
-                        return;
-                    }
-                    
-                    $button.prop('disabled', true).text('<?php echo esc_js( __( 'Deleting...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                    
-                    $.ajax({
-                        url: ajaxUrl,
-                        type: 'POST',
-                        data: {
-                            action: 'wpd_delete_scheduled_task',
-                            action_id: actionId,
-                            nonce: nonce
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                // Reload the page to refresh data
-                                location.reload();
-                            } else {
-                                alert(response.data && response.data.message ? response.data.message : '<?php echo esc_js( __( 'Failed to delete scheduled task.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                                $button.prop('disabled', false).text('<?php echo esc_js( __( 'Delete', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                            }
-                        },
-                        error: function() {
-                            alert('<?php echo esc_js( __( 'Error occurred. Please try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                            $button.prop('disabled', false).text('<?php echo esc_js( __( 'Delete', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                        }
-                    });
-                });
-                
-                // Handle delete post type meta button clicks
-                $(document).on('click', '.wpd-delete-post-type-meta', function(e) {
-                    e.stopPropagation();
-                    var $button = $(this);
-                    var entityType = $button.data('entity-type');
-                    var metaType = $button.data('meta-type');
-                    
-                    if (!confirm('<?php echo esc_js( __( 'Are you sure you want to delete this data?', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?> <?php echo esc_js( __( 'This action cannot be undone.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>')) {
-                        return;
-                    }
-                    
-                    $button.prop('disabled', true).text('<?php echo esc_js( __( 'Deleting...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                    
-                    $.ajax({
-                        url: ajaxUrl,
-                        type: 'POST',
-                        data: {
-                            action: 'wpd_delete_post_type_meta',
-                            entity_type: entityType,
-                            meta_type: metaType,
-                            nonce: nonce
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                // Reload the page to refresh data
-                                location.reload();
-                            } else {
-                                alert(response.data && response.data.message ? response.data.message : '<?php echo esc_js( __( 'Failed to delete data.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                                $button.prop('disabled', false).text('<?php echo esc_js( __( 'Delete', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                            }
-                        },
-                        error: function() {
-                            alert('<?php echo esc_js( __( 'Error occurred. Please try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                            $button.prop('disabled', false).text('<?php echo esc_js( __( 'Delete', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                        }
-                    });
-                });
-                
-                // Handle clear all tables button clicks
-                $(document).on('click', '.wpd-clear-all-tables', function(e) {
-                    e.stopPropagation();
-                    var $button = $(this);
-                    
-                    if (!confirm('<?php echo esc_js( __( 'Are you sure you want to clear all database tables?', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?> <?php echo esc_js( __( 'This will remove all data from all tables but keep the table structure. This action cannot be undone.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>')) {
-                        return;
-                    }
-                    
-                    $button.prop('disabled', true).text('<?php echo esc_js( __( 'Clearing...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                    
-                    $.ajax({
-                        url: ajaxUrl,
-                        type: 'POST',
-                        data: {
-                            action: 'wpd_truncate_all_tables',
-                            nonce: nonce
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                // Reload the page to refresh data
-                                location.reload();
-                            } else {
-                                alert(response.data && response.data.message ? response.data.message : '<?php echo esc_js( __( 'Failed to clear tables.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                                $button.prop('disabled', false).text('<?php echo esc_js( __( 'Clear All Tables', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                            }
-                        },
-                        error: function() {
-                            alert('<?php echo esc_js( __( 'Error occurred. Please try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                            $button.prop('disabled', false).text('<?php echo esc_js( __( 'Clear All Tables', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                        }
-                    });
-                });
-            });
-        </script>
         <?php
+        
+        // Enqueue data manager script
+        wp_enqueue_script( 'wpd-data-manager' );
+        
+        // Localize script with translated strings and data
+        $data_manager_strings = array(
+            'ajax_url' => admin_url( 'admin-ajax.php' ),
+            'nonce' => wp_create_nonce( WPD_AI_AJAX_NONCE_ACTION ),
+            'strings' => array(
+                'failed_to_load' => __( 'Failed to load data. Please refresh the page.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'error_loading' => __( 'Error loading data. Please refresh the page.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'no_items_found' => __( 'No items found.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'records' => __( 'Records:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'size' => __( 'Size:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'clear' => __( 'Clear', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'delete' => __( 'Delete', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'meta_key' => __( 'meta key', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'entry' => __( 'entry', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'scheduled' => __( 'Scheduled:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'status' => __( 'Status:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'confirm_delete_all' => __( 'Are you sure you want to delete all', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'action_cannot_undone' => __( 'This action cannot be undone.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'deleting' => __( 'Deleting...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'failed_to_delete' => __( 'Failed to delete.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'error_occurred' => __( 'Error occurred. Please try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'confirm_delete_table' => __( 'Are you sure you want to delete the table', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'failed_to_delete_table' => __( 'Failed to delete table.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'confirm_clear_table' => __( 'Are you sure you want to clear all data from the table', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'clearing' => __( 'Clearing...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'failed_to_clear_table' => __( 'Failed to clear table.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'confirm_delete_meta_key' => __( 'Are you sure you want to delete the meta key', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'failed_to_delete_meta_key' => __( 'Failed to delete meta key.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'confirm_delete_item' => __( 'Are you sure you want to delete', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'failed_to_delete_item' => __( 'Failed to delete item.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'confirm_delete_scheduled_task' => __( 'Are you sure you want to delete the scheduled task', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'failed_to_delete_scheduled_task' => __( 'Failed to delete scheduled task.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'confirm_delete_data' => __( 'Are you sure you want to delete this data?', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'failed_to_delete_data' => __( 'Failed to delete data.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'confirm_clear_all_tables' => __( 'Are you sure you want to clear all database tables?', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'clear_all_tables_warning' => __( 'This will remove all data from all tables but keep the table structure. This action cannot be undone.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'failed_to_clear_tables' => __( 'Failed to clear tables.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'clear_all_tables' => __( 'Clear All Tables', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+            ),
+        );
+        wp_localize_script( 'wpd-data-manager', 'wpdDataManager', $data_manager_strings );
     }
 
 }

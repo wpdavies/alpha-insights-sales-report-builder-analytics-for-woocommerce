@@ -148,11 +148,14 @@ class WPD_React_Report {
         // If config is null or empty, don't set data-config attribute
         $config_attr = '';
         if ($config !== null && !empty($config)) {
-            $config_attr = ' data-config="' . esc_attr(json_encode($config)) . '"';
+            // Encode as JSON and escape for HTML attribute - use JSON_UNESCAPED_SLASHES to avoid escaping forward slashes
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON is escaped via esc_attr and wp_json_encode.
+            $config_attr = ' data-config="' . esc_attr( wp_json_encode( $config, JSON_UNESCAPED_SLASHES ) ) . '"';
         }
 
-        // Output the React dashboard container
-        echo '<div id="wpd-react-dashboard"' . esc_attr( $config_attr ) . '></div>';
+        // Output the React dashboard container - config_attr is already escaped, so don't escape again
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $config_attr is already escaped above.
+        echo '<div id="wpd-react-dashboard"' . $config_attr . '></div>';
         echo '<!-- React Dashboard Container Created -->';
         
     }
@@ -669,36 +672,23 @@ class WPD_React_Report {
             return;
         }
 
-        $report_slug = sanitize_text_field($_POST['report_slug'] ?? '');
-        $config_json = sanitize_textarea_field($_POST['config'] ?? '');
+        $report_slug = isset($_POST['report_slug']) ? sanitize_text_field( wp_unslash( $_POST['report_slug'] ) ) : '';
         
-        // URL decode the config JSON since it's sent via form-urlencoded
-        $config_json = urldecode($config_json);
+        // Sanitize and decode JSON config from POST data
+        $config_raw = isset($_POST['config']) ? $_POST['config'] : '';
+        $config_data = wpd_sanitize_and_decode_json_config( $config_raw, true );
         
-        // Parse the JSON config data
-        $config_data = array();
-        if (!empty($config_json)) {
-            // First try to decode as-is
-            $config_data = json_decode($config_json, true);
-            $json_error = json_last_error();
-            
-            // If that fails, try to decode the escaped JSON (double-encoded case)
-            if ($json_error !== JSON_ERROR_NONE) {
-                $unescaped_json = stripslashes($config_json);
-                $config_data = json_decode($unescaped_json, true);
-                $json_error = json_last_error();
-            }
-            
-            if ($json_error !== JSON_ERROR_NONE) {
-                wp_send_json_error( array( 
-                    'message' => sprintf(
-                        /* translators: %s: JSON error message */
-                        __( 'Invalid JSON configuration data: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
-                        esc_html( json_last_error_msg() )
-                    )
-                ) );
-                return;
-            }
+        // Handle error case
+        if ( is_wp_error( $config_data ) ) {
+            wp_send_json_error( array( 
+                'message' => $config_data->get_error_message()
+            ) );
+            return;
+        }
+        
+        // Ensure we have an array
+        if ( ! is_array( $config_data ) ) {
+            $config_data = array();
         }
 
         $instance = new self();
@@ -737,26 +727,28 @@ class WPD_React_Report {
             // Parse report configuration from POST data
             $config = array();
             if (isset($_POST['config']) && !empty($_POST['config'])) {
+                // Sanitize and decode JSON config from POST data
                 $config_raw = $_POST['config'];
+                $config = wpd_sanitize_and_decode_json_config( $config_raw, false );
                 
-                // First, try to decode normally
-                $config = json_decode($config_raw, true);
-                
-                // If that fails, try to handle double-escaped JSON
-                if ($config === null) {
-                    // Remove the outer quotes and unescape the inner JSON
-                    $config_raw = trim($config_raw, '"');
-                    $config_raw = stripslashes($config_raw);
-                    $config = json_decode($config_raw, true);
+                // Handle error case
+                if ( is_wp_error( $config ) ) {
+                    self::log_error('WPD_React_Report: Invalid config format: ' . substr( $config_raw, 0, 200 ) );
+                    self::log_error('WPD_React_Report: JSON decode error: ' . $config->get_error_message() );
+                    wp_send_json_error( array( 
+                        'message' => sprintf(
+                            /* translators: %s: JSON error message */
+                            __( 'Failed to parse dashboard configuration: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                            esc_html( $config->get_error_message() )
+                        )
+                    ) );
+                    return;
                 }
                 
-                if ($config === null) {
-                    $config_sanitized = isset($_POST['config']) ? sanitize_text_field($_POST['config']) : '';
-                    self::log_error('WPD_React_Report: Invalid config format: ' . $config_sanitized);
-                    self::log_error('WPD_React_Report: JSON decode error: ' . json_last_error_msg());
-                    $config = array(); // Set empty array as fallback
+                // Ensure we have an array
+                if ( ! is_array( $config ) ) {
+                    $config = array();
                 }
-                
             }
             
             $response = self::get_live_dashboard_data_from_config( $config );
@@ -898,11 +890,12 @@ class WPD_React_Report {
         
         // If a full config is provided (for duplicate mode), decode and merge it
         if (!empty($_POST['report_config'])) {
-            $full_config_json = sanitize_textarea_field( wp_unslash( $_POST['report_config'] ) );
-            $full_config = json_decode( $full_config_json, true );
-            if (json_last_error() === JSON_ERROR_NONE && is_array($full_config)) {
-                // Sanitize decoded JSON array according to WordPress standards
-                $full_config = wpd_sanitize_json_decoded_array( $full_config );
+            // Sanitize and decode JSON config from POST data
+            $full_config_raw = $_POST['report_config'];
+            $full_config = wpd_sanitize_and_decode_json_config( $full_config_raw, false );
+            
+            // Only merge if we got a valid array (ignore errors silently in this context)
+            if ( ! is_wp_error( $full_config ) && is_array( $full_config ) ) {
                 // Merge the full config with the basic fields, preferring the basic fields for metadata
                 $report_config = array_merge($full_config, $report_config);
             }
@@ -1256,7 +1249,7 @@ class WPD_React_Report {
                     // Get the last updated time from config
                     $last_updated = 'Unknown';
                     if (isset($config_data['updated_at'])) {
-                        $last_updated = date('Y-m-d H:i:s', $config_data['updated_at']);
+                        $last_updated = gmdate('Y-m-d H:i:s', $config_data['updated_at']);
                     }
                     
                     // Skip default reports that were auto-generated
@@ -1575,7 +1568,7 @@ class WPD_React_Report {
             // Set filters
             $minutes_ago 		= 30;
             $to_date 			= current_time( 'mysql' );
-            $from_date 			= date( 'Y-m-d H:i:s', (current_time('timestamp') - (60 * $minutes_ago)) );
+            $from_date 			= gmdate( 'Y-m-d H:i:s', (current_time('timestamp') - (60 * $minutes_ago)) );
 
             $filter = array(
                 'date_from' => $from_date,
@@ -1683,7 +1676,7 @@ class WPD_React_Report {
                 // No filters provided in config, use default date range
                 $wp_timestamp = current_time('timestamp');
                 $filters = array(
-                    'date_from' => date('Y-m-d', strtotime('-30 days', $wp_timestamp)), // 30 days ago
+                    'date_from' => gmdate('Y-m-d', strtotime('-30 days', $wp_timestamp)), // 30 days ago
                     'date_to' => current_time('Y-m-d') // today
                 );
             }
@@ -2262,7 +2255,7 @@ class WPD_React_Report {
                 );
             case 'yesterday':
                 $wp_timestamp = current_time('timestamp');
-                $yesterday = date('Y-m-d', strtotime('-1 day', $wp_timestamp));
+                $yesterday = gmdate('Y-m-d', strtotime('-1 day', $wp_timestamp));
                 return array(
                     'from' => $yesterday,
                     'to' => $yesterday
@@ -2296,8 +2289,8 @@ class WPD_React_Report {
                 );
             case 'last_month':
                 $wp_timestamp = current_time('timestamp');
-                $last_month_start = date('Y-m-01', strtotime('-1 month', $wp_timestamp));
-                $last_month_end = date('Y-m-t', strtotime('-1 month', $wp_timestamp));
+                $last_month_start = gmdate('Y-m-01', strtotime('-1 month', $wp_timestamp));
+                $last_month_end = gmdate('Y-m-t', strtotime('-1 month', $wp_timestamp));
                 return array(
                     'from' => $last_month_start,
                     'to' => $last_month_end
@@ -2315,25 +2308,25 @@ class WPD_React_Report {
             case 'last_year':
                 $wp_timestamp = current_time('timestamp');
                 return array(
-                    'from' => date('Y-01-01', strtotime('-1 year', $wp_timestamp)),
-                    'to' => date('Y-12-31', strtotime('-1 year', $wp_timestamp))
+                    'from' => gmdate('Y-01-01', strtotime('-1 year', $wp_timestamp)),
+                    'to' => gmdate('Y-12-31', strtotime('-1 year', $wp_timestamp))
                 );
             case 'last_7_days':
                 $wp_timestamp = current_time('timestamp');
                 return array(
-                    'from' => date('Y-m-d', strtotime('-6 days', $wp_timestamp)),
+                    'from' => gmdate('Y-m-d', strtotime('-6 days', $wp_timestamp)),
                     'to' => current_time('Y-m-d')
                 );
             case 'last_30_days':
                 $wp_timestamp = current_time('timestamp');
                 return array(
-                    'from' => date('Y-m-d', strtotime('-29 days', $wp_timestamp)),
+                    'from' => gmdate('Y-m-d', strtotime('-29 days', $wp_timestamp)),
                     'to' => current_time('Y-m-d')
                 );
             case 'last_90_days':
                 $wp_timestamp = current_time('timestamp');
                 return array(
-                    'from' => date('Y-m-d', strtotime('-89 days', $wp_timestamp)),
+                    'from' => gmdate('Y-m-d', strtotime('-89 days', $wp_timestamp)),
                     'to' => current_time('Y-m-d')
                 );
             case 'ytd':
@@ -2349,7 +2342,7 @@ class WPD_React_Report {
                 if (empty($start_date) || !strtotime($start_date)) {
                     // Fall back to 5 years ago
                     $wp_timestamp = current_time('timestamp');
-                    $start_date = date('Y-m-d', strtotime('-5 years', $wp_timestamp));
+                    $start_date = gmdate('Y-m-d', strtotime('-5 years', $wp_timestamp));
                 }
                 
                 return array(

@@ -136,11 +136,11 @@ class WPD_Expense_Management_React {
             
             $to_date = current_time('Y-m-d');
             // For "last N days" we need -(N-1) to include today (e.g., last 30 days = today + 29 previous)
-            $from_date = date('Y-m-d', strtotime('-' . ($days_ago - 1) . ' days'));
+            $from_date = gmdate('Y-m-d', strtotime('-' . ($days_ago - 1) . ' days'));
             
             // Comparison period
-            $comparison_to_date = date('Y-m-d', strtotime('-' . $days_ago . ' days'));
-            $comparison_from_date = date('Y-m-d', strtotime('-' . (($days_ago * 2) - 1) . ' days'));
+            $comparison_to_date = gmdate('Y-m-d', strtotime('-' . $days_ago . ' days'));
+            $comparison_from_date = gmdate('Y-m-d', strtotime('-' . (($days_ago * 2) - 1) . ' days'));
 
             // Get current period data
             $filter_current = array(
@@ -309,7 +309,7 @@ class WPD_Expense_Management_React {
         try {
             $days_ago = isset($_POST['days_ago']) ? intval($_POST['days_ago']) : 30;
             $limit = isset($_POST['limit']) ? intval($_POST['limit']) : 100;
-            $status = isset($_POST['status']) ? sanitize_text_field($_POST['status']) : 'paid';
+            $status = isset($_POST['status']) ? sanitize_text_field( wp_unslash( $_POST['status'] ) ) : 'paid';
             
             // Set up filter based on status
             if ($status === 'unpaid') {
@@ -324,7 +324,7 @@ class WPD_Expense_Management_React {
                 // For paid expenses, use date range
                 $to_date = current_time('Y-m-d');
                 // For "last N days" we need -(N-1) to include today
-                $from_date = date('Y-m-d', strtotime('-' . ($days_ago - 1) . ' days'));
+                $from_date = gmdate('Y-m-d', strtotime('-' . ($days_ago - 1) . ' days'));
                 
                 $filter = array(
                     'date_from' => $from_date,
@@ -535,19 +535,19 @@ class WPD_Expense_Management_React {
         check_ajax_referer(WPD_AI_AJAX_NONCE_ACTION, 'nonce');
 
         try {
-            $title = isset($_POST['title']) ? sanitize_text_field($_POST['title']) : '';
-            $amount = isset($_POST['amount']) ? floatval($_POST['amount']) : 0;
-            $currency = isset($_POST['currency']) ? sanitize_text_field($_POST['currency']) : get_woocommerce_currency();
-            $date_paid = isset($_POST['date']) ? sanitize_text_field($_POST['date']) : (isset($_POST['date_paid']) ? sanitize_text_field($_POST['date_paid']) : current_time('Y-m-d'));
-            $reference = isset($_POST['reference']) ? sanitize_text_field($_POST['reference']) : '';
-            $attachment_id = isset($_POST['attachment_id']) ? intval($_POST['attachment_id']) : 0;
-            $expense_category = isset($_POST['expense_category']) ? intval($_POST['expense_category']) : 0;
-            $supplier = isset($_POST['supplier']) ? intval($_POST['supplier']) : 0;
-            $paid = isset($_POST['paid']) ? filter_var($_POST['paid'], FILTER_VALIDATE_BOOLEAN) : true;
-            $recurring = isset($_POST['recurring']) ? filter_var($_POST['recurring'], FILTER_VALIDATE_BOOLEAN) : false;
-            $recurring_frequency = isset($_POST['recurring_frequency']) ? sanitize_text_field($_POST['recurring_frequency']) : '';
-            $recurring_start_date = isset($_POST['recurring_start_date']) ? sanitize_text_field($_POST['recurring_start_date']) : '';
-            $recurring_end_date = isset($_POST['recurring_end_date']) ? sanitize_text_field($_POST['recurring_end_date']) : '';
+            $title = isset($_POST['title']) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
+            $amount = isset($_POST['amount']) ? floatval( wp_unslash( $_POST['amount'] ) ) : 0;
+            $currency = isset($_POST['currency']) ? sanitize_text_field( wp_unslash( $_POST['currency'] ) ) : get_woocommerce_currency();
+            $date_paid = isset($_POST['date']) ? sanitize_text_field( wp_unslash( $_POST['date'] ) ) : (isset($_POST['date_paid']) ? sanitize_text_field( wp_unslash( $_POST['date_paid'] ) ) : current_time('Y-m-d'));
+            $reference = isset($_POST['reference']) ? sanitize_text_field( wp_unslash( $_POST['reference'] ) ) : '';
+            $attachment_id = isset($_POST['attachment_id']) ? intval( wp_unslash( $_POST['attachment_id'] ) ) : 0;
+            $expense_category = isset($_POST['expense_category']) ? intval( wp_unslash( $_POST['expense_category'] ) ) : 0;
+            $supplier = isset($_POST['supplier']) ? intval( wp_unslash( $_POST['supplier'] ) ) : 0;
+            $paid = isset($_POST['paid']) ? filter_var( wp_unslash( $_POST['paid'] ), FILTER_VALIDATE_BOOLEAN) : true;
+            $recurring = isset($_POST['recurring']) ? filter_var( wp_unslash( $_POST['recurring'] ), FILTER_VALIDATE_BOOLEAN) : false;
+            $recurring_frequency = isset($_POST['recurring_frequency']) ? sanitize_text_field( wp_unslash( $_POST['recurring_frequency'] ) ) : '';
+            $recurring_start_date = isset($_POST['recurring_start_date']) ? sanitize_text_field( wp_unslash( $_POST['recurring_start_date'] ) ) : '';
+            $recurring_end_date = isset($_POST['recurring_end_date']) ? sanitize_text_field( wp_unslash( $_POST['recurring_end_date'] ) ) : '';
 
             if ( ! WPD_AI_PRO ) {
                 wp_send_json_error(array('message' => 'This feature is only available in the Pro version.'));
@@ -672,7 +672,7 @@ class WPD_Expense_Management_React {
                     $timestamp = strtotime($date_paid_raw);
                     if ($timestamp !== false) {
                         // Convert to Y-m-d format
-                        $date_paid = date('Y-m-d', $timestamp);
+                        $date_paid = gmdate('Y-m-d', $timestamp);
                     } else {
                         // If date can't be parsed, use today's date
                         $date_paid = current_time('Y-m-d');
@@ -799,8 +799,8 @@ class WPD_Expense_Management_React {
                 return;
             }
 
-            $title = isset($_POST['title']) ? sanitize_text_field($_POST['title']) : '';
-            $amount = isset($_POST['amount']) ? floatval($_POST['amount']) : 0;
+            $title = isset($_POST['title']) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
+            $amount = isset($_POST['amount']) ? floatval( wp_unslash( $_POST['amount'] ) ) : 0;
             
             // Update post
             wp_update_post(array(
@@ -813,17 +813,17 @@ class WPD_Expense_Management_React {
                 update_post_meta($expense_id, '_wpd_amount_paid', $amount);
             }
             if (isset($_POST['currency'])) {
-                update_post_meta($expense_id, '_wpd_amount_paid_currency', sanitize_text_field($_POST['currency']));
+                update_post_meta($expense_id, '_wpd_amount_paid_currency', sanitize_text_field( wp_unslash( $_POST['currency'] ) ));
             }
             if (isset($_POST['date']) || isset($_POST['date_paid'])) {
-                $date = isset($_POST['date']) ? sanitize_text_field($_POST['date']) : sanitize_text_field($_POST['date_paid']);
+                $date = isset($_POST['date']) ? sanitize_text_field( wp_unslash( $_POST['date'] ) ) : sanitize_text_field( wp_unslash( $_POST['date_paid'] ) );
                 update_post_meta($expense_id, '_wpd_date_paid', $date);
             }
             if (isset($_POST['reference'])) {
-                update_post_meta($expense_id, '_wpd_expense_reference', sanitize_text_field($_POST['reference']));
+                update_post_meta($expense_id, '_wpd_expense_reference', sanitize_text_field( wp_unslash( $_POST['reference'] ) ));
             }
             if (isset($_POST['attachment_id'])) {
-                $attachment_id = intval($_POST['attachment_id']);
+                $attachment_id = intval( wp_unslash( $_POST['attachment_id'] ) );
                 if ($attachment_id > 0) {
                     update_post_meta($expense_id, '_wpd_expense_attachment', $attachment_id);
                 } else {
@@ -831,13 +831,13 @@ class WPD_Expense_Management_React {
                 }
             }
             if (isset($_POST['paid'])) {
-                $paid = filter_var($_POST['paid'], FILTER_VALIDATE_BOOLEAN);
+                $paid = filter_var( wp_unslash( $_POST['paid'] ), FILTER_VALIDATE_BOOLEAN);
                 update_post_meta($expense_id, '_wpd_paid', $paid ? '1' : '0');
             }
 
             // Update taxonomies
             if (isset($_POST['expense_category'])) {
-                $expense_category = intval($_POST['expense_category']);
+                $expense_category = intval( wp_unslash( $_POST['expense_category'] ) );
                 if ($expense_category > 0) {
                     wp_set_post_terms($expense_id, array($expense_category), 'expense_category');
                 } else {
@@ -845,7 +845,7 @@ class WPD_Expense_Management_React {
                 }
             }
             if (isset($_POST['supplier'])) {
-                $supplier = intval($_POST['supplier']);
+                $supplier = intval( wp_unslash( $_POST['supplier'] ) );
                 if ($supplier > 0) {
                     wp_set_post_terms($expense_id, array($supplier), 'suppliers');
                 } else {
@@ -855,17 +855,17 @@ class WPD_Expense_Management_React {
 
             // Update recurring expense fields
             if (isset($_POST['recurring'])) {
-                $recurring = filter_var($_POST['recurring'], FILTER_VALIDATE_BOOLEAN);
+                $recurring = filter_var( wp_unslash( $_POST['recurring'] ), FILTER_VALIDATE_BOOLEAN);
                 if ($recurring) {
                     update_post_meta($expense_id, '_wpd_recurring_expense_enabled', '1');
                     if (isset($_POST['recurring_frequency'])) {
-                        update_post_meta($expense_id, '_wpd_recurring_expense_frequency', sanitize_text_field($_POST['recurring_frequency']));
+                        update_post_meta($expense_id, '_wpd_recurring_expense_frequency', sanitize_text_field( wp_unslash( $_POST['recurring_frequency'] ) ));
                     }
                     if (isset($_POST['recurring_start_date'])) {
-                        update_post_meta($expense_id, '_wpd_recurring_expense_beginning_date', sanitize_text_field($_POST['recurring_start_date']));
+                        update_post_meta($expense_id, '_wpd_recurring_expense_beginning_date', sanitize_text_field( wp_unslash( $_POST['recurring_start_date'] ) ));
                     }
                     if (isset($_POST['recurring_end_date'])) {
-                        $recurring_end_date = sanitize_text_field($_POST['recurring_end_date']);
+                        $recurring_end_date = sanitize_text_field( wp_unslash( $_POST['recurring_end_date'] ) );
                         if (!empty($recurring_end_date)) {
                             update_post_meta($expense_id, '_wpd_recurring_expense_end_date', $recurring_end_date);
                         } else {
@@ -942,7 +942,7 @@ class WPD_Expense_Management_React {
         check_ajax_referer(WPD_AI_AJAX_NONCE_ACTION, 'nonce');
 
         try {
-            $name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
+            $name = isset($_POST['name']) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
             $parent = isset($_POST['parent']) ? intval($_POST['parent']) : 0;
             
             if ( ! WPD_AI_PRO ) {
@@ -987,7 +987,7 @@ class WPD_Expense_Management_React {
         check_ajax_referer(WPD_AI_AJAX_NONCE_ACTION, 'nonce');
 
         try {
-            $name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
+            $name = isset($_POST['name']) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
             
             if ( ! WPD_AI_PRO ) {
                 wp_send_json_error(array('message' => 'This feature is only available in the Pro version.'));
@@ -1060,15 +1060,15 @@ class WPD_Expense_Management_React {
 
         try {
             $filters = array(
-                'search' => isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '',
-                'status' => isset($_POST['status']) ? sanitize_text_field($_POST['status']) : 'all',
-                'category' => isset($_POST['category']) ? intval($_POST['category']) : '',
-                'supplier' => isset($_POST['supplier']) ? intval($_POST['supplier']) : '',
-                'dateFrom' => isset($_POST['dateFrom']) ? sanitize_text_field($_POST['dateFrom']) : '',
-                'dateTo' => isset($_POST['dateTo']) ? sanitize_text_field($_POST['dateTo']) : '',
-                'isPaid' => isset($_POST['isPaid']) ? sanitize_text_field($_POST['isPaid']) : 'all',
-                'isRecurring' => isset($_POST['isRecurring']) ? sanitize_text_field($_POST['isRecurring']) : 'all',
-                'hasAttachment' => isset($_POST['hasAttachment']) ? sanitize_text_field($_POST['hasAttachment']) : 'all',
+                'search' => isset($_POST['search']) ? sanitize_text_field( wp_unslash( $_POST['search'] ) ) : '',
+                'status' => isset($_POST['status']) ? sanitize_text_field( wp_unslash( $_POST['status'] ) ) : 'all',
+                'category' => isset($_POST['category']) ? intval( wp_unslash( $_POST['category'] ) ) : '',
+                'supplier' => isset($_POST['supplier']) ? intval( wp_unslash( $_POST['supplier'] ) ) : '',
+                'dateFrom' => isset($_POST['dateFrom']) ? sanitize_text_field( wp_unslash( $_POST['dateFrom'] ) ) : '',
+                'dateTo' => isset($_POST['dateTo']) ? sanitize_text_field( wp_unslash( $_POST['dateTo'] ) ) : '',
+                'isPaid' => isset($_POST['isPaid']) ? sanitize_text_field( wp_unslash( $_POST['isPaid'] ) ) : 'all',
+                'isRecurring' => isset($_POST['isRecurring']) ? sanitize_text_field( wp_unslash( $_POST['isRecurring'] ) ) : 'all',
+                'hasAttachment' => isset($_POST['hasAttachment']) ? sanitize_text_field( wp_unslash( $_POST['hasAttachment'] ) ) : 'all',
             );
 
             // Pagination
@@ -1377,7 +1377,7 @@ class WPD_Expense_Management_React {
             
             // Check which fields to update
             if (isset($_POST['paid'])) {
-                $update_data['paid'] = filter_var($_POST['paid'], FILTER_VALIDATE_BOOLEAN);
+                $update_data['paid'] = filter_var( wp_unslash( $_POST['paid'] ), FILTER_VALIDATE_BOOLEAN);
             }
 
             if (empty($update_data)) {
@@ -1418,9 +1418,9 @@ class WPD_Expense_Management_React {
         check_ajax_referer(WPD_AI_AJAX_NONCE_ACTION, 'nonce');
 
         try {
-            $taxonomy = isset($_POST['taxonomy']) ? sanitize_text_field($_POST['taxonomy']) : '';
+            $taxonomy = isset($_POST['taxonomy']) ? sanitize_text_field( wp_unslash( $_POST['taxonomy'] ) ) : '';
             $term_id = isset($_POST['term_id']) ? intval($_POST['term_id']) : 0;
-            $name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
+            $name = isset($_POST['name']) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
             $parent = isset($_POST['parent']) ? intval($_POST['parent']) : 0;
 
             if ( ! WPD_AI_PRO ) {
@@ -1472,7 +1472,7 @@ class WPD_Expense_Management_React {
         check_ajax_referer(WPD_AI_AJAX_NONCE_ACTION, 'nonce');
 
         try {
-            $taxonomy = isset($_POST['taxonomy']) ? sanitize_text_field($_POST['taxonomy']) : '';
+            $taxonomy = isset($_POST['taxonomy']) ? sanitize_text_field( wp_unslash( $_POST['taxonomy'] ) ) : '';
             $term_id = isset($_POST['term_id']) ? intval($_POST['term_id']) : 0;
 
             if ( ! WPD_AI_PRO ) {
@@ -1523,7 +1523,7 @@ class WPD_Expense_Management_React {
         check_ajax_referer(WPD_AI_AJAX_NONCE_ACTION, 'nonce');
 
         try {
-            $taxonomy = isset($_POST['taxonomy']) ? sanitize_text_field($_POST['taxonomy']) : '';
+            $taxonomy = isset($_POST['taxonomy']) ? sanitize_text_field( wp_unslash( $_POST['taxonomy'] ) ) : '';
             $term_ids_raw = isset($_POST['term_ids']) ? sanitize_textarea_field( wp_unslash( $_POST['term_ids'] ) ) : '';
             $term_ids = ! empty( $term_ids_raw ) ? json_decode( $term_ids_raw, true ) : array();
             // Sanitize decoded JSON array - ensure all term IDs are integers
@@ -1674,6 +1674,7 @@ class WPD_Expense_Management_React {
                 return;
             }
 
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- File uploads are validated and sanitized by wp_handle_upload().
             $file = $_FILES['file'];
 
             // Validate file size (10MB max)
@@ -1753,7 +1754,7 @@ class WPD_Expense_Management_React {
 
             // Set headers for CSV download
             header('Content-Type: text/csv; charset=utf-8');
-            header('Content-Disposition: attachment; filename=expenses-export-' . date('Y-m-d') . '.csv');
+            header('Content-Disposition: attachment; filename=expenses-export-' . gmdate('Y-m-d') . '.csv');
             header('Pragma: no-cache');
             header('Expires: 0');
 
@@ -1827,6 +1828,7 @@ class WPD_Expense_Management_React {
             }
 
             wp_reset_postdata();
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Direct output to browser for CSV download is acceptable.
             fclose($output);
             exit;
 
@@ -1855,14 +1857,14 @@ class WPD_Expense_Management_React {
             }
 
             // Get filters from request
-            $date_from = isset($_POST['date_from']) ? sanitize_text_field($_POST['date_from']) : '';
-            $date_to = isset($_POST['date_to']) ? sanitize_text_field($_POST['date_to']) : '';
-            $category = isset($_POST['category']) ? intval($_POST['category']) : 0;
-            $supplier = isset($_POST['supplier']) ? intval($_POST['supplier']) : 0;
-            $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
-            $is_recurring = isset($_POST['is_recurring']) ? sanitize_text_field($_POST['is_recurring']) : 'all';
-            $is_paid = isset($_POST['is_paid']) ? sanitize_text_field($_POST['is_paid']) : 'all';
-            $has_attachment = isset($_POST['has_attachment']) ? sanitize_text_field($_POST['has_attachment']) : 'all';
+            $date_from = isset($_POST['date_from']) ? sanitize_text_field( wp_unslash( $_POST['date_from'] ) ) : '';
+            $date_to = isset($_POST['date_to']) ? sanitize_text_field( wp_unslash( $_POST['date_to'] ) ) : '';
+            $category = isset($_POST['category']) ? intval( wp_unslash( $_POST['category'] ) ) : 0;
+            $supplier = isset($_POST['supplier']) ? intval( wp_unslash( $_POST['supplier'] ) ) : 0;
+            $search = isset($_POST['search']) ? sanitize_text_field( wp_unslash( $_POST['search'] ) ) : '';
+            $is_recurring = isset($_POST['is_recurring']) ? sanitize_text_field( wp_unslash( $_POST['is_recurring'] ) ) : 'all';
+            $is_paid = isset($_POST['is_paid']) ? sanitize_text_field( wp_unslash( $_POST['is_paid'] ) ) : 'all';
+            $has_attachment = isset($_POST['has_attachment']) ? sanitize_text_field( wp_unslash( $_POST['has_attachment'] ) ) : 'all';
 
             // Build query args
             $args = array(
@@ -2005,7 +2007,7 @@ class WPD_Expense_Management_React {
 
             // Set headers for CSV download
             header('Content-Type: text/csv; charset=utf-8');
-            header('Content-Disposition: attachment; filename=filtered-expenses-export-' . date('Y-m-d') . '.csv');
+            header('Content-Disposition: attachment; filename=filtered-expenses-export-' . gmdate('Y-m-d') . '.csv');
             header('Pragma: no-cache');
             header('Expires: 0');
 
@@ -2079,6 +2081,7 @@ class WPD_Expense_Management_React {
             }
 
             wp_reset_postdata();
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Direct output to browser for CSV download is acceptable.
             fclose($output);
             exit;
 
@@ -2108,7 +2111,7 @@ class WPD_Expense_Management_React {
             } else {
                 $expense_ids = array();
             }
-            $taxonomy = isset($_POST['taxonomy']) ? sanitize_text_field($_POST['taxonomy']) : '';
+            $taxonomy = isset($_POST['taxonomy']) ? sanitize_text_field( wp_unslash( $_POST['taxonomy'] ) ) : '';
             $term_id = isset($_POST['term_id']) ? absint( $_POST['term_id'] ) : 0;
 
             if ( ! WPD_AI_PRO ) {
@@ -2263,7 +2266,7 @@ class WPD_Expense_Management_React {
 
             // Only include if within the specified range
             if ($loop_timestamp >= $from_timestamp && $loop_timestamp <= $to_timestamp) {
-                $occurrence_date = date('Y-m-d', $loop_timestamp);
+                $occurrence_date = gmdate('Y-m-d', $loop_timestamp);
                 $unique_id = $expense_id . '-' . $occurrence_date;
 
                 // Currency conversion
