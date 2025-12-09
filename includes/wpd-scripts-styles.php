@@ -55,7 +55,16 @@ function wpd_ai_admin_enqueue() {
 	    'failure' 				=> wpd_failure( 40, true, true ),
 		'ajax_url' 				=> admin_url('admin-ajax.php'),
 		'site_creation_date' 	=> wpd_get_site_creation_date(),
-		'nonce' 				=> wp_create_nonce( WPD_AI_AJAX_NONCE_ACTION )
+		'nonce' 				=> wp_create_nonce( WPD_AI_AJAX_NONCE_ACTION ),
+		'strings' 				=> array(
+			'processing' 		=> __( 'Processing...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'working' 			=> __( 'We are working on it!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'success' 			=> __( 'Your request has been successfully completed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'error' 			=> __( 'Your action could not be completed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'requestFailed' 	=> __( 'Request Failed', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'invalidKey' 		=> __( 'Hm, Something Is Not Quite Right', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'keyNotFound' 		=> __( 'We couldnt locate the custom order cost key.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		)
 	);
 	wp_localize_script( 'wpd-alpha-insights-admin', 'wpdAlphaInsights', $wpd_ai_vars );
 	

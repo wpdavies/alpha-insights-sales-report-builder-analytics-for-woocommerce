@@ -1187,4 +1187,86 @@ jQuery(document).ready(function($) {
             $('.wpd-debug-log-option[data-log=\"'+ targetLog +'\"]').addClass('active');
         }
     });
+
+    // Delete custom order cost handler
+    $('.wpd-delete-custom-order-cost').click(function() {
+        let targetRow = $(this).closest('tr').remove();
+    });
+
+    // Delete data point handler
+    jQuery('.wpd-data-point').click(function(e) {
+        // Prevent anything else
+        e.preventDefault();
+        
+        // Check if localized strings are available
+        var processingText = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.processing) 
+            ? wpdAlphaInsights.strings.processing 
+            : 'Processing...';
+        var workingText = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.working) 
+            ? wpdAlphaInsights.strings.working 
+            : 'We are working on it!';
+        var successText = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.success) 
+            ? wpdAlphaInsights.strings.success 
+            : 'Your request has been successfully completed.';
+        var errorText = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.error) 
+            ? wpdAlphaInsights.strings.error 
+            : 'Your action could not be completed.';
+        var requestFailedText = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.requestFailed) 
+            ? wpdAlphaInsights.strings.requestFailed 
+            : 'Request Failed';
+        var invalidKeyText = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.invalidKey) 
+            ? wpdAlphaInsights.strings.invalidKey 
+            : 'Hm, Something Is Not Quite Right';
+        var keyNotFoundText = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.keyNotFound) 
+            ? wpdAlphaInsights.strings.keyNotFound 
+            : 'We couldnt locate the custom order cost key.';
+        
+        // Show pop notification
+        wpdPopNotification( 'loading', processingText, workingText );
+        
+        // Get value
+        let customOrderCostName = jQuery(this).data('val');
+        
+        // Some data cleaning
+        if ( customOrderCostName.length < 4 ) {
+            wpdPopNotification( 'fail', invalidKeyText, keyNotFoundText );
+            return false;
+        }
+        
+        // Pass in the data
+        let data = {
+            'action': 'wpd_delete_custom_order_cost',
+            'url'   : window.location.href,
+            'value' : customOrderCostName,
+            'nonce' : (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.nonce) ? wpdAlphaInsights.nonce : ''
+        };
+        
+        var ajaxurl = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.ajax_url) 
+            ? wpdAlphaInsights.ajax_url 
+            : '/wp-admin/admin-ajax.php';
+        
+        $.post(ajaxurl, data)
+        .done(function( response ) {
+            var parsedResponse = wpdHandleAjaxResponse(
+                response,
+                successText,
+                errorText
+            );
+            if (parsedResponse && parsedResponse.success) {
+                window.postMessage(parsedResponse, "*");
+            }
+        })
+        .fail(function( jqXHR, textStatus, errorThrown ) {
+            var errorMessage = errorText;
+            if (jqXHR.responseText) {
+                try {
+                    var errorResponse = JSON.parse(jqXHR.responseText);
+                    errorMessage = wpdExtractResponseMessage(errorResponse, errorMessage);
+                } catch(e) {
+                    // If we can't parse the error, use default message
+                }
+            }
+            wpdPopNotification( 'fail', requestFailedText, errorMessage );
+        });
+    });
 });

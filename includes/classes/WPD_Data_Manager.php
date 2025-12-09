@@ -1518,7 +1518,10 @@ class WPD_Data_Manager {
      */
     private function get_expenses_count() {
         $count = wp_count_posts( 'expense' );
-        return (int) $count->publish + (int) $count->draft + (int) $count->trash;
+        $publish = isset( $count->publish ) ? (int) $count->publish : 0;
+        $draft = isset( $count->draft ) ? (int) $count->draft : 0;
+        $trash = isset( $count->trash ) ? (int) $count->trash : 0;
+        return $publish + $draft + $trash;
     }
 
     /**
@@ -1573,7 +1576,10 @@ class WPD_Data_Manager {
      */
     private function get_facebook_campaigns_count() {
         $count = wp_count_posts( 'facebook_campaign' );
-        return (int) $count->publish + (int) $count->draft + (int) $count->trash;
+        $publish = isset( $count->publish ) ? (int) $count->publish : 0;
+        $draft = isset( $count->draft ) ? (int) $count->draft : 0;
+        $trash = isset( $count->trash ) ? (int) $count->trash : 0;
+        return $publish + $draft + $trash;
     }
 
     /**
@@ -1628,7 +1634,10 @@ class WPD_Data_Manager {
      */
     private function get_google_campaigns_count() {
         $count = wp_count_posts( 'google_ad_campaign' );
-        return (int) $count->publish + (int) $count->draft + (int) $count->trash;
+        $publish = isset( $count->publish ) ? (int) $count->publish : 0;
+        $draft = isset( $count->draft ) ? (int) $count->draft : 0;
+        $trash = isset( $count->trash ) ? (int) $count->trash : 0;
+        return $publish + $draft + $trash;
     }
 
     /**
