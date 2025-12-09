@@ -49,7 +49,9 @@
 
                 // Enable/disable delete button
                 if (entityData.count > 0) {
-                    $deleteButton.prop('disabled', false);
+                    $deleteButton.prop('disabled', false).removeAttr('disabled');
+                } else {
+                    $deleteButton.prop('disabled', true).attr('disabled', 'disabled');
                 }
 
                 // Enable/disable clear all tables button for database tables
@@ -72,10 +74,28 @@
             });
         }
 
+        // Refresh data counts after delete operations
+        function refreshDataCounts() {
+            $.ajax({
+                url: ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'wpd_get_data_management_counts',
+                    nonce: nonce
+                },
+                success: function(response) {
+                    if (response.success && response.data) {
+                        cachedData = response.data; // Update cache
+                        populateTableData(response.data);
+                    }
+                }
+            });
+        }
+
         // Toggle sub-rows
-        $('.wpd-entity-row-expandable').on('click', function(e) {
-            // Don't toggle if clicking the delete button
-            if ($(e.target).closest('.button').length) {
+        $(document).on('click', '.wpd-entity-row-expandable', function(e) {
+            // Don't toggle if clicking the delete button or any button
+            if ($(e.target).closest('.button, button').length) {
                 return;
             }
 
@@ -255,15 +275,40 @@
             return text ? text.replace(/[&<>"']/g, function(m) { return map[m]; }) : '';
         }
 
-        // Handle delete entity button clicks
-        $(document).on('click', '.wpd-delete-entity', function(e) {
+        // Handle delete entity button clicks - use mousedown to catch event before row click
+        $(document).on('mousedown', '.wpd-delete-entity', function(e) {
+            e.preventDefault();
             e.stopPropagation();
+        });
+        
+        $(document).on('click', '.wpd-delete-entity', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
             var $button = $(this);
+            
+            // Don't proceed if button is disabled
+            if ($button.prop('disabled') || $button.attr('disabled') === 'disabled') {
+                return false;
+            }
+            
             var entityType = $button.data('entity-type');
             var entityName = $button.data('entity-name');
+            
+            // Make sure we have valid data
+            if (!entityType || !entityName) {
+                console.error('Missing entity data:', { entityType: entityType, entityName: entityName });
+                return false;
+            }
 
+            // Show confirmation
             if (!confirm((dataManager.strings.confirm_delete_all || 'Are you sure you want to delete all') + ' ' + entityName + '? ' + (dataManager.strings.action_cannot_undone || 'This action cannot be undone.'))) {
-                return;
+                return false;
+            }
+
+            // Show processing notification
+            if (typeof wpdPopNotification === 'function') {
+                wpdPopNotification('loading', dataManager.strings.processing || 'Processing...', dataManager.strings.working || 'We are working on it!');
             }
 
             var originalText = $button.text();
@@ -279,15 +324,42 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Reload the page to refresh data
-                        location.reload();
+                        // Update count to 0
+                        var $countCell = $('.wpd-count-' + entityType);
+                        $countCell.html('<span class="wpd-statistic-value">0</span>');
+                        
+                        // Clear cached data for this entity
+                        if (cachedData && cachedData[entityType]) {
+                            cachedData[entityType].count = 0;
+                            cachedData[entityType].details = [];
+                        }
+                        
+                        // Remove any expanded sub-rows for this entity
+                        $('.wpd-sub-row-' + entityType).remove();
+                        $('.wpd-sub-row-container.wpd-sub-row-' + entityType).hide();
+                        $('.wpd-entity-row-expandable[data-entity-type="' + entityType + '"]').removeClass('expanded');
+                        
+                        // Restore button text and disable delete button (after UI updates)
+                        $button.prop('disabled', true).text(originalText);
+                        
+                        // Show success notification
+                        if (typeof wpdPopNotification === 'function') {
+                            wpdPopNotification('success', dataManager.strings.success || 'Success!', (dataManager.strings.deleted_successfully || 'Deleted successfully.'));
+                        }
                     } else {
-                        alert(response.data && response.data.message ? response.data.message : (dataManager.strings.failed_to_delete || 'Failed to delete.'));
+                        // Show error notification
+                        var errorMessage = response.data && response.data.message ? response.data.message : (dataManager.strings.failed_to_delete || 'Failed to delete.');
+                        if (typeof wpdPopNotification === 'function') {
+                            wpdPopNotification('fail', dataManager.strings.error || 'Error', errorMessage);
+                        }
                         $button.prop('disabled', false).text(originalText);
                     }
                 },
                 error: function() {
-                    alert(dataManager.strings.error_occurred || 'Error occurred. Please try again.');
+                    // Show error notification
+                    if (typeof wpdPopNotification === 'function') {
+                        wpdPopNotification('fail', dataManager.strings.error || 'Error', dataManager.strings.error_occurred || 'Error occurred. Please try again.');
+                    }
                     $button.prop('disabled', false).text(originalText);
                 }
             });
@@ -299,9 +371,16 @@
             var $button = $(this);
             var tableName = $button.data('table-name');
             var tableFriendly = $button.data('table-friendly');
+            var $row = $button.closest('tr');
 
+            // Show confirmation
             if (!confirm((dataManager.strings.confirm_delete_table || 'Are you sure you want to delete the table') + ' "' + tableFriendly + '"? ' + (dataManager.strings.action_cannot_undone || 'This action cannot be undone.'))) {
                 return;
+            }
+
+            // Show processing notification
+            if (typeof wpdPopNotification === 'function') {
+                wpdPopNotification('loading', dataManager.strings.processing || 'Processing...', dataManager.strings.working || 'We are working on it!');
             }
 
             $button.prop('disabled', true).text(dataManager.strings.deleting || 'Deleting...');
@@ -316,15 +395,32 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Reload the page to refresh data
-                        location.reload();
+                        // Remove the row
+                        $row.fadeOut(300, function() {
+                            $(this).remove();
+                        });
+                        
+                        // Refresh data counts
+                        refreshDataCounts();
+                        
+                        // Show success notification
+                        if (typeof wpdPopNotification === 'function') {
+                            wpdPopNotification('success', dataManager.strings.success || 'Success!', (dataManager.strings.deleted_successfully || 'Deleted successfully.'));
+                        }
                     } else {
-                        alert(response.data && response.data.message ? response.data.message : (dataManager.strings.failed_to_delete_table || 'Failed to delete table.'));
+                        // Show error notification
+                        var errorMessage = response.data && response.data.message ? response.data.message : (dataManager.strings.failed_to_delete_table || 'Failed to delete table.');
+                        if (typeof wpdPopNotification === 'function') {
+                            wpdPopNotification('fail', dataManager.strings.error || 'Error', errorMessage);
+                        }
                         $button.prop('disabled', false).text(dataManager.strings.delete || 'Delete');
                     }
                 },
                 error: function() {
-                    alert(dataManager.strings.error_occurred || 'Error occurred. Please try again.');
+                    // Show error notification
+                    if (typeof wpdPopNotification === 'function') {
+                        wpdPopNotification('fail', dataManager.strings.error || 'Error', dataManager.strings.error_occurred || 'Error occurred. Please try again.');
+                    }
                     $button.prop('disabled', false).text(dataManager.strings.delete || 'Delete');
                 }
             });
@@ -336,9 +432,16 @@
             var $button = $(this);
             var tableName = $button.data('table-name');
             var tableFriendly = $button.data('table-friendly');
+            var $row = $button.closest('tr');
 
+            // Show confirmation
             if (!confirm((dataManager.strings.confirm_clear_table || 'Are you sure you want to clear all data from the table') + ' "' + tableFriendly + '"? ' + (dataManager.strings.action_cannot_undone || 'This action cannot be undone.'))) {
                 return;
+            }
+
+            // Show processing notification
+            if (typeof wpdPopNotification === 'function') {
+                wpdPopNotification('loading', dataManager.strings.processing || 'Processing...', dataManager.strings.working || 'We are working on it!');
             }
 
             $button.prop('disabled', true).text(dataManager.strings.clearing || 'Clearing...');
@@ -353,15 +456,30 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Reload the page to refresh data
-                        location.reload();
+                        // Update the count in the row to 0
+                        $row.find('.wpd-statistic').html('<span class="wpd-statistic-value">0</span>');
+                        
+                        // Refresh data counts
+                        refreshDataCounts();
+                        
+                        // Show success notification
+                        if (typeof wpdPopNotification === 'function') {
+                            wpdPopNotification('success', dataManager.strings.success || 'Success!', (dataManager.strings.deleted_successfully || 'Cleared successfully.'));
+                        }
                     } else {
-                        alert(response.data && response.data.message ? response.data.message : (dataManager.strings.failed_to_clear_table || 'Failed to clear table.'));
+                        // Show error notification
+                        var errorMessage = response.data && response.data.message ? response.data.message : (dataManager.strings.failed_to_clear_table || 'Failed to clear table.');
+                        if (typeof wpdPopNotification === 'function') {
+                            wpdPopNotification('fail', dataManager.strings.error || 'Error', errorMessage);
+                        }
                         $button.prop('disabled', false).text(dataManager.strings.clear || 'Clear');
                     }
                 },
                 error: function() {
-                    alert(dataManager.strings.error_occurred || 'Error occurred. Please try again.');
+                    // Show error notification
+                    if (typeof wpdPopNotification === 'function') {
+                        wpdPopNotification('fail', dataManager.strings.error || 'Error', dataManager.strings.error_occurred || 'Error occurred. Please try again.');
+                    }
                     $button.prop('disabled', false).text(dataManager.strings.clear || 'Clear');
                 }
             });
@@ -374,9 +492,16 @@
             var entityType = $button.data('entity-type');
             var metaKey = $button.data('meta-key');
             var metaFriendly = $button.data('meta-friendly');
+            var $row = $button.closest('tr');
 
+            // Show confirmation
             if (!confirm((dataManager.strings.confirm_delete_meta_key || 'Are you sure you want to delete the meta key') + ' "' + metaFriendly + '"? ' + (dataManager.strings.action_cannot_undone || 'This action cannot be undone.'))) {
                 return;
+            }
+
+            // Show processing notification
+            if (typeof wpdPopNotification === 'function') {
+                wpdPopNotification('loading', dataManager.strings.processing || 'Processing...', dataManager.strings.working || 'We are working on it!');
             }
 
             $button.prop('disabled', true).text(dataManager.strings.deleting || 'Deleting...');
@@ -392,15 +517,32 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Reload the page to refresh data
-                        location.reload();
+                        // Remove the row
+                        $row.fadeOut(300, function() {
+                            $(this).remove();
+                        });
+                        
+                        // Refresh data counts
+                        refreshDataCounts();
+                        
+                        // Show success notification
+                        if (typeof wpdPopNotification === 'function') {
+                            wpdPopNotification('success', dataManager.strings.success || 'Success!', (dataManager.strings.deleted_successfully || 'Deleted successfully.'));
+                        }
                     } else {
-                        alert(response.data && response.data.message ? response.data.message : (dataManager.strings.failed_to_delete_meta_key || 'Failed to delete meta key.'));
+                        // Show error notification
+                        var errorMessage = response.data && response.data.message ? response.data.message : (dataManager.strings.failed_to_delete_meta_key || 'Failed to delete meta key.');
+                        if (typeof wpdPopNotification === 'function') {
+                            wpdPopNotification('fail', dataManager.strings.error || 'Error', errorMessage);
+                        }
                         $button.prop('disabled', false).text(dataManager.strings.delete || 'Delete');
                     }
                 },
                 error: function() {
-                    alert(dataManager.strings.error_occurred || 'Error occurred. Please try again.');
+                    // Show error notification
+                    if (typeof wpdPopNotification === 'function') {
+                        wpdPopNotification('fail', dataManager.strings.error || 'Error', dataManager.strings.error_occurred || 'Error occurred. Please try again.');
+                    }
                     $button.prop('disabled', false).text(dataManager.strings.delete || 'Delete');
                 }
             });
@@ -413,9 +555,16 @@
             var entityType = $button.data('entity-type');
             var itemKey = $button.data('item-key');
             var itemFriendly = $button.data('item-friendly');
+            var $row = $button.closest('tr');
 
+            // Show confirmation
             if (!confirm((dataManager.strings.confirm_delete_item || 'Are you sure you want to delete') + ' "' + itemFriendly + '"? ' + (dataManager.strings.action_cannot_undone || 'This action cannot be undone.'))) {
                 return;
+            }
+
+            // Show processing notification
+            if (typeof wpdPopNotification === 'function') {
+                wpdPopNotification('loading', dataManager.strings.processing || 'Processing...', dataManager.strings.working || 'We are working on it!');
             }
 
             $button.prop('disabled', true).text(dataManager.strings.deleting || 'Deleting...');
@@ -431,15 +580,32 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Reload the page to refresh data
-                        location.reload();
+                        // Remove the row
+                        $row.fadeOut(300, function() {
+                            $(this).remove();
+                        });
+                        
+                        // Refresh data counts
+                        refreshDataCounts();
+                        
+                        // Show success notification
+                        if (typeof wpdPopNotification === 'function') {
+                            wpdPopNotification('success', dataManager.strings.success || 'Success!', (dataManager.strings.deleted_successfully || 'Deleted successfully.'));
+                        }
                     } else {
-                        alert(response.data && response.data.message ? response.data.message : (dataManager.strings.failed_to_delete_item || 'Failed to delete item.'));
+                        // Show error notification
+                        var errorMessage = response.data && response.data.message ? response.data.message : (dataManager.strings.failed_to_delete_item || 'Failed to delete item.');
+                        if (typeof wpdPopNotification === 'function') {
+                            wpdPopNotification('fail', dataManager.strings.error || 'Error', errorMessage);
+                        }
                         $button.prop('disabled', false).text(dataManager.strings.delete || 'Delete');
                     }
                 },
                 error: function() {
-                    alert(dataManager.strings.error_occurred || 'Error occurred. Please try again.');
+                    // Show error notification
+                    if (typeof wpdPopNotification === 'function') {
+                        wpdPopNotification('fail', dataManager.strings.error || 'Error', dataManager.strings.error_occurred || 'Error occurred. Please try again.');
+                    }
                     $button.prop('disabled', false).text(dataManager.strings.delete || 'Delete');
                 }
             });
@@ -451,9 +617,16 @@
             var $button = $(this);
             var actionId = $button.data('action-id');
             var hookFriendly = $button.data('hook-friendly');
+            var $row = $button.closest('tr');
 
+            // Show confirmation
             if (!confirm((dataManager.strings.confirm_delete_scheduled_task || 'Are you sure you want to delete the scheduled task') + ' "' + hookFriendly + '"? ' + (dataManager.strings.action_cannot_undone || 'This action cannot be undone.'))) {
                 return;
+            }
+
+            // Show processing notification
+            if (typeof wpdPopNotification === 'function') {
+                wpdPopNotification('loading', dataManager.strings.processing || 'Processing...', dataManager.strings.working || 'We are working on it!');
             }
 
             $button.prop('disabled', true).text(dataManager.strings.deleting || 'Deleting...');
@@ -468,15 +641,32 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Reload the page to refresh data
-                        location.reload();
+                        // Remove the row
+                        $row.fadeOut(300, function() {
+                            $(this).remove();
+                        });
+                        
+                        // Refresh data counts
+                        refreshDataCounts();
+                        
+                        // Show success notification
+                        if (typeof wpdPopNotification === 'function') {
+                            wpdPopNotification('success', dataManager.strings.success || 'Success!', (dataManager.strings.deleted_successfully || 'Deleted successfully.'));
+                        }
                     } else {
-                        alert(response.data && response.data.message ? response.data.message : (dataManager.strings.failed_to_delete_scheduled_task || 'Failed to delete scheduled task.'));
+                        // Show error notification
+                        var errorMessage = response.data && response.data.message ? response.data.message : (dataManager.strings.failed_to_delete_scheduled_task || 'Failed to delete scheduled task.');
+                        if (typeof wpdPopNotification === 'function') {
+                            wpdPopNotification('fail', dataManager.strings.error || 'Error', errorMessage);
+                        }
                         $button.prop('disabled', false).text(dataManager.strings.delete || 'Delete');
                     }
                 },
                 error: function() {
-                    alert(dataManager.strings.error_occurred || 'Error occurred. Please try again.');
+                    // Show error notification
+                    if (typeof wpdPopNotification === 'function') {
+                        wpdPopNotification('fail', dataManager.strings.error || 'Error', dataManager.strings.error_occurred || 'Error occurred. Please try again.');
+                    }
                     $button.prop('disabled', false).text(dataManager.strings.delete || 'Delete');
                 }
             });
@@ -488,9 +678,16 @@
             var $button = $(this);
             var entityType = $button.data('entity-type');
             var metaType = $button.data('meta-type');
+            var $row = $button.closest('tr');
 
+            // Show confirmation
             if (!confirm((dataManager.strings.confirm_delete_data || 'Are you sure you want to delete this data?') + ' ' + (dataManager.strings.action_cannot_undone || 'This action cannot be undone.'))) {
                 return;
+            }
+
+            // Show processing notification
+            if (typeof wpdPopNotification === 'function') {
+                wpdPopNotification('loading', dataManager.strings.processing || 'Processing...', dataManager.strings.working || 'We are working on it!');
             }
 
             $button.prop('disabled', true).text(dataManager.strings.deleting || 'Deleting...');
@@ -506,15 +703,32 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Reload the page to refresh data
-                        location.reload();
+                        // Remove the row
+                        $row.fadeOut(300, function() {
+                            $(this).remove();
+                        });
+                        
+                        // Refresh data counts
+                        refreshDataCounts();
+                        
+                        // Show success notification
+                        if (typeof wpdPopNotification === 'function') {
+                            wpdPopNotification('success', dataManager.strings.success || 'Success!', (dataManager.strings.deleted_successfully || 'Deleted successfully.'));
+                        }
                     } else {
-                        alert(response.data && response.data.message ? response.data.message : (dataManager.strings.failed_to_delete_data || 'Failed to delete data.'));
+                        // Show error notification
+                        var errorMessage = response.data && response.data.message ? response.data.message : (dataManager.strings.failed_to_delete_data || 'Failed to delete data.');
+                        if (typeof wpdPopNotification === 'function') {
+                            wpdPopNotification('fail', dataManager.strings.error || 'Error', errorMessage);
+                        }
                         $button.prop('disabled', false).text(dataManager.strings.delete || 'Delete');
                     }
                 },
                 error: function() {
-                    alert(dataManager.strings.error_occurred || 'Error occurred. Please try again.');
+                    // Show error notification
+                    if (typeof wpdPopNotification === 'function') {
+                        wpdPopNotification('fail', dataManager.strings.error || 'Error', dataManager.strings.error_occurred || 'Error occurred. Please try again.');
+                    }
                     $button.prop('disabled', false).text(dataManager.strings.delete || 'Delete');
                 }
             });

@@ -21,9 +21,9 @@ if ( class_exists('WPD_Authenticator') ) {
 
 
 if ( $license_status === 'active' ) {
-	$license_action = '<a href="#" class="wpd-input button button-secondary wpd-license-action" id="wpd-deactivate-license">Deactivate License</a>';
+	$license_action = '<a href="#" class="wpd-input button button-secondary wpd-license-action" id="wpd-deactivate-license" data-wpd-ajax-action="wpd_deactivate_license">Deactivate License</a>';
 } elseif( $license_status === 'inactive' ) {
-	$license_action = '<a href="#" class="wpd-input button button-secondary wpd-license-action" id="wpd-activate-license">Activate License</a>';
+	$license_action = '<a href="#" class="wpd-input button button-secondary wpd-license-action" id="wpd-activate-license" data-wpd-ajax-action="wpd_activate_license">Activate License</a>';
 } elseif( $license_status === 'expired' ) {
 	$license_action = '<a href="https://wpdavies.dev/my-account/subscriptions/?utm_campaign=Expired+License&utm_source=Alpha+Insights+Plugin" class="wpd-input button button-primary wpd-license-action" target="_blank">Renew License</a>';
 } else {
@@ -42,7 +42,7 @@ if ( $license_status === 'active' ) {
 	<div class="wpd-section-heading wpd-inline">
 		Alpha Insights <?php esc_html_e( 'License Manager', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
 		<?php submit_button( __( 'Save Changes', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'wpd-input primary pull-right', 'submit', false ); ?>
-		<?php echo '<a href="#" class="wpd-input button button-secondary wpd-license-action pull-right" style="margin-right: 10px;" id="wpd-refresh-license">Refresh License</a>'; ?>
+		<?php echo '<a href="#" class="wpd-input button button-secondary wpd-license-action pull-right" style="margin-right: 10px;" id="wpd-refresh-license" data-wpd-ajax-action="wpd_refresh_license">Refresh License</a>'; ?>
 	</div>
 </div>
 <div class="wpd-wrapper">
@@ -57,7 +57,7 @@ if ( $license_status === 'active' ) {
 			<tr>
 				<td>
 					<label><?php esc_html_e( 'Your License Key', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php esc_html_e( 'Enter the license key provided to you on purchase, this can be found in your order confirmation email or in your account area on', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?> <a href="https://wpdavies.dev/my-account/orders/?utm_campaign=Alpha+Insights+License&utm_source=Alpha+Insights+Plugin" target="_blank">WP Davies</a>.</div>
+					<div class="wpd-meta"><?php echo wp_kses_post( __( 'Enter the license key provided to you on purchase, this can be found in your order confirmation email or in your account area on', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?> <a href="https://wpdavies.dev/my-account/orders/?utm_campaign=Alpha+Insights+License&utm_source=Alpha+Insights+Plugin" target="_blank"><?php esc_html_e( 'WP Davies', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></a>.</div>
 				</td>
 				<td><input class="wpd-input" type="text" value="<?php echo esc_attr( $license_key ); ?>" placeholder="Your License Key" name="wpd_ai_api_key" style="width: 100%;"></td>
 			</tr>
@@ -101,6 +101,3 @@ if ( $license_status === 'active' ) {
 <div class="wpd-inline">
 	<?php submit_button( __( 'Save Changes', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'wpd-input primary pull-right', 'submit', false); ?>
 </div>
-<?php wpd_javascript_ajax_action( '#wpd-deactivate-license', 'wpd_deactivate_license' ) ?>
-<?php wpd_javascript_ajax_action( '#wpd-activate-license', 'wpd_activate_license' ) ?>
-<?php wpd_javascript_ajax_action( '#wpd-refresh-license', 'wpd_refresh_license' ) ?>

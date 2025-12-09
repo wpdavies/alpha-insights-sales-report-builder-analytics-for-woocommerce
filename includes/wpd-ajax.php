@@ -19,151 +19,31 @@ defined( 'ABSPATH' ) || exit;
  * @param string $capability Required capability. Default 'manage_options'.
  * @return bool True if verified, false otherwise (sends JSON error and dies).
  */
-if ( ! function_exists( 'wpd_verify_ajax_request' ) ) {
-	function wpd_verify_ajax_request( $nonce_action = null, $capability = 'manage_options' ) {
-		// Use constant if no action specified
-		if ( null === $nonce_action ) {
-			$nonce_action = WPD_AI_AJAX_NONCE_ACTION;
-		}
-		// Verify nonce
-		$nonce_key = isset( $_POST['nonce'] ) ? 'nonce' : 'security';
-		if ( ! isset( $_POST[ $nonce_key ] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ $nonce_key ] ) ), $nonce_action ) ) {
-			wp_send_json_error( array( 
-				'message' => __( 'Security check failed. Please refresh the page and try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) 
-			) );
-			return false;
-		}
-		
-		// Check capability
-		if ( ! current_user_can( $capability ) ) {
-			wp_send_json_error( array( 
-				'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) 
-			) );
-			return false;
-		}
-		
-		return true;
+function wpd_verify_ajax_request( $nonce_action = null, $capability = 'manage_options' ) {
+	// Use constant if no action specified
+	if ( null === $nonce_action ) {
+		$nonce_action = WPD_AI_AJAX_NONCE_ACTION;
 	}
+	// Verify nonce
+	$nonce_key = isset( $_POST['nonce'] ) ? 'nonce' : 'security';
+	if ( ! isset( $_POST[ $nonce_key ] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ $nonce_key ] ) ), $nonce_action ) ) {
+		wp_send_json_error( array( 
+			'message' => __( 'Security check failed. Please refresh the page and try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) 
+		) );
+		return false;
+	}
+	
+	// Check capability
+	if ( ! current_user_can( $capability ) ) {
+		wp_send_json_error( array( 
+			'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) 
+		) );
+		return false;
+	}
+	
+	return true;
 }
 
-/**
- *
- *	Send email via ajax
- *
- */
-if ( ! function_exists('wpd_javascript_email_ajax') ) {
-
-	function wpd_javascript_email_ajax( $click_selector, $email_to_send ) {
-		// Ensure the admin script is enqueued
-		wp_enqueue_script( 'wpd-alpha-insights-admin' );
-		
-		// Build inline script
-		$inline_script = "
-		jQuery(document).ready(function($) {
-			jQuery('" . esc_js( $click_selector ) . "').click(function(e) {
-				e.preventDefault();
-				wpdPopNotification( 'loading', '" . esc_js( __( 'Processing...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) . "', '" . esc_js( __( 'We are working on it!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) . "' );
-		        var data = {
-		            'action': 'wpd_send_email',
-		            'email' : '" . esc_js( $email_to_send ) . "',
-		            'url'   : window.location.href,
-		            'nonce' : (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.nonce) ? wpdAlphaInsights.nonce : ''
-		        };
-		        var ajaxurl = '" . esc_url( admin_url( 'admin-ajax.php' ) ) . "';
-		        $.post(ajaxurl, data)
-		        .done(function( response ) {
-		    		var parsedResponse = wpdHandleAjaxResponse(
-		    			response,
-		    			'" . esc_js( __( 'Your email has been successfully sent.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) . "',
-		    			'" . esc_js( __( 'Your email was not sent.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) . "'
-		    		);
-		        })
-		        .fail(function( jqXHR, textStatus, errorThrown ) {
-		    		var errorMessage = '" . esc_js( __( 'Your email was not sent.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) . "';
-		    		if (jqXHR.responseText) {
-		    			try {
-		    				var errorResponse = JSON.parse(jqXHR.responseText);
-		    				errorMessage = wpdExtractResponseMessage(errorResponse, errorMessage);
-		    			} catch(e) {
-		    				// If we can't parse the error, use default message
-		    			}
-		    		}
-		    		wpdPopNotification( 'fail', '" . esc_js( __( 'Email Failed', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) . "', errorMessage );
-		        });
-		    });
-		});";
-		
-		// Add inline script with unique handle based on selector
-		$handle = 'wpd-email-ajax-' . md5( $click_selector . $email_to_send );
-		wp_add_inline_script( 'wpd-alpha-insights-admin', $inline_script );
-	}
-
-}
-
-/**
- *
- *	Send email via ajax
- *
- */
-if ( ! function_exists('wpd_javascript_ajax_action') ) {
-
-	function wpd_javascript_ajax_action( $click_selector, $action, $args = null ) {
-
-		$form_selector = 'form';
-
-		// Process args
-		if ( isset( $args['form_selector'] ) && ! empty($args['form_selector']) ) {
-			$form_selector = $args['form_selector'];
-		}
-
-		// Ensure the admin script is enqueued
-		wp_enqueue_script( 'wpd-alpha-insights-admin' );
-		
-		// Build inline script
-		$inline_script = "
-		jQuery(document).ready(function($) {
-			jQuery('" . esc_js( $click_selector ) . "').click(function(e) {
-				e.preventDefault();
-				wpdPopNotification( 'loading', '" . esc_js( __( 'Processing...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) . "', '" . esc_js( __( 'We are working on it!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) . "' );
-				var formData = $('" . esc_js( $form_selector ) . "').serializeArray();
-		        var data = {
-		            'action': '" . esc_js( $action ) . "',
-		            'url'   : window.location.href,
-		            'form' 	: formData,
-		            'nonce' : (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.nonce) ? wpdAlphaInsights.nonce : ''
-		        };
-		        var ajaxurl = '" . esc_url( admin_url( 'admin-ajax.php' ) ) . "';
-		        $.post(ajaxurl, data)
-		        .done(function( response ) {
-		    		var parsedResponse = wpdHandleAjaxResponse(
-		    			response,
-		    			'" . esc_js( __( 'Your request has been successfully completed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) . "',
-		    			'" . esc_js( __( 'Your action could not be completed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) . "'
-		    		);
-		    		if (parsedResponse && parsedResponse.success) {
-		    			window.postMessage(parsedResponse, \"*\");
-		    		}
-		        })
-		        .fail(function( jqXHR, textStatus, errorThrown ) {
-		    		var errorMessage = '" . esc_js( __( 'Your action could not be completed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) . "';
-		    		if (jqXHR.responseText) {
-		    			try {
-		    				var errorResponse = JSON.parse(jqXHR.responseText);
-		    				errorMessage = wpdExtractResponseMessage(errorResponse, errorMessage);
-		    			} catch(e) {
-		    				// If we can't parse the error, use default message
-		    			}
-		    		}
-		    		wpdPopNotification( 'fail', '" . esc_js( __( 'Request Failed', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) . "', errorMessage );
-		        });
-		    });
-		});";
-		
-		// Add inline script
-		wp_add_inline_script( 'wpd-alpha-insights-admin', $inline_script );
-	}
-
-}
 
 /**
  * 

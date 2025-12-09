@@ -1269,4 +1269,145 @@ jQuery(document).ready(function($) {
             wpdPopNotification( 'fail', requestFailedText, errorMessage );
         });
     });
+
+    /**
+     * Generic AJAX action handler
+     * Handles elements with data-wpd-ajax-action attribute
+     */
+    $(document).on('click', '[data-wpd-ajax-action]', function(e) {
+        e.preventDefault();
+        
+        var $element = $(this);
+        var action = $element.data('wpd-ajax-action');
+        var formSelector = $element.data('wpd-ajax-form') || 'form';
+        
+        // Get localized strings
+        var processingText = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.processing) 
+            ? wpdAlphaInsights.strings.processing 
+            : 'Processing...';
+        var workingText = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.working) 
+            ? wpdAlphaInsights.strings.working 
+            : 'We are working on it!';
+        var successText = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.success) 
+            ? wpdAlphaInsights.strings.success 
+            : 'Your request has been successfully completed.';
+        var errorText = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.error) 
+            ? wpdAlphaInsights.strings.error 
+            : 'Your action could not be completed.';
+        var requestFailedText = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.requestFailed) 
+            ? wpdAlphaInsights.strings.requestFailed 
+            : 'Request Failed';
+        
+        // Show loading notification
+        wpdPopNotification( 'loading', processingText, workingText );
+        
+        // Serialize form data if form exists
+        var formData = [];
+        var $form = $(formSelector);
+        if ($form.length > 0) {
+            formData = $form.serializeArray();
+        }
+        
+        // Prepare AJAX data
+        var data = {
+            'action': action,
+            'url': window.location.href,
+            'form': formData,
+            'nonce': (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.nonce) ? wpdAlphaInsights.nonce : ''
+        };
+        
+        var ajaxurl = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.ajax_url) 
+            ? wpdAlphaInsights.ajax_url 
+            : '/wp-admin/admin-ajax.php';
+        
+        // Make AJAX request
+        $.post(ajaxurl, data)
+        .done(function( response ) {
+            var parsedResponse = wpdHandleAjaxResponse(
+                response,
+                successText,
+                errorText
+            );
+            if (parsedResponse && parsedResponse.success) {
+                window.postMessage(parsedResponse, "*");
+            }
+        })
+        .fail(function( jqXHR, textStatus, errorThrown ) {
+            var errorMessage = errorText;
+            if (jqXHR.responseText) {
+                try {
+                    var errorResponse = JSON.parse(jqXHR.responseText);
+                    errorMessage = wpdExtractResponseMessage(errorResponse, errorMessage);
+                } catch(e) {
+                    // If we can't parse the error, use default message
+                }
+            }
+            wpdPopNotification( 'fail', requestFailedText, errorMessage );
+        });
+    });
+
+    /**
+     * Email AJAX handler
+     * Handles elements with data-wpd-email-ajax attribute
+     */
+    $(document).on('click', '[data-wpd-email-ajax]', function(e) {
+        e.preventDefault();
+        
+        var $element = $(this);
+        var emailType = $element.data('wpd-email-ajax');
+        
+        // Get localized strings
+        var processingText = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.processing) 
+            ? wpdAlphaInsights.strings.processing 
+            : 'Processing...';
+        var workingText = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.working) 
+            ? wpdAlphaInsights.strings.working 
+            : 'We are working on it!';
+        var emailSuccessText = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.emailSuccess) 
+            ? wpdAlphaInsights.strings.emailSuccess 
+            : 'Your email has been successfully sent.';
+        var emailErrorText = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.emailError) 
+            ? wpdAlphaInsights.strings.emailError 
+            : 'Your email was not sent.';
+        var emailFailedText = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.emailFailed) 
+            ? wpdAlphaInsights.strings.emailFailed 
+            : 'Email Failed';
+        
+        // Show loading notification
+        wpdPopNotification( 'loading', processingText, workingText );
+        
+        // Prepare AJAX data
+        var data = {
+            'action': 'wpd_send_email',
+            'email': emailType,
+            'url': window.location.href,
+            'nonce': (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.nonce) ? wpdAlphaInsights.nonce : ''
+        };
+        
+        var ajaxurl = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.ajax_url) 
+            ? wpdAlphaInsights.ajax_url 
+            : '/wp-admin/admin-ajax.php';
+        
+        // Make AJAX request
+        $.post(ajaxurl, data)
+        .done(function( response ) {
+            var parsedResponse = wpdHandleAjaxResponse(
+                response,
+                emailSuccessText,
+                emailErrorText
+            );
+        })
+        .fail(function( jqXHR, textStatus, errorThrown ) {
+            var errorMessage = emailErrorText;
+            if (jqXHR.responseText) {
+                try {
+                    var errorResponse = JSON.parse(jqXHR.responseText);
+                    errorMessage = wpdExtractResponseMessage(errorResponse, errorMessage);
+                } catch(e) {
+                    // If we can't parse the error, use default message
+                }
+            }
+            wpdPopNotification( 'fail', emailFailedText, errorMessage );
+        });
+    });
 });

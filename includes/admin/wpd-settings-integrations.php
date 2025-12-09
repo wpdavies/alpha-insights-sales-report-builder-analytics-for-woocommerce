@@ -40,7 +40,7 @@ $starshipit_subscription_key = get_option( 'wpd_ai_starshipit_subscription_key' 
 			<tr <?php if ( ! WPD_AI_PRO ) echo 'class="wpd-ai-pro-setting"'; ?>>
 				<td>
 					<label><?php esc_html_e( 'StarShipIt', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php esc_html_e( 'This is where we will sync your shipping costs with your orders.<br>Once you\'ve entered a value for both the API key and subscription key, you will need to save your settings to activate the integration. A daily schedule will run that will sync 50 orders at a time, fetching the shipping cost and automatically saving it to the order.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<div class="wpd-meta"><?php echo wp_kses_post( __( 'This is where we will sync your shipping costs with your orders.<br>Once you\'ve entered a value for both the API key and subscription key, you will need to save your settings to activate the integration. A daily schedule will run that will sync 50 orders at a time, fetching the shipping cost and automatically saving it to the order.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
 				</td>
 				<td>
 					<input class="wpd-input" style="width: 100%;" type="text" name="wpd_ai_starshipit_api_key" value="<?php echo esc_attr( $starshipit_api_key ); ?>" placeholder="StarShipIt API Key">
@@ -103,7 +103,7 @@ $starshipit_subscription_key = get_option( 'wpd_ai_starshipit_subscription_key' 
 					<div class="wpd-meta"><?php esc_html_e( 'We will immediately broadcast your test data once to your URL endpoint. Make sure you have saved your endpoint url.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
-					<a href="#" id="test-webhook" class="wpd-input button secondary-button">Test Webhook</a>
+					<a href="#" id="test-webhook" class="wpd-input button secondary-button" data-wpd-ajax-action="wpd_webhook_export_manual">Test Webhook</a>
 				</td>
 			</tr>
 			<tr>
@@ -123,4 +123,3 @@ $starshipit_subscription_key = get_option( 'wpd_ai_starshipit_subscription_key' 
 <div class="wpd-inline">
 	<?php submit_button( __('Save Changes', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 'primary pull-right', 'submit', false); ?>
 </div>
-<?php wpd_javascript_ajax_action( '#test-webhook', 'wpd_webhook_export_manual' ); ?>

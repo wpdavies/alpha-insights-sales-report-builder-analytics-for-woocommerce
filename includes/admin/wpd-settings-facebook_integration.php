@@ -44,7 +44,7 @@ defined( 'ABSPATH' ) || exit;
 		<?php esc_html_e( 'Facebook API', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
 		<?php submit_button( __('Save Changes', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 'primary pull-right', 'submit', false); ?>
 		<?php if( $facebook_settings['api_status'] == 'Healthy' ) : ?>
-			<a href="#" class="wpd-input button button-secondary pull-right" id="wpd-refresh-facebook-api-data-top" style="margin-right: 5px;">Refresh All Campaign Data</a>
+			<a href="#" class="wpd-input button button-secondary pull-right" id="wpd-refresh-facebook-api-data-top" style="margin-right: 5px;" data-wpd-ajax-action="wpd_refresh_all_facebook_api_data">Refresh All Campaign Data</a>
 		<?php endif; ?>
 		<a href="https://wpdavies.dev/documentation/alpha-insights/features/setting-up-the-woocommerce-meta-facebook-ads-api/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" class="wpd-input button button-secondary pull-right" target="_blank" style="margin-right: 5px;">Documentation</a>
 	</div>
@@ -234,7 +234,7 @@ defined( 'ABSPATH' ) || exit;
 					<div class="wpd-meta"><?php esc_html_e( 'This function will create / update the Ad Spend & Campaign Insights for your ad account for all time.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
-					<a href="#" class="wpd-input button button-secondary" id="wpd-refresh-facebook-api-data">Refresh All Campaign Data</a>
+					<a href="#" class="wpd-input button button-secondary" id="wpd-refresh-facebook-api-data" data-wpd-ajax-action="wpd_refresh_all_facebook_api_data">Refresh All Campaign Data</a>
 					<br><span class="wpd-meta">Last Updated <?php if ( function_exists('wpd_facebook_last_updated') ) echo esc_html( wpd_facebook_last_updated( $facebook_settings ) ); ?></span>
 				</td>
 			</tr>
@@ -244,7 +244,7 @@ defined( 'ABSPATH' ) || exit;
 					<div class="wpd-meta"><?php esc_html_e( 'This will check your current API status and display the latest status message.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
-					<a href="#" class="wpd-input button button-secondary" id="wpd-test-api-status">Check API Status</a>
+					<a href="#" class="wpd-input button button-secondary" id="wpd-test-api-status" data-wpd-ajax-action="wpd_test_facebook_api_status">Check API Status</a>
 				</td>
 			</tr>	
 			<tr>
@@ -253,8 +253,8 @@ defined( 'ABSPATH' ) || exit;
 					<div class="wpd-meta"><?php esc_html_e( 'These tools will delete the data that we have stored in your database from the Facebook API calls. This will not effect your Facebook ad account.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
-					<a href="#" class="wpd-input button button-secondary" id="wpd-delete-all-expense-data">Delete All Expense Data</a>
-					<a href="#" class="wpd-input button button-secondary" id="wpd-delete-all-campaign-data">Delete All Campaign Data</a>
+					<a href="#" class="wpd-input button button-secondary" id="wpd-delete-all-expense-data" data-wpd-ajax-action="wpd_delete_all_facebook_api_expense_data">Delete All Expense Data</a>
+					<a href="#" class="wpd-input button button-secondary" id="wpd-delete-all-campaign-data" data-wpd-ajax-action="wpd_delete_all_facebook_api_campaign_data">Delete All Campaign Data</a>
 				</td>
 			</tr>
 		</tbody>
@@ -286,8 +286,3 @@ defined( 'ABSPATH' ) || exit;
 <div class="wpd-inline">
 	<?php submit_button( __('Save Changes', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 'primary pull-right', 'submit', false); ?>
 </div>
-<?php wpd_javascript_ajax_action( '#wpd-delete-all-expense-data', 'wpd_delete_all_facebook_api_expense_data' ); ?>
-<?php wpd_javascript_ajax_action( '#wpd-delete-all-campaign-data', 'wpd_delete_all_facebook_api_campaign_data' ); ?>
-<?php wpd_javascript_ajax_action( '#wpd-refresh-facebook-api-data', 'wpd_refresh_all_facebook_api_data' ); ?>
-<?php wpd_javascript_ajax_action( '#wpd-refresh-facebook-api-data-top', 'wpd_refresh_all_facebook_api_data' ); ?>
-<?php wpd_javascript_ajax_action( '#wpd-test-api-status', 'wpd_test_facebook_api_status' ); ?>

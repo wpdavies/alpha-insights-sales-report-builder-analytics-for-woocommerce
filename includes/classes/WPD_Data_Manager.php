@@ -1146,16 +1146,24 @@ class WPD_Data_Manager {
      */
     public function delete_all_scheduled_tasks() {
 
-        // Check if Action Scheduler is available
-        if ( ! function_exists( 'as_unschedule_all_actions' ) ) {
-            return 0;
-        }
-
         $deleted_count = 0;
         $group_slug = 'WP Davies';
 
-        // Get all scheduled tasks first
+        // Get all scheduled tasks first (this checks for tables/availability)
         $scheduled_tasks = $this->get_all_scheduled_tasks();
+        
+        // Check if Action Scheduler tables exist
+        global $wpdb;
+        $actions_table = $wpdb->prefix . 'actionscheduler_actions';
+        $table_exists = $wpdb->get_var( $wpdb->prepare( 
+            "SHOW TABLES LIKE %s", 
+            $actions_table 
+        ) );
+        
+        // If tables don't exist, Action Scheduler is not available at all
+        if ( $table_exists !== $actions_table ) {
+            return 0;
+        }
 
         // Get unique hook names
         $hook_names = array();
@@ -1167,50 +1175,54 @@ class WPD_Data_Manager {
             } );
         }
 
-        // Unschedule all actions by hook name
-        foreach ( $hook_names as $hook ) {
-            if ( ! empty( $hook ) ) {
-                // phpcs:ignore -- Action Scheduler function loaded at runtime
-                $unscheduled = as_unschedule_all_actions( $hook );
-                if ( $unscheduled !== false ) {
-                    $deleted_count += $unscheduled;
+        // Unschedule all actions by hook name (if function is available)
+        if ( function_exists( 'as_unschedule_all_actions' ) ) {
+            foreach ( $hook_names as $hook ) {
+                if ( ! empty( $hook ) ) {
+                    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
+                    $unscheduled = as_unschedule_all_actions( $hook );
+                    if ( $unscheduled !== false ) {
+                        $deleted_count += $unscheduled;
+                    }
                 }
             }
         }
 
         // Also unschedule by group if Action Scheduler supports it
-        global $wpdb;
-        $actions_table = $wpdb->prefix . 'actionscheduler_actions';
         $groups_table = $wpdb->prefix . 'actionscheduler_groups';
         
-        $actions_table_exists = $wpdb->get_var( $wpdb->prepare( 
-            "SHOW TABLES LIKE %s", 
-            $actions_table 
+        // Get group ID
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
+        $group_id = $wpdb->get_var( $wpdb->prepare(
+            "SELECT group_id FROM $groups_table WHERE slug = %s",
+            $group_slug
         ) );
         
-        if ( $actions_table_exists === $actions_table ) {
-            // Get group ID
+        if ( $group_id ) {
+            // Get all action IDs for this group
             // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
-            $group_id = $wpdb->get_var( $wpdb->prepare(
-                "SELECT group_id FROM $groups_table WHERE slug = %s",
-                $group_slug
+            $action_ids = $wpdb->get_col( $wpdb->prepare(
+                "SELECT action_id FROM $actions_table WHERE group_id = %d AND status IN ('pending', 'in-progress')",
+                $group_id
             ) );
             
-            if ( $group_id ) {
-                // Get all action IDs for this group
-                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
-                $action_ids = $wpdb->get_col( $wpdb->prepare(
-                    "SELECT action_id FROM $actions_table WHERE group_id = %d AND status IN ('pending', 'in-progress')",
-                    $group_id
-                ) );
-                
-                // Delete each action
-                foreach ( $action_ids as $action_id ) {
-                    if ( function_exists( 'as_delete_action' ) ) {
-                        // phpcs:ignore -- Action Scheduler function loaded at runtime
-                        if ( as_delete_action( $action_id ) ) {
-                            $deleted_count++;
-                        }
+            // Delete each action
+            foreach ( $action_ids as $action_id ) {
+                if ( function_exists( 'as_delete_action' ) ) {
+                    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
+                    if ( as_delete_action( $action_id ) ) {
+                        $deleted_count++;
+                    }
+                } else {
+                    // Fallback: Delete directly from database
+                    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
+                    $deleted = $wpdb->delete(
+                        $actions_table,
+                        array( 'action_id' => $action_id ),
+                        array( '%d' )
+                    );
+                    if ( false !== $deleted && $deleted > 0 ) {
+                        $deleted_count++;
                     }
                 }
             }
@@ -2069,12 +2081,12 @@ class WPD_Data_Manager {
         }
         
         if ( ! wpd_verify_ajax_request() ) {
-            return;
+            return; // wpd_verify_ajax_request sends JSON error and dies
         }
         
         if ( ! isset( $_POST['entity_type'] ) ) {
             wp_send_json_error( array( 'message' => __( 'Entity type is required.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
-            return;
+            return; // wp_send_json_error dies, but keeping for code clarity
         }
         
         $entity_type = sanitize_text_field( wp_unslash( $_POST['entity_type'] ) );
@@ -2134,9 +2146,10 @@ class WPD_Data_Manager {
                 break;
             default:
                 wp_send_json_error( array( 'message' => __( 'Invalid entity type.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
-                return;
+                return; // wp_send_json_error dies, but keeping for code clarity
         }
         
+        // Always send a response
         if ( $result ) {
             wp_send_json_success( array( 'message' => $message ) );
         } else {
@@ -2322,26 +2335,50 @@ class WPD_Data_Manager {
         }
         
         if ( ! wpd_verify_ajax_request() ) {
-            return;
+            return; // wpd_verify_ajax_request sends JSON error and dies
         }
         
         if ( ! isset( $_POST['action_id'] ) ) {
             wp_send_json_error( array( 'message' => __( 'Action ID is required.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
-            return;
+            return; // wp_send_json_error dies, but keeping for code clarity
         }
         
         $action_id = absint( $_POST['action_id'] );
         
+        $result = false;
+        
+        // Try using Action Scheduler function if available
         if ( function_exists( 'as_delete_action' ) ) {
             // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
             $result = as_delete_action( $action_id );
-            if ( $result ) {
-                wp_send_json_success( array( 'message' => __( 'Scheduled task deleted successfully.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
-            } else {
-                wp_send_json_error( array( 'message' => __( 'Failed to delete scheduled task.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
-            }
         } else {
-            wp_send_json_error( array( 'message' => __( 'Action Scheduler is not available.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
+            // Fallback: Delete directly from database if Action Scheduler tables exist
+            global $wpdb;
+            $actions_table = $wpdb->prefix . 'actionscheduler_actions';
+            
+            // Check if table exists
+            $table_exists = $wpdb->get_var( $wpdb->prepare( 
+                "SHOW TABLES LIKE %s", 
+                $actions_table 
+            ) );
+            
+            if ( $table_exists === $actions_table ) {
+                // Delete the action directly from the database
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
+                $deleted = $wpdb->delete(
+                    $actions_table,
+                    array( 'action_id' => $action_id ),
+                    array( '%d' )
+                );
+                $result = ( false !== $deleted && $deleted > 0 );
+            }
+        }
+        
+        // Always send a response
+        if ( $result ) {
+            wp_send_json_success( array( 'message' => __( 'Scheduled task deleted successfully.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
+        } else {
+            wp_send_json_error( array( 'message' => __( 'Failed to delete scheduled task. Action Scheduler may not be available or the task does not exist.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
         }
     }
 
@@ -2530,7 +2567,6 @@ class WPD_Data_Manager {
                                     data-entity-type="<?php echo esc_attr( $entity['entity_type'] ); ?>"
                                     data-entity-name="<?php echo esc_attr( $entity['name'] ); ?>"
                                     disabled
-                                    onclick="event.stopPropagation();"
                                 >
                                     <?php echo esc_html( $button_text ); ?>
                                 </button>
@@ -2586,6 +2622,11 @@ class WPD_Data_Manager {
                 'deleting' => __( 'Deleting...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
                 'failed_to_delete' => __( 'Failed to delete.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
                 'error_occurred' => __( 'Error occurred. Please try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'processing' => __( 'Processing...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'working' => __( 'We are working on it!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'success' => __( 'Success!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'error' => __( 'Error', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'deleted_successfully' => __( 'Deleted successfully.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
                 'confirm_delete_table' => __( 'Are you sure you want to delete the table', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
                 'failed_to_delete_table' => __( 'Failed to delete table.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
                 'confirm_clear_table' => __( 'Are you sure you want to clear all data from the table', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),

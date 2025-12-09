@@ -102,7 +102,7 @@ class WPD_Getting_Started {
                     <!-- Header with Close Button -->
                     <div class="wpd-gs-modal-header">
                         <h2 class="wpd-gs-modal-title"><?php esc_html_e('Getting Started with Alpha Insights', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></h2>
-                        <button type="button" class="wpd-gs-modal-close" aria-label="<?php esc_attresc_html_e('Close', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>">
+                        <button type="button" class="wpd-gs-modal-close" aria-label="<?php esc_attr_e('Close', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>">
                             &times;
                         </button>
                     </div>

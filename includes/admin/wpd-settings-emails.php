@@ -102,7 +102,7 @@ if ( ! isset($inventory_report_settings['frequency']['monthly']) ) $inventory_re
 			<tr>
 				<td colspan="2" style="background-color: #fbfbfb;">
 					<a href="<?php echo esc_url( wpd_admin_page_url( 'settings-emails-preview-profit-report' ) ); ?>" class="wpd-input button secondary-button pull-right" target="_blank"><?php esc_html_e( 'Preview Email', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
-					<a href="#" class="wpd-input button secondary-button pull-right" id="send-email-profit-report"><?php esc_html_e( 'Send Test Email', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
+					<a href="#" class="wpd-input button secondary-button pull-right" id="send-email-profit-report" data-wpd-email-ajax="wpd_profit_report"><?php esc_html_e( 'Send Test Email', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
 				</td>
 			</tr>
 		</tbody>
@@ -145,12 +145,10 @@ if ( ! isset($inventory_report_settings['frequency']['monthly']) ) $inventory_re
 			<tr>
 				<td colspan="2" style="background-color: #fbfbfb;">
 					<a href="<?php echo esc_url( wpd_admin_page_url( 'settings-emails-preview-expense-report' ) ); ?>" class="wpd-input button secondary-button pull-right" target="_blank"><?php esc_html_e( 'Preview Email', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
-					<a href="#" class="wpd-input button secondary-button pull-right" id="send-email-expense-report"><?php esc_html_e( 'Send Test Email', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
+					<a href="#" class="wpd-input button secondary-button pull-right" id="send-email-expense-report" data-wpd-email-ajax="wpd_expense_report"><?php esc_html_e( 'Send Test Email', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
 				</td>
 			</tr>
 		</tbody>
 	</table>
 </div>
 <div class="wpd-inline"><?php submit_button( __( 'Save Changes', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'primary pull-right wpd-input', 'submit', false); ?></div>
-<?php wpd_javascript_email_ajax( '#send-email-profit-report', 'wpd_profit_report' ); ?>
-<?php wpd_javascript_email_ajax( '#send-email-expense-report', 'wpd_expense_report' ); ?>

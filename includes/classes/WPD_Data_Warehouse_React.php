@@ -4046,6 +4046,7 @@ class WPD_Data_Warehouse_React {
 			$suppliers 					= get_the_terms( $post_id, 'suppliers' );
 			$converted_value 			= 0;
             $expense_type_names_string  = array();
+            $expense_type_name          = ''; // Initialize to prevent undefined variable warnings
 
             // Apply filters
             if ( $this->get_data_filter( 'expenses', 'paid_unpaid' ) && is_array( $this->get_data_filter( 'expenses', 'paid_unpaid' ) ) ) {

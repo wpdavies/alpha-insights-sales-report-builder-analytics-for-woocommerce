@@ -67,7 +67,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 		<?php esc_html_e( 'Google Ads API', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
 		<?php submit_button( __('Save Changes', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 'primary pull-right', 'submit', false); ?>
 		<?php if( $is_configured ) : ?>
-			<a href="#" class="wpd-input button button-secondary pull-right" id="wpd-refresh-google-api-data-top" style="margin-right: 5px;">Refresh All Campaign Data</a>
+			<a href="#" class="wpd-input button button-secondary pull-right" id="wpd-refresh-google-api-data-top" style="margin-right: 5px;" data-wpd-ajax-action="wpd_refresh_all_google_data">Refresh All Campaign Data</a>
 		<?php endif; ?>
 		<a href="https://wpdavies.dev/documentation/alpha-insights/features/setting-up-the-woocommerce-google-ads-api/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" class="wpd-input button button-secondary pull-right" target="_blank" style="margin-right: 5px;">Documentation</a>
 		</div>
@@ -190,7 +190,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 			<tr>
 				<td>
 					<label><?php esc_html_e( 'Ad Account Age (Years)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php esc_html_e( 'When we do an all time search, we\'ll check back this many years to fetch and store data. Defaults to 10 years.<br>You will want this number larger than your account age, but large queries may time out.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<div class="wpd-meta"><?php echo wp_kses_post( __( 'When we do an all time search, we\'ll check back this many years to fetch and store data. Defaults to 10 years.<br>You will want this number larger than your account age, but large queries may time out.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
 				</td>
 				<td>
 					<input class="wpd-input" min="1" max="25" type="number" name="wpd_ai_google_ads_api[account_age_years]" value="<?php echo esc_attr( $account_age_years ); ?>" step="1" placeholder="10">
@@ -224,7 +224,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 							<span><?php echo esc_html($profit_conversion_action_details['name']); ?> (ID: <?php echo esc_html($profit_conversion_action_details['id']); ?>) <?php echo wp_kses_post( wpd_status_circle("success") ); ?></span>
 						</div>
 						<div style="margin-bottom: 15px;">
-							<a href="#ajax" class="wpd-input button button-secondary" id="wpd-delete-conversion-action">Delete Conversion Action</a>
+							<a href="#ajax" class="wpd-input button button-secondary" id="wpd-delete-conversion-action" data-wpd-ajax-action="wpd_delete_google_conversion_action">Delete Conversion Action</a>
 						</div>
 						<div class="wpd-meta">Conversion action is configured and currently sending the order profit value to Google Ads</div>
 					<?php else: ?>
@@ -233,7 +233,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 							<span>No conversion action configured <?php echo wp_kses_post( wpd_status_circle("error") ); ?></span>
 						</div>
 						<?php if ( $is_configured ) : ?>
-							<a href="#ajax" class="wpd-input button button-primary" id="wpd-create-conversion-action">Create Conversion Action</a>
+							<a href="#ajax" class="wpd-input button button-primary" id="wpd-create-conversion-action" data-wpd-ajax-action="wpd_create_google_conversion_action">Create Conversion Action</a>
 						<?php endif; ?>
 						<div class="wpd-meta">Click "Create Conversion Action" to set up profit tracking. This will create a new conversion action in your Google Ads account.</div>
 					<?php endif; ?>
@@ -257,7 +257,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 							<span><?php echo esc_html($add_to_cart_conversion_action_details['name']); ?> (ID: <?php echo esc_html($add_to_cart_conversion_action_details['id']); ?>) <?php echo wp_kses_post( wpd_status_circle("success") ); ?></span>
 						</div>
 						<div style="margin-bottom: 15px;">
-							<a href="#ajax" class="wpd-input button button-secondary" id="wpd-delete-add-to-cart-conversion-action">Delete Conversion Action</a>
+							<a href="#ajax" class="wpd-input button button-secondary" id="wpd-delete-add-to-cart-conversion-action" data-wpd-ajax-action="wpd_delete_google_add_to_cart_conversion_action">Delete Conversion Action</a>
 						</div>
 						<div class="wpd-meta">Conversion action is configured and currently sending the Add To Cart event to Google Ads</div>
 					<?php else: ?>
@@ -266,7 +266,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 							<span>No conversion action configured <?php echo wp_kses_post( wpd_status_circle("error") ); ?></span>
 						</div>
 						<?php if ( $is_configured ) : ?>
-							<a href="#ajax" class="wpd-input button button-primary" id="wpd-create-add-to-cart-conversion-action">Create Add To Cart Conversion Action</a>
+							<a href="#ajax" class="wpd-input button button-primary" id="wpd-create-add-to-cart-conversion-action" data-wpd-ajax-action="wpd_create_google_add_to_cart_conversion_action">Create Add To Cart Conversion Action</a>
 						<?php endif; ?>
 						<div class="wpd-meta">Click "Create Add To Cart Conversion Action" to set up Add To Cart tracking. This will create a new conversion action in your Google Ads account.</div>
 					<?php endif; ?>
@@ -322,7 +322,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 					<div class="wpd-meta"><?php esc_html_e( 'This function will create / update the Ad Spend & Campaign Insights for your ad account for the number of years set on this settings page. It will not delete anything, just update it using the latest data from the API. Use this sparingly, it is a large request for both the Google API and your website. It is only really required to fetch all time data once you\'ve established a connection.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
-					<a href="#refresh" class="wpd-input button button-secondary" id="wpd-refresh-google-api-data">Refresh All Campaign Data</a>
+					<a href="#refresh" class="wpd-input button button-secondary" id="wpd-refresh-google-api-data" data-wpd-ajax-action="wpd_refresh_all_google_data">Refresh All Campaign Data</a>
 					<br><span class="wpd-meta"><?php echo esc_html( $last_data_fetch ); ?></span>
 				</td>
 			</tr>
@@ -332,7 +332,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 					<div class="wpd-meta"><?php esc_html_e( 'This will check your current API status and display the latest status message.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
-					<a href="#" class="wpd-input button button-secondary" id="wpd-test-api-status">Check API Status</a>
+					<a href="#" class="wpd-input button button-secondary" id="wpd-test-api-status" data-wpd-ajax-action="wpd_test_google_ads_api_status">Check API Status</a>
 				</td>
 			</tr>	
 			<tr>
@@ -341,8 +341,8 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 					<div class="wpd-meta"><?php esc_html_e( 'These tools will delete the data that we have stored in your database from the Google Ads API calls. This will not effect your Google Ad account or any stored expenses or campaigns that were not created by the API.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
-					<a href="#" class="wpd-input button button-secondary" id="wpd-delete-all-expense-data">Delete All Expense Data</a>
-					<a href="#" class="wpd-input button button-secondary" id="wpd-delete-all-campaign-data">Delete All Campaign Data</a>
+					<a href="#" class="wpd-input button button-secondary" id="wpd-delete-all-expense-data" data-wpd-ajax-action="wpd_delete_all_google_api_expense_data">Delete All Expense Data</a>
+					<a href="#" class="wpd-input button button-secondary" id="wpd-delete-all-campaign-data" data-wpd-ajax-action="wpd_delete_all_google_api_campaign_data">Delete All Campaign Data</a>
 				</td>
 			</tr>
 		</tbody>
@@ -351,16 +351,3 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 <div class="wpd-wrapper">
 	<?php submit_button( __('Save Changes', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 'primary pull-right', 'submit', false); ?>
 </div>
-<?php wpd_javascript_ajax_action( '#wpd-test-api-status', 'wpd_test_google_ads_api_status' ); ?>
-<?php wpd_javascript_ajax_action( '#wpd-delete-all-expense-data', 'wpd_delete_all_google_api_expense_data' ); ?>
-<?php wpd_javascript_ajax_action( '#wpd-delete-all-campaign-data', 'wpd_delete_all_google_api_campaign_data' ); ?>
-<?php wpd_javascript_ajax_action( '#wpd-refresh-google-api-data-top', 'wpd_refresh_all_google_data' ); ?>
-<?php wpd_javascript_ajax_action( '#wpd-refresh-google-api-data', 'wpd_refresh_all_google_data' ); ?>
-<?php wpd_javascript_ajax_action( '#wpd-create-conversion-action', 'wpd_create_google_conversion_action' ); ?>
-<?php wpd_javascript_ajax_action( '#wpd-delete-conversion-action', 'wpd_delete_google_conversion_action' ); ?>
-<?php wpd_javascript_ajax_action( '#wpd-create-add-to-cart-conversion-action', 'wpd_create_google_add_to_cart_conversion_action' ); ?>
-<?php wpd_javascript_ajax_action( '#wpd-delete-add-to-cart-conversion-action', 'wpd_delete_google_add_to_cart_conversion_action' ); ?>
-<?php wpd_javascript_ajax_action( '#store_utm_campaigns', 'wpd_scan_utm_campaigns_via_order' ); ?>
-<?php wpd_javascript_ajax_action( '#check-gclid-storage', 'wpd_scan_order_gclids' ); ?>
-
-<!-- We only get one go at capturing a refresh token, if this has not been succesful then they will need to go here: https://myaccount.google.com/connections?continue=https%3A%2F%2Fmyaccount.google.com%2Fsecurity%3Fhl%3Den&hl=en and remove the authentication -->
