@@ -57,6 +57,13 @@ class WPD_Action_Scheduler {
      */
     public function schedule_recurring_events() {
 
+        /**
+         * Action hook to schedule recurring events.
+         * 
+         * @param WPD_Action_Scheduler $this The instance of the WPD_Action_Scheduler class.
+         */
+        do_action( 'wpd_schedule_recurring_events', $this );
+
         // Upgrade Database - Once a day, triggered immediately
         if ( ! as_next_scheduled_action( 'wpd_schedule_database_upgrade' ) ) {
             as_schedule_recurring_action( time(), DAY_IN_SECONDS, 'wpd_schedule_database_upgrade', array(), self::EVENT_GROUP_SLUG );

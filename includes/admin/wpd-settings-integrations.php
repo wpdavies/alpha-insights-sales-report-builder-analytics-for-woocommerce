@@ -12,10 +12,15 @@
 defined( 'ABSPATH' ) || exit;
 
 // Load vars
-$webhook_data 				= get_option( 'wpd_ai_webhook_settings' );
+$webhook_data 				= get_option( 'wpd_ai_webhook_settings', array() );
 $json_output 				= wpd_webhook_data_request( null, null, false );
 $starshipit_api_key 		= get_option( 'wpd_ai_starshipit_api_key' );
 $starshipit_subscription_key = get_option( 'wpd_ai_starshipit_subscription_key' );
+
+// Ensure webhook_data is an array
+if ( ! is_array( $webhook_data ) ) {
+	$webhook_data = array();
+}
 
 ?>
 <div class="wpd-wrapper">
@@ -69,7 +74,7 @@ $starshipit_subscription_key = get_option( 'wpd_ai_starshipit_subscription_key' 
 					<div class="wpd-meta"><?php esc_html_e( 'This is where we will post your webhook data.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
-					<input class="wpd-input" style="width: 100%;" type="text" name="wpd_ai_webhook_settings[webhook_url]" value="<?php echo esc_attr( $webhook_data['webhook_url'] ); ?>" placeholder="Webhook Endpoint URL">
+					<input class="wpd-input" style="width: 100%;" type="text" name="wpd_ai_webhook_settings[webhook_url]" value="<?php echo esc_attr( isset( $webhook_data['webhook_url'] ) ? $webhook_data['webhook_url'] : '' ); ?>" placeholder="Webhook Endpoint URL">
 					<label for="wpd_ai_webhook_settings[webhook_url]" class="wpd-meta wpd-block-label"><?php esc_html_e( 'The URL where we will send your data', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
 				</td>
 			</tr>
@@ -83,12 +88,12 @@ $starshipit_subscription_key = get_option( 'wpd_ai_starshipit_subscription_key' 
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_webhook_settings[webhook_schedule]">
-						<option value="none" <?php echo esc_attr( wpd_selected_option( 'none', $webhook_data['webhook_schedule'] ) ); ?> ><?php esc_html_e( 'Dont Schedule Export', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="daily" <?php echo esc_attr( wpd_selected_option( 'daily', $webhook_data['webhook_schedule'] ) ); ?> ><?php esc_html_e( 'Daily', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="weekly" <?php echo esc_attr( wpd_selected_option( 'weekly', $webhook_data['webhook_schedule'] ) ); ?> ><?php esc_html_e( 'Weekly', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="monthly" <?php echo esc_attr( wpd_selected_option( 'monthly', $webhook_data['webhook_schedule'] ) ); ?> ><?php esc_html_e( 'Monthly', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="none" <?php echo esc_attr( wpd_selected_option( 'none', isset( $webhook_data['webhook_schedule'] ) ? $webhook_data['webhook_schedule'] : '' ) ); ?> ><?php esc_html_e( 'Dont Schedule Export', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="daily" <?php echo esc_attr( wpd_selected_option( 'daily', isset( $webhook_data['webhook_schedule'] ) ? $webhook_data['webhook_schedule'] : '' ) ); ?> ><?php esc_html_e( 'Daily', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="weekly" <?php echo esc_attr( wpd_selected_option( 'weekly', isset( $webhook_data['webhook_schedule'] ) ? $webhook_data['webhook_schedule'] : '' ) ); ?> ><?php esc_html_e( 'Weekly', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="monthly" <?php echo esc_attr( wpd_selected_option( 'monthly', isset( $webhook_data['webhook_schedule'] ) ? $webhook_data['webhook_schedule'] : '' ) ); ?> ><?php esc_html_e( 'Monthly', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
 					</select>
-					<input type="hidden" name="wpd_ai_webhook_settings[webhook_schedule_last_run]" value="<?php echo esc_attr( $webhook_data['webhook_schedule_last_run'] ); ?>">
+					<input type="hidden" name="wpd_ai_webhook_settings[webhook_schedule_last_run]" value="<?php echo esc_attr( isset( $webhook_data['webhook_schedule_last_run'] ) ? $webhook_data['webhook_schedule_last_run'] : '' ); ?>">
 					<div class="wpd-meta">Your webhook will run at roughly 1am at the start of your period.</div>
 					<?php if ( ! empty($webhook_data['webhook_schedule_last_run']) ) : ?>
 						<p><?php

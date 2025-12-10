@@ -232,15 +232,32 @@ function wpd_send_email_ajax() {
 	}
 
 	$requesting_url = isset( $_POST['url'] ) ? wpd_sanitize_url( $_POST['url'] ) : '';
-	$email_to_send = isset( $_POST['email'] ) ? sanitize_email( $_POST['email'] ) : '';
+	$email_type = isset( $_POST['email'] ) ? sanitize_text_field( $_POST['email'] ) : '';
 	
-	if ( empty( $email_to_send ) || ! is_email( $email_to_send ) ) {
-		wp_send_json_error( array( 'message' => __( 'Invalid email address.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
+	// Validate email type is one of the allowed types
+	$allowed_email_types = array( 'wpd_profit_report', 'wpd_expense_report' );
+	if ( empty( $email_type ) || ! in_array( $email_type, $allowed_email_types, true ) ) {
+		wp_send_json_error( array( 'message' => __( 'Invalid email type.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
 		return;
 	}
 	
-	$response = wpd_email( $email_to_send, false );
-	wp_send_json( $response );
+	$response = wpd_email( $email_type, false );
+	
+	// Format response for JavaScript - check if email was sent
+	if ( isset( $response['email_sent'] ) && $response['email_sent'] === true ) {
+		$response['success'] = true;
+		if ( ! isset( $response['message'] ) ) {
+			/* translators: %s: Email recipients */
+			$response['message'] = sprintf( __( 'Email sent successfully to %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( isset( $response['recipients'] ) ? $response['recipients'] : '' ) );
+		}
+		wp_send_json_success( $response );
+	} else {
+		$response['success'] = false;
+		if ( ! isset( $response['message'] ) ) {
+			$response['message'] = __( 'Email was not sent. Please check your email settings and recipients.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
+		}
+		wp_send_json_error( $response );
+	}
 
 }
 

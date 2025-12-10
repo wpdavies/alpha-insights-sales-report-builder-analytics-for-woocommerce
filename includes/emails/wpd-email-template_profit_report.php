@@ -99,37 +99,37 @@ wpd_email_header( sprintf( __( '%s Profit Report', 'alpha-insights-sales-report-
 					            <td align="center" valign="top">
 					                <table border="0" cellpadding="20" cellspacing="0" width="100%" id="emailContainer">
 					                    <tbody>
-					                    	<?php if ( $profit_report_settings['details']['order_revenue'] ) : ?>
+					                    	<?php if ( isset($profit_report_settings['details']['order_revenue']) && $profit_report_settings['details']['order_revenue'] ) : ?>
 							                    <?php wpd_table_row_report_data( __( 'Net Sales (Incl. Tax)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), wc_price($total_order_data['total_order_revenue']) ); ?>
 						                	<?php endif; ?>
-						               		<?php if ( $profit_report_settings['details']['order_cost'] ) : ?>
+						               		<?php if ( isset($profit_report_settings['details']['order_cost']) && $profit_report_settings['details']['order_cost'] ) : ?>
 							                    <?php wpd_table_row_report_data( __( 'Total Order Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), wc_price($total_order_data['total_order_cost']) ); ?>
 						                	<?php endif; ?>
-						               		<?php if ( $profit_report_settings['details']['order_profit'] ) : ?>
+						               		<?php if ( isset($profit_report_settings['details']['order_profit']) && $profit_report_settings['details']['order_profit'] ) : ?>
 							                    <?php wpd_table_row_report_data( __( 'Gross Profit', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), wc_price($total_order_data['total_order_profit']) ); ?>
 						                	<?php endif; ?>
-						               		<?php if ( $profit_report_settings['details']['order_count'] ) : ?>
+						               		<?php if ( isset($profit_report_settings['details']['order_count']) && $profit_report_settings['details']['order_count'] ) : ?>
 							                    <?php wpd_table_row_report_data( __( 'Number Of Orders', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), $total_order_data['total_order_count'] ); ?>
 						                	<?php endif; ?>
-						               		<?php if ( $profit_report_settings['details']['average_order_value'] ) : ?>
+						               		<?php if ( isset($profit_report_settings['details']['average_order_value']) && $profit_report_settings['details']['average_order_value'] ) : ?>
 							                    <?php wpd_table_row_report_data( __( 'Average Order Value', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), wc_price($total_order_data['average_order_revenue']) ); ?>
 						                	<?php endif; ?>
-						               		<?php if ( $profit_report_settings['details']['average_profit_per_order'] ) : ?>
+						               		<?php if ( isset($profit_report_settings['details']['average_profit_per_order']) && $profit_report_settings['details']['average_profit_per_order'] ) : ?>
 							                    <?php wpd_table_row_report_data( __( 'Average Gross Profit Per Order', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), wc_price($total_order_data['average_order_profit']) ); ?>
 						                	<?php endif; ?>
-						               		<?php if ( $profit_report_settings['details']['total_products_sold'] ) : ?>
+						               		<?php if ( isset($profit_report_settings['details']['total_products_sold']) && $profit_report_settings['details']['total_products_sold'] ) : ?>
 							                    <?php wpd_table_row_report_data( __( 'Total Products Sold', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), $total_order_data['total_skus_sold'] ); ?>
 						                	<?php endif; ?>
-						               		<?php if ( $profit_report_settings['details']['total_product_discounts'] ) : ?>
+						               		<?php if ( isset($profit_report_settings['details']['total_product_discounts']) && $profit_report_settings['details']['total_product_discounts'] ) : ?>
 							                    <?php wpd_table_row_report_data( __( 'Total Product Discounts', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), wc_price($total_order_data['total_product_discount_amount']) ); ?>
 						                	<?php endif; ?>
-						               		<?php if ( $profit_report_settings['details']['total_refunds'] ) : ?>
+						               		<?php if ( isset($profit_report_settings['details']['total_refunds']) && $profit_report_settings['details']['total_refunds'] ) : ?>
 							                    <?php wpd_table_row_report_data( __( 'Order Refunds', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), wc_price($total_order_data['total_refund_amount']) ); ?>
 						                	<?php endif; ?>
-						               		<?php if ( $profit_report_settings['details']['additional_expenses'] ) : ?>
+						               		<?php if ( isset($profit_report_settings['details']['additional_expenses']) && $profit_report_settings['details']['additional_expenses'] ) : ?>
 							                    <?php wpd_table_row_report_data( __( 'Additional Expenses', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), wc_price($total_expense_data['total_amount']) ); ?>
 						                	<?php endif; ?>
-						               		<?php if ( $profit_report_settings['details']['net_profit'] ) : ?>
+						               		<?php if ( isset($profit_report_settings['details']['net_profit']) && $profit_report_settings['details']['net_profit'] ) : ?>
 							                    <?php wpd_table_row_report_data( __( 'Total Net Profit', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), wc_price($total_store_profit_data['total_store_profit']) ); ?>
 						                	<?php endif; ?>
 					                	</tbody>
