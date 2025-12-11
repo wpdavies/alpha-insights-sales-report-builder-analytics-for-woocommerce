@@ -515,10 +515,10 @@ class WPD_Data_Warehouse_React {
 
         if ( $result == 'date_from' ) {
 
-            $start = date($format, strtotime( $days_in_past, $wp_timestamp ) ); // this needs to be based on wp time as below
+            $start = gmdate($format, strtotime( $days_in_past, $wp_timestamp ) ); // this needs to be based on wp time as below
 
             if ( isset( $this->filter['date_from'] ) && ! empty($this->filter['date_from']) ) {
-                $start = date( $format, strtotime($this->filter['date_from']) );
+                $start = gmdate( $format, strtotime($this->filter['date_from']) );
             }
 
             return $start;
@@ -528,7 +528,7 @@ class WPD_Data_Warehouse_React {
             $end = current_time( $format ); 
 
             if ( isset($this->filter['date_to']) && ! empty($this->filter['date_to']) ) {
-                $end = date( $format, strtotime($this->filter['date_to']));
+                $end = gmdate( $format, strtotime($this->filter['date_to']));
             }
 
             return $end;
@@ -550,7 +550,7 @@ class WPD_Data_Warehouse_React {
 
         while( $current_date <= $date_to ) {
 
-            $dates[] = date($output_format, $current_date);
+            $dates[] = gmdate($output_format, $current_date);
             $current_date = strtotime($step, $current_date);
 
         }
@@ -979,15 +979,15 @@ class WPD_Data_Warehouse_React {
 
         ob_start(); ?>
         <div class="wpd-product-display">
-            <div class="wpd-product-image-wrapper"><img src="<?php echo $product_data['product_image']; ?>" class="wpd-product-thumbnail"></div>
+            <div class="wpd-product-image-wrapper"><img src="<?php echo esc_url( $product_data['product_image'] ); ?>" class="wpd-product-thumbnail"></div>
             <div class="wpd-product-info-wrapper">
-                <a href="<?php echo $product_data['product_link']; ?>" target="_blank"><?php echo $product_data['product_name']; ?></a>
-                <span class="wpd-product-sku wpd-subtext"><?php echo $product_data['product_sku']; ?></span>
+                <a href="<?php echo esc_url( $product_data['product_link'] ); ?>" target="_blank"><?php echo esc_html( $product_data['product_name'] ); ?></a>
+                <span class="wpd-product-sku wpd-subtext"><?php echo esc_html( $product_data['product_sku'] ); ?></span>
                 <?php if ( isset($product_data['variation_attributes']) && ! empty($product_data['variation_attributes']) && is_array($product_data['variation_attributes']) ) : ?>
                     <div class="wpd-product-variation-attributes">
                         <?php foreach ( $product_data['variation_attributes'] as $attribute => $value ) : ?>
                             <?php if ( empty($attribute) || empty($value) ) : continue; endif; ?>
-                            <span class="wpd-product-variation-attribute"><?php echo $attribute . ': ' . $value; ?></span>
+                            <span class="wpd-product-variation-attribute"><?php echo esc_html( $attribute . ': ' . $value ); ?></span>
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
@@ -1238,7 +1238,7 @@ class WPD_Data_Warehouse_React {
         $expected_income_max_date   = strtotime( '+1 year', $expected_income_min_date ); // max($date_keys);
 
         // Next year array of dates
-        $expected_income_date_range = $this->get_date_range_array( date( 'Y-m-d', $expected_income_min_date ), date( 'Y-m-d', $expected_income_max_date ), '+1 day', $date_format );
+        $expected_income_date_range = $this->get_date_range_array( gmdate( 'Y-m-d', $expected_income_min_date ), gmdate( 'Y-m-d', $expected_income_max_date ), '+1 day', $date_format );
         
         // Create the shell array
         foreach( $expected_income_date_range as $date_array_val ) {
@@ -1324,8 +1324,14 @@ class WPD_Data_Warehouse_React {
 
             // Memory Check
 			if ( wpd_is_memory_usage_greater_than(90) ) {
-				$this->set_error( 
-					sprintf( __( 'You\'ve exhausted your memory usage after %s out of %s orders. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $subscription_id, $total_db_records, $memory_limit ) 
+				$this->set_error(
+					sprintf(
+						/* translators: 1: Number of processed orders/subscriptions, 2: Total number of orders/subscriptions, 3: PHP memory limit */
+						__( 'You\'ve exhausted your memory usage after %1$s out of %2$s orders. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %3$s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						$subscription_id,
+						$total_db_records,
+						$memory_limit
+					)
 				);
 				break;
 			}
@@ -1399,8 +1405,14 @@ class WPD_Data_Warehouse_React {
 
             // Memory Check
 			if ( wpd_is_memory_usage_greater_than(90) ) {
-				$this->set_error( 
-					sprintf( __( 'You\'ve exhausted your memory usage after %s out of %s orders. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $subscription_id, $total_db_records, $memory_limit ) 
+				$this->set_error(
+					sprintf(
+						/* translators: 1: Number of processed orders/subscriptions, 2: Total number of orders/subscriptions, 3: PHP memory limit */
+						__( 'You\'ve exhausted your memory usage after %1$s out of %2$s orders. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %3$s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						$subscription_id,
+						$total_db_records,
+						$memory_limit
+					)
 				);
 				break;
 			}
@@ -1488,7 +1500,7 @@ class WPD_Data_Warehouse_React {
 					}
 
 					// Setup Y-m-d format
-					$next_payment_ymd = date( 'Y-m-d', $next_payment_timestamp );
+					$next_payment_ymd = gmdate( 'Y-m-d', $next_payment_timestamp );
                     
                     // Add to the chart
                     $formatted_date_key = $this->convert_date_string( $next_payment_ymd );
@@ -1547,8 +1559,8 @@ class WPD_Data_Warehouse_React {
                 foreach( $data_by_date['active_subscriptions_by_date'] as $date_key => $date_data ) {
 
                     // Force by day so that it lines up properly with conversions of dates
-                    $date_created_day_timestamp = strtotime( $this->convert_date_string( date( 'Y-m-d', $data_table[$subscription_id]['date_created'] ) ) );
-                    $date_cancelled_day_timestamp = ($data_table[$subscription_id]['date_cancelled']) ? strtotime( $this->convert_date_string( date( 'Y-m-d', $data_table[$subscription_id]['date_cancelled'] ) ) ) : 0;
+                    $date_created_day_timestamp = strtotime( $this->convert_date_string( gmdate( 'Y-m-d', $data_table[$subscription_id]['date_created'] ) ) );
+                    $date_cancelled_day_timestamp = ($data_table[$subscription_id]['date_cancelled']) ? strtotime( $this->convert_date_string( gmdate( 'Y-m-d', $data_table[$subscription_id]['date_cancelled'] ) ) ) : 0;
 
                     // Active subscriptions by date
                     if ( wpd_is_subscription_active_on_date( $date_created_day_timestamp, $date_cancelled_day_timestamp, strtotime($date_key) ) ) {
@@ -1568,7 +1580,7 @@ class WPD_Data_Warehouse_React {
 			if ( is_numeric($data_table[$subscription_id]['date_created']) && $data_table[$subscription_id]['date_created'] > 0 ) {
 
                 // Correct date key format
-				$date_created_date_key = date( $date_format, $data_table[$subscription_id]['date_created'] );
+				$date_created_date_key = gmdate( $date_format, $data_table[$subscription_id]['date_created'] );
 
                 if ( isset($data_by_date['total_subscription_signups_by_date'][$date_created_date_key]) ) {
 
@@ -1586,7 +1598,7 @@ class WPD_Data_Warehouse_React {
 			if ( is_numeric($data_table[$subscription_id]['date_cancelled']) && $data_table[$subscription_id]['date_cancelled'] > 0 ) {
 
                 // Correct date key format
-				$date_created_date_key = date( $date_format, $data_table[$subscription_id]['date_cancelled'] );
+				$date_created_date_key = gmdate( $date_format, $data_table[$subscription_id]['date_cancelled'] );
 
                 if ( isset($data_by_date['total_subscription_cancellations_by_date'][$date_created_date_key]) ) {
 
@@ -2093,8 +2105,14 @@ class WPD_Data_Warehouse_React {
 
                 // Memory Check
                 if ( wpd_is_memory_usage_greater_than(90) ) {
-                    $this->set_error( 
-                        sprintf( __( 'You\'ve exhausted your memory usage after %s out of %s orders. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $total_order_count, $total_db_records, $memory_limit ) 
+                    $this->set_error(
+                        sprintf(
+                            /* translators: 1: Number of processed orders, 2: Total number of orders, 3: PHP memory limit */
+                            __( 'You\'ve exhausted your memory usage after %1$s out of %2$s orders. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %3$s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                            $total_order_count,
+                            $total_db_records,
+                            $memory_limit
+                        )
                     );
                     break;
                 }
@@ -2398,7 +2416,7 @@ class WPD_Data_Warehouse_React {
 
                 // Date Range Vars
                 $date_created_unix  = $order_data['date_created'];
-                $date_range_key     = date( $date_format, $date_created_unix );
+                $date_range_key     = gmdate( $date_format, $date_created_unix );
 
                 // Tax Data
                 if ( $order_data['total_order_tax'] > 0 ) {
@@ -2529,8 +2547,8 @@ class WPD_Data_Warehouse_React {
                 if ( isset( $additional_data['orders'] ) && $additional_data['orders'] ) {
 
                     // Date Keys
-                    $day_of_week_key    = date( 'D', $date_created_unix );
-                    $hour_of_day_key    = date( 'ga', $date_created_unix );
+                    $day_of_week_key    = gmdate( 'D', $date_created_unix );
+                    $hour_of_day_key    = gmdate( 'ga', $date_created_unix );
 
                     // Add Date Range Values
                     if( isset($data_by_date['order_metrics']['order_count_by_date'][$date_range_key]) ) $data_by_date['order_metrics']['order_count_by_date'][$date_range_key]++;
@@ -4000,8 +4018,12 @@ class WPD_Data_Warehouse_React {
 			if ( wpd_is_memory_usage_greater_than(90) ) {
 
 				$memory_limit = ini_get('memory_limit');
-				$this->set_error( 
-					sprintf( __( 'You\'ve exhausted your memory usage. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $memory_limit ) 
+				$this->set_error(
+					sprintf(
+						/* translators: %s: PHP memory limit */
+						__( 'You\'ve exhausted your memory usage. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						$memory_limit
+					)
 				);
 
 				break; // Break the entire process if were hitting the memory limits
@@ -4024,6 +4046,7 @@ class WPD_Data_Warehouse_React {
 			$suppliers 					= get_the_terms( $post_id, 'suppliers' );
 			$converted_value 			= 0;
             $expense_type_names_string  = array();
+            $expense_type_name          = ''; // Initialize to prevent undefined variable warnings
 
             // Apply filters
             if ( $this->get_data_filter( 'expenses', 'paid_unpaid' ) && is_array( $this->get_data_filter( 'expenses', 'paid_unpaid' ) ) ) {
@@ -4146,7 +4169,7 @@ class WPD_Data_Warehouse_React {
                     if ( $recurring_expense_date_started_string > current_time('timestamp') ) break;
 
 					// Set date paid to recurring date
-					$wpd_date_paid = date( 'Y-m-d', $recurring_expense_date_started_string );
+					$wpd_date_paid = gmdate( 'Y-m-d', $recurring_expense_date_started_string );
 
                     // Currency Conversion
 					if ( $wpd_amount_paid_currency != $store_currency ) {
@@ -4276,7 +4299,7 @@ class WPD_Data_Warehouse_React {
 
                     // Date Calculations
                     $date_created_unix      = strtotime( $wpd_date_paid );
-                    $date_range_key         = date( $date_format, $date_created_unix );
+                    $date_range_key         = gmdate( $date_format, $date_created_unix );
 
                     // Clean up expense type string
                     $expense_type_names_string = ( is_array($expense_type_names_string) && ! empty($expense_type_names_string) ) ? implode(', ', $expense_type_names_string ) : $expense_type_names_string = 'Unknown';
@@ -4492,7 +4515,7 @@ class WPD_Data_Warehouse_React {
 
                 // Date Calculations
                 $date_created_unix = strtotime( $wpd_date_paid );
-                $date_range_key = date( $date_format, $date_created_unix );
+                $date_range_key = gmdate( $date_format, $date_created_unix );
                 if( isset($data_by_date['amount_paid_by_date'][$date_range_key]) || isset($data_by_date['amount_unpaid_by_date'][$date_range_key]) ) {
                     if ( $is_expense_paid ) {
                         $data_by_date['amount_paid_by_date'][$date_range_key] += $converted_value;
@@ -4925,7 +4948,7 @@ class WPD_Data_Warehouse_React {
 
                     // Add our date key for the report
                     $order_date_unix = $order_data['date_created'];
-                    $date_key = date( $date_format, $order_date_unix );
+                    $date_key = gmdate( $date_format, $order_date_unix );
 
                     // Skip order if it's not within the date range we are looking at, should be all good we're looking at the right date range ?
                     if ( $order_date_unix < $unix_date_from || $order_date_unix > $unix_date_to ) {
@@ -5442,7 +5465,7 @@ class WPD_Data_Warehouse_React {
 
                         // Add our date key for the report
                         $order_date_unix = $order_data['date_created'];
-                        $date_key = date( $date_format, $order_date_unix );
+                        $date_key = gmdate( $date_format, $order_date_unix );
 
                         // Skip order if it's not within the date range we are looking at
                         if ( $order_date_unix < $unix_date_from || $order_date_unix > $unix_date_to ) {
@@ -6635,8 +6658,12 @@ class WPD_Data_Warehouse_React {
                 // Memory Check
                 if ( wpd_is_memory_usage_greater_than(90) ) {
                     $memory_limit = ini_get('memory_limit');
-                    $this->set_error( 
-                        sprintf( __( 'You\'ve exhausted your memory usage. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $memory_limit ) 
+                    $this->set_error(
+                        sprintf(
+                            /* translators: %s: PHP memory limit */
+                            __( 'You\'ve exhausted your memory usage. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                            $memory_limit
+                        )
                     );
                     break;
                 }
@@ -7473,7 +7500,7 @@ class WPD_Data_Warehouse_React {
         $timestamp = strtotime( $date );
 
         // Convert date
-        $converted_date = date( $format, $timestamp );
+        $converted_date = gmdate( $format, $timestamp );
 
         // Return result
         return $converted_date;
@@ -7502,7 +7529,7 @@ class WPD_Data_Warehouse_React {
         }
 
         $date_container_date_format = $this->get_filter('date_format_string');
-        $formatted_date = date( $date_container_date_format, strtotime($date) );
+        $formatted_date = gmdate( $date_container_date_format, strtotime($date) );
 
         return $formatted_date;
 
@@ -7546,14 +7573,14 @@ class WPD_Data_Warehouse_React {
         $url = htmlspecialchars_decode( $url );
         $result['url'] = $url;
 
-        $parsed_url = parse_url( $url );
+        $parsed_url = wp_parse_url( $url );
 
         if ( isset($parsed_url['path']) && ! empty($parsed_url['path']) ) {
             $result['path'] = $parsed_url['path'];
         }
 
         // Only collect query params
-        $query_parameters = parse_url( $url, PHP_URL_QUERY );
+        $query_parameters = wp_parse_url( $url, PHP_URL_QUERY );
 
         if ( ! empty($query_parameters) ) {
 

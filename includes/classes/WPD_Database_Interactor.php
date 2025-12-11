@@ -74,7 +74,10 @@ class WPD_Database_Interactor {
 
         $result = false;
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names are from trusted source.
+        // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- The query is dynamically built with placeholders and then prepared.
         $sql_query = $wpdb->prepare( "SELECT COUNT(*) FROM $table WHERE $column = $value_type",  $value );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
         $count = $wpdb->get_var( $sql_query );
 
         if ( $count > 0 ) $result = true;
@@ -337,6 +340,7 @@ class WPD_Database_Interactor {
          *  @see // Product /includes/integrations/product-analytics-api.php
          *
          */
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
         if ( $wpdb->get_var("SHOW TABLES LIKE '{$events_table}'") != $events_table ) {
 
             $sql = "CREATE TABLE $events_table (
@@ -358,6 +362,7 @@ class WPD_Database_Interactor {
             ) $charset_collate;";
 
             require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement passed to dbDelta.
             dbDelta($sql);
 
             // Something went wrong.
@@ -400,8 +405,10 @@ class WPD_Database_Interactor {
          *  @see // Session Data -> /includes/integrations/session-tracking-api.php
          *
          */
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
         if ( $wpdb->get_var("SHOW TABLES LIKE '{$session_data_table}'") != $session_data_table ) {
 
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement cannot use prepared statements for table names.
             $sql = "CREATE TABLE $session_data_table (
                     ID BIGINT(20) NOT NULL AUTO_INCREMENT,
                     `session_id` VARCHAR(255) NOT NULL,
@@ -420,6 +427,7 @@ class WPD_Database_Interactor {
             ) $charset_collate;";
 
             require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement passed to dbDelta.
             dbDelta($sql);
 
             // Something went wrong.
@@ -454,8 +462,10 @@ class WPD_Database_Interactor {
          *  @see // Session Data -> /includes/integrations/session-tracking-api.php
          *
          */
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
         if ( $wpdb->get_var("SHOW TABLES LIKE '{$order_calculations_table}'") != $order_calculations_table ) {
 
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement cannot use prepared statements for table names.
             $sql = "CREATE TABLE $order_calculations_table (
                     `order_id` BIGINT(20) NOT NULL,
                     `order_calculation` longtext NOT NULL,
@@ -464,6 +474,7 @@ class WPD_Database_Interactor {
             ) $charset_collate;";
 
             require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement passed to dbDelta.
             dbDelta($sql);
 
             // Something went wrong.
@@ -513,10 +524,13 @@ class WPD_Database_Interactor {
 
         // Delete columns or tables where required
         // Remove the product impressions table @since 3.2.3
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
         if ( $wpdb->get_var("SHOW TABLES LIKE '{$impressions_table}'") == $impressions_table ) {
 
             wpd_write_log( "Removing the product impressions table", "db_upgrade" );
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement cannot use prepared statements for table names.
             $sql = "DROP TABLE IF EXISTS $impressions_table ";
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement passed to query.
             $result = $wpdb->query($sql);
 
             // Check if we dropped the table
@@ -565,9 +579,11 @@ class WPD_Database_Interactor {
         wpd_write_log( sprintf( 'Updating column %s in table %s to the following format: %s.', $column, $table, $format ), 'db_upgrade' );
 
         // Query
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement cannot use prepared statements for table/column names.
         $sql_query = "ALTER TABLE $table MODIFY COLUMN $column $format;";
 
         // Execute
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement passed to query.
         $update_column_format = $wpdb->query( $sql_query );
 
         // Something went wrong.
@@ -613,7 +629,9 @@ class WPD_Database_Interactor {
 
         global $wpdb;
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement cannot use prepared statements for table/column names.
         $sql_query  = "SHOW INDEXES FROM $table WHERE column_name = '$column';";
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement passed to query.
         $index_check = $wpdb->query( $sql_query );
 
         // Something went wrong.
@@ -629,7 +647,9 @@ class WPD_Database_Interactor {
         // Index doesnt exist, lets create the index
         if ( $index_check == 0 ) {
 
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement cannot use prepared statements for table/column names.
             $sql_query = "CREATE INDEX $column ON $table ($column)" ;
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement passed to query.
             $index_update = $wpdb->query($sql_query);
 
             // Something went wrong.
@@ -677,7 +697,9 @@ class WPD_Database_Interactor {
         global $wpdb;
 
         // Check if index already exists
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
         $sql_query = $wpdb->prepare( "SHOW INDEXES FROM $table WHERE Key_name = %s", $index_name );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
         $index_check = $wpdb->get_results( $sql_query );
 
         // Something went wrong.
@@ -697,7 +719,9 @@ class WPD_Database_Interactor {
                 return '`' . esc_sql( $col ) . '`';
             }, $columns ) );
 
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement cannot use prepared statements for table/index names.
             $sql_query = "CREATE INDEX `$index_name` ON $table ($columns_sql)";
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement passed to query.
             $index_update = $wpdb->query( $sql_query );
 
             // Something went wrong.
@@ -734,10 +758,13 @@ class WPD_Database_Interactor {
         global $wpdb;
 
         $query  = $wpdb->prepare( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = %s AND column_name = %s", $table_name, $column_name );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
         $row    = $wpdb->get_results( $query );
 
         if ( empty($row) ) {
 
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement cannot use prepared statements for table/column names.
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names are from trusted source.
             $wpdb->query("ALTER TABLE $table_name ADD $column_name $settings");
 
             // Something went wrong.

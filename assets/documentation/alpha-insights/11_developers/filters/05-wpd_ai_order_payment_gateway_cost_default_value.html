@@ -52,15 +52,83 @@
 </h3>
 <h3>Custom Gateway Fees
 </h3>
-<pre><code>add_filter( 'wpd_ai_order_payment_gateway_cost_default_value', 'custom_gateway_fees', 10, 2 ); function custom_gateway_fees( $fee, $order ) { $payment_method = $order->get_payment_method(); $order_total = $order->get_total(); switch ( $payment_method ) { case 'stripe': // Stripe: 2.9% + $0.30 return ( $order_total * 0.029 ) + 0.30; case 'paypal': // PayPal: 2.9% + $0.30 domestic, 4.4% + fixed for international if ( $order->get_billing_country() === 'US' ) { return ( $order_total * 0.029 ) + 0.30; } else { return ( $order_total * 0.044 ) + 0.30; } case 'bacs': // Bank transfer return 0.00; // No fee case 'cod': // Cash on delivery return 2.50; // Flat handling fee default: return $fee; } }</code>
+<pre><code>add_filter( 'wpd_ai_order_payment_gateway_cost_default_value', 'custom_gateway_fees', 10, 2 );
+
+function custom_gateway_fees( $fee, $order ) {
+    $payment_method = $order->get_payment_method();
+    $order_total = $order->get_total();
+    
+    switch ( $payment_method ) {
+        case 'stripe':
+            // Stripe: 2.9% + $0.30
+            return ( $order_total * 0.029 ) + 0.30;
+            
+        case 'paypal':
+            // PayPal: 2.9% + $0.30 domestic, 4.4% + fixed for international
+            if ( $order->get_billing_country() === 'US' ) {
+                return ( $order_total * 0.029 ) + 0.30;
+            } else {
+                return ( $order_total * 0.044 ) + 0.30;
+            }
+            
+        case 'bacs':
+            // Bank transfer
+            return 0.00; // No fee
+            
+        case 'cod':
+            // Cash on delivery
+            return 2.50; // Flat handling fee
+            
+        default:
+            return $fee;
+    }
+}</code>
 </pre>
 <h3>Integration with Stripe API
 </h3>
-<pre><code>add_filter( 'wpd_ai_order_payment_gateway_cost_default_value', 'stripe_actual_fee', 10, 2 ); function stripe_actual_fee( $fee, $order ) { if ( $order->get_payment_method() !== 'stripe' ) { return $fee; } // Get Stripe charge ID from order meta $charge_id = get_post_meta( $order->get_id(), '_stripe_charge_id', true ); if ( $charge_id ) { // Fetch actual fee from Stripe (would need Stripe SDK) // $charge = \Stripe\Charge::retrieve( $charge_id ); // $actual_fee = $charge->balance_transaction->fee / 100; // return $actual_fee; } return $fee; }</code>
+<pre><code>add_filter( 'wpd_ai_order_payment_gateway_cost_default_value', 'stripe_actual_fee', 10, 2 );
+
+function stripe_actual_fee( $fee, $order ) {
+    if ( $order->get_payment_method() !== 'stripe' ) {
+        return $fee;
+    }
+    
+    // Get Stripe charge ID from order meta
+    $charge_id = get_post_meta( $order->get_id(), '_stripe_charge_id', true );
+    
+    if ( $charge_id ) {
+        // Fetch actual fee from Stripe (would need Stripe SDK)
+        // $charge = \Stripe\Charge::retrieve( $charge_id );
+        // $actual_fee = $charge->balance_transaction->fee / 100;
+        // return $actual_fee;
+    }
+    
+    return $fee;
+}</code>
 </pre>
 <h3>Volume-Based Merchant Account Fees
 </h3>
-<pre><code>add_filter( 'wpd_ai_order_payment_gateway_cost_default_value', 'volume_based_fees', 10, 2 ); function volume_based_fees( $fee, $order ) { // Get monthly transaction volume $monthly_volume = get_monthly_transaction_volume(); $order_total = $order->get_total(); // Tiered merchant account rates if ( $monthly_volume >100000 ) { // High volume: 1.9% + $0.20 $fee = ( $order_total * 0.019 ) + 0.20; } elseif ( $monthly_volume >50000 ) { // Medium volume: 2.4% + $0.25 $fee = ( $order_total * 0.024 ) + 0.25; } else { // Standard volume: 2.9% + $0.30 $fee = ( $order_total * 0.029 ) + 0.30; } return $fee; }</code>
+<pre><code>add_filter( 'wpd_ai_order_payment_gateway_cost_default_value', 'volume_based_fees', 10, 2 );
+
+function volume_based_fees( $fee, $order ) {
+    // Get monthly transaction volume
+    $monthly_volume = get_monthly_transaction_volume();
+    $order_total = $order->get_total();
+    
+    // Tiered merchant account rates
+    if ( $monthly_volume > 100000 ) {
+        // High volume: 1.9% + $0.20
+        $fee = ( $order_total * 0.019 ) + 0.20;
+    } elseif ( $monthly_volume > 50000 ) {
+        // Medium volume: 2.4% + $0.25
+        $fee = ( $order_total * 0.024 ) + 0.25;
+    } else {
+        // Standard volume: 2.9% + $0.30
+        $fee = ( $order_total * 0.029 ) + 0.30;
+    }
+    
+    return $fee;
+}</code>
 </pre>
 <h3>Best Practices
 </h3>

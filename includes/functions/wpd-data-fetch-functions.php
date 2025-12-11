@@ -830,7 +830,7 @@ function wpd_fetch_customer_analytics_by_user_id( $user_id, $cache = true ) {
 	$last_name 					= $user->user_lastname;
 	$email_address 				= $user->user_email;
 	$registration_date 			= strtotime( get_date_from_gmt( $user->user_registered ) );
-	$registration_date_pretty 	= ( is_numeric($registration_date) && $registration_date > 0 ) ? date( WPD_AI_PHP_PRETTY_DATETIME, $registration_date ) : null;
+	$registration_date_pretty 	= ( is_numeric($registration_date) && $registration_date > 0 ) ? gmdate( WPD_AI_PHP_PRETTY_DATETIME, $registration_date ) : null;
 	$full_name 					= $first_name . ' ' . $last_name;
 	$roles 						= $user->roles;
 
@@ -840,7 +840,7 @@ function wpd_fetch_customer_analytics_by_user_id( $user_id, $cache = true ) {
 	$registration_url 					= (string) get_user_meta( $user_id, '_wpd_ai_registration_url_current', true );
 	$registration_url_referral 			= (string) get_user_meta( $user_id, '_wpd_ai_registration_url_referral', true );
 	$last_login_date 		 			= get_user_meta( $user_id, '_wpd_ai_last_login_unix', true );
-	$last_login_date_pretty 			= ( is_numeric($last_login_date) && $last_login_date > 0 ) ? get_date_from_gmt( date( WPD_AI_PHP_ISO_DATETIME, $last_login_date ), WPD_AI_PHP_PRETTY_DATETIME) : null;
+	$last_login_date_pretty 			= ( is_numeric($last_login_date) && $last_login_date > 0 ) ? get_date_from_gmt( gmdate( WPD_AI_PHP_ISO_DATETIME, $last_login_date ), WPD_AI_PHP_PRETTY_DATETIME) : null;
 
 	// Calculate session source
 	$query_params 						= wpd_get_query_params( $registration_session_landing_page );
@@ -1361,7 +1361,7 @@ function wpd_get_site_creation_date( $date_format = null ) {
 	$site_creation_date = get_option( 'wpd_ai_site_creation_date', null );
 
 	// Return the stored value in the desired format if found
-	if ( $site_creation_date !== null && is_numeric($site_creation_date) ) return date( $date_format, $site_creation_date );
+	if ( $site_creation_date !== null && is_numeric($site_creation_date) ) return gmdate( $date_format, $site_creation_date );
 
 	// Load global var
 	global $wpdb;	
@@ -1389,6 +1389,6 @@ function wpd_get_site_creation_date( $date_format = null ) {
 	update_option( 'wpd_ai_site_creation_date', $site_creation_date );
 
 	// Returns registration date formatted to user's spec
-	return date( $date_format, $site_creation_date );
+	return gmdate( $date_format, $site_creation_date );
 
 }

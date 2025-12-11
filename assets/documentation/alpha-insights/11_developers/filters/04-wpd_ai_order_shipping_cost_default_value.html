@@ -52,19 +52,84 @@
 </h3>
 <h3>Flat Rate by Shipping Method
 </h3>
-<pre><code>add_filter( 'wpd_ai_order_shipping_cost_default_value', 'custom_shipping_cost', 10, 2 ); function custom_shipping_cost( $shipping_cost, $order ) { $shipping_methods = $order->get_shipping_methods(); foreach ( $shipping_methods as $method ) { $method_id = $method->get_method_id(); // Set actual costs by shipping method switch ( $method_id ) { case 'flat_rate': return 5.50; case 'free_shipping': return 6.00; // Your actual cost for "free" shipping case 'local_pickup': return 0.00; default: return $shipping_cost; } } return $shipping_cost; }</code>
+<pre><code>add_filter( 'wpd_ai_order_shipping_cost_default_value', 'custom_shipping_cost', 10, 2 );
+
+function custom_shipping_cost( $shipping_cost, $order ) {
+    $shipping_methods = $order->get_shipping_methods();
+    
+    foreach ( $shipping_methods as $method ) {
+        $method_id = $method->get_method_id();
+        
+        // Set actual costs by shipping method
+        switch ( $method_id ) {
+            case 'flat_rate':
+                return 5.50;
+            case 'free_shipping':
+                return 6.00; // Your actual cost for "free" shipping
+            case 'local_pickup':
+                return 0.00;
+            default:
+                return $shipping_cost;
+        }
+    }
+    
+    return $shipping_cost;
+}</code>
 </pre>
 <h3>Integration with ShipStation
 </h3>
-<pre><code>add_filter( 'wpd_ai_order_shipping_cost_default_value', 'shipstation_actual_cost', 10, 2 ); function shipstation_actual_cost( $shipping_cost, $order ) { // Get actual shipping cost from ShipStation $shipstation_data = get_post_meta( $order->get_id(), '_shipstation_shipping_cost', true ); if ( $shipstation_data && is_numeric( $shipstation_data ) ) { return (float) $shipstation_data; } // Fallback to default calculation return $shipping_cost; }</code>
+<pre><code>add_filter( 'wpd_ai_order_shipping_cost_default_value', 'shipstation_actual_cost', 10, 2 );
+
+function shipstation_actual_cost( $shipping_cost, $order ) {
+    // Get actual shipping cost from ShipStation
+    $shipstation_data = get_post_meta( $order->get_id(), '_shipstation_shipping_cost', true );
+    
+    if ( $shipstation_data && is_numeric( $shipstation_data ) ) {
+        return (float) $shipstation_data;
+    }
+    
+    // Fallback to default calculation
+    return $shipping_cost;
+}</code>
 </pre>
 <h3>International Shipping Premium
 </h3>
-<pre><code>add_filter( 'wpd_ai_order_shipping_cost_default_value', 'international_shipping_cost', 10, 2 ); function international_shipping_cost( $shipping_cost, $order ) { $country = $order->get_shipping_country(); // Higher costs for international if ( $country !== 'US' ) { $shipping_cost += 12.00; // Add international handling } return $shipping_cost; }</code>
+<pre><code>add_filter( 'wpd_ai_order_shipping_cost_default_value', 'international_shipping_cost', 10, 2 );
+
+function international_shipping_cost( $shipping_cost, $order ) {
+    $country = $order->get_shipping_country();
+    
+    // Higher costs for international
+    if ( $country !== 'US' ) {
+        $shipping_cost += 12.00; // Add international handling
+    }
+    
+    return $shipping_cost;
+}</code>
 </pre>
 <h3>Weight-Based Calculation
 </h3>
-<pre><code>add_filter( 'wpd_ai_order_shipping_cost_default_value', 'weight_based_shipping', 10, 2 ); function weight_based_shipping( $shipping_cost, $order ) { $total_weight = 0; // Calculate total order weight foreach ( $order->get_items() as $item ) { $product = $item->get_product(); if ( $product ) { $weight = $product->get_weight(); $quantity = $item->get_quantity(); $total_weight += (float) $weight * $quantity; } } // $0.50 per lb $calculated_cost = $total_weight * 0.50; // Minimum $5 shipping return max( $calculated_cost, 5.00 ); }</code>
+<pre><code>add_filter( 'wpd_ai_order_shipping_cost_default_value', 'weight_based_shipping', 10, 2 );
+
+function weight_based_shipping( $shipping_cost, $order ) {
+    $total_weight = 0;
+    
+    // Calculate total order weight
+    foreach ( $order->get_items() as $item ) {
+        $product = $item->get_product();
+        if ( $product ) {
+            $weight = $product->get_weight();
+            $quantity = $item->get_quantity();
+            $total_weight += (float) $weight * $quantity;
+        }
+    }
+    
+    // $0.50 per lb
+    $calculated_cost = $total_weight * 0.50;
+    
+    // Minimum $5 shipping
+    return max( $calculated_cost, 5.00 );
+}</code>
 </pre>
 <h3>Important Notes
 </h3>

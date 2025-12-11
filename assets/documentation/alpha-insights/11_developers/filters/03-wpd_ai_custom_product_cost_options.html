@@ -48,29 +48,105 @@
 </p>
 <h3>Array Structure
 </h3>
-<pre><code>array( 'unique_slug' =>array( 'label' =>'Display Label', 'description' =>'Helper text for admin', 'placeholder' =>'0.00', 'static_fee' =>5.00, // Fixed amount per unit 'percent_of_sell_price' =>10.5 // Percentage of sell price ) )</code>
+<pre><code>array(
+    'unique_slug' => array(
+        'label' => 'Display Label',
+        'description' => 'Helper text for admin',
+        'placeholder' => '0.00',
+        'static_fee' => 5.00, // Fixed amount per unit
+        'percent_of_sell_price' => 10.5 // Percentage of sell price
+    )
+)</code>
 </pre>
 <h4>Example Usage
 </h4>
 <h3>Add Packaging Cost Option
 </h3>
-<pre><code>add_filter( 'wpd_ai_custom_product_cost_options', 'my_custom_product_costs', 10, 2 ); function my_custom_product_costs( $custom_costs, $product_id ) { // Add packaging cost option $custom_costs['packaging_cost'] = array( 'label' =>'Packaging Cost', 'description' =>'Cost of packaging materials for this product', 'placeholder' =>'2.50', 'static_fee' =>2.50, // Default $2.50 per unit 'percent_of_sell_price' =>0 // Not percentage-based ); return $custom_costs; }</code>
+<pre><code>add_filter( 'wpd_ai_custom_product_cost_options', 'my_custom_product_costs', 10, 2 );
+
+function my_custom_product_costs( $custom_costs, $product_id ) {
+    // Add packaging cost option
+    $custom_costs['packaging_cost'] = array(
+        'label' => 'Packaging Cost',
+        'description' => 'Cost of packaging materials for this product',
+        'placeholder' => '2.50',
+        'static_fee' => 2.50, // Default $2.50 per unit
+        'percent_of_sell_price' => 0 // Not percentage-based
+    );
+    
+    return $custom_costs;
+}</code>
 </pre>
 <h3>Add Shipping Supplies Cost
 </h3>
-<pre><code>add_filter( 'wpd_ai_custom_product_cost_options', 'add_shipping_supplies_cost', 10, 2 ); function add_shipping_supplies_cost( $custom_costs, $product_id ) { $custom_costs['shipping_supplies'] = array( 'label' =>'Shipping Supplies', 'description' =>'Boxes, tape, packing materials', 'placeholder' =>'0.00', 'static_fee' =>3.00, 'percent_of_sell_price' =>0 ); return $custom_costs; }</code>
+<pre><code>add_filter( 'wpd_ai_custom_product_cost_options', 'add_shipping_supplies_cost', 10, 2 );
+
+function add_shipping_supplies_cost( $custom_costs, $product_id ) {
+    $custom_costs['shipping_supplies'] = array(
+        'label' => 'Shipping Supplies',
+        'description' => 'Boxes, tape, packing materials',
+        'placeholder' => '0.00',
+        'static_fee' => 3.00,
+        'percent_of_sell_price' => 0
+    );
+    
+    return $custom_costs;
+}</code>
 </pre>
 <h3>Add Labor Cost (Percentage-Based)
 </h3>
-<pre><code>add_filter( 'wpd_ai_custom_product_cost_options', 'add_labor_cost', 10, 2 ); function add_labor_cost( $custom_costs, $product_id ) { // Labor cost as 15% of sell price $custom_costs['labor_cost'] = array( 'label' =>'Labor Cost', 'description' =>'Assembly and quality control labor', 'placeholder' =>'0.00', 'static_fee' =>0, 'percent_of_sell_price' =>15.0 // 15% of sell price ); return $custom_costs; }</code>
+<pre><code>add_filter( 'wpd_ai_custom_product_cost_options', 'add_labor_cost', 10, 2 );
+
+function add_labor_cost( $custom_costs, $product_id ) {
+    // Labor cost as 15% of sell price
+    $custom_costs['labor_cost'] = array(
+        'label' => 'Labor Cost',
+        'description' => 'Assembly and quality control labor',
+        'placeholder' => '0.00',
+        'static_fee' => 0,
+        'percent_of_sell_price' => 15.0 // 15% of sell price
+    );
+    
+    return $custom_costs;
+}</code>
 </pre>
 <h3>Combined Static + Percentage
 </h3>
-<pre><code>add_filter( 'wpd_ai_custom_product_cost_options', 'add_fulfillment_cost', 10, 2 ); function add_fulfillment_cost( $custom_costs, $product_id ) { // $5 base + 3% of price $custom_costs['fulfillment_fee'] = array( 'label' =>'3PL Fulfillment Fee', 'description' =>'Third-party fulfillment center fee', 'placeholder' =>'0.00', 'static_fee' =>5.00, // $5 base fee 'percent_of_sell_price' =>3.0 // + 3% of price ); return $custom_costs; }</code>
+<pre><code>add_filter( 'wpd_ai_custom_product_cost_options', 'add_fulfillment_cost', 10, 2 );
+
+function add_fulfillment_cost( $custom_costs, $product_id ) {
+    // $5 base + 3% of price
+    $custom_costs['fulfillment_fee'] = array(
+        'label' => '3PL Fulfillment Fee',
+        'description' => 'Third-party fulfillment center fee',
+        'placeholder' => '0.00',
+        'static_fee' => 5.00, // $5 base fee
+        'percent_of_sell_price' => 3.0 // + 3% of price
+    );
+    
+    return $custom_costs;
+}</code>
 </pre>
 <h3>Product-Specific Logic
 </h3>
-<pre><code>add_filter( 'wpd_ai_custom_product_cost_options', 'conditional_custom_costs', 10, 2 ); function conditional_custom_costs( $custom_costs, $product_id ) { // Only add custom assembly cost for specific category $product = wc_get_product( $product_id ); if ( $product && $product->is_type('variable') ) { // Variable products get assembly cost $custom_costs['assembly_cost'] = array( 'label' =>'Custom Assembly', 'description' =>'Required for customizable products', 'static_fee' =>15.00, 'percent_of_sell_price' =>0 ); } return $custom_costs; }</code>
+<pre><code>add_filter( 'wpd_ai_custom_product_cost_options', 'conditional_custom_costs', 10, 2 );
+
+function conditional_custom_costs( $custom_costs, $product_id ) {
+    // Only add custom assembly cost for specific category
+    $product = wc_get_product( $product_id );
+    
+    if ( $product && $product->is_type('variable') ) {
+        // Variable products get assembly cost
+        $custom_costs['assembly_cost'] = array(
+            'label' => 'Custom Assembly',
+            'description' => 'Required for customizable products',
+            'static_fee' => 15.00,
+            'percent_of_sell_price' => 0
+        );
+    }
+    
+    return $custom_costs;
+}</code>
 </pre>
 <h4>Field Definitions
 </h4>

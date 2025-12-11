@@ -19,145 +19,31 @@ defined( 'ABSPATH' ) || exit;
  * @param string $capability Required capability. Default 'manage_options'.
  * @return bool True if verified, false otherwise (sends JSON error and dies).
  */
-if ( ! function_exists( 'wpd_verify_ajax_request' ) ) {
-	function wpd_verify_ajax_request( $nonce_action = null, $capability = 'manage_options' ) {
-		// Use constant if no action specified
-		if ( null === $nonce_action ) {
-			$nonce_action = WPD_AI_AJAX_NONCE_ACTION;
-		}
-		// Verify nonce
-		$nonce_key = isset( $_POST['nonce'] ) ? 'nonce' : 'security';
-		if ( ! isset( $_POST[ $nonce_key ] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ $nonce_key ] ) ), $nonce_action ) ) {
-			wp_send_json_error( array( 
-				'message' => __( 'Security check failed. Please refresh the page and try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) 
-			) );
-			return false;
-		}
-		
-		// Check capability
-		if ( ! current_user_can( $capability ) ) {
-			wp_send_json_error( array( 
-				'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) 
-			) );
-			return false;
-		}
-		
-		return true;
+function wpd_verify_ajax_request( $nonce_action = null, $capability = 'manage_options' ) {
+	// Use constant if no action specified
+	if ( null === $nonce_action ) {
+		$nonce_action = WPD_AI_AJAX_NONCE_ACTION;
 	}
+	// Verify nonce
+	$nonce_key = isset( $_POST['nonce'] ) ? 'nonce' : 'security';
+	if ( ! isset( $_POST[ $nonce_key ] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ $nonce_key ] ) ), $nonce_action ) ) {
+		wp_send_json_error( array( 
+			'message' => __( 'Security check failed. Please refresh the page and try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) 
+		) );
+		return false;
+	}
+	
+	// Check capability
+	if ( ! current_user_can( $capability ) ) {
+		wp_send_json_error( array( 
+			'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) 
+		) );
+		return false;
+	}
+	
+	return true;
 }
 
-/**
- *
- *	Send email via ajax
- *
- */
-if ( ! function_exists('wpd_javascript_email_ajax') ) {
-
-	function wpd_javascript_email_ajax( $click_selector, $email_to_send ) {
-
-	?>
-		<script type="text/javascript">
-			jQuery(document).ready(function($) {
-				jQuery('<?php echo esc_js( $click_selector ); ?>').click(function(e) {
-					e.preventDefault();
-					wpdPopNotification( 'loading', '<?php echo esc_js( __( 'Processing...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>', '<?php echo esc_js( __( 'We are working on it!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>' );
-			        var data = {
-			            'action': 'wpd_send_email',
-			            'email' : '<?php echo esc_js( $email_to_send ); ?>',
-			            'url'   : window.location.href,
-			            'nonce' : (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.nonce) ? wpdAlphaInsights.nonce : ''
-			        };
-			        var ajaxurl = '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>';
-			        $.post(ajaxurl, data)
-			        .done(function( response ) {
-			    		var parsedResponse = wpdHandleAjaxResponse(
-			    			response,
-			    			'<?php echo esc_js( __( 'Your email has been successfully sent.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>',
-			    			'<?php echo esc_js( __( 'Your email was not sent.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>'
-			    		);
-			        })
-			        .fail(function( jqXHR, textStatus, errorThrown ) {
-			    		var errorMessage = '<?php echo esc_js( __( 'Your email was not sent.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>';
-			    		if (jqXHR.responseText) {
-			    			try {
-			    				var errorResponse = JSON.parse(jqXHR.responseText);
-			    				errorMessage = wpdExtractResponseMessage(errorResponse, errorMessage);
-			    			} catch(e) {
-			    				// If we can't parse the error, use default message
-			    			}
-			    		}
-			    		wpdPopNotification( 'fail', '<?php echo esc_js( __( 'Email Failed', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>', errorMessage );
-			        });
-			    });
-			});
-		</script>
-	<?php
-
-	}
-
-}
-
-/**
- *
- *	Send email via ajax
- *
- */
-if ( ! function_exists('wpd_javascript_ajax_action') ) {
-
-	function wpd_javascript_ajax_action( $click_selector, $action, $args = null ) {
-
-		$form_selector = 'form';
-
-		// Process args
-		if ( isset( $args['form_selector'] ) && ! empty($args['form_selector']) ) {
-			$form_selector = $args['form_selector'];
-		}
-
-	?>
-		<script type="text/javascript">
-			jQuery(document).ready(function($) {
-				jQuery('<?php echo esc_js( $click_selector ); ?>').click(function(e) {
-					e.preventDefault();
-					wpdPopNotification( 'loading', '<?php echo esc_js( __( 'Processing...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>', '<?php echo esc_js( __( 'We are working on it!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>' );
-					var formData = $('<?php echo esc_js( $form_selector ); ?>').serializeArray();
-			        var data = {
-			            'action': '<?php echo esc_js( $action ); ?>',
-			            'url'   : window.location.href,
-			            'form' 	: formData,
-			            'nonce' : (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.nonce) ? wpdAlphaInsights.nonce : ''
-			        };
-			        var ajaxurl = '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>';
-			        $.post(ajaxurl, data)
-			        .done(function( response ) {
-			    		var parsedResponse = wpdHandleAjaxResponse(
-			    			response,
-			    			'<?php echo esc_js( __( 'Your request has been successfully completed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>',
-			    			'<?php echo esc_js( __( 'Your action could not be completed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>'
-			    		);
-			    		if (parsedResponse && parsedResponse.success) {
-			    			window.postMessage(parsedResponse, "*"); // jQuery(window).on("message", function(e) {});
-			    		}
-			        })
-			        .fail(function( jqXHR, textStatus, errorThrown ) {
-			    		var errorMessage = '<?php echo esc_js( __( 'Your action could not be completed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>';
-			    		if (jqXHR.responseText) {
-			    			try {
-			    				var errorResponse = JSON.parse(jqXHR.responseText);
-			    				errorMessage = wpdExtractResponseMessage(errorResponse, errorMessage);
-			    			} catch(e) {
-			    				// If we can't parse the error, use default message
-			    			}
-			    		}
-			    		wpdPopNotification( 'fail', '<?php echo esc_js( __( 'Request Failed', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>', errorMessage );
-			        });
-			    });
-			});
-		</script>
-	<?php
-
-	}
-
-}
 
 /**
  * 
@@ -181,6 +67,7 @@ function wpd_reset_order_meta() {
 	if ( is_numeric($deleted_rows) ) {
 
 		$response['success']	= true;
+		/* translators: %d: Number of rows deleted */
 		$response['message']	= sprintf( __( '%d rows were deleted.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $deleted_rows );
 
 	} else {
@@ -217,6 +104,7 @@ function wpd_delete_order_line_item_cogs_ajax() {
 	if ( is_numeric($deleted_rows) ) {
 
 		$response['success']	= true;
+		/* translators: %d: Number of rows deleted */
 		$response['message']	= sprintf( __( '%d rows were deleted.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $deleted_rows );
 
 	} else {
@@ -344,15 +232,32 @@ function wpd_send_email_ajax() {
 	}
 
 	$requesting_url = isset( $_POST['url'] ) ? wpd_sanitize_url( $_POST['url'] ) : '';
-	$email_to_send = isset( $_POST['email'] ) ? sanitize_email( $_POST['email'] ) : '';
+	$email_type = isset( $_POST['email'] ) ? sanitize_text_field( $_POST['email'] ) : '';
 	
-	if ( empty( $email_to_send ) || ! is_email( $email_to_send ) ) {
-		wp_send_json_error( array( 'message' => __( 'Invalid email address.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
+	// Validate email type is one of the allowed types
+	$allowed_email_types = array( 'wpd_profit_report', 'wpd_expense_report' );
+	if ( empty( $email_type ) || ! in_array( $email_type, $allowed_email_types, true ) ) {
+		wp_send_json_error( array( 'message' => __( 'Invalid email type.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
 		return;
 	}
 	
-	$response = wpd_email( $email_to_send, false );
-	wp_send_json( $response );
+	$response = wpd_email( $email_type, false );
+	
+	// Format response for JavaScript - check if email was sent
+	if ( isset( $response['email_sent'] ) && $response['email_sent'] === true ) {
+		$response['success'] = true;
+		if ( ! isset( $response['message'] ) ) {
+			/* translators: %s: Email recipients */
+			$response['message'] = sprintf( __( 'Email sent successfully to %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( isset( $response['recipients'] ) ? $response['recipients'] : '' ) );
+		}
+		wp_send_json_success( $response );
+	} else {
+		$response['success'] = false;
+		if ( ! isset( $response['message'] ) ) {
+			$response['message'] = __( 'Email was not sent. Please check your email settings and recipients.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
+		}
+		wp_send_json_error( $response );
+	}
 
 }
 
@@ -441,6 +346,7 @@ function wpd_activate_license_ajax_function() {
 
 		$response['success'] = false;
 		$error_message = isset( $activate['message'] ) ? sanitize_text_field( $activate['message'] ) : '';
+		/* translators: %s: Error message */
 		$response['message'] = sprintf( __( 'Could not activate license, %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $error_message );
 
 	} else {
@@ -482,6 +388,7 @@ function wpd_refresh_license_ajax_function() {
 	if ( $license_status ) {
 
 		$response['success'] = true;
+		/* translators: %s: License status */
 		$response['message'] = sprintf( __( 'Your license is currently %s. All your license details have been updated, please refresh this page.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $license_status ) );
 
 	} else {
@@ -515,6 +422,7 @@ function wpd_refresh_all_facebook_api_data_ajax_function() {
 
 		$campaigns_found = isset( $result['campaigns_found'] ) ? absint( $result['campaigns_found'] ) : 0;
 		$response['success'] = true;
+		/* translators: %s: Number of campaigns found */
 		$response['message'] = sprintf( __( 'Success! %s campaign were found, we\'ve created and updated all of your Facebook data, please refresh this page.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $campaigns_found );
 
 	} else {
@@ -551,6 +459,7 @@ function wpd_delete_all_facebook_api_expense_data_ajax_function() {
 		if ( $result ) {
 	
 			$response['success'] = true;
+			/* translators: %s: Number of data points deleted */
 			$response['message'] = sprintf( __( 'Sucesfully deleted %s Facebook API Ad Spend data points.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), absint( $result ) );
 	
 		} else {
@@ -594,6 +503,7 @@ function wpd_delete_all_facebook_api_campaign_data_ajax_function() {
 		if ( $result ) {
 	
 			$response['success'] = true;
+			/* translators: %s: Number of data points deleted */
 			$response['message'] = sprintf( __( 'Sucesfully deleted %s Facebook API campaign data points.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), absint( $result ) );
 	
 		} else {
@@ -837,7 +747,8 @@ function wpd_delete_all_google_api_expense_data_ajax_function() {
 			if ( $found === 0 ) {
 				$response['message'] = __( 'No ad expenses were found, all good.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 			} else {
-				$response['message'] = sprintf( __( 'Sucesfully deleted %s out of %s Google API expenses.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), absint( $deleted ), absint( $found ) );
+				/* translators: 1: Number of deleted expenses, 2: Total number of expenses found */
+				$response['message'] = sprintf( __( 'Sucesfully deleted %1$s out of %2$s Google API expenses.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), absint( $deleted ), absint( $found ) );
 			}
 
 		} else {
@@ -887,7 +798,8 @@ function wpd_delete_all_google_api_campaign_data_ajax_function() {
 			if ( $found === 0 ) {
 				$response['message'] = __( 'No campaign data was found, all good.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 			} else {
-				$response['message'] = sprintf( __( 'Sucesfully deleted %s out of %s Google API campaign data points.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), absint( $deleted ), absint( $found ) );
+				/* translators: 1: Number of deleted campaign data points, 2: Total number of campaign data points found */
+				$response['message'] = sprintf( __( 'Sucesfully deleted %1$s out of %2$s Google API campaign data points.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), absint( $deleted ), absint( $found ) );
 			}
 
 		} else {
@@ -995,12 +907,14 @@ function wpd_create_google_conversion_action_ajax_function() {
 				// Return response for fallback case
 				$response['success'] = true;
 				$fallback_message = $re_enabled ? __( 'enabled it', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) : __( 'it was already enabled', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
-				$response['message'] = sprintf( __( 'Found existing conversion action "%s" and %s. Please refresh the page to see the updated status. You can view this conversion action in your Google Ads account under Goals > Summary.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $action_name, $fallback_message );
+				/* translators: 1: Conversion action name, 2: Status message (enabled it / it was already enabled) */
+				$response['message'] = sprintf( __( 'Found existing conversion action "%1$s" and %2$s. Please refresh the page to see the updated status. You can view this conversion action in your Google Ads account under Goals > Summary.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $action_name, $fallback_message );
 				
 			} else {
 				
 				// Return response for normal creation
 				$response['success'] = true;
+				/* translators: %s: Conversion action name */
 				$response['message'] = sprintf( __( 'Successfully created conversion action "%s". Please refresh the page to see the updated status. You can view this conversion action in your Google Ads account under Goals > Summary.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $action_name );
 				
 			}
@@ -1056,6 +970,7 @@ function wpd_delete_google_conversion_action_ajax_function() {
 			// Return response
 			$action_id = isset( $delete_result['conversion_action_id'] ) ? absint( $delete_result['conversion_action_id'] ) : 0;
 			$response['success'] = true;
+			/* translators: %d: Conversion action ID */
 			$response['message'] = sprintf( __( 'Successfully deleted conversion action (ID: %d). Please refresh the page to see the updated status.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $action_id );
 
 		} else {
@@ -1113,10 +1028,10 @@ function wpd_scan_utm_campaigns_via_order_ajax_function() {
 
 				if ( $result === false ) {
 					$response['message'] = __( 'Make sure you configure utm_campaign values against campaigns on the settings page before you run this function.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
-				}
-				elseif ( $result === 0 ) {
+				} elseif ( $result === 0 ) {
 					$response['message'] = __( 'No matches were found between your configured utm_campaigns and the values found in your orders. Check the stored query parameters on an order to determine the utm_campaign.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 				} else {
+					/* translators: %d: Number of orders updated */
 					$response['message'] = sprintf( __( 'Succesfully updated %d orders via your configured utm_campaigns', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), absint( $result ) );
 				}
 				
@@ -1179,8 +1094,8 @@ function wpd_scan_order_gclids_ajax_function() {
 				$updates = isset( $result['updates'] ) ? absint( $result['updates'] ) : 0;
 				$errors = isset( $result['errors'] ) ? absint( $result['errors'] ) : 0;
 				$gclids_found = isset( $result['gclids_found'] ) ? absint( $result['gclids_found'] ) : 0;
-
-				$response['message'] = sprintf( __( '%d Orders were checked, we found %d GCLIDs, associated %d orders to campaigns and there were %d API errors.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $orders_checked, $gclids_found, $updates, $errors );
+				/* translators: 1: Number of orders checked, 2: Number of GCLIDs found, 3: Number of orders updated, 4: Number of API errors */
+				$response['message'] = sprintf( __( '%1$d Orders were checked, we found %2$d GCLIDs, associated %3$d orders to campaigns and there were %4$d API errors.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $orders_checked, $gclids_found, $updates, $errors );
 				
 			}
 
@@ -1336,12 +1251,14 @@ function wpd_create_google_add_to_cart_conversion_action_ajax_function() {
 				// Return response for fallback case
 				$response['success'] = true;
 				$fallback_message = $re_enabled ? __( 'enabled it', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) : __( 'it was already enabled', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
-				$response['message'] = sprintf( __( 'Found existing Add To Cart conversion action "%s" and %s. Please refresh the page to see the updated status. You can view this conversion action in your Google Ads account under Goals > Summary.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $action_name, $fallback_message );
+				/* translators: 1: Add To Cart conversion action name, 2: Status message (enabled it / it was already enabled) */
+				$response['message'] = sprintf( __( 'Found existing Add To Cart conversion action "%1$s" and %2$s. Please refresh the page to see the updated status. You can view this conversion action in your Google Ads account under Goals > Summary.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $action_name, $fallback_message );
 				
 			} else {
 				
 				// Return response for normal creation
 				$response['success'] = true;
+				/* translators: %s: Add To Cart conversion action name */
 				$response['message'] = sprintf( __( 'Successfully created Add To Cart conversion action "%s". Please refresh the page to see the updated status. You can view this conversion action in your Google Ads account under Goals > Summary.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $action_name );
 				
 			}
@@ -1447,6 +1364,7 @@ function wpd_load_documentation_ajax() {
 
 		$response['success'] = true;
 		$response['data']    = $docs_data;
+		/* translators: %d: Number of documentation files loaded */
 		$response['message'] = sprintf(__('Loaded %d documentation files.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), count($docs_data, COUNT_RECURSIVE) - count($docs_data));
 
 	} catch (Exception $e) {

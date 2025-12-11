@@ -42,12 +42,29 @@
 <p>Each data type has this structure:</p>
 
 <pre><code>array(
-    'totals'            => array(),  // Aggregate metrics
-    'categorized_data'  => array(),  // Data grouped by categories
-    'data_table'        => array(),  // Tabular data for display
-    'data_by_date'      => array(),  // Time-series data
-    'total_db_records'  => 0,        // Number of records fetched
-    'execution_time'    => 0         // Query execution time in seconds
+    'totals'              =>
+    array(
+)
+    ,
+    // Aggregate metrics
+    'categorized_data'    =>
+    array(
+)
+    ,
+    // Data grouped by categories
+    'data_table'          =>
+    array(
+)
+    ,
+    // Tabular data for display
+    'data_by_date'        =>
+    array(
+)
+    ,
+    // Time-series data
+    'total_db_records'    => 0,
+    // Number of records fetched
+    'execution_time'      => 0         // Query execution time in seconds
 )</code></pre>
 
 <h3>Main Public Methods</h3>
@@ -62,13 +79,13 @@
 </ul>
 <p><strong>Example:</strong></p>
 <pre><code>$filter = array(
-    'date_from' => '2024-01-01',
-    'date_to'   => '2024-01-31',
-    'data_filters' => array(
-        'orders' => array(
-            'order_status' => array('wc-completed', 'wc-processing')
-        )
-    )
+'date_from' => '2024-01-01',
+'date_to'   => '2024-01-31',
+'data_filters' => array(
+'orders' => array(
+'order_status' => array('wc-completed', 'wc-processing')
+)
+)
 );
 $warehouse = new WPD_Data_Warehouse_React( $filter );</code></pre>
 
@@ -98,13 +115,11 @@ $warehouse = new WPD_Data_Warehouse_React( $filter );</code></pre>
 <p><strong>Populates:</strong> <code>orders</code>, <code>products</code>, <code>customers</code>, <code>coupons</code>, <code>taxes</code>, <code>refunds</code> data types</p>
 <p><strong>Example:</strong></p>
 <pre><code>$warehouse = new WPD_Data_Warehouse_React( array(
-    'date_from' => '2024-01-01',
-    'date_to'   => '2024-01-31'
+'date_from' => '2024-01-01',
+'date_to'   => '2024-01-31'
 ));
-
 // Fetch sales data
 $warehouse->fetch_sales_data();
-
 // Access the data
 $order_totals = $warehouse->get_data('orders', 'totals');
 echo $order_totals['total_order_revenue_ex_tax'];</code></pre>
@@ -156,13 +171,10 @@ echo $order_totals['total_order_revenue_ex_tax'];</code></pre>
 <p><strong>Examples:</strong></p>
 <pre><code>// Get all data
 $all_data = $warehouse->get_data();
-
 // Get all orders data
 $orders_data = $warehouse->get_data('orders');
-
 // Get orders totals only
 $orders_totals = $warehouse->get_data('orders', 'totals');
-
 // Get orders data by date
 $orders_by_date = $warehouse->get_data('orders', 'data_by_date');</code></pre>
 
@@ -246,89 +258,158 @@ $orders_by_date = $warehouse->get_data('orders', 'data_by_date');</code></pre>
 
 <pre><code>array(
     // Date Filters
-    'date_from'                 => '2024-01-01',     // Start date (Y-m-d format)
-    'date_to'                   => '2024-01-31',     // End date (Y-m-d format)
-    'date_format_display'       => 'day',            // Grouping: day, month, quarter, year
-    'date_format_string'        => 'Y-m-d',          // PHP date format string
-    
+    'date_from'                   => '2024-01-01',
+    // Start date (Y-m-d format)
+    'date_to'                     => '2024-01-31',
+    // End date (Y-m-d format)
+    'date_format_display'         => 'day',
+    // Grouping: day,
+    month,
+    quarter,
+    year
+    'date_format_string'          => 'Y-m-d',
+    // PHP date format string
     // Additional Order Data
-    'additional_order_data'     => array('products', 'customers', 'coupons'),
-    
+    'additional_order_data'       =>
+    array(
+    'products',
+    'customers',
+    'coupons'
+)
+    ,
     // Data Filters
-    'data_filters' => array(
-        'orders' => array(
-            'order_status'              => array('wc-completed', 'wc-processing'),
-            'billing_email'             => 'customer@example.com',
-            'traffic_source'            => array('facebook', 'google'),
-            'device_type'               => array('mobile', 'desktop'),
-            'query_parameter_values'    => array('utm_campaign' => 'summer-sale'),
-            'order_ids'                 => array(123, 456)
-        ),
-        'products' => array(
-            'products'          => array(100, 101, 102),  // Product IDs
-            'product_category'  => array(15, 22),         // Category IDs
-            'product_tag'       => array(5, 8)            // Tag IDs
-        ),
-        'customers' => array(
-            'billing_country'   => array('US', 'GB')
-        ),
-        'expenses' => array(
-            'expense_category'  => array(10, 11)          // Expense category term IDs
-        ),
-        'website_traffic' => array(
-            'traffic_source'    => array('google', 'direct')
-        )
-    ),
-    
+    'data_filters'   =>
+    array(
+    'orders'   =>
+    array(
+    'order_status'                =>
+    array(
+    'wc-completed',
+    'wc-processing'
+)
+    ,
+    'billing_email'               => 'customer@example.com',
+    'traffic_source'              =>
+    array(
+    'facebook',
+    'google'
+)
+    ,
+    'device_type'                 =>
+    array(
+    'mobile',
+    'desktop'
+)
+    ,
+    'query_parameter_values'      =>
+    array(
+    'utm_campaign'   => 'summer-sale'
+)
+    ,
+    'order_ids'                   =>
+    array(
+    123,
+    456
+)
+)
+    ,
+    'products'   =>
+    array(
+    'products'            =>
+    array(
+    100,
+    101,
+    102
+)
+    ,
+    // Product IDs
+    'product_category'    =>
+    array(
+    15,
+    22
+)
+    ,
+    // Category IDs
+    'product_tag'         =>
+    array(
+    5,
+    8
+)
+    // Tag IDs
+)
+    ,
+    'customers'   =>
+    array(
+    'billing_country'     =>
+    array(
+    'US',
+    'GB'
+)
+)
+    ,
+    'expenses'   =>
+    array(
+    'expense_category'    =>
+    array(
+    10,
+    11
+)
+    // Expense category term IDs
+)
+    ,
+    'website_traffic'   =>
+    array(
+    'traffic_source'      =>
+    array(
+    'google',
+    'direct'
+)
+)
+)
+    ,
     // Campaign Filters
-    'campaign_id'               => 123,                   // Filter by specific campaign ID
-    'campaign_date_override'    => true,                  // Use campaign's date range instead
-    
+    'campaign_id'                 => 123,
+    // Filter by specific campaign ID
+    'campaign_date_override'      => true,
+    // Use campaign's date range instead
     // Performance
-    'cache'                     => true,                  // Enable query caching (default: true)
+    'cache'                      => true,                  // Enable query caching (default: true)
 )</code></pre>
 
 <h3>Complete Usage Example</h3>
 
 <pre><code>// Initialize with filters
 $warehouse = new WPD_Data_Warehouse_React( array(
-    'date_from' => '2024-01-01',
-    'date_to'   => '2024-01-31',
-    'data_filters' => array(
-        'orders' => array(
-            'order_status' => array('wc-completed', 'wc-processing'),
-            'traffic_source' => array('facebook')
-        ),
-        'products' => array(
-            'product_category' => array(15, 22)
-        )
-    )
+'date_from' => '2024-01-01',
+'date_to'   => '2024-01-31',
+'data_filters' => array(
+'orders' => array(
+'order_status' => array('wc-completed', 'wc-processing'),
+'traffic_source' => array('facebook')
+),
+'products' => array(
+'product_category' => array(15, 22)
+)
+)
 ));
-
 // Fetch sales and expense data
 $warehouse->fetch_sales_data();
 $warehouse->fetch_expense_data();
 $warehouse->fetch_store_profit_data();
-
 // Get totals
 $order_totals = $warehouse->get_data('orders', 'totals');
 $expense_totals = $warehouse->get_data('expenses', 'totals');
 $profit_totals = $warehouse->get_data('store_profit', 'totals');
-
 // Get time-series data for charting
 $revenue_by_date = $warehouse->get_data('orders', 'data_by_date');
 $profit_by_date = $warehouse->get_data('store_profit', 'data_by_date');
-
 // Get categorized data
 $products_by_category = $warehouse->get_data('products', 'categorized_data');
-
 // Get data table for display
 $product_table = $warehouse->get_data('products', 'data_table');
-
 // Check performance
 $execution_time = $warehouse->get_execution_time();
 $total_records = $warehouse->get_total_db_records();
-
 // Display metrics
 echo "Total Revenue: " . $order_totals['total_order_revenue_ex_tax'] . "\n";
 echo "Total Expenses: " . $expense_totals['total_amount_paid'] . "\n";

@@ -224,20 +224,20 @@ class WPD_Admin_Menu {
                 <!-- Branding container -->
                 <h3 class="nav-tab-wrapper wpd-nav-tab-wrapper" id="wpd-ai-menu">
                     <span class="wpd-plugin-logo">
-                        <img height="50" src="<?php echo WPD_AI_URL_PATH; ?>assets/img/Alpha-Insights-Icon-Large.png" class="alpha-insights-menu-logo">
+                        <img height="50" src="<?php echo esc_url( WPD_AI_URL_PATH ); ?>assets/img/Alpha-Insights-Icon-Large.png" class="alpha-insights-menu-logo">
                         <span class="product-subtitle">Alpha Insights</span>
                     </span>
                     <!-- Menu items container -->
                     <?php foreach( $alpha_insights_menu as $key => $item ) : ?>
                         <span class="wpd-ai-menu-item-container">
                             <!-- Actual Menu Item -->
-                            <a class="wpd-nav-tab nav-tab <?php echo implode(' ', $item['additional_classes']) ?> <?php echo ( $active_parent_menu_item == $key ) ? 'nav-tab-active' : '' ?>" href="<?php echo $item['url'] ?>"<?php echo ( isset($item['target']) ) ? ' target="' . $item['target'] . '"' : ''; ?>><?php echo $item['title'] ?></a>
+                            <a class="wpd-nav-tab nav-tab <?php echo esc_attr( implode(' ', $item['additional_classes']) ); ?> <?php echo esc_attr( ( $active_parent_menu_item == $key ) ? 'nav-tab-active' : '' ); ?>" href="<?php echo esc_url( $item['url'] ); ?>"<?php echo ( isset($item['target']) ) ? ' target="' . esc_attr( $item['target'] ) . '"' : ''; ?>><?php echo esc_html( $item['title'] ); ?></a>
                             <!-- Dropdown Menu -->
                             <?php if ( isset($item['children']) && is_array($item['children']) && count($item['children']) > 1 ) : ?>
                                 <ul class="wpd-ai-dropdown-submenu">
                                     <?php foreach( $item['children'] as $key => $child ) : ?>
-                                        <li class="wpd-drop-down-menu-item <?php echo implode(' ', $child['additional_classes']) ?>">
-                                            <a href="<?php echo $child['url'] ?>"><?php echo $child['title'] ?></a>
+                                        <li class="wpd-drop-down-menu-item <?php echo esc_attr( implode(' ', $child['additional_classes']) ); ?>">
+                                            <a href="<?php echo esc_url( $child['url'] ); ?>"><?php echo esc_html( $child['title'] ); ?></a>
                                         </li>
                                     <?php endforeach; ?>
                                 </ul>
@@ -265,7 +265,7 @@ class WPD_Admin_Menu {
                         <?php if ( $active_parent_menu_item && isset($alpha_insights_menu[$active_parent_menu_item]['children']) ) : ?>
                             <?php foreach( $alpha_insights_menu[$active_parent_menu_item]['children'] as $key => $item ) : ?>
                                 <li class="wpd-sub-menu-li">
-                                    <a class="wpd-sub-menu-item <?php echo ( $active_submenu_item == $key ) ? 'nav-tab-active' : '' ?> <?php echo implode(' ', $item['additional_classes']) ?>" href="<?php echo $item['url'] ?>"><?php echo $item['title'] ?></a>
+                                    <a class="wpd-sub-menu-item <?php echo esc_attr( ( $active_submenu_item == $key ) ? 'nav-tab-active' : '' ); ?> <?php echo esc_attr( implode(' ', $item['additional_classes']) ); ?>" href="<?php echo esc_url( $item['url'] ); ?>"><?php echo esc_html( $item['title'] ); ?></a>
                                 </li>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -285,7 +285,7 @@ class WPD_Admin_Menu {
         $menu_html = apply_filters( 'wpd_alpha_insights_menu_html', $menu_html );
 
         // Echo the menu HTML
-        echo $menu_html;
+        echo wp_kses_post( $menu_html );
 
     }
 
@@ -663,8 +663,8 @@ class WPD_Admin_Menu {
         foreach ( $children as $key => $child ) {
             if ( isset($child['url']) ) {
                 // Parse both URLs to compare them properly
-                $child_url_parts = parse_url($child['url']);
-                $current_url_parts = parse_url($current_url);
+                $child_url_parts = wp_parse_url($child['url']);
+                $current_url_parts = wp_parse_url($current_url);
 
                 // Compare query strings
                 if ( isset($child_url_parts['query']) && isset($current_url_parts['query']) ) {

@@ -29,7 +29,7 @@ defined( 'ABSPATH' ) || exit;
     
     <div class="wpd-google-actions">
         <button type="button" class="button button-primary wpd-google-connect-btn" id="wpd-google-connect-btn">
-            <?php echo $status['is_connected'] ? 'Reconnect Google Ads' : 'Connect to Google Ads'; ?>
+            <?php echo esc_html( $status['is_connected'] ? 'Reconnect Google Ads' : 'Connect to Google Ads' ); ?>
         </button>
         
         <?php if ( $status['is_connected'] ) : ?>

@@ -30,7 +30,7 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 ?>
 <div class="wpd-wrapper">
 	<div class="wpd-section-heading wpd-inline">
-		<?php _e( 'General Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
+		<?php esc_html_e( 'General Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
 		<?php submit_button( __('Save Changes', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 'primary pull-right', 'submit', false); ?>
 	</div>
 </div>
@@ -38,14 +38,14 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'Initial Configuration - Default Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+				<th colspan="2"><?php esc_html_e( 'Initial Configuration - Default Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr>
 				<td>
-					<label for="wpd_ai_payment_gateway_costs"><?php _e( 'Payment Gateway Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This will define the costs associated with each of your payment gateways. Your orders will start with this cost, but you can override it on the order admin page. If we detect that your payment plugin has returned the actual fee we will use that instead.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label for="wpd_ai_payment_gateway_costs"><?php esc_html_e( 'Payment Gateway Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'This will define the costs associated with each of your payment gateways. Your orders will start with this cost, but you can override it on the order admin page. If we detect that your payment plugin has returned the actual fee we will use that instead.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<table class="wpd-table fixed" width="100%">
@@ -76,8 +76,8 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Default Product Cost Price', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?> (%)</label>
-					<div class="wpd-meta"><?php _e( 'This will be a fallback setting for products in which you haven\'t entered a cost price. This is calculated as a percentage of the given product\'s retail price. Use the configure COGS Per Product to manage costs per product (recommended).', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Default Product Cost Price', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?> (%)</label>
+					<div class="wpd-meta"><?php esc_html_e( 'This will be a fallback setting for products in which you haven\'t entered a cost price. This is calculated as a percentage of the given product\'s retail price. Use the configure COGS Per Product to manage costs per product (recommended).', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 					<div class="wpd-meta">Our cost price hierarchy works as follows:</div>
 					<div class="wpd-meta">1. Value saved for a product in the Alpha Insights Cost of Goods Manager (recommended)</div>
 					<div class="wpd-meta">2. Fall back to WooCommerce Native COGS if set -> WooCommerce 10.0+</div>
@@ -94,8 +94,8 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 						</thead>
 						<tbody>
 							<tr>
-								<td><input class="wpd-input" type="number" name="wpd_ai_cost_defaults[default_product_cost_percent]" value="<?php echo $cost_defaults['default_product_cost_percent'] ?>" step="0.01" placeholder="Percent of RRP"></td>
-								<td colspan="2"><a href="<?php echo wpd_admin_page_url('cost-of-goods-manager') ?>" target="_blank" class="button btn wpd-input"><?php _e( 'Configure COGS Per Product', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a></td>
+								<td><input class="wpd-input" type="number" name="wpd_ai_cost_defaults[default_product_cost_percent]" value="<?php echo esc_attr( $cost_defaults['default_product_cost_percent'] ); ?>" step="0.01" placeholder="Percent of RRP"></td>
+								<td colspan="2"><a href="<?php echo esc_url( wpd_admin_page_url('cost-of-goods-manager') ); ?>" target="_blank" class="button btn wpd-input"><?php esc_html_e( 'Configure COGS Per Product', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a></td>
 							</tr>
 						</tbody>
 					</table>
@@ -103,8 +103,8 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 			</tr>
 			<tr>
 				<td>
-					<label for="wpd_ai_general_settings"><?php _e( 'Default Shipping Cost', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This will be a fallback setting for the shipping fees you pay to your carrier. Your orders will start with this cost, but you can override it as the fee is finalised.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label for="wpd_ai_general_settings"><?php esc_html_e( 'Default Shipping Cost', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'This will be a fallback setting for the shipping fees you pay to your carrier. Your orders will start with this cost, but you can override it as the fee is finalised.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<table class="wpd-table fixed" width="100%">
@@ -117,9 +117,9 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 						</thead>
 						<tbody>
 							<tr>
-								<td><input class="wpd-input" type="number" name="wpd_ai_cost_defaults[default_shipping_cost_percent]" value="<?php echo $cost_defaults['default_shipping_cost_percent'] ?>" step="0.01" placeholder="Percent Of Order Value"></td>
-								<td><input class="wpd-input" type="number" name="wpd_ai_cost_defaults[default_shipping_cost_percent_shipping_charged]" value="<?php echo $cost_defaults['default_shipping_cost_percent_shipping_charged'] ?>" step="0.01" placeholder="Percent Of Shipping Charged"></td>
-								<td><input class="wpd-input" type="number" name="wpd_ai_cost_defaults[default_shipping_cost_fee]" value="<?php echo $cost_defaults['default_shipping_cost_fee'] ?>" step="0.01" placeholder="Static Fee"></td>
+								<td><input class="wpd-input" type="number" name="wpd_ai_cost_defaults[default_shipping_cost_percent]" value="<?php echo esc_attr( $cost_defaults['default_shipping_cost_percent'] ); ?>" step="0.01" placeholder="Percent Of Order Value"></td>
+								<td><input class="wpd-input" type="number" name="wpd_ai_cost_defaults[default_shipping_cost_percent_shipping_charged]" value="<?php echo esc_attr( $cost_defaults['default_shipping_cost_percent_shipping_charged'] ); ?>" step="0.01" placeholder="Percent Of Shipping Charged"></td>
+								<td><input class="wpd-input" type="number" name="wpd_ai_cost_defaults[default_shipping_cost_fee]" value="<?php echo esc_attr( $cost_defaults['default_shipping_cost_fee'] ); ?>" step="0.01" placeholder="Static Fee"></td>
 							</tr>
 						</tbody>
 					</table>
@@ -133,14 +133,14 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'Report Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+				<th colspan="2"><?php esc_html_e( 'Report Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr>
 				<td>
-					<label><?php _e( 'Paid Order Status For Reporting', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'These are the order statuses that we will look at when reviewing your profitability.<br>These statuses are the ones that are considered paid for and will be used in your report calculations.<br>Refund status is required.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Paid Order Status For Reporting', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php echo wp_kses_post( __( 'These are the order statuses that we will look at when reviewing your profitability.<br>These statuses are the ones that are considered paid for and will be used in your report calculations.<br>Refund status is required.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input wpd-combo-select" name="wpd_ai_order_status[]" value="" multiple="multiple">
@@ -161,11 +161,11 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Cache Build Batch Size', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This will define the batch size for the cache build process. This is the number of orders that will be processed at a time.<br>Lowering this value if you are having errors in the cache building process, but this may increase processing time.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Cache Build Batch Size', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php echo wp_kses_post( __( 'This will define the batch size for the cache build process. This is the number of orders that will be processed at a time.<br>Lowering this value if you are having errors in the cache building process, but this may increase processing time.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
 				</td>
 				<td>
-					<input class="wpd-input" type="number" name="wpd_ai_cache_build_batch_size" value="<?php echo get_option( 'wpd_ai_cache_build_batch_size', 250 ) ?>" step="1" placeholder="Batch Size" min="1" max="10000">
+					<input class="wpd-input" type="number" name="wpd_ai_cache_build_batch_size" value="<?php echo esc_attr( get_option( 'wpd_ai_cache_build_batch_size', 250 ) ); ?>" step="1" placeholder="Batch Size" min="1" max="10000">
 				</td>
 			</tr>
 		</tbody>
@@ -175,14 +175,14 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'Profit Calculation Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></th>
+				<th colspan="2"><?php esc_html_e( 'Profit Calculation Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr>
 				<td>
-					<label><?php _e( 'Costs to include when an order is fully refunded', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'By default, all costs are set to 0 when an order is fully refunded.<br>You can use these settings to adjust which costs are included in your profit calculation when an order is fully refunded.<br>*Partially refunded orders have exemption calculations, per item refunded..', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Costs to include when an order is fully refunded', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php echo wp_kses_post( __( 'By default, all costs are set to 0 when an order is fully refunded.<br>You can use these settings to adjust which costs are included in your profit calculation when an order is fully refunded.<br>*Partially refunded orders have exemption calculations, per item refunded..', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
 				</td>
 				<td>
 					<!-- Ensure a value is always set -->
@@ -202,18 +202,18 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'Custom Order & Product Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+				<th colspan="2"><?php esc_html_e( 'Custom Order & Product Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr>
 				<td>
-					<label for="wpd_ai_custom_order_cost"><?php _e( 'Create Custom Order Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<label for="wpd_ai_custom_order_cost"><?php esc_html_e( 'Create Custom Order Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
 					<div class="wpd-meta">
-						<?php _e( 
+						<?php echo wp_kses_post( __( 
 							'You can use this setting to create additional order costs with default values for each order.
 							<br>Every new cost field you add here will show up on the order edit page in the admin area.<br>
-							You can override the default cost value for each order. <a href="https://wpdavies.dev/documentation/alpha-insights/features/setting-up-custom-order-costs-for-woocommerce/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" target="_blank">Click Here</a> for documentation.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+							You can override the default cost value for each order. <a href="https://wpdavies.dev/documentation/alpha-insights/additional-features/custom-order-costs/setting-up-custom-order-costs/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" target="_blank">Click Here</a> for documentation.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
 				</td>
 				<td>
 					<table class="wpd-table fixed" width="100%">
@@ -267,12 +267,12 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 			</tr>
 			<tr>
 				<td>
-					<label for="wpd_ai_custom_product_cost"><?php _e( 'Create Custom Product Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<label for="wpd_ai_custom_product_cost"><?php esc_html_e( 'Create Custom Product Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
 					<div class="wpd-meta">
-						<?php _e( 
+						<?php echo wp_kses_post( __( 
 							'You can use this setting to create additional product costs with default values for each product.
 							<br>Every new cost field you add here will show up on the product edit page and in the order admin area.<br>
-							You can override the default cost value for each product & each order. <a href="https://wpdavies.dev/documentation/alpha-insights/features/setting-up-custom-product-costs-for-woocommerce/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" target="_blank">Click Here</a> for documentation.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+							You can override the default cost value for each product & each order. <a href="https://wpdavies.dev/documentation/alpha-insights/additional-features/custom-product-costs/setting-up-custom-product-costs/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" target="_blank">Click Here</a> for documentation.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
 				</td>
 				<td>
 					<table class="wpd-table fixed" width="100%">
@@ -331,26 +331,26 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'Alpha Analytics & Event Tracking', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?><div class="wpd-meta">Full WooCommerce Analytics suite for event tracking & session data</div></th>
+				<th colspan="2"><?php esc_html_e( 'Alpha Analytics & Event Tracking', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?><div class="wpd-meta">Full WooCommerce Analytics suite for event tracking & session data</div></th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr>
 				<td>
-					<label><?php _e( 'Enable Woocommerce Event Tracking', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This will enable product analytics which will add additional tracking to monitor things like product clicks, add to carts and purchases - utilising this will add a small additional load to your server.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Enable Woocommerce Event Tracking', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'This will enable product analytics which will add additional tracking to monitor things like product clicks, add to carts and purchases - utilising this will add a small additional load to your server.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_analytics[enable_woocommerce_analytics]">
-						<option value="1" <?php echo wpd_selected_option( '1', $enable_woocommerce_analytics ) ?> ><?php _e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="0" <?php echo wpd_selected_option( '0', $enable_woocommerce_analytics ) ?> ><?php _e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="1" <?php echo esc_attr( wpd_selected_option( '1', $enable_woocommerce_analytics ) ); ?> ><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="0" <?php echo esc_attr( wpd_selected_option( '0', $enable_woocommerce_analytics ) ); ?> ><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
 					</select>
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Exclude These Roles From Tracking', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This will prevent these user roles from being tracked on your website.' ); ?></div>
+					<label><?php esc_html_e( 'Exclude These Roles From Tracking', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'This will prevent these user roles from being tracked on your website.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input wpd-combo-select" name="wpd_ai_analytics[exclude_roles][]" value="" multiple="multiple" placeholder="Select Role Type(s) To Exclude">
@@ -377,7 +377,7 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 		<thead>
 			<tr>
 				<th colspan="2">
-					<?php _e( 'WordPress Admin Display Extensions', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
+					<?php esc_html_e( 'WordPress Admin Display Extensions', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
 					<div class="wpd-meta">These checkboxes will display / hide any extensions to the standard WP Admin columns.</div>
 					<?php $admin_custom_column_defaults = wpd_get_admin_custom_column_defaults(); ?>
 					<!-- Hidden input allows for saving empty values across the board due to empty multi-select not passing into _POST -->
@@ -388,8 +388,8 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 		<tbody>
 			<tr>
 				<td>
-					<label><?php _e( 'Product Admin Columns', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'Select which columns you would like to display in the Product Admin List section in your WP Dashboard.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Product Admin Columns', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'Select which columns you would like to display in the Product Admin List section in your WP Dashboard.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input wpd-combo-select" name="wpd_ai_admin_custom_columns[products][]" value="" multiple="multiple" placeholder="Select Columns">
@@ -410,8 +410,8 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Order Admin Columns', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'Select which columns you would like to display in the Order Admin List section in your WP Dashboard.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Order Admin Columns', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'Select which columns you would like to display in the Order Admin List section in your WP Dashboard.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input wpd-combo-select" name="wpd_ai_admin_custom_columns[orders][]" value="" multiple="multiple" placeholder="Select Columns">
@@ -432,8 +432,8 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'User Admin Columns', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'Select which columns you would like to display in the Users List section in your WP Dashboard.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'User Admin Columns', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'Select which columns you would like to display in the Users List section in your WP Dashboard.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input wpd-combo-select" name="wpd_ai_admin_custom_columns[users][]" value="" multiple="multiple" placeholder="Select Columns">
@@ -459,14 +459,14 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'Other Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+				<th colspan="2"><?php esc_html_e( 'Other Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr>
 				<td>
-					<label><?php _e( 'Limit Plugin Visibility', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'Choose which user roles can view this plugin. Those who are denied access will not see any part of the plugin.<br>Administrators will always have access.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Limit Plugin Visibility', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php echo wp_kses_post( __( 'Choose which user roles can view this plugin. Those who are denied access will not see any part of the plugin.<br>Administrators will always have access.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input wpd-combo-select" name="wpd_ai_plugin_visibility[]" multiple="multiple" placeholder="Select Role Type(s) To Include">
@@ -486,7 +486,7 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 									$selected = 'selected="selected"';
 								}
 
-								echo '<option value="' . esc_attr( $role ) . '" ' . $selected . '>' . esc_html( $role ) . '</option>';
+								echo '<option value="' . esc_attr( $role ) . '" ' . esc_attr( $selected ) . '>' . esc_html( $role ) . '</option>';
 							}
 
 						?>
@@ -495,25 +495,25 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Load Modern WP Admin Skin', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'Load our custom stylesheet which will override core admin appearance settings to help modernize your admin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Load Modern WP Admin Skin', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'Load our custom stylesheet which will override core admin appearance settings to help modernize your admin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_admin_style_override">
-						<option value="0" <?php echo wpd_selected_option( '0', $admin_style_override ) ?> ><?php _e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="1" <?php echo wpd_selected_option( '1', $admin_style_override ) ?> ><?php _e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="0" <?php echo esc_attr( wpd_selected_option( '0', $admin_style_override ) ); ?> ><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="1" <?php echo esc_attr( wpd_selected_option( '1', $admin_style_override ) ); ?> ><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
 					</select>
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Prevent annoying WordPress notices', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'This will prevent the annoying update notices, license notices and whatever else rubbish people like to clutter your screen with.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Prevent annoying WordPress notices', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'This will prevent the annoying update notices, license notices and whatever else rubbish people like to clutter your screen with.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_prevent_wp_notices">
-						<option value="0" <?php echo wpd_selected_option( '0', $prevent_notices ) ?> ><?php _e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="1" <?php echo wpd_selected_option( '1', $prevent_notices ) ?> ><?php _e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="0" <?php echo esc_attr( wpd_selected_option( '0', $prevent_notices ) ); ?> ><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="1" <?php echo esc_attr( wpd_selected_option( '1', $prevent_notices ) ); ?> ><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
 					</select>
 				</td>
 			</tr>
@@ -524,46 +524,46 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 	<table class="wpd-table fixed widefat">
 		<thead>
 			<tr>
-				<th colspan="2"><?php _e( 'Debugging, Tools & Cache', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+				<th colspan="2"><?php esc_html_e( 'Debugging, Tools & Cache', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr>
 				<td>
-					<label><?php _e( 'Delete All Report Caches', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'We store order and product data in a cache in order to run your reports faster.<br>This function will delete all caches to force the most recent data in your reports.<br>This is non-destructive and recommended for displaying the latest data.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Delete All Report Caches', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php echo wp_kses_post( __( 'We store order and product data in a cache in order to run your reports faster.<br>This function will delete all caches to force the most recent data in your reports.<br>This is non-destructive and recommended for displaying the latest data.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
 				</td>
 				<td>
-					<a class="button btn wpd-input" id="wpd-delete-cache"><?php _e( 'Delete Cache', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<label><?php _e( 'Delete All Order Calculation Overrides', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'In your order admin page you are able to override the default calculations by entering values manually.<br>This tool will remove all of these overrides. It will not effect your WooCommerce order data in any way.<br><span style="color: red;">This tool will permanetly delete order overrides.</span>', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
-				</td>
-				<td>
-					<a class="button btn wpd-input" id="wpd-reset-order-meta"><?php _e( 'Delete All Order Calculation Overrides', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
+					<a class="button btn wpd-input" id="wpd-delete-cache" data-wpd-ajax-action="wpd_delete_all_cache"><?php esc_html_e( 'Delete Cache', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Delete All Order Line Item COGS Overrides', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'If you have overridden the Cost of Goods for a product at the line item level on an order, this is saved and used for calculations.<br>This tool will remove all of these overrides. It will not effect your WooCommerce order data in any way.<br><span style="color: red;">This tool will permanetly delete line item COGS overrides.</span>', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Delete All Order Calculation Overrides', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php echo wp_kses_post( __( 'In your order admin page you are able to override the default calculations by entering values manually.<br>This tool will remove all of these overrides. It will not effect your WooCommerce order data in any way.<br><span style="color: red;">This tool will permanetly delete order overrides.</span>', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
 				</td>
 				<td>
-					<a class="button btn wpd-input" id="wpd-delete-order-line-item-cogs"><?php _e( 'Delete All Order Line Item COGS', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
+					<a class="button btn wpd-input" id="wpd-reset-order-meta" data-wpd-ajax-action="wpd_reset_order_meta"><?php esc_html_e( 'Delete All Order Calculation Overrides', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<label><?php _e( 'Upgrade Database', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php _e( 'Run this function to manually update your database to the latest version.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
-					<div class="wpd-meta"><?php _e( 'Installed Version', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>: <?php echo get_option('wpd_ai_db_version'); ?></div>
-					<div class="wpd-meta"><?php _e( 'Required Version', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>: <?php echo WPD_AI_DB_VERSION ?></div>
+					<label><?php esc_html_e( 'Delete All Order Line Item COGS Overrides', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php echo wp_kses_post( __( 'If you have overridden the Cost of Goods for a product at the line item level on an order, this is saved and used for calculations.<br>This tool will remove all of these overrides. It will not effect your WooCommerce order data in any way.<br><span style="color: red;">This tool will permanetly delete line item COGS overrides.</span>', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
 				</td>
 				<td>
-					<a class="button btn wpd-input" id="wpd-update_db_manually"><?php _e( 'Update Database', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
+					<a class="button btn wpd-input" id="wpd-delete-order-line-item-cogs" data-wpd-ajax-action="wpd_delete_order_line_item_cogs"><?php esc_html_e( 'Delete All Order Line Item COGS', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label><?php esc_html_e( 'Upgrade Database', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'Run this function to manually update your database to the latest version.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<div class="wpd-meta"><?php esc_html_e( 'Installed Version', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>: <?php echo esc_html( get_option('wpd_ai_db_version') ); ?></div>
+					<div class="wpd-meta"><?php esc_html_e( 'Required Version', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>: <?php echo esc_html( WPD_AI_DB_VERSION ); ?></div>
+				</td>
+				<td>
+					<a class="button btn wpd-input" id="wpd-update_db_manually" data-wpd-ajax-action="wpd-update_db_manually"><?php esc_html_e( 'Update Database', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></a>
 				</td>
 			</tr>
 		</tbody>
@@ -572,67 +572,3 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 <div class="wpd-inline">
 	<?php submit_button( __('Save Changes', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 'primary pull-right', 'submit', false); ?>
 </div>
-<?php wpd_javascript_ajax_action( '#wpd-delete-cache', 'wpd_delete_all_cache' ); ?>
-<?php wpd_javascript_ajax_action( '#wpd-reset-order-meta', 'wpd_reset_order_meta' ); ?>
-<?php wpd_javascript_ajax_action( '#wpd-delete-order-line-item-cogs', 'wpd_delete_order_line_item_cogs' ); ?>
-<?php wpd_javascript_ajax_action( '#wpd-update_db_manually', 'wpd-update_db_manually' ); ?>
-<script type="text/javascript">
-	jQuery(document).ready(function($) {
-		$('.wpd-delete-custom-order-cost').click(function() {
-			let targetRow = $(this).closest('tr').remove();
-		});
-	});
-</script>
-<script type="text/javascript">
-	jQuery(document).ready(function($) {
-		jQuery('.wpd-data-point').click(function(e) {
-
-			// Prevent anything else
-			e.preventDefault();
-
-			// Show pop notification
-			wpdPopNotification( 'loading', '<?php _e( 'Processing...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ?>', '<?php _e( 'We are working on it!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ?>' );
-
-			// Get value
-			let customOrderCostName = jQuery(this).data('val');
-
-			// Some data cleaning
-			if ( customOrderCostName.length < 4 ) {
-				wpdPopNotification( 'fail', 'Hm, Something Is Not Quite Right', 'We couldnt locate the custom order cost key.');
-				return false;
-			}
-
-			// Pass in the data
-			let data = {
-				'action': 'wpd_delete_custom_order_cost',
-				'url'   : window.location.href,
-				'value' : customOrderCostName,
-				'nonce' : (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.nonce) ? wpdAlphaInsights.nonce : ''
-			};
-			var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
-			$.post(ajaxurl, data)
-			.done(function( response ) {
-				var parsedResponse = wpdHandleAjaxResponse(
-					response,
-					'<?php echo esc_js( __( 'Your request has been successfully completed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>',
-					'<?php echo esc_js( __( 'Your action could not be completed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>'
-				);
-				if (parsedResponse && parsedResponse.success) {
-					window.postMessage(parsedResponse, "*"); // jQuery(window).on("message", function(e) {});
-				}
-			})
-			.fail(function( jqXHR, textStatus, errorThrown ) {
-				var errorMessage = '<?php echo esc_js( __( 'Your action could not be completed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>';
-				if (jqXHR.responseText) {
-					try {
-						var errorResponse = JSON.parse(jqXHR.responseText);
-						errorMessage = wpdExtractResponseMessage(errorResponse, errorMessage);
-					} catch(e) {
-						// If we can't parse the error, use default message
-					}
-				}
-				wpdPopNotification( 'fail', '<?php echo esc_js( __( 'Request Failed', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>', errorMessage );
-			});
-		});
-	});
-</script>

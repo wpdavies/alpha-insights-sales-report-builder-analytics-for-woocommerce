@@ -47,70 +47,75 @@
 <h3>Add Insurance Cost Based on Order Value</h3>
 
 <pre><code>add_filter( 'wpd_ai_custom_order_cost_default_value', 'dynamic_insurance_cost', 10, 3 );
-
-function dynamic_insurance_cost( $cost, $cost_slug, $order ) {
-    
+function dynamic_insurance_cost( $cost, $cost_slug, $order )
+{
     // Only apply to insurance cost
-    if ( $cost_slug !== 'insurance' ) {
+    if ( $cost_slug !== 'insurance' )
+    {
         return $cost;
     }
-    
     $order_total = $order->get_total();
-    
     // Tiered insurance rates
-    if ( $order_total > 500 ) {
-        return 25.00; // High-value orders
-    } elseif ( $order_total > 200 ) {
-        return 12.00; // Medium-value orders
-    } elseif ( $order_total > 100 ) {
-        return 5.00;  // Standard orders
+    if ( $order_total > 500 )
+    {
+        return 25.00;
+        // High-value orders
     }
-    
-    return 0; // No insurance for small orders
+    elseif ( $order_total > 200 )
+    {
+        return 12.00;
+        // Medium-value orders
+    }
+    elseif ( $order_total > 100 )
+    {
+        return 5.00;
+        // Standard orders
+    }
+    return 0;
+    // No insurance for small orders
 }</code></pre>
 
 <h3>International Handling Fee</h3>
 
 <pre><code>add_filter( 'wpd_ai_custom_order_cost_default_value', 'international_handling', 10, 3 );
-
-function international_handling( $cost, $cost_slug, $order ) {
-    
-    if ( $cost_slug !== 'international_handling' ) {
+function international_handling( $cost, $cost_slug, $order )
+{
+    if ( $cost_slug !== 'international_handling' )
+    {
         return $cost;
     }
-    
     // Check if international order
     $shipping_country = $order->get_shipping_country();
     $store_country = WC()->countries->get_base_country();
-    
-    if ( $shipping_country !== $store_country ) {
+    if ( $shipping_country !== $store_country )
+    {
         // Add customs paperwork handling
         return 15.00;
     }
-    
-    return 0; // No fee for domestic orders
+    return 0;
+    // No fee for domestic orders
 }</code></pre>
 
 <h3>Wholesale vs Retail Fulfillment</h3>
 
 <pre><code>add_filter( 'wpd_ai_custom_order_cost_default_value', 'wholesale_fulfillment', 10, 3 );
-
-function wholesale_fulfillment( $cost, $cost_slug, $order ) {
-    
-    if ( $cost_slug !== 'fulfillment_fee' ) {
+function wholesale_fulfillment( $cost, $cost_slug, $order )
+{
+    if ( $cost_slug !== 'fulfillment_fee' )
+    {
         return $cost;
     }
-    
     // Check customer role
     $customer_id = $order->get_customer_id();
-    if ( $customer_id ) {
+    if ( $customer_id )
+    {
         $user = get_userdata( $customer_id );
-        if ( in_array( 'wholesale_customer', $user->roles ) ) {
+        if ( in_array( 'wholesale_customer', $user->roles ) )
+        {
             // Lower fulfillment fee for wholesale
             return 8.00;
         }
     }
-    
     // Standard retail fulfillment fee
     return 15.00;
 }</code></pre>
@@ -118,62 +123,58 @@ function wholesale_fulfillment( $cost, $cost_slug, $order ) {
 <h3>Fragile Item Handling</h3>
 
 <pre><code>add_filter( 'wpd_ai_custom_order_cost_default_value', 'fragile_handling_fee', 10, 3 );
-
-function fragile_handling_fee( $cost, $cost_slug, $order ) {
-    
-    if ( $cost_slug !== 'special_handling' ) {
+function fragile_handling_fee( $cost, $cost_slug, $order )
+{
+    if ( $cost_slug !== 'special_handling' )
+    {
         return $cost;
     }
-    
     $has_fragile = false;
-    
     // Check if order contains fragile products
-    foreach ( $order->get_items() as $item ) {
+    foreach ( $order->get_items() as $item )
+    {
         $product = $item->get_product();
-        if ( $product && has_term( 'fragile', 'product_cat', $product->get_id() ) ) {
+        if ( $product && has_term( 'fragile', 'product_cat', $product->get_id() ) )
+        {
             $has_fragile = true;
             break;
         }
     }
-    
     return $has_fragile ? 10.00 : 0;
 }</code></pre>
 
 <h3>Seasonal Peak Fee</h3>
 
 <pre><code>add_filter( 'wpd_ai_custom_order_cost_default_value', 'seasonal_peak_fee', 10, 3 );
-
-function seasonal_peak_fee( $cost, $cost_slug, $order ) {
-    
-    if ( $cost_slug !== 'peak_season_fee' ) {
+function seasonal_peak_fee( $cost, $cost_slug, $order )
+{
+    if ( $cost_slug !== 'peak_season_fee' )
+    {
         return $cost;
     }
-    
     $order_date = $order->get_date_created();
     $month = (int) $order_date->format('n');
-    
     // November and December (holiday season)
-    if ( in_array( $month, [11, 12] ) ) {
-        return 7.50; // Peak season surcharge
+    if ( in_array( $month, [11, 12] ) )
+    {
+        return 7.50;
+        // Peak season surcharge
     }
-    
     return 0;
 }</code></pre>
 
 <h3>Integration with ERP System</h3>
 
 <pre><code>add_filter( 'wpd_ai_custom_order_cost_default_value', 'erp_custom_costs', 10, 3 );
-
-function erp_custom_costs( $cost, $cost_slug, $order ) {
-    
+function erp_custom_costs( $cost, $cost_slug, $order )
+{
     // Fetch actual costs from ERP system
     $order_number = $order->get_order_number();
     $erp_costs = my_erp_get_order_costs( $order_number );
-    
-    if ( $erp_costs && isset( $erp_costs[$cost_slug] ) ) {
+    if ( $erp_costs && isset( $erp_costs[$cost_slug] ) )
+    {
         return (float) $erp_costs[$cost_slug];
     }
-    
     return $cost;
 }</code></pre>
 
@@ -212,8 +213,8 @@ function erp_custom_costs( $cost, $cost_slug, $order ) {
 <h3>Debugging</h3>
 
 <pre><code>add_filter( 'wpd_ai_custom_order_cost_default_value', 'debug_custom_costs', 999, 3 );
-
-function debug_custom_costs( $cost, $cost_slug, $order ) {
+function debug_custom_costs( $cost, $cost_slug, $order )
+{
     error_log( sprintf( 
         'Order #%d - Custom Cost "%s": $%s',
         $order->get_id(),

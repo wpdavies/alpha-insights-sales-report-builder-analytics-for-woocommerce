@@ -1344,10 +1344,7 @@ class WPD_Order_Calculator {
         $update = wpd_set_order_calculations_cache( $order_id, $this->results );
 
         // Log an error
-        if ( $update === false ) wpd_write_log( 'Unable to update the order cache for Order ID: #' . $order_id, 'order_update' );
-
-        // Log complete
-        wpd_write_log( 'Saving calculations to custom calculation table for Order ID: #' . $order_id, 'order_update' );
+        if ( $update === false ) wpd_write_log( 'Unable to update the order cache for Order ID: #' . $order_id, 'order_update_error' );
 
     }
 

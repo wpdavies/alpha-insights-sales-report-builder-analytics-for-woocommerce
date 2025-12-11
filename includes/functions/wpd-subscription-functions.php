@@ -46,9 +46,9 @@ function wpd_is_wc_subscriptions_active() {
 function wpd_is_subscription_active_on_date( $date_created_timestamp, $date_cancelled_timestamp, $date_to_check_timestamp = null ) {
 
 	// Convert to Y-m-d so that it checks a date, then return back to timestamp or set as false if not in correct format
-	$date_created_timestamp = ( is_numeric($date_created_timestamp) && $date_created_timestamp > 0 ) ? strtotime( date( 'Y-m-d', $date_created_timestamp ) ) : false;
-	$date_cancelled_timestamp = ( is_numeric($date_cancelled_timestamp) && $date_cancelled_timestamp > 0 ) ? strtotime( date( 'Y-m-d', $date_cancelled_timestamp ) ) : false;
-	$date_to_check_timestamp = ( is_numeric($date_to_check_timestamp) && $date_to_check_timestamp > 0 ) ? strtotime( date( 'Y-m-d', $date_to_check_timestamp ) ) : strtotime( current_time('Y-m-d') );
+	$date_created_timestamp = ( is_numeric($date_created_timestamp) && $date_created_timestamp > 0 ) ? strtotime( gmdate( 'Y-m-d', $date_created_timestamp ) ) : false;
+	$date_cancelled_timestamp = ( is_numeric($date_cancelled_timestamp) && $date_cancelled_timestamp > 0 ) ? strtotime( gmdate( 'Y-m-d', $date_cancelled_timestamp ) ) : false;
+	$date_to_check_timestamp = ( is_numeric($date_to_check_timestamp) && $date_to_check_timestamp > 0 ) ? strtotime( gmdate( 'Y-m-d', $date_to_check_timestamp ) ) : strtotime( current_time('Y-m-d') );
 
 	// Date created must be in a good format
 	if ( $date_created_timestamp === false ) return false;

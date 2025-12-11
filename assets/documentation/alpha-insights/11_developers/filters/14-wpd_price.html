@@ -55,12 +55,12 @@
 <h3>Args Array Structure</h3>
 
 <pre><code>$args = array(
-    'ex_tax_label'       => false,      // Show "ex. VAT" label
-    'currency'           => 'USD',      // Currency code
-    'decimal_separator'  => '.',        // Decimal separator
-    'thousand_separator' => ',',        // Thousand separator
-    'decimals'           => 2,          // Number of decimals
-    'price_format'       => '%1$s%2$s'  // Symbol/price format
+'ex_tax_label'       => false,      // Show "ex. VAT" label
+'currency'           => 'USD',      // Currency code
+'decimal_separator'  => '.',        // Decimal separator
+'thousand_separator' => ',',        // Thousand separator
+'decimals'           => 2,          // Number of decimals
+'price_format'       => '%1$s%2$s'  // Symbol/price format
 );</code></pre>
 
 <h3>Example Usage</h3>
@@ -68,29 +68,29 @@
 <h3>Add Color Coding for Profit/Loss</h3>
 
 <pre><code>add_filter( 'wpd_price', 'color_code_prices', 10, 5 );
-
-function color_code_prices( $return, $price, $args, $unformatted_price, $original_price ) {
-    
+function color_code_prices( $return, $price, $args, $unformatted_price, $original_price )
+{
     // Color negative values red, positive green
-    if ( $unformatted_price < 0 ) {
+    if ( $unformatted_price < 0 )
+    {
         $return = '<span style="color: #dc3545; font-weight: bold;">' . $return . '</span>';
-    } elseif ( $unformatted_price > 0 ) {
+    }
+    elseif ( $unformatted_price > 0 )
+    {
         $return = '<span style="color: #28a745;">' . $return . '</span>';
     }
-    
     return $return;
 }</code></pre>
 
 <h3>Add Tooltips with Original Currency</h3>
 
 <pre><code>add_filter( 'wpd_price', 'add_price_tooltips', 10, 5 );
-
-function add_price_tooltips( $return, $price, $args, $unformatted_price, $original_price ) {
-    
+function add_price_tooltips( $return, $price, $args, $unformatted_price, $original_price )
+{
     // If currency was converted, show original
     $base_currency = get_option( 'woocommerce_currency' );
-    
-    if ( $args['currency'] !== $base_currency ) {
+    if ( $args['currency'] !== $base_currency )
+    {
         $original_formatted = wc_price( $original_price, array( 'currency' => $base_currency ) );
         $return = sprintf(
             '<span title="Original: %s" class="converted-price">%s</span>',
@@ -98,36 +98,41 @@ function add_price_tooltips( $return, $price, $args, $unformatted_price, $origin
             $return
         );
     }
-    
     return $return;
 }</code></pre>
 
 <h3>Add Formatting Classes</h3>
 
 <pre><code>add_filter( 'wpd_price', 'add_price_classes', 10, 5 );
-
-function add_price_classes( $return, $price, $args, $unformatted_price, $original_price ) {
-    
+function add_price_classes( $return, $price, $args, $unformatted_price, $original_price )
+{
     $classes = array( 'wpd-price' );
-    
     // Add value-based classes
-    if ( $unformatted_price < 0 ) {
+    if ( $unformatted_price < 0 )
+    {
         $classes[] = 'negative-value';
-    } elseif ( $unformatted_price > 0 ) {
+    }
+    elseif ( $unformatted_price > 0 )
+    {
         $classes[] = 'positive-value';
-    } else {
+    }
+    else
+    {
         $classes[] = 'zero-value';
     }
-    
     // Add magnitude classes
-    if ( abs( $unformatted_price ) > 10000 ) {
+    if ( abs( $unformatted_price ) > 10000 )
+    {
         $classes[] = 'large-amount';
-    } elseif ( abs( $unformatted_price ) > 1000 ) {
+    }
+    elseif ( abs( $unformatted_price ) > 1000 )
+    {
         $classes[] = 'medium-amount';
-    } else {
+    }
+    else
+    {
         $classes[] = 'small-amount';
     }
-    
     // Wrap with classes
     return '<span class="' . implode( ' ', $classes ) . '">' . $return . '</span>';
 }</code></pre>
@@ -135,16 +140,14 @@ function add_price_classes( $return, $price, $args, $unformatted_price, $origina
 <h3>Abbreviate Large Numbers</h3>
 
 <pre><code>add_filter( 'wpd_price', 'abbreviate_large_prices', 10, 5 );
-
-function abbreviate_large_prices( $return, $price, $args, $unformatted_price, $original_price ) {
-    
+function abbreviate_large_prices( $return, $price, $args, $unformatted_price, $original_price )
+{
     // Only abbreviate very large numbers
-    if ( abs( $unformatted_price ) >= 1000000 ) {
-        
+    if ( abs( $unformatted_price ) >= 1000000 )
+    {
         $abbreviated = abs( $unformatted_price ) / 1000000;
         $symbol = wpd_get_woocommerce_currency_symbol( $args['currency'] );
         $sign = $unformatted_price < 0 ? '-' : '';
-        
         $return = sprintf(
             '<span class="abbreviated-price" title="%s">%s%s%.1fM</span>',
             esc_attr( strip_tags( $return ) ), // Full price in tooltip
@@ -152,13 +155,12 @@ function abbreviate_large_prices( $return, $price, $args, $unformatted_price, $o
             $symbol,
             $abbreviated
         );
-        
-    } elseif ( abs( $unformatted_price ) >= 1000 ) {
-        
+    }
+    elseif ( abs( $unformatted_price ) >= 1000 )
+    {
         $abbreviated = abs( $unformatted_price ) / 1000;
         $symbol = wpd_get_woocommerce_currency_symbol( $args['currency'] );
         $sign = $unformatted_price < 0 ? '-' : '';
-        
         $return = sprintf(
             '<span class="abbreviated-price" title="%s">%s%s%.1fK</span>',
             esc_attr( strip_tags( $return ) ),
@@ -167,53 +169,50 @@ function abbreviate_large_prices( $return, $price, $args, $unformatted_price, $o
             $abbreviated
         );
     }
-    
     return $return;
 }</code></pre>
 
 <h3>Add Icons for Trends</h3>
 
 <pre><code>add_filter( 'wpd_price', 'add_trend_icons', 10, 5 );
-
-function add_trend_icons( $return, $price, $args, $unformatted_price, $original_price ) {
-    
+function add_trend_icons( $return, $price, $args, $unformatted_price, $original_price )
+{
     // Add up/down arrow icons
-    if ( $unformatted_price > 0 ) {
+    if ( $unformatted_price > 0 )
+    {
         $return = '↑ ' . $return;
-    } elseif ( $unformatted_price < 0 ) {
+    }
+    elseif ( $unformatted_price < 0 )
+    {
         $return = '↓ ' . $return;
     }
-    
     return $return;
 }</code></pre>
 
 <h3>Custom Format for Reports</h3>
 
 <pre><code>add_filter( 'wpd_price', 'custom_report_format', 10, 5 );
-
-function custom_report_format( $return, $price, $args, $unformatted_price, $original_price ) {
-    
+function custom_report_format( $return, $price, $args, $unformatted_price, $original_price )
+{
     // Only apply in report context
-    if ( ! isset( $_GET['page'] ) || strpos( $_GET['page'], 'reports' ) === false ) {
+    if ( ! isset( $_GET['page'] ) || strpos( $_GET['page'], 'reports' ) === false )
+    {
         return $return;
     }
-    
     // Add custom wrapper for reports
     $return = sprintf(
         '<span class="report-price" data-value="%s">%s</span>',
         esc_attr( $unformatted_price ),
         $return
     );
-    
     return $return;
 }</code></pre>
 
 <h3>Add Data Attributes for JavaScript</h3>
 
 <pre><code>add_filter( 'wpd_price', 'add_data_attributes', 10, 5 );
-
-function add_data_attributes( $return, $price, $args, $unformatted_price, $original_price ) {
-    
+function add_data_attributes( $return, $price, $args, $unformatted_price, $original_price )
+{
     // Add data attributes for JavaScript manipulation
     $return = str_replace(
         '<span class="woocommerce-Price-amount',
@@ -225,7 +224,6 @@ function add_data_attributes( $return, $price, $args, $unformatted_price, $origi
         ),
         $return
     );
-    
     return $return;
 }</code></pre>
 
@@ -252,12 +250,19 @@ function add_data_attributes( $return, $price, $args, $unformatted_price, $origi
 
 <h3>Default HTML Structure</h3>
 
-<pre><code>&lt;span class="woocommerce-Price-amount amount"&gt;
-    &lt;bdi&gt;
-        &lt;span class="woocommerce-Price-currencySymbol"&gt;$&lt;/span&gt;
-        1,234.56
-    &lt;/bdi&gt;
-&lt;/span&gt;</code></pre>
+<pre><code>&lt;
+span class="woocommerce-Price-amount amount"&gt;
+&lt;
+bdi&gt;
+&lt;
+span class="woocommerce-Price-currencySymbol"&gt;
+$&lt;
+/span&gt;
+1,234.56
+&lt;
+/bdi&gt;
+&lt;
+/span&gt;</code></pre>
 
 <h3>CSS Styling Example</h3>
 
@@ -266,16 +271,13 @@ function add_data_attributes( $return, $price, $args, $unformatted_price, $origi
     color: #dc3545;
     font-weight: 600;
 }
-
 .wpd-price.positive-value {
     color: #28a745;
 }
-
 .wpd-price.large-amount {
     font-size: 1.2em;
     font-weight: bold;
 }
-
 .abbreviated-price {
     cursor: help;
     border-bottom: 1px dotted currentColor;
@@ -284,16 +286,14 @@ function add_data_attributes( $return, $price, $args, $unformatted_price, $origi
 <h3>Debugging</h3>
 
 <pre><code>add_filter( 'wpd_price', 'debug_price_filter', 999, 5 );
-
-function debug_price_filter( $return, $price, $args, $unformatted_price, $original_price ) {
-    
+function debug_price_filter( $return, $price, $args, $unformatted_price, $original_price )
+{
     error_log( sprintf(
         'Price Display - Unformatted: %s | Formatted: %s | Currency: %s',
         $unformatted_price,
         $price,
         $args['currency']
     ));
-    
     return $return;
 }</code></pre>
 

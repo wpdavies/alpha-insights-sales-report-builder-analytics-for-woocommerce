@@ -612,7 +612,11 @@ function wpd_save_settings() {
 		if ( $save_status === true ) {
 
 			wpd_notice( 
-				sprintf( __( '%s settings have been updated', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $setting )
+				sprintf(
+					/* translators: %s: Settings section name */
+					__( '%s settings have been updated', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+					$setting
+				)
 			);
 
 		}
@@ -644,41 +648,10 @@ function wpd_output_additional_notices() {
 
 			// Redirect away from ntoice if they've updated their settings
 			$license_page = wpd_admin_page_url( 'settings-license' );
-			wp_redirect( $license_page );
+			wp_safe_redirect( $license_page );
 			exit;
 
 		}
-	}
-
-}
-
-/**
- *
- *	Prevent notices if setting is enabled
- *
- */
-add_action('admin_head', 'wpd_hide_wp_notices');
-function wpd_hide_wp_notices() {
-
-	$prevent_notices = get_option( 'wpd_ai_prevent_wp_notices' );
-
-	if ( $prevent_notices ) {
-
-		?>
-		<style type="text/css">
-			/* Hide admin notices on my pages */
-			.notice, .updated, .update-nag {
-			    display: none !important;
-			}
-			.woocommerce-embed-page .woocommerce-store-alerts {
-			    display: none;
-			}
-			.notice.wpd-notice, .plugin-update .notice {
-			    display: block !important;
-			}
-	  	</style>
-		<?php
-
 	}
 
 }

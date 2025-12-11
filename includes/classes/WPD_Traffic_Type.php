@@ -217,8 +217,8 @@ class WPD_Traffic_Type {
 
 
             // Few manual checks on ref url
-            $site_host = parse_url(site_url(), PHP_URL_HOST);
-            $referring_domain = !empty($referral_url) ? parse_url($referral_url, PHP_URL_HOST) : false;
+            $site_host = wp_parse_url(site_url(), PHP_URL_HOST);
+            $referring_domain = !empty($referral_url) ? wp_parse_url($referral_url, PHP_URL_HOST) : false;
 
             if ( empty($referral_url) || $referring_domain === $site_host ) {
                 $result = 'Direct';

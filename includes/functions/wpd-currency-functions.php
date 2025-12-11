@@ -240,13 +240,11 @@ function wpd_get_default_currency_conversion_rates() {
  *	Collect new API data
  *
  */
-function wpd_fetch_currency_exchange_rates_open_exchange() {
-
-	// 
-	$app_id = get_option( 'wpd_profit_tracking_oer_api_key' );
+function wpd_fetch_currency_exchange_rates_open_exchange( $app_id ) {
 
 	if ( empty($app_id) ) {
-		wpd_notice( __( 'You need to get an Open Exchange Rates API key for us to be able to download the latest currencies.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
+		wpd_write_log( __( 'You need to get an Open Exchange Rates API key for us to be able to download the latest currencies.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'currency-exchange' );
+		return array();
 	}
 
 	// Currency data fetch point
@@ -254,10 +252,36 @@ function wpd_fetch_currency_exchange_rates_open_exchange() {
 
 	// Fetch data using native WP functions @link https://developer.wordpress.org/plugins/http-api/
 	$json = wp_remote_get( $oxr_url );
+	
+	// Check if request was successful
+	if ( is_wp_error( $json ) ) {
+		wpd_write_log( sprintf( __( 'Error fetching currency exchange rates: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $json->get_error_message() ), 'currency-exchange' );
+		return array();
+	}
+	
 	$body = wp_remote_retrieve_body( $json );
+	
+	// Check if body is empty
+	if ( empty( $body ) ) {
+		wpd_write_log( __( 'Empty response body from currency exchange rates API', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'currency-exchange' );
+		return array();
+	}
 
 	// Decode JSON response:
 	$oxr_latest = json_decode( $body );
+	
+	// Check if JSON decode was successful
+	if ( null === $oxr_latest || ! is_object( $oxr_latest ) ) {
+		wpd_write_log( __( 'Failed to decode JSON response from currency exchange rates API', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'currency-exchange' );
+		return array();
+	}
+	
+	// Check if rates property exists
+	if ( ! isset( $oxr_latest->rates ) || ! is_object( $oxr_latest->rates ) ) {
+		wpd_write_log( __( 'Currency exchange rates API response does not contain rates property', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'currency-exchange' );
+		return array();
+	}
+	
 	$rates_array = (array) $oxr_latest->rates;
 
 	return $rates_array;

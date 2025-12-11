@@ -439,7 +439,7 @@ class WPD_CSV_Exporter {
                     $value = isset( $record[ $key ] ) ? $record[ $key ] : '';
                     // Check if this is a date column with a timestamp (before JSON conversion)
                     if ( stripos( $key, 'date' ) !== false && is_numeric( $value ) && $value > 0 ) {
-                        $value = date( 'Y-m-d H:i:s', $value );
+                        $value = gmdate( 'Y-m-d H:i:s', $value );
                     }
                     $csv_row[] = $this->extract_value( $value );
                 }
@@ -477,7 +477,7 @@ class WPD_CSV_Exporter {
                     $value = isset( $record[ $key ] ) ? $record[ $key ] : '';
                     // Check if this is a date column with a timestamp (before JSON conversion)
                     if ( stripos( $key, 'date' ) !== false && is_numeric( $value ) && $value > 0 ) {
-                        $value = date( 'Y-m-d H:i:s', $value );
+                        $value = gmdate( 'Y-m-d H:i:s', $value );
                     }
                     $csv_row[] = $this->extract_value( $value );
                 }
@@ -772,22 +772,38 @@ class WPD_CSV_Exporter {
     private function write_csv_file( $rows, $filepath ) {
         if ( empty( $rows ) ) return;
         
-        $handle = fopen( $filepath, 'w' );
+        // Initialize WordPress filesystem
+        global $wp_filesystem;
+        if ( empty( $wp_filesystem ) ) {
+            require_once ABSPATH . '/wp-admin/includes/file.php';
+            WP_Filesystem();
+        }
         
-        if ( ! $handle ) {
+        // Build CSV content
+        $csv_content = '';
+        
+        // Write BOM for UTF-8
+        $csv_content .= chr(0xEF).chr(0xBB).chr(0xBF);
+        
+        // Write each row using temporary stream to capture fputcsv output
+        foreach ( $rows as $row ) {
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- Using php://temp stream for in-memory CSV generation is acceptable.
+            $temp_handle = fopen( 'php://temp', 'r+' );
+            if ( $temp_handle ) {
+                fputcsv( $temp_handle, $row );
+                rewind( $temp_handle );
+                $csv_content .= stream_get_contents( $temp_handle );
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closing temporary stream handle.
+                fclose( $temp_handle );
+            }
+        }
+        
+        // Write file using WP_Filesystem
+        if ( ! $wp_filesystem->put_contents( $filepath, $csv_content, FS_CHMOD_FILE ) ) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Error logging is necessary for debugging file write failures.
             error_log( 'WPD CSV Exporter: Failed to create file: ' . $filepath );
             return;
         }
-        
-        // Write BOM for UTF-8
-        fprintf( $handle, chr(0xEF).chr(0xBB).chr(0xBF) );
-        
-        // Write each row
-        foreach ( $rows as $row ) {
-            fputcsv( $handle, $row );
-        }
-        
-        fclose( $handle );
         
         // Add to CSV files list
         $this->csv_files[] = $filepath;
@@ -809,7 +825,7 @@ class WPD_CSV_Exporter {
         }
         
         $sanitized_name = sanitize_file_name( $report_name );
-        $timestamp = date( 'Y-m-d_H-i-s' );
+        $timestamp = gmdate( 'Y-m-d_H-i-s' );
         $zip_filename = $sanitized_name . '_export_' . $timestamp . '.zip';
         $zip_filepath = $this->csv_dir . $zip_filename;
         
@@ -857,7 +873,7 @@ class WPD_CSV_Exporter {
     private function cleanup_temp_files() {
         foreach ( $this->csv_files as $file ) {
             if ( file_exists( $file ) ) {
-                @unlink( $file );
+                wp_delete_file( $file );
             }
         }
         $this->csv_files = [];
@@ -875,7 +891,7 @@ class WPD_CSV_Exporter {
         
         foreach ( $files as $file ) {
             if ( is_file( $file ) && filemtime( $file ) < $one_hour_ago ) {
-                @unlink( $file );
+                wp_delete_file( $file );
             }
         }
     }
@@ -892,7 +908,7 @@ class WPD_CSV_Exporter {
         
         foreach ( $files as $file ) {
             if ( is_file( $file ) && filemtime( $file ) < $one_day_ago ) {
-                @unlink( $file );
+                wp_delete_file( $file );
             }
         }
     }

@@ -52,150 +52,157 @@
 <h3>Dynamic Packaging Cost by Product Weight</h3>
 
 <pre><code>add_filter( 'wpd_ai_custom_product_cost_default_value', 'weight_based_packaging', 10, 4 );
-
-function weight_based_packaging( $cost, $slug, $order, $item ) {
-    
-    if ( $slug !== 'packaging_cost' ) {
+function weight_based_packaging( $cost, $slug, $order, $item )
+{
+    if ( $slug !== 'packaging_cost' )
+    {
         return $cost;
     }
-    
     $product = $item->get_product();
-    if ( ! $product ) {
+    if ( ! $product )
+    {
         return $cost;
     }
-    
     $weight = (float) $product->get_weight();
-    
     // Tiered packaging based on weight
-    if ( $weight > 10 ) {
-        return 5.00; // Large packaging
-    } elseif ( $weight > 5 ) {
-        return 3.00; // Medium packaging
-    } elseif ( $weight > 1 ) {
-        return 1.50; // Small packaging
+    if ( $weight > 10 )
+    {
+        return 5.00;
+        // Large packaging
     }
-    
-    return 0.75; // Minimal packaging
+    elseif ( $weight > 5 )
+    {
+        return 3.00;
+        // Medium packaging
+    }
+    elseif ( $weight > 1 )
+    {
+        return 1.50;
+        // Small packaging
+    }
+    return 0.75;
+    // Minimal packaging
 }</code></pre>
 
 <h3>Custom Gift Wrapping Fee</h3>
 
 <pre><code>add_filter( 'wpd_ai_custom_product_cost_default_value', 'gift_wrap_cost', 10, 4 );
-
-function gift_wrap_cost( $cost, $slug, $order, $item ) {
-    
-    if ( $slug !== 'gift_wrap' ) {
+function gift_wrap_cost( $cost, $slug, $order, $item )
+{
+    if ( $slug !== 'gift_wrap' )
+    {
         return $cost;
     }
-    
     // Check if gift wrapping was requested
     $gift_wrap_meta = $item->get_meta('_gift_wrap', true);
-    
-    if ( $gift_wrap_meta === 'yes' ) {
-        return 3.50; // Cost of gift wrapping materials + labor
+    if ( $gift_wrap_meta === 'yes' )
+    {
+        return 3.50;
+        // Cost of gift wrapping materials + labor
     }
-    
     return 0;
 }</code></pre>
 
 <h3>Product Category-Specific Handling</h3>
 
 <pre><code>add_filter( 'wpd_ai_custom_product_cost_default_value', 'category_handling_fees', 10, 4 );
-
-function category_handling_fees( $cost, $slug, $order, $item ) {
-    
-    if ( $slug !== 'handling_fee' ) {
+function category_handling_fees( $cost, $slug, $order, $item )
+{
+    if ( $slug !== 'handling_fee' )
+    {
         return $cost;
     }
-    
     $product = $item->get_product();
-    if ( ! $product ) {
+    if ( ! $product )
+    {
         return $cost;
     }
-    
     $product_id = $product->get_id();
-    
     // Extra handling for fragile items
-    if ( has_term( 'fragile', 'product_cat', $product_id ) ) {
+    if ( has_term( 'fragile', 'product_cat', $product_id ) )
+    {
         return 4.00;
     }
-    
     // Extra handling for oversized items
-    if ( has_term( 'oversized', 'product_cat', $product_id ) ) {
+    if ( has_term( 'oversized', 'product_cat', $product_id ) )
+    {
         return 6.50;
     }
-    
     // Electronics need special packaging
-    if ( has_term( 'electronics', 'product_cat', $product_id ) ) {
+    if ( has_term( 'electronics', 'product_cat', $product_id ) )
+    {
         return 2.50;
     }
-    
-    return 1.00; // Standard handling
+    return 1.00;
+    // Standard handling
 }</code></pre>
 
 <h3>Customization Labor Cost</h3>
 
 <pre><code>add_filter( 'wpd_ai_custom_product_cost_default_value', 'customization_labor', 10, 4 );
-
-function customization_labor( $cost, $slug, $order, $item ) {
-    
-    if ( $slug !== 'labor_cost' ) {
+function customization_labor( $cost, $slug, $order, $item )
+{
+    if ( $slug !== 'labor_cost' )
+    {
         return $cost;
     }
-    
     // Check if product was customized
     $has_engraving = $item->get_meta('_engraving_text', true);
     $custom_color = $item->get_meta('_custom_color', true);
-    
     $labor_cost = 0;
-    
-    if ( ! empty( $has_engraving ) ) {
-        $labor_cost += 8.00; // Engraving labor
+    if ( ! empty( $has_engraving ) )
+    {
+        $labor_cost += 8.00;
+        // Engraving labor
     }
-    
-    if ( ! empty( $custom_color ) ) {
-        $labor_cost += 5.00; // Custom color mixing
+    if ( ! empty( $custom_color ) )
+    {
+        $labor_cost += 5.00;
+        // Custom color mixing
     }
-    
     return $labor_cost;
 }</code></pre>
 
 <h3>Quantity-Based Discounts on Custom Costs</h3>
 
 <pre><code>add_filter( 'wpd_ai_custom_product_cost_default_value', 'bulk_cost_discount', 10, 4 );
-
-function bulk_cost_discount( $cost, $slug, $order, $item ) {
-    
-    if ( $slug !== 'setup_fee' ) {
+function bulk_cost_discount( $cost, $slug, $order, $item )
+{
+    if ( $slug !== 'setup_fee' )
+    {
         return $cost;
     }
-    
     $quantity = $item->get_quantity();
-    
     // Setup fee per unit decreases with quantity
-    if ( $quantity >= 100 ) {
-        return 0.50; // Bulk discount
-    } elseif ( $quantity >= 50 ) {
+    if ( $quantity >= 100 )
+    {
+        return 0.50;
+        // Bulk discount
+    }
+    elseif ( $quantity >= 50 )
+    {
         return 1.00;
-    } elseif ( $quantity >= 10 ) {
+    }
+    elseif ( $quantity >= 10 )
+    {
         return 2.00;
     }
-    
-    return 5.00; // Standard setup fee per unit
+    return 5.00;
+    // Standard setup fee per unit
 }</code></pre>
 
 <h3>Percentage-Based Custom Fee</h3>
 
 <pre><code>add_filter( 'wpd_ai_custom_product_cost_default_value', 'percentage_based_fee', 10, 4 );
-
-function percentage_based_fee( $cost, $slug, $order, $item ) {
-    
-    if ( $slug !== 'marketplace_fee' ) {
+function percentage_based_fee( $cost, $slug, $order, $item )
+{
+    if ( $slug !== 'marketplace_fee' )
+    {
         return $cost;
     }
-    
     // 12% marketplace fee on product price
-    $product_price = $item->get_total() / $item->get_quantity(); // Price per unit
+    $product_price = $item->get_total() / $item->get_quantity();
+    // Price per unit
     
     return $product_price * 0.12;
 }</code></pre>
@@ -203,31 +210,29 @@ function percentage_based_fee( $cost, $slug, $order, $item ) {
 <h3>Integration with External System</h3>
 
 <pre><code>add_filter( 'wpd_ai_custom_product_cost_default_value', 'erp_product_costs', 10, 4 );
-
-function erp_product_costs( $cost, $slug, $order, $item ) {
-    
+function erp_product_costs( $cost, $slug, $order, $item )
+{
     $product = $item->get_product();
-    if ( ! $product ) {
+    if ( ! $product )
+    {
         return $cost;
     }
-    
     $sku = $product->get_sku();
-    if ( empty( $sku ) ) {
+    if ( empty( $sku ) )
+    {
         return $cost;
     }
-    
     // Fetch actual cost from ERP
     $erp_costs = wp_cache_get( 'erp_costs_' . $sku, 'my_erp' );
-    
-    if ( false === $erp_costs ) {
+    if ( false === $erp_costs )
+    {
         $erp_costs = my_erp_get_product_costs( $sku );
         wp_cache_set( 'erp_costs_' . $sku, $erp_costs, 'my_erp', 3600 );
     }
-    
-    if ( isset( $erp_costs[$slug] ) ) {
+    if ( isset( $erp_costs[$slug] ) )
+    {
         return (float) $erp_costs[$slug];
     }
-    
     return $cost;
 }</code></pre>
 
@@ -260,8 +265,8 @@ function erp_product_costs( $cost, $slug, $order, $item ) {
 <h3>Debugging</h3>
 
 <pre><code>add_filter( 'wpd_ai_custom_product_cost_default_value', 'debug_product_costs', 999, 4 );
-
-function debug_product_costs( $cost, $slug, $order, $item ) {
+function debug_product_costs( $cost, $slug, $order, $item )
+{
     $product = $item->get_product();
     error_log( sprintf(
         'Order #%d - Item: %s - Cost Type: %s - Value: $%s × %d units',

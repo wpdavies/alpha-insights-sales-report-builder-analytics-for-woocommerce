@@ -49,7 +49,7 @@ function wpd_clean_string( $string ) {
  */
 function wpd_sanitize_url( $url ) {
 
-	return strip_tags( stripslashes( filter_var($url, FILTER_VALIDATE_URL) ) );
+	return wp_strip_all_tags( stripslashes( filter_var($url, FILTER_VALIDATE_URL) ) );
 
 }
 
@@ -104,4 +104,33 @@ function wpd_strip_params_from_url( $url ) {
 
 	return $url;
 
+}
+
+/**
+ * Recursively sanitize decoded JSON arrays according to WordPress standards
+ *
+ * @since 5.0.0
+ *
+ * @param mixed $data The data to sanitize (can be array, string, or other types)
+ * @return mixed The sanitized data
+ */
+function wpd_sanitize_json_decoded_array( $data ) {
+	
+	if ( is_array( $data ) ) {
+		// Recursively sanitize each element in the array
+		return array_map( 'wpd_sanitize_json_decoded_array', $data );
+	} elseif ( is_string( $data ) ) {
+		// Sanitize string values
+		return sanitize_text_field( $data );
+	} elseif ( is_numeric( $data ) ) {
+		// Return numeric values as-is (they're safe)
+		return $data;
+	} elseif ( is_bool( $data ) || is_null( $data ) ) {
+		// Return booleans and null as-is
+		return $data;
+	} else {
+		// For other types, convert to string and sanitize
+		return sanitize_text_field( (string) $data );
+	}
+	
 }

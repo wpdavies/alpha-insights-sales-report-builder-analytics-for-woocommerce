@@ -43,14 +43,13 @@
 <h3>Example Usage</h3>
 
 <pre><code>add_filter( 'raw_woocommerce_price', 'modify_raw_price', 10, 2 );
-
-function modify_raw_price( $price, $original_price ) {
-    
+function modify_raw_price( $price, $original_price )
+{
     // Round to nearest dollar
-    if ( abs( $price ) > 100 ) {
+    if ( abs( $price ) > 100 )
+    {
         return round( $price, 0 );
     }
-    
     return $price;
 }</code></pre>
 
@@ -111,12 +110,10 @@ function modify_raw_price( $price, $original_price ) {
 <h3>Example Usage</h3>
 
 <pre><code>add_filter( 'formatted_woocommerce_price', 'customize_formatted_price', 10, 6 );
-
-function customize_formatted_price( $formatted, $price, $decimals, $dec_sep, $thou_sep, $original ) {
-    
+function customize_formatted_price( $formatted, $price, $decimals, $dec_sep, $thou_sep, $original )
+{
     // Add custom thousand separator styling
     $formatted = str_replace( $thou_sep, '<span class="thousand-sep">' . $thou_sep . '</span>', $formatted );
-    
     return $formatted;
 }</code></pre>
 
@@ -165,16 +162,14 @@ function customize_formatted_price( $formatted, $price, $decimals, $dec_sep, $th
 <h4>Conditional Zero Trimming</h4>
 
 <pre><code>add_filter( 'woocommerce_price_trim_zeros', 'conditional_trim_zeros' );
-
-function conditional_trim_zeros( $trim ) {
-    
+function conditional_trim_zeros( $trim )
+{
     // Only trim zeros for whole dollar amounts
     global $current_price;
-    
-    if ( isset( $current_price ) && floor( $current_price ) == $current_price ) {
+    if ( isset( $current_price ) && floor( $current_price ) == $current_price )
+    {
         return true;
     }
-    
     return false;
 }</code></pre>
 
@@ -212,33 +207,28 @@ function conditional_trim_zeros( $trim ) {
 <h4>Add Custom Currency</h4>
 
 <pre><code>add_filter( 'woocommerce_currency_symbols', 'add_custom_currencies' );
-
-function add_custom_currencies( $symbols ) {
-    
+function add_custom_currencies( $symbols )
+{
     // Add cryptocurrencies
     $symbols['BTC'] = '฿';
     $symbols['ETH'] = 'Ξ';
-    
     // Add custom internal currency
     $symbols['CREDITS'] = 'CR';
-    
     // Modify existing symbol
     $symbols['USD'] = 'US$';
-    
     return $symbols;
 }</code></pre>
 
 <h4>Replace All Symbols with Codes</h4>
 
 <pre><code>add_filter( 'woocommerce_currency_symbols', 'use_currency_codes' );
-
-function use_currency_codes( $symbols ) {
-    
+function use_currency_codes( $symbols )
+{
     // Replace all symbols with their currency codes
-    foreach ( $symbols as $code => $symbol ) {
+    foreach ( $symbols as $code => $symbol )
+    {
         $symbols[$code] = $code;
     }
-    
     return $symbols;
 }</code></pre>
 
@@ -290,19 +280,20 @@ function use_currency_codes( $symbols ) {
 
 <pre><code>// Log all price filter stages
 add_filter( 'raw_woocommerce_price', 'debug_raw_price', 999, 2 );
-function debug_raw_price( $price, $original ) {
+function debug_raw_price( $price, $original )
+{
     error_log( '1. Raw Price: ' . $price );
     return $price;
 }
-
 add_filter( 'formatted_woocommerce_price', 'debug_formatted_price', 999, 6 );
-function debug_formatted_price( $formatted, $price, $decimals, $dec_sep, $thou_sep, $original ) {
+function debug_formatted_price( $formatted, $price, $decimals, $dec_sep, $thou_sep, $original )
+{
     error_log( '2. Formatted Price: ' . $formatted );
     return $formatted;
 }
-
 add_filter( 'wpd_price', 'debug_final_price', 999, 5 );
-function debug_final_price( $return, $price, $args, $unformatted, $original ) {
+function debug_final_price( $return, $price, $args, $unformatted, $original )
+{
     error_log( '3. Final HTML: ' . $return );
     return $return;
 }</code></pre>

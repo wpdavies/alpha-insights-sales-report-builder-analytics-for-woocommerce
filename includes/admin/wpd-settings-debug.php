@@ -47,7 +47,7 @@ if ( isset($_POST['wpd_ai_debug_order_id']) && ! empty($_POST['wpd_ai_debug_orde
 ?>
 <div class="wpd-wrapper">
 	<div class="wpd-section-heading wpd-inline">
-		<?php _e( 'General Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
+		<?php esc_html_e( 'General Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
 		<?php submit_button( __('Save Changes', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 'primary pull-right', 'submit', false); ?>
 	</div>
 </div>
@@ -59,18 +59,18 @@ if ( isset($_POST['wpd_ai_debug_order_id']) && ! empty($_POST['wpd_ai_debug_orde
     <table class="wpd-table fixed widefat">
         <thead>
             <tr>
-                <th colspan="2"><?php _e( 'Debug Order Calculations', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+                <th colspan="2"><?php esc_html_e( 'Debug Order Calculations', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td>
-                    <label for="wpd_ai_general_settings"><?php _e( 'Debug order ID', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-                    <div class="wpd-meta"><?php _e( 'Use this tool to produce a full output of all the calculations for a specific order. This can assist with debugging.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+                    <label for="wpd_ai_general_settings"><?php esc_html_e( 'Debug order ID', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+                    <div class="wpd-meta"><?php esc_html_e( 'Use this tool to produce a full output of all the calculations for a specific order. This can assist with debugging.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
                 </td>
                 <td>
                     <span style="display:inline-block">
-                        <input class="wpd-input" type="number" name="wpd_ai_debug_order_id" value="<?php echo $order_id ?>" step="1" placeholder="5469">
+                        <input class="wpd-input" type="number" name="wpd_ai_debug_order_id" value="<?php echo esc_attr( $order_id ); ?>" step="1" placeholder="5469">
                         <?php submit_button( __('Debug', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 'primary pull-right', 'submit', false); ?>
                     </span>
                 </td>
@@ -87,53 +87,6 @@ if ( isset($_POST['wpd_ai_debug_order_id']) && ! empty($_POST['wpd_ai_debug_orde
 </div>
 <!-- All Logs -->
 <?php if ( is_array($log_files) && ! empty($log_files) ) : ?>
-    <style type="text/css">
-        .wpd-debug-output td {
-            padding: 0px;
-        }
-        .wpd-debug-log-wrapper {
-            display: grid;
-            grid-template-columns: 250px minmax(0, 1fr);
-            align-items: stretch;
-            column-gap: 15px;
-            align-content: center;
-        }
-        .wpd-debug-log-option {
-            border-bottom: solid 1px #eaeaea;
-            cursor: pointer;
-            flex: 1;
-            align-content: center;
-            padding: 15px;
-        }
-        .wpd-debug-log-option:hover {
-            background-color: #f7f7f7;
-        }
-        .wpd-debug-log-option:hover, .wpd-debug-log-option.active {
-            color: #03abee;
-        }
-        .wpd-debug-log-output {
-            display: none;
-        }
-        .wpd-debug-log-output.active {
-            display: block;
-        }
-        .wpd-debug-log-options {
-            border-top: solid 1px #eaeaea;
-            display: flex;
-            flex-direction: column;
-            flex-wrap: nowrap;
-            justify-content: space-between;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-        .wpd-debug-log-output .wpd-debug-container {
-            margin: 0px;
-            border: none;
-        }
-        .wpd-debug-log-output-container {
-            align-content: center;
-        }
-    </style>
     <div class="wpd-wrapper">
         <table class="wpd-table widefat wpd-debug-output">
             <thead>
@@ -147,7 +100,7 @@ if ( isset($_POST['wpd_ai_debug_order_id']) && ! empty($_POST['wpd_ai_debug_orde
                                 <?php $i = 0; ?>
                                 <?php foreach($log_files as $log) : ?>
                                     <?php if ( ! is_array($log) ) continue; ?>
-                                    <div class="wpd-debug-log-option<?php if ( $i == 0 ) echo ' active'; ?>" data-log="<?php echo sanitize_title($log['title']); ?>"><span class="wpd-log-title"><?php echo $log['title'] ?></span></div>
+                                    <div class="wpd-debug-log-option<?php if ( $i == 0 ) echo ' active'; ?>" data-log="<?php echo esc_attr( sanitize_title($log['title']) ); ?>"><span class="wpd-log-title"><?php echo esc_html( $log['title'] ); ?></span></div>
                                     <?php $i++; ?>
                                 <?php endforeach; ?>
                             </div>
@@ -155,7 +108,7 @@ if ( isset($_POST['wpd_ai_debug_order_id']) && ! empty($_POST['wpd_ai_debug_orde
                                 <?php $i = 0; ?>
                                 <?php foreach($log_files as $log) : ?>
                                     <?php if ( ! is_array($log) ) continue; ?>
-                                    <div class="wpd-debug-log-output<?php if ( $i == 0 ) echo ' active'; echo ' ' . sanitize_title($log['title']); ?>"><?php wpd_display_log( $log['file_name'], $log['title'] ); ?></div>
+                                    <div class="wpd-debug-log-output<?php if ( $i == 0 ) echo ' active'; echo ' ' . esc_attr( sanitize_title($log['title']) ); ?>"><?php wpd_display_log( $log['file_name'], $log['title'] ); ?></div>
                                     <?php $i++; ?>
                                 <?php endforeach; ?>
                             </div>
@@ -165,19 +118,6 @@ if ( isset($_POST['wpd_ai_debug_order_id']) && ! empty($_POST['wpd_ai_debug_orde
             </thead>
         </table>
     </div>
-    <script type="text/javascript">
-        jQuery(document).ready(function($) {
-            $('.wpd-debug-log-option').click(function() {
-                let targetLog = $(this).data('log');
-                if ( targetLog ) {
-                    $('.wpd-debug-log-option').removeClass('active');
-                    $('.wpd-debug-log-output').hide();
-                    $('.wpd-debug-log-output.' + targetLog).show();
-                    $('.wpd-debug-log-option[data-log="'+ targetLog +'"]').addClass('active');
-                }
-            });
-        });
-    </script>
 <?php endif; ?>
 <!-- Data Management Table -->
 <?php

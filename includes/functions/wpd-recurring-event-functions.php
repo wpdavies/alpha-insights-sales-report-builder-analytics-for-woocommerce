@@ -339,7 +339,7 @@ function wpd_cleanup_analytics_data( $days_ago = 30 ) {
 	wpd_write_log( 'Cleaning up analytics data in the last ' . $days_ago_string, 'db_cleanup' );
 
 	// Number of days to check
-	$start_date = date("Y-m-d H:i:s", strtotime($days_ago_string));
+	$start_date = gmdate("Y-m-d H:i:s", strtotime($days_ago_string));
 
 	// Prepare query using wpdb->prepare() for security
 	$sql_query = $wpdb->prepare(
@@ -734,6 +734,7 @@ function wpd_schedule_emails_function() {
 
     			'from_date' => $daily_from_date,
     			'to_date' 	=> $daily_to_date,
+    			/* translators: %s: Plugin or site name */
     			'subject' 	=> sprintf( __( 'Your Daily Profit Report From %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'Alpha Insights' ),
 
     			)
@@ -763,6 +764,7 @@ function wpd_schedule_emails_function() {
 
     			'from_date' => $daily_from_date,
     			'to_date' 	=> $daily_to_date,
+    			/* translators: %s: Plugin or site name */
     			'subject' 	=> sprintf( __( 'Your Daily Expense Report From %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'Alpha Insights' ),
 
     			) 
@@ -795,6 +797,7 @@ function wpd_schedule_emails_function() {
 
         			'from_date' => $weekly_from_date,
         			'to_date' 	=> $weekly_to_date,
+        			/* translators: %s: Plugin or site name */
         			'subject' 	=> sprintf( __( 'Your Weekly Profit Report From %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'Alpha Insights' ),
 
         			) 
@@ -823,6 +826,7 @@ function wpd_schedule_emails_function() {
 
         			'from_date' => $weekly_from_date,
         			'to_date' 	=> $weekly_to_date,
+        			/* translators: %s: Plugin or site name */
         			'subject' 	=> sprintf( __( 'Your Weekly Expense Report From %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'Alpha Insights' ),
 
         			) 
@@ -857,6 +861,7 @@ function wpd_schedule_emails_function() {
 
         			'from_date' => $monthly_from_date,
         			'to_date' 	=> $monthly_to_date,
+        			/* translators: %s: Plugin or site name */
         			'subject' 	=> sprintf( __( 'Your Monthly Profit Report From %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'Alpha Insights' ),
 
         			) 
@@ -885,6 +890,7 @@ function wpd_schedule_emails_function() {
 
         			'from_date' => $monthly_from_date,
         			'to_date' 	=> $monthly_to_date,
+        			/* translators: %s: Plugin or site name */
         			'subject' 	=> sprintf( __( 'Your Monthly Expense Report From %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'Alpha Insights' ),
 
         			) 

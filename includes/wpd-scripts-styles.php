@@ -41,6 +41,7 @@ function wpd_ai_admin_enqueue() {
 	wp_register_script( 'wpd-alpha-insights-wordpress-admin', WPD_AI_URL_PATH . 'assets/js/wpd-alpha-insights-wordpress-admin.js', array( 'jquery' ), WPD_AI_VER, true );
 	wp_register_script( 'wpd-submenu-scroll', WPD_AI_URL_PATH . 'assets/js/wpd-submenu-scroll.js', array( 'jquery' ), WPD_AI_VER, true );
 	wp_register_script( 'wpd-easy-select', WPD_AI_URL_PATH . 'assets/js/js-easy-select.js', array( 'jquery' ), false, true ); // 2.9.xx
+	wp_register_script( 'wpd-data-manager', WPD_AI_URL_PATH . 'assets/js/wpd-data-manager.js', array( 'jquery', 'wpd-alpha-insights-admin' ), WPD_AI_VER, true );
 
 	/**
 	 *
@@ -54,7 +55,19 @@ function wpd_ai_admin_enqueue() {
 	    'failure' 				=> wpd_failure( 40, true, true ),
 		'ajax_url' 				=> admin_url('admin-ajax.php'),
 		'site_creation_date' 	=> wpd_get_site_creation_date(),
-		'nonce' 				=> wp_create_nonce( WPD_AI_AJAX_NONCE_ACTION )
+		'nonce' 				=> wp_create_nonce( WPD_AI_AJAX_NONCE_ACTION ),
+		'strings' 				=> array(
+			'processing' 		=> __( 'Processing...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'working' 			=> __( 'We are working on it!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'success' 			=> __( 'Your request has been successfully completed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'error' 			=> __( 'Your action could not be completed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'requestFailed' 	=> __( 'Request Failed', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'invalidKey' 		=> __( 'Hm, Something Is Not Quite Right', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'keyNotFound' 		=> __( 'We couldnt locate the custom order cost key.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'emailSuccess' 		=> __( 'Your email has been successfully sent.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'emailError' 		=> __( 'Your email was not sent.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'emailFailed' 		=> __( 'Email Failed', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		)
 	);
 	wp_localize_script( 'wpd-alpha-insights-admin', 'wpdAlphaInsights', $wpd_ai_vars );
 	
@@ -102,6 +115,28 @@ function wpd_ai_admin_enqueue() {
 		wp_enqueue_script( 'wpd-submenu-scroll' );
 	}
 	wp_enqueue_script( 'wpd-easy-select' );
+
+	$prevent_notices = get_option( 'wpd_ai_prevent_wp_notices' );
+
+	if ( $prevent_notices ) {
+		// Enqueue the WordPress admin style first
+		wp_enqueue_style( 'wpd-alpha-insights-wordpress-admin' );
+		
+		// Add inline style to hide notices
+		$hide_notices_css = "
+		/* Hide admin notices on my pages */
+		.notice, .updated, .update-nag {
+		    display: none !important;
+		}
+		.woocommerce-embed-page .woocommerce-store-alerts {
+		    display: none;
+		}
+		.notice.wpd-notice, .plugin-update .notice {
+		    display: block !important;
+		}";
+		
+		wp_add_inline_style( 'wpd-alpha-insights-wordpress-admin', $hide_notices_css );
+	}
 
 }
 

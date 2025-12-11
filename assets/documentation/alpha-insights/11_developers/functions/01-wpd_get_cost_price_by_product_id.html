@@ -50,34 +50,111 @@
 </h4>
 <h3>Basic Usage
 </h3>
-<pre><code>// Get cost for product ID 123 $cost = wpd_get_cost_price_by_product_id( 123 ); echo 'Product cost: $' . number_format( $cost, 2 );</code>
+<pre><code>// Get cost for product ID 123
+$cost = wpd_get_cost_price_by_product_id( 123 );
+echo 'Product cost: $' . number_format( $cost, 2 );</code>
 </pre>
 <h3>Calculate Profit for Product Sale
 </h3>
-<pre><code>$product_id = 456; $sell_price = 50.00; $quantity = 2; $cost_per_unit = wpd_get_cost_price_by_product_id( $product_id ); $total_cost = $cost_per_unit * $quantity; $total_revenue = $sell_price * $quantity; $profit = $total_revenue - $total_cost; echo sprintf( 'Selling %d units: $%s revenue, $%s cost, $%s profit', $quantity, number_format( $total_revenue, 2 ), number_format( $total_cost, 2 ), number_format( $profit, 2 ) );</code>
+<pre><code>$product_id = 456;
+$sell_price = 50.00;
+$quantity = 2;
+
+$cost_per_unit = wpd_get_cost_price_by_product_id( $product_id );
+$total_cost = $cost_per_unit * $quantity;
+$total_revenue = $sell_price * $quantity;
+$profit = $total_revenue - $total_cost;
+
+echo sprintf( 'Selling %d units: $%s revenue, $%s cost, $%s profit', 
+    $quantity, 
+    number_format( $total_revenue, 2 ), 
+    number_format( $total_cost, 2 ), 
+    number_format( $profit, 2 ) 
+);</code>
 </pre>
 <h3>Display Cost in Custom Location
 </h3>
-<pre><code>// Add cost to product admin columns add_filter( 'manage_edit-product_columns', 'add_cost_column' ); function add_cost_column( $columns ) { $columns['product_cost'] = 'Cost'; return $columns; } add_action( 'manage_product_posts_custom_column', 'display_cost_column', 10, 2 ); function display_cost_column( $column, $post_id ) { if ( $column === 'product_cost' ) { $cost = wpd_get_cost_price_by_product_id( $post_id ); echo wc_price( $cost ); } }</code>
+<pre><code>// Add cost to product admin columns
+add_filter( 'manage_edit-product_columns', 'add_cost_column' );
+
+function add_cost_column( $columns ) {
+    $columns['product_cost'] = 'Cost';
+    return $columns;
+}
+
+add_action( 'manage_product_posts_custom_column', 'display_cost_column', 10, 2 );
+
+function display_cost_column( $column, $post_id ) {
+    if ( $column === 'product_cost' ) {
+        $cost = wpd_get_cost_price_by_product_id( $post_id );
+        echo wc_price( $cost );
+    }
+}</code>
 </pre>
 <h3>Check If Product Has Cost Set
 </h3>
-<pre><code>$product_id = 789; $cost = wpd_get_cost_price_by_product_id( $product_id ); if ( $cost >0 ) { echo 'Cost is set: $' . number_format( $cost, 2 ); } else { echo 'No cost set for this product'; }</code>
+<pre><code>$product_id = 789;
+$cost = wpd_get_cost_price_by_product_id( $product_id );
+
+if ( $cost > 0 ) {
+    echo 'Cost is set: $' . number_format( $cost, 2 );
+} else {
+    echo 'No cost set for this product';
+}</code>
 </pre>
 <h3>Bulk Cost Retrieval
 </h3>
-<pre><code>// Get costs for multiple products $product_ids = array( 100, 101, 102, 103 ); $costs = array(); foreach ( $product_ids as $product_id ) { $costs[$product_id] = wpd_get_cost_price_by_product_id( $product_id ); } print_r( $costs ); // Output: Array ( [100] =>25.00 [101] =>18.50 [102] =>32.00 [103] =>0.00 )</code>
+<pre><code>// Get costs for multiple products
+$product_ids = array( 100, 101, 102, 103 );
+$costs = array();
+
+foreach ( $product_ids as $product_id ) {
+    $costs[$product_id] = wpd_get_cost_price_by_product_id( $product_id );
+}
+
+print_r( $costs );
+// Output: Array ( [100] => 25.00 [101] => 18.50 [102] => 32.00 [103] => 0.00 )</code>
 </pre>
 <h3>Calculate Margin on Product Page
 </h3>
-<pre>
-<div class="product-margin" style="margin: 20px 0;">'; echo '<strong>Profit Margin:</strong>' . number_format( $margin, 1 ) . '%'; echo ' (Cost: ' . wc_price( $cost ) . ', Profit: ' . wc_price( $profit ) . ')'; echo '
-</div>
- '; } }</code>
+<pre><code>add_action( 'woocommerce_single_product_summary', 'display_product_margin', 25 );
+
+function display_product_margin() {
+    global $product;
+    $product_id = $product->get_id();
+    $cost = wpd_get_cost_price_by_product_id( $product_id );
+    $price = $product->get_price();
+    
+    if ( $cost > 0 && $price > 0 ) {
+        $profit = $price - $cost;
+        $margin = ( $profit / $price ) * 100;
+        
+        echo '<div class="product-margin" style="margin: 20px 0;">';
+        echo '<strong>Profit Margin:</strong> ' . number_format( $margin, 1 ) . '%';
+        echo ' (Cost: ' . wc_price( $cost ) . ', Profit: ' . wc_price( $profit ) . ')';
+        echo '</div>';
+    }
+}</code>
 </pre>
 <h3>Integration with External System
 </h3>
-<pre><code>// Sync cost to external inventory system add_action( 'save_post_product', 'sync_cost_to_erp', 20 ); function sync_cost_to_erp( $product_id ) { $product = wc_get_product( $product_id ); if ( ! $product ) { return; } $cost = wpd_get_cost_price_by_product_id( $product_id ); $sku = $product->get_sku(); if ( $cost >0 && $sku ) { // Send to ERP API my_erp_api_update_product_cost( $sku, $cost ); } }</code>
+<pre><code>// Sync cost to external inventory system
+add_action( 'save_post_product', 'sync_cost_to_erp', 20 );
+
+function sync_cost_to_erp( $product_id ) {
+    $product = wc_get_product( $product_id );
+    if ( ! $product ) {
+        return;
+    }
+    
+    $cost = wpd_get_cost_price_by_product_id( $product_id );
+    $sku = $product->get_sku();
+    
+    if ( $cost > 0 && $sku ) {
+        // Send to ERP API
+        my_erp_api_update_product_cost( $sku, $cost );
+    }
+}</code>
 </pre>
 <h4>Performance Notes
 </h4>
@@ -109,11 +186,22 @@
 </h3>
 <p>For variable products (with variations):
 </p>
-<pre><code>// Parent product - returns average or default $parent_cost = wpd_get_cost_price_by_product_id( $parent_id ); // Specific variation - returns variation-specific cost $variation_cost = wpd_get_cost_price_by_product_id( $variation_id ); // Each variation can have different cost</code>
+<pre><code>// Parent product - returns average or default
+$parent_cost = wpd_get_cost_price_by_product_id( $parent_id );
+
+// Specific variation - returns variation-specific cost
+$variation_cost = wpd_get_cost_price_by_product_id( $variation_id );
+
+// Each variation can have different cost</code>
 </pre>
 <h4>Products Without Cost
 </h4>
-<pre><code>// Returns 0.00 if: // - Cost not set in product // - Product doesn't exist // - Product ID invalid $cost = wpd_get_cost_price_by_product_id( 999999 ); // Returns: 0.00</code>
+<pre><code>// Returns 0.00 if:
+// - Cost not set in product
+// - Product doesn't exist
+// - Product ID invalid
+$cost = wpd_get_cost_price_by_product_id( 999999 );
+// Returns: 0.00</code>
 </pre>
 <h3>Bundled Products
 </h3>

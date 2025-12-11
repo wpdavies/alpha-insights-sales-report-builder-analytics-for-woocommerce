@@ -37,64 +37,59 @@
 <h3>Disable Caching in Development</h3>
 
 <pre><code>add_filter( 'wpd_ai_report_filters_is_transient_enabled', 'disable_cache_in_dev' );
-
-function disable_cache_in_dev( $is_enabled ) {
-    
+function disable_cache_in_dev( $is_enabled )
+{
     // Disable caching in development environment
-    if ( defined( 'WP_ENVIRONMENT_TYPE' ) && WP_ENVIRONMENT_TYPE === 'development' ) {
+    if ( defined( 'WP_ENVIRONMENT_TYPE' ) && WP_ENVIRONMENT_TYPE === 'development' )
+    {
         return false;
     }
-    
     return $is_enabled;
 }</code></pre>
 
 <h3>Disable Caching for Specific Users</h3>
 
 <pre><code>add_filter( 'wpd_ai_report_filters_is_transient_enabled', 'disable_cache_for_admins' );
-
-function disable_cache_for_admins( $is_enabled ) {
-    
+function disable_cache_for_admins( $is_enabled )
+{
     // Administrators always see fresh data
-    if ( current_user_can( 'manage_options' ) ) {
+    if ( current_user_can( 'manage_options' ) )
+    {
         return false;
     }
-    
     return $is_enabled;
 }</code></pre>
 
 <h3>Conditional Caching Based on Request</h3>
 
 <pre><code>add_filter( 'wpd_ai_report_filters_is_transient_enabled', 'conditional_caching' );
-
-function conditional_caching( $is_enabled ) {
-    
+function conditional_caching( $is_enabled )
+{
     // Disable cache if force_refresh parameter is set
-    if ( isset( $_GET['force_refresh'] ) && $_GET['force_refresh'] === 'true' ) {
+    if ( isset( $_GET['force_refresh'] ) && $_GET['force_refresh'] === 'true' )
+    {
         return false;
     }
-    
     // Disable cache for real-time reports
-    if ( isset( $_GET['report_type'] ) && $_GET['report_type'] === 'realtime' ) {
+    if ( isset( $_GET['report_type'] ) && $_GET['report_type'] === 'realtime' )
+    {
         return false;
     }
-    
     return $is_enabled;
 }</code></pre>
 
 <h3>Disable During Business Hours</h3>
 
 <pre><code>add_filter( 'wpd_ai_report_filters_is_transient_enabled', 'disable_cache_business_hours' );
-
-function disable_cache_business_hours( $is_enabled ) {
-    
+function disable_cache_business_hours( $is_enabled )
+{
     // Get current hour in store timezone
     $current_hour = (int) current_time( 'H' );
-    
     // Disable cache during business hours (9 AM - 5 PM) for fresh data
-    if ( $current_hour >= 9 && $current_hour < 17 ) {
+    if ( $current_hour >= 9 && $current_hour < 17 )
+    {
         return false;
     }
-    
     // Enable cache outside business hours
     return $is_enabled;
 }</code></pre>
@@ -102,14 +97,13 @@ function disable_cache_business_hours( $is_enabled ) {
 <h3>Debug Mode Override</h3>
 
 <pre><code>add_filter( 'wpd_ai_report_filters_is_transient_enabled', 'debug_mode_no_cache' );
-
-function debug_mode_no_cache( $is_enabled ) {
-    
+function debug_mode_no_cache( $is_enabled )
+{
     // Disable caching when WP_DEBUG is enabled
-    if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+    if ( defined( 'WP_DEBUG' ) && WP_DEBUG )
+    {
         return false;
     }
-    
     return $is_enabled;
 }</code></pre>
 
@@ -185,15 +179,14 @@ function debug_mode_no_cache( $is_enabled ) {
 
 <pre><code>// Clear all report caches
 delete_transient( 'wpd_ai_report_*' );
-
 // Or clear specific report cache
 delete_transient( 'wpd_ai_report_' . md5( $report_key ) );</code></pre>
 
 <h3>Debugging</h3>
 
 <pre><code>add_filter( 'wpd_ai_report_filters_is_transient_enabled', 'debug_cache_status' );
-
-function debug_cache_status( $is_enabled ) {
+function debug_cache_status( $is_enabled )
+{
     error_log( 'Alpha Insights Report Cache: ' . ( $is_enabled ? 'ENABLED' : 'DISABLED' ) );
     return $is_enabled;
 }</code></pre>
