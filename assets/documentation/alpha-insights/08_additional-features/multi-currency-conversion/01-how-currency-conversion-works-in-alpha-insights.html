@@ -6,26 +6,6 @@
 
 <p>Alpha Insights uses the <strong>Open Exchange Rates API</strong> to fetch current exchange rates automatically. This process happens in the background and keeps your currency conversions accurate and up-to-date.</p>
 
-<h4>API Integration</h4>
-<ul>
-<li><strong>Source:</strong> Open Exchange Rates (openexchangerates.org)</li>
-<li><strong>Update Frequency:</strong> Daily (automatic) or on-demand (manual refresh)</li>
-<li><strong>Method:</strong> Secure HTTPS API calls using WordPress's native <code>wp_remote_get()</code></li>
-<li><strong>Storage:</strong> Rates are cached locally in CSV format for performance</li>
-<li><strong>Coverage:</strong> 150+ currencies supported worldwide</li>
-</ul>
-
-<h4>API Requirements</h4>
-<p>To enable automatic exchange rate updates:</p>
-<ol>
-<li>Sign up for a free API key at <a href="https://openexchangerates.org/" target="_blank">openexchangerates.org</a></li>
-<li>Go to <strong>Alpha Insights → Settings → Currency</strong></li>
-<li>Enter your API key in the settings</li>
-<li>Click <strong>Save Changes</strong></li>
-</ol>
-
-<p>Once configured, exchange rates will automatically update daily. You can also manually refresh rates at any time using the "Update Rates Now" button.</p>
-
 <h3>Where Currency Conversion Is Applied</h3>
 
 <p>Alpha Insights automatically converts currencies across all major data sources to your base currency (typically your store's default currency). This ensures all profit calculations, reports, and analytics are accurate and consistent.</p>

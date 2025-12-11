@@ -50,25 +50,145 @@
 </p>
 <h3>Results Array Structure
 </h3>
-<pre><code>array( // Revenue 'order_total' =>125.50, 'order_total_inc_tax' =>135.00, 'order_total_ex_tax' =>125.50, 'order_tax' =>9.50, // Product Costs 'product_cost' =>52.00, 'product_cost_per_unit' =>26.00, // Shipping Costs 'shipping_cost' =>8.00, 'shipping_revenue' =>10.00, // Payment Fees 'payment_gateway_cost' =>3.95, 'payment_method' =>'stripe', // Custom Costs (if any) 'custom_order_costs' =>array( 'insurance' =>2.50, 'handling' =>5.00 ), 'custom_product_costs' =>array( 'packaging' =>3.00 ), // Totals 'total_costs' =>74.45, 'gross_profit' =>51.05, 'profit_margin' =>40.7, // Additional Data 'currency' =>'USD', 'order_date' =>'2024-01-15', 'customer_id' =>42 )</code>
+<pre><code>array(
+    // Revenue
+    'order_total' => 125.50,
+    'order_total_inc_tax' => 135.00,
+    'order_total_ex_tax' => 125.50,
+    'order_tax' => 9.50,
+    // Product Costs
+    'product_cost' => 52.00,
+    'product_cost_per_unit' => 26.00,
+    // Shipping Costs
+    'shipping_cost' => 8.00,
+    'shipping_revenue' => 10.00,
+    // Payment Fees
+    'payment_gateway_cost' => 3.95,
+    'payment_method' => 'stripe',
+    // Custom Costs (if any)
+    'custom_order_costs' => array(
+        'insurance' => 2.50,
+        'handling' => 5.00
+    ),
+    'custom_product_costs' => array(
+        'packaging' => 3.00
+    ),
+    // Totals
+    'total_costs' => 74.45,
+    'gross_profit' => 51.05,
+    'profit_margin' => 40.7,
+    // Additional Data
+    'currency' => 'USD',
+    'order_date' => '2024-01-15',
+    'customer_id' => 42
+)</code>
 </pre>
 <h4>Example Usage
 </h4>
 <h3>Add Custom Fulfillment Cost
 </h3>
-<pre><code>add_filter( 'wpd_ai_calculate_cost_profit_by_order', 'add_3pl_fulfillment_cost', 10, 2 ); function add_3pl_fulfillment_cost( $results, $order ) { // Add $12 fulfillment cost per order $fulfillment_cost = 12.00; // Add to custom costs if ( !isset($results['custom_order_costs']) ) { $results['custom_order_costs'] = array(); } $results['custom_order_costs']['3pl_fulfillment'] = $fulfillment_cost; // Update total costs $results['total_costs'] += $fulfillment_cost; // Recalculate profit $results['gross_profit'] = $results['order_total_ex_tax'] - $results['total_costs']; $results['profit_margin'] = ($results['order_total_ex_tax'] >0) ? ($results['gross_profit'] / $results['order_total_ex_tax']) * 100 : 0; return $results; }</code>
+<pre><code>add_filter( 'wpd_ai_calculate_cost_profit_by_order', 'add_3pl_fulfillment_cost', 10, 2 );
+
+function add_3pl_fulfillment_cost( $results, $order ) {
+    // Add $12 fulfillment cost per order
+    $fulfillment_cost = 12.00;
+    
+    // Add to custom costs
+    if ( !isset($results['custom_order_costs']) ) {
+        $results['custom_order_costs'] = array();
+    }
+    $results['custom_order_costs']['3pl_fulfillment'] = $fulfillment_cost;
+    
+    // Update total costs
+    $results['total_costs'] += $fulfillment_cost;
+    
+    // Recalculate profit
+    $results['gross_profit'] = $results['order_total_ex_tax'] - $results['total_costs'];
+    $results['profit_margin'] = ($results['order_total_ex_tax'] > 0) ? ($results['gross_profit'] / $results['order_total_ex_tax']) * 100 : 0;
+    
+    return $results;
+}</code>
 </pre>
 <h3>Add International Customs Fee
 </h3>
-<pre><code>add_filter( 'wpd_ai_calculate_cost_profit_by_order', 'add_customs_fee', 10, 2 ); function add_customs_fee( $results, $order ) { // Get shipping country $shipping_country = $order->get_shipping_country(); // Add customs fee for non-US orders if ( $shipping_country !== 'US' ) { $customs_fee = 18.50; if ( !isset($results['custom_order_costs']) ) { $results['custom_order_costs'] = array(); } $results['custom_order_costs']['customs_handling'] = $customs_fee; $results['total_costs'] += $customs_fee; $results['gross_profit'] -= $customs_fee; // Recalculate margin $results['profit_margin'] = ($results['order_total_ex_tax'] >0) ? ($results['gross_profit'] / $results['order_total_ex_tax']) * 100 : 0; } return $results; }</code>
+<pre><code>add_filter( 'wpd_ai_calculate_cost_profit_by_order', 'add_customs_fee', 10, 2 );
+
+function add_customs_fee( $results, $order ) {
+    // Get shipping country
+    $shipping_country = $order->get_shipping_country();
+    
+    // Add customs fee for non-US orders
+    if ( $shipping_country !== 'US' ) {
+        $customs_fee = 18.50;
+        
+        if ( !isset($results['custom_order_costs']) ) {
+            $results['custom_order_costs'] = array();
+        }
+        $results['custom_order_costs']['customs_handling'] = $customs_fee;
+        $results['total_costs'] += $customs_fee;
+        $results['gross_profit'] -= $customs_fee;
+        
+        // Recalculate margin
+        $results['profit_margin'] = ($results['order_total_ex_tax'] > 0) ? ($results['gross_profit'] / $results['order_total_ex_tax']) * 100 : 0;
+    }
+    
+    return $results;
+}</code>
 </pre>
 <h3>Tiered Handling Fee Based on Order Value
 </h3>
-<pre><code>add_filter( 'wpd_ai_calculate_cost_profit_by_order', 'tiered_handling_fee', 10, 2 ); function tiered_handling_fee( $results, $order ) { $order_total = $results['order_total_ex_tax']; // Determine handling fee based on order size if ( $order_total< 50 ) { $handling_fee = 5.00; } elseif ( $order_total< 100 ) { $handling_fee = 3.00; } else { $handling_fee = 0.00; // Free handling for large orders } if ( $handling_fee >0 ) { if ( !isset($results['custom_order_costs']) ) { $results['custom_order_costs'] = array(); } $results['custom_order_costs']['handling_fee'] = $handling_fee; $results['total_costs'] += $handling_fee; $results['gross_profit'] -= $handling_fee; $results['profit_margin'] = ($results['order_total_ex_tax'] >0) ? ($results['gross_profit'] / $results['order_total_ex_tax']) * 100 : 0; } return $results; }</code>
+<pre><code>add_filter( 'wpd_ai_calculate_cost_profit_by_order', 'tiered_handling_fee', 10, 2 );
+
+function tiered_handling_fee( $results, $order ) {
+    $order_total = $results['order_total_ex_tax'];
+    
+    // Determine handling fee based on order size
+    if ( $order_total < 50 ) {
+        $handling_fee = 5.00;
+    } elseif ( $order_total < 100 ) {
+        $handling_fee = 3.00;
+    } else {
+        $handling_fee = 0.00; // Free handling for large orders
+    }
+    
+    if ( $handling_fee > 0 ) {
+        if ( !isset($results['custom_order_costs']) ) {
+            $results['custom_order_costs'] = array();
+        }
+        $results['custom_order_costs']['handling_fee'] = $handling_fee;
+        $results['total_costs'] += $handling_fee;
+        $results['gross_profit'] -= $handling_fee;
+        $results['profit_margin'] = ($results['order_total_ex_tax'] > 0) ? ($results['gross_profit'] / $results['order_total_ex_tax']) * 100 : 0;
+    }
+    
+    return $results;
+}</code>
 </pre>
 <h3>Integrate with External System
 </h3>
-<pre><code>add_filter( 'wpd_ai_calculate_cost_profit_by_order', 'sync_with_erp_system', 10, 2 ); function sync_with_erp_system( $results, $order ) { // Fetch actual fulfillment cost from your ERP API $order_number = $order->get_order_number(); $erp_costs = my_erp_get_order_costs( $order_number ); if ( $erp_costs && isset($erp_costs['fulfillment_cost']) ) { // Override shipping cost with actual from ERP $actual_shipping = $erp_costs['fulfillment_cost']; // Adjust total costs $results['total_costs'] -= $results['shipping_cost']; // Remove estimated $results['total_costs'] += $actual_shipping; // Add actual $results['shipping_cost'] = $actual_shipping; // Recalculate profit $results['gross_profit'] = $results['order_total_ex_tax'] - $results['total_costs']; $results['profit_margin'] = ($results['order_total_ex_tax'] >0) ? ($results['gross_profit'] / $results['order_total_ex_tax']) * 100 : 0; } return $results; }</code>
+<pre><code>add_filter( 'wpd_ai_calculate_cost_profit_by_order', 'sync_with_erp_system', 10, 2 );
+
+function sync_with_erp_system( $results, $order ) {
+    // Fetch actual fulfillment cost from your ERP API
+    $order_number = $order->get_order_number();
+    $erp_costs = my_erp_get_order_costs( $order_number );
+    
+    if ( $erp_costs && isset($erp_costs['fulfillment_cost']) ) {
+        // Override shipping cost with actual from ERP
+        $actual_shipping = $erp_costs['fulfillment_cost'];
+        
+        // Adjust total costs
+        $results['total_costs'] -= $results['shipping_cost']; // Remove estimated
+        $results['total_costs'] += $actual_shipping; // Add actual
+        $results['shipping_cost'] = $actual_shipping;
+        
+        // Recalculate profit
+        $results['gross_profit'] = $results['order_total_ex_tax'] - $results['total_costs'];
+        $results['profit_margin'] = ($results['order_total_ex_tax'] > 0) ? ($results['gross_profit'] / $results['order_total_ex_tax']) * 100 : 0;
+    }
+    
+    return $results;
+}</code>
 </pre>
 <h4>Important Notes
 </h4>
@@ -88,7 +208,14 @@
 </h3>
 <p>Don't overwrite existing arrays, add to them:
 </p>
-<pre><code>// Wrong - overwrites existing custom costs $results['custom_order_costs'] = array('my_cost' =>5.00); // Correct - adds to existing custom costs if (!isset($results['custom_order_costs'])) { $results['custom_order_costs'] = array(); } $results['custom_order_costs']['my_cost'] = 5.00;</code>
+<pre><code>// Wrong - overwrites existing custom costs
+$results['custom_order_costs'] = array('my_cost' => 5.00);
+
+// Correct - adds to existing custom costs
+if (!isset($results['custom_order_costs'])) {
+    $results['custom_order_costs'] = array();
+}
+$results['custom_order_costs']['my_cost'] = 5.00;</code>
 </pre>
 <h4>Performance Consideration
 </h4>

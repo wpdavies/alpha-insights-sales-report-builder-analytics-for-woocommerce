@@ -381,7 +381,7 @@ class WPD_Getting_Started {
                             
                             <div class="wpd-gs-help-section">
                                 <span class="dashicons dashicons-editor-help"></span>
-                                <p><?php esc_html_e('Need help? Check out our', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?> <a href="https://wpdavies.dev/documentation/alpha-insights/getting-started/" target="_blank"><?php esc_html_e('documentation', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></a> <?php esc_html_e('or', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?> <a href="https://wpdavies.dev/contact-us/" target="_blank"><?php esc_html_e('contact support', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></a>.</p>
+                                <p><?php esc_html_e('Need help? Check out our', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?> <a href="https://wpdavies.dev/documentation/alpha-insights/getting-started/installing-alpha-insights/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" target="_blank"><?php esc_html_e('documentation', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></a> <?php esc_html_e('or', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?> <a href="https://wpdavies.dev/contact-us/" target="_blank"><?php esc_html_e('contact support', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></a>.</p>
                             </div>
                         </div>
                         

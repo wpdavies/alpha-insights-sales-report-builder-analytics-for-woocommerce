@@ -213,7 +213,7 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 						<?php echo wp_kses_post( __( 
 							'You can use this setting to create additional order costs with default values for each order.
 							<br>Every new cost field you add here will show up on the order edit page in the admin area.<br>
-							You can override the default cost value for each order. <a href="https://wpdavies.dev/documentation/alpha-insights/features/setting-up-custom-order-costs-for-woocommerce/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" target="_blank">Click Here</a> for documentation.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
+							You can override the default cost value for each order. <a href="https://wpdavies.dev/documentation/alpha-insights/additional-features/custom-order-costs/setting-up-custom-order-costs/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" target="_blank">Click Here</a> for documentation.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
 				</td>
 				<td>
 					<table class="wpd-table fixed" width="100%">
@@ -272,7 +272,7 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 						<?php echo wp_kses_post( __( 
 							'You can use this setting to create additional product costs with default values for each product.
 							<br>Every new cost field you add here will show up on the product edit page and in the order admin area.<br>
-							You can override the default cost value for each product & each order. <a href="https://wpdavies.dev/documentation/alpha-insights/features/setting-up-custom-product-costs-for-woocommerce/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" target="_blank">Click Here</a> for documentation.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
+							You can override the default cost value for each product & each order. <a href="https://wpdavies.dev/documentation/alpha-insights/additional-features/custom-product-costs/setting-up-custom-product-costs/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" target="_blank">Click Here</a> for documentation.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
 				</td>
 				<td>
 					<table class="wpd-table fixed" width="100%">

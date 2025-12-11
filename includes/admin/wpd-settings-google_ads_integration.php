@@ -69,7 +69,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 		<?php if( $is_configured ) : ?>
 			<a href="#" class="wpd-input button button-secondary pull-right" id="wpd-refresh-google-api-data-top" style="margin-right: 5px;" data-wpd-ajax-action="wpd_refresh_all_google_data">Refresh All Campaign Data</a>
 		<?php endif; ?>
-		<a href="https://wpdavies.dev/documentation/alpha-insights/features/setting-up-the-woocommerce-google-ads-api/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" class="wpd-input button button-secondary pull-right" target="_blank" style="margin-right: 5px;">Documentation</a>
+		<a href="https://wpdavies.dev/documentation/alpha-insights/advertising-integrations/google-ads/connecting-google-ads/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" class="wpd-input button button-secondary pull-right" target="_blank" style="margin-right: 5px;">Documentation</a>
 		</div>
 </div>
 <div class="wpd-wrapper">
@@ -106,7 +106,7 @@ $add_to_cart_conversion_action_details = get_option( 'wpd_ai_google_ads_add_to_c
 					<div class="wpd-meta">
 						Add these values to the query parameters on the landing page of your Google Ads Campaign.
 						<br>Our Alpha Campaign Profit Tracking system allows us to associate your orders with a particular Google Campaign & accurately report profitability.
-						<a href="https://wpdavies.dev/documentation/alpha-insights/features/setting-up-the-woocommerce-google-ads-api/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin">Click Here</a> to read the docs.
+						<a href="https://wpdavies.dev/documentation/alpha-insights/advertising-integrations/google-ads/connecting-google-ads/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin">Click Here</a> to read the docs.
 					</div>
 				</td>
 				<td>

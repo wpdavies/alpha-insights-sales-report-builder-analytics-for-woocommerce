@@ -37,16 +37,14 @@
 <h3>Add Custom Branding Header</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_menu_html', 'add_custom_branding' );
-
-function add_custom_branding( $menu_html ) {
-    
+function add_custom_branding( $menu_html )
+{
     $branding = '
     &lt;div class="custom-menu-header" style="padding: 20px; background: #f8f9fa; border-bottom: 2px solid #007cba; margin-bottom: 20px;"&gt;
         &lt;img src="/wp-content/uploads/company-logo.png" alt="Company Logo" style="max-width: 200px;"&gt;
         &lt;h1 style="margin: 10px 0 0 0; font-size: 24px;"&gt;Store Analytics Dashboard&lt;/h1&gt;
     &lt;/div&gt;
     ';
-    
     // Prepend branding before menu
     return $branding . $menu_html;
 }</code></pre>
@@ -54,19 +52,38 @@ function add_custom_branding( $menu_html ) {
 <h3>Add Quick Stats Widget</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_menu_html', 'add_quick_stats' );
-
-function add_quick_stats( $menu_html ) {
-    
+function add_quick_stats( $menu_html )
+{
     // Get today's stats
     $today_orders = wpd_get_todays_order_count();
     $today_revenue = wpd_get_todays_revenue();
     
     $stats_widget = sprintf(
-        '&lt;div class="ai-quick-stats" style="padding: 15px; background: #fff; border: 1px solid #ddd; margin: 0 20px 20px; border-radius: 4px;"&gt;
-            &lt;h3&gt;Today\'s Performance&lt;/h3&gt;
-            &lt;p&gt;&lt;strong&gt;Orders:&lt;/strong&gt; %d&lt;/p&gt;
-            &lt;p&gt;&lt;strong&gt;Revenue:&lt;/strong&gt; %s&lt;/p&gt;
-        &lt;/div&gt;',
+        '&lt;
+    div class="ai-quick-stats" style="padding: 15px; background: #fff; border: 1px solid #ddd; margin: 0 20px 20px; border-radius: 4px;"&gt;
+    &lt;
+    h3&gt;
+    Today\'s Performance&lt;
+    /h3&gt;
+    &lt;
+    p&gt;
+    &lt;
+    strong&gt;
+    Orders:&lt;
+    /strong&gt;
+    %d&lt;
+    /p&gt;
+    &lt;
+    p&gt;
+    &lt;
+    strong&gt;
+    Revenue:&lt;
+    /strong&gt;
+    %s&lt;
+    /p&gt;
+    &lt;
+    /div&gt;
+    ',
         $today_orders,
         wc_price( $today_revenue )
     );
@@ -78,25 +95,22 @@ function add_quick_stats( $menu_html ) {
 <h3>Add Custom CSS Classes</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_menu_html', 'add_custom_classes' );
-
-function add_custom_classes( $menu_html ) {
-    
+function add_custom_classes( $menu_html )
+{
     // Add custom wrapper class for styling
     $menu_html = str_replace(
         'class="alpha-insights-menu"',
         'class="alpha-insights-menu custom-branded-menu"',
         $menu_html
     );
-    
     return $menu_html;
 }</code></pre>
 
 <h3>Add Help Documentation Link</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_menu_html', 'add_help_link' );
-
-function add_help_link( $menu_html ) {
-    
+function add_help_link( $menu_html )
+{
     $help_link = '
     &lt;div class="ai-help-section" style="padding: 20px; text-align: center; border-top: 1px solid #ddd; margin-top: 20px;"&gt;
         &lt;a href="https://docs.example.com/alpha-insights" target="_blank" class="button button-secondary"&gt;
@@ -107,16 +121,14 @@ function add_help_link( $menu_html ) {
         &lt;/a&gt;
     &lt;/div&gt;
     ';
-    
     return $menu_html . $help_link;
 }</code></pre>
 
 <h3>Inject Custom JavaScript</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_menu_html', 'inject_custom_js' );
-
-function inject_custom_js( $menu_html ) {
-    
+function inject_custom_js( $menu_html )
+{
     $custom_script = '
     &lt;script&gt;
     jQuery(document).ready(function($) {
@@ -139,41 +151,36 @@ function inject_custom_js( $menu_html ) {
     });
     &lt;/script&gt;
     ';
-    
     return $menu_html . $custom_script;
 }</code></pre>
 
 <h3>Add Notification Badge</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_menu_html', 'add_notification_badges' );
-
-function add_notification_badges( $menu_html ) {
-    
+function add_notification_badges( $menu_html )
+{
     // Count pending expense reports
     $pending_expenses = get_pending_expense_count();
-    
-    if ( $pending_expenses > 0 ) {
+    if ( $pending_expenses > 0 )
+    {
         // Add badge to Expenses menu item
         $badge = '&lt;span class="update-plugins count-' . $pending_expenses . '"&gt;
                     &lt;span class="update-count"&gt;' . $pending_expenses . '&lt;/span&gt;
                  &lt;/span&gt;';
-        
         $menu_html = str_replace(
             '&gt;Manage Expenses&lt;/a&gt;',
             '&gt;Manage Expenses ' . $badge . '&lt;/a&gt;',
             $menu_html
         );
     }
-    
     return $menu_html;
 }</code></pre>
 
 <h3>Replace Menu with Custom Structure</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_menu_html', 'completely_custom_menu' );
-
-function completely_custom_menu( $menu_html ) {
-    
+function completely_custom_menu( $menu_html )
+{
     // Replace with completely custom menu
     return '
     &lt;div class="my-custom-analytics-menu"&gt;
@@ -225,8 +232,8 @@ function completely_custom_menu( $menu_html ) {
 <p>You can add custom CSS to style your menu modifications:</p>
 
 <pre><code>add_action( 'admin_head', 'custom_menu_styles' );
-
-function custom_menu_styles() {
+function custom_menu_styles()
+{
     echo '&lt;style&gt;
         .custom-menu-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -242,11 +249,10 @@ function custom_menu_styles() {
 <h3>Debugging</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_menu_html', 'debug_menu_html', 999 );
-
-function debug_menu_html( $menu_html ) {
+function debug_menu_html( $menu_html )
+{
     // Log menu HTML length
     error_log( 'Menu HTML size: ' . strlen( $menu_html ) . ' bytes' );
-    
     // Add debug comment
     return '&lt;!-- Alpha Insights Menu (Modified) --&gt;' . $menu_html;
 }</code></pre>

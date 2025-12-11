@@ -37,29 +37,26 @@
 <h3>Set Active Menu for Custom Page</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_active_parent_menu_item', 'custom_page_active_menu' );
-
-function custom_page_active_menu( $menu_item_key ) {
-    
+function custom_page_active_menu( $menu_item_key )
+{
     // If on custom analytics page, highlight Reports menu
-    if ( isset( $_GET['page'] ) && $_GET['page'] === 'custom-analytics' ) {
+    if ( isset( $_GET['page'] ) && $_GET['page'] === 'custom-analytics' )
+    {
         return 'reports';
     }
-    
     return $menu_item_key;
 }</code></pre>
 
 <h3>Route Multiple Pages to Same Parent</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_active_parent_menu_item', 'group_pages_under_parent' );
-
-function group_pages_under_parent( $menu_item_key ) {
-    
-    if ( ! isset( $_GET['page'] ) ) {
+function group_pages_under_parent( $menu_item_key )
+{
+    if ( ! isset( $_GET['page'] ) )
+    {
         return $menu_item_key;
     }
-    
     $current_page = $_GET['page'];
-    
     // Multiple pages should highlight "Marketing" parent
     $marketing_pages = array(
         'facebook-campaigns',
@@ -67,24 +64,22 @@ function group_pages_under_parent( $menu_item_key ) {
         'email-marketing',
         'social-media'
     );
-    
-    if ( in_array( $current_page, $marketing_pages ) ) {
+    if ( in_array( $current_page, $marketing_pages ) )
+    {
         return 'marketing';
     }
-    
     return $menu_item_key;
 }</code></pre>
 
 <h3>Conditional Active State by User Role</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_active_parent_menu_item', 'role_based_active_menu' );
-
-function role_based_active_menu( $menu_item_key ) {
-    
+function role_based_active_menu( $menu_item_key )
+{
     // Wholesale users always see Reports as active
     $user = wp_get_current_user();
-    if ( in_array( 'wholesale_customer', $user->roles ) ) {
-        
+    if ( in_array( 'wholesale_customer', $user->roles ) )
+    {
         // Unless they're specifically in settings
         if ( isset( $_GET['page'] ) && $_GET['page'] === 'settings' ) {
             return 'settings';
@@ -99,67 +94,62 @@ function role_based_active_menu( $menu_item_key ) {
 <h3>Override Based on Query Parameters</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_active_parent_menu_item', 'query_param_active_menu' );
-
-function query_param_active_menu( $menu_item_key ) {
-    
+function query_param_active_menu( $menu_item_key )
+{
     // If viewing expense-related report, activate Expenses menu
-    if ( isset( $_GET['report_type'] ) && $_GET['report_type'] === 'expenses' ) {
+    if ( isset( $_GET['report_type'] ) && $_GET['report_type'] === 'expenses' )
+    {
         return 'expenses';
     }
-    
     // If viewing product cost report, activate Cost of Goods menu
-    if ( isset( $_GET['report_type'] ) && $_GET['report_type'] === 'product-costs' ) {
+    if ( isset( $_GET['report_type'] ) && $_GET['report_type'] === 'product-costs' )
+    {
         return 'cost-of-goods';
     }
-    
     return $menu_item_key;
 }</code></pre>
 
 <h3>Fallback to Dashboard</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_active_parent_menu_item', 'fallback_to_dashboard' );
-
-function fallback_to_dashboard( $menu_item_key ) {
-    
+function fallback_to_dashboard( $menu_item_key )
+{
     // If no active menu detected, default to dashboard
-    if ( empty( $menu_item_key ) ) {
+    if ( empty( $menu_item_key ) )
+    {
         return 'dashboard';
     }
-    
     return $menu_item_key;
 }</code></pre>
 
 <h3>External Page Integration</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_active_parent_menu_item', 'external_integration_active' );
-
-function external_integration_active( $menu_item_key ) {
-    
+function external_integration_active( $menu_item_key )
+{
     // If on WooCommerce product edit page with cost tab open
     global $pagenow;
     if ( $pagenow === 'post.php' && 
          isset( $_GET['post'] ) && 
          get_post_type( $_GET['post'] ) === 'product' &&
          isset( $_GET['tab'] ) && 
-         $_GET['tab'] === 'alpha-insights' ) {
+         $_GET['tab'] === 'alpha-insights' )
+    {
         return 'cost-of-goods';
     }
-    
     return $menu_item_key;
 }</code></pre>
 
 <h3>Debug Active Menu Detection</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_active_parent_menu_item', 'debug_active_menu' );
-
-function debug_active_menu( $menu_item_key ) {
-    
+function debug_active_menu( $menu_item_key )
+{
     error_log( sprintf(
         'Active Parent Menu: %s | Current Page: %s',
         $menu_item_key ? $menu_item_key : 'none',
         isset( $_GET['page'] ) ? $_GET['page'] : 'unknown'
     ));
-    
     return $menu_item_key;
 }</code></pre>
 

@@ -58,33 +58,139 @@
 </p>
 <h3>Return Array Structure
 </h3>
-<pre><code>array( // Revenue 'order_total' =>125.50, 'order_total_inc_tax' =>135.00, 'order_total_ex_tax' =>125.50, 'order_tax' =>9.50, 'order_discount' =>10.00, // Product Costs 'product_cost' =>52.00, 'product_cost_per_unit' =>26.00, // Shipping 'shipping_cost' =>8.00, 'shipping_revenue' =>10.00, // Fees 'payment_gateway_cost' =>3.95, 'payment_method' =>'stripe', // Custom Costs 'custom_order_costs' =>array(), 'custom_product_costs' =>array(), // Calculated Totals 'total_costs' =>63.95, 'gross_profit' =>61.55, 'profit_margin' =>49.04, // Meta 'currency' =>'USD', 'order_date' =>'2024-01-15 14:30:00', 'order_status' =>'completed' )</code>
+<pre><code>array(
+    // Revenue
+    'order_total' => 125.50,
+    'order_total_inc_tax' => 135.00,
+    'order_total_ex_tax' => 125.50,
+    'order_tax' => 9.50,
+    'order_discount' => 10.00,
+    // Product Costs
+    'product_cost' => 52.00,
+    'product_cost_per_unit' => 26.00,
+    // Shipping
+    'shipping_cost' => 8.00,
+    'shipping_revenue' => 10.00,
+    // Fees
+    'payment_gateway_cost' => 3.95,
+    'payment_method' => 'stripe',
+    // Custom Costs
+    'custom_order_costs' => array(),
+    'custom_product_costs' => array(),
+    // Calculated Totals
+    'total_costs' => 63.95,
+    'gross_profit' => 61.55,
+    'profit_margin' => 49.04,
+    // Meta
+    'currency' => 'USD',
+    'order_date' => '2024-01-15 14:30:00',
+    'order_status' => 'completed'
+)</code>
 </pre>
 <h4>Example Usage
 </h4>
 <h3>Basic Usage - Get Profit for Order
 </h3>
-<pre><code>// By order ID $profit_data = wpd_calculate_cost_profit_by_order( 12345 ); if ( $profit_data ) { $profit = $profit_data['gross_profit']; $margin = $profit_data['profit_margin']; echo 'Order profit: $' . number_format( $profit, 2 ); echo 'Margin: ' . number_format( $margin, 2 ) . '%'; }</code>
+<pre><code>// By order ID
+$profit_data = wpd_calculate_cost_profit_by_order( 12345 );
+
+if ( $profit_data ) {
+    $profit = $profit_data['gross_profit'];
+    $margin = $profit_data['profit_margin'];
+    echo 'Order profit: $' . number_format( $profit, 2 );
+    echo 'Margin: ' . number_format( $margin, 2 ) . '%';
+}</code>
 </pre>
 <h3>Using Order Object
 </h3>
-<pre><code>// Get order object $order = wc_get_order( 12345 ); if ( $order ) { $profit_data = wpd_calculate_cost_profit_by_order( $order ); // Access specific values $revenue = $profit_data['order_total_ex_tax']; $costs = $profit_data['total_costs']; $profit = $profit_data['gross_profit']; }</code>
+<pre><code>// Get order object
+$order = wc_get_order( 12345 );
+
+if ( $order ) {
+    $profit_data = wpd_calculate_cost_profit_by_order( $order );
+    
+    // Access specific values
+    $revenue = $profit_data['order_total_ex_tax'];
+    $costs = $profit_data['total_costs'];
+    $profit = $profit_data['gross_profit'];
+}</code>
 </pre>
 <h3>Calculate and Save to Database
 </h3>
-<pre><code>// Recalculate and save results $profit_data = wpd_calculate_cost_profit_by_order( 12345, true ); // Results are now saved to order meta and database // Future calls will use cached values</code>
+<pre><code>// Recalculate and save results
+$profit_data = wpd_calculate_cost_profit_by_order( 12345, true );
+
+// Results are now saved to order meta and database
+// Future calls will use cached values</code>
 </pre>
 <h3>In WooCommerce Hook
 </h3>
-<pre><code>add_action( 'woocommerce_order_status_completed', 'custom_profit_check' ); function custom_profit_check( $order_id ) { // Calculate profit when order completes $profit_data = wpd_calculate_cost_profit_by_order( $order_id ); if ( $profit_data && $profit_data['gross_profit']< 0 ) { // Order is unprofitable - send alert wp_mail( 'owner@store.com', 'Unprofitable Order Alert', sprintf( 'Order #%d has negative profit: $%s', $order_id, number_format( $profit_data['gross_profit'], 2 ) ) ); } }</code>
+<pre><code>add_action( 'woocommerce_order_status_completed', 'custom_profit_check' );
+
+function custom_profit_check( $order_id ) {
+    // Calculate profit when order completes
+    $profit_data = wpd_calculate_cost_profit_by_order( $order_id );
+    
+    if ( $profit_data && $profit_data['gross_profit'] < 0 ) {
+        // Order is unprofitable - send alert
+        wp_mail( 
+            'owner@store.com', 
+            'Unprofitable Order Alert', 
+            sprintf( 'Order #%d has negative profit: $%s', 
+                $order_id, 
+                number_format( $profit_data['gross_profit'], 2 ) 
+            ) 
+        );
+    }
+}</code>
 </pre>
 <h3>Bulk Profit Calculation
 </h3>
-<pre><code>// Calculate profit for multiple orders $order_ids = array( 100, 101, 102, 103, 104 ); $total_profit = 0; foreach ( $order_ids as $order_id ) { $profit_data = wpd_calculate_cost_profit_by_order( $order_id ); if ( $profit_data ) { $total_profit += $profit_data['gross_profit']; } } echo 'Total profit: $' . number_format( $total_profit, 2 );</code>
+<pre><code>// Calculate profit for multiple orders
+$order_ids = array( 100, 101, 102, 103, 104 );
+$total_profit = 0;
+
+foreach ( $order_ids as $order_id ) {
+    $profit_data = wpd_calculate_cost_profit_by_order( $order_id );
+    if ( $profit_data ) {
+        $total_profit += $profit_data['gross_profit'];
+    }
+}
+
+echo 'Total profit: $' . number_format( $total_profit, 2 );</code>
 </pre>
 <h3>Custom Profit Report
 </h3>
-<pre><code>function generate_daily_profit_summary() { // Get today's orders $args = array( 'limit' =>-1, 'date_created' =>'>=' . strtotime( 'today' ), 'status' =>array( 'processing', 'completed' ) ); $orders = wc_get_orders( $args ); $total_revenue = 0; $total_costs = 0; $total_profit = 0; foreach ( $orders as $order ) { $profit_data = wpd_calculate_cost_profit_by_order( $order ); if ( $profit_data ) { $total_revenue += $profit_data['order_total_ex_tax']; $total_costs += $profit_data['total_costs']; $total_profit += $profit_data['gross_profit']; } } return array( 'revenue' =>$total_revenue, 'costs' =>$total_costs, 'profit' =>$total_profit, 'margin' =>$total_revenue >0 ? ($total_profit / $total_revenue) * 100 : 0, 'order_count' =>count( $orders ) ); }</code>
+<pre><code>function generate_daily_profit_summary() {
+    // Get today's orders
+    $args = array(
+        'limit' => -1,
+        'date_created' => '>=' . strtotime( 'today' ),
+        'status' => array( 'processing', 'completed' )
+    );
+    $orders = wc_get_orders( $args );
+    
+    $total_revenue = 0;
+    $total_costs = 0;
+    $total_profit = 0;
+    
+    foreach ( $orders as $order ) {
+        $profit_data = wpd_calculate_cost_profit_by_order( $order );
+        if ( $profit_data ) {
+            $total_revenue += $profit_data['order_total_ex_tax'];
+            $total_costs += $profit_data['total_costs'];
+            $total_profit += $profit_data['gross_profit'];
+        }
+    }
+    
+    return array(
+        'revenue' => $total_revenue,
+        'costs' => $total_costs,
+        'profit' => $total_profit,
+        'margin' => $total_revenue > 0 ? ($total_profit / $total_revenue) * 100 : 0,
+        'order_count' => count( $orders )
+    );
+}</code>
 </pre>
 <h4>Return Value Details
 </h4>
@@ -166,20 +272,66 @@
 </ul>
 <h3>Error Handling
 </h3>
-<pre><code>$profit_data = wpd_calculate_cost_profit_by_order( $order_id ); if ( false === $profit_data ) { // Order doesn't exist or calculation failed error_log( 'Could not calculate profit for order #' . $order_id ); return; } // Safe to use profit data $profit = $profit_data['gross_profit'];</code>
+<pre><code>$profit_data = wpd_calculate_cost_profit_by_order( $order_id );
+
+if ( false === $profit_data ) {
+    // Order doesn't exist or calculation failed
+    error_log( 'Could not calculate profit for order #' . $order_id );
+    return;
+}
+
+// Safe to use profit data
+$profit = $profit_data['gross_profit'];</code>
 </pre>
 <h4>Common Use Cases
 </h4>
 <h3>Display Profit in Custom Location
 </h3>
-<pre>
-<p><strong>Order Profit:</strong>' . wc_price( $profit_data['gross_profit'] ) . '
-</p>
- '; } }</code>
+<pre><code>add_action( 'woocommerce_admin_order_data_after_order_details', 'display_order_profit' );
+
+function display_order_profit( $order ) {
+    $profit_data = wpd_calculate_cost_profit_by_order( $order );
+    
+    if ( $profit_data ) {
+        echo '<p><strong>Order Profit:</strong> ' . wc_price( $profit_data['gross_profit'] ) . '</p>';
+    }
+}</code>
 </pre>
 <h3>Export Profit Data to CSV
 </h3>
-<pre><code>function export_profit_data_csv() { $orders = wc_get_orders( array( 'limit' =>-1 ) ); $csv_data = array(); // Header row $csv_data[] = array( 'Order ID', 'Date', 'Revenue', 'Costs', 'Profit', 'Margin %' ); foreach ( $orders as $order ) { $profit_data = wpd_calculate_cost_profit_by_order( $order ); if ( $profit_data ) { $csv_data[] = array( $order->get_id(), $order->get_date_created()->date( 'Y-m-d' ), $profit_data['order_total_ex_tax'], $profit_data['total_costs'], $profit_data['gross_profit'], $profit_data['profit_margin'] ); } } // Output CSV header('Content-Type: text/csv'); header('Content-Disposition: attachment; filename="profit-export.csv"'); $output = fopen('php://output', 'w'); foreach ( $csv_data as $row ) { fputcsv( $output, $row ); } fclose( $output ); exit; }</code>
+<pre><code>function export_profit_data_csv() {
+    $orders = wc_get_orders( array( 'limit' => -1 ) );
+    $csv_data = array();
+    
+    // Header row
+    $csv_data[] = array( 'Order ID', 'Date', 'Revenue', 'Costs', 'Profit', 'Margin %' );
+    
+    foreach ( $orders as $order ) {
+        $profit_data = wpd_calculate_cost_profit_by_order( $order );
+        if ( $profit_data ) {
+            $csv_data[] = array(
+                $order->get_id(),
+                $order->get_date_created()->date( 'Y-m-d' ),
+                $profit_data['order_total_ex_tax'],
+                $profit_data['total_costs'],
+                $profit_data['gross_profit'],
+                $profit_data['profit_margin']
+            );
+        }
+    }
+    
+    // Output CSV
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="profit-export.csv"');
+    $output = fopen('php://output', 'w');
+    
+    foreach ( $csv_data as $row ) {
+        fputcsv( $output, $row );
+    }
+    
+    fclose( $output );
+    exit;
+}</code>
 </pre>
 <h3>Related
 </h3>

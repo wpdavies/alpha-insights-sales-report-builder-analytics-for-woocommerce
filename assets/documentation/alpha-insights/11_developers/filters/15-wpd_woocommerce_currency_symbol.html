@@ -42,9 +42,8 @@
 <h3>Add Cryptocurrency Symbols</h3>
 
 <pre><code>add_filter( 'wpd_woocommerce_currency_symbol', 'add_crypto_symbols', 10, 2 );
-
-function add_crypto_symbols( $symbol, $currency ) {
-    
+function add_crypto_symbols( $symbol, $currency )
+{
     $crypto_symbols = array(
         'BTC' => '₿',
         'ETH' => 'Ξ',
@@ -52,20 +51,18 @@ function add_crypto_symbols( $symbol, $currency ) {
         'USDT' => '₮',
         'DOGE' => 'Ð'
     );
-    
-    if ( isset( $crypto_symbols[$currency] ) ) {
+    if ( isset( $crypto_symbols[$currency] ) )
+    {
         return $crypto_symbols[$currency];
     }
-    
     return $symbol;
 }</code></pre>
 
 <h3>Use Currency Code Instead of Symbol</h3>
 
 <pre><code>add_filter( 'wpd_woocommerce_currency_symbol', 'use_currency_code', 10, 2 );
-
-function use_currency_code( $symbol, $currency ) {
-    
+function use_currency_code( $symbol, $currency )
+{
     // Display currency code (USD, EUR) instead of symbol ($, €)
     return $currency;
 }</code></pre>
@@ -73,110 +70,100 @@ function use_currency_code( $symbol, $currency ) {
 <h3>Custom Symbol for Specific Currency</h3>
 
 <pre><code>add_filter( 'wpd_woocommerce_currency_symbol', 'custom_usd_symbol', 10, 2 );
-
-function custom_usd_symbol( $symbol, $currency ) {
-    
+function custom_usd_symbol( $symbol, $currency )
+{
     // Use "USD $" instead of just "$"
-    if ( $currency === 'USD' ) {
+    if ( $currency === 'USD' )
+    {
         return 'USD $';
     }
-    
     // Use custom Euro symbol
-    if ( $currency === 'EUR' ) {
+    if ( $currency === 'EUR' )
+    {
         return 'EUR €';
     }
-    
     return $symbol;
 }</code></pre>
 
 <h3>Regional Currency Variations</h3>
 
 <pre><code>add_filter( 'wpd_woocommerce_currency_symbol', 'regional_symbols', 10, 2 );
-
-function regional_symbols( $symbol, $currency ) {
-    
+function regional_symbols( $symbol, $currency )
+{
     // Different dollar symbol for different regions
     $dollar_currencies = array( 'USD', 'CAD', 'AUD', 'NZD', 'SGD' );
-    
-    if ( in_array( $currency, $dollar_currencies ) ) {
+    if ( in_array( $currency, $dollar_currencies ) )
+    {
         // Show which dollar it is
         return $currency . ' $';
     }
-    
     return $symbol;
 }</code></pre>
 
 <h3>Custom Internal Currency</h3>
 
 <pre><code>add_filter( 'wpd_woocommerce_currency_symbol', 'custom_currency', 10, 2 );
-
-function custom_currency( $symbol, $currency ) {
-    
+function custom_currency( $symbol, $currency )
+{
     // Add support for custom internal currency
-    if ( $currency === 'CREDITS' ) {
+    if ( $currency === 'CREDITS' )
+    {
         return 'CR';
     }
-    
-    if ( $currency === 'POINTS' ) {
+    if ( $currency === 'POINTS' )
+    {
         return 'P';
     }
-    
     return $symbol;
 }</code></pre>
 
 <h3>HTML-Enhanced Symbols</h3>
 
 <pre><code>add_filter( 'wpd_woocommerce_currency_symbol', 'html_symbols', 10, 2 );
-
-function html_symbols( $symbol, $currency ) {
-    
+function html_symbols( $symbol, $currency )
+{
     // Add styling or icons to symbols
-    if ( $currency === 'USD' ) {
+    if ( $currency === 'USD' )
+    {
         return '<span class="currency-usd">$</span>';
     }
-    
-    if ( $currency === 'EUR' ) {
+    if ( $currency === 'EUR' )
+    {
         return '<span class="currency-eur">€</span>';
     }
-    
     return $symbol;
 }</code></pre>
 
 <h3>Multi-Currency Store Symbol Prefix</h3>
 
 <pre><code>add_filter( 'wpd_woocommerce_currency_symbol', 'prefix_all_symbols', 10, 2 );
-
-function prefix_all_symbols( $symbol, $currency ) {
-    
+function prefix_all_symbols( $symbol, $currency )
+{
     // In multi-currency stores, always show currency code
     $store_currencies = get_option( 'active_currencies', array( 'USD' ) );
-    
-    if ( count( $store_currencies ) > 1 ) {
+    if ( count( $store_currencies ) > 1 )
+    {
         return $currency . ' ' . $symbol;
     }
-    
     return $symbol;
 }</code></pre>
 
 <h3>Context-Aware Symbols</h3>
 
 <pre><code>add_filter( 'wpd_woocommerce_currency_symbol', 'context_aware_symbol', 10, 2 );
-
-function context_aware_symbol( $symbol, $currency ) {
-    
+function context_aware_symbol( $symbol, $currency )
+{
     // In reports, use abbreviated symbol
-    if ( isset( $_GET['page'] ) && strpos( $_GET['page'], 'reports' ) !== false ) {
-        
+    if ( isset( $_GET['page'] ) && strpos( $_GET['page'], 'reports' ) !== false )
+    {
         $abbreviated = array(
             'USD' => '$',
             'EUR' => '€',
             'GBP' => '£',
             'JPY' => '¥'
         );
-        
         return isset( $abbreviated[$currency] ) ? $abbreviated[$currency] : $currency;
     }
-    
     return $symbol;
 }</code></pre>
 
@@ -248,12 +235,10 @@ function context_aware_symbol( $symbol, $currency ) {
     color: #28a745;
     font-weight: 600;
 }
-
 .currency-eur {
     color: #0066cc;
     font-weight: 600;
 }
-
 .woocommerce-Price-currencySymbol {
     font-weight: normal;
     opacity: 0.8;
@@ -262,8 +247,8 @@ function context_aware_symbol( $symbol, $currency ) {
 <h3>Debugging</h3>
 
 <pre><code>add_filter( 'wpd_woocommerce_currency_symbol', 'debug_currency_symbol', 999, 2 );
-
-function debug_currency_symbol( $symbol, $currency ) {
+function debug_currency_symbol( $symbol, $currency )
+{
     error_log( sprintf( 
         'Currency: %s | Symbol: %s', 
         $currency, 

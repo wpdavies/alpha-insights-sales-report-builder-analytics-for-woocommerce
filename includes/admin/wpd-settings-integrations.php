@@ -63,7 +63,7 @@ if ( ! is_array( $webhook_data ) ) {
 			<tr>
 				<th colspan="2">
 					<?php esc_html_e( 'Webhooks', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
-					<a href="https://wpdavies.dev/documentation/alpha-insights/features/setting-up-a-webhook-integrating-with-third-party-apps/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" class="wpd-input button button-secondary pull-right" target="_blank" style="margin-right: 5px;">Documentation</a>
+					<a href="https://wpdavies.dev/documentation/alpha-insights/additional-features/webhooks/webhook-setup/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" class="wpd-input button button-secondary pull-right" target="_blank" style="margin-right: 5px;">Documentation</a>
 				</th>
 			</tr>
 		</thead>

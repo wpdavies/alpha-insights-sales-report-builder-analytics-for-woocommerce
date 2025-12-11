@@ -35,19 +35,25 @@
 <h3>Menu Item Structure</h3>
 
 <pre><code>array(
-    'menu-slug' => array(
-        'label' => 'Display Name',
-        'url' => admin_url('admin.php?page=menu-slug'),
-        'icon' => '&lt;svg&gt;...&lt;/svg&gt;', // Optional icon HTML
-        'order' => 10, // Optional ordering
-        'children' => array( // Optional submenu items
-            'submenu-slug' => array(
-                'label' => 'Submenu Item',
-                'url' => admin_url('admin.php?page=submenu-slug'),
-                'order' => 1
-            )
-        )
-    )
+    'menu-slug'   =>
+    array(
+    'label'   => 'Display Name',
+    'url'   => admin_url('admin.php?page=menu-slug'),
+    'icon'   => '&lt;svg&gt;...&lt;/svg&gt;',
+    // Optional icon HTML
+    'order'   => 10,
+    // Optional ordering
+    'children'   =>
+    array(
+    // Optional submenu items
+    'submenu-slug'   =>
+    array(
+    'label'   => 'Submenu Item',
+    'url'   => admin_url('admin.php?page=submenu-slug'),
+    'order'   => 1
+)
+)
+)
 )</code></pre>
 
 <h3>Example Usage</h3>
@@ -55,9 +61,8 @@
 <h3>Add Custom Menu Item</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_menu_items', 'add_custom_menu_item' );
-
-function add_custom_menu_item( $menu ) {
-    
+function add_custom_menu_item( $menu )
+{
     // Add new top-level menu item
     $menu['custom-analytics'] = array(
         'label' => 'Custom Analytics',
@@ -77,126 +82,122 @@ function add_custom_menu_item( $menu ) {
             )
         )
     );
-    
     return $menu;
 }</code></pre>
 
 <h3>Remove Menu Items</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_menu_items', 'remove_unwanted_items' );
-
-function remove_unwanted_items( $menu ) {
-    
+function remove_unwanted_items( $menu )
+{
     // Remove specific menu items
-    unset( $menu['website-traffic'] ); // Remove Website Traffic section
-    unset( $menu['integrations'] ); // Remove Integrations section
+    unset( $menu['website-traffic'] );
+    // Remove Website Traffic section
+    unset( $menu['integrations'] );
+    // Remove Integrations section
     
     // Remove specific submenu item
-    if ( isset( $menu['reports']['children']['product-performance'] ) ) {
+    if ( isset( $menu['reports']['children']['product-performance'] ) )
+    {
         unset( $menu['reports']['children']['product-performance'] );
     }
-    
     return $menu;
 }</code></pre>
 
 <h3>Reorder Menu Items</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_menu_items', 'reorder_menu' );
-
-function reorder_menu( $menu ) {
-    
+function reorder_menu( $menu )
+{
     // Change order values to reorder menu
-    if ( isset( $menu['dashboard'] ) ) {
+    if ( isset( $menu['dashboard'] ) )
+    {
         $menu['dashboard']['order'] = 1;
     }
-    
-    if ( isset( $menu['reports'] ) ) {
+    if ( isset( $menu['reports'] ) )
+    {
         $menu['reports']['order'] = 2;
     }
-    
-    if ( isset( $menu['expenses'] ) ) {
+    if ( isset( $menu['expenses'] ) )
+    {
         $menu['expenses']['order'] = 3;
     }
-    
-    if ( isset( $menu['settings'] ) ) {
-        $menu['settings']['order'] = 99; // Move to end
+    if ( isset( $menu['settings'] ) )
+    {
+        $menu['settings']['order'] = 99;
+        // Move to end
     }
-    
     return $menu;
 }</code></pre>
 
 <h3>Rename Menu Items</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_menu_items', 'rename_menu_items' );
-
-function rename_menu_items( $menu ) {
-    
+function rename_menu_items( $menu )
+{
     // Change "Reports" to "Analytics"
-    if ( isset( $menu['reports'] ) ) {
+    if ( isset( $menu['reports'] ) )
+    {
         $menu['reports']['label'] = 'Analytics';
     }
-    
     // Change "Expenses" to "Costs"
-    if ( isset( $menu['expenses'] ) ) {
+    if ( isset( $menu['expenses'] ) )
+    {
         $menu['expenses']['label'] = 'Cost Management';
     }
-    
     return $menu;
 }</code></pre>
 
 <h3>Add Submenu Items</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_menu_items', 'add_custom_submenu' );
-
-function add_custom_submenu( $menu ) {
-    
+function add_custom_submenu( $menu )
+{
     // Add custom submenu under Reports
-    if ( isset( $menu['reports']['children'] ) ) {
+    if ( isset( $menu['reports']['children'] ) )
+    {
         $menu['reports']['children']['custom-report'] = array(
             'label' => 'Custom Report',
             'url' => admin_url('admin.php?page=reports&subpage=custom-report'),
             'order' => 999
         );
     }
-    
     return $menu;
 }</code></pre>
 
 <h3>Conditional Menu Items</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_menu_items', 'conditional_menu_items' );
-
-function conditional_menu_items( $menu ) {
-    
+function conditional_menu_items( $menu )
+{
     // Only show advanced features to administrators
-    if ( ! current_user_can( 'manage_options' ) ) {
+    if ( ! current_user_can( 'manage_options' ) )
+    {
         unset( $menu['advanced-settings'] );
     }
-    
     // Show integration menu only if API is connected
-    if ( ! get_option( 'my_api_connected' ) ) {
+    if ( ! get_option( 'my_api_connected' ) )
+    {
         unset( $menu['integrations'] );
     }
-    
     // Add wholesale menu for wholesale users
     $user = wp_get_current_user();
-    if ( in_array( 'wholesale_customer', $user->roles ) ) {
+    if ( in_array( 'wholesale_customer', $user->roles ) )
+    {
         $menu['wholesale-reports'] = array(
             'label' => 'Wholesale Reports',
             'url' => admin_url('admin.php?page=wholesale-reports'),
             'order' => 25
         );
     }
-    
     return $menu;
 }</code></pre>
 
 <h3>Group Related Items</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_menu_items', 'group_menu_items' );
-
-function group_menu_items( $menu ) {
-    
+function group_menu_items( $menu )
+{
     // Create new "Marketing" parent menu
     $menu['marketing'] = array(
         'label' => 'Marketing',
@@ -204,28 +205,26 @@ function group_menu_items( $menu ) {
         'order' => 30,
         'children' => array()
     );
-    
     // Move Facebook Ads under Marketing
-    if ( isset( $menu['facebook-ads'] ) ) {
+    if ( isset( $menu['facebook-ads'] ) )
+    {
         $menu['marketing']['children']['facebook-ads'] = $menu['facebook-ads'];
         unset( $menu['facebook-ads'] );
     }
-    
     // Move Google Ads under Marketing
-    if ( isset( $menu['google-ads'] ) ) {
+    if ( isset( $menu['google-ads'] ) )
+    {
         $menu['marketing']['children']['google-ads'] = $menu['google-ads'];
         unset( $menu['google-ads'] );
     }
-    
     return $menu;
 }</code></pre>
 
 <h3>Add External Links</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_menu_items', 'add_external_links' );
-
-function add_external_links( $menu ) {
-    
+function add_external_links( $menu )
+{
     $menu['help-docs'] = array(
         'label' => 'Documentation',
         'url' => 'https://docs.example.com',
@@ -233,7 +232,6 @@ function add_external_links( $menu ) {
         'order' => 100,
         'external' => true // Add custom flag
     );
-    
     return $menu;
 }</code></pre>
 
@@ -316,8 +314,8 @@ function add_external_links( $menu ) {
 <h3>Debugging</h3>
 
 <pre><code>add_filter( 'wpd_alpha_insights_menu_items', 'debug_menu_structure', 999 );
-
-function debug_menu_structure( $menu ) {
+function debug_menu_structure( $menu )
+{
     error_log( 'Alpha Insights Menu Structure:' );
     error_log( print_r( $menu, true ) );
     return $menu;

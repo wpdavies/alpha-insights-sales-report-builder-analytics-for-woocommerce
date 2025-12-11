@@ -46,7 +46,7 @@ defined( 'ABSPATH' ) || exit;
 		<?php if( $facebook_settings['api_status'] == 'Healthy' ) : ?>
 			<a href="#" class="wpd-input button button-secondary pull-right" id="wpd-refresh-facebook-api-data-top" style="margin-right: 5px;" data-wpd-ajax-action="wpd_refresh_all_facebook_api_data">Refresh All Campaign Data</a>
 		<?php endif; ?>
-		<a href="https://wpdavies.dev/documentation/alpha-insights/features/setting-up-the-woocommerce-meta-facebook-ads-api/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" class="wpd-input button button-secondary pull-right" target="_blank" style="margin-right: 5px;">Documentation</a>
+		<a href="https://wpdavies.dev/documentation/alpha-insights/advertising-integrations/facebook/connecting-facebook-ads/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" class="wpd-input button button-secondary pull-right" target="_blank" style="margin-right: 5px;">Documentation</a>
 	</div>
 </div>
 <div class="wpd-wrapper">
@@ -83,7 +83,7 @@ defined( 'ABSPATH' ) || exit;
 					<div class="wpd-meta">
 						Add these values to the query parameters on the landing page of your Facebook Ads Campaign.
 						<br>Our Alpha Campaign Profit Tracking system allows us to associate your orders with a particular Facebook Campaign & accurately report profitability.
-						<br><a href="https://wpdavies.dev/documentation/alpha-insights/features/setting-up-the-woocommerce-meta-facebook-ads-api/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin">Click Here</a> to read the docs.
+						<br><a href="https://wpdavies.dev/documentation/alpha-insights/advertising-integrations/facebook/connecting-facebook-ads//?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin">Click Here</a> to read the docs.
 					</div>
 				</td>
 				<td>
