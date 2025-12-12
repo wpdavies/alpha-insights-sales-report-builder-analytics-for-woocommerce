@@ -1,0 +1,2766 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2021-08-28 10:50+1000\n"
+"PO-Revision-Date: 2021-08-28 10:55+1000\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.0\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-KeywordsList: __;_e\n"
+"Last-Translator: \n"
+"Language: pt\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: includes/admin/wpd-admin-menu.php:30 includes/admin/wpd-admin-menu.php:46
+#: includes/admin/wpd-admin-menu.php:47 includes/admin/wpd-admin-menu.php:205
+#: includes/admin/wpd-admin-menu.php:266 includes/admin/wpd-admin-menu.php:354
+#: includes/admin/wpd-admin-menu.php:442
+msgid "Dashboard"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:61 includes/admin/wpd-admin-menu.php:62
+#: includes/admin/wpd-admin-menu.php:206 includes/admin/wpd-admin-menu.php:267
+#: includes/admin/wpd-admin-menu.php:271
+msgid "Reports"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:91 includes/admin/wpd-admin-menu.php:92
+#: includes/admin/wpd-admin-page-content.php:323
+msgid "Expense Reports"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:106 includes/admin/wpd-admin-menu.php:107
+#: includes/admin/wpd-admin-menu.php:208 includes/admin/wpd-admin-menu.php:264
+#: includes/admin/wpd-admin-menu.php:269 includes/admin/wpd-admin-menu.php:273
+#: includes/admin/wpd-admin-menu.php:274 includes/admin/wpd-admin-menu.php:334
+#: includes/admin/wpd-admin-menu.php:451
+msgid "Manage Expenses"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:121 includes/admin/wpd-admin-menu.php:122
+#: includes/admin/wpd-admin-menu.php:338 includes/admin/wpd-admin-menu.php:455
+msgid "Bulk Add Expenses"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:136 includes/admin/wpd-admin-menu.php:137
+#: includes/admin/wpd-admin-menu.php:342 includes/admin/wpd-admin-menu.php:459
+msgid "Add Expense Type"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:151 includes/admin/wpd-admin-menu.php:152
+#: includes/admin/wpd-admin-menu.php:209 includes/admin/wpd-admin-menu.php:272
+#: includes/reports/class-wpd-inventory-report.php:648
+msgid "Inventory"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:166 includes/admin/wpd-admin-menu.php:167
+#: includes/admin/wpd-admin-menu.php:210 includes/admin/wpd-admin-menu.php:268
+msgid "P&L Statement"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:181 includes/admin/wpd-admin-menu.php:182
+#: includes/admin/wpd-admin-menu.php:211 includes/admin/wpd-admin-menu.php:270
+#: wpd-alpha-insights.php:211
+msgid "Settings"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:265
+#: includes/class-wpd-user-tracking.php:232
+#: includes/reports/class-wpd-dashboard-report.php:801
+#: includes/reports/class-wpd-dashboard-report.php:810
+#: includes/reports/class-wpd-dashboard-report.php:819
+msgid "Analytics"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:304
+msgid "About / Help"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:332 includes/admin/wpd-admin-menu.php:490
+#: includes/admin/wpd-settings-general_settings.php:22
+msgid "General Settings"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:346 includes/admin/wpd-admin-menu.php:463
+msgid "Add Single Expense"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:350 includes/admin/wpd-admin-menu.php:434
+#: includes/class-wpd-expense-custom-post-type.php:283
+#: includes/class-wpd-expense-custom-post-type.php:285
+#: includes/class-wpd-expense-custom-post-type.php:286
+#: includes/class-wpd-expense-custom-post-type.php:302
+msgid "Expenses"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:359 includes/admin/wpd-admin-menu.php:472
+#: includes/admin/wpd-settings-email-previews.php:26
+#: includes/admin/wpd-settings-email-previews.php:45
+#: includes/admin/wpd-settings-email-previews.php:65
+#: includes/reports/class-wpd-dashboard-report.php:842
+msgid "Inventory Report"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:363 includes/admin/wpd-admin-menu.php:481
+#: includes/admin/wpd-admin-page-content.php:441
+#: includes/class-wpd-profit-loss-statement.php:475
+#: includes/reports/class-wpd-dashboard-report.php:851
+msgid "Profit & Loss Statement"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:370 includes/admin/wpd-admin-menu.php:418
+#: includes/reports/class-wpd-dashboard-report.php:804
+msgid "Profit By Orders"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:422
+msgid "Profit By Products & Categories"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:426
+msgid "Profit By Customers"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:495
+msgid "Currency Settings"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:505
+msgid "Import / Bulk Update COGS"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:510
+#: includes/admin/wpd-settings-emails.php:40
+msgid "Email Settings"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:515
+msgid "License"
+msgstr ""
+
+#: includes/admin/wpd-admin-menu.php:522
+msgid "Debug"
+msgstr ""
+
+#: includes/admin/wpd-admin-page-content.php:119
+#: includes/admin/wpd-admin-page-content.php:179
+msgid "Profit Reports - Order Insights"
+msgstr ""
+
+#: includes/admin/wpd-admin-page-content.php:225
+msgid "Profit Reports - Product Insights"
+msgstr ""
+
+#: includes/admin/wpd-admin-page-content.php:274
+msgid "Profit Reports - Customer Insights"
+msgstr ""
+
+#: includes/admin/wpd-admin-page-content.php:369
+msgid "Add Expenses In Bulk"
+msgstr ""
+
+#: includes/admin/wpd-admin-page-content.php:401
+msgid "Inventory Management"
+msgstr ""
+
+#: includes/admin/wpd-settings-bulk_update_cogs.php:66
+msgid "Import Or Bulk Update Cost Of Goods"
+msgstr ""
+
+#: includes/admin/wpd-settings-bulk_update_cogs.php:67
+msgid ""
+"Use this page to setup your Cost of Goods. Here you can import your Cost Of "
+"Goods by CSV, a past meta key or write them in manually."
+msgstr ""
+
+#: includes/admin/wpd-settings-bulk_update_cogs.php:73
+msgid "Download COGS"
+msgstr ""
+
+#: includes/admin/wpd-settings-bulk_update_cogs.php:74
+msgid "Import COGS"
+msgstr ""
+
+#: includes/admin/wpd-settings-bulk_update_cogs.php:84
+msgid "Load Data From Another Meta Key"
+msgstr ""
+
+#: includes/admin/wpd-settings-bulk_update_cogs.php:90
+msgid "Load data from a pre-existing meta key"
+msgstr ""
+
+#: includes/admin/wpd-settings-bulk_update_cogs.php:91
+msgid ""
+"You can use this table to update values or load in values via CSV or another "
+"plugins previously set values."
+msgstr ""
+
+#: includes/admin/wpd-settings-bulk_update_cogs.php:117
+msgid "Name"
+msgstr ""
+
+#: includes/admin/wpd-settings-bulk_update_cogs.php:118
+msgid "SKU"
+msgstr ""
+
+#: includes/admin/wpd-settings-bulk_update_cogs.php:119
+#: includes/reports/class-wpd-expense-report.php:685
+#: includes/reports/class-wpd-inventory-report.php:651
+#: includes/reports/class-wpd-profit-by-order-report.php:647
+msgid "ID"
+msgstr ""
+
+#: includes/admin/wpd-settings-bulk_update_cogs.php:120
+#: includes/reports/class-wpd-inventory-report.php:646
+msgid "RRP Price"
+msgstr ""
+
+#: includes/admin/wpd-settings-bulk_update_cogs.php:121
+#: includes/class-wpd-cost-of-goods.php:659
+#: includes/class-wpd-cost-of-goods.php:677
+#: includes/class-wpd-cost-of-goods.php:817
+msgid "Cost Of Goods"
+msgstr ""
+
+#: includes/admin/wpd-settings-bulk_update_cogs.php:149
+#, php-format
+msgid "We couldn't match ID %s to any product in your database."
+msgstr ""
+
+#: includes/admin/wpd-settings-bulk_update_cogs.php:198
+msgid "Format"
+msgstr ""
+
+#: includes/admin/wpd-settings-bulk_update_cogs.php:199
+msgid ""
+"Your CSV file must strictly have the product id in the first column and the "
+"cost of goods in the second column, no further columns."
+msgstr ""
+
+#: includes/admin/wpd-settings-bulk_update_cogs.php:200
+msgid ""
+"You should still include headings, although it won't matter how you label "
+"them."
+msgstr ""
+
+#: includes/admin/wpd-settings-bulk_update_cogs.php:217
+#: includes/class-wpd-expense-bulk-add.php:97
+msgid "Upload Via CSV"
+msgstr ""
+
+#: includes/admin/wpd-settings-bulk_update_cogs.php:219
+#: includes/class-wpd-expense-bulk-add.php:100
+msgid "Click Here To Upload Your CSV File"
+msgstr ""
+
+#: includes/admin/wpd-settings-bulk_update_cogs.php:245
+msgid "Load Cost Of Goods Via CSV"
+msgstr ""
+
+#: includes/admin/wpd-settings-bulk_update_cogs.php:259
+msgid "Loading your CSV file..."
+msgstr ""
+
+#: includes/admin/wpd-settings-currency_conversion_settings.php:22
+msgid "Automatic Exchange Rate"
+msgstr ""
+
+#: includes/admin/wpd-settings-currency_conversion_settings.php:23
+#: includes/admin/wpd-settings-emails.php:41
+#: includes/admin/wpd-settings-emails.php:225
+#: includes/admin/wpd-settings-general_settings.php:23
+#: includes/admin/wpd-settings-general_settings.php:172
+#: includes/admin/wpd-settings-license.php:42
+#: includes/admin/wpd-settings-license.php:92
+msgid "Save Changes"
+msgstr ""
+
+#: includes/admin/wpd-settings-currency_conversion_settings.php:30
+msgid "Exchange Rate API"
+msgstr ""
+
+#: includes/admin/wpd-settings-currency_conversion_settings.php:36
+msgid "Open Exchange Rates API Key"
+msgstr ""
+
+#: includes/admin/wpd-settings-currency_conversion_settings.php:37
+msgid ""
+"Create a free account to get your API Key here, this will be used to update "
+"the exchange rates"
+msgstr ""
+
+#: includes/admin/wpd-settings-currency_conversion_settings.php:37
+msgid "Create Open Exchange Rates Account"
+msgstr ""
+
+#: includes/admin/wpd-settings-currency_conversion_settings.php:42
+msgid "Update Exchange Rates"
+msgstr ""
+
+#: includes/admin/wpd-settings-currency_conversion_settings.php:58
+msgid "Exchange Rates last updated"
+msgstr ""
+
+#: includes/admin/wpd-settings-currency_conversion_settings.php:69
+msgid "Currency Code"
+msgstr ""
+
+#: includes/admin/wpd-settings-currency_conversion_settings.php:70
+msgid "Conversion Rate against USD (USD = 1)"
+msgstr ""
+
+#: includes/admin/wpd-settings-email-previews.php:18
+msgid "Profit Report Email"
+msgstr ""
+
+#: includes/admin/wpd-settings-email-previews.php:20
+#: includes/admin/wpd-settings-email-previews.php:39
+#: includes/admin/wpd-settings-email-previews.php:59
+#: includes/admin/wpd-settings-email-previews.php:77
+msgid "Return To Settings"
+msgstr ""
+
+#: includes/admin/wpd-settings-email-previews.php:21
+#: includes/admin/wpd-settings-email-previews.php:40
+#: includes/admin/wpd-settings-email-previews.php:60
+msgid "Send Email"
+msgstr ""
+
+#: includes/admin/wpd-settings-email-previews.php:24
+#: includes/admin/wpd-settings-email-previews.php:43
+#: includes/admin/wpd-settings-email-previews.php:63
+msgid "Profit Report"
+msgstr ""
+
+#: includes/admin/wpd-settings-email-previews.php:25
+#: includes/admin/wpd-settings-email-previews.php:44
+#: includes/admin/wpd-settings-email-previews.php:64
+#: includes/reports/class-wpd-dashboard-report.php:833
+msgid "Expense Report"
+msgstr ""
+
+#: includes/admin/wpd-settings-email-previews.php:37
+msgid "Expense Report Email"
+msgstr ""
+
+#: includes/admin/wpd-settings-email-previews.php:57
+msgid "Inventory Report Email"
+msgstr ""
+
+#: includes/admin/wpd-settings-email-previews.php:76
+msgid "Sorry, we couldn't find this email preview"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:47
+#: includes/admin/wpd-settings-general_settings.php:140
+msgid "Appearance Settings"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:52
+msgid "Would you like to include our header and footer?"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:52
+msgid ""
+"Sometimes this helps with formatting if you've got other html email "
+"templates already adding headers and footers."
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:55
+msgid "Header"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:56
+msgid "Footer"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:65
+msgid "Email #1 - Profit Report"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:70
+#: includes/admin/wpd-settings-emails.php:127
+#: includes/admin/wpd-settings-emails.php:178
+msgid "Comma Seperated List Of Recipient"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:78
+#: includes/admin/wpd-settings-emails.php:135
+#: includes/admin/wpd-settings-emails.php:186
+msgid "How Often This Email Should Be Sent?"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:81
+#: includes/admin/wpd-settings-emails.php:138
+#: includes/admin/wpd-settings-emails.php:189
+msgid "Daily"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:82
+#: includes/admin/wpd-settings-emails.php:139
+#: includes/admin/wpd-settings-emails.php:190
+msgid "Weekly"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:83
+#: includes/admin/wpd-settings-emails.php:140
+#: includes/admin/wpd-settings-emails.php:191
+msgid "Monthly"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:87
+#: includes/admin/wpd-settings-emails.php:144
+#: includes/admin/wpd-settings-emails.php:195
+msgid "What would you like to include?"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:89
+#: includes/class-wpd-cost-of-goods.php:339
+#: includes/class-wpd-profit-loss-statement.php:484
+#: includes/reports/class-wpd-dashboard-report.php:1034
+msgid "Order Revenue"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:90
+#: includes/reports/class-wpd-dashboard-report.php:1038
+msgid "Order Cost"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:91
+msgid "Order Profit"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:92
+msgid "Order Count"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:93
+#: includes/emails/wpd-email-template_profit_report.php:56
+#: includes/reports/class-wpd-profit-by-order-report.php:1063
+msgid "Average Order Value"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:94
+#: includes/emails/wpd-email-template_profit_report.php:59
+#: includes/reports/class-wpd-profit-by-order-report.php:1069
+msgid "Average Profit Per Order"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:95
+#: includes/reports/class-wpd-profit-by-product-report.php:1118
+msgid "Total Products Sold"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:96
+msgid "Total Product Discounts"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:97
+msgid "Total Refunds"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:98
+#: includes/class-wpd-profit-loss-statement.php:527
+#: includes/emails/wpd-email-template_profit_report.php:71
+#: includes/reports/class-wpd-profit-by-order-report.php:977
+msgid "Additional Expenses"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:99
+msgid "Net Profit"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:104
+#: includes/admin/wpd-settings-emails.php:155
+#: includes/admin/wpd-settings-emails.php:210
+msgid "Would you like to attach a document?"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:107
+msgid "Profit & Loss Statement (PDF)"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:112
+#: includes/admin/wpd-settings-emails.php:163
+#: includes/admin/wpd-settings-emails.php:218
+msgid "Preview Email"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:113
+#: includes/admin/wpd-settings-emails.php:164
+#: includes/admin/wpd-settings-emails.php:219
+msgid "Send Test Email"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:122
+msgid "Email #2 - Expense Report"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:146
+#: includes/emails/wpd-email-template_expense_report.php:44
+#: includes/reports/class-wpd-expense-report.php:546
+msgid "Total Expenses Paid"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:147
+#: includes/emails/wpd-email-template_expense_report.php:47
+#: includes/reports/class-wpd-expense-report.php:552
+#: includes/reports/class-wpd-profit-by-order-report.php:970
+msgid "Total No. Expenses"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:148
+#: includes/emails/wpd-email-template_expense_report.php:50
+msgid "Average Expenses Per Day"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:149
+msgid "All Parent Category Expenses"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:150
+msgid "All Child Category Expenses"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:158
+msgid "List Of Expenses (CSV)"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:173
+msgid "Email #3 - Inventory Report"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:197
+#: includes/emails/wpd-email-template_inventory_report.php:40
+#: includes/reports/class-wpd-inventory-report.php:863
+msgid "Total Stock Value (RRP)"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:198
+#: includes/reports/class-wpd-inventory-report.php:869
+msgid "Total Stock Value (Cost)"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:199
+#: includes/reports/class-wpd-inventory-report.php:875
+msgid "Unrealised Profits"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:200
+#: includes/emails/wpd-email-template_inventory_report.php:49
+#: includes/reports/class-wpd-inventory-report.php:883
+msgid "Total Stock On Hand"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:201
+#: includes/reports/class-wpd-inventory-report.php:889
+msgid "Total Records Found"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:202
+msgid "No. Products With Stock Management"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:203
+msgid "No. Out Of Stock Products"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:204
+msgid "No. Low Stock Products"
+msgstr ""
+
+#: includes/admin/wpd-settings-emails.php:205
+msgid "No. Backorder Products"
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:30
+msgid "Default Prices"
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:36
+msgid "Default Cost Price"
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:37
+msgid ""
+"This will be a fallback setting for products in which you haven't entered a "
+"cost price. This is calculated as a percentage of the given product's retail "
+"price. If you set a cost price for a variable product, that will take "
+"precedence over this for that variable product's children."
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:41
+msgid "Percent Of RRP"
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:46
+msgid "Default Payment Gateway Cost"
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:47
+msgid ""
+"This will be a fallback setting payment gateway fees. Your orders will start "
+"with this cost, but you can override it as the fee is finalised."
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:52
+#: includes/admin/wpd-settings-general_settings.php:80
+msgid "Percent Of Order Value"
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:56
+#: includes/admin/wpd-settings-general_settings.php:84
+msgid "Static Fee"
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:62
+msgid "Exclude Shipping From Profit Calculations"
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:63
+msgid ""
+"You can exclude and ignore shipping revenue from your profit calculations "
+"entirely. This will ignore both shipping revenue and shipping costs."
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:67
+msgid "Include Shipping"
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:68
+msgid "Exclude Shipping"
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:74
+msgid "Default Shipping Cost"
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:75
+msgid ""
+"This will be a fallback setting for the shipping fees you pay to your "
+"carrier. Your orders will start with this cost, but you can override it as "
+"the fee is finalised."
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:90
+msgid "Tax Settings"
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:91
+msgid ""
+"Would you like to include Tax as a cost component in your profit "
+"calculations?"
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:95
+msgid "Include Tax"
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:96
+msgid "Exclude Tax"
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:107
+msgid "Report Settings"
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:113
+msgid "Paid Order Status For Reporting"
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:114
+msgid ""
+"These are the order statuses that we will look at when reviewing your "
+"profitability. These statuses are the ones that are considered paid for."
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:146
+msgid "Load Modern WP Admin Skin"
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:147
+msgid ""
+"Load our custom stylesheet which will override core admin appearance "
+"settings to help modernize your admin."
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:151
+#: includes/admin/wpd-settings-general_settings.php:163
+#: includes/reports/class-wpd-profit-by-product-report.php:949
+#: includes/reports/class-wpd-profit-by-product-report.php:956
+msgid "False"
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:152
+#: includes/admin/wpd-settings-general_settings.php:164
+#: includes/reports/class-wpd-profit-by-product-report.php:950
+#: includes/reports/class-wpd-profit-by-product-report.php:957
+msgid "True"
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:158
+msgid "Prevent annoying WordPress notices"
+msgstr ""
+
+#: includes/admin/wpd-settings-general_settings.php:159
+msgid ""
+"This will prevent the annoying update notices, license notices and whatever "
+"else rubbish people like to clutter your screen with."
+msgstr ""
+
+#: includes/admin/wpd-settings-license.php:33
+msgid "Your License Has Expired"
+msgstr ""
+
+#: includes/admin/wpd-settings-license.php:34
+msgid ""
+"Looks like your license has expired, to resume your profit repoting you will "
+"need to renew your license."
+msgstr ""
+
+#: includes/admin/wpd-settings-license.php:35
+#, php-format
+msgid "Use code \"ALPHA20RENEW\" to get 50% off your first renewal."
+msgstr ""
+
+#: includes/admin/wpd-settings-license.php:36
+msgid "Click here to renew"
+msgstr ""
+
+#: includes/admin/wpd-settings-license.php:41
+msgid "License Manager"
+msgstr ""
+
+#: includes/admin/wpd-settings-license.php:50
+msgid "Your License"
+msgstr ""
+
+#: includes/admin/wpd-settings-license.php:51
+msgid "License Status:"
+msgstr ""
+
+#: includes/admin/wpd-settings-license.php:57
+msgid "Your API Key"
+msgstr ""
+
+#: includes/admin/wpd-settings-license.php:58
+msgid ""
+"Enter the license key provided to you on purchase, this can be found in your "
+"order confirmation email or in your account area on"
+msgstr ""
+
+#: includes/admin/wpd-settings-license.php:64
+msgid "License Status"
+msgstr ""
+
+#: includes/admin/wpd-settings-license.php:68
+msgid "License Owner"
+msgstr ""
+
+#: includes/admin/wpd-settings-license.php:72
+msgid "Max Number Of Uses"
+msgstr ""
+
+#: includes/admin/wpd-settings-license.php:76
+msgid "Number Of Uses Remaining"
+msgstr ""
+
+#: includes/admin/wpd-settings-license.php:80
+msgid "Expiration Date"
+msgstr ""
+
+#: includes/admin/wpd-settings-license.php:84
+#: includes/admin/wpd-settings-license.php:85
+msgid "Manage Your License"
+msgstr ""
+
+#: includes/admin/wpd-settings-license.php:84
+msgid "Visit your account area on WP Davies to manage your license."
+msgstr ""
+
+#: includes/admin/wpd-settings.php:433
+msgid "Exchange rates updated succesfully."
+msgstr ""
+
+#: includes/admin/wpd-settings.php:438
+msgid ""
+"Could not update the exchange rate, you may have hit the max amount of "
+"requests per month."
+msgstr ""
+
+#: includes/admin/wpd-settings.php:475
+#, php-format
+msgid "%s products out of %s products have been updated."
+msgstr ""
+
+#: includes/admin/wpd-settings.php:500
+#, php-format
+msgid ""
+"%s has been loaded into the table but nothing has been saved, click save if "
+"you are happy with the results."
+msgstr ""
+
+#: includes/admin/wpd-settings.php:514
+#, php-format
+msgid "Your CSV file has been uploaded succcesfully, we've found %s rows."
+msgstr ""
+
+#: includes/admin/wpd-settings.php:531
+#, php-format
+msgid "%s settings have been updated"
+msgstr ""
+
+#: includes/admin/wpd-settings.php:566
+msgid "Please enter a valid license below to use Alpha Insights."
+msgstr ""
+
+#: includes/admin/wpd-settings.php:635
+msgid ""
+"You need to get an Open Exchange Rates API key for us to be able to download "
+"the latest currencies."
+msgstr ""
+
+#: includes/class-wpd-cost-of-goods.php:88
+#: includes/class-wpd-cost-of-goods.php:354
+msgid "Shipping Cost"
+msgstr ""
+
+#: includes/class-wpd-cost-of-goods.php:108
+#: includes/class-wpd-cost-of-goods.php:248
+#: includes/class-wpd-cost-of-goods.php:517
+#: includes/reports/class-wpd-dashboard-report.php:1060
+#: includes/reports/class-wpd-profit-by-customer-report.php:841
+#: includes/reports/class-wpd-profit-by-customer-report.php:1188
+#: includes/reports/class-wpd-profit-by-customer-report.php:1321
+#: includes/reports/class-wpd-profit-by-customer-report.php:1366
+#: includes/reports/class-wpd-profit-by-customer-report.php:1394
+#: includes/reports/class-wpd-profit-by-customer-report.php:1414
+#: includes/reports/class-wpd-profit-by-order-report.php:645
+#: includes/reports/class-wpd-profit-by-order-report.php:1134
+#: includes/reports/class-wpd-profit-by-product-report.php:816
+#: includes/reports/class-wpd-profit-by-product-report.php:1183
+#: includes/reports/class-wpd-profit-by-product-report.php:1219
+#: includes/reports/class-wpd-profit-by-product-report.php:1306
+#: includes/reports/class-wpd-profit-by-product-report.php:1330
+#: includes/reports/class-wpd-profit-by-product-report.php:1353
+msgid "Profit"
+msgstr ""
+
+#: includes/class-wpd-cost-of-goods.php:244
+#: includes/reports/class-wpd-profit-by-order-report.php:644
+#: includes/reports/class-wpd-profit-by-order-report.php:1133
+msgid "Cost"
+msgstr ""
+
+#: includes/class-wpd-cost-of-goods.php:252
+#: includes/class-wpd-cost-of-goods.php:366
+#: includes/class-wpd-cost-of-goods.php:518
+#: includes/reports/class-wpd-dashboard-report.php:1061
+#: includes/reports/class-wpd-profit-by-customer-report.php:1137
+#: includes/reports/class-wpd-profit-by-order-report.php:646
+#: includes/reports/class-wpd-profit-by-product-report.php:1220
+#: includes/reports/class-wpd-profit-by-product-report.php:1354
+msgid "Margin"
+msgstr ""
+
+#: includes/class-wpd-cost-of-goods.php:335
+msgid "The inputs below will override any default calculations."
+msgstr ""
+
+#: includes/class-wpd-cost-of-goods.php:343
+msgid "Order Costs"
+msgstr ""
+
+#: includes/class-wpd-cost-of-goods.php:350
+msgid "Product Cost"
+msgstr ""
+
+#: includes/class-wpd-cost-of-goods.php:358
+#: includes/class-wpd-cost-of-goods.php:389
+msgid "Payment Gateway Cost"
+msgstr ""
+
+#: includes/class-wpd-cost-of-goods.php:362
+#: includes/reports/class-wpd-dashboard-report.php:1046
+#: includes/reports/class-wpd-profit-by-order-report.php:984
+msgid "Total Profit"
+msgstr ""
+
+#: includes/class-wpd-cost-of-goods.php:375
+msgid "Total Product Cost"
+msgstr ""
+
+#: includes/class-wpd-cost-of-goods.php:382
+msgid "Total Shipping Cost"
+msgstr ""
+
+#: includes/class-wpd-cost-of-goods.php:395
+msgid "Update"
+msgstr ""
+
+#: includes/class-wpd-cost-of-goods.php:453
+msgid "Alpha Insights Attribution"
+msgstr ""
+
+#: includes/class-wpd-cost-of-goods.php:480
+msgid "Ad Campaign"
+msgstr ""
+
+#: includes/class-wpd-cost-of-goods.php:491
+msgid "Query Parameters"
+msgstr ""
+
+#: includes/class-wpd-cost-of-goods.php:505
+msgid "Referral Source"
+msgstr ""
+
+#: includes/class-wpd-cost-of-goods.php:648
+msgid ""
+"This will be the default for variable products, you can set the cost price "
+"per variation within the variations tab."
+msgstr ""
+
+#: includes/class-wpd-cost-of-goods.php:721
+msgid "Supplier"
+msgstr ""
+
+#: includes/class-wpd-cost-of-goods.php:732
+#: includes/class-wpd-cost-of-goods.php:752
+msgid ""
+"If your supplier has a reference number for this product it can be handy to "
+"store here."
+msgstr ""
+
+#: includes/class-wpd-cost-of-goods.php:740
+msgid "Supplier Reference Number"
+msgstr ""
+
+#: includes/class-wpd-cost-of-goods.php:760
+msgid "Any Extra Purchasing Information"
+msgstr ""
+
+#: includes/class-wpd-cost-of-goods.php:821
+msgid "Default: "
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:79
+#: includes/class-wpd-expense-bulk-add.php:87
+msgid "Response"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:80
+msgid ""
+"Your CSV file has been added to the table, review the results and submit "
+"them to save to your website"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:110
+msgid "Need Help"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:119
+msgid "Download A Sample CSV"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:119
+msgid ""
+"Download this file to see what the correct formatting is, if you're still "
+"unsure read the instructions to your right."
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:126
+msgid "Read Our Instructions"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:126
+msgid ""
+"This will help to give you a bit of an understanding on how to use this tool."
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:141
+msgid "Ready To Add Your Expenses?"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:142
+msgid "Add All Expenses"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:150
+msgid "Row"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:151
+#: includes/reports/class-wpd-expense-report.php:680
+msgid "Title"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:152
+msgid "Amount"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:153
+#: includes/class-wpd-expense-custom-post-type.php:419
+msgid "Currency"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:154
+#: includes/class-wpd-expense-custom-post-type.php:105
+#: includes/class-wpd-expense-custom-post-type.php:420
+#: includes/reports/class-wpd-expense-report.php:681
+msgid "Date Paid"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:155
+#: includes/reports/class-wpd-expense-report.php:684
+msgid "Reference Number"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:156
+msgid "Expense Number"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:471
+#, php-format
+msgid "Row %s is empty"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:475
+#, php-format
+msgid "All fields filled in for row %s, creating expense"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:479
+#, php-format
+msgid "Row ID %s has a reference number that has been used before (%s)"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:501
+#, php-format
+msgid ""
+"Succesfully created expense with ID: %s, adding meta information. Ref "
+"number: %s"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:515
+msgid "Taxonomy Found"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:520
+msgid "Taxonomy Not Found, Trying To Create New Category"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:532
+msgid "Couldn't create new category"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:539
+msgid "Meta information finished processing succesfully"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:547
+msgid "Unable to create post, reference number"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:557
+#, php-format
+msgid "Row %s, is missing some fields, make sure you enter everything"
+msgstr ""
+
+#: includes/class-wpd-expense-bulk-add.php:568
+#, php-format
+msgid "Process complete. %s out of %s expenses were added."
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:93
+#: includes/class-wpd-expense-custom-post-type.php:418
+#: includes/reports/class-wpd-expense-report.php:682
+msgid "Amount Paid"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:96
+msgid ""
+"Enter a number and 2 decimals only, don't worry about dollar formatting."
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:108
+msgid ""
+"Select the date this amount was paid. This should be entered in your local "
+"time zone (make sure you've set WP to the same time zone)."
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:112
+msgid "Reference Number (if applicable)"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:115
+msgid "Any relevant reference number information if required"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:168
+msgid "Expense tracking for Davies Woocommerce Profit tracking."
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:284
+msgid "Expense"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:287
+msgid "Add New"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:288
+msgid "Add New Expense"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:289
+msgid "Edit Expense"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:290
+msgid "New Expense"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:291
+msgid "View Expense"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:292
+msgid "Search Expenses"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:293
+msgid "No Expenses found"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:294
+msgid "No Expenses found in trash"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:295
+msgid "All Expenses"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:298
+msgid "Parent Expense"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:299
+msgid "Parent Expense:"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:329
+msgid "Search Expense Types"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:330
+#: includes/reports/class-wpd-expense-report.php:750
+msgid "All Expense Types"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:331
+msgid "Parent Expense Types"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:332
+msgid "Parent Expense Type:"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:333
+msgid "Edit Expense Type"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:334
+msgid "Update Expense Type"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:335
+msgid "Add New Expense Type"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:336
+msgid "New Expense Type"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:337
+msgid "Expense Types"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:338
+msgid "No Expense Types Found"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:421
+msgid "Reference No"
+msgstr ""
+
+#: includes/class-wpd-expense-custom-post-type.php:422
+msgid "Date Created"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:137
+#: includes/reports/class-wpd-dashboard-report.php:191
+#: includes/reports/class-wpd-expense-report.php:173
+#: includes/reports/class-wpd-inventory-report.php:197
+#: includes/reports/class-wpd-profit-by-customer-report.php:204
+#: includes/reports/class-wpd-profit-by-order-report.php:205
+#: includes/reports/class-wpd-profit-by-product-report.php:191
+#, php-format
+msgid ""
+"You've exhausted your memory usage. Increase your PHP memory limit or reduce "
+"the date range. Your current PHP memory limit is %s."
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:371
+#: includes/class-wpd-profit-loss-statement.php:376
+#: includes/reports/class-wpd-dashboard-report.php:680
+#: includes/reports/class-wpd-expense-report.php:743
+#: includes/reports/class-wpd-expense-report.php:774
+#: includes/reports/class-wpd-expense-report.php:845
+#: includes/reports/class-wpd-inventory-report.php:742
+#: includes/reports/class-wpd-inventory-report.php:777
+#: includes/reports/class-wpd-inventory-report.php:830
+#: includes/reports/class-wpd-profit-by-customer-report.php:932
+#: includes/reports/class-wpd-profit-by-customer-report.php:954
+#: includes/reports/class-wpd-profit-by-customer-report.php:967
+#: includes/reports/class-wpd-profit-by-order-report.php:735
+#: includes/reports/class-wpd-profit-by-order-report.php:757
+#: includes/reports/class-wpd-profit-by-order-report.php:770
+#: includes/reports/class-wpd-profit-by-product-report.php:908
+#: includes/reports/class-wpd-profit-by-product-report.php:934
+#: includes/reports/class-wpd-profit-by-product-report.php:961
+msgid "Filter"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:379
+#, php-format
+msgid "Found %s orders & %s expenses between %s and %s (%s days)."
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:393
+msgid "Export To PDF"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:394
+msgid "Export To CSV"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:417
+#: includes/reports/class-wpd-expense-report.php:664
+#: includes/reports/class-wpd-profit-by-customer-report.php:1080
+#: includes/reports/class-wpd-profit-by-order-report.php:883
+#: includes/reports/class-wpd-profit-by-product-report.php:1074
+msgid "Select Your Date Range"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:476
+msgid "to"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:481
+#: includes/reports/class-wpd-profit-by-customer-report.php:840
+#: includes/reports/class-wpd-profit-by-customer-report.php:1187
+#: includes/reports/class-wpd-profit-by-customer-report.php:1320
+#: includes/reports/class-wpd-profit-by-customer-report.php:1365
+#: includes/reports/class-wpd-profit-by-customer-report.php:1393
+#: includes/reports/class-wpd-profit-by-customer-report.php:1413
+#: includes/reports/class-wpd-profit-by-order-report.php:643
+#: includes/reports/class-wpd-profit-by-order-report.php:1132
+#: includes/reports/class-wpd-profit-by-product-report.php:815
+#: includes/reports/class-wpd-profit-by-product-report.php:1182
+#: includes/reports/class-wpd-profit-by-product-report.php:1305
+#: includes/reports/class-wpd-profit-by-product-report.php:1329
+msgid "Revenue"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:484
+msgid "Excluding sales tax"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:488
+msgid "Sales Tax Collected"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:492
+#: includes/reports/class-wpd-profit-by-customer-report.php:1174
+msgid "Refunds"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:496
+#: includes/class-wpd-profit-loss-statement.php:666
+msgid "Total Net Revenue"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:503
+#: includes/class-wpd-profit-loss-statement.php:667
+msgid "Cost Of Goods Sold"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:507
+#: includes/class-wpd-profit-loss-statement.php:668
+msgid "Shipping Expenses"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:511
+#: includes/class-wpd-profit-loss-statement.php:669
+msgid "Payment Gateway Expenses"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:515
+#: includes/class-wpd-profit-loss-statement.php:670
+msgid "Sales Tax Owed"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:519
+msgid "Gross Profit (pre-tax)"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:523
+msgid "Gross Profit (post-tax)"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:560
+#: includes/class-wpd-profit-loss-statement.php:672
+msgid "Total Expenses"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:564
+#: includes/class-wpd-profit-loss-statement.php:673
+msgid "Net Income"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:565
+msgid "After Taxes"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:663
+msgid "Date Period"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:664
+#: includes/emails/wpd-email-template_profit_report.php:44
+#: includes/reports/class-wpd-dashboard-report.php:906
+#: includes/reports/class-wpd-profit-by-order-report.php:940
+msgid "Total Order Revenue"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:665
+msgid "Total Refund Value"
+msgstr ""
+
+#: includes/class-wpd-profit-loss-statement.php:671
+msgid "Gross Profit"
+msgstr ""
+
+#: includes/class-wpd-user-tracking.php:262
+msgid "Couldn't Find Any Session Data For This User"
+msgstr ""
+
+#: includes/emails/wpd-email-functions.php:59
+msgid "Your Profit Report From Alpha Insights"
+msgstr ""
+
+#: includes/emails/wpd-email-functions.php:90
+msgid "Your Expense Report From Alpha Insights"
+msgstr ""
+
+#: includes/emails/wpd-email-functions.php:121
+msgid "Your Inventory Report From Alpha Insights"
+msgstr ""
+
+#: includes/emails/wpd-email-functions.php:134
+msgid "Email doesn't exist."
+msgstr ""
+
+#: includes/emails/wpd-email-functions.php:165
+msgid "couldn't send email"
+msgstr ""
+
+#: includes/emails/wpd-email-functions.php:196
+msgid "Created with pleasure on behalf of"
+msgstr ""
+
+#: includes/emails/wpd-email-template_expense_report.php:29
+#, php-format
+msgid "%s Expense Report"
+msgstr ""
+
+#: includes/emails/wpd-email-template_expense_report.php:36
+#: includes/emails/wpd-email-template_profit_report.php:36
+#, php-format
+msgid "Showing results from %s to %s"
+msgstr ""
+
+#: includes/emails/wpd-email-template_expense_report.php:54
+#: includes/emails/wpd-email-template_expense_report.php:59
+#, php-format
+msgid "Spent On %s"
+msgstr ""
+
+#: includes/emails/wpd-email-template_expense_report.php:75
+msgid "Download Expense Report"
+msgstr ""
+
+#: includes/emails/wpd-email-template_inventory_report.php:26
+#, php-format
+msgid "%s Inventory Report"
+msgstr ""
+
+#: includes/emails/wpd-email-template_inventory_report.php:43
+msgid "Total Stock Value (At Cost)"
+msgstr ""
+
+#: includes/emails/wpd-email-template_inventory_report.php:46
+msgid "Unrealised Profit"
+msgstr ""
+
+#: includes/emails/wpd-email-template_inventory_report.php:52
+msgid "Total Number Of Products"
+msgstr ""
+
+#: includes/emails/wpd-email-template_inventory_report.php:55
+msgid "Number Of Products With Stock Management"
+msgstr ""
+
+#: includes/emails/wpd-email-template_inventory_report.php:58
+msgid "Number Of Out Of Stock Products"
+msgstr ""
+
+#: includes/emails/wpd-email-template_inventory_report.php:61
+msgid "Number Of Low Stock Products"
+msgstr ""
+
+#: includes/emails/wpd-email-template_inventory_report.php:64
+msgid "Number Of Products On Backorder"
+msgstr ""
+
+#: includes/emails/wpd-email-template_inventory_report.php:79
+msgid "Download Inventory Report"
+msgstr ""
+
+#: includes/emails/wpd-email-template_profit_report.php:29
+#, php-format
+msgid "%s Profit Report"
+msgstr ""
+
+#: includes/emails/wpd-email-template_profit_report.php:47
+msgid "Total Order Costs"
+msgstr ""
+
+#: includes/emails/wpd-email-template_profit_report.php:50
+msgid "Total Profit From Orders"
+msgstr ""
+
+#: includes/emails/wpd-email-template_profit_report.php:53
+msgid "Number Of Orders"
+msgstr ""
+
+#: includes/emails/wpd-email-template_profit_report.php:62
+msgid "Total Number Of Products Sold"
+msgstr ""
+
+#: includes/emails/wpd-email-template_profit_report.php:65
+msgid "Total Product Discounts Applied"
+msgstr ""
+
+#: includes/emails/wpd-email-template_profit_report.php:68
+msgid "Order Refunds"
+msgstr ""
+
+#: includes/emails/wpd-email-template_profit_report.php:74
+msgid "Total Net Profit"
+msgstr ""
+
+#: includes/emails/wpd-email-template_profit_report.php:89
+msgid "Download Profit Loss Statement"
+msgstr ""
+
+#: includes/helpers/plugin-update-checker/Puc/v4p10/Plugin/Ui.php:54
+msgid "View details"
+msgstr ""
+
+#: includes/helpers/plugin-update-checker/Puc/v4p10/Plugin/Ui.php:77
+#, php-format
+msgid "More information about %s"
+msgstr ""
+
+#: includes/helpers/plugin-update-checker/Puc/v4p10/Plugin/Ui.php:128
+msgid "Check for updates"
+msgstr ""
+
+#: includes/helpers/plugin-update-checker/Puc/v4p10/Plugin/Ui.php:223
+#, php-format
+msgid "Unknown update checker status \"%s\""
+msgstr ""
+
+#: includes/helpers/plugin-update-checker/Puc/v4p10/Vcs/PluginUpdateChecker.php:98
+msgid "There is no changelog available."
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:675
+#, php-format
+msgid "Hi %s, Welcome To Your Dashboard!"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:676
+#, php-format
+msgid "Showing results for the past %s days"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:797
+msgid "Gain Deeper Insights Into Your Business"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:813
+msgid "Profit By Product & Category"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:822
+msgid "Profit By Customer"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:830
+#: includes/reports/class-wpd-dashboard-report.php:839
+#: includes/reports/class-wpd-dashboard-report.php:848
+msgid "Report"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:906
+#: includes/reports/class-wpd-profit-by-order-report.php:940
+msgid "Total revenue (including tax) with refunds subtracted."
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:908
+#: includes/reports/class-wpd-profit-by-order-report.php:942
+#: includes/reports/class-wpd-profit-by-order-report.php:972
+#: includes/reports/class-wpd-profit-by-order-report.php:1145
+#: includes/reports/class-wpd-profit-by-product-report.php:1120
+#: includes/reports/class-wpd-profit-by-product-report.php:1127
+#: includes/reports/class-wpd-profit-by-product-report.php:1134
+msgid "Per Day"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:913
+#: includes/reports/class-wpd-profit-by-order-report.php:954
+msgid "Total Order Profit"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:913
+#: includes/reports/class-wpd-profit-by-order-report.php:954
+msgid "Total order revenue minus total order cost."
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:915
+#: includes/reports/class-wpd-profit-by-order-report.php:949
+#: includes/reports/class-wpd-profit-by-order-report.php:956
+#: includes/reports/class-wpd-profit-by-order-report.php:986
+msgid "Of Order Revenue"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:920
+#: includes/reports/class-wpd-profit-by-order-report.php:961
+msgid "Total No. Orders"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:920
+#: includes/reports/class-wpd-profit-by-order-report.php:961
+msgid "Number of orders found in the given period."
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:922
+#: includes/reports/class-wpd-profit-by-order-report.php:963
+msgid "Orders Per Day"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:929
+#: includes/reports/class-wpd-expense-report.php:534
+#: includes/reports/class-wpd-profit-by-customer-report.php:1110
+#: includes/reports/class-wpd-profit-by-order-report.php:928
+#: includes/reports/class-wpd-profit-by-product-report.php:1106
+msgid "Overview"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:929
+#: includes/reports/class-wpd-dashboard-report.php:958
+#: includes/reports/class-wpd-profit-by-customer-report.php:1110
+#: includes/reports/class-wpd-profit-by-order-report.php:928
+#: includes/reports/class-wpd-profit-by-product-report.php:1106
+msgid "An overview of sales for the period."
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:930
+#: includes/reports/class-wpd-profit-by-customer-report.php:1111
+#: includes/reports/class-wpd-profit-by-order-report.php:930
+#: includes/reports/class-wpd-profit-by-product-report.php:1108
+#, php-format
+msgid "Profit Analysis From %s to %s (%s days)."
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:940
+msgid "To Do List"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:941
+msgid "Dismiss To Do List"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:958
+msgid "Your Bottomline"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:964
+#: includes/reports/class-wpd-profit-by-order-report.php:1031
+msgid "Breakdown Of Order Costs"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:964
+msgid ""
+"Breakdown of your order costs, If you haven't entered any shipping costs "
+"we'll use the shipping amount you've charged."
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:976
+msgid "Breakdown Of Other Expenses (Top Level)"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:992
+#, php-format
+msgid ""
+"Congratulations! You've been operating at a %s%% profit margin over the past "
+"%s days, that's awesome!"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:1002
+#, php-format
+msgid ""
+"Looks like you haven't quite been profitable over the past %s days, chin up "
+"keep pluggin' away!"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:1014
+msgid "Bottomline Profit"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:1014
+#: includes/reports/class-wpd-profit-by-order-report.php:984
+msgid "Total order profit minus additional expenses for the given period."
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:1020
+msgid "Average Margin"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:1020
+msgid "Your average bottom line margin, all things accounted."
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:1030
+msgid "Your Profit Summary"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:1042
+msgid "Other Expenses"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:1059
+#: includes/reports/class-wpd-profit-by-product-report.php:1218
+msgid "Top 5 Sellers By Profit"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:1078
+#: includes/reports/class-wpd-profit-by-product-report.php:1237
+msgid "Top 5 Sellers By Quantity"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:1079
+#: includes/reports/class-wpd-profit-by-order-report.php:1096
+#: includes/reports/class-wpd-profit-by-product-report.php:1185
+#: includes/reports/class-wpd-profit-by-product-report.php:1238
+#: includes/reports/class-wpd-profit-by-product-report.php:1308
+#: includes/reports/class-wpd-profit-by-product-report.php:1332
+msgid "Quantity Sold"
+msgstr ""
+
+#: includes/reports/class-wpd-dashboard-report.php:1080
+#: includes/reports/class-wpd-profit-by-product-report.php:1239
+msgid "Times Sold"
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:84
+msgid "expense"
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:85
+msgid "expenses"
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:534
+msgid "An overview of expenses for the period."
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:535
+#, php-format
+msgid "Expense Analysis From %s to %s (%s days)."
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:546
+msgid ""
+"The sum of all expenses paid during this period converted to your store "
+"currency."
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:552
+msgid "The total number of expenses paid during this period."
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:558
+msgid "Avg Expenses Per Day"
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:558
+msgid "Your average expenses per day during this period."
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:573
+msgid "Parent Category Expenses"
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:586
+msgid "Stats By Parent Category"
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:587
+#: includes/reports/class-wpd-expense-report.php:628
+msgid "Total Paid"
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:588
+#: includes/reports/class-wpd-expense-report.php:629
+msgid "Quantity"
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:589
+#: includes/reports/class-wpd-expense-report.php:630
+#: includes/reports/class-wpd-profit-by-order-report.php:1139
+#: includes/reports/class-wpd-profit-by-order-report.php:1145
+msgid "Average"
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:598
+#: includes/reports/class-wpd-expense-report.php:639
+msgid "per day"
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:614
+msgid "Child Category Expenses"
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:627
+msgid "Stats By Child Category"
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:683
+msgid "Expense Type"
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:745
+msgid "Filter By Expense Type"
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:766
+#: includes/reports/class-wpd-profit-by-customer-report.php:959
+#: includes/reports/class-wpd-profit-by-order-report.php:762
+#: includes/reports/class-wpd-profit-by-product-report.php:939
+msgid "Date Format"
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:768
+#: includes/reports/class-wpd-profit-by-customer-report.php:961
+#: includes/reports/class-wpd-profit-by-order-report.php:764
+#: includes/reports/class-wpd-profit-by-product-report.php:941
+msgid "Day"
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:769
+#: includes/reports/class-wpd-profit-by-customer-report.php:962
+#: includes/reports/class-wpd-profit-by-order-report.php:765
+#: includes/reports/class-wpd-profit-by-product-report.php:942
+msgid "Month"
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:770
+#: includes/reports/class-wpd-profit-by-customer-report.php:963
+#: includes/reports/class-wpd-profit-by-order-report.php:766
+#: includes/reports/class-wpd-profit-by-product-report.php:943
+msgid "Year"
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:781
+msgid "Export Expense Data To CSV"
+msgstr ""
+
+#: includes/reports/class-wpd-expense-report.php:784
+msgid "Export Expense Totals To CSV"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:91
+#: includes/reports/class-wpd-profit-by-product-report.php:93
+msgid "product"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:92
+#: includes/reports/class-wpd-profit-by-product-report.php:94
+msgid "products"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:645
+#: includes/reports/class-wpd-profit-by-product-report.php:814
+msgid "Product"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:647
+msgid "Cost Price"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:649
+msgid "Value (rrp)"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:650
+msgid "Value (cost)"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:779
+msgid "Product Category Is"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:787
+msgid "Product Tag Is"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:796
+msgid "Title / Content Contains"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:800
+msgid "SKU Contains"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:804
+msgid "Stock Status"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:806
+#: includes/reports/class-wpd-inventory-report.php:815
+msgid "Show All"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:807
+#: includes/wpd-functions.php:1526 includes/wpd-functions.php:1532
+msgid "In Stock"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:808
+msgid "Out Of Stock"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:809
+msgid "On Backorder"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:813
+msgid "Stock Management"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:816
+msgid "Stock Is Managed"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:817
+msgid "Stock Is Not Managed"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:823
+msgid "Equal To (=)"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:824
+msgid "Greater Than (>)"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:825
+msgid "Less Than (<)"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:831
+msgid "Reset Filter"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:863
+msgid ""
+"This is the sum total of all of your product's retail prices which are set "
+"to stock management and have a positive amount of stock."
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:869
+msgid ""
+"This is the sum total of all of your product's cost prices which are set to "
+"stock management and have a positive amount of stock."
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:875
+msgid ""
+"This is the retail price minus the cost prices of all of your products which "
+"have stock management and a positive stock amount."
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:883
+msgid ""
+"Total quantity of stock on hand of products which have stock management & a "
+"positive stock amount."
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:889
+msgid ""
+"Total number of products found (this includes both variables and variations)."
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:895
+msgid "Products With Stock Management"
+msgstr ""
+
+#: includes/reports/class-wpd-inventory-report.php:895
+msgid ""
+"Total number of products which have been set to have their stock managed."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:93
+#: includes/reports/class-wpd-profit-by-order-report.php:100
+msgid "order"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:94
+#: includes/reports/class-wpd-profit-by-order-report.php:101
+msgid "orders"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:839
+msgid "Customer"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:842
+msgid "# Orders"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:843
+#: includes/reports/class-wpd-profit-by-product-report.php:818
+msgid "Qty Sold"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:844
+msgid "Refund Amount"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:974
+msgid "Export Customer Data To CSV"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:977
+msgid "Export Customer Totals To CSV"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1121
+msgid "Total Number of Customers"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1121
+#: includes/reports/class-wpd-profit-by-product-report.php:1139
+msgid "Number of times a product was refunded during this period."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1123
+msgid "Are Registered Customers"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1128
+msgid "Average Customer LTV (Revenue)"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1128
+msgid "The average revenue per customer in the given period."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1130
+msgid "Largest order"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1135
+msgid "Average Customer LTV (Profit)"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1135
+msgid "The average profit per customer in the given period."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1142
+#: includes/reports/class-wpd-profit-by-product-report.php:819
+msgid "Purchase Rate"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1142
+msgid "Average number of times a customer places an order in this period."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1144
+msgid "customers purchased more than once"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1151
+msgid "Number of Countries"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1151
+msgid "Number of countries your customers are in."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1153
+#: includes/reports/class-wpd-profit-by-customer-report.php:1160
+msgid "is the most popular"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1158
+msgid "Number of States"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1158
+msgid ""
+"Number of states customers are in (only shown for the most popular country)."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1165
+msgid "Products Purchased Per Customer"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1165
+msgid ""
+"On average, the amount of products purchased per customer (this is not total "
+"quantity, simple unique products)."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1167
+msgid "products sold"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1172
+msgid "Refunds Per Customer"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1172
+msgid "The percentage of customers who were given a refund during this period."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1184
+msgid "Device Insights"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1185
+msgid "Device"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1186
+#: includes/reports/class-wpd-profit-by-customer-report.php:1319
+#: includes/reports/class-wpd-profit-by-customer-report.php:1364
+msgid "Customers"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1189
+msgid "Orders"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1190
+#: includes/reports/class-wpd-profit-by-product-report.php:1184
+#: includes/reports/class-wpd-profit-by-product-report.php:1307
+#: includes/reports/class-wpd-profit-by-product-report.php:1331
+msgid "Products Sold"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1229
+msgid "Customers By Browser"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1243
+msgid "Customers By Device"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1259
+msgid "Guests vs Registered Customers"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1273
+msgid "Guests vs Registered"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1274
+msgid "Count"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1279
+msgid "Guest Customers"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1284
+msgid "Registered Customers"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1289
+msgid "Total Customers"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1305
+msgid "Customers By Country"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1318
+#: includes/reports/class-wpd-profit-by-customer-report.php:1363
+msgid "Breakdown"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1349
+msgid "Customers By State"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1349
+msgid "By Top Peforming Country"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1392
+msgid "Top 5 Most Active Customers"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1395
+#: includes/reports/class-wpd-profit-by-customer-report.php:1415
+msgid "# orders"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-customer-report.php:1412
+msgid "Top 5 Most Profitable Customers"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:638
+#: includes/reports/class-wpd-profit-by-order-report.php:639
+msgid "Date"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:640
+msgid "Order ID"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:641
+#: includes/reports/class-wpd-profit-by-order-report.php:642
+msgid "Status"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:777
+msgid "Export Order Data To CSV"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:780
+msgid "Export Order Totals To CSV"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:947
+msgid "Total Order Cost"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:947
+msgid "The sum of product cost, shipping cost, payment gateway fees & tax."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:970
+msgid "Number of non order-related expenses found in the given period."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:977
+msgid "Total amount of additional expenses paid during this period."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:979
+msgid "Of Total Profits"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:999
+msgid "Revenue & Profit By Day"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1013
+msgid "Revenue & Profit By Time"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1032
+msgid ""
+"If you haven't entered any shipping costs we'll use the shipping amount "
+"you've charged"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1046
+msgid "Most Popular Payment Gateways"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1063
+msgid "Average order value for given period."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1069
+msgid ""
+"Profit per order, useful for considering your your taget customer "
+"acquisition cost."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1075
+msgid "Average No. Items Sold Per Order"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1075
+msgid "The average number of SKU's per order sold in this period."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1081
+msgid "Your Largest Order"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1081
+msgid "This is the biggest order we found in this period."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1092
+msgid "Product Insights"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1092
+msgid "These statistics are only related to product data within an order."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1093
+#: includes/reports/class-wpd-profit-by-product-report.php:1148
+msgid "Product Revenue"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1094
+msgid "Product Discounts"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1095
+msgid "Items Sold"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1101
+msgid "Total"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1105
+msgid "Of Total Revenue"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1110
+msgid "Average Product Discount"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1116
+msgid "Per Order"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1131
+msgid "Order Insights"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1151
+msgid "Per 30 Days"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1151
+#: includes/reports/class-wpd-profit-by-order-report.php:1157
+msgid "Projected Average"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1157
+msgid "Per 365 Days"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1163
+msgid "Maximum"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1163
+msgid "Highest Recorded Values"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1174
+msgid "Extra Insights"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1178
+msgid "Shipping Collected"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1181
+#: includes/reports/class-wpd-profit-by-order-report.php:1195
+#: includes/reports/class-wpd-profit-by-order-report.php:1202
+#: includes/reports/class-wpd-profit-by-order-report.php:1209
+msgid "Of Revenue"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1185
+msgid "Shipping Costs"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1188
+msgid "Of Shipping Charged"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1192
+msgid "Payment Gateway Costs"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1199
+msgid "Refunds Paid Out"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1206
+msgid "Tax Collected"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1213
+msgid "Coupon Discounts"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-order-report.php:1216
+msgid "Average Order Discount"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:813
+msgid "Image"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:817
+msgid "# Sales"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:820
+msgid "# Refunds"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:947
+msgid "Combine Variations"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:947
+msgid "This will combine data for product variations into their parent product"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:954
+msgid ""
+"This will exclude free products from the calculations. They will however "
+"still show up on the overview graph as a product sold."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:968
+msgid "Export Product Data To CSV"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:971
+msgid "Export Product Totals To CSV"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1118
+msgid "Total times a product was sold, regardless of quantity."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1125
+msgid "Total QTY Sold"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1125
+msgid "The sum of all product quantities sold in the given period."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1132
+msgid "Total Order Count"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1132
+msgid "Total number of orders placed in this period."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1139
+msgid "Number Of Products Refunded"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1141
+msgid "Refund Rate"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1148
+msgid "Total revenue generated by products only during this period."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1150
+#: includes/reports/class-wpd-profit-by-product-report.php:1157
+#: includes/reports/class-wpd-profit-by-product-report.php:1164
+msgid "At RRP"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1155
+msgid "Product Profit"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1155
+msgid ""
+"Total profit generated by products in this period (product revenue - COGS)"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1162
+msgid "Product Margin"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1162
+msgid "The average margin based on your product revenue & product profit."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1169
+msgid "Average Product Discounts"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1169
+msgid ""
+"On average, the amount of discounts applied to your products. This factors "
+"in free products."
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1171
+#: includes/reports/class-wpd-profit-by-product-report.php:1372
+msgid "Total Discounts"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1181
+msgid "Top 5 Sellers By Revenue"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1228
+#: includes/reports/class-wpd-profit-by-product-report.php:1362
+msgid "benchmark"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1260
+msgid "Top 10 Parent Categories"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1275
+msgid "Top 10 Child Categories"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1291
+msgid "Revenue By Product Type"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1304
+msgid "Stats By Product Type"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1328
+msgid "Tag Insights"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1328
+msgid "Top 5 By Revenue"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1352
+msgid "Least Profitable Products"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1361
+msgid "of all profit"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1371
+msgid "Most Heavily Discounted Products"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1373
+msgid "Average Discount"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1383
+msgid "of all discounts"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1390
+#: includes/reports/class-wpd-profit-by-product-report.php:1422
+msgid "None Found"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1404
+msgid "Most Refunded Products"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1405
+msgid "Quantity Refunded"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1406
+msgid "Revenue Lost"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1433
+msgid "Additional Insights"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1437
+msgid "Max # Products Sold In 1 Order"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1441
+msgid "Max Quantity Sold In 1 Order"
+msgstr ""
+
+#: includes/reports/class-wpd-profit-by-product-report.php:1445
+msgid "Total Product Cost In This Period"
+msgstr ""
+
+#: includes/wpd-ajax.php:30
+msgid "Processing"
+msgstr ""
+
+#: includes/wpd-ajax.php:31 includes/wpd-ajax.php:170 includes/wpd-ajax.php:214
+msgid "We are working on it!"
+msgstr ""
+
+#: includes/wpd-ajax.php:55 includes/wpd-ajax.php:69
+msgid "Processing Your Data"
+msgstr ""
+
+#: includes/wpd-ajax.php:57
+msgid "Download File"
+msgstr ""
+
+#: includes/wpd-ajax.php:94 includes/wpd-ajax.php:181 includes/wpd-ajax.php:225
+#: includes/wpd-ajax.php:228
+msgid "Success!"
+msgstr ""
+
+#: includes/wpd-ajax.php:95
+msgid "Your CSV was succesfully created, click the link to download."
+msgstr ""
+
+#: includes/wpd-ajax.php:98
+msgid "records were found"
+msgstr ""
+
+#: includes/wpd-ajax.php:102
+msgid "Your PDF was succesfully created, click the link to download."
+msgstr ""
+
+#: includes/wpd-ajax.php:112
+msgid "Error"
+msgstr ""
+
+#: includes/wpd-ajax.php:116
+msgid "Something went wrong"
+msgstr ""
+
+#: includes/wpd-ajax.php:117
+msgid "Hm, something went wrong. We were unable to create your CSV file."
+msgstr ""
+
+#: includes/wpd-ajax.php:120
+msgid "Hm, something went wrong. We were unable to create your PDF file."
+msgstr ""
+
+#: includes/wpd-ajax.php:128
+msgid "Something went wrong."
+msgstr ""
+
+#: includes/wpd-ajax.php:129
+msgid "Hm, something went wrong. We were unable to create your document."
+msgstr ""
+
+#: includes/wpd-ajax.php:170 includes/wpd-ajax.php:214
+msgid "Processing..."
+msgstr ""
+
+#: includes/wpd-ajax.php:181
+msgid "Your email has been succesfully sent."
+msgstr ""
+
+#: includes/wpd-ajax.php:184 includes/wpd-ajax.php:188
+#: includes/wpd-ajax.php:232 includes/wpd-ajax.php:235
+msgid "Hm, Something Is Not Quite Right"
+msgstr ""
+
+#: includes/wpd-ajax.php:184 includes/wpd-ajax.php:188
+msgid "Your email was not sent."
+msgstr ""
+
+#: includes/wpd-ajax.php:228
+msgid "Your request has been succesfully completed."
+msgstr ""
+
+#: includes/wpd-ajax.php:232 includes/wpd-ajax.php:235
+msgid "Your action could not be complete."
+msgstr ""
+
+#: includes/wpd-ajax.php:536
+msgid "Could not save the correct setting."
+msgstr ""
+
+#: includes/wpd-ajax.php:558
+msgid "License deactivated succesfully, please refresh this page."
+msgstr ""
+
+#: includes/wpd-ajax.php:564
+msgid "Could not deactivate your license key, try again later."
+msgstr ""
+
+#: includes/wpd-ajax.php:588
+msgid "License activated succesfully, please refresh this page."
+msgstr ""
+
+#: includes/wpd-ajax.php:601
+msgid "Could not activate your license key, try again later."
+msgstr ""
+
+#: includes/wpd-ajax.php:630
+#, php-format
+msgid "License updated succesfully to %s, please refresh this page."
+msgstr ""
+
+#: includes/wpd-ajax.php:635
+#, php-format
+msgid "License updated succesfully, license status is still %s."
+msgstr ""
+
+#: includes/wpd-ajax.php:644
+msgid "Could not fetch a license update."
+msgstr ""
+
+#: includes/wpd-auth.php:183
+msgid "Inactive - API key not set"
+msgstr ""
+
+#: includes/wpd-auth.php:345
+#, php-format
+msgid "You must have a valid license in order to use %s."
+msgstr ""
+
+#: includes/wpd-cron.php:77
+#, php-format
+msgid "Your Daily Profit Report From %s"
+msgstr ""
+
+#: includes/wpd-cron.php:92
+#, php-format
+msgid "Your Daily Inventory Report From %s"
+msgstr ""
+
+#: includes/wpd-cron.php:106
+#, php-format
+msgid "Your Daily Expense Report From %s"
+msgstr ""
+
+#: includes/wpd-cron.php:131
+#, php-format
+msgid "Your Weekly Profit Report From %s"
+msgstr ""
+
+#: includes/wpd-cron.php:145
+#, php-format
+msgid "Your Weekly Inventory Report From %s"
+msgstr ""
+
+#: includes/wpd-cron.php:159
+#, php-format
+msgid "Your Weekly Expense Report From %s"
+msgstr ""
+
+#: includes/wpd-cron.php:185
+#, php-format
+msgid "Your Monthly Profit Report From %s"
+msgstr ""
+
+#: includes/wpd-cron.php:199
+#, php-format
+msgid "Your Monthly Inventory Report From %s"
+msgstr ""
+
+#: includes/wpd-cron.php:213
+#, php-format
+msgid "Your Monthly Expense Report From %s"
+msgstr ""
+
+#: includes/wpd-functions.php:1251
+msgid "Per Page"
+msgstr ""
+
+#: includes/wpd-functions.php:1520
+msgid "Out Stock"
+msgstr ""
+
+#: includes/wpd-functions.php:1521
+msgid "Backorders:"
+msgstr ""
+
+#: includes/wpd-functions.php:1532
+msgid "Stock Not Managed"
+msgstr ""
+
+#: includes/wpd-functions.php:1750
+msgid ""
+"Failed to create the CSV file, check to make sure folder permissions are "
+"okay."
+msgstr ""
+
+#: includes/wpd-functions.php:1777
+msgid "Failed to write CSV, check to make sure folder permissions are okay."
+msgstr ""
+
+#: includes/wpd-functions.php:1795
+msgid ""
+"We couldn't find any data for the given range. Please check your filter and "
+"try again."
+msgstr ""
+
+#: includes/wpd-functions.php:2498
+msgid "Template not found"
+msgstr ""
+
+#: wpd-alpha-insights.php:130
+msgid ""
+"Alpha Insights has not been fully activated as it requires at least PHP "
+msgstr ""
+
+#: wpd-alpha-insights.php:139
+msgid "Alpha Insights requires at least WordPress version "
+msgstr ""
+
+#: wpd-alpha-insights.php:147
+msgid ""
+"Alpha Insights is built for WooCommerce, we've suspended Alpha Insights "
+"until you activate WooCommerce."
+msgstr ""
+
+#: wpd-alpha-insights.php:155
+msgid "Alpha Insights requires at least WooCommerce version "
+msgstr ""
+
+#: wpd-alpha-insights.php:163
+msgid ""
+"You must deactivate the free version of Alpha Insights to unlock all the "
+"features of the full version."
+msgstr ""
+
+#: wpd-alpha-insights.php:212
+msgid "Docs"
+msgstr ""
