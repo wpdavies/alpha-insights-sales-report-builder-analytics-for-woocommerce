@@ -1,0 +1,164 @@
+<h2>Filter: wpd_ai_is_valid_reporting_utm_key</h2>
+
+<p>Filter whether a UTM key is valid for reporting purposes. This allows custom validation logic for UTM parameter keys.</p>
+
+<h3>Description</h3>
+
+<p>Alpha Insights validates UTM keys before using them in reports. This filter allows you to add custom validation logic to determine if a specific UTM key should be included in reporting data.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/functions/wpd-report-functions.php</code></p>
+<p><strong>Function:</strong> <code>wpd_is_valid_reporting_utm_key()</code></p>
+<p><strong>Line:</strong> ~147</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$is_valid</td>
+        <td>bool</td>
+        <td>Whether the key is valid (default: true if key is in valid UTM keys list)</td>
+    </tr>
+    <tr>
+        <td>$key</td>
+        <td>string</td>
+        <td>The UTM key to validate (e.g., 'utm_source', 'utm_campaign')</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> bool</p>
+<p><strong>Description:</strong> True if valid, false to exclude from reporting</p>
+
+<h3>Default Valid Keys</h3>
+
+<p>Alpha Insights recognizes these UTM keys by default:</p>
+<ul>
+    <li>utm_source</li>
+    <li>utm_medium</li>
+    <li>utm_campaign</li>
+    <li>utm_content</li>
+    <li>utm_term</li>
+    <li>utm_id</li>
+    <li>ref</li>
+    <li>coupon</li>
+    <li>source</li>
+    <li>campaign</li>
+    <li>content</li>
+    <li>medium</li>
+    <li>term</li>
+    <li>s</li>
+    <li>search</li>
+    <li>google_cid</li>
+    <li>meta_cid</li>
+</ul>
+
+<h3>Example Usage</h3>
+
+<h3>Add Custom UTM Keys</h3>
+
+<pre><code>add_filter( 'wpd_ai_is_valid_reporting_utm_key', 'allow_custom_utm_keys', 10, 2 );
+function allow_custom_utm_keys( $is_valid, $key ) {
+    // Allow custom tracking keys
+    $custom_keys = array( 'affiliate_id', 'partner_id', 'promo_code' );
+    if ( in_array( $key, $custom_keys ) ) {
+        return true;
+    }
+    return $is_valid;
+}</code></pre>
+
+<h3>Exclude Specific Keys</h3>
+
+<pre><code>add_filter( 'wpd_ai_is_valid_reporting_utm_key', 'exclude_specific_keys', 10, 2 );
+function exclude_specific_keys( $is_valid, $key ) {
+    // Exclude certain keys from reporting
+    $excluded_keys = array( 'internal_ref', 'debug_key' );
+    if ( in_array( $key, $excluded_keys ) ) {
+        return false;
+    }
+    return $is_valid;
+}</code></pre>
+
+<h3>Require UTM Prefix</h3>
+
+<pre><code>add_filter( 'wpd_ai_is_valid_reporting_utm_key', 'require_utm_prefix', 10, 2 );
+function require_utm_prefix( $is_valid, $key ) {
+    // Only allow keys that start with 'utm_'
+    if ( strpos( $key, 'utm_' ) !== 0 ) {
+        return false;
+    }
+    return $is_valid;
+}</code></pre>
+
+<h3>Validate Key Format</h3>
+
+<pre><code>add_filter( 'wpd_ai_is_valid_reporting_utm_key', 'validate_key_format', 10, 2 );
+function validate_key_format( $is_valid, $key ) {
+    // Only allow lowercase alphanumeric keys with underscores
+    if ( ! preg_match( '/^[a-z0-9_]+$/', $key ) ) {
+        return false;
+    }
+    return $is_valid;
+}</code></pre>
+
+<h3>Best Practices</h3>
+
+<ul>
+    <li>Return the original $is_valid value if your logic doesn't apply</li>
+    <li>Use wpd_ai_valid_reporting_utm_keys to add keys to the default list</li>
+    <li>Keep validation logic simple and performant</li>
+    <li>Consider using wpd_ai_valid_reporting_utm_keys filter instead for adding keys</li>
+    <li>This filter is best for excluding keys, not adding them</li>
+</ul>
+
+<h3>Important Notes</h3>
+
+<ul>
+    <li>This filter runs for every UTM key check</li>
+    <li>Returning false excludes the key from reporting</li>
+    <li>Default validation (key in valid list) runs before this filter</li>
+    <li>To add new keys, use wpd_ai_valid_reporting_utm_keys filter instead</li>
+    <li>This filter is best for excluding or conditionally allowing keys</li>
+    <li>Invalid keys are silently excluded (not logged by default)</li>
+</ul>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_valid_reporting_utm_keys.html'>wpd_ai_valid_reporting_utm_keys</a> - Add or modify the list of valid UTM keys (recommended for adding keys)</li>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_is_valid_reporting_utm_value.html'>wpd_ai_is_valid_reporting_utm_value</a> - Validate UTM values</li>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_is_valid_reporting_utm_key_value_pair.html'>wpd_ai_is_valid_reporting_utm_key_value_pair</a> - Validate key-value pairs</li>
+</ul>
+
+<h3>Related Functions</h3>
+
+<ul>
+    <li><code>wpd_is_valid_reporting_utm_key()</code> - Check if UTM key is valid</li>
+    <li><code>wpd_get_valid_reporting_utm_keys()</code> - Get list of valid UTM keys</li>
+    <li><code>wpd_is_valid_reporting_utm_value()</code> - Check if UTM value is valid</li>
+</ul>
+
+<h3>Debugging</h3>
+
+<pre><code>add_filter( 'wpd_ai_is_valid_reporting_utm_key', 'debug_utm_key_validation', 999, 2 );
+function debug_utm_key_validation( $is_valid, $key ) {
+    if ( ! $is_valid ) {
+        error_log( sprintf( 
+            'Alpha Insights: Excluded UTM key: %s', 
+            $key 
+        ) );
+    }
+    return $is_valid;
+}</code></pre>
+
+
+
+
+

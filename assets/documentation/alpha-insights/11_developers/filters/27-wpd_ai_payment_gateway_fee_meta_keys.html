@@ -1,0 +1,169 @@
+<h2>Filter: wpd_ai_payment_gateway_fee_meta_keys</h2>
+
+<p>Filter the list of order meta keys that Alpha Insights checks for payment gateway fees. This allows you to add support for custom payment gateways or modify which meta keys are checked.</p>
+
+<h3>Description</h3>
+
+<p>Alpha Insights automatically detects payment gateway fees by checking specific order meta keys. This filter allows you to add custom meta keys for payment gateways that aren't supported by default, or remove keys that you don't want to track.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPD_Order_Calculator.php</code></p>
+<p><strong>Method:</strong> <code>WPD_Order_Calculator::calculate_payment_gateway_cost()</code></p>
+<p><strong>Line:</strong> ~510</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$meta_keys</td>
+        <td>array</td>
+        <td>Array of order meta keys to check for payment gateway fees (default: common gateway meta keys)</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> array</p>
+<p><strong>Description:</strong> Modified array of meta key strings</p>
+
+<h3>Default Meta Keys</h3>
+
+<p>Alpha Insights checks these meta keys by default:</p>
+<ul>
+    <li>_stripe_fee</li>
+    <li>_paypal_fee</li>
+    <li>PayPal Transaction Fee</li>
+    <li>HitPay_fees</li>
+    <li>_wcpay_transaction_fee</li>
+</ul>
+
+<h3>Example Usage</h3>
+
+<h3>Add Custom Payment Gateway Meta Keys</h3>
+
+<pre><code>add_filter( 'wpd_ai_payment_gateway_fee_meta_keys', 'add_custom_gateway_keys' );
+function add_custom_gateway_keys( $meta_keys ) {
+    // Add meta keys for custom payment gateways
+    $custom_keys = array(
+        '_square_fee',
+        '_authorize_net_fee',
+        '_braintree_fee',
+        '_custom_gateway_fee'
+    );
+    return array_merge( $meta_keys, $custom_keys );
+}</code></pre>
+
+<h3>Remove Specific Gateway Keys</h3>
+
+<pre><code>add_filter( 'wpd_ai_payment_gateway_fee_meta_keys', 'remove_specific_gateway_keys' );
+function remove_specific_gateway_keys( $meta_keys ) {
+    // Remove keys you don't want to track
+    $keys_to_remove = array( 'PayPal Transaction Fee' );
+    return array_diff( $meta_keys, $keys_to_remove );
+}</code></pre>
+
+<h3>Replace Entire List</h3>
+
+<pre><code>add_filter( 'wpd_ai_payment_gateway_fee_meta_keys', 'replace_gateway_keys_list' );
+function replace_gateway_keys_list( $meta_keys ) {
+    // Use only your specific gateway keys
+    return array(
+        '_stripe_fee',
+        '_square_fee',
+        '_custom_gateway_fee'
+    );
+}</code></pre>
+
+<h3>Add Gateway Keys Based on Active Plugins</h3>
+
+<pre><code>add_filter( 'wpd_ai_payment_gateway_fee_meta_keys', 'add_keys_for_active_gateways' );
+function add_keys_for_active_gateways( $meta_keys ) {
+    // Check which payment gateways are active and add their keys
+    if ( class_exists( 'WC_Square' ) ) {
+        $meta_keys[] = '_square_fee';
+    }
+    
+    if ( class_exists( 'WC_Authorize_Net' ) ) {
+        $meta_keys[] = '_authorize_net_fee';
+    }
+    
+    if ( function_exists( 'is_plugin_active' ) && is_plugin_active( 'woocommerce-braintree/woocommerce-braintree.php' ) ) {
+        $meta_keys[] = '_braintree_fee';
+    }
+    
+    return $meta_keys;
+}</code></pre>
+
+<h3>Best Practices</h3>
+
+<ul>
+    <li>Use array_merge() to add keys without losing defaults</li>
+    <li>Use array_diff() to remove specific keys</li>
+    <li>Check your payment gateway documentation for the correct meta key names</li>
+    <li>Test with actual orders to verify keys are being detected</li>
+    <li>Meta keys are case-sensitive - use exact names</li>
+    <li>Some gateways store fees as negative values, which Alpha Insights handles automatically</li>
+</ul>
+
+<h3>Finding Your Gateway's Meta Key</h3>
+
+<p>To find the meta key your payment gateway uses:</p>
+<ol>
+    <li>Create a test order with the payment gateway</li>
+    <li>Go to WooCommerce → Orders → Edit the order</li>
+    <li>Scroll down to "Order Meta" section</li>
+    <li>Look for keys containing "fee" or the gateway name</li>
+    <li>Common patterns: <code>_{gateway}_fee</code>, <code>{Gateway} Fee</code></li>
+</ol>
+
+<h3>Important Notes</h3>
+
+<ul>
+    <li>Meta keys are case-sensitive</li>
+    <li>Alpha Insights checks all keys in the array for each order</li>
+    <li>If multiple keys exist, the first non-zero value found is used</li>
+    <li>Fees stored as negative values are automatically converted to positive costs</li>
+    <li>This only affects fee detection, not fee calculation</li>
+    <li>Changes apply to new calculations, not historical data</li>
+</ul>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_order_payment_gateway_cost_default_value.html'>wpd_ai_order_payment_gateway_cost_default_value</a> - Filter the default payment gateway cost value</li>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_calculate_cost_profit_by_order.html'>wpd_ai_calculate_cost_profit_by_order</a> - Filter complete profit calculation results</li>
+</ul>
+
+<h3>Related Classes</h3>
+
+<ul>
+    <li><code>WPD_Order_Calculator</code> - Order profit calculation</li>
+</ul>
+
+<h3>Debugging</h3>
+
+<pre><code>add_filter( 'wpd_ai_payment_gateway_fee_meta_keys', 'debug_gateway_meta_keys', 999 );
+function debug_gateway_meta_keys( $meta_keys ) {
+    error_log( 'Alpha Insights Payment Gateway Meta Keys: ' . implode( ', ', $meta_keys ) );
+    return $meta_keys;
+}</code></pre>
+
+<p>To see what meta keys exist on an order:</p>
+
+<pre><code>// Add to functions.php temporarily
+add_action( 'woocommerce_admin_order_data_after_order_details', 'debug_order_meta_keys' );
+function debug_order_meta_keys( $order ) {
+    $all_meta = get_post_meta( $order->get_id() );
+    error_log( 'Order #' . $order->get_id() . ' Meta Keys: ' . print_r( array_keys( $all_meta ), true ) );
+}</code></pre>
+
+
+
+
+

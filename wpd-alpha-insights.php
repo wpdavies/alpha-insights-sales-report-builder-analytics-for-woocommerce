@@ -324,12 +324,12 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		// Check DB Version - Schedule deferred update instead of immediate
 		if ( defined( 'WPD_AI_DB_VERSION' ) ) {
-		$installed_db_version = get_option( 'wpd_ai_db_version', null );
-			if ( is_string( $installed_db_version ) && version_compare( $installed_db_version, WPD_AI_DB_VERSION, '<' ) ) {
-			// Schedule DB update to run when classes are loaded
-			update_option( 'wpd_ai_pending_db_update', true );
-			$this->log( 'Database version check detected outdated schema, scheduled deferred update.' );
-		}
+			$installed_db_version = get_option( 'wpd_ai_db_version', null );
+				if ( is_string( $installed_db_version ) && version_compare( $installed_db_version, WPD_AI_DB_VERSION, '<' ) ) {
+				// Schedule DB update to run when classes are loaded
+				update_option( 'wpd_ai_pending_db_update', true );
+				$this->log( 'Database version check detected outdated schema, scheduled deferred update.' );
+			}
 		}
 
 		// Return all collected notices
@@ -725,9 +725,6 @@ class WPD_Alpha_Insights_Free_Plugin {
 		$this->include_plugin_files();	
 		$this->create_uploads_folders();
 
-		// Pro version updating
-		if ( WPD_AI_PRO ) $this->check_for_updates();
-
 	}
 
 	/**
@@ -737,11 +734,10 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		// Functions
 		require_once( WPD_AI_PATH . 'includes/wpd-functions.php');
-		require_once( WPD_AI_PATH . 'includes/functions/wpd-license-functions.php');
+		require_once( WPD_AI_PATH . 'includes/functions/wpd-csv-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-hpos-compatability-functions.php');
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-currency-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-url-parsing-functions.php' );
-		require_once( WPD_AI_PATH . 'includes/functions/wpd-csv-pdf-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-cache-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-formatting-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-data-fetch-functions.php' );
@@ -753,10 +749,8 @@ class WPD_Alpha_Insights_Free_Plugin {
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-report-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-settings-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-deprecated.php');
-		require_once( WPD_AI_PATH . 'includes/emails/wpd-email-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-subscription-functions.php' );
-		require_once( WPD_AI_PATH . 'includes/functions/wpd-google-functions.php' );
-		require_once( WPD_AI_PATH . 'includes/functions/wpd-facebook-functions.php' );
+		require_once( WPD_AI_PATH . 'includes/emails/wpd-email-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-custom-cost-functions.php' );
 		
 		// Admin
@@ -767,13 +761,6 @@ class WPD_Alpha_Insights_Free_Plugin {
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Alpha_Insights_Core.php');
 		require_once( WPD_AI_PATH . 'includes/wpd-scripts-styles.php' );
 		require_once( WPD_AI_PATH . 'includes/wpd-ajax.php' );
-
-		// Register Custom Post Types
-		if ( WPD_AI_PRO ) {
-			require_once( WPD_AI_PATH . 'includes/custom-post-types/expense-custom-post-type.php');
-			require_once( WPD_AI_PATH . 'includes/custom-post-types/facebook-campaigns-custom-post-type.php');
-			require_once( WPD_AI_PATH . 'includes/custom-post-types/google-ad-campaigns-custom-post-type.php');
-		}
 
 		// Additional Classes -> No Dependencies
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Admin_Menu.php');		
@@ -790,40 +777,27 @@ class WPD_Alpha_Insights_Free_Plugin {
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Data_Manager.php');
 
 		// Additional Classes - With Dependencies
+		require_once( WPD_AI_PATH . 'includes/classes/interfaces/WPD_Custom_Data_Source_Interface.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPD_Custom_Data_Source_Base.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPD_Custom_Data_Source_Registry.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Data_Warehouse_React.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_React_Report.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Report_Filters.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_WooCommerce_Events.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Cost_Of_Goods_Manager.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Expense_Management_React.php');
-
-		// Pro API classes
-		if ( WPD_AI_PRO ) {
-			require_once( WPD_AI_PATH . 'includes/classes/pro/WPD_Live_Share_Handler.php');
-			require_once( WPD_AI_PATH . 'includes/classes/pro/WPD_Authenticator.php');
-			require_once( WPD_AI_PATH . 'includes/classes/pro/WPD_Facebook_API.php');
-			require_once( WPD_AI_PATH . 'includes/classes/pro/WPD_Facebook_Auth.php');
-			require_once( WPD_AI_PATH . 'includes/classes/pro/WPD_Google_Ads_API.php');
-			require_once( WPD_AI_PATH . 'includes/classes/pro/WPD_Google_Ads_Auth.php');
-
-			// Load AJAX actions
-			new WPD_Facebook_Auth(); // Initialize Facebook Auth (registers AJAX handlers)
-			new WPD_Google_Ads_Auth(); // Initialize Google Ads Auth (registers AJAX handlers)
-		} else {
-			require_once( WPD_AI_PATH . 'includes/classes/WPD_Alpha_Insights_Notices.php');
-		}
-
-		// Pro Integration Classes
-		if ( WPD_AI_PRO ) {
-			require_once( WPD_AI_PATH . 'includes/integrations/pro/WPD_StarShipIt.php');
-		}
 
 		// Register Relevant Actions
 		WPD_React_Report::register_ajax_actions();
 		WPD_Cost_Of_Goods_Manager::register_ajax_actions();
 		WPD_Report_API::register_routes();
-		WPD_Expense_Management_React::register_ajax_actions();
 		WPD_Data_Manager::register_ajax_actions();
+
+		// Load the appropriate loader based on the plugin version
+		if ( WPD_AI_PRO ) {
+			require_once( WPD_AI_PATH . 'includes/classes/pro/WPD_Alpha_Insights_Pro_Loader.php');
+		} else {
+			require_once( WPD_AI_PATH . 'includes/classes/WPD_Alpha_Insights_Free_Loader.php');
+		}
 
 	}
 
@@ -860,22 +834,6 @@ class WPD_Alpha_Insights_Free_Plugin {
 		$log_directory = WPD_AI_UPLOADS_FOLDER_SYSTEM . 'log';
 		if ( ! is_dir($log_directory) ) {
 			wp_mkdir_p( $log_directory );
-		}
-
-	}
-
-	/**
-	 * Fetch updates
-	 */
-	public function check_for_updates() {
-
-		if ( get_option( 'wpd_ai_api_key', false ) ) {
-
-			// Just in case plugin isn't loaded
-			if ( function_exists('wpd_fetch_for_updates') && WPD_AI_PRO ) {
-				wpd_fetch_for_updates();
-			}
-
 		}
 
 	}

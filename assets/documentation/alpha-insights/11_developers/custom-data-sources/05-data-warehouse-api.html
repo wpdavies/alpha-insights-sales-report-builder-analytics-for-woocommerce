@@ -1,0 +1,348 @@
+<h2>Data Warehouse API Reference</h2>
+
+<p>The <code>WPD_Data_Warehouse_React</code> instance is passed to your <code>fetch_data()</code> method and provides access to helper methods and other entity data. This allows you to leverage shared functionality and access data from other sources.</p>
+
+<h3>Accessing the Data Warehouse</h3>
+
+<p>The data warehouse instance is available as the second parameter to <code>fetch_data()</code>:</p>
+
+<pre><code>public function fetch_data( $filters, $data_warehouse = null ) {
+    // Always validate first
+    if ( ! $data_warehouse ) {
+        return array( /* empty structure */ );
+    }
+    
+    // Now you can use $data_warehouse methods
+    $date_container = $data_warehouse->get_data_by_date_range_container();
+}</code></pre>
+
+<h3>Date Range Methods</h3>
+
+<h4>get_data_by_date_range_container()</h4>
+
+<p><strong>Purpose:</strong> Get an empty array with dates as keys for the current date range. This is the most important method for proper date alignment.</p>
+
+<p><strong>Returns:</strong> Array with date keys and 0 values</p>
+
+<p><strong>Example:</strong></p>
+
+<pre><code>$date_range_container = $data_warehouse->get_data_by_date_range_container();
+// Returns: array( '2024-01-01' => 0, '2024-01-02' => 0, ... )
+
+// Initialize your metric
+$data_by_date['my_metric'] = $date_range_container;
+
+// Then populate with your data
+foreach ( array_keys( $date_range_container ) as $date_key ) {
+    $data_by_date['my_metric'][ $date_key ] = /* your value */;
+}</code></pre>
+
+<p><strong>Why use this:</strong></p>
+<ul>
+<li>Ensures all dates are present (no missing dates in charts)</li>
+<li>Matches date format and range used by other data sources</li>
+<li>Respects date grouping (day, month, quarter, year)</li>
+<li>Prevents chart rendering issues</li>
+</ul>
+
+<h4>get_data_by_date_containers()</h4>
+
+<p><strong>Purpose:</strong> Get all date containers including metadata.</p>
+
+<p><strong>Returns:</strong> Array with date containers and metadata:</p>
+
+<pre><code>array(
+    'n_days_period' => 30,
+    'date_format' => 'Y-m-d',
+    'date_from' => '2024-01-01',
+    'date_to' => '2024-01-31',
+    'date_range_container' => array( /* dates */ ),
+    'calculations_by_day' => array( /* Mon-Sun */ ),
+    'calculations_by_time' => array( /* 12am-11pm */ )
+)</code></pre>
+
+<p><strong>Example:</strong></p>
+
+<pre><code>$containers = $data_warehouse->get_data_by_date_containers();
+$date_format = $containers['date_format'];
+$n_days = $containers['n_days_period'];</code></pre>
+
+<h4>get_date_from( $format = 'Y-m-d' )</h4>
+
+<p><strong>Purpose:</strong> Get the start date from the filter.</p>
+
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>$format</code> (string): PHP date format string (default: 'Y-m-d')</li>
+</ul>
+
+<p><strong>Returns:</strong> String formatted date</p>
+
+<p><strong>Example:</strong></p>
+
+<pre><code>$date_from = $data_warehouse->get_date_from(); // '2024-01-01'
+$date_from_unix = $data_warehouse->get_date_from( 'U' ); // Unix timestamp</code></pre>
+
+<h4>get_date_to( $format = 'Y-m-d' )</h4>
+
+<p><strong>Purpose:</strong> Get the end date from the filter.</p>
+
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>$format</code> (string): PHP date format string (default: 'Y-m-d')</li>
+</ul>
+
+<p><strong>Returns:</strong> String formatted date</p>
+
+<p><strong>Example:</strong></p>
+
+<pre><code>$date_to = $data_warehouse->get_date_to(); // '2024-01-31'
+$date_to_unix = $data_warehouse->get_date_to( 'U' ); // Unix timestamp</code></pre>
+
+<h4>get_n_days_range()</h4>
+
+<p><strong>Purpose:</strong> Calculate the number of days in the date range.</p>
+
+<p><strong>Returns:</strong> Integer number of days</p>
+
+<p><strong>Example:</strong></p>
+
+<pre><code>$days = $data_warehouse->get_n_days_range(); // 30</code></pre>
+
+<h3>Filter Methods</h3>
+
+<h4>get_filter( $key = null, $default = null )</h4>
+
+<p><strong>Purpose:</strong> Retrieve a filter value or all filters.</p>
+
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>$key</code> (string|null): Specific filter key, or null to get all filters</li>
+<li><code>$default</code> (mixed|null): Default value if key doesn't exist</li>
+</ul>
+
+<p><strong>Returns:</strong> Mixed (filter value, array of all filters, or default)</p>
+
+<p><strong>Example:</strong></p>
+
+<pre><code>// Get specific filter
+$date_format_display = $data_warehouse->get_filter( 'date_format_display', 'day' );
+
+// Get all filters
+$all_filters = $data_warehouse->get_filter();
+
+// Get custom filter (may not exist)
+$custom_filter = $data_warehouse->get_filter( 'my_custom_filter', 'default_value' );</code></pre>
+
+<h3>Data Access Methods</h3>
+
+<h4>get_data( $data_type = false, $data_key = false )</h4>
+
+<p><strong>Purpose:</strong> Access data from other entities that have already been fetched.</p>
+
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>$data_type</code> (string|false): Entity name (e.g., 'orders', 'products', 'customers')</li>
+<li><code>$data_key</code> (string|false): Specific key within the data type (e.g., 'totals', 'data_by_date')</li>
+</ul>
+
+<p><strong>Returns:</strong> Array of data, or false if not found</p>
+
+<p><strong>Available entities:</strong></p>
+<ul>
+<li><code>orders</code> - WooCommerce orders data</li>
+<li><code>customers</code> - Customer metrics</li>
+<li><code>products</code> - Product performance</li>
+<li><code>coupons</code> - Coupon usage</li>
+<li><code>taxes</code> - Tax data</li>
+<li><code>refunds</code> - Refund metrics</li>
+<li><code>subscriptions</code> - WooCommerce Subscriptions data</li>
+<li><code>expenses</code> - Store expenses</li>
+<li><code>store_profit</code> - Store profit calculations</li>
+<li><code>facebook_campaigns</code> - Facebook Ads campaign data</li>
+<li><code>google_campaigns</code> - Google Ads campaign data</li>
+<li><code>analytics</code> - Website analytics</li>
+</ul>
+
+<p><strong>Example:</strong></p>
+
+<pre><code>// Get all orders data
+$orders_data = $data_warehouse->get_data( 'orders' );
+
+// Get orders totals only
+$orders_totals = $data_warehouse->get_data( 'orders', 'totals' );
+
+// Get orders data by date
+$orders_by_date = $data_warehouse->get_data( 'orders', 'data_by_date' );
+
+// Access specific metric
+$total_revenue = $orders_totals['total_order_revenue_ex_tax'] ?? 0;</code></pre>
+
+<p><strong>Note:</strong> Data from other entities is only available if those entities have already been fetched by the report. Check if data exists before using it:</p>
+
+<pre><code>$orders_totals = $data_warehouse->get_data( 'orders', 'totals' );
+if ( $orders_totals && isset( $orders_totals['total_order_revenue_ex_tax'] ) ) {
+    $revenue = $orders_totals['total_order_revenue_ex_tax'];
+}</code></pre>
+
+<h3>Utility Methods</h3>
+
+<h4>get_store_currency()</h4>
+
+<p><strong>Purpose:</strong> Get the store's currency code from WooCommerce settings.</p>
+
+<p><strong>Returns:</strong> String currency code (e.g., 'USD', 'GBP', 'EUR')</p>
+
+<p><strong>Example:</strong></p>
+
+<pre><code>$currency = $data_warehouse->get_store_currency(); // 'USD'</code></pre>
+
+<h4>get_data_table_limit( $entity = null )</h4>
+
+<p><strong>Purpose:</strong> Get the data table limit for pagination. Useful when building data_table data.</p>
+
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>$entity</code> (string|null): Entity name for entity-specific limits</li>
+</ul>
+
+<p><strong>Returns:</strong> Integer limit (default: 500)</p>
+
+<p><strong>Example:</strong></p>
+
+<pre><code>$limit = $data_warehouse->get_data_table_limit(); // 500
+
+// Use when querying database
+global $wpdb;
+$results = $wpdb->get_results( $wpdb->prepare(
+    "SELECT * FROM {$wpdb->prefix}my_table LIMIT %d",
+    $data_warehouse->get_data_table_limit()
+) );</code></pre>
+
+<h4>get_execution_time()</h4>
+
+<p><strong>Purpose:</strong> Get execution time for all data fetching operations.</p>
+
+<p><strong>Returns:</strong> Array with execution time per data type and total</p>
+
+<p><strong>Example:</strong></p>
+
+<pre><code>$execution_times = $data_warehouse->get_execution_time();
+// Returns: array(
+//     'orders' => 0.5,
+//     'products' => 0.3,
+//     'total' => 0.8
+// )</code></pre>
+
+<h4>get_total_db_records()</h4>
+
+<p><strong>Purpose:</strong> Get total number of database records fetched across all data types.</p>
+
+<p><strong>Returns:</strong> Integer count</p>
+
+<p><strong>Example:</strong></p>
+
+<pre><code>$total_records = $data_warehouse->get_total_db_records(); // 1500</code></pre>
+
+<h4>get_errors()</h4>
+
+<p><strong>Purpose:</strong> Get all errors that occurred during data fetching.</p>
+
+<p><strong>Returns:</strong> Array of error messages</p>
+
+<p><strong>Example:</strong></p>
+
+<pre><code>$errors = $data_warehouse->get_errors();
+if ( ! empty( $errors ) ) {
+    // Handle errors
+    foreach ( $errors as $error ) {
+        error_log( 'Data warehouse error: ' . $error );
+    }
+}</code></pre>
+
+<h3>Best Practices</h3>
+
+<h4>1. Always Validate the Data Warehouse</h4>
+
+<pre><code>if ( ! $data_warehouse || ! method_exists( $data_warehouse, 'get_data_by_date_range_container' ) ) {
+    return array( /* empty structure */ );
+}</code></pre>
+
+<h4>2. Use Date Range Container for Time-Series Data</h4>
+
+<pre><code>$date_range_container = $data_warehouse->get_data_by_date_range_container();
+$data_by_date['my_metric'] = $date_range_container;
+// Then populate with your data</code></pre>
+
+<h4>3. Check if Other Entity Data Exists Before Using</h4>
+
+<pre><code>$orders_totals = $data_warehouse->get_data( 'orders', 'totals' );
+if ( $orders_totals && isset( $orders_totals['total_order_revenue_ex_tax'] ) ) {
+    // Use the data
+    $revenue = $orders_totals['total_order_revenue_ex_tax'];
+}</code></pre>
+
+<h4>4. Use Date Methods Instead of Extracting from Filters</h4>
+
+<pre><code>// Good: Use data warehouse methods
+$date_from = $data_warehouse->get_date_from();
+$date_to = $data_warehouse->get_date_to();
+
+// Avoid: Extracting from filters directly
+// $date_from = isset( $filters['date_from'] ) ? $filters['date_from'] : ...;
+</code></pre>
+
+<h3>Complete Example</h3>
+
+<pre><code>public function fetch_data( $filters, $data_warehouse = null ) {
+    $start_time = microtime( true );
+    
+    // Validate data warehouse
+    if ( ! $data_warehouse || ! method_exists( $data_warehouse, 'get_data_by_date_range_container' ) ) {
+        return array(
+            'totals' => array(),
+            'data_by_date' => array(),
+            'total_db_records' => 0,
+            'execution_time' => microtime( true ) - $start_time,
+        );
+    }
+    
+    // Get date range using data warehouse methods
+    $date_from = $data_warehouse->get_date_from();
+    $date_to = $data_warehouse->get_date_to();
+    $days_range = $data_warehouse->get_n_days_range();
+    
+    // Get date range container for proper alignment
+    $date_range_container = $data_warehouse->get_data_by_date_range_container();
+    
+    // Optionally access other entity data
+    $orders_totals = $data_warehouse->get_data( 'orders', 'totals' );
+    $store_currency = $data_warehouse->get_store_currency();
+    
+    // Fetch your data...
+    // ...
+    
+    // Build data_by_date using the container
+    $data_by_date = array(
+        'my_metric_by_date' => $date_range_container,
+    );
+    
+    // Populate with your data
+    foreach ( array_keys( $date_range_container ) as $date_key ) {
+        $data_by_date['my_metric_by_date'][ $date_key ] = /* your value */;
+    }
+    
+    return array(
+        'totals' => array( /* ... */ ),
+        'data_by_date' => $data_by_date,
+        'total_db_records' => 100,
+        'execution_time' => microtime( true ) - $start_time,
+    );
+}</code></pre>
+
+<h3>Related Documentation</h3>
+
+<ul>
+<li><strong>WPD_Data_Warehouse_React Class Reference</strong> - Full class documentation (see classes folder)</li>
+<li><strong>The fetch_data() Method</strong> - Using the data warehouse in fetch_data()</li>
+</ul>

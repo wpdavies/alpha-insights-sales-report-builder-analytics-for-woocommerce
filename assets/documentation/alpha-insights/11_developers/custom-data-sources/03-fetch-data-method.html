@@ -1,0 +1,351 @@
+<h2>The fetch_data() Method</h2>
+
+<p>The <code>fetch_data()</code> method is the core of your custom data source. It fetches your data and returns it in a format that Alpha Insights can understand and display.</p>
+
+<h3>Method Signature</h3>
+
+<pre><code>public function fetch_data( $filters, $data_warehouse = null )</code></pre>
+
+<h3>Parameters</h3>
+
+<h4>$filters (array)</h4>
+
+<p>An array of filters passed from the report configuration. Common filters include:</p>
+
+<ul>
+<li><code>date_from</code> (string): Start date in Y-m-d format (e.g., '2024-01-01')</li>
+<li><code>date_to</code> (string): End date in Y-m-d format (e.g., '2024-12-31')</li>
+<li><code>date_format_display</code> (string): Date grouping format - 'day', 'month', 'quarter', or 'year'</li>
+<li>Additional custom filters may be present based on widget configuration</li>
+</ul>
+
+<p><strong>Example:</strong></p>
+
+<pre><code>array(
+    'date_from' => '2024-01-01',
+    'date_to' => '2024-12-31',
+    'date_format_display' => 'month',
+    // Custom filters specific to your implementation...
+)</code></pre>
+
+<h4>$data_warehouse (WPD_Data_Warehouse_React|null)</h4>
+
+<p>The data warehouse instance provides access to helper methods and other entity data. This parameter is crucial for proper date alignment and accessing shared functionality.</p>
+
+<p><strong>Important:</strong> Always validate that the data warehouse is available before using it:</p>
+
+<pre><code>if ( ! $data_warehouse || ! method_exists( $data_warehouse, 'get_data_by_date_range_container' ) ) {
+    // Return empty structure
+    return array( ... );
+}</code></pre>
+
+<p>See <strong>Data Warehouse API Reference</strong> for available methods.</p>
+
+<h3>Return Value</h3>
+
+<p>Must return an array with the following optional keys (all keys are optional, but must match the structure if provided):</p>
+
+<pre><code>array(
+    'totals'              => array(...),      // Aggregated totals/metrics
+    'categorized_data'    => array(...),      // Data grouped by categories
+    'data_table'          => array(...),      // Tabular data for data table widgets
+    'data_by_date'        => array(...),      // Time-series data keyed by date
+    'total_db_records'    => 0,               // Number of records fetched
+    'execution_time'      => 0.0              // Execution time in seconds
+)</code></pre>
+
+<h3>Data Structure Details</h3>
+
+<h4>totals (array)</h4>
+
+<p>Aggregated totals/metrics. Keys are metric names, values are numeric values.</p>
+
+<pre><code>'totals' => array(
+    'total_custom_metric' => 1250.50,
+    'total_custom_count' => 42,
+    'average_custom_value' => 29.77,
+    'custom_percentage' => 15.5,
+)</code></pre>
+
+<p><strong>Important:</strong> Metric keys here must match keys defined in <code>get_data_mapping()</code> 'totals' section.</p>
+
+<h4>categorized_data (array)</h4>
+
+<p>Data grouped by categories for pie charts, doughnut charts, bar charts, etc. Structure:</p>
+
+<pre><code>'categorized_data' => array(
+    'category_key' => array(
+        'label' => 'Category Display Name',    // Optional: display name
+        'total_custom_metric' => 500.25,       // Metric values
+        'total_custom_count' => 15,
+        // Additional metrics...
+    ),
+    'another_category' => array(
+        'label' => 'Another Category',
+        'total_custom_metric' => 750.75,
+        'total_custom_count' => 20,
+    ),
+)</code></pre>
+
+<p><strong>Notes:</strong></p>
+<ul>
+<li>Category keys (e.g., 'category_key') are used in widget configurations</li>
+<li>The 'label' key is optional but recommended for better display</li>
+<li>Metric keys inside each category must match 'value' keys in <code>get_data_mapping()</code> 'categorized_data' 'metric_fields'</li>
+</ul>
+
+<h4>data_table (array)</h4>
+
+<p>Tabular data for data table widgets. Structure:</p>
+
+<pre><code>'data_table' => array(
+    'table_key' => array(
+        array(
+            'id' => 1,
+            'name' => 'Item 1',
+            'value' => 125.50,
+            'category' => 'category_a',
+            'date' => '2024-01-01',
+        ),
+        array(
+            'id' => 2,
+            'name' => 'Item 2',
+            'value' => 250.75,
+            'category' => 'category_b',
+            'date' => '2024-01-02',
+        ),
+        // More rows...
+    ),
+)</code></pre>
+
+<p><strong>Notes:</strong></p>
+<ul>
+<li>Table keys (e.g., 'table_key') must match keys in <code>get_data_mapping()</code> 'data_table' section</li>
+<li>Each array element is a table row</li>
+<li>Column keys should match column definitions in the mapping</li>
+<li>Use data table limits for performance (see <strong>Data Warehouse API Reference</strong>)</li>
+</ul>
+
+<h4>data_by_date (array)</h4>
+
+<p>Time-series data keyed by date. This is used for line charts, area charts, and time-based bar charts.</p>
+
+<p><strong>CRITICAL:</strong> Always initialize metrics using the date range container from the data warehouse to ensure proper date alignment:</p>
+
+<pre><code>$date_range_container = $data_warehouse->get_data_by_date_range_container();
+
+'data_by_date' => array(
+    'metric_key' => $date_range_container,  // Initialize with container
+    // Then populate with your data
+)</code></pre>
+
+<p><strong>Complete example:</strong></p>
+
+<pre><code>$date_range_container = $data_warehouse->get_data_by_date_range_container();
+$data_by_date = array(
+    'total_custom_metric_by_date' => $date_range_container,
+    'total_custom_count_by_date' => $date_range_container,
+);
+
+// Populate with actual data
+foreach ( array_keys( $date_range_container ) as $date_key ) {
+    // Fetch or calculate your data for this date
+    $data_by_date['total_custom_metric_by_date'][ $date_key ] = /* your value */;
+    $data_by_date['total_custom_count_by_date'][ $date_key ] = /* your value */;
+}</code></pre>
+
+<p><strong>Why use the date container?</strong></p>
+<ul>
+<li>Ensures all dates are present (even if you have no data for a date)</li>
+<li>Matches date format and range used by other data sources</li>
+<li>Prevents chart rendering issues with missing dates</li>
+<li>Respects date grouping (day, month, quarter, year) from filters</li>
+</ul>
+
+<p><strong>Important:</strong> Metric keys must match keys defined in <code>get_data_mapping()</code> 'data_by_date' section.</p>
+
+<h4>total_db_records (int)</h4>
+
+<p>The number of database records processed. Used for performance tracking and debugging.</p>
+
+<pre><code>'total_db_records' => 150</code></pre>
+
+<h4>execution_time (float) - AUTOMATICALLY TRACKED</h4>
+
+<p><strong>DO NOT include this in your return array.</strong> Execution time is automatically measured and added by the data warehouse.</p>
+
+<p>The data warehouse automatically tracks execution time by:</p>
+<ol>
+<li>Recording <code>microtime(true)</code> before calling your <code>fetch_data()</code> method</li>
+<li>Recording <code>microtime(true)</code> after your method returns</li>
+<li>Calculating the difference and storing it in the data structure</li>
+</ol>
+
+<p>You do not need to manually track or return execution time. If you include it in your return array, it will be ignored and replaced with the automatically calculated value.</p>
+
+<h4>memory_usage (int) - AUTOMATICALLY TRACKED</h4>
+
+<p><strong>DO NOT include this in your return array.</strong> Memory usage is automatically measured and added by the data warehouse (in bytes).</p>
+
+<p>The data warehouse automatically tracks memory usage by:</p>
+<ol>
+<li>Recording <code>memory_get_usage(true)</code> before calling your <code>fetch_data()</code> method</li>
+<li>Recording <code>memory_get_usage(true)</code> after your method returns</li>
+<li>Calculating the difference (memory used during execution) and storing it in the data structure</li>
+</ol>
+
+<p>This provides accurate memory consumption metrics for performance monitoring and debugging.</p>
+
+<h3>Performance Metrics (Automatic)</h3>
+
+<p><strong>Important:</strong> You do NOT need to manually track performance metrics. The data warehouse automatically tracks:</p>
+
+<ul>
+<li><strong>execution_time</strong> - Execution time in seconds (float)</li>
+<li><strong>memory_usage</strong> - Memory consumed during execution in bytes (int)</li>
+</ul>
+
+<p>These metrics are automatically measured before and after your <code>fetch_data()</code> method is called and are automatically added to the stored data structure. Do not include them in your return array.</p>
+
+<h3>Best Practices</h3>
+
+<h4>1. Always Validate Data Warehouse</h4>
+
+<pre><code>if ( ! $data_warehouse || ! method_exists( $data_warehouse, 'get_data_by_date_range_container' ) ) {
+    return array(
+        'totals' => array(),
+        'categorized_data' => array(),
+        'data_table' => array(),
+        'data_by_date' => array(),
+        'total_db_records' => 0,
+        'execution_time' => microtime( true ) - $start_time,
+    );
+}</code></pre>
+
+<h4>2. Use Date Range Container for data_by_date</h4>
+
+<p>Always initialize time-series metrics with the date range container:</p>
+
+<pre><code>$date_range_container = $data_warehouse->get_data_by_date_range_container();
+$data_by_date['my_metric'] = $date_range_container;
+// Then populate with data</code></pre>
+
+<h4>3. Don't Track Performance Metrics</h4>
+
+<p>Execution time and memory usage are automatically tracked. Do not include them in your return array:</p>
+
+<pre><code>// DON'T do this:
+return array(
+    'totals' => $totals,
+    'execution_time' => microtime( true ) - $start_time, // ❌ Don't include
+    'memory_usage' => $memory_used, // ❌ Don't include
+);
+
+// DO this instead:
+return array(
+    'totals' => $totals,
+    // execution_time and memory_usage are automatically added
+);</code></pre>
+
+<h4>4. Use Prepared Statements for Database Queries</h4>
+
+<pre><code>global $wpdb;
+$results = $wpdb->get_results( $wpdb->prepare(
+    "SELECT * FROM {$wpdb->prefix}my_table WHERE date >= %s AND date <= %s",
+    $date_from,
+    $date_to
+) );</code></pre>
+
+<h4>5. Handle Errors Gracefully</h4>
+
+<pre><code>try {
+    // Fetch data
+    $data = fetch_from_api();
+} catch ( Exception $e ) {
+    // Log error and return empty structure
+    error_log( 'Custom data source error: ' . $e->getMessage() );
+    return array(
+        'totals' => array(),
+        // ... other empty arrays
+        'execution_time' => microtime( true ) - $start_time,
+    );
+}</code></pre>
+
+<h3>Complete Example</h3>
+
+<pre><code>public function fetch_data( $filters, $data_warehouse = null ) {
+    $start_time = microtime( true );
+    
+    // Validate data warehouse
+    if ( ! $data_warehouse || ! method_exists( $data_warehouse, 'get_data_by_date_range_container' ) ) {
+        return array(
+            'totals' => array(),
+            'categorized_data' => array(),
+            'data_table' => array(),
+            'data_by_date' => array(),
+            'total_db_records' => 0,
+            'execution_time' => microtime( true ) - $start_time,
+        );
+    }
+    
+    // Get date range
+    $date_from = isset( $filters['date_from'] ) ? $filters['date_from'] : date( 'Y-m-d', strtotime( '-30 days' ) );
+    $date_to = isset( $filters['date_to'] ) ? $filters['date_to'] : date( 'Y-m-d' );
+    
+    // Get date range container
+    $date_range_container = $data_warehouse->get_data_by_date_range_container();
+    
+    // Fetch data from database
+    global $wpdb;
+    $results = $wpdb->get_results( $wpdb->prepare(
+        "SELECT * FROM {$wpdb->prefix}my_table WHERE date >= %s AND date <= %s",
+        $date_from,
+        $date_to
+    ) );
+    
+    // Build totals
+    $totals = array(
+        'total_metric' => 0,
+        'total_count' => 0,
+    );
+    
+    // Build data_by_date
+    $data_by_date = array(
+        'metric_by_date' => $date_range_container,
+        'count_by_date' => $date_range_container,
+    );
+    
+    // Process results
+    foreach ( $results as $row ) {
+        // Update totals
+        $totals['total_metric'] += floatval( $row->metric_value );
+        $totals['total_count']++;
+        
+        // Update data_by_date
+        $date_key = date( 'Y-m-d', strtotime( $row->date ) );
+        if ( isset( $data_by_date['metric_by_date'][ $date_key ] ) ) {
+            $data_by_date['metric_by_date'][ $date_key ] += floatval( $row->metric_value );
+            $data_by_date['count_by_date'][ $date_key ]++;
+        }
+    }
+    
+    // Calculate execution time
+    $execution_time = microtime( true ) - $start_time;
+    
+        // Return data structure
+        // NOTE: execution_time and memory_usage are automatically tracked and added
+        return array(
+            'totals' => $totals,
+            'data_by_date' => $data_by_date,
+            'total_db_records' => count( $results ),
+            // execution_time and memory_usage are automatically added - don't include them
+        );
+}</code></pre>
+
+<h3>Related Documentation</h3>
+
+<ul>
+<li><strong>The get_data_mapping() Method</strong> - Map your data for React display</li>
+<li><strong>Data Warehouse API Reference</strong> - Available helper methods</li>
+<li><strong>Examples</strong> - Real-world implementation examples</li>
+</ul>

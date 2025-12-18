@@ -1,0 +1,248 @@
+<h2>Creating a Custom Data Source</h2>
+
+<p>This guide walks you through creating a custom data source step-by-step. The process is simple thanks to the base class that handles all registration boilerplate.</p>
+
+<h3>Step 1: Create Your Class File</h3>
+
+<p>Create a new PHP file for your custom data source. For this example, we'll create a file called <code>My_Custom_Data_Source.php</code> in your theme's functions.php directory or your custom plugin.</p>
+
+<pre><code>&lt;?php
+/**
+ * My Custom Data Source
+ *
+ * @package My Theme/Plugin
+ * @since 1.0.0
+ */
+defined( 'ABSPATH' ) || exit;
+
+class My_Custom_Data_Source extends WPD_Alpha_Insights_Data_Source_Base {
+
+    // Step 2: Set your entity name
+    protected $entity_name = 'my_custom_data';
+
+    // Step 3: Implement fetch_data()
+    public function fetch_data( $filters, $data_warehouse = null ) {
+        // Your implementation here
+    }
+
+    // Step 4: Implement get_data_mapping()
+    public function get_data_mapping() {
+        // Your implementation here
+    }
+}
+
+// Step 5: Instantiate to register
+new My_Custom_Data_Source();</code></pre>
+
+<h3>Step 2: Set the Entity Name</h3>
+
+<p>The entity name is the ONLY property you need to set. It serves as a unique identifier for your data source.</p>
+
+<pre><code>protected $entity_name = 'my_custom_data';</code></pre>
+
+<p><strong>Requirements:</strong></p>
+<ul>
+<li>Must be unique (not used by built-in entities or other custom sources)</li>
+<li>Should be lowercase</li>
+<li>Use underscores instead of spaces</li>
+<li>Should be descriptive (e.g., 'inventory_tracking', 'third_party_analytics', 'custom_subscriptions')</li>
+</ul>
+
+<p><strong>Built-in entity names to avoid:</strong></p>
+<ul>
+<li><code>orders</code>, <code>customers</code>, <code>products</code>, <code>coupons</code>, <code>taxes</code>, <code>refunds</code></li>
+<li><code>subscriptions</code>, <code>expenses</code>, <code>store_profit</code></li>
+<li><code>facebook_campaigns</code>, <code>google_campaigns</code>, <code>analytics</code></li>
+</ul>
+
+<h3>Step 3: Implement fetch_data()</h3>
+
+<p>The <code>fetch_data()</code> method is where you fetch and return your data. This method receives filters and the data warehouse instance.</p>
+
+<pre><code>public function fetch_data( $filters, $data_warehouse = null ) {
+    $start_time = microtime( true );
+    
+    // Validate data warehouse is available
+    if ( ! $data_warehouse || ! method_exists( $data_warehouse, 'get_data_by_date_range_container' ) ) {
+        return array(
+            'totals' => array(),
+            'categorized_data' => array(),
+            'data_table' => array(),
+            'data_by_date' => array(),
+            'total_db_records' => 0,
+            'execution_time' => microtime( true ) - $start_time,
+        );
+    }
+    
+    // Get date range container for proper date alignment
+    $date_range_container = $data_warehouse->get_data_by_date_range_container();
+    
+    // Extract date filters
+    $date_from = isset( $filters['date_from'] ) ? $filters['date_from'] : date( 'Y-m-d', strtotime( '-30 days' ) );
+    $date_to = isset( $filters['date_to'] ) ? $filters['date_to'] : date( 'Y-m-d' );
+    
+    // Fetch your data here (database queries, API calls, etc.)
+    // ...
+    
+    // Return data structure
+    return array(
+        'totals' => array(
+            'my_total_metric' => 1234.56,
+        ),
+        'data_by_date' => array(
+            'my_metric_by_date' => $date_range_container, // Initialize with container
+        ),
+        'total_db_records' => 100,
+        'execution_time' => microtime( true ) - $start_time,
+    );
+}</code></pre>
+
+<p>See <strong>The fetch_data() Method</strong> documentation for detailed information about parameters and return structure.</p>
+
+<h3>Step 4: Implement get_data_mapping()</h3>
+
+<p>The <code>get_data_mapping()</code> method defines how React displays and formats your data. This tells the frontend which metrics are available and how to display them.</p>
+
+<pre><code>public function get_data_mapping() {
+    return array(
+        'totals' => array(
+            'label' => 'My Custom Data',
+            'icon' => 'analytics',
+            'totals' => array(
+                'my_total_metric' => array(
+                    'label' => 'My Total Metric',
+                    'type' => 'currency',
+                    'format' => 'currency',
+                    'description' => 'Total value of my custom metric',
+                ),
+            ),
+        ),
+        'data_by_date' => array(
+            'my_metric_by_date' => array(
+                'label' => 'My Metric Over Time',
+                'type' => 'currency',
+                'format' => 'currency',
+                'description' => 'My metric value over time',
+                'chart_calculation' => 'sum',
+            ),
+        ),
+    );
+}</code></pre>
+
+<p>See <strong>The get_data_mapping() Method</strong> documentation for detailed structure requirements.</p>
+
+<h3>Step 5: Instantiate Your Class</h3>
+
+<p>Simply instantiate your class to register it. The base class constructor automatically handles registration via WordPress filters.</p>
+
+<pre><code>// At the end of your file, or in functions.php if you included it
+new My_Custom_Data_Source();</code></pre>
+
+<h3>Complete Example</h3>
+
+<p>Here's a minimal working example:</p>
+
+<pre><code>&lt;?php
+/**
+ * Minimal Custom Data Source Example
+ */
+defined( 'ABSPATH' ) || exit;
+
+class Simple_Custom_Data_Source extends WPD_Alpha_Insights_Data_Source_Base {
+    
+    protected $entity_name = 'simple_custom';
+    
+    public function fetch_data( $filters, $data_warehouse = null ) {
+        $start_time = microtime( true );
+        
+        if ( ! $data_warehouse ) {
+            return array(
+                'totals' => array(),
+                'data_by_date' => array(),
+                'total_db_records' => 0,
+                'execution_time' => microtime( true ) - $start_time,
+            );
+        }
+        
+        $date_range_container = $data_warehouse->get_data_by_date_range_container();
+        
+        return array(
+            'totals' => array(
+                'simple_total' => 500.00,
+            ),
+            'data_by_date' => array(
+                'simple_by_date' => $date_range_container,
+            ),
+            'total_db_records' => 1,
+            'execution_time' => microtime( true ) - $start_time,
+        );
+    }
+    
+    public function get_data_mapping() {
+        return array(
+            'totals' => array(
+                'label' => 'Simple Custom Data',
+                'icon' => 'analytics',
+                'totals' => array(
+                    'simple_total' => array(
+                        'label' => 'Simple Total',
+                        'type' => 'currency',
+                        'format' => 'currency',
+                        'description' => 'A simple custom metric',
+                    ),
+                ),
+            ),
+            'data_by_date' => array(
+                'simple_by_date' => array(
+                    'label' => 'Simple Over Time',
+                    'type' => 'currency',
+                    'format' => 'currency',
+                    'chart_calculation' => 'sum',
+                ),
+            ),
+        );
+    }
+}
+
+new Simple_Custom_Data_Source();</code></pre>
+
+<h3>Loading Your File</h3>
+
+<p>If your file is not in the auto-loaded extensions folder, you need to include it. Common approaches:</p>
+
+<h4>Option 1: Include in functions.php</h4>
+
+<pre><code>// In your theme's functions.php
+require_once get_template_directory() . '/includes/my-custom-data-source.php';</code></pre>
+
+<h4>Option 2: Include in a Plugin</h4>
+
+<pre><code>// In your plugin's main file
+require_once plugin_dir_path( __FILE__ ) . 'includes/my-custom-data-source.php';</code></pre>
+
+<h4>Option 3: Use WordPress Hook</h4>
+
+<pre><code>// In functions.php
+add_action( 'plugins_loaded', function() {
+    require_once get_template_directory() . '/includes/my-custom-data-source.php';
+});</code></pre>
+
+<h3>Verifying Your Data Source</h3>
+
+<p>After creating and loading your custom data source:</p>
+
+<ol>
+<li>Create or edit a report in Alpha Insights</li>
+<li>Add a widget (Metric Card, Chart, etc.)</li>
+<li>In the widget configuration, you should see your entity name in the data source selector</li>
+<li>Your metrics should appear in the metric selector dropdowns</li>
+</li>
+
+<h3>Next Steps</h3>
+
+<ul>
+<li>Review <strong>The fetch_data() Method</strong> for detailed data structure requirements</li>
+<li>Review <strong>The get_data_mapping() Method</strong> for mapping configuration details</li>
+<li>Check out <strong>Data Warehouse API Reference</strong> for available helper methods</li>
+<li>See <strong>Examples</strong> for real-world implementation patterns</li>
+</ul>

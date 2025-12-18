@@ -1,0 +1,364 @@
+<h2>The get_data_mapping() Method</h2>
+
+<p>The <code>get_data_mapping()</code> method defines how React displays and formats your custom data. This method returns a PHP array that is JSON encoded and passed to React, where it's merged into the main mapping objects.</p>
+
+<h3>Method Signature</h3>
+
+<pre><code>public function get_data_mapping()</code></pre>
+
+<h3>Return Value</h3>
+
+<p>Returns an array with optional top-level keys. Each key corresponds to a data type in your <code>fetch_data()</code> return structure:</p>
+
+<ul>
+<li><code>totals</code> - Maps metrics from <code>fetch_data()</code> 'totals' array</li>
+<li><code>data_by_date</code> - Maps metrics from <code>fetch_data()</code> 'data_by_date' array</li>
+<li><code>categorized_data</code> - Maps categories from <code>fetch_data()</code> 'categorized_data' array</li>
+<li><code>data_table</code> - Maps tables from <code>fetch_data()</code> 'data_table' array</li>
+</ul>
+
+<p><strong>Important:</strong> The registry automatically keys this by your entity name (from <code>get_entity_name()</code>), so you return the mapping data directly - NOT wrapped in another entity key.</p>
+
+<h3>totals Mapping</h3>
+
+<p>Maps metrics in your <code>fetch_data()</code> 'totals' array. Structure:</p>
+
+<pre><code>'totals' => array(
+    'label' => 'Display Name',        // Label shown in metric selectors
+    'icon' => 'analytics',            // Material Icons name
+    'totals' => array(                // Metric definitions
+        'metric_key' => array(        // MUST match key in fetch_data() 'totals'
+            'label' => 'Metric Label',
+            'type' => 'currency',     // Data type: currency, number, integer, percentage, text, date
+            'format' => 'currency',   // Display format: currency, integer, decimal, percentage
+            'description' => 'Help text for tooltips',
+        ),
+        // More metrics...
+    ),
+)</code></pre>
+
+<p><strong>Required keys for each metric:</strong></p>
+<ul>
+<li><code>label</code> (string): Display name shown in UI</li>
+<li><code>type</code> (string): Data type (currency, number, integer, percentage, text, date)</li>
+<li><code>format</code> (string): Display format (currency, integer, decimal, percentage)</li>
+<li><code>description</code> (string, optional): Help text/tooltip</li>
+</ul>
+
+<p><strong>Example:</strong></p>
+
+<pre><code>'totals' => array(
+    'label' => 'Inventory Tracking',
+    'icon' => 'inventory_2',
+    'totals' => array(
+        'total_inventory_value' => array(
+            'label' => 'Total Inventory Value',
+            'type' => 'currency',
+            'format' => 'currency',
+            'description' => 'Total value of all inventory items',
+        ),
+        'total_items_count' => array(
+            'label' => 'Total Items',
+            'type' => 'number',
+            'format' => 'integer',
+            'description' => 'Total number of inventory items',
+        ),
+    ),
+)</code></pre>
+
+<h3>data_by_date Mapping</h3>
+
+<p>Maps metrics in your <code>fetch_data()</code> 'data_by_date' array. This is a flat structure - metrics are directly under the entity.</p>
+
+<pre><code>'data_by_date' => array(
+    'metric_key' => array(            // MUST match key in fetch_data() 'data_by_date'
+        'label' => 'Metric Over Time',
+        'type' => 'currency',         // Data type
+        'format' => 'currency',       // Display format
+        'description' => 'Time series description',
+        'chart_calculation' => 'sum', // Optional: sum, average, max, min
+    ),
+    // More metrics...
+)</code></pre>
+
+<p><strong>Required keys:</strong></p>
+<ul>
+<li><code>label</code> (string): Display name in chart legends</li>
+<li><code>type</code> (string): Data type</li>
+<li><code>format</code> (string): Display format</li>
+<li><code>description</code> (string, optional): Help text</li>
+<li><code>chart_calculation</code> (string, optional): Aggregation method - 'sum', 'average', 'max', 'min'</li>
+</ul>
+
+<p><strong>Example:</strong></p>
+
+<pre><code>'data_by_date' => array(
+    'inventory_value_by_date' => array(
+        'label' => 'Inventory Value Over Time',
+        'type' => 'currency',
+        'format' => 'currency',
+        'description' => 'Daily inventory value',
+        'chart_calculation' => 'sum',
+    ),
+    'items_sold_by_date' => array(
+        'label' => 'Items Sold Over Time',
+        'type' => 'integer',
+        'format' => 'integer',
+        'chart_calculation' => 'sum',
+    ),
+)</code></pre>
+
+<h3>categorized_data Mapping</h3>
+
+<p>Maps categories in your <code>fetch_data()</code> 'categorized_data' array. Used for pie charts, doughnut charts, bar charts, and tables.</p>
+
+<pre><code>'categorized_data' => array(
+    'category_key' => array(          // MUST match key in fetch_data() 'categorized_data'
+        'label' => 'Category Display Name',
+        'description' => 'Category description',
+        'color' => '#138fdd',         // Default hex color for charts
+        'icon' => 'category',         // Material Icons name
+        'metric_fields' => array(     // Metrics available for each category
+            array(
+                'label' => 'Metric Label',
+                'value' => 'metric_key',  // MUST match key in categorized_data[category]
+                'type' => 'currency',
+            ),
+            // More metric fields...
+        ),
+    ),
+    // More categories...
+)</code></pre>
+
+<p><strong>Required keys:</strong></p>
+<ul>
+<li><code>label</code> (string): Display name in widget selectors</li>
+<li><code>description</code> (string, optional): Help text</li>
+<li><code>color</code> (string, optional): Default hex color for charts (e.g., '#138fdd')</li>
+<li><code>icon</code> (string, optional): Material Icons name</li>
+<li><code>metric_fields</code> (array): Array of metric field definitions</li>
+</ul>
+
+<p><strong>Metric field keys:</strong></p>
+<ul>
+<li><code>label</code> (string): Display name</li>
+<li><code>value</code> (string): MUST match a key in your <code>categorized_data[category]</code> array</li>
+<li><code>type</code> (string): Data type (currency, number, integer, percentage, text, date)</li>
+</ul>
+
+<p><strong>Example:</strong></p>
+
+<pre><code>'categorized_data' => array(
+    'inventory_by_location' => array(
+        'label' => 'Inventory by Location',
+        'description' => 'Inventory broken down by warehouse location',
+        'color' => '#4caf50',
+        'icon' => 'warehouse',
+        'metric_fields' => array(
+            array(
+                'label' => 'Total Value',
+                'value' => 'total_inventory_value',
+                'type' => 'currency',
+            ),
+            array(
+                'label' => 'Item Count',
+                'value' => 'total_items_count',
+                'type' => 'number',
+            ),
+        ),
+    ),
+)</code></pre>
+
+<h3>data_table Mapping</h3>
+
+<p>Maps tables in your <code>fetch_data()</code> 'data_table' array. Defines the structure of table columns for data table widgets.</p>
+
+<pre><code>'data_table' => array(
+    'table_key' => array(             // MUST match key in fetch_data() 'data_table'
+        'label' => 'Table Display Name',
+        'description' => 'Table description',
+        'icon' => 'table_chart',      // Material Icons name
+        'columns' => array(           // Column definitions
+            'column_key' => array(
+                'label' => 'Column Header',
+                'type' => 'number',   // Data type
+                'format' => 'integer', // Display format
+            ),
+            // More columns...
+        ),
+    ),
+    // More tables...
+)</code></pre>
+
+<p><strong>Required keys:</strong></p>
+<ul>
+<li><code>label</code> (string): Display name in table selector</li>
+<li><code>description</code> (string, optional): Help text</li>
+<li><code>icon</code> (string, optional): Material Icons name</li>
+<li><code>columns</code> (array): Column definitions (keys must match column keys in your table rows)</li>
+</ul>
+
+<p><strong>Column keys:</strong></p>
+<ul>
+<li><code>label</code> (string): Column header text</li>
+<li><code>type</code> (string): Data type (currency, number, integer, percentage, text, date)</li>
+<li><code>format</code> (string, optional): Display format (currency, integer, decimal, percentage)</li>
+</ul>
+
+<p><strong>Example:</strong></p>
+
+<pre><code>'data_table' => array(
+    'inventory_items' => array(
+        'label' => 'Inventory Items',
+        'description' => 'Detailed list of inventory items',
+        'icon' => 'inventory_2',
+        'columns' => array(
+            'id' => array(
+                'label' => 'ID',
+                'type' => 'number',
+                'format' => 'integer',
+            ),
+            'name' => array(
+                'label' => 'Item Name',
+                'type' => 'text',
+            ),
+            'quantity' => array(
+                'label' => 'Quantity',
+                'type' => 'number',
+                'format' => 'integer',
+            ),
+            'value' => array(
+                'label' => 'Value',
+                'type' => 'currency',
+                'format' => 'currency',
+            ),
+            'location' => array(
+                'label' => 'Location',
+                'type' => 'text',
+            ),
+        ),
+    ),
+)</code></pre>
+
+<h3>Data Types and Formats</h3>
+
+<h4>Type Options</h4>
+<ul>
+<li><code>currency</code> - Monetary values</li>
+<li><code>number</code> - Numeric values (floats)</li>
+<li><code>integer</code> - Whole numbers</li>
+<li><code>percentage</code> - Percentage values (0-100)</li>
+<li><code>text</code> - Text/string values</li>
+<li><code>date</code> - Date values</li>
+</ul>
+
+<h4>Format Options</h4>
+<ul>
+<li><code>currency</code> - Format as currency with symbol</li>
+<li><code>integer</code> - Display as whole number</li>
+<li><code>decimal</code> - Display with decimal places</li>
+<li><code>percentage</code> - Display with % symbol</li>
+</ul>
+
+<h3>Material Icons</h3>
+
+<p>Icons use Material Icons naming. Common examples:</p>
+<ul>
+<li><code>analytics</code> - Analytics/statistics</li>
+<li><code>inventory_2</code> - Inventory</li>
+<li><code>category</code> - Categories</li>
+<li><code>table_chart</code> - Tables</li>
+<li><code>warehouse</code> - Warehouse/storage</li>
+<li><code>shopping_cart</code> - Shopping</li>
+<li><code>people</code> - People/customers</li>
+<li><code>trending_up</code> - Growth/trends</li>
+</ul>
+
+<p>Browse all icons at: <a href="https://fonts.google.com/icons" target="_blank">Google Material Icons</a></p>
+
+<h3>Key Matching Requirements</h3>
+
+<p><strong>CRITICAL:</strong> Metric keys in your mapping MUST exactly match keys in your <code>fetch_data()</code> return array:</p>
+
+<ul>
+<li><strong>totals:</strong> Keys in 'totals' > 'totals' array must match keys in <code>fetch_data()</code> 'totals' array</li>
+<li><strong>data_by_date:</strong> Keys in 'data_by_date' array must match keys in <code>fetch_data()</code> 'data_by_date' array</li>
+<li><strong>categorized_data:</strong> Category keys must match keys in <code>fetch_data()</code> 'categorized_data' array, and metric field 'value' keys must match keys in each category array</li>
+<li><strong>data_table:</strong> Table keys must match keys in <code>fetch_data()</code> 'data_table' array, and column keys must match keys in table rows</li>
+</ul>
+
+<h3>Complete Example</h3>
+
+<pre><code>public function get_data_mapping() {
+    return array(
+        'totals' => array(
+            'label' => 'Inventory Tracking',
+            'icon' => 'inventory_2',
+            'totals' => array(
+                'total_inventory_value' => array(
+                    'label' => 'Total Inventory Value',
+                    'type' => 'currency',
+                    'format' => 'currency',
+                    'description' => 'Total value of all inventory',
+                ),
+                'total_items_count' => array(
+                    'label' => 'Total Items',
+                    'type' => 'number',
+                    'format' => 'integer',
+                ),
+            ),
+        ),
+        'data_by_date' => array(
+            'inventory_value_by_date' => array(
+                'label' => 'Inventory Value Over Time',
+                'type' => 'currency',
+                'format' => 'currency',
+                'chart_calculation' => 'sum',
+            ),
+        ),
+        'categorized_data' => array(
+            'inventory_by_location' => array(
+                'label' => 'Inventory by Location',
+                'description' => 'Breakdown by warehouse',
+                'color' => '#4caf50',
+                'icon' => 'warehouse',
+                'metric_fields' => array(
+                    array(
+                        'label' => 'Total Value',
+                        'value' => 'total_inventory_value',
+                        'type' => 'currency',
+                    ),
+                ),
+            ),
+        ),
+        'data_table' => array(
+            'inventory_items' => array(
+                'label' => 'Inventory Items',
+                'icon' => 'table_chart',
+                'columns' => array(
+                    'id' => array(
+                        'label' => 'ID',
+                        'type' => 'number',
+                        'format' => 'integer',
+                    ),
+                    'name' => array(
+                        'label' => 'Name',
+                        'type' => 'text',
+                    ),
+                    'value' => array(
+                        'label' => 'Value',
+                        'type' => 'currency',
+                        'format' => 'currency',
+                    ),
+                ),
+            ),
+        ),
+    );
+}</code></pre>
+
+<h3>Related Documentation</h3>
+
+<ul>
+<li><strong>The fetch_data() Method</strong> - Return data structure</li>
+<li><strong>Creating a Custom Data Source</strong> - Step-by-step guide</li>
+</ul>

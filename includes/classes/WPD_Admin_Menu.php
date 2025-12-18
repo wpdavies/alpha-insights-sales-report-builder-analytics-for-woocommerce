@@ -77,106 +77,105 @@ class WPD_Admin_Menu {
             WPD_AI_URL_PATH . 'assets/img/Alpha-Insights-Icon-20x20.png', 	// Icon URL
             5																// Position (defaults to 5)
         );
-    
-        // Submenu item - Sales Reports
-        add_submenu_page(
-            self::$top_level_menu_slug,						// Parent Slug
-            __( 'Sales Reports', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 	// Page Title
-            __( 'Sales Reports', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 	// Menu Title
-            $capability, 									// Capability
-            self::$sales_report_slug,						// Menu Slug
-            'wpd_profit_reports_page_content',				// Callback (page content)
-            null											// Position
-        );
-    
-        // Submenu item - Website Traffic
-        add_submenu_page( 	
-            self::$top_level_menu_slug, 					// Parent Slug
-            __( 'Website Traffic', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 	// Page Title
-            __( 'Website Traffic', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 	// Menu Title
-            $capability, 								    // Capability
-            self::$website_traffic_slug,	                // Menu Slug
-            'wpd_analytics_dashboard',					    // Callback (page content)
-            null										    // Position
-        );
-    
-        // Submenu item - Profit & Loss Statement
-        add_submenu_page( 
-            self::$top_level_menu_slug, 					// Parent Slug
-            __( 'P&L Statement', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),     // Page Title
-            __( 'P&L Statement', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),     // Menu Title
-            $capability, 								    // Capability
-            self::$profit_loss_statement_slug, 				// Menu Slug
-            'wpd_pl_statement_page', 					    // Callback (page content)
-            null 										    // Position
-        );
-    
-        // Submenu item - Expense management
-        add_submenu_page( 
-            self::$top_level_menu_slug, 					// Parent Slug
-            __( 'Manage Expenses', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 	// Page title
-            __( 'Manage Expenses', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 	// Menu Title
-            $capability, 									// Capability
-            self::$manage_expenses_slug, 					// Menu Slug
-            'wpd_expense_management_page',					// Callback (page content)
-            null 											// Position
-        );
-    
-        // Submenu item - Expense Reports
-        add_submenu_page( 	
-            '',											    // Parent Slug
-            __( 'Expense Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 	// Page Title
-            __( 'Expense Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 	// Menu Title
-            $capability, 									// Capability
-            self::$expense_reports_slug,                    // Menu Slug
-            'wpd_expense_reports_page',						// Callback (page content)
-            null											// Position
+
+        // Child pages
+        $child_pages = array(
+
+            // Submenu item - Sales Reports
+            array(
+                'parent_slug' => self::$top_level_menu_slug,
+                'page_title' => __( 'Sales Reports', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                'menu_title' => __( 'Sales Reports', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                'menu_slug' => self::$sales_report_slug,
+                'page_callback' => 'wpd_profit_reports_page_content',
+                'menu_position' => 10,
+            ),
+
+            // Submenu item - Website Traffic
+            array(
+                'parent_slug' => self::$top_level_menu_slug,
+                'page_title' => __( 'Website Traffic', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                'menu_title' => __( 'Website Traffic', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                'menu_slug' => self::$website_traffic_slug,
+                'page_callback' => 'wpd_analytics_dashboard',
+                'menu_position' => 20,
+            ),
+        
+            // Submenu item - Profit & Loss Statement
+            array(
+                'parent_slug' => self::$top_level_menu_slug,
+                'page_title' => __( 'P&L Statement', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                'menu_title' => __( 'P&L Statement', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                'menu_slug' => self::$profit_loss_statement_slug,
+                'page_callback' => 'wpd_pl_statement_page',
+                'menu_position' => 30,
+            ),
+        
+            // Submenu item - Cost Of Goods Manager
+            array(
+                'parent_slug' => self::$top_level_menu_slug,
+                'page_title' => __( 'Cost Of Goods', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                'menu_title' => __( 'Cost Of Goods', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                'menu_slug' => self::$cost_of_goods_slug,
+                'page_callback' => 'wpd_cost_of_goods_manager_page',
+                'menu_position' => 70,
+            ),
+        
+            // Submenu item - Settings
+            array(
+                'parent_slug' => self::$top_level_menu_slug,
+                'page_title' => __( 'Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                'menu_title' => __( 'Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                'menu_slug' => self::$settings_slug,
+                'page_callback' => 'wpd_settings_page',
+                'menu_position' => 80,
+            ),
+
+            // Submenu item - Getting Started
+            array(
+                'parent_slug' => self::$top_level_menu_slug,
+                'page_title' => __( 'Getting Started', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                'menu_title' => __( 'Getting Started', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                'menu_slug' => self::$getting_started_slug,
+                'page_callback' => 'wpd_getting_started_page',
+                'menu_position' => 90,
+            )
+
+
         );
 
-        // Submenu item - Advertising Reports
-        add_submenu_page( 	
-            '',											        // Parent Slug
-            __( 'Advertising Reports', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 	// Page Title
-            __( 'Advertising Reports', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 	// Menu Title
-            $capability, 									    // Capability
-            self::$advertising_slug,                            // Menu Slug
-            'wpd_advertising_reports_page',						// Callback (page content)
-            null											    // Position
-        );
-    
-        // Submenu item - Cost Of Goods Manager
-        add_submenu_page( 
-            self::$top_level_menu_slug, 					// Parent Slug
-            __( 'Cost Of Goods', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),  	// Page Title
-            __( 'Cost Of Goods', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 	// Menu Title
-            $capability, 								    // Capability
-            self::$cost_of_goods_slug, 				        // Menu Slug
-            'wpd_cost_of_goods_manager_page',			    // Callback (page content)
-            null 										    // Position
-        );
-    
-        // Submenu item - Settings
-        add_submenu_page( 
-            self::$top_level_menu_slug,  					// Parent Slug
-            __( 'Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 	        // Page title
-            __( 'Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 	        // Menu Title
-            $capability, 							        // Capability
-            self::$settings_slug, 						    // Menu Slug
-            'wpd_settings_page', 					        // Callback (page content)
-            null 									        // Position
-        );
+        // Children menu items
+        $child_pages = apply_filters( 'wpd_ai_child_page_register', $child_pages );
 
-        // Submenu item - Getting Started
-        add_submenu_page( 
-            self::$top_level_menu_slug,  					// Parent Slug
-            __( 'Getting Started', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 	// Page title
-            __( 'Getting Started', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 	// Menu Title
-            $capability, 									// Capability
-            self::$getting_started_slug, 					// Menu Slug
-            'wpd_getting_started_page', 					// Callback (page content)
-            null 									        // Position
-        );
-    
+        // Sort child pages by menu_position (lowest first)
+        usort( $child_pages, function( $a, $b ) {
+            $menu_position_a = isset( $a['menu_position'] ) ? intval( $a['menu_position'] ) : 999;
+            $menu_position_b = isset( $b['menu_position'] ) ? intval( $b['menu_position'] ) : 999;
+            
+            return $menu_position_a - $menu_position_b;
+        } );
+
+        // Load all child pages
+        foreach( $child_pages as $child_page ) {
+
+            $required_fields = array('page_title', 'menu_title', 'menu_slug', 'page_callback');
+            foreach( $required_fields as $field ) {
+                if ( ! isset($child_page[$field]) ) {
+                    continue;
+                }
+            }
+
+            add_submenu_page(
+                $child_page['parent_slug'] ?? self::$top_level_menu_slug,
+                $child_page['page_title'],
+                $child_page['menu_title'],
+                $child_page['capability'] ?? $capability,
+                $child_page['menu_slug'],
+                $child_page['page_callback'],
+                $child_page['menu_position'] ?? 0,
+            );
+        }
+
     }
 
     /**
@@ -310,6 +309,7 @@ class WPD_Admin_Menu {
                 'url'   => admin_url( 'admin.php') . '?page=' . self::$sales_report_slug,
                 'icon'  => null,
                 'additional_classes' => array(),
+                'menu_order' => 10,
                 'children' => array(
                     'manage_sales_reports' => array(
                         'title' => __( 'Manage Reports', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
@@ -326,6 +326,7 @@ class WPD_Admin_Menu {
                 'url'   => admin_url( 'admin.php') . '?page=' . self::$website_traffic_slug,
                 'icon'  => null,
                 'additional_classes' => array(),
+                'menu_order' => 20,
                 'children' => array(
                     'manage_website_traffic' => array(
                         'title' => __( 'Manage Reports', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
@@ -342,96 +343,11 @@ class WPD_Admin_Menu {
                 'url'   => admin_url( 'admin.php') . '?page=' . self::$profit_loss_statement_slug,
                 'icon'  => null,
                 'additional_classes' => array(),
+                'menu_order' => 30,
                 'children' => array(
                     'profit_loss_statement_report' => array(
                         'title' => __( 'Profit & Loss Statement', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$profit_loss_statement_slug,
-                        'icon'  => null,
-                        'additional_classes' => array(),
-                    ),
-                )
-            ),
-
-            // Advertising
-            self::$advertising_slug => array(
-                'title' => __( 'Advertising', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
-                'url'   => '#na',
-                'icon'  => null,
-                'additional_classes' => array(),
-                'children' => array(
-                    'facebook_report' => array(
-                        'title' => __( 'Facebook Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
-                        'url'   => admin_url( 'admin.php') . '?page=' . self::$advertising_slug . '&subpage=facebook',
-                        'icon'  => null,
-                        'additional_classes' => array(),
-                    ),
-                    'facebook_expenses' => array(
-                        'title' => __( 'Facebook Expenses', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
-                        'url'   => admin_url( 'admin.php') . '?page=' . self::$manage_expenses_slug . '&subpage=manage-all-expenses',
-                        'icon'  => null,
-                        'additional_classes' => array(),
-                    ),
-                    'facebook_settings' => array(
-                        'title' => __( 'Facebook Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
-                        'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=facebook',
-                        'icon'  => null,
-                        'additional_classes' => array(),
-                    ),
-                    'google_ads_report' => array(
-                        'title' => __( 'Google Ads Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
-                        'url'   => admin_url( 'admin.php') . '?page=' . self::$advertising_slug . '&subpage=google-ads',
-                        'icon'  => null,
-                        'additional_classes' => array(),
-                    ),
-                    'google_ads_expenses' => array(
-                        'title' => __( 'Google Ads Expenses', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
-                        'url'   => admin_url( 'admin.php') . '?page=' . self::$manage_expenses_slug . '&subpage=manage-all-expenses',
-                        'icon'  => null,
-                        'additional_classes' => array(),
-                    ),
-                    'google_ads_settings' => array(
-                        'title' => __( 'Google Ads Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
-                        'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=google-ads',
-                        'icon'  => null,
-                        'additional_classes' => array(),
-                    ),
-                )
-            ),
-
-            // Manage Expenses
-            self::$manage_expenses_slug => array(
-                'title' => __( 'Expense Manager', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
-                'url'   => admin_url( 'admin.php') . '?page=' . self::$manage_expenses_slug,
-                'icon'  => null,
-                'additional_classes' => array(),
-                'children' => array(
-                    'dashboard' => array(
-                        'title' => __( 'Dashboard', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
-                        'url'   => admin_url( 'admin.php') . '?page=' . self::$manage_expenses_slug . '&subpage=dashboard',
-                        'icon'  => null,
-                        'additional_classes' => array(),
-                    ),
-                    'report' => array(
-                        'title' => __( 'Expense Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
-                        'url'   => admin_url( 'admin.php') . '?page=' . self::$expense_reports_slug,
-                        'icon'  => null,
-                        'additional_classes' => array(),
-                    ),
-                    'manage_all_expenses' => array(
-                        'title' => __( 'Manage All Expenses', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
-                        'url'   => admin_url( 'admin.php') . '?page=' . self::$manage_expenses_slug . '&subpage=manage-all-expenses',
-                        'icon'  => null,
-                        'additional_classes' => array(),
-                    ),
-                    'manage_expense_taxonomies' => array(
-                        'title' => __( 'Categories & Suppliers', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
-                        'url'   => admin_url( 'admin.php') . '?page=' . self::$manage_expenses_slug . '&subpage=manage-expense-taxonomies',
-                        'icon'  => null,
-                        'additional_classes' => array(),
-                    ),
-                    'bulk_import_expenses' => array(
-                        'title' => __( 'Bulk Create Expenses', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
-                        'url'   => admin_url( 'admin.php') . '?page=' . self::$manage_expenses_slug . '&subpage=import-expenses',
                         'icon'  => null,
                         'additional_classes' => array(),
                     ),
@@ -444,6 +360,7 @@ class WPD_Admin_Menu {
                 'url'   => admin_url( 'admin.php') . '?page=' . self::$cost_of_goods_slug,
                 'icon'  => null,
                 'additional_classes' => array(),
+                'menu_order' => 60,
                 'children' => array(
                     'cost_of_goods_manager' => array(
                         'title' => __( 'Cost Of Goods Manager', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
@@ -460,48 +377,35 @@ class WPD_Admin_Menu {
                 'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug,
                 'icon'  => null,
                 'additional_classes' => array(),
+                'menu_order' => 70,
                 'children' => array(
                     'general_settings' => array(
                         'title' => __( 'General Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=general-settings',
                         'icon'  => null,
                         'additional_classes' => array(),
+                        'menu_order' => 10,
                     ),
                     'email_settings' => array(
                         'title' => __( 'Email Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=email',
                         'icon'  => null,
                         'additional_classes' => array(),
-                    ),
-                    'facebook_settings' => array(
-                        'title' => __( 'Facebook Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
-                        'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=facebook',
-                        'icon'  => null,
-                        'additional_classes' => array(),
-                    ),
-                    'google_ads_settings' => array(
-                        'title' => __( 'Google Ads Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
-                        'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=google-ads',
-                        'icon'  => null,
-                        'additional_classes' => array(),
+                        'menu_order' => 20,
                     ),
                     'integration_settings' => array(
                         'title' => __( 'Integration Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=integration',
                         'icon'  => null,
                         'additional_classes' => array(),
-                    ),
-                    'license_manager' => array(
-                        'title' => __( 'License Manager', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
-                        'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=license',
-                        'icon'  => null,
-                        'additional_classes' => array(),
+                        'menu_order' => 30,
                     ),
                     'debug_settings' => array(
                         'title' => __( 'Debug Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                         'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=debug',
                         'icon'  => null,
                         'additional_classes' => array(),
+                        'menu_order' => 50,
                     ),
                 )
             ),
@@ -512,6 +416,7 @@ class WPD_Admin_Menu {
                 'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug,
                 'icon'  => null,
                 'additional_classes' => array('additional-items'),
+                'menu_order' => 80,
                 'children' => array()
             )
         );
@@ -557,29 +462,33 @@ class WPD_Admin_Menu {
 
 		}
 
-        // Facebook expenses
-        $facebook_expense_category = (function_exists('wpd_get_facebook_expense_category_id')) ? wpd_get_facebook_expense_category_id() : 0;
-        if ( $facebook_expense_category > 0 ) {
-            $alpha_insights_menu[self::$advertising_slug]['children']['facebook_expenses']['url'] = admin_url( 'admin.php') . '?page=' . self::$manage_expenses_slug . '&subpage=manage-all-expenses&category=' . $facebook_expense_category;
-        } else {
-            unset($alpha_insights_menu[self::$advertising_slug]['children']['facebook_expenses']);
-        }
-        // Google Expenses
-        $google_ads_expense_category = (function_exists('wpd_get_google_expense_category_id')) ? wpd_get_google_expense_category_id() : 0;
-        if ( $google_ads_expense_category > 0 ) {
-            $alpha_insights_menu[self::$advertising_slug]['children']['google_ads_expenses']['url'] = admin_url( 'admin.php') . '?page=' . self::$manage_expenses_slug . '&subpage=manage-all-expenses&category=' . $google_ads_expense_category;
-        } else {
-            unset($alpha_insights_menu[self::$advertising_slug]['children']['google_ads_expenses']);
-        }
-
-
         // Apply filters to allow customization
         $alpha_insights_menu = apply_filters( 'wpd_alpha_insights_menu_items', $alpha_insights_menu );
+
+        // Sort menu items by menu_order (lowest first)
+        uasort( $alpha_insights_menu, function( $a, $b ) {
+            $menu_order_a = isset( $a['menu_order'] ) ? intval( $a['menu_order'] ) : 999;
+            $menu_order_b = isset( $b['menu_order'] ) ? intval( $b['menu_order'] ) : 999;
+            
+            return $menu_order_a - $menu_order_b;
+        } );
+
+        // Sort children items by menu_order if they have it
+        foreach ( $alpha_insights_menu as $key => $menu_item ) {
+            if ( isset( $menu_item['children'] ) && is_array( $menu_item['children'] ) && ! empty( $menu_item['children'] ) ) {
+                uasort( $alpha_insights_menu[$key]['children'], function( $a, $b ) {
+                    $menu_order_a = isset( $a['menu_order'] ) ? intval( $a['menu_order'] ) : 999;
+                    $menu_order_b = isset( $b['menu_order'] ) ? intval( $b['menu_order'] ) : 999;
+                    
+                    return $menu_order_a - $menu_order_b;
+                } );
+            }
+        }
 
         // Cache the menu to prevent regeneration on subsequent calls
         $this->menu_cache = $alpha_insights_menu;
 
-        // Return the filtered alpha insights menu
+        // Return the filtered and sorted alpha insights menu
         return $alpha_insights_menu;
 
     }

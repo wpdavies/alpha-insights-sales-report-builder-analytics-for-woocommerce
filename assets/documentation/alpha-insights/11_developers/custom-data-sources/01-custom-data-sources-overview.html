@@ -1,0 +1,102 @@
+<h2>Custom Data Sources</h2>
+
+<p>Alpha Insights allows you to extend the reporting system with custom data sources that integrate seamlessly with the React dashboard. This powerful feature lets you add your own metrics, charts, and data tables to reports using the same infrastructure as built-in data sources like orders, products, and expenses.</p>
+
+<h3>Overview</h3>
+
+<p>Custom data sources allow you to:</p>
+
+<ul>
+<li>Fetch data from custom database tables, external APIs, or third-party services</li>
+<li>Display custom metrics in metric cards and metric lists</li>
+<li>Create time-series charts from your custom data</li>
+<li>Build categorized charts (pie, doughnut, bar) from grouped data</li>
+<li>Display custom data in data table widgets</li>
+<li>Leverage automatic date range alignment and filtering</li>
+<li>Access the full data warehouse API for cross-entity data access</li>
+</ul>
+
+<h4>How It Works</h4>
+
+<p>The custom data source system uses a WordPress filter-based registration pattern. You create a PHP class that extends <code>WPD_Alpha_Insights_Data_Source_Base</code>, implement two methods, and instantiate the class. The plugin automatically:</p>
+
+<ul>
+<li>Registers your data source with the system</li>
+<li>Makes your metrics available in widget selectors</li>
+<li>Fetches your data only when needed (lazy loading)</li>
+<li>Merges your data mappings into the React frontend</li>
+<li>Handles all date range alignment automatically</li>
+</ul>
+
+<h4>Quick Start</h4>
+
+<p>The simplest implementation requires only three steps:</p>
+
+<ol>
+<li>Set the <code>$entity_name</code> property (a unique identifier)</li>
+<li>Implement <code>fetch_data()</code> to return your data</li>
+<li>Implement <code>get_data_mapping()</code> to define how React displays your data</li>
+<li>Instantiate your class to register it</li>
+</ol>
+
+<p>All registration boilerplate is handled automatically by the base class.</p>
+
+<h3>File Location</h3>
+
+<p>Place your custom data source classes in one of these locations:</p>
+
+<ul>
+<li><strong>Plugin extensions folder:</strong> <code>wp-content/plugins/wp-davies-alpha-insights/includes/reports/extensions/</code> (auto-loaded)</li>
+<li><strong>Theme folder:</strong> Your active theme's functions.php or a separate file included from functions.php</li>
+<li><strong>Custom plugin:</strong> Your own plugin's PHP files</li>
+</ul>
+
+<p>Classes in the extensions folder are automatically loaded. For other locations, ensure your file is included (e.g., via <code>require_once</code> in functions.php).</p>
+
+<h3>Data Structure</h3>
+
+<p>Your custom data source must return data in the same structure as the data warehouse. All keys are optional, but must match the format exactly if provided:</p>
+
+<pre><code>array(
+    'totals'              => array(
+        'metric_key' => 123.45,
+        // Aggregated totals/metrics
+    ),
+    'categorized_data'    => array(
+        'category_key' => array(
+            'label' => 'Category Name',
+            'metric_key' => 100,
+            // Additional metrics...
+        ),
+        // Data grouped by categories for pie/bar charts
+    ),
+    'data_table'          => array(
+        'table_key' => array(
+            array(
+                'column1' => 'value1',
+                'column2' => 'value2',
+                // Table rows...
+            ),
+        ),
+        // Tabular data for data table widgets
+    ),
+    'data_by_date'        => array(
+        'metric_key' => array(
+            '2024-01-01' => 50,
+            '2024-01-02' => 75,
+            // Time-series data keyed by date
+        ),
+    ),
+    'total_db_records'    => 100,    // Number of records fetched
+    'execution_time'      => 0.25    // Execution time in seconds
+)</code></pre>
+
+<h3>Related Documentation</h3>
+
+<ul>
+<li><strong>Creating a Custom Data Source</strong> - Step-by-step guide</li>
+<li><strong>The fetch_data() Method</strong> - Detailed reference</li>
+<li><strong>The get_data_mapping() Method</strong> - Detailed reference</li>
+<li><strong>Data Warehouse API Reference</strong> - Available helper methods</li>
+<li><strong>Examples</strong> - Real-world implementation examples</li>
+</ul>

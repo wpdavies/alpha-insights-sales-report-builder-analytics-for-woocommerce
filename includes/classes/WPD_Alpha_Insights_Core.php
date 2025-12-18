@@ -51,9 +51,6 @@ class WPD_Alpha_Insights_Core {
 		add_filter( 'woocommerce_hidden_order_itemmeta', 				array( $this, 'hide_order_item_meta_in_admin' ), 10, 1 );
 		add_action( 'woocommerce_after_order_itemmeta', 				array( $this, 'display_admin_order_item_meta' ), 10, 3 );
 
-		// Add data to the WC dashboard widget on the Wordpress admin dashboard
-		add_action( 'woocommerce_after_dashboard_status_widget', 		array( $this, 'add_profit_to_wc_dashboard_widget' ), 20 );
-
 		/**
 		 *
 		 *	Product inputs, data processing & admin display
@@ -372,70 +369,6 @@ class WPD_Alpha_Insights_Core {
 	}
 
 	/**
-	 * 
-	 * 	Display Additional Data in WC Dashboard Widget
-	 * 
-	 **/
-	public function add_profit_to_wc_dashboard_widget() {
-
-		// Don't load HTML for non-authorized users
-		if ( ! wpd_is_user_authorized_to_view_alpha_insights() || ! WPD_AI_PRO ) return false;
-
-		// Get dates in user's local timezone
-		$current_timestamp = current_time( 'timestamp' );
-		$start_date = gmdate( 'Y-m-01', $current_timestamp ); // First of current month in local time
-		$end_date   = current_time( 'Y-m-d' ); // Today in local time 
-		$data_warehouse = new WPD_Data_Warehouse_React(
-			array(
-				'date_from' => $start_date,
-				'date_to' => $end_date
-			)
-		);
-		$data_warehouse->fetch_store_profit_data();
-		$order_totals = $data_warehouse->get_data( 'orders', 'totals' );
-		$store_profit = $data_warehouse->get_data( 'store_profit', 'totals' );
-
-		?>
-			<style type="text/css">
-				#woocommerce_dashboard_status .wc_status_list li.gross-profit-this-month {
-					border-right: 1px solid #ececec;
-				}
-				#woocommerce_dashboard_status .wc_status_list li.wpd-status-widget-item a::before {
-					font-family: Dashicons;
-					content: "\f185";
-					background-image: url(/wp-content/plugins/wp-davies-alpha-insights/assets/img/Alpha-Insights-Icon-20x20.png);
-					background-repeat: no-repeat;
-					content: '';
-					width: 20px;
-					background-size: cover;
-					height: 20px;
-				}
-			</style>
-			<li class="wpd-status-widget-item gross-profit-this-month">
-				<a href="<?php echo esc_url( wpd_admin_page_url('reports-orders') . '&wpd-report-from-date=' . esc_attr( $start_date ) . '&wpd-report-to-date=' . esc_attr( $end_date ) ); ?>">
-					<strong><?php echo wp_kses_post( wc_price( $order_totals['total_order_profit'] ) ); ?></strong>Gross Profit This Month
-				</a>
-			</li>
-			<li class="wpd-status-widget-item net-profit-this-month">
-				<a href="<?php echo esc_url( wpd_admin_page_url('reports-orders') . '&wpd-report-from-date=' . esc_attr( $start_date ) . '&wpd-report-to-date=' . esc_attr( $end_date ) ); ?>">
-					<strong><?php echo wp_kses_post( wc_price( $store_profit['total_store_profit'] ) ); ?></strong>Net Profit This Month
-				</a>
-			</li>
-			<li class="wpd-status-widget-item gross-profit-this-month">
-				<a href="<?php echo esc_url( wpd_admin_page_url('reports-orders') . '&wpd-report-from-date=' . esc_attr( $start_date ) . '&wpd-report-to-date=' . esc_attr( $end_date ) ); ?>">
-					<strong><?php echo absint( $order_totals['total_order_count'] ); ?></strong>Orders This Month
-				</a>
-			</li>
-			<li class="wpd-status-widget-item net-profit-this-month">
-				<a href="<?php echo esc_url( wpd_admin_page_url('reports-orders') . '&wpd-report-from-date=' . esc_attr( $start_date ) . '&wpd-report-to-date=' . esc_attr( $end_date ) ); ?>">
-					<strong><?php echo floatval( $store_profit['average_store_margin'] ); ?>%</strong> Net Profit Margin
-				</a>
-			</li>
-		<?php
-
-	}
-
-	/**
 	 *
 	 *	Show profit in order summary on edit order page
 	 *	@todo need to make sure this factors in any manual override
@@ -666,16 +599,12 @@ class WPD_Alpha_Insights_Core {
 		$average_order_value 		= 0;
 
 		// Capture Vars
-		$all_google_campaigns 		= wpd_get_all_google_campaigns();
-		$all_meta_campaigns 		= wpd_get_all_meta_campaigns();
 		$order_id 					= $order->get_id();
 		$meta_total_shipping_cost 	= $order->get_meta( '_wpd_ai_total_shipping_cost' );
 		$meta_payment_gateway_cost 	= $order->get_meta( '_wpd_ai_total_payment_gateway_cost' );
 		$meta_total_product_cost  	= $order->get_meta( '_wpd_ai_total_product_cost' );
 		$landing_page 				= $order->get_meta( '_wpd_ai_landing_page' );
 		$referral 					= $order->get_meta( '_wpd_ai_referral_source' );
-		$google_campaign_id 		= $order->get_meta( '_wpd_ai_google_campaign_id' );
-		$meta_campaign_id 			= $order->get_meta( '_wpd_ai_meta_campaign_id' );
 
 		// Custom Order Costs
 		$custom_order_costs 		= wpd_get_custom_order_cost_options();
@@ -750,7 +679,7 @@ class WPD_Alpha_Insights_Core {
 		
 		// Calculate conversion rate
 		$conversion_rate = ( $session_count == 0 || $order_count == 0 ) ? 'N/A' : wpd_calculate_percentage( $order_count, $session_count ) . '%';?>
-		<?php if ( ! wpd_is_license_active() ) : ?><a href="<?php echo esc_url( wpd_invalid_license_url() ); ?>" class="button wpd-input button-primary wpd-license-inactive-button">Please activate Alpha Insights.</a><?php endif; ?>
+		<?php do_action('wpd_ai_order_dashboard_before_content', $order); ?>
 		<style type="text/css">
 			div#wpd-ai-dashboard-summary .postbox-header h2::before {
 				content: '';
@@ -763,14 +692,7 @@ class WPD_Alpha_Insights_Core {
 				left: 15px;
 			}
 		</style>
-		<div class="wpd-order-dashboard <?php if ( ! wpd_is_license_active() ) echo 'wpd-license-inactive'; ?> ">
-			<!-- Main Title -->
-			<div class="wpd-order-dashboard-header wpd-grid-full-span" style="display: none;">
-				<div class="wpd-order-dashboard-heading">
-					<span class="wpd-plugin-logo"><img height="35" src="<?php echo esc_url( $wpd_ai_logo ); ?>" class="alpha-insights-menu-logo"></span>
-					<span class="wpd-title">Alpha Insights Dashboard</span>
-				</div>
-			</div>
+		<div class="wpd-order-dashboard">
 			<!-- Titles -->
 			<div class="wpd-order-title">Order Overview</div>
 			<div class="wpd-order-title">Order Costs</div>
@@ -921,28 +843,7 @@ class WPD_Alpha_Insights_Core {
 								<?php endif; ?>
 							</td>
 						</tr>
-						<tr>
-							<td colspan="2">
-								<div style="margin-bottom: 5px;" class="wpd-meta-api-label"><strong>Meta Campaign (Ads API)</strong></div>
-								<select class="wpd-input" name="wpd_ai_order_meta_campaign_id">
-									<option value="">No Meta Campaign</option>
-									<?php foreach( $all_meta_campaigns as $campaign_id => $campaign_name ) : ?>
-										<option value="<?php echo esc_attr( $campaign_id ); ?>" <?php echo esc_attr( wpd_selected_option( $campaign_id, $meta_campaign_id ) ); ?>><?php echo esc_html( $campaign_name ); ?></option>
-									<?php endforeach; ?>
-								</select>
-							</td>
-						</tr>
-						<tr>
-							<td colspan="2">
-								<div style="margin-bottom: 5px;" class="wpd-google-api-label"><strong>Google Campaign (Ads API)</strong></div>
-								<select class="wpd-input" name="wpd_ai_order_google_campaign_id">
-									<option value="">No Google Campaign</option>
-									<?php foreach( $all_google_campaigns as $campaign_id => $campaign_name ) : ?>
-										<option value="<?php echo esc_attr( $campaign_id ); ?>" <?php echo esc_attr( wpd_selected_option( $campaign_id, $google_campaign_id ) ); ?>><?php echo esc_html( $campaign_name ); ?></option>
-									<?php endforeach; ?>
-								</select>
-							</td>
-						</tr>
+						<?php do_action('wpd_ai_order_attribution_table_rows', $order); ?>
 					</tbody>
 				</table>
 			</div>
@@ -1427,7 +1328,6 @@ class WPD_Alpha_Insights_Core {
 		$product_id 					= get_the_ID();
 		$product 						= wc_get_product( $product_id );
 		$cost_price 					= get_post_meta( $product_id, '_wpd_ai_product_cost', true );
-		$product_supplier_taxonomy_id 	= get_post_meta( $product_id, '_wpd_ai_product_supplier', true );
 		$is_variable 					= $product->is_type( 'variable' );
 		$is_bundle 						= ( $product->is_type('bundle') || $product->is_type('woosb') ) ? true : false;
 		$custom_product_costs 			= wpd_get_custom_product_cost_options( $product_id );
@@ -1435,9 +1335,9 @@ class WPD_Alpha_Insights_Core {
 		?>
 		<div id="wpd-ai-cost-of-goods" class="panel woocommerce_options_panel">
 			<div class="wpd-wrapper">
+				<?php do_action('wpd_ai_product_cost_of_goods_tab_content_before_content', $product); ?>
 				<?php if ( ! $is_bundle ) : ?>
-					<?php if ( ! wpd_is_license_active() ) : ?><a href="<?php echo esc_url( wpd_invalid_license_url() ); ?>" class="button wpd-input button-primary wpd-license-inactive-button">Please activate Alpha Insights.</a><?php endif; ?>
-					<table class="wpd-table fixed widefat <?php if ( ! wpd_is_license_active()) echo 'wpd-license-inactive'; ?>">
+					<table class="wpd-table fixed widefat">
 						<thead>
 							<tr>
 								<th colspan="4">Product Purchasing Information - <?php echo esc_html( $product->get_name() ); ?></th>

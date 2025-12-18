@@ -1,0 +1,160 @@
+<h2>Filter: wpd_ai_is_valid_reporting_utm_key_value_pair</h2>
+
+<p>Filter whether a UTM key-value pair is valid for reporting purposes. This allows custom validation logic for UTM parameters.</p>
+
+<h3>Description</h3>
+
+<p>Alpha Insights validates UTM parameters before using them in reports. This filter allows you to add custom validation logic to determine if a specific UTM key-value combination should be included in reporting data.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/functions/wpd-report-functions.php</code></p>
+<p><strong>Function:</strong> <code>wpd_is_valid_reporting_utm_key_value_pair()</code></p>
+<p><strong>Line:</strong> ~93</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$valid</td>
+        <td>bool</td>
+        <td>Whether the key-value pair is valid (default: true if both key and value pass validation)</td>
+    </tr>
+    <tr>
+        <td>$key</td>
+        <td>string</td>
+        <td>The UTM key (e.g., 'utm_source', 'utm_campaign')</td>
+    </tr>
+    <tr>
+        <td>$value</td>
+        <td>string</td>
+        <td>The UTM value</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> bool</p>
+<p><strong>Description:</strong> True if valid, false to exclude from reporting</p>
+
+<h3>Example Usage</h3>
+
+<h3>Exclude Internal Testing Campaigns</h3>
+
+<pre><code>add_filter( 'wpd_ai_is_valid_reporting_utm_key_value_pair', 'exclude_test_campaigns', 10, 3 );
+function exclude_test_campaigns( $valid, $key, $value ) {
+    // Exclude test campaigns from reporting
+    if ( $key === 'utm_campaign' && stripos( $value, 'test' ) !== false ) {
+        return false;
+    }
+    return $valid;
+}</code></pre>
+
+<h3>Exclude Specific UTM Sources</h3>
+
+<pre><code>add_filter( 'wpd_ai_is_valid_reporting_utm_key_value_pair', 'exclude_specific_sources', 10, 3 );
+function exclude_specific_sources( $valid, $key, $value ) {
+    // Exclude internal or development sources
+    if ( $key === 'utm_source' ) {
+        $excluded_sources = array( 'internal', 'dev', 'staging', 'localhost' );
+        if ( in_array( strtolower( $value ), $excluded_sources ) ) {
+            return false;
+        }
+    }
+    return $valid;
+}</code></pre>
+
+<h3>Require Minimum Value Length</h3>
+
+<pre><code>add_filter( 'wpd_ai_is_valid_reporting_utm_key_value_pair', 'require_minimum_length', 10, 3 );
+function require_minimum_length( $valid, $key, $value ) {
+    // Require campaign names to be at least 5 characters
+    if ( $key === 'utm_campaign' && strlen( $value ) < 5 ) {
+        return false;
+    }
+    return $valid;
+}</code></pre>
+
+<h3>Validate Against Allowed Values List</h3>
+
+<pre><code>add_filter( 'wpd_ai_is_valid_reporting_utm_key_value_pair', 'validate_against_whitelist', 10, 3 );
+function validate_against_whitelist( $valid, $key, $value ) {
+    // Define allowed campaign values
+    $allowed_campaigns = array( 'summer_sale', 'winter_sale', 'new_product_launch' );
+    
+    if ( $key === 'utm_campaign' && ! in_array( $value, $allowed_campaigns ) ) {
+        return false;
+    }
+    return $valid;
+}</code></pre>
+
+<h3>Block Spam or Invalid Characters</h3>
+
+<pre><code>add_filter( 'wpd_ai_is_valid_reporting_utm_key_value_pair', 'block_spam_characters', 10, 3 );
+function block_spam_characters( $valid, $key, $value ) {
+    // Block values with suspicious characters
+    if ( preg_match( '/[<>"\']/', $value ) ) {
+        return false;
+    }
+    return $valid;
+}</code></pre>
+
+<h3>Best Practices</h3>
+
+<ul>
+    <li>Return the original $valid value if your logic doesn't apply</li>
+    <li>Use specific key checks rather than blanket validation</li>
+    <li>Keep validation logic simple and fast</li>
+    <li>Log excluded values for debugging if needed</li>
+    <li>Consider performance impact on high-traffic sites</li>
+</ul>
+
+<h3>Important Notes</h3>
+
+<ul>
+    <li>This filter runs for every UTM parameter check</li>
+    <li>Returning false excludes the key-value pair from reporting</li>
+    <li>Default validation (key and value validity) runs before this filter</li>
+    <li>This is the final validation step before data is stored</li>
+    <li>Invalid pairs are silently excluded (not logged by default)</li>
+</ul>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_is_valid_reporting_utm_key.html'>wpd_ai_is_valid_reporting_utm_key</a> - Validate UTM keys</li>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_is_valid_reporting_utm_value.html'>wpd_ai_is_valid_reporting_utm_value</a> - Validate UTM values</li>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_valid_reporting_utm_keys.html'>wpd_ai_valid_reporting_utm_keys</a> - Filter valid UTM keys list</li>
+</ul>
+
+<h3>Related Functions</h3>
+
+<ul>
+    <li><code>wpd_is_valid_reporting_utm_key_value_pair()</code> - Check if key-value pair is valid</li>
+    <li><code>wpd_is_valid_reporting_utm_key()</code> - Check if UTM key is valid</li>
+    <li><code>wpd_is_valid_reporting_utm_value()</code> - Check if UTM value is valid</li>
+</ul>
+
+<h3>Debugging</h3>
+
+<pre><code>add_filter( 'wpd_ai_is_valid_reporting_utm_key_value_pair', 'debug_utm_validation', 999, 3 );
+function debug_utm_validation( $valid, $key, $value ) {
+    if ( ! $valid ) {
+        error_log( sprintf( 
+            'Alpha Insights: Excluded UTM pair - Key: %s, Value: %s', 
+            $key, 
+            $value 
+        ) );
+    }
+    return $valid;
+}</code></pre>
+
+
+
+
+

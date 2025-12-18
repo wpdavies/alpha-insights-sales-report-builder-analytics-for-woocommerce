@@ -1,0 +1,179 @@
+<h2>Filter: wpd_ai_save_settings</h2>
+
+<p>Filter the result of settings save operations. This allows you to hook into settings saves, modify save behavior, or perform additional actions when settings are saved.</p>
+
+<h3>Description</h3>
+
+<p>When Alpha Insights settings are saved, this filter is called with the save result. You can use this to perform additional actions, modify the save result, or trigger custom logic after settings are saved.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/admin/wpd-settings.php</code></p>
+<p><strong>Function:</strong> Settings save handler</p>
+<p><strong>Line:</strong> ~603</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$saved</td>
+        <td>bool</td>
+        <td>Whether the settings were successfully saved (default: true/false from save operation)</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> bool</p>
+<p><strong>Description:</strong> Modified save result (true for success, false for failure)</p>
+
+<h3>Example Usage</h3>
+
+<h3>Clear Cache After Settings Save</h3>
+
+<pre><code>add_filter( 'wpd_ai_save_settings', 'clear_cache_on_settings_save' );
+function clear_cache_on_settings_save( $saved ) {
+    if ( $saved ) {
+        // Clear relevant caches when settings are saved
+        wp_cache_flush();
+        // Or clear specific transients
+        delete_transient( 'wpd_ai_report_*' );
+    }
+    return $saved;
+}</code></pre>
+
+<h3>Log Settings Changes</h3>
+
+<pre><code>add_filter( 'wpd_ai_save_settings', 'log_settings_changes' );
+function log_settings_changes( $saved ) {
+    if ( $saved ) {
+        $user = wp_get_current_user();
+        error_log( sprintf( 
+            'Alpha Insights settings saved by user: %s (ID: %d) at %s', 
+            $user->user_login, 
+            $user->ID,
+            current_time( 'mysql' )
+        ) );
+    }
+    return $saved;
+}</code></pre>
+
+<h3>Send Notification on Settings Save</h3>
+
+<pre><code>add_filter( 'wpd_ai_save_settings', 'notify_on_settings_save' );
+function notify_on_settings_save( $saved ) {
+    if ( $saved ) {
+        // Send email notification to admin
+        $admin_email = get_option( 'admin_email' );
+        wp_mail( 
+            $admin_email, 
+            'Alpha Insights Settings Updated', 
+            'Alpha Insights settings have been updated on ' . get_site_url()
+        );
+    }
+    return $saved;
+}</code></pre>
+
+<h3>Sync Settings to External System</h3>
+
+<pre><code>add_filter( 'wpd_ai_save_settings', 'sync_settings_to_external' );
+function sync_settings_to_external( $saved ) {
+    if ( $saved ) {
+        // Sync settings to external CRM or system
+        $settings = get_option( 'wpd_alpha_insights_settings', array() );
+        // Make API call to sync
+        wp_remote_post( 'https://your-api.com/sync-settings', array(
+            'body' => json_encode( $settings ),
+            'headers' => array( 'Content-Type' => 'application/json' )
+        ) );
+    }
+    return $saved;
+}</code></pre>
+
+<h3>Validate Settings Before Save</h3>
+
+<pre><code>add_filter( 'wpd_ai_save_settings', 'validate_settings_before_save', 5 );
+function validate_settings_before_save( $saved ) {
+    // This runs after save, but you can still check and potentially revert
+    if ( $saved ) {
+        $settings = get_option( 'wpd_alpha_insights_settings', array() );
+        
+        // Validate specific setting
+        if ( isset( $settings['some_setting'] ) && $settings['some_setting'] < 0 ) {
+            // Invalid value - you could update_option to fix it
+            $settings['some_setting'] = 0;
+            update_option( 'wpd_alpha_insights_settings', $settings );
+        }
+    }
+    return $saved;
+}</code></pre>
+
+<h3>Best Practices</h3>
+
+<ul>
+    <li>Return the original $saved value unless you need to change it</li>
+    <li>Perform lightweight operations in this filter</li>
+    <li>Use background processing for heavy operations</li>
+    <li>Log important actions for debugging</li>
+    <li>Don't modify settings directly in this filter (use hooks instead)</li>
+    <li>Consider using specific setting hooks if available</li>
+</ul>
+
+<h3>Important Notes</h3>
+
+<ul>
+    <li>This filter runs after settings are saved</li>
+    <li>Returning false doesn't undo the save - it only affects the return value</li>
+    <li>This is a general settings save hook - not specific to individual settings</li>
+    <li>Use this for post-save actions, not validation</li>
+    <li>For validation, use settings-specific hooks or pre-save filters</li>
+    <li>This filter runs for all settings saves, not individual setting changes</li>
+</ul>
+
+<h3>When to Use This Filter</h3>
+
+<p><strong>Good Use Cases:</strong></p>
+<ul>
+    <li>Clearing caches after settings change</li>
+    <li>Logging settings changes</li>
+    <li>Sending notifications</li>
+    <li>Syncing to external systems</li>
+    <li>Triggering background processes</li>
+</ul>
+
+<p><strong>Not Recommended For:</strong></p>
+<ul>
+    <li>Validating settings (use pre-save hooks)</li>
+    <li>Modifying settings (use specific setting hooks)</li>
+    <li>Heavy database operations (use background processing)</li>
+    <li>Blocking saves (use validation hooks instead)</li>
+</ul>
+
+<h3>Debugging</h3>
+
+<pre><code>add_filter( 'wpd_ai_save_settings', 'debug_settings_save', 999 );
+function debug_settings_save( $saved ) {
+    error_log( 'Alpha Insights Settings Save Result: ' . ( $saved ? 'SUCCESS' : 'FAILED' ) );
+    if ( $saved ) {
+        $settings = get_option( 'wpd_alpha_insights_settings', array() );
+        error_log( 'Current Settings: ' . print_r( $settings, true ) );
+    }
+    return $saved;
+}</code></pre>
+
+<h3>Related Functions</h3>
+
+<ul>
+    <li><code>update_option()</code> - WordPress function for saving options</li>
+    <li><code>get_option()</code> - WordPress function for retrieving options</li>
+</ul>
+
+
+
+
+

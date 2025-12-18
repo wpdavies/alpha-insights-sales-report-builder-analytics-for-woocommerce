@@ -227,6 +227,7 @@ class WPD_React_Report {
                 'settings'              => WPD_Admin_Menu::$settings_slug,
                 'about_help'            => WPD_Admin_Menu::$about_help_slug,
             ),
+            'custom_data_source_mappings' => WPD_Custom_Data_Source_Registry::get_all_mappings(),
         ));
     }
 
@@ -1722,6 +1723,14 @@ class WPD_React_Report {
             if (in_array('analytics', $required_data)) $data_warehouse->fetch_analytics_data();
             if (in_array('subscriptions', $required_data)) $data_warehouse->fetch_subscriptions_data();
 
+            // Fetch custom data sources
+            $custom_data_sources = WPD_Custom_Data_Source_Registry::get_entity_names();
+            foreach ( $custom_data_sources as $custom_entity ) {
+                if ( in_array( $custom_entity, $required_data ) ) {
+                    $data_warehouse->fetch_custom_data_source( $custom_entity );
+                }
+            }
+
             // Return data
             $report_data = $data_warehouse->get_data();
             $date_range_container = $data_warehouse->get_data_by_date_range_container();
@@ -1757,6 +1766,14 @@ class WPD_React_Report {
                 if (in_array('google_campaigns', $required_data)) $comparison_warehouse->fetch_google_campaign_data();
                 if (in_array('analytics', $required_data)) $comparison_warehouse->fetch_analytics_data();
                 if (in_array('subscriptions', $required_data)) $comparison_warehouse->fetch_subscriptions_data();
+
+                // Fetch custom data sources for comparison
+                $custom_data_sources = WPD_Custom_Data_Source_Registry::get_entity_names();
+                foreach ( $custom_data_sources as $custom_entity ) {
+                    if ( in_array( $custom_entity, $required_data ) ) {
+                        $comparison_warehouse->fetch_custom_data_source( $custom_entity );
+                    }
+                }
                 
                 // Get comparison data
                 $comparison_data = $comparison_warehouse->get_data();

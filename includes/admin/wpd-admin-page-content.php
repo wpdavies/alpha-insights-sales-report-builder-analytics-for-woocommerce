@@ -136,65 +136,23 @@ function wpd_settings_page() {
 	?>
   
 	<div class="wrap">
-
 		<?php do_action( 'wpd_before_heading' ); ?>
-
 		<h3>Settings</h3>
-
 		<?php do_action( 'wpd_before_content' ); ?>
-
 		<div class="wpd-white-block">
-
 			<form method="post" action="" id="wpd-ai-settings" class="<?php echo esc_attr( $subpage ); ?>-form">
-
 				<?php
-				// Add nonce field for settings form security
-				wp_nonce_field( 'wpd_alpha_insights_settings', 'wpd_alpha_insights_settings_nonce' );
 
-					if ( $subpage == 'facebook' ) {
+					// Add nonce field for settings form security
+					wp_nonce_field( 'wpd_alpha_insights_settings', 'wpd_alpha_insights_settings_nonce' );
 
-						require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-facebook_integration.php');
-
-					} elseif ( $subpage == 'google-ads' ) {
-
-						require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-google_ads_integration.php');
-
-					} elseif ( $subpage == 'integration' ) {
-
-						require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-integrations.php');
-
-					} elseif ( $subpage == 'email' ) {
-
-					if ( isset($_GET['email_preview']) ) {
-						$email_preview = sanitize_text_field( $_GET['email_preview'] );
-						require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-email-previews.php');
-
-						} else {
-
-							require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-emails.php');
-
-						}
-
-					} elseif ( $subpage == 'license' ) {
-
-						require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-license.php');
-
-					} elseif ( $subpage == 'debug' ) {
-
-						require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-debug.php');
-
-					} else {
-
-						require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-general_settings.php');
-
-					}
+					// Output the content for the selected page
+					wpd_output_settings_page_content( $subpage, $wpd_action );
 
 				?>
 
 			</form>
-
 		</div>
-
 	</div>
 	<?php
 

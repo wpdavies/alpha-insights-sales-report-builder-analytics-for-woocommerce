@@ -1,0 +1,152 @@
+<h2>Filter: wpd_ai_report_filters_users_should_sort</h2>
+
+<p>Control whether user results should be sorted when processing report filters. Disabling sorting can improve performance for very large datasets.</p>
+
+<h3>Description</h3>
+
+<p>When fetching user data for reports, Alpha Insights can sort the results. For very large datasets, sorting can be expensive. This filter allows you to disable sorting to improve performance when order doesn't matter.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPD_Report_Filters.php</code></p>
+<p><strong>Method:</strong> <code>WPD_Report_Filters::get_users()</code></p>
+<p><strong>Line:</strong> ~258</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$should_sort</td>
+        <td>bool</td>
+        <td>Whether to sort user results (default: false)</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> bool</p>
+<p><strong>Description:</strong> True to enable sorting, false to disable</p>
+
+<h3>Example Usage</h3>
+
+<h3>Enable Sorting for User Results</h3>
+
+<pre><code>add_filter( 'wpd_ai_report_filters_users_should_sort', '__return_true' );</code></pre>
+
+<h3>Conditional Sorting Based on Data Volume</h3>
+
+<pre><code>add_filter( 'wpd_ai_report_filters_users_should_sort', 'conditional_user_sorting' );
+function conditional_user_sorting( $should_sort ) {
+    global $wpdb;
+    
+    // Get total user count
+    $total_users = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->users}" );
+    
+    // Only sort if we have a manageable number of users
+    if ( $total_users < 10000 ) {
+        return true; // Enable sorting for smaller datasets
+    }
+    
+    return false; // Disable sorting for large datasets
+}</code></pre>
+
+<h3>Enable Sorting for Specific User Roles</h3>
+
+<pre><code>add_filter( 'wpd_ai_report_filters_users_should_sort', 'sort_for_specific_contexts' );
+function sort_for_specific_contexts( $should_sort ) {
+    // Enable sorting when viewing customer reports
+    if ( isset( $_GET['user_type'] ) && $_GET['user_type'] === 'customer' ) {
+        return true;
+    }
+    
+    return $should_sort;
+}</code></pre>
+
+<h3>Best Practices</h3>
+
+<ul>
+    <li>Default is false (no sorting) for performance</li>
+    <li>Enable sorting only if order matters for your reports</li>
+    <li>Disable sorting for very large user bases (&gt;10,000 users)</li>
+    <li>Consider using client-side sorting for displayed results</li>
+    <li>Test performance impact before enabling in production</li>
+    <li>Sorting is most expensive with large datasets</li>
+</ul>
+
+<h3>Performance Impact</h3>
+
+<p><strong>With Sorting Enabled:</strong></p>
+<ul>
+    <li>Results are ordered (typically by user ID or name)</li>
+    <li>More database processing required</li>
+    <li>Slower for large datasets</li>
+    <li>Better for reports where order matters</li>
+</ul>
+
+<p><strong>With Sorting Disabled (default):</strong></p>
+<ul>
+    <li>Faster query execution</li>
+    <li>Less database load</li>
+    <li>Results may appear in arbitrary order</li>
+    <li>Better for large datasets where order doesn't matter</li>
+</ul>
+
+<h3>Important Notes</h3>
+
+<ul>
+    <li>Default is false - sorting is disabled by default</li>
+    <li>This only affects user data sorting, not other report data</li>
+    <li>Disabling sorting improves performance for large user bases</li>
+    <li>Results may appear in different order when sorting is disabled</li>
+    <li>Consider using JavaScript sorting on the frontend if order matters</li>
+    <li>This is a performance optimization filter</li>
+</ul>
+
+<h3>When to Enable Sorting</h3>
+
+<p><strong>Enable sorting if:</strong></p>
+<ul>
+    <li>You have a small user base (&lt;10,000 users)</li>
+    <li>Report order is important for your use case</li>
+    <li>You're displaying results directly without client-side sorting</li>
+    <li>Performance is acceptable with sorting enabled</li>
+</ul>
+
+<p><strong>Keep sorting disabled if:</strong></p>
+<ul>
+    <li>You have a large user base (&gt;10,000 users)</li>
+    <li>Report order doesn't matter</li>
+    <li>You're using client-side sorting for display</li>
+    <li>Performance is a concern</li>
+</ul>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_report_filters_batch_size.html'>wpd_ai_report_filters_batch_size</a> - Control report filter batch size</li>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_report_filters_is_transient_enabled.html'>wpd_ai_report_filters_is_transient_enabled</a> - Control report caching</li>
+</ul>
+
+<h3>Related Classes</h3>
+
+<ul>
+    <li><code>WPD_Report_Filters</code> - Report filtering and processing</li>
+</ul>
+
+<h3>Debugging</h3>
+
+<pre><code>add_filter( 'wpd_ai_report_filters_users_should_sort', 'debug_user_sorting', 999 );
+function debug_user_sorting( $should_sort ) {
+    error_log( 'Alpha Insights User Sorting: ' . ( $should_sort ? 'ENABLED' : 'DISABLED' ) );
+    return $should_sort;
+}</code></pre>
+
+
+
+
+

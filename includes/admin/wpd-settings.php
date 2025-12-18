@@ -655,3 +655,51 @@ function wpd_output_additional_notices() {
 	}
 
 }
+
+/**
+ *
+ *	Output the content for the selected settings page
+ *
+ */
+function wpd_output_settings_page_content( $subpage, $wpd_action ) {
+
+	/**
+	 *
+	 *	Hook in for custom settings pages
+	 *
+	 */
+	do_action( 'wpd_settings_page_content', $subpage, $wpd_action );
+
+	// See which page we're loading
+	if ( $subpage == 'integration' ) {
+
+		require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-integrations.php');
+
+	} elseif ( $subpage == 'email' ) {
+
+		if ( isset($_GET['email_preview']) ) {
+			$email_preview = sanitize_text_field( $_GET['email_preview'] );
+			require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-email-previews.php');
+		} else {
+			require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-emails.php');
+		}
+
+	} elseif ( $subpage == 'license' ) {
+
+		require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-license.php');
+
+	} elseif ( $subpage == 'debug' ) {
+
+		require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-debug.php');
+
+	} elseif ( $subpage == 'general-settings' ) {
+
+		require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-general_settings.php');
+
+	} elseif ( ! $subpage ) {
+
+		require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-general_settings.php');
+
+	}
+
+}

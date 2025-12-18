@@ -7657,4 +7657,103 @@ class WPD_Data_Warehouse_React {
 
     }
 
+    /**
+     * 
+     *  Fetches data from a custom data source
+     * 
+     *  This method allows lazy loading of custom data sources that have been
+     *  registered via the wpd_alpha_insights_register_data_sources filter.
+     * 
+     *  @param string $entity_name The entity name of the custom data source
+     *  @return array|false The fetched data or false on failure
+     * 
+     **/
+    public function fetch_custom_data_source( $entity_name ) {
+
+        // Validate entity name
+        if ( empty( $entity_name ) || ! is_string( $entity_name ) ) {
+            $this->set_error( 'Custom data source entity name must be a non-empty string.' );
+            return false;
+        }
+
+        // Check if this entity is already initialized in data array
+        if ( ! isset( $this->data[ $entity_name ] ) ) {
+            // Initialize the data structure for this custom entity
+            $this->data[ $entity_name ] = array(
+                'totals' => array(),
+                'categorized_data' => array(),
+                'data_table' => array(),
+                'data_by_date' => array(),
+                'total_db_records' => 0,
+                'execution_time' => 0,
+                'memory_usage' => 0,
+            );
+        }
+
+        // Get the custom data source from registry
+        $data_source = WPD_Custom_Data_Source_Registry::get( $entity_name );
+
+        if ( ! $data_source ) {
+            $this->set_error( sprintf(
+                /* translators: %s: entity name */
+                __( 'Custom data source "%s" is not registered.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                esc_html( $entity_name )
+            ) );
+            return false;
+        }
+
+        // Start performance tracking
+        $start_time = microtime( true );
+        $memory_start = memory_get_usage( true );
+
+        try {
+            // Fetch data from the custom data source
+            // Pass the data warehouse instance so custom sources can access helper methods
+            $custom_data = $data_source->fetch_data( $this->filter, $this );
+
+            // Validate the returned data structure
+            if ( ! is_array( $custom_data ) ) {
+                $this->set_error( sprintf(
+                    /* translators: %s: entity name */
+                    __( 'Custom data source "%s" did not return a valid array.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                    esc_html( $entity_name )
+                ) );
+                return false;
+            }
+
+            // Calculate performance metrics (automatically tracked)
+            $execution_time = microtime( true ) - $start_time;
+            $memory_end = memory_get_usage( true );
+            $memory_usage = $memory_end - $memory_start;
+
+            // Ensure all optional keys exist with defaults
+            // Note: execution_time and memory_usage are automatically tracked and cannot be overridden
+            $formatted_data = array(
+                'totals' => $custom_data['totals'] ?? array(),
+                'categorized_data' => $custom_data['categorized_data'] ?? array(),
+                'data_table' => $custom_data['data_table'] ?? array(),
+                'data_by_date' => $custom_data['data_by_date'] ?? array(),
+                'total_db_records' => isset( $custom_data['total_db_records'] ) ? absint( $custom_data['total_db_records'] ) : 0,
+                'execution_time' => $execution_time, // Automatically tracked, cannot be overridden
+                'memory_usage' => $memory_usage, // Automatically tracked, cannot be overridden
+            );
+
+            // Store the data
+            $this->set_data( $entity_name, $formatted_data );
+
+            // Return the formatted data
+            return $formatted_data;
+
+        } catch ( Exception $e ) {
+            $this->set_error( sprintf(
+                /* translators: %1$s: entity name, %2$s: error message */
+                __( 'Error fetching data from custom data source "%1$s": %2$s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                esc_html( $entity_name ),
+                esc_html( $e->getMessage() )
+            ) );
+            return false;
+        }
+
+    }
+
 }

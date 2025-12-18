@@ -1,0 +1,133 @@
+<h2>Filter: wpd_ai_show_product_variations</h2>
+
+<p>Control whether product variations are included in analytics data queries. This affects how product-level data is aggregated in reports.</p>
+
+<h3>Description</h3>
+
+<p>By default, Alpha Insights includes product variations in analytics queries. This filter allows you to exclude variations and only show parent products, which can simplify reports and improve performance for stores with many variations.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPD_Data_Warehouse_React.php</code></p>
+<p><strong>Method:</strong> <code>WPD_Data_Warehouse_React::get_analytics_data()</code></p>
+<p><strong>Line:</strong> ~6430</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$show_variations</td>
+        <td>bool</td>
+        <td>Whether to include product variations (default: true)</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> bool</p>
+<p><strong>Description:</strong> True to show variations, false to hide them</p>
+
+<h3>Example Usage</h3>
+
+<h3>Hide Product Variations</h3>
+
+<pre><code>add_filter( 'wpd_ai_show_product_variations', '__return_false' );</code></pre>
+
+<h3>Conditional Display Based on User Role</h3>
+
+<pre><code>add_filter( 'wpd_ai_show_product_variations', 'hide_variations_for_customers' );
+function hide_variations_for_customers( $show_variations ) {
+    // Hide variations for non-admin users
+    if ( ! current_user_can( 'manage_options' ) ) {
+        return false;
+    }
+    return $show_variations;
+}</code></pre>
+
+<h3>Hide Variations for Specific Report Types</h3>
+
+<pre><code>add_filter( 'wpd_ai_show_product_variations', 'hide_variations_in_summary_reports' );
+function hide_variations_in_summary_reports( $show_variations ) {
+    // Check if this is a summary report
+    if ( isset( $_GET['report_type'] ) && $_GET['report_type'] === 'summary' ) {
+        return false;
+    }
+    return $show_variations;
+}</code></pre>
+
+<h3>Performance Optimization for Large Stores</h3>
+
+<pre><code>add_filter( 'wpd_ai_show_product_variations', 'optimize_for_large_stores' );
+function optimize_for_large_stores( $show_variations ) {
+    // Get total product count
+    $product_count = wp_count_posts( 'product' )->publish;
+    
+    // Hide variations if store has more than 10,000 products
+    if ( $product_count > 10000 ) {
+        return false;
+    }
+    
+    return $show_variations;
+}</code></pre>
+
+<h3>Best Practices</h3>
+
+<ul>
+    <li>Keep variations enabled for detailed product analysis</li>
+    <li>Disable variations for high-level summary reports</li>
+    <li>Consider your store's variation structure before disabling</li>
+    <li>Test reports after changing this setting</li>
+    <li>Variations provide more granular data but increase query complexity</li>
+</ul>
+
+<h3>Impact on Reports</h3>
+
+<p>When variations are hidden:</p>
+<ul>
+    <li>Product sales are aggregated to parent products</li>
+    <li>Variation-specific data is not available</li>
+    <li>Reports may load faster with fewer products</li>
+    <li>Less detailed product-level insights</li>
+</ul>
+
+<p>When variations are shown:</p>
+<ul>
+    <li>Each variation appears as a separate product</li>
+    <li>More granular product performance data</li>
+    <li>Reports may be more complex with many variations</li>
+    <li>Better for stores with few variations per product</li>
+</ul>
+
+<h3>Important Notes</h3>
+
+<ul>
+    <li>This affects all analytics queries, not individual reports</li>
+    <li>Changing this setting may require clearing report caches</li>
+    <li>Variation data is still stored, just not displayed</li>
+    <li>Default (true) is recommended for most stores</li>
+    <li>Consider your reporting needs before disabling</li>
+</ul>
+
+<h3>Debugging</h3>
+
+<pre><code>add_filter( 'wpd_ai_show_product_variations', 'debug_variation_display', 999 );
+function debug_variation_display( $show_variations ) {
+    error_log( 'Alpha Insights Show Variations: ' . ( $show_variations ? 'YES' : 'NO' ) );
+    return $show_variations;
+}</code></pre>
+
+<h3>Related Classes</h3>
+
+<ul>
+    <li><code>WPD_Data_Warehouse_React</code> - React dashboard data warehouse</li>
+</ul>
+
+
+
+
+
