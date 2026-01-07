@@ -214,8 +214,7 @@ class WPD_React_Report {
             'site_creation_date'           => $this->site_creation_date,
             'site_name'                    => get_bloginfo( 'name' ),
             'filters_data_map_values'      => $this->get_filters_data_map_values(),
-            'is_pro'                       => WPD_AI_PRO && wpd_get_license_key(),
-            'license_key'                  => wpd_get_license_key(),       
+            'api_key'                      => get_option('wpd_ai_api_key', null),    
             'menu_slugs' => array(
                 'sales_reports'         => WPD_Admin_Menu::$sales_report_slug,
                 'website_traffic'       => WPD_Admin_Menu::$website_traffic_slug,

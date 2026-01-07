@@ -97,50 +97,6 @@ function wpd_ai_register_settings() {
 
 	/**
 	 *
-	 *	Facebook Settings
-	 *
-	 */
-    $facebook_integration_data = array(
-        'access_token' 						=> null,
-        'access_token_validated' 			=> null,
-        'access_token_expiry_date_unix' 	=> null,
-        'ad_account_id' 					=> null,
-        'last_api_test_unix' 				=> null,
-        'api_status' 		 				=> "Not Configured",
-        'api_status_message' 		 		=> null,
-        'api_ad_account_name' 				=> null,
-        'request_timeout' 					=> 5,
-        'collect_daily_ad_spend' 			=> "true",
-        'facebook_api_call_schedule' 		=> "3-hrs",
-        'collect_campaign_insights' 		=> "true",
-        'api_limit_per_page' 				=> 50,
-        'facebook_expense_category_id' 		=> '',
-    );
-	add_option( 'wpd_ai_facebook_integration', $facebook_integration_data );
-
-	/**
-	 *
-	 *	Google Settings
-	 *
-	 */
-    $google_ads_api = array(
-        'refresh_token' 					=> null,
-        'ad_account_id' 					=> null,
-        'last_api_test_unix' 				=> null,
-        'api_status' 		 				=> "Not Configured",
-        'api_status_message' 		 		=> null,
-        'request_timeout' 					=> 5,
-        'collect_daily_ad_spend' 			=> "true",
-        'api_call_schedule' 				=> "3-hrs",
-        'collect_campaign_insights' 		=> "true",
-        'api_limit_per_page' 				=> 50,
-        'expense_category_id' 				=> null,
-		'account_age_years' 				=> 10
-    );
-	add_option( 'wpd_ai_google_ads_api', $google_ads_api );
-
-	/**
-	 *
 	 *	Analytics_settings
 	 *
 	 */
@@ -212,15 +168,6 @@ function wpd_ai_register_settings() {
 
 	/**
 	 *
-	 *	License
-	 *
-	 */
-	add_option( 'wpd_ai_api_key', null );
-	add_option( 'wpd_ai_license_status',  null );
-	add_option( 'wpd_ai_license_details',  null );
-
-	/**
-	 *
 	 *	Webhooks
 	 *
 	 */
@@ -230,6 +177,13 @@ function wpd_ai_register_settings() {
 		'webhook_schedule_last_run' => false,
 	);
 	add_option( 'wpd_ai_webhooks', $default_webhook_data );
+
+	/**
+	 * 
+	 * 	Hook in for custom settings
+	 * 	@hook wpd_ai_register_settings
+	 */
+	do_action('wpd_ai_register_settings');
 
 	/**
 	 *
@@ -484,38 +438,6 @@ function wpd_save_settings() {
 
 	}
 
-	//Facebook Integration
-	if ( isset( $_POST['wpd_ai_facebook_integration'] ) ) {
-		if ( is_array($_POST['wpd_ai_facebook_integration']) ) {
-			$stored_facebook_settings = get_option( 'wpd_ai_facebook_integration', array() );
-			$facebook_setting = array_map( 'sanitize_text_field', $_POST['wpd_ai_facebook_integration'] );
-			$facebook_setting = array_merge( $stored_facebook_settings, $facebook_setting );
-			$saved['Facebook'] = update_option( 'wpd_ai_facebook_integration',  $facebook_setting );
-			if ($saved['Facebook']) {
-				as_unschedule_all_actions('wpd_schedule_facebook_api_call');
-			}
-		}
-	}
-
-	// Google Ads API
-	if ( isset( $_POST['wpd_ai_google_ads_api'] ) ) {
-		if ( is_array($_POST['wpd_ai_google_ads_api']) ) {
-			$store_settings = get_option( 'wpd_ai_google_ads_api', false );
-			$updated_api_settings = array_map('sanitize_text_field', $_POST['wpd_ai_google_ads_api']);
-			$google_api_settings = array_merge( $store_settings, $updated_api_settings );
-			$saved['Google Ads API'] = update_option( 'wpd_ai_google_ads_api',  $google_api_settings );
-			if ($saved['Google Ads API']) {
-				as_unschedule_all_actions('wpd_schedule_google_data_fetch');
-			}
-		}
-	}
-
-	// Google Ads Profit Conversion Action
-	if ( isset( $_POST['wpd_ai_google_ads_profit_conversion_action_id'] ) ) {
-		$profit_conversion_action_id = sanitize_text_field( $_POST['wpd_ai_google_ads_profit_conversion_action_id'] );
-		$saved['Google Ads Profit Conversion Action'] = update_option( 'wpd_ai_google_ads_profit_conversion_action_id', $profit_conversion_action_id );
-	}
-
 	// Order Status Settings - wpd_ai_order_status
 	if ( isset( $_POST['wpd_ai_order_status'] ) ) {
 		$saved['Default Order Status'] = update_option( 'wpd_ai_order_status',  array_map( 'sanitize_text_field', $_POST['wpd_ai_order_status'] ));
@@ -591,21 +513,6 @@ function wpd_save_settings() {
 
 	}
 
-	// License key
-	if ( isset($_POST['wpd_ai_api_key']) ) {
-		
-		$api_key = sanitize_text_field( $_POST['wpd_ai_api_key'] );
-		$saved['API key'] = update_option( 'wpd_ai_api_key',  $api_key );
-
-		$authenticator = new WPD_Authenticator();
-		$activate_license = $authenticator->activate_license();
-
-		if ( isset($activate_license['message']) ) {
-			wpd_notice( $activate_license['message'] );
-		}
-
-	}
-
 	// Allow for hooking into saves
 	$saved = apply_filters( 'wpd_ai_save_settings', $saved );
 
@@ -635,31 +542,7 @@ function wpd_save_settings() {
 	 *	Also, lets call any other notices we want at this point
 	 *
 	 */
-	wpd_output_additional_notices();
-
-}
-
-/** 
- *
- *	Output any arbitrary notices
- *
- */
-function wpd_output_additional_notices() {
-
-	if ( isset($_GET['wpd-notice']) && sanitize_text_field( $_GET['wpd-notice'] ) === 'invalid-license' ) {
-
-		$authenticator = new WPD_Authenticator();
-		$license_status = $authenticator->is_license_active();
-
-		if ( $license_status ) {
-
-			// Redirect away from ntoice if they've updated their settings
-			$license_page = wpd_admin_page_url( 'settings-license' );
-			wp_safe_redirect( $license_page );
-			exit;
-
-		}
-	}
+	do_action('wpd_ai_output_additional_notices');
 
 }
 
@@ -690,10 +573,6 @@ function wpd_output_settings_page_content( $subpage, $wpd_action ) {
 		} else {
 			require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-emails.php');
 		}
-
-	} elseif ( $subpage == 'license' ) {
-
-		require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-license.php');
 
 	} elseif ( $subpage == 'debug' ) {
 
