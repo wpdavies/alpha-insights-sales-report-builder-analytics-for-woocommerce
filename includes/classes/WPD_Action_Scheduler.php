@@ -19,6 +19,8 @@ class WPD_Action_Scheduler {
     public const SINGLE_EVENT_REBUILD_PRODUCT_CACHE = 'wpd_rebuild_product_cache';
     public const SINGLE_EVENT_TRACK_GOOGLE_ADS_ORDER_PROFIT_CONVERSION = 'wpd_google_ads_track_order_profit_conversion';
     public const SINGLE_EVENT_TRACK_GOOGLE_ADS_ADD_TO_CART_CONVERSION = 'wpd_google_ads_track_add_to_cart_conversion';
+    public const SINGLE_EVENT_MIGRATION_RUNNER = 'wpd_migration_runner';
+    public const RECURRING_EVENT_MIGRATION_CHECK = 'wpd_schedule_migration_check';
     /**
      * Class constructor: hooks into WooCommerce's Action Scheduler.
      */
@@ -44,6 +46,11 @@ class WPD_Action_Scheduler {
         add_action( 'wpd_schedule_customer_analytics_collector',        'wpd_collect_customer_statistics_cron' );
         add_action( 'wpd_schedule_order_calculation_cache_collector',   'wpd_fetch_and_store_last_n_uncached_orders_cron' );
         add_action( 'wpd_schedule_analytics_table_object_id_check',     'wpd_set_post_id_post_type_on_null_events_analytics_table' );
+        
+        // Migration check - use lazy loading to avoid class dependency issues
+        if ( class_exists( 'WPD_Migration' ) ) {
+            add_action( self::RECURRING_EVENT_MIGRATION_CHECK, array( WPD_Migration::get_instance(), 'run_pending_migrations' ) );
+        }
 
         // All single action hooks will need to run off this
         add_action( self::SINGLE_EVENT_REBUILD_PRODUCT_CACHE,           'wpd_delete_all_product_cache');
@@ -185,6 +192,11 @@ class WPD_Action_Scheduler {
             if ( ! empty($webhook_url) ) {
                 as_schedule_recurring_action( time(), HOUR_IN_SECONDS, 'wpd_schedule_webhook', array(), self::EVENT_GROUP_SLUG );
             }
+        }
+
+        // Check for pending migrations - Once a day
+        if ( ! as_next_scheduled_action( self::RECURRING_EVENT_MIGRATION_CHECK ) ) {
+            as_schedule_recurring_action( time() + 1800, DAY_IN_SECONDS, self::RECURRING_EVENT_MIGRATION_CHECK, array(), self::EVENT_GROUP_SLUG );
         }
 
     }

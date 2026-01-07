@@ -22,6 +22,7 @@ $custom_order_cost_options 					= (function_exists('wpd_get_custom_order_cost_op
 $custom_product_cost_options 				= (function_exists('wpd_get_custom_product_cost_options')) ? wpd_get_custom_product_cost_options() : array();
 $analytics_settings							= get_option( 'wpd_ai_analytics');
 $enable_woocommerce_analytics 				= (isset($analytics_settings['enable_woocommerce_analytics'])) ? (int) $analytics_settings['enable_woocommerce_analytics'] : 1;
+$ignore_unengaged_sessions 				= get_option( 'wpd_ai_analytics_ignored_unengaged_sessions', 0 );
 $allowed_roles 								= wpd_get_authorized_user_roles_settings();
 $refunded_order_costs 						= get_option( 'wpd_ai_refunded_order_costs' );
 $payment_gateway_cost_settings				= wpd_get_payment_gateway_cost_settings();
@@ -366,6 +367,18 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 								echo '<option value="' . esc_attr( $analytics_role ) . '" ' . esc_attr( $analytics_selected ) . '>' . esc_html( $analytics_role ) . '</option>';
 							}
 						?>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label><?php esc_html_e( 'Ignore Unengaged Sessions In Reports', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'This will prevent unengaged sessions from being counted in your reports.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+				</td>
+				<td>
+					<select class="wpd-input" name="wpd_ai_analytics_ignored_unengaged_sessions">
+						<option value="1" <?php echo esc_attr( wpd_selected_option( '1', $ignore_unengaged_sessions ) ); ?>><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="0" <?php echo esc_attr( wpd_selected_option( '0', $ignore_unengaged_sessions ) ); ?>><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
 					</select>
 				</td>
 			</tr>

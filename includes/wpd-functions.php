@@ -478,7 +478,7 @@ function is_wpd_page() {
 
 	}
 
-	return $bool;
+	return apply_filters( 'wpd_ai_is_wpd_page', $bool, $screen, $page, $post_type, $taxonomy, $screen_post_type );
 
 }
 

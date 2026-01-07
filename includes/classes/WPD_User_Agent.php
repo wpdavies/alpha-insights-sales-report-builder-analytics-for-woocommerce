@@ -72,15 +72,17 @@ class WPD_User_Agent {
     ];
 
     /**
-     * @var array List of browser patterns
+     * @var array List of browser patterns (ORDERED - most specific first)
+     * Note: Edge and Opera must come before Chrome since they include "Chrome" in their UA
+     * Note: Chrome must come before Safari since Chrome includes "Safari" in its UA
      */
     protected $browsers = [
-        'Google Chrome' => ['Chrome'],
-        'Edge' => ['Edge'],
-        'Apple Safari' => ['Safari'],
-        'Internet Explorer' => ['MSIE'],
+        'Edge' => ['Edg/'],  // Check Edg/ before Chrome (Edge uses Chrome in UA)
+        'Opera' => ['OPR/'],  // Check OPR/ before Chrome (Opera uses Chrome in UA)
         'Mozilla Firefox' => ['Firefox'],
-        'Opera' => ['OPR', 'Opera'],
+        'Google Chrome' => ['Chrome'],  // Check Chrome before Safari (Chrome includes Safari in UA)
+        'Apple Safari' => ['Safari'],  // Check Safari last since it appears in Chrome/Edge/Opera UAs
+        'Internet Explorer' => ['MSIE'],
         'Netscape' => ['Netscape'],
         'cURL' => ['curl'],
         'Wget' => ['Wget'],
@@ -155,12 +157,23 @@ class WPD_User_Agent {
                     }
                 }
             }
-            // Detect browser
+            // Detect browser (check most specific first - Edge/Opera before Chrome, Chrome before Safari)
             foreach ($this->browsers as $browser => $patterns) {
                 foreach ($patterns as $pattern) {
+                    // Remove trailing slash for prefix storage, but check with slash for accuracy
+                    $pattern_clean = rtrim($pattern, '/');
                     if (stripos($this->agent, $pattern) !== false) {
+                        // Special case: Safari appears in Chrome/Edge/Opera UAs, so only match Safari if Chrome/Edge/Opera not present
+                        if ($browser === 'Apple Safari') {
+                            // Don't match Safari if Chrome, Edge, or Opera patterns are present
+                            if (stripos($this->agent, 'Chrome') !== false || 
+                                stripos($this->agent, 'Edg/') !== false || 
+                                stripos($this->agent, 'OPR/') !== false) {
+                                continue; // Skip Safari match, continue to next browser
+                            }
+                        }
                         $this->browser = $browser;
-                        $this->prefix = $pattern;
+                        $this->prefix = $pattern_clean;
                         break 2;
                     }
                 }
@@ -184,8 +197,13 @@ class WPD_User_Agent {
                 }
             }
 
-            // Device category
-            if (in_array($this->device, ['Android', 'iPhone', 'Samsung', 'HTC', 'Sony Xperia'])) {
+            // Device category - check for "Mobile" in UA first (catches "Mobile Safari")
+            if (preg_match('/\bMobile\b/i', $this->agent)) {
+                $this->device_category = 'Mobile';
+                if ($this->device === 'Computer') {
+                    $this->device = 'Mobile';
+                }
+            } elseif (in_array($this->device, ['Android', 'iPhone', 'Samsung', 'HTC', 'Sony Xperia'])) {
                 $this->device_category = 'Mobile';
             } elseif (in_array($this->device, ['iPad', 'Amazon Kindle'])) {
                 $this->device_category = 'Tablet';
@@ -197,26 +215,35 @@ class WPD_User_Agent {
                 $this->device_category = 'Desktop';
             }
 
-            // Browser version
-            $pattern = '#(?<browser>' . join('|', ['Version', $this->prefix, 'other']) . ')[/ ]+(?<version>[0-9.|a-zA-Z.]*)#';
-            preg_match_all($pattern, $this->agent, $matches);
-            if (isset($matches['version'][0])) {
-                $this->version = $matches['version'][0];
-            }
-            if (
-                isset($matches['browser']) && is_array($matches['browser']) &&
-                isset($matches['version']) && is_array($matches['version']) &&
-                count($matches['browser']) > 1 && !is_null($this->prefix)
-            ) {
-                // Defensive: check that index 1 exists
-                if (isset($matches['version'][1]) && isset($matches['version'][0])) {
-                    $this->version = strripos($this->agent, "Version") < strripos($this->agent, $this->prefix)
-                        ? $matches['version'][0]
-                        : $matches['version'][1];
-                } elseif (isset($matches['version'][0])) {
+            // Browser version - handle different formats
+            if ($this->browser === 'Edge' && preg_match('/Edg\/([0-9.]+)/i', $this->agent, $m)) {
+                // Edge uses Edg/version format
+                $this->version = $m[1];
+            } elseif ($this->browser === 'Opera' && preg_match('/OPR\/([0-9.]+)/i', $this->agent, $m)) {
+                // Opera uses OPR/version format
+                $this->version = $m[1];
+            } elseif ($this->prefix) {
+                // Standard version extraction for other browsers
+                $pattern = '#(?<browser>' . join('|', ['Version', $this->prefix, 'other']) . ')[/ ]+(?<version>[0-9.|a-zA-Z.]*)#';
+                preg_match_all($pattern, $this->agent, $matches);
+                if (isset($matches['version'][0])) {
                     $this->version = $matches['version'][0];
-                } else {
-                    $this->version = null;
+                }
+                if (
+                    isset($matches['browser']) && is_array($matches['browser']) &&
+                    isset($matches['version']) && is_array($matches['version']) &&
+                    count($matches['browser']) > 1 && !is_null($this->prefix)
+                ) {
+                    // Defensive: check that index 1 exists
+                    if (isset($matches['version'][1]) && isset($matches['version'][0])) {
+                        $this->version = strripos($this->agent, "Version") < strripos($this->agent, $this->prefix)
+                            ? $matches['version'][0]
+                            : $matches['version'][1];
+                    } elseif (isset($matches['version'][0])) {
+                        $this->version = $matches['version'][0];
+                    } else {
+                        $this->version = null;
+                    }
                 }
             }
         }
@@ -225,9 +252,11 @@ class WPD_User_Agent {
         if (empty($this->agent)) {
             $this->isBot = 1;
             $this->device = 'BOT';
+            $this->device_category = 'BOT';
         } elseif ($this->crawlerBotCheck($this->agent)) {
             $this->isBot = 1;
             $this->device = 'BOT';
+            $this->device_category = 'BOT';
         }
     }
 
@@ -261,7 +290,9 @@ class WPD_User_Agent {
     protected function isGenericBot($agent)
     {
         // Use word boundaries to avoid partial matches
-        return preg_match('/\\b(bot|crawl|archiver|transcoder|spider|uptime|validator|fetcher|cron|checker|reader|extractor|monitoring|analyzer|scraper|storebot)\\b/i', $agent);
+        // Also check for pattern like "AhrefsBot/7.0" or "SomeBot/1.0"
+        return preg_match('/\\b(bot|crawl|archiver|transcoder|spider|uptime|validator|fetcher|cron|checker|reader|extractor|monitoring|analyzer|scraper|storebot)\\b/i', $agent)
+            || preg_match('/[a-z]+Bot\/[0-9]/i', $agent); // Pattern like "AhrefsBot/7.0"
     }
 
     /**

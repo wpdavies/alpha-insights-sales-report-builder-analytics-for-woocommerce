@@ -5845,6 +5845,7 @@ class WPD_Data_Warehouse_React {
         $woo_events_table               = $wpd_db->events_table;
         $session_data_table             = $wpd_db->session_data_table;
         $filters                        = $this->get_filter();
+        $ignore_unengaged_sessions      = get_option( 'wpd_ai_analytics_ignored_unengaged_sessions', 0 );
         $session_id_filter              = $this->get_data_filter('website_traffic', 'session_id');
         $event_type_filter              = $this->get_data_filter('website_traffic', 'event_type');
         $session_contains_event_filter  = $this->get_data_filter('website_traffic', 'session_contains_event');
@@ -6060,6 +6061,15 @@ class WPD_Data_Warehouse_React {
             }
         }
 
+        // Filter Out Unengaged Sessions
+        if ( $ignore_unengaged_sessions ) {
+            $where_clause .= " AND session_id IN (
+                SELECT DISTINCT session_id
+                FROM $session_data_table
+                WHERE engaged_session = 1
+            )";
+        }
+
         // Return the where clause
         return $where_clause;
 
@@ -6107,6 +6117,7 @@ class WPD_Data_Warehouse_React {
         $wpd_db             = new WPD_Database_Interactor();
         $woo_events_table   = $wpd_db->events_table;
         $where_clause       = $this->get_analytics_where_clause();
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are from trusted source.
         $count_sql_query    = "SELECT COUNT(DISTINCT session_id) FROM $woo_events_table WHERE 1=1 $where_clause";
         $total_count        = (int) $wpdb->get_var( $count_sql_query );
         
@@ -6241,6 +6252,7 @@ class WPD_Data_Warehouse_React {
                 // This handles potential whitespace differences between events and session_data tables
                 $session_ids_placeholder = implode(',', array_fill(0, count($session_ids_chunk), '%s'));
                 
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
                 $session_sql_query = $wpdb->prepare(
                     "SELECT 
                     session_id,
@@ -6250,7 +6262,8 @@ class WPD_Data_Warehouse_React {
                     date_created_gmt,
                     date_updated_gmt,
                     device_category,
-                    ip_address
+                    ip_address,
+                    engaged_session
                     FROM $session_data_table 
                     WHERE session_id IN ($session_ids_placeholder)",
                     $session_ids_chunk
@@ -6458,6 +6471,7 @@ class WPD_Data_Warehouse_React {
                 'session_start_in_local' => '',
                 'session_end_in_local' => '',
                 'session_duration' => 0,
+                'engaged_session' => null,
                 'landing_page' => '',
                 'landing_page_path' => '',
                 'landing_page_query_parameters' => array(),
@@ -6697,6 +6711,7 @@ class WPD_Data_Warehouse_React {
                 $session_date_created_gmt   = $session_data ? $session_data['date_created_gmt'] : null;
                 $session_date_updated_gmt   = $session_data ? $session_data['date_updated_gmt'] : null;
                 $device_category            = $session_data ? $session_data['device_category'] : ($existing_session_data && isset($existing_session_data['device_category']) && $existing_session_data['device_category'] !== '' ? $existing_session_data['device_category'] : null);
+                $engaged_session            = $session_data && isset($session_data['engaged_session']) ? (int) $session_data['engaged_session'] : null;
 
                 // @todo this should likely be done on submission of data
                 if ($event_type == 'add_to_cart') $event_value = $event_value * $event_quantity;
@@ -6769,6 +6784,9 @@ class WPD_Data_Warehouse_React {
                     }
                     if ( $device_category !== null && $device_category !== '' ) {
                         $session_data_table[$session_id]['device_category'] = $device_category;
+                    }
+                    if ( $engaged_session !== null ) {
+                        $session_data_table[$session_id]['engaged_session'] = $engaged_session;
                     }
                     $session_data_table[$session_id]['events'][] = $event;
 

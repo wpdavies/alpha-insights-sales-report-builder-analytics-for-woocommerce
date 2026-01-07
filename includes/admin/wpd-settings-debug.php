@@ -124,3 +124,8 @@ if ( isset($_POST['wpd_ai_debug_order_id']) && ! empty($_POST['wpd_ai_debug_orde
 $data_manager = WPD_Data_Manager::get_instance();
 $data_manager->render_data_management_table();
 ?>
+<!-- Migrations Table -->
+<?php
+$migration = WPD_Migration::get_instance();
+$migration->render_migrations_table();
+?>

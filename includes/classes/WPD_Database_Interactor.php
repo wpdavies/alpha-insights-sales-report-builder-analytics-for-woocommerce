@@ -423,6 +423,7 @@ class WPD_Database_Interactor {
                     `browser` VARCHAR(255),
                     `device` VARCHAR(255),
                     `additional_data` longtext,
+                    `engaged_session` TINYINT(1) DEFAULT NULL,
                     PRIMARY KEY  (ID)
             ) $charset_collate;";
 
@@ -522,37 +523,8 @@ class WPD_Database_Interactor {
         $this->change_column_type( $session_data_table, 'referral_url', "TEXT" );
         $this->change_column_type( $events_table, 'page_href', "TEXT DEFAULT '' NOT NULL" );
 
-        // Delete columns or tables where required
-        // Remove the product impressions table @since 3.2.3
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
-        if ( $wpdb->get_var("SHOW TABLES LIKE '{$impressions_table}'") == $impressions_table ) {
-
-            wpd_write_log( "Removing the product impressions table", "db_upgrade" );
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement cannot use prepared statements for table names.
-            $sql = "DROP TABLE IF EXISTS $impressions_table ";
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement passed to query.
-            $result = $wpdb->query($sql);
-
-            // Check if we dropped the table
-            if ( $result ) {
-
-                wpd_write_log( "Succesfully dropped the product impressions table.", "db_upgrade" );
-
-            } else {
-
-                wpd_write_log( "Failed to drop the product impressions table.", "db_upgrade" );
-                return false;
-
-            }
-
-        } else {
-
-            wpd_write_log( "Product impressions table does not exist, no need to remove.", "db_upgrade" );
-
-        }
-
-
         // Add new columns where required
+        $this->create_new_column( $session_data_table, 'engaged_session', 'TINYINT(1) DEFAULT NULL' );
         
         // Finally, return response.
         wpd_write_log( 'Completed Alpha Insights upgrade to Database version ' . $this->plugin_db_version, 'db_upgrade' );
@@ -748,24 +720,34 @@ class WPD_Database_Interactor {
 
     /**
      *
-     *  Check if a column exists within a table and adds it if not, 
+     *  Check if a column exists within a table and adds it if not
+     * 
+     *  @param string $table_name The name of the table, including the prefix
+     *  @param string $column_name The name of the column to add
+     *  @param string $settings The column definition (e.g., 'TINYINT(1) DEFAULT NULL')
+     * 
+     *  @return bool true on success, false on failure
      *
      */
-    public function add_new_db_column( $table_name, $column_name, $settings ) {
+    public function create_new_column( $table_name, $column_name, $settings ) {
 
-        wpd_write_log( 'Adding new column "' . $column_name . '" to '. $table_name . ' with the following args: ' . $settings . '.', 'db_upgrade' );
+        wpd_write_log( 'Checking if column "' . $column_name . '" exists in table ' . $table_name . '.', 'db_upgrade' );
 
         global $wpdb;
 
-        $query  = $wpdb->prepare( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = %s AND column_name = %s", $table_name, $column_name );
+        // Check if column exists
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
+        $query = $wpdb->prepare( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = %s AND column_name = %s", $table_name, $column_name );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
-        $row    = $wpdb->get_results( $query );
+        $row = $wpdb->get_results( $query );
 
-        if ( empty($row) ) {
+        if ( empty( $row ) ) {
+
+            wpd_write_log( 'Adding new column "' . $column_name . '" to ' . $table_name . ' with settings: ' . $settings . '.', 'db_upgrade' );
 
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement cannot use prepared statements for table/column names.
             // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names are from trusted source.
-            $wpdb->query("ALTER TABLE $table_name ADD $column_name $settings");
+            $wpdb->query( "ALTER TABLE $table_name ADD $column_name $settings" );
 
             // Something went wrong.
             if ( $wpdb->last_error ) {
@@ -777,11 +759,11 @@ class WPD_Database_Interactor {
                 return false;
             }
 
-            wpd_write_log( 'Added new column within table ' . $table_name . ' called ' . $column_name . '.', 'db_upgrade' );
+            wpd_write_log( 'Successfully added new column "' . $column_name . '" to table ' . $table_name . '.', 'db_upgrade' );
 
         } else {
 
-            wpd_write_log( $column_name . ' already exists in the '. $table_name . ' table. ', 'db_upgrade' );
+            wpd_write_log( 'Column "' . $column_name . '" already exists in table ' . $table_name . '.', 'db_upgrade' );
 
         }
 

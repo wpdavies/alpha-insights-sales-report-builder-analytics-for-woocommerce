@@ -491,11 +491,21 @@ class WPD_Alpha_Insights_Free_Plugin {
 						update_option( 'wpd_ai_pending_rewrite_flush', true );
 						$this->log( 'Rewrite rules flush scheduled for next admin page load.' );
 
-						// Schedule default report installation for next admin load
-						update_option( 'wpd_ai_pending_report_installation', true );
-						$this->log( 'Default reports installation scheduled for next admin page load.' );
+					// Schedule default report installation for next admin load
+					update_option( 'wpd_ai_pending_report_installation', true );
+					$this->log( 'Default reports installation scheduled for next admin page load.' );
 
-						$this->log( 'Plugin update scheduling complete.' );
+					// Schedule migration runner to check for pending migrations
+					if ( class_exists( 'WPD_Action_Scheduler' ) ) {
+						$action_scheduler = new WPD_Action_Scheduler();
+						$action_scheduler->schedule_one_off_event( WPD_Action_Scheduler::SINGLE_EVENT_MIGRATION_RUNNER, 0 );
+						$this->log( 'Migration runner scheduled via action scheduler.' );
+					} else {
+						update_option( 'wpd_ai_pending_migration_runner', true );
+						$this->log( 'Migration runner scheduled for next admin page load.' );
+					}
+
+					$this->log( 'Plugin update scheduling complete.' );
 
 					}
 	
@@ -557,6 +567,26 @@ class WPD_Alpha_Insights_Free_Plugin {
 			} else {
 
 				$this->log( 'WPD_React_Report class not found during deferred installation, will retry on next admin load.' );
+
+			}
+
+		}
+
+		// Task 4: Migration runner (requires WPD_Action_Scheduler class)
+		if ( get_option( 'wpd_ai_pending_migration_runner' ) ) {
+
+			// Verify the class exists (all dependencies loaded)
+			if ( class_exists( 'WPD_Action_Scheduler' ) ) {
+
+				$this->log( 'Scheduling pending migration runner.' );
+				$action_scheduler = new WPD_Action_Scheduler();
+				$action_scheduler->schedule_one_off_event( WPD_Action_Scheduler::SINGLE_EVENT_MIGRATION_RUNNER, 0 );
+				delete_option( 'wpd_ai_pending_migration_runner' );
+				$this->log( 'Migration runner scheduled successfully.' );
+
+			} else {
+
+				$this->log( 'WPD_Action_Scheduler class not found during deferred migration scheduling, will retry on next admin load.' );
 
 			}
 
@@ -764,9 +794,10 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		// Additional Classes -> No Dependencies
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Admin_Menu.php');		
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Action_Scheduler.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Order_Calculator.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Database_Interactor.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPD_Migration.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPD_Action_Scheduler.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_User_Agent.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_Traffic_Type.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPD_CSV_Exporter.php');

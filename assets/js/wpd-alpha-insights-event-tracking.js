@@ -205,5 +205,74 @@ jQuery(document).ready(function($) {
 		});
 	});
 
+	// Engaged Session Tracking
+	// Check if engaged session cookie is set, if not, set it on click or scroll and fire AJAX
+	(function() {
+		var engagedSessionCookie = 'wpd_ai_engaged_session';
+		var engagedSessionSet = false;
+		
+		// Helper function to get cookie value
+		function getCookie(name) {
+			var value = "; " + document.cookie;
+			var parts = value.split("; " + name + "=");
+			if (parts.length === 2) {
+				return parts.pop().split(";").shift();
+			}
+			return null;
+		}
+		
+		// Helper function to set session cookie
+		function setSessionCookie(name, value) {
+			// Session cookie (expires when browser closes)
+			document.cookie = name + "=" + value + "; path=/; SameSite=Lax";
+		}
+		
+		// Check if cookie is already set
+		if (getCookie(engagedSessionCookie)) {
+			engagedSessionSet = true;
+		}
+		
+		// Function to mark session as engaged
+		function markSessionAsEngaged() {
+			if (engagedSessionSet) {
+				return; // Already set, don't fire again
+			}
+			
+			// Set the cookie
+			setSessionCookie(engagedSessionCookie, '1');
+			engagedSessionSet = true;
+			
+			// Fire AJAX request to update engaged session
+			if (typeof wpdAlphaInsightsEventTracking !== 'undefined' && wpdAlphaInsightsEventTracking.api_endpoint) {
+				// Construct the engaged-session API URL
+				var apiUrl = wpdAlphaInsightsEventTracking.api_endpoint.replace('/woocommerce-events', '/engaged-session');
+				
+				jQuery.ajax({
+					url: apiUrl,
+					method: 'POST',
+					contentType: 'application/json; charset=UTF-8',
+					data: JSON.stringify({
+						engaged: true
+					})
+				});
+			}
+		}
+		
+		// Track on click
+		$(document).on('click', function() {
+			markSessionAsEngaged();
+		});
+		
+		// Track on scroll (with throttling to avoid too many calls)
+		var scrollTimeout;
+		$(window).on('scroll', function() {
+			if (scrollTimeout) {
+				clearTimeout(scrollTimeout);
+			}
+			scrollTimeout = setTimeout(function() {
+				markSessionAsEngaged();
+			}, 100); // Throttle scroll events
+		});
+	})();
 
 });

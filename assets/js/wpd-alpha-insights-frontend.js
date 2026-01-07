@@ -25,11 +25,12 @@ jQuery(document).ready(function($) {
 	}
 	var wpdailp = getCookie('wpd_ai_landing_page');
 	var wpdairs = getCookie('wpd_ai_referral_source');
-	if ( wpdailp == null ) {
+	if ( wpdailp == null || wpdailp === '' ) {
 		url = document.location.href;
 		setCookie('wpd_ai_landing_page', url);
 	}
-	if (wpdairs == null) {
+	// Check if cookie doesn't exist (null) or is empty string - update referral URL in both cases
+	if (wpdairs == null || wpdairs === '') {
 		const siteHost = window.location.hostname; // make sure this is localized properly
 		let ref = document.referrer;
 		if (ref) {

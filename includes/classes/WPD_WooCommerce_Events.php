@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  *	WooCommerce Event Tracking
  *
  */
-class WPD_WooCommerce_Events extends WPD_Session_Tracking {
+class WPD_WooCommerce_Events {
 
 	/**
 	 *
@@ -40,7 +40,8 @@ class WPD_WooCommerce_Events extends WPD_Session_Tracking {
 	public array 	$settings 				= array();
     public int      $track_user 			= 1;
 	private static 	$instance 				= null; // Singleton pattern so that we can call the insert_event without reinitializing the whole thing
-
+	public ?object 	$session_instance 		= null; // WPD_Session_Tracking instance
+	
 	/**
 	 *
 	 *	Init all hooks
@@ -64,49 +65,41 @@ class WPD_WooCommerce_Events extends WPD_Session_Tracking {
 			// Set API URL for calls
 			$this->api_url = '/wp-json/' . $this->api_namespace . '/' . $this->api_endpoint;
 
-			// Load all session variables from WPD_Session_Tracking using singleton
-			// $session_data = parent::setup_session_data();
-			$session_data = $this->setup_session_data();
-
-			// Tracking user?
-			$this->track_user = $this->track_user();
-
 			/**
 			 *
 			 *	Event Tracking
 			 *
 			 **/
-			if ( $this->track_user && $this->event_tracking_enabled ) {
+			// Setup object info, after things are setup though
+			add_action( 'template_redirect', array( $this, 'setup_object_type_id' ), 1 );
 
-				// Setup object info, after things are setup though
-				add_action( 'template_redirect', array( $this, 'setup_object_type_id' ), 1 );
+			// Track add to cart via server
+			add_action( 'woocommerce_add_to_cart', array( $this, 'db_track_product_add_to_cart' ), 10, 6 );
 
-				// Track add to cart via server
-				add_action( 'woocommerce_add_to_cart', array( $this, 'db_track_product_add_to_cart' ), 10, 6 );
+			// Track products purchased via server - using payment complete hook for reliability
+			add_action( 'woocommerce_thankyou', array($this, 'db_track_products_purchased_thankyou_page'), 10, 1 ); // Track orders using two methods, in case one fails
+			add_action( 'woocommerce_order_status_changed', array( $this, 'db_track_products_purchased_on_order_status_change' ), 20, 4 ); // Track orders using order status change hook for reliability
+			add_action( 'woocommerce_order_status_changed', array( $this, 'db_track_failed_orders' ), 30, 4 );
 
-				// Track products purchased via server - using payment complete hook for reliability
-				add_action( 'woocommerce_thankyou', array($this, 'db_track_products_purchased_thankyou_page'), 10, 1 ); // Track orders using two methods, in case one fails
-				add_action( 'woocommerce_order_status_changed', array( $this, 'db_track_products_purchased_on_order_status_change' ), 20, 4 ); // Track orders using order status change hook for reliability
-				add_action( 'woocommerce_order_status_changed', array( $this, 'db_track_failed_orders' ), 30, 4 );
+			// Track logins via server -> Wordpress API Only
+			add_action( 'wp_login', array($this, 'db_track_logins'), 100 ); // wp api
+			add_action( 'woocommerce_customer_login', 'db_track_logins', 100 ); // wc api
+			add_action( 'wp_logout', array($this, 'db_track_logouts'), 100, 1 ); // both api
 
-				// Track logins via server -> Wordpress API Only
-				add_action( 'wp_login', array($this, 'db_track_logins'), 100 ); // wp api
-				add_action( 'woocommerce_customer_login', 'db_track_logins', 100 ); // wc api
-				add_action( 'wp_logout', array($this, 'db_track_logouts'), 100, 1 ); // both api
+			// Track account creation via server
+			add_action( 'woocommerce_created_customer', array($this, 'db_track_account_created'), 100, 3 ); // wc api
 
-				// Track account creation via server
-				add_action( 'woocommerce_created_customer', array($this, 'db_track_account_created'), 100, 3 ); // wc api
+			// Used for tracking clicks
+			add_action( 'woocommerce_before_shop_loop_item', array($this, 'add_product_id_to_product_loop_item'), 10 );
 
-				// Used for tracking clicks
-				add_action( 'woocommerce_before_shop_loop_item', array($this, 'add_product_id_to_product_loop_item'), 10 );
-
-				// Used for tracking clicks -> not used for now but may be helpful
-				add_filter( 'woocommerce_post_class', array($this, 'add_class_to_loop_item'), 10, 2 );
-
-			}
+			// Used for tracking clicks -> not used for now but may be helpful
+			add_filter( 'woocommerce_post_class', array($this, 'add_class_to_loop_item'), 10, 2 );
 
 			// WooCommerce Events API
 			add_action( 'rest_api_init', array( $this, 'register_wpd_ai_events_api' ) );
+			
+			// Engaged Session API
+			add_action( 'rest_api_init', array( $this, 'register_wpd_ai_engaged_session_api' ) );
 
 		}
 
@@ -141,6 +134,25 @@ class WPD_WooCommerce_Events extends WPD_Session_Tracking {
 			array(
 				'methods' => 'POST',
 				'callback' => array( $this, 'process_events_api_data' ),
+				'permission_callback' => array( $this, 'verify_events_api_permission' )
+			)
+		);
+
+	}
+
+	/**
+	 *
+	 *	Initialize callback for rest API - Engaged Session Tracking
+	 *
+	 */
+	public function register_wpd_ai_engaged_session_api() {
+
+		register_rest_route(
+			$this->api_namespace, 	// Namespace
+			'engaged-session', 		// Endpoint
+			array(
+				'methods' => 'POST',
+				'callback' => array( $this, 'process_engaged_session_api_data' ),
 				'permission_callback' => array( $this, 'verify_events_api_permission' )
 			)
 		);
@@ -246,6 +258,97 @@ class WPD_WooCommerce_Events extends WPD_Session_Tracking {
 
 		}
 
+		// If we get here, something went wrong
+		$response['message'] = 'Event type is a required parameter.  Error Code: #3.';
+
+		return new \WP_REST_Response(
+			array($response),
+			400
+		);
+
+	}
+
+	/**
+	 *
+	 *	Process engaged session API data
+	 *	Called when user interacts with the site (click/scroll) to mark session as engaged
+	 *
+	 */
+	public function process_engaged_session_api_data( WP_REST_Request $request ) {
+
+		// Vars
+		$response 	 	= array();
+		$payload 		= $request->get_params();
+		$referer 		= $request->get_header( 'referer' );
+
+		// No referer set
+		if ( ! $referer ) {
+
+			$response['message'] = '403 Forbidden. Error Code: #1.';
+
+			return new \WP_REST_Response(
+				array($response),
+				403
+			);
+
+		}
+
+		// Referer does not match domain
+		$referring_url 	= wp_parse_url( $referer, PHP_URL_HOST );
+		$site_url 		= wp_parse_url( get_site_url(), PHP_URL_HOST );
+		if ( $referring_url != $site_url  ) {
+
+			$response['message'] = '403 Forbidden. Error Code: #2.'; // Must be an internal request
+
+			return new \WP_REST_Response(
+				array($response),
+				403
+			);
+
+		}
+
+		// Check if engaged flag is set
+		if ( ! isset($payload['engaged']) || ! $payload['engaged'] ) {
+
+			$response['message'] = 'Engaged parameter is required. Error Code: #3.';
+
+			return new \WP_REST_Response(
+				array($response),
+				400
+			);
+
+		}
+
+		// Call WPD_Session_Tracking to update engaged session
+		$session_tracking = new WPD_Session_Tracking();
+		$result = $session_tracking->update_engaged_session();
+
+		if ( $result ) {
+			$response['message'] = 'Session marked as engaged successfully.';
+			$response['success'] = true;
+		} else {
+			$response['message'] = 'Failed to update engaged session.';
+			$response['success'] = false;
+		}
+
+		return new \WP_REST_Response(
+			array($response),
+			200
+		);
+
+	}
+
+	/**
+	 *
+	 *	Get or set session instance from WPD_Session_Tracking
+	 *
+	 */
+	public function get_set_session_instance() {
+		if ( ! empty($this->session_instance) && is_object($this->session_instance) ) {
+			return $this->session_instance;
+		}
+		$this->session_instance = new WPD_Session_Tracking();
+		return $this->session_instance;
 	}
 
 	/**
@@ -276,8 +379,11 @@ class WPD_WooCommerce_Events extends WPD_Session_Tracking {
 	 */
 	public function insert_event( $data ) {
 
+		// Setup session data if not set
+		$session_instance = $this->get_set_session_instance();
+
 		// If we're not tracking, dont enter data
-		if ( ! $this->track_user ) {
+		if ( ! $this->track_user() || ! $this->event_tracking_enabled ) {
 			return 10;
 		}
 
@@ -302,30 +408,25 @@ class WPD_WooCommerce_Events extends WPD_Session_Tracking {
 		}
 
 		// If there's no landing page in the session, probably not a real person.. causes issue in api calls
-		if ( empty( $this->landing_page ) ) {
+		if ( empty( $session_instance->landing_page ) ) {
 			return 60;
 		}
 
 		// Bot
-		if ( $this->is_bot ) {
+		if ( $session_instance->is_bot ) {
 			return 70;
 		}
 
 		$db_interactor 			= new WPD_Database_Interactor();
 		$table_name 			= $db_interactor->events_table;
 
-		// Setup session if not set
-		if ( empty($this->session_id) ) {
-			$this->setup_session_data();
-		}
-
 		// Cant be overriden
 		$data['date_created_gmt'] 	= current_time( 'mysql', true ); // True = GMT
 
 		// Defaults, if not set or empty
-		if ( ! isset($data['session_id']) || empty($data['session_id']) ) $data['session_id'] = $this->session_id;
-		if ( ! isset($data['ip_address']) || empty($data['ip_address']) ) $data['ip_address'] = $this->ip_address;
-		if ( ! isset($data['user_id']) || empty($data['user_id']) ) $data['user_id'] = $this->user_id;
+		if ( ! isset($data['session_id']) || empty($data['session_id']) ) $data['session_id'] = $session_instance->session_id;
+		if ( ! isset($data['ip_address']) || empty($data['ip_address']) ) $data['ip_address'] = $session_instance->ip_address;
+		if ( ! isset($data['user_id']) || empty($data['user_id']) ) $data['user_id'] = $session_instance->user_id;
 		if ( ! isset($data['page_href']) || empty($data['page_href']) ) $data['page_href'] = $this->page_href;
 		if ( ! isset($data['object_type']) || empty($data['object_type']) ) $data['object_type'] = $this->object_type;
 		if ( ! isset($data['object_id']) || empty($data['object_id']) ) $data['object_id'] = $this->object_id;
@@ -364,7 +465,7 @@ class WPD_WooCommerce_Events extends WPD_Session_Tracking {
 		} 
 
 		// Store / Update session in DB
-		$this->store_session_in_db();
+		$session_instance->store_session_in_db();
 
 		// Filter data before inserting into DB
 		$data = apply_filters( 'wpd_ai_event_data_before_insertion', $data );
@@ -417,8 +518,10 @@ class WPD_WooCommerce_Events extends WPD_Session_Tracking {
 	 **/
 	private function is_rate_limit_exceeded() {
 
+		$session_instance = $this->get_set_session_instance();
+
 		$maximum_requests_per_minute = 60;
-		$transient_key = '_wpd_ip_requests_per_minute_' . $this->ip_address;
+		$transient_key = '_wpd_ip_requests_per_minute_' . $session_instance->ip_address;
 
 		// Get requests per minute
 		$requests_per_ip = (int) get_transient( $transient_key );
@@ -446,11 +549,13 @@ class WPD_WooCommerce_Events extends WPD_Session_Tracking {
 	 **/
 	private function ban_ip_from_event_tracking() {
 
+		$session_instance = $this->get_set_session_instance();
+
 		// Ban for 24 hours
 		$ban_duration = 60 * 60 * 24;
-		$transient_key = '_wpd_ip_banned_event_tracking' . $this->ip_address;
+		$transient_key = '_wpd_ip_banned_event_tracking' . $session_instance->ip_address;
 
-		if ( ! empty($this->ip_address) ) {
+		if ( ! empty($session_instance->ip_address) ) {
 
 			// Update the transient
 			$update_transient = set_transient( $transient_key, 1, $ban_duration ); // Set to 1 = true
@@ -472,7 +577,8 @@ class WPD_WooCommerce_Events extends WPD_Session_Tracking {
 	 **/
 	private function is_ip_banned() {
 
-		$transient_key 	= '_wpd_ip_banned_event_tracking' . $this->ip_address;
+		$session_instance = $this->get_set_session_instance();
+		$transient_key 	= '_wpd_ip_banned_event_tracking' . $session_instance->ip_address;
 		$ip_banned 		= (int) get_transient( $transient_key );
 
 		if ( $ip_banned == 1 ) {
@@ -494,11 +600,13 @@ class WPD_WooCommerce_Events extends WPD_Session_Tracking {
      */
     public function track_user() {
 
+		$session_instance = $this->get_set_session_instance();
+
     	// Default yes
     	$track_user = 1;
 
 		// Dont track bots
-		if ( $this->is_bot ) return 0;
+		if ( $session_instance->is_bot ) return 0;
 
     	// Are we wanting to exclude any roles?
     	if ( isset($this->settings['exclude_roles']) && ! empty($this->settings['exclude_roles']) && is_array($this->settings['exclude_roles']) ) {
@@ -747,6 +855,8 @@ class WPD_WooCommerce_Events extends WPD_Session_Tracking {
 	 */
 	public function db_track_products_purchased_on_order_status_change( $order_id, $old_status, $new_status, $order ) {
 
+		$session_instance = $this->get_set_session_instance();
+
 		// Prevent duplicate tracking - check meta and database
 		if ( $this->has_order_been_tracked( $order_id ) ) {
 			return false;
@@ -809,14 +919,14 @@ class WPD_WooCommerce_Events extends WPD_Session_Tracking {
 
 		// Set session id manually if it exists in the order
 		$session_id = $order->get_meta( '_wpd_ai_session_id' );
-		if ( $session_id && empty($this->session_id) ) {
-			$this->session_id = $session_id;
+		if ( $session_id && empty($session_instance->session_id) ) {
+			$session_instance->session_id = $session_id;
 		}
 
 		// Set landing page manually if it exists in the order
 		$landing_page = $order->get_meta( '_wpd_ai_landing_page' );
-		if ( $landing_page && empty($this->landing_page) ) {
-			$this->landing_page = $landing_page;
+		if ( $landing_page && empty($session_instance->landing_page) ) {
+			$session_instance->landing_page = $landing_page;
 		}
 
 		$event_inserted = $this->insert_event( $transaction_data );
@@ -1087,6 +1197,8 @@ class WPD_WooCommerce_Events extends WPD_Session_Tracking {
 	 */
 	public function db_track_product_add_to_cart( $cart_id, $product_id, $request_quantity, $variation_id, $variation, $cart_item_data ) {
 
+		$session_instance = $this->get_set_session_instance();
+
 		// Defaults
 		$data = array();
 
@@ -1128,7 +1240,7 @@ class WPD_WooCommerce_Events extends WPD_Session_Tracking {
 
 		// Send off google conversion event
 		$conversion_value = (float) $data['event_value'] * (int) $data['event_quantity'];
-		wpd_schedule_once_off_cron_event_google_ads_add_to_cart_conversion_action_from_gclid( 0, array( 'landing_page' => $this->landing_page, 'conversion_value' => $conversion_value ) );
+		wpd_schedule_once_off_cron_event_google_ads_add_to_cart_conversion_action_from_gclid( 0, array( 'landing_page' => $session_instance->landing_page, 'conversion_value' => $conversion_value ) );
 
 		// Add to DB
 		$insert = $this->insert_event($data);

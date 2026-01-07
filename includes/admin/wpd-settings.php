@@ -149,6 +149,7 @@ function wpd_ai_register_settings() {
         'exclude_roles' 					=> array(),
     );
 	add_option( 'wpd_ai_analytics', $analytics_settings );
+	add_option( 'wpd_ai_analytics_ignored_unengaged_sessions', 0 );
 
 	/**
 	 *
@@ -437,6 +438,12 @@ function wpd_save_settings() {
 			'exclude_roles' => $exclude_roles
 		);
 		$saved['Analytics Settings'] = update_option( 'wpd_ai_analytics',  $analytics_settings );
+	}
+
+	// Ignore Unengaged Sessions Setting
+	if ( isset($_POST['wpd_ai_analytics_ignored_unengaged_sessions']) ) {
+		$ignore_unengaged_sessions = ( isset($_POST['wpd_ai_analytics_ignored_unengaged_sessions']) ) ? intval($_POST['wpd_ai_analytics_ignored_unengaged_sessions']) : 0;
+		$saved['Ignore Unengaged Sessions'] = update_option( 'wpd_ai_analytics_ignored_unengaged_sessions', $ignore_unengaged_sessions );
 	}
 
 	// Cache Build Batch Size
