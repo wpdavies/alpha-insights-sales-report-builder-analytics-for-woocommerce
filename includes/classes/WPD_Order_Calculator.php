@@ -326,9 +326,9 @@ class WPD_Order_Calculator {
         $meta_campaign_id 				= $this->order->get_meta( '_wpd_ai_meta_campaign_id' );
         $google_campaign_id 			= $this->order->get_meta( '_wpd_ai_google_campaign_id' );
 
-        if ( isset($meta_campaign_id) && ! empty($meta_campaign_id) ) {
+        if ( isset($meta_campaign_id) && ! empty($meta_campaign_id) && function_exists('wpd_get_facebook_campaign_name_by_id') ) {
             $campaign_name = wpd_get_facebook_campaign_name_by_id( $meta_campaign_id );
-        } else if ( isset($google_campaign_id) && ! empty($google_campaign_id) ) {
+        } else if ( isset($google_campaign_id) && ! empty($google_campaign_id) && function_exists('wpd_get_google_campaign_name_by_id') ) {
             $campaign_name = wpd_get_google_campaign_name_by_id( $google_campaign_id );
         } else {
             $campaign_name = ( isset($query_params['utm_campaign']) && ! empty($query_params['utm_campaign']) ) ? $query_params['utm_campaign'] : '';
