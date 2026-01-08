@@ -807,7 +807,9 @@ class WPD_WooCommerce_Events {
 		$this->release_tracking_lock( $order_id );
 
 		// Send off google conversion event
-		wpd_schedule_once_off_cron_event_google_ads_profit_conversion_action_from_order_id( 0, array( 'order_id' => $order_id ) );
+		if ( function_exists('wpd_schedule_once_off_cron_event_google_ads_profit_conversion_action_from_order_id') ) {
+			wpd_schedule_once_off_cron_event_google_ads_profit_conversion_action_from_order_id( 0, array( 'order_id' => $order_id ) );
+		}
 
 		// Track individual product purchases
 		foreach( $order->get_items() as $item_id => $item ) {
@@ -940,7 +942,9 @@ class WPD_WooCommerce_Events {
 		$this->release_tracking_lock( $order_id );
 
 		// Send off google conversion event
-		wpd_schedule_once_off_cron_event_google_ads_profit_conversion_action_from_order_id( 0, array( 'order_id' => $order_id ) );
+		if ( function_exists('wpd_schedule_once_off_cron_event_google_ads_profit_conversion_action_from_order_id') ) {
+			wpd_schedule_once_off_cron_event_google_ads_profit_conversion_action_from_order_id( 0, array( 'order_id' => $order_id ) );
+		}
 
 		// Track individual product purchases
 		foreach ( $order->get_items() as $item_id => $item ) {
@@ -1240,7 +1244,9 @@ class WPD_WooCommerce_Events {
 
 		// Send off google conversion event
 		$conversion_value = (float) $data['event_value'] * (int) $data['event_quantity'];
-		wpd_schedule_once_off_cron_event_google_ads_add_to_cart_conversion_action_from_gclid( 0, array( 'landing_page' => $session_instance->landing_page, 'conversion_value' => $conversion_value ) );
+		if ( function_exists('wpd_schedule_once_off_cron_event_google_ads_add_to_cart_conversion_action_from_gclid') ) {
+			wpd_schedule_once_off_cron_event_google_ads_add_to_cart_conversion_action_from_gclid( 0, array( 'landing_page' => $session_instance->landing_page, 'conversion_value' => $conversion_value ) );
+		}
 
 		// Add to DB
 		$insert = $this->insert_event($data);

@@ -165,6 +165,11 @@ function wpd_settings_page() {
  */
 function wpd_getting_started_page() {
 
-	WPD_Getting_Started::render_getting_started_page();
+	// Use Pro class if available, otherwise fall back to base class
+	if ( class_exists( 'WPD_Getting_Started_Pro' ) ) {
+		WPD_Getting_Started_Pro::render_getting_started_page();
+	} else {
+		WPD_Getting_Started::render_getting_started_page();
+	}
 	
 }

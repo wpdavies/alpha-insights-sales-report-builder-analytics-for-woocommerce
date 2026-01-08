@@ -31,26 +31,14 @@ class WPD_Getting_Started {
         $payment_gateway_cost_settings = wpd_get_payment_gateway_cost_settings();
         $available_payment_gateways = wpd_get_available_payment_gateways();
         $logo_icon_url = WPD_AI_URL_PATH . 'assets/img/Alpha-Insights-Icon-Large.png';
-        
-        // Get license data (only for Pro version)
-        $license_key = '';
-        $license_status = 'active'; // Free version doesn't need license, so treat as active
-        $is_pro = defined('WPD_AI_PRO') && WPD_AI_PRO && class_exists('WPD_Authenticator');
-        
-        if ( $is_pro ) {
-            $authenticator = new WPD_Authenticator();
-            $license_data = $authenticator->license_details();
-            $license_key = $license_data['license_key'];
-            $license_status = $license_data['license_status'];
-        }
 
-        // Localize script with data
+        // Localize script with data (Free version - no license logic)
         wp_localize_script( 'wpd-alpha-insights-getting-started', 'wpdGettingStarted', array(
             'ajaxUrl' => admin_url( 'admin-ajax.php' ),
             'nonce' => wp_create_nonce( WPD_AI_AJAX_NONCE_ACTION ),
             'salesReportUrl' => wpd_admin_page_url( 'reports-orders' ),
-            'licenseStatus' => $license_status,
-            'isPro' => $is_pro,
+            'licenseStatus' => 'active', // Free version doesn't need license
+            'isPro' => false,
         ));
 
         // Render the page
@@ -78,18 +66,12 @@ class WPD_Getting_Started {
                                 <div class="wpd-gs-progress-number">1</div>
                                 <div class="wpd-gs-progress-label"><?php esc_html_e('Welcome', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></div>
                             </div>
-                            <?php if ( $is_pro ) : ?>
                             <div class="wpd-gs-progress-step" data-step="2">
                                 <div class="wpd-gs-progress-number">2</div>
-                                <div class="wpd-gs-progress-label"><?php esc_html_e('License', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></div>
-                            </div>
-                            <?php endif; ?>
-                            <div class="wpd-gs-progress-step" data-step="<?php echo $is_pro ? '3' : '2'; ?>">
-                                <div class="wpd-gs-progress-number"><?php echo $is_pro ? '3' : '2'; ?></div>
                                 <div class="wpd-gs-progress-label"><?php esc_html_e('Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></div>
                             </div>
-                            <div class="wpd-gs-progress-step" data-step="<?php echo $is_pro ? '4' : '3'; ?>">
-                                <div class="wpd-gs-progress-number"><?php echo $is_pro ? '4' : '3'; ?></div>
+                            <div class="wpd-gs-progress-step" data-step="3">
+                                <div class="wpd-gs-progress-number">3</div>
                                 <div class="wpd-gs-progress-label"><?php esc_html_e('Ready', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></div>
                             </div>
                         </div>
@@ -174,9 +156,7 @@ class WPD_Getting_Started {
                                             <strong><?php esc_html_e('Expense Manager:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></strong> 
                                             <?php esc_html_e('Track all your business expenses and allocate them to specific periods', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>
                                         </div>
-                                        <?php if ( ! $is_pro ) : ?>
-                                            <span class="wpd-gs-pro-badge" title="<?php esc_html_e('Pro Feature', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>"><?php esc_html_e('Pro', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></span>
-                                        <?php endif; ?>
+                                        <span class="wpd-gs-pro-badge" title="<?php esc_attr_e('Pro Feature', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>"><?php esc_html_e('Pro', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></span>
                                     </li>
                                     <li><span class="dashicons dashicons-yes-alt"></span> <strong><?php esc_html_e('Cost of Goods:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></strong> <?php esc_html_e('Easily manage product costs with bulk import/export', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></li>
                                     <li>
@@ -185,70 +165,15 @@ class WPD_Getting_Started {
                                             <strong><?php esc_html_e('Ad Integrations:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></strong> 
                                             <?php esc_html_e('Connect Facebook and Google Ads for true ROAS tracking', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>
                                         </div>
-                                        <?php if ( ! $is_pro ) : ?>
-                                            <span class="wpd-gs-pro-badge" title="<?php esc_html_e('Pro Feature', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>"><?php esc_html_e('Pro', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></span>
-                                        <?php endif; ?>
+                                        <span class="wpd-gs-pro-badge" title="<?php esc_attr_e('Pro Feature', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>"><?php esc_html_e('Pro', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></span>
                                     </li>
                                     <li><span class="dashicons dashicons-yes-alt"></span> <strong><?php esc_html_e('Website Traffic:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></strong> <?php esc_html_e('Monitor visitor sources, channels, and conversion paths to understand customer behavior', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></li>
                                 </ul>
                             </div>
                         </div>
                         
-                        <!-- Step 2: License Activation (Pro only) -->
-                        <?php if ( $is_pro ) : ?>
+                        <!-- Step 2: Settings -->
                         <div class="wpd-gs-step wpd-gs-step-2">
-                            <div class="wpd-gs-step-header">
-                                <h2><?php esc_html_e('Activate Your License', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></h2>
-                                <p><?php esc_html_e('Enter your license key to unlock all Alpha Insights features and receive automatic updates.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
-                            </div>
-                            
-                            <form id="wpd-gs-license-form">
-                                
-                                <div class="wpd-gs-license-section">
-                                    
-                                    <?php if ( $license_status === 'active' ) : ?>
-                                        
-                                        <div class="wpd-gs-license-status wpd-gs-license-active">
-                                            <span class="dashicons dashicons-yes-alt"></span>
-                                            <div class="wpd-gs-license-status-content">
-                                                <h3><?php esc_html_e('License Active!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></h3>
-                                                <p><?php esc_html_e('Your license is active and all features are unlocked. You can proceed to the next step.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
-                                            </div>
-                                        </div>
-                                    
-                                    <?php else : ?>
-                                    
-                                        <div class="wpd-gs-license-input-section">
-                                            <div class="wpd-gs-license-input-group">
-                                                <label for="license_key"><?php esc_html_e('License Key', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></label>
-                                                <input type="text" id="license_key" name="license_key" value="<?php echo esc_attr( $license_key ); ?>" placeholder="WPD-AI-XXXXXXXXXX-XXXXXXXXXX" class="wpd-gs-input wpd-gs-input-license">
-                                                <p class="wpd-gs-input-help"><?php esc_html_e('Enter the license key from your purchase confirmation email', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
-                                            </div>
-                                            
-                                            <div class="wpd-gs-license-help">
-                                                <span class="dashicons dashicons-info"></span>
-                                                <div class="wpd-gs-license-help-content">
-                                                    <h4><?php esc_html_e('Where to Find Your License Key', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></h4>
-                                                    <ul>
-                                                        <li><?php esc_html_e('Check your purchase confirmation email', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></li>
-                                                        <li><?php esc_html_e('Visit', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?> <a href="https://wpdavies.dev/my-account/licenses/" target="_blank"><?php esc_html_e('your WP Davies account', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div id="wpd-gs-license-status-message" class="wpd-gs-license-message" style="display: none;"></div>
-                                    
-                                    <?php endif; ?>
-                                    
-                                </div>
-                                
-                            </form>
-                        </div>
-                        <?php endif; ?>
-                        
-                        <!-- Step 3: Settings (or Step 2 for Free) -->
-                        <div class="wpd-gs-step wpd-gs-step-<?php echo $is_pro ? '3' : '2'; ?>">
                             <div class="wpd-gs-step-header">
                                 <h2><?php esc_html_e('Configure Payment Gateway Fees', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></h2>
                                 <p><?php esc_html_e('Set up the fees you pay for each payment method to accurately track your payment processing costs. You can always change these later in General Settings.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
@@ -301,8 +226,8 @@ class WPD_Getting_Started {
                             </form>
                         </div>
                         
-                        <!-- Step 4: Next Steps (or Step 3 for Free) -->
-                        <div class="wpd-gs-step wpd-gs-step-<?php echo $is_pro ? '4' : '3'; ?>">
+                        <!-- Step 3: Next Steps -->
+                        <div class="wpd-gs-step wpd-gs-step-3">
                             <div class="wpd-gs-success-header">
                                 <span class="dashicons dashicons-yes-alt wpd-gs-success-icon"></span>
                                 <h2><?php esc_html_e('You\'re All Set!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></h2>
@@ -335,14 +260,12 @@ class WPD_Getting_Started {
                                         </div>
                                     </div>
                                     
-                                    <div class="wpd-gs-action-card<?php echo ! $is_pro ? ' wpd-gs-pro-feature' : ''; ?>">
+                                    <div class="wpd-gs-action-card wpd-gs-pro-feature">
                                         <div class="wpd-gs-action-content">
                                             <h4>
                                                 <span class="dashicons dashicons-megaphone"></span>
                                                 <?php esc_html_e('Connect Ad Platforms', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>
-                                                <?php if ( ! $is_pro ) : ?>
-                                                    <span class="wpd-gs-pro-badge" title="<?php esc_html_e('Pro Feature', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>"><?php esc_html_e('Pro', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></span>
-                                                <?php endif; ?>
+                                                <span class="wpd-gs-pro-badge" title="<?php esc_attr_e('Pro Feature', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>"><?php esc_html_e('Pro', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></span>
                                             </h4>
                                             <p><?php esc_html_e('Link Google Ads and Facebook Ads to track which campaigns are actually profitable.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
                                             <div class="wpd-gs-action-links">
@@ -352,14 +275,12 @@ class WPD_Getting_Started {
                                         </div>
                                     </div>
                                     
-                                    <div class="wpd-gs-action-card<?php echo ! $is_pro ? ' wpd-gs-pro-feature' : ''; ?>">
+                                    <div class="wpd-gs-action-card wpd-gs-pro-feature">
                                         <div class="wpd-gs-action-content">
                                             <h4>
                                                 <span class="dashicons dashicons-money-alt"></span>
                                                 <?php esc_html_e('Add Business Expenses', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>
-                                                <?php if ( ! $is_pro ) : ?>
-                                                    <span class="wpd-gs-pro-badge" title="<?php esc_html_e('Pro Feature', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>"><?php esc_html_e('Pro', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></span>
-                                                <?php endif; ?>
+                                                <span class="wpd-gs-pro-badge" title="<?php esc_attr_e('Pro Feature', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>"><?php esc_html_e('Pro', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></span>
                                             </h4>
                                             <p><?php esc_html_e('Track rent, software subscriptions, salaries, and other costs for complete P&L reports.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
                                             <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . WPD_Admin_Menu::$manage_expenses_slug ) ); ?>" class="wpd-gs-link"><?php esc_html_e('Open Expense Manager →', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></a>
