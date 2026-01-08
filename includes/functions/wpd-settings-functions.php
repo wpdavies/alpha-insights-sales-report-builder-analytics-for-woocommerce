@@ -254,15 +254,3 @@ function wpd_get_authorized_user_roles_settings() {
 	return $authorized_roles;
 
 }
-
-/**
- * 
- * 	Returns the WPD License key, if set
- * 
- **/
-function wpd_get_license_key() {
-
-	return get_option( 'wpd_ai_api_key', false );
-
-
-}

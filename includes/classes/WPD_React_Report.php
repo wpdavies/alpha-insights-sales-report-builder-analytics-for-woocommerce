@@ -26,7 +26,7 @@ class WPD_React_Report {
      * The cache build batch size
      *
      */
-    private int $cache_build_batch_size = 250;
+    private int $cache_build_batch_size = 50;
 
     /**
      * 
@@ -52,7 +52,7 @@ class WPD_React_Report {
     public function __construct( $dashboard_slug = null ) {
 
         $this->site_creation_date = wpd_get_site_creation_date( WPD_AI_PHP_ISO_DATE ); // Y-m-d
-        $this->cache_build_batch_size = get_option( 'wpd_ai_cache_build_batch_size', 250 );
+        $this->cache_build_batch_size = get_option( 'wpd_ai_cache_build_batch_size', 50 );
         $this->dashboard_slug = $dashboard_slug;
 
     }
