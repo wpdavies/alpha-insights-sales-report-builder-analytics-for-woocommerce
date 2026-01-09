@@ -1,0 +1,231 @@
+/**
+ * Live Share Handler Styles
+ * 
+ * Styles for error pages, password forms, and live share reports
+ * 
+ * @package Alpha Insights
+ * @version 1.0.0
+ */
+
+/* Error Page Styles */
+body.error-page {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	background: #f8f9fa;
+	margin: 0;
+	padding: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 100vh;
+}
+
+/* Password Form Page Styles */
+body.password-form-page {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	background: #f8f9fa;
+	margin: 0;
+	padding: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 100vh;
+}
+
+.error-container {
+	background: white;
+	padding: 40px;
+	border-radius: 8px;
+	box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+	text-align: center;
+	max-width: 500px;
+	width: 100%;
+}
+
+.error-icon {
+	color: #dc3545;
+	font-size: 48px;
+	margin-bottom: 20px;
+}
+
+.error-title {
+	color: #333;
+	font-size: 24px;
+	margin-bottom: 10px;
+	font-weight: 600;
+}
+
+.error-message {
+	color: #666;
+	font-size: 16px;
+	line-height: 1.5;
+}
+
+/* Password Form Styles */
+.password-container {
+	background: white;
+	padding: 40px;
+	border-radius: 8px;
+	box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+	text-align: center;
+	max-width: 400px;
+	width: 100%;
+}
+
+.password-icon {
+	color: #138fdd;
+	font-size: 48px;
+	margin-bottom: 20px;
+}
+
+.password-title {
+	color: #333;
+	font-size: 24px;
+	margin-bottom: 10px;
+	font-weight: 600;
+}
+
+.password-subtitle {
+	color: #666;
+	font-size: 16px;
+	margin-bottom: 30px;
+}
+
+.form-group {
+	margin-bottom: 20px;
+	text-align: left;
+}
+
+.form-group label {
+	display: block;
+	margin-bottom: 8px;
+	color: #333;
+	font-weight: 500;
+}
+
+.form-group input {
+	width: 100%;
+	padding: 12px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	font-size: 16px;
+	box-sizing: border-box;
+}
+
+.form-group input:focus {
+	outline: none;
+	border-color: #138fdd;
+	box-shadow: 0 0 0 2px rgba(19, 143, 221, 0.1);
+}
+
+.btn {
+	background: #138fdd;
+	color: white;
+	border: none;
+	padding: 12px 24px;
+	border-radius: 4px;
+	font-size: 16px;
+	cursor: pointer;
+	width: 100%;
+	font-weight: 500;
+}
+
+.btn:hover {
+	background: #0f7bc7;
+}
+
+.password-error-message {
+	color: #dc3545;
+	font-size: 14px;
+	margin-top: 10px;
+	text-align: left;
+}
+
+/* Live Share Report Styles */
+body.live-share-report {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	background: #f8f9fa;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	display: block;
+	min-height: 100vh;
+}
+
+.live-share-header {
+	background: white;
+	padding: 15px 32px;
+	font-size: 14px;
+	font-weight: 500;
+	display: flex;
+	box-shadow: var(--alpha-shadow-md);
+	gap: 20px;
+	justify-content: space-between;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.live-share-content {
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.live-share-header-brand-name {
+	font-size: .7rem;
+	white-space: nowrap;
+}
+
+.flexible-dashboard, .wpd-react-dashboard {
+	padding: 0px !important;
+}
+
+.live-share-header-text {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.live-share-header h3 {
+	margin: 0px;
+}
+
+.live-share-header-brand {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+}
+
+.live-share-header-brand-logo {
+	width: 50px;
+	height: 50px;
+	object-fit: contain;
+}
+
+.live-share-header a {
+	color: unset;
+	text-decoration: unset;
+}
+
+.live-share-left-section {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 20px;
+}
+
+.live-share-right-section {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-end;
+}
+
+@media ( max-width: 768px ) {
+	.live-share-header {
+		padding: 16px;
+	}
+	
+	.live-share-right-section {
+		display: none;
+	}
+}

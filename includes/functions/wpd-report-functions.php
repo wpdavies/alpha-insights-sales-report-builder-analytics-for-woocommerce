@@ -13,11 +13,112 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- *
- * AJAX handler for getting available dashboard reports
- *
+ * 
+ *  Function for retrieving the IDs of all the default React Reports that come with Alpha Insights
+ * 
+ *  @return array $report_ids An array of the dashboard_ids of all the default React Reports that come with Alpha Insights
+ * 
+ *  @since 5.0.0
+ * 
+ *  @author WPDavies
+ *  @link https://wpdavies.dev/
+ * 
  */
-function wpd_get_available_react_reports() {
+function wpd_get_default_react_report_ids() {
+
+    $default_reports = wpd_get_default_react_reports();
+    $report_ids = array();
+    foreach ( $default_reports as $report ) {
+        $report_ids[] = $report['dashboard_id'] ?? 'unknown';
+    }
+    return $report_ids;
+}
+
+/**
+ * 
+ *  Function for retrieving all the default React Reports that come with Alpha Insights
+ * 
+ *  @return array $reports An array of default React reports with some basic meta data about the report. Does not include the configuration data.
+ * 
+ *  @since 5.0.0
+ * 
+ *  @author WPDavies
+ *  @link https://wpdavies.dev/
+ * 
+ */
+function wpd_get_default_react_reports() {
+
+    $response = array();
+
+    try {
+        // Get the reports directory path
+        $reports_dir = WPD_AI_PATH . 'includes/reports/';
+        
+        if ( ! is_dir( $reports_dir ) ) {
+            throw new Exception( 'Reports directory not found' );
+        }
+
+        // Get all JSON files in the reports directory
+        $json_files = glob( $reports_dir . '*.json' );
+        
+        if ( empty( $json_files ) ) {
+            throw new Exception( 'No default reports found' );
+        }
+
+        // Get currently installed reports
+        $default_reports = array();
+
+        foreach ( $json_files as $file_path ) {
+            $filename = basename( $file_path );
+            $slug = str_replace( array( 'dashboard-config-', '.json' ), '', $filename );
+            
+            // Read and parse the JSON file
+            $json_content = file_get_contents( $file_path );
+            if ( $json_content === false ) {
+                continue;
+            }
+
+            $report_data = json_decode( $json_content, true );
+            if ( json_last_error() !== JSON_ERROR_NONE ) {
+                continue;
+            }
+
+            // Get the actual dashboard_id from the JSON file
+            $actual_dashboard_id = isset( $report_data['dashboard_id'] ) ? $report_data['dashboard_id'] : $slug;
+
+            $default_reports[] = array(
+                'dashboard_id' => $actual_dashboard_id,
+                'name' => isset( $report_data['name'] ) ? $report_data['name'] : ucwords( str_replace( '-', ' ', $actual_dashboard_id ) ),
+                'category' => isset( $report_data['report_category'] ) ? $report_data['report_category'] : 'sales_reports',
+                'version' => isset( $report_data['version_number'] ) ? $report_data['version_number'] : '1.0',
+                'icon' => isset( $report_data['icon'] ) ? $report_data['icon'] : 'bar_chart',
+                'color' => isset( $report_data['color'] ) ? $report_data['color'] : 'blue',
+                'file_path' => $file_path
+            );
+        }
+
+    } catch ( Exception $e ) {
+        WPD_React_Report::log_error( $e->getMessage() );
+        $default_reports = array();
+    }
+
+    return $default_reports;
+
+}
+
+/**
+ *
+ *  Function for retrieving all installed React reports with their configuration data
+ * 
+ *  @return array $reports An array of installed React reports with their configuration data
+ * 
+ *  @since 5.0.0
+ * 
+ *  @author WPDavies
+ *  @link https://wpdavies.dev/
+ * 
+ */
+function wpd_get_installed_react_reports() {
 
     $response = array();
 

@@ -59,6 +59,7 @@ class WPD_Alpha_Insights_Notices {
     private function __construct() {
 
         add_filter('wpd_alpha_insights_menu_items', array($this, 'filter_wpd_alpha_insights_menu_items'));
+        add_action( 'wpd_ai_before_render_dashboard', array($this, 'handle_custom_report_rendering'), 10, 2 );
 
     }
 
@@ -111,6 +112,25 @@ class WPD_Alpha_Insights_Notices {
         return $menu_items;
     }
 
+    /**
+     * Redirect back to the reports page if the report is not a default report
+     * 
+     * @param string $dashboard_id The ID of the dashboard being rendered.
+     * @param array $dashboard_config The configuration array for the dashboard.
+     * @return void
+     */
+    public function handle_custom_report_rendering($dashboard_id, $dashboard_config) {
+
+        $default_react_report_ids = wpd_get_default_react_report_ids();
+        if ( ! in_array($dashboard_id, $default_react_report_ids) ) {
+            
+            $safe_redirect = wpd_admin_page_url('reports');
+            wp_safe_redirect($safe_redirect);
+            exit;
+
+        }
+
+    }
 }
 
 // Initialize the class

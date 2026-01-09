@@ -422,7 +422,7 @@ class WPD_Admin_Menu {
         );
 
         // Build dynamic menu items
-        $react_reports = wpd_get_available_react_reports();
+        $react_reports = wpd_get_installed_react_reports();
 
         // Add each report to relevant category
         foreach( $react_reports as $report ) {

@@ -621,7 +621,6 @@ class WPD_Alpha_Insights_Core {
 		// Other Calculations
 		$query_params 				= wpd_get_query_params( $landing_page );
 		$traffic_source 			= wpd_get_traffic_type( $referral, $query_params );
-		$wpd_ai_logo 				= WPD_AI_URL_PATH . 'assets/img/Alpha-Insights-Icon-Large.png';
 
 		// Haven't really loaded anything in yet
 		if ( $order->get_status() == 'auto-draft'  ) {
@@ -680,18 +679,6 @@ class WPD_Alpha_Insights_Core {
 		// Calculate conversion rate
 		$conversion_rate = ( $session_count == 0 || $order_count == 0 ) ? 'N/A' : wpd_calculate_percentage( $order_count, $session_count ) . '%';?>
 		<?php do_action('wpd_ai_order_dashboard_before_content', $order); ?>
-		<style type="text/css">
-			div#wpd-ai-dashboard-summary .postbox-header h2::before {
-				content: '';
-				position: absolute;
-				background-image: url(<?php echo esc_url( $wpd_ai_logo ); ?>);
-				width: 30px;
-				height: 30px;
-				background-size: contain;
-				background-repeat: no-repeat;
-				left: 15px;
-			}
-		</style>
 		<div class="wpd-order-dashboard">
 			<!-- Titles -->
 			<div class="wpd-order-title">Order Overview</div>

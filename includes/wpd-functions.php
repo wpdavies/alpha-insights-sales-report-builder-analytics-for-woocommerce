@@ -531,6 +531,10 @@ if ( ! function_exists( 'wpd_admin_page_url' ) ) {
 
 			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$settings_slug . '&subpage=license';
 
+		} elseif( $target === 'reports' ) {
+
+			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$sales_report_slug;
+
 		} elseif( $target === 'reports-orders' ) {
 
 			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$sales_report_slug;

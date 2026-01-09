@@ -330,11 +330,60 @@ class WPD_Migration {
     }
 
     /**
+     * Enqueue migration script
+     * 
+     * @return void
+     */
+    private function enqueue_migration_script() {
+        // Use constant if available (defined in main plugin file)
+        if ( defined( 'WPD_AI_URL_PATH' ) ) {
+            $js_url = WPD_AI_URL_PATH . 'assets/js/wpd-migration.js';
+        } else {
+            // Fallback: calculate from current file location
+            // This file is in: includes/classes/
+            // We need plugin root URL: wp-content/plugins/wp-davies-alpha-insights/
+            $plugin_root_file = dirname( dirname( dirname( __FILE__ ) ) ) . '/wpd-alpha-insights.php';
+            $js_url = plugin_dir_url( $plugin_root_file ) . 'assets/js/wpd-migration.js';
+        }
+        
+        $js_version = defined( 'WPD_AI_VER' ) ? WPD_AI_VER : '1.0.0';
+
+        wp_enqueue_script(
+            'wpd-migration',
+            $js_url,
+            array( 'jquery' ),
+            $js_version,
+            true
+        );
+
+        // Localize script with data
+        wp_localize_script(
+            'wpd-migration',
+            'wpdMigrationVars',
+            array(
+                'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+                'nonce' => wp_create_nonce( WPD_AI_AJAX_NONCE_ACTION ),
+                'strings' => array(
+                    'running' => __( 'Running...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                    'runMigration' => __( 'Run Migration', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                    'completed' => __( 'Completed', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                    'ran' => __( 'Ran:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                    'migrationFailed' => __( 'Migration failed. Please check logs.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                    'errorRunningMigration' => __( 'Error running migration. Please try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                ),
+            )
+        );
+    }
+
+    /**
      * Render migrations management table
      * 
      * @return void
      */
     public function render_migrations_table() {
+        // Enqueue migration script
+        $this->enqueue_migration_script();
+        
         $available_migrations = $this->get_available_migrations();
         ?>
         <div class="wpd-wrapper">
@@ -405,84 +454,6 @@ class WPD_Migration {
                 </tbody>
             </table>
         </div>
-        <script type="text/javascript">
-        jQuery(document).ready(function($) {
-            // Helper function to escape HTML
-            function escapeHtml(text) {
-                var map = {
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    '"': '&quot;',
-                    "'": '&#039;'
-                };
-                return text ? text.replace(/[&<>"']/g, function(m) { return map[m]; }) : '';
-            }
-            
-            $('.wpd-run-migration').on('click', function(e) {
-                e.preventDefault();
-                
-                var $button = $(this);
-                var migrationKey = $button.data('migration-key');
-                var migrationName = $button.data('migration-name');
-                var $row = $button.closest('tr');
-                
-                // Disable button and show loading
-                $button.prop('disabled', true).text('<?php echo esc_js( __( 'Running...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');
-                
-                // Make AJAX request
-                $.ajax({
-                    url: '<?php echo esc_js( admin_url( 'admin-ajax.php' ) ); ?>',
-                    type: 'POST',
-                    data: {
-                        action: 'wpd_run_migration',
-                        migration_key: migrationKey,
-                        nonce: '<?php echo esc_js( wp_create_nonce( WPD_AI_AJAX_NONCE_ACTION ) ); ?>'
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            // Show success message
-                            var completionTime = response.data && response.data.completion_time ? response.data.completion_time : '';
-                            var statusHtml = '<span class="wpd-meta" style="color: #00a32a;">' +
-                                '<span class="dashicons dashicons-yes-alt" style="font-size: 16px; vertical-align: middle;"></span> ' +
-                                '<?php echo esc_js( __( 'Completed', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>' +
-                                '</span>';
-                            if (completionTime) {
-                                statusHtml += '<br><span class="wpd-meta" style="font-size: 11px; color: #666;">' +
-                                    '<?php echo esc_js( __( 'Ran:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?> ' + escapeHtml(completionTime) +
-                                    '</span>';
-                            }
-                            $row.find('td:nth-child(3)').html(statusHtml);
-                            $button.text('<?php echo esc_js( __( 'Run Migration', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>').prop('disabled', false);
-                            
-                            // Show admin notice
-                            if (response.data && response.data.message) {
-                                $('<div class="notice notice-success is-dismissible"><p>' + escapeHtml(response.data.message) + '</p></div>')
-                                    .insertAfter('.wpd-wrapper:first')
-                                    .delay(5000)
-                                    .fadeOut(function() { $(this).remove(); });
-                            }
-                        } else {
-                            // Show error
-                            $button.text('<?php echo esc_js( __( 'Run Migration', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>').prop('disabled', false);
-                            var errorMsg = response.data && response.data.message ? response.data.message : '<?php echo esc_js( __( 'Migration failed. Please check logs.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>';
-                            $('<div class="notice notice-error is-dismissible"><p>' + escapeHtml(errorMsg) + '</p></div>')
-                                .insertAfter('.wpd-wrapper:first')
-                                .delay(5000)
-                                .fadeOut(function() { $(this).remove(); });
-                        }
-                    },
-                    error: function() {
-                        $button.text('<?php echo esc_js( __( 'Run Migration', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>').prop('disabled', false);
-                        $('<div class="notice notice-error is-dismissible"><p><?php echo esc_js( __( 'Error running migration. Please try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></p></div>')
-                            .insertAfter('.wpd-wrapper:first')
-                            .delay(5000)
-                            .fadeOut(function() { $(this).remove(); });
-                    }
-                });
-            });
-        });
-        </script>
         <?php
     }
 

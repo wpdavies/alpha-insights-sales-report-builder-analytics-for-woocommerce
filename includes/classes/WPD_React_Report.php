@@ -124,6 +124,19 @@ class WPD_React_Report {
 			}
 		}
 
+        /**
+         * 
+         * Action: wpd_ai_before_render_dashboard
+         * 
+         * Description: Fires before the React dashboard is rendered.
+         * 
+         * Parameters:
+         * - $dashboard_id: The ID of the dashboard being rendered.
+         * - $dashboard_config: The configuration array for the dashboard.
+         * 
+         */
+        do_action( 'wpd_ai_before_render_dashboard', $dashboard_id, $dashboard_config );
+
 		// Render the React dashboard
 		$this->render_dashboard_from_config($dashboard_config);
 
@@ -1176,7 +1189,7 @@ class WPD_React_Report {
      * @param int $batch_size Number of orders to process in each batch
      * @return array Response array with cached order count
      */
-    public function build_order_cache_batch($batch_size = 500) {
+    public function build_order_cache_batch($batch_size = 50) {
         $cached_order_count = wpd_build_order_cache_in_batch( $batch_size );
         
         $response = array(
