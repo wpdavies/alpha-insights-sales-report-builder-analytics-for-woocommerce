@@ -20,15 +20,15 @@ defined( 'ABSPATH' ) || exit;
  * 	@version 5.0.0
  * 	@todo Convert this into a static class
  */
-add_action( 'admin_init', 'wpd_ai_register_settings' );
-function wpd_ai_register_settings() {
+add_action( 'admin_init', 'wpdai_register_settings' );
+function wpdai_register_settings() {
 
 	/**
 	 *
 	 *	Currency Table Defaults
 	 *
 	 */
-	$currency_table_default_data = wpd_get_default_currency_conversion_rates();
+	$currency_table_default_data = wpdai_get_default_currency_conversion_rates();
 	add_option( 'wpd_ai_currency_table', $currency_table_default_data ); 
 
 	/**
@@ -36,7 +36,7 @@ function wpd_ai_register_settings() {
 	 *	Order Status Defaults
 	 *
 	 */
-	$order_status_default_data = wpd_paid_order_statuses();
+	$order_status_default_data = wpdai_paid_order_statuses();
 	add_option( 'wpd_ai_order_status', $order_status_default_data );
 
 	/**
@@ -68,7 +68,7 @@ function wpd_ai_register_settings() {
     );
 	add_option( 'wpd_ai_cost_defaults', $cost_default_data );
 
-	$payment_gateway_cost_settings = wpd_get_payment_gateway_cost_settings();
+	$payment_gateway_cost_settings = wpdai_get_payment_gateway_cost_settings();
 	add_option( 'wpd_ai_payment_gateway_costs', $payment_gateway_cost_settings );
 
 	/**
@@ -76,7 +76,7 @@ function wpd_ai_register_settings() {
 	 *	Custom Admin Columns
 	 *
 	 */
-    $custom_admin_columns = wpd_get_admin_custom_column_settings();
+    $custom_admin_columns = wpdai_get_admin_custom_column_settings();
 	add_option( 'wpd_ai_admin_custom_columns', $custom_admin_columns );
 
 	/**
@@ -196,10 +196,10 @@ function wpd_ai_register_settings() {
 		if ( isset( $_POST['submit'] ) && ! empty( $_POST['submit'] ) ) {
 			
 			// Security: Only allow authorized users to save settings
-			if ( wpd_is_user_authorized_to_view_alpha_insights() ) {
+			if ( wpdai_is_user_authorized_to_view_alpha_insights() ) {
 				// Verify nonce for settings form submission
 				if ( isset( $_POST['wpd_alpha_insights_settings_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpd_alpha_insights_settings_nonce'] ) ), 'wpd_alpha_insights_settings' ) ) {
-					wpd_save_settings();
+					wpdai_save_settings();
 				} else {
 					// Nonce verification failed - show error but don't die
 					add_action( 'admin_notices', function() {
@@ -219,7 +219,7 @@ function wpd_ai_register_settings() {
  *	Save and Process all settings on admin page
  *
  */
-function wpd_save_settings() {
+function wpdai_save_settings() {
 
 	$saved = array();
 
@@ -256,7 +256,7 @@ function wpd_save_settings() {
 		$saved['Payment Gateway Costs'] = update_option( 'wpd_ai_payment_gateway_costs', $sanitized_array );
 
 		// Delete cache if updated
-		if ($saved['Payment Gateway Costs']) $delete_cache = wpd_delete_all_order_data_cache();
+		if ($saved['Payment Gateway Costs']) $delete_cache = wpdai_delete_all_order_data_cache();
 
 	}
 
@@ -266,7 +266,7 @@ function wpd_save_settings() {
 		if ( is_array($_POST['wpd_ai_admin_custom_columns']) ) {
 
 			$saved_custom_column_settings 	= $_POST['wpd_ai_admin_custom_columns'];
-			$default_column_data 			= wpd_get_admin_custom_column_defaults();
+			$default_column_data 			= wpdai_get_admin_custom_column_defaults();
 			$new_settings_array 			= array();
 
 			foreach( $saved_custom_column_settings as $group_key => $saved_keys ) {
@@ -305,7 +305,7 @@ function wpd_save_settings() {
 		// Merge with existing values
 		$refunded_order_costs = array_merge( $refunded_order_costs, array_map( 'intval', $_POST['wpd-refunded-order-costs'] ) );
 		$saved['Refunded Order Costs'] = update_option( 'wpd_ai_refunded_order_costs', $refunded_order_costs );
-		if ( $saved['Refunded Order Costs'] ) $delete_cache = wpd_delete_all_order_data_cache();
+		if ( $saved['Refunded Order Costs'] ) $delete_cache = wpdai_delete_all_order_data_cache();
 
 	}
 
@@ -314,9 +314,13 @@ function wpd_save_settings() {
 
 		// Empty array
 		$custom_order_cost_settings = array();
+		$sanitized_custom_order_cost_post_data = map_deep( $_POST['wpd_ai_custom_order_cost'], 'sanitize_text_field' );
+		if ( ! is_array($sanitized_custom_order_cost_post_data) ) {
+			$sanitized_custom_order_cost_post_data = array();
+		}
 
 		// Loop through passed details
-		foreach( $_POST['wpd_ai_custom_order_cost'] as $slug => $custom_order_cost_data ) {
+		foreach( $sanitized_custom_order_cost_post_data as $slug => $custom_order_cost_data ) {
 
 			// Skip over empty payloads
 			if ( ! array_filter($custom_order_cost_data) ) continue;
@@ -341,7 +345,7 @@ function wpd_save_settings() {
 		// If weve got valid data, let's save
 		if ( is_array($custom_order_cost_settings) ) {
 			$saved['Custom Order Costs'] = update_option( 'wpd_ai_custom_order_costs',  $custom_order_cost_settings );
-			if ($saved['Custom Order Costs']) $delete_cache = wpd_delete_all_order_data_cache();
+			if ($saved['Custom Order Costs']) $delete_cache = wpdai_delete_all_order_data_cache();
 		}
 
 	}
@@ -351,9 +355,13 @@ function wpd_save_settings() {
 
 		// Empty array
 		$custom_product_cost_settings = array();
+		$sanitized_product_cost_post_data = map_deep( $_POST['wpd_ai_custom_product_cost'], 'sanitize_text_field' );
+		if ( ! is_array($sanitized_product_cost_post_data) ) {
+			$sanitized_product_cost_post_data = array();
+		}
 
 		// Loop through passed details
-		foreach( $_POST['wpd_ai_custom_product_cost'] as $slug => $custom_product_cost_data ) {
+		foreach( $sanitized_product_cost_post_data as $slug => $custom_product_cost_data ) {
 
 			// Skip over empty payloads
 			if ( ! array_filter($custom_product_cost_data) ) continue;
@@ -378,7 +386,7 @@ function wpd_save_settings() {
 		// If weve got valid data, let's save
 		if ( is_array($custom_product_cost_settings) ) {
 			$saved['Custom Product Costs'] = update_option( 'wpd_ai_custom_product_costs',  $custom_product_cost_settings );
-			if ($saved['Custom Product Costs']) $delete_cache = wpd_delete_all_order_data_cache();
+			if ($saved['Custom Product Costs']) $delete_cache = wpdai_delete_all_order_data_cache();
 		}
 
 	}
@@ -416,20 +424,20 @@ function wpd_save_settings() {
 			'default_shipping_cost_percent_shipping_charged' 	=> 0,
 			'default_shipping_cost_fee' 						=> 0,
 		);
-		$cost_default_data = array_merge( $cost_default_data, array_map( 'floatval', $_POST['wpd_ai_cost_defaults'] ) );
+		$cost_default_data = array_merge( $cost_default_data, array_map( 'floatval', wp_unslash( $_POST['wpd_ai_cost_defaults'] ) ) );
 		$saved['Product Cost Defaults'] = update_option( 'wpd_ai_cost_defaults',  $cost_default_data );
 
 		// Wipe cache if weve updated our calculations
 		if ( $saved['Product Cost Defaults'] ) {
 
-			$delete_cache = wpd_delete_all_order_data_cache();
+			$delete_cache = wpdai_delete_all_order_data_cache();
 
 			if ( $delete_cache === true ) {
-				wpd_notice(
+				wpdai_notice(
 					__( 'Your reports cache will be updated in the background to reflect your new calculation settings.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
 				);
 			} else {
-				wpd_notice( 
+				wpdai_notice( 
 					 __( 'We could not refresh your cache, try using the cache refresh buttons at the bottom of this page to reflect your new calculation settings.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
 				);
 			}
@@ -440,7 +448,7 @@ function wpd_save_settings() {
 
 	// Order Status Settings - wpd_ai_order_status
 	if ( isset( $_POST['wpd_ai_order_status'] ) ) {
-		$saved['Default Order Status'] = update_option( 'wpd_ai_order_status',  array_map( 'sanitize_text_field', $_POST['wpd_ai_order_status'] ));
+		$saved['Default Order Status'] = update_option( 'wpd_ai_order_status',  array_map( 'sanitize_text_field', wp_unslash( $_POST['wpd_ai_order_status'] ) ) );
 	}
 
 	// Plugin visibility - wpd_ai_plugin_visibility
@@ -451,7 +459,7 @@ function wpd_save_settings() {
 		if ( ! is_array($_POST['wpd_ai_plugin_visibility']) ) {
 			$authorized_roles = array();
 		} else {
-			$authorized_roles = array_map( 'sanitize_text_field', $_POST['wpd_ai_plugin_visibility'] );
+			$authorized_roles = array_map( 'sanitize_text_field', wp_unslash( $_POST['wpd_ai_plugin_visibility'] ) );
 		}
 		// Force administrators to be included
 		if ( ! in_array('administrator', $authorized_roles) ) {
@@ -462,7 +470,7 @@ function wpd_save_settings() {
 
 	// Override WP CSS
 	if ( isset( $_POST['wpd_ai_admin_style_override'] ) ) {
-		$admin_override = wpd_numbers_only( $_POST['wpd_ai_admin_style_override'] );
+		$admin_override = absint( wp_unslash( $_POST['wpd_ai_admin_style_override'] ) );
 		if ( is_numeric( $admin_override ) ) {
 			$saved['Admin Override'] = update_option( 'wpd_ai_admin_style_override',  $admin_override );
 		}
@@ -470,7 +478,7 @@ function wpd_save_settings() {
 
 	// Prevent WP Notices
 	if ( isset( $_POST['wpd_ai_prevent_wp_notices'] ) ) {
-		$prevent_notices = wpd_numbers_only( $_POST['wpd_ai_prevent_wp_notices'] );
+		$prevent_notices = absint( wp_unslash( $_POST['wpd_ai_prevent_wp_notices'] ) );
 		if ( is_numeric($prevent_notices) ) {
 			$saved['Prevent WP Notices'] = update_option( 'wpd_ai_prevent_wp_notices',  $prevent_notices );
 		}
@@ -478,7 +486,7 @@ function wpd_save_settings() {
 
 	if ( isset( $_POST['wpd-email'] ) ) {
 
-		$emails = $_POST['wpd-email'];
+		$emails = map_deep( $_POST['wpd-email'], 'sanitize_text_field' );
 
 		if ( ! is_array($emails) ) {
 
@@ -491,8 +499,8 @@ function wpd_save_settings() {
 			$emails['expense-report']['recipients'] = sanitize_text_field( $emails['expense-report']['recipients'] );
 
 			// Only allows numbers through details
-			$emails['profit-report']['details'] = array_map( 'wpd_numbers_only', $emails['profit-report']['details'] );
-			$emails['expense-report']['details'] = array_map( 'wpd_numbers_only', $emails['expense-report']['details'] );
+			$emails['profit-report']['details'] = array_map( 'wpdai_numbers_only', $emails['profit-report']['details'] );
+			$emails['expense-report']['details'] = array_map( 'wpdai_numbers_only', $emails['expense-report']['details'] );
 
 		}
 
@@ -504,7 +512,7 @@ function wpd_save_settings() {
 	// Webhook data
 	if ( isset( $_POST['wpd_ai_webhook_settings'] ) ) {
 
-		$webhook_data = array_map( 'sanitize_text_field', $_POST['wpd_ai_webhook_settings'] );
+		$webhook_data = map_deep( $_POST['wpd_ai_webhook_settings'], 'sanitize_text_field' );
 		$saved['Webhook Settings'] = update_option( 'wpd_ai_webhook_settings', $webhook_data );
 
 		if ( $saved['Webhook Settings'] ) {
@@ -525,7 +533,7 @@ function wpd_save_settings() {
 
 		if ( $save_status === true ) {
 
-			wpd_notice( 
+			wpdai_notice( 
 				sprintf(
 					/* translators: %s: Settings section name */
 					__( '%s settings have been updated', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
@@ -551,7 +559,7 @@ function wpd_save_settings() {
  *	Output the content for the selected settings page
  *
  */
-function wpd_output_settings_page_content( $subpage, $wpd_action ) {
+function wpdai_output_settings_page_content( $subpage, $wpd_action ) {
 
 	/**
 	 *

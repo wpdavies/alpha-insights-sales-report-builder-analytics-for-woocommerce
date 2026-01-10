@@ -19,7 +19,7 @@ class WPD_Custom_Data_Source_Registry {
     /**
      * Registered data sources
      *
-     * @var array<string, WPD_Alpha_Insights_Data_Source_Interface>
+     * @var array<string, WPD_Custom_Data_Source_Interface>
      */
     private static array $data_sources = array();
 
@@ -54,7 +54,7 @@ class WPD_Custom_Data_Source_Registry {
         $registered_sources = apply_filters( 'wpd_alpha_insights_register_data_sources', array() );
 
         foreach ( $registered_sources as $source ) {
-            if ( $source instanceof WPD_Alpha_Insights_Data_Source_Interface ) {
+            if ( $source instanceof WPD_Custom_Data_Source_Interface ) {
                 $entity_name = $source->get_entity_name();
                 
                 // Validate entity name
@@ -152,8 +152,8 @@ class WPD_Custom_Data_Source_Registry {
                 }
             } catch ( Exception $e ) {
                 // Log error but don't break the process
-                if ( function_exists( 'wpd_write_log' ) ) {
-                    wpd_write_log( sprintf(
+                if ( function_exists( 'wpdai_write_log' ) ) {
+                    wpdai_write_log( sprintf(
                         /* translators: %1$s: entity name, %2$s: error message */
                         __( 'Error getting mapping for data source %1$s: %2$s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
                         esc_html( $entity_name ),

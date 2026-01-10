@@ -116,7 +116,7 @@ class WPD_Report_Filters {
         global $wpdb;
 
         // Detect HPOS (custom order tables)
-        $is_hpos_enabled = wpd_is_hpos_enabled();
+        $is_hpos_enabled = wpdai_is_hpos_enabled();
     
         $meta_key = '_wpd_ai_landing_page';
         $parsed_values = array();
@@ -169,7 +169,7 @@ class WPD_Report_Filters {
             foreach ( $results as $url ) {
         
                 // Extract the query string
-                $params = wpd_get_query_params( $url );
+                $params = wpdai_get_query_params( $url );
 
                 if ( empty( $params ) ) continue;
 
@@ -186,7 +186,7 @@ class WPD_Report_Filters {
                         
                         $raw = $single_value;
                         $clean = sanitize_text_field( $single_value );
-                        if ( wpd_is_valid_reporting_utm_key_value_pair( $key, $single_value ) ) {
+                        if ( wpdai_is_valid_reporting_utm_key_value_pair( $key, $single_value ) ) {
                             if ( ! isset( $parsed_values[ $key ] ) ) $parsed_values[ $key ] = array();
                             $parsed_values[ $key ][$clean] = true;
                         }
@@ -575,7 +575,7 @@ class WPD_Report_Filters {
             return $results;
         }
 
-        $results = (function_exists('wpd_get_all_meta_campaigns')) ? wpd_get_all_meta_campaigns() : array();
+        $results = (function_exists('wpdai_get_all_meta_campaigns')) ? wpdai_get_all_meta_campaigns() : array();
 
         // Store transient
         if ( ! empty($results) ) set_transient( 'wpd_report_filters_facebook_campaigns', $results, $this->transient_duration_in_seconds );
@@ -602,7 +602,7 @@ class WPD_Report_Filters {
             return $results;
         }
 
-        $results = (function_exists('wpd_get_all_google_campaigns')) ? wpd_get_all_google_campaigns() : array();
+        $results = (function_exists('wpdai_get_all_google_campaigns')) ? wpdai_get_all_google_campaigns() : array();
 
         // Store transient
         if ( ! empty($results) ) set_transient( 'wpd_report_filters_google_campaigns', $results, $this->transient_duration_in_seconds );
@@ -706,9 +706,9 @@ class WPD_Report_Filters {
             $results = $wpdb->get_col( $session_sql_query );
 
             if ( $wpdb->last_error ) {
-                wpd_write_log( 'Error capturing session data from DB, dumping the error and query.', 'db_error' );
-                wpd_write_log( $wpdb->last_error, 'db_error' );
-                wpd_write_log( $wpdb->last_query, 'db_error' );
+                wpdai_write_log( 'Error capturing session data from DB, dumping the error and query.', 'db_error' );
+                wpdai_write_log( $wpdb->last_error, 'db_error' );
+                wpdai_write_log( $wpdb->last_query, 'db_error' );
                 return false;
             }
 
@@ -721,7 +721,7 @@ class WPD_Report_Filters {
             foreach ( $results as $url ) {
         
                 // Extract the query string
-                $params = wpd_get_query_params( $url );
+                $params = wpdai_get_query_params( $url );
 
                 if ( empty( $params ) ) continue;
         
@@ -738,7 +738,7 @@ class WPD_Report_Filters {
                         
                         $raw = $single_value;
                         $clean = sanitize_text_field( $single_value );
-                        if ( wpd_is_valid_reporting_utm_key_value_pair( $key, $single_value ) ) {
+                        if ( wpdai_is_valid_reporting_utm_key_value_pair( $key, $single_value ) ) {
                             if ( ! isset( $parsed_values[ $key ] ) ) $parsed_values[ $key ] = array();
                             $parsed_values[ $key ][$clean] = true;
                         }
@@ -811,9 +811,9 @@ class WPD_Report_Filters {
         // DB Error
         if ( $wpdb->last_error ) {
 
-            wpd_write_log( 'Error capturing analytics data from DB, dumping the error and query.', 'db_error' );
-            wpd_write_log( $wpdb->last_error, 'db_error' );
-            wpd_write_log( $wpdb->last_query, 'db_error' );
+            wpdai_write_log( 'Error capturing analytics data from DB, dumping the error and query.', 'db_error' );
+            wpdai_write_log( $wpdb->last_error, 'db_error' );
+            wpdai_write_log( $wpdb->last_query, 'db_error' );
 
             // Return empty array
             return array();
@@ -838,7 +838,7 @@ class WPD_Report_Filters {
 
         // Return Results
         $key_values = array();
-        foreach( $results as $result ) $key_values[$result] = wpd_clean_string( $result );
+        foreach( $results as $result ) $key_values[$result] = wpdai_clean_string( $result );
 
         // Store transient
         if ( ! empty($key_values) ) set_transient( 'wpd_report_filters_website_traffic_events', $key_values, $this->transient_duration_in_seconds );

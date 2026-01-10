@@ -70,7 +70,7 @@ class WPD_Cost_Of_Goods_Manager {
 			'price_decimal_sep' => wc_get_price_decimal_separator(),
 			'price_thousand_sep' => wc_get_price_thousand_separator(),
 			'default_cost_percent' => $default_cost_percent,
-			'settings_url' => wpd_admin_page_url('settings')
+			'settings_url' => wpdai_admin_page_url('settings')
 		]);
 	}
 
@@ -288,8 +288,8 @@ class WPD_Cost_Of_Goods_Manager {
 				$filters = [];
 			}
 		}
-		if ( function_exists( 'wpd_sanitize_json_decoded_array' ) && ! empty( $filters ) ) {
-			$filters = wpd_sanitize_json_decoded_array( $filters );
+		if ( function_exists( 'wpdai_sanitize_json_decoded_array' ) && ! empty( $filters ) ) {
+			$filters = wpdai_sanitize_json_decoded_array( $filters );
 		}
 		$sort_by = isset($_POST['sort_by']) ? sanitize_text_field( wp_unslash( $_POST['sort_by'] ) ) : 'name';
 		$sort_order = isset($_POST['sort_order']) ? sanitize_text_field( wp_unslash( $_POST['sort_order'] ) ) : 'asc';
@@ -390,8 +390,8 @@ class WPD_Cost_Of_Goods_Manager {
 			$has_meta = metadata_exists('post', $product_id, '_wpd_ai_product_cost');
 			$meta_cost = $has_meta ? (is_numeric($meta_cost_raw) ? (float) $meta_cost_raw : null) : null;
 			
-			// Get the default/fallback cost using wpd_get_default_cost_price_by_product_id
-			$default_cost = wpd_get_default_cost_price_by_product_id($product_id);
+			// Get the default/fallback cost using wpdai_get_default_cost_price_by_product_id
+			$default_cost = wpdai_get_default_cost_price_by_product_id($product_id);
 			
 			// Use meta if set (even if 0), otherwise use default for calculations
 			$cost = $meta_cost !== null ? $meta_cost : (float) $default_cost;
@@ -547,7 +547,7 @@ class WPD_Cost_Of_Goods_Manager {
 			$meta_cost_raw = get_post_meta($product_id, '_wpd_ai_product_cost', true);
 			$meta_cost = $has_meta && is_numeric($meta_cost_raw) ? (float) $meta_cost_raw : null;
 			
-			$default_cost = wpd_get_default_cost_price_by_product_id($product_id);
+			$default_cost = wpdai_get_default_cost_price_by_product_id($product_id);
 			$cost = $meta_cost !== null ? $meta_cost : (float) $default_cost;
 			$stock_status = $product->get_stock_status();
 			$stock_quantity = (float) $product->get_stock_quantity();
@@ -630,7 +630,7 @@ class WPD_Cost_Of_Goods_Manager {
 		}
 
 		// Clear cache for orders containing this product
-		wpd_delete_order_cache_by_product_ids( [$product_id] );
+		wpdai_delete_order_cache_by_product_ids( [$product_id] );
 
 		// Get updated product data
 		$product = wc_get_product($product_id);
@@ -667,7 +667,7 @@ class WPD_Cost_Of_Goods_Manager {
 		$filters = ! empty( $filters_raw ) ? json_decode( $filters_raw, true ) : [];
 		// Sanitize decoded JSON array according to WordPress standards
 		if ( ! empty( $filters ) && is_array( $filters ) ) {
-			$filters = wpd_sanitize_json_decoded_array( $filters );
+			$filters = wpdai_sanitize_json_decoded_array( $filters );
 		}
 		
 		$args = [
@@ -706,7 +706,7 @@ class WPD_Cost_Of_Goods_Manager {
 			$custom_cost = $meta_cost !== '' && $meta_cost !== false ? (float) $meta_cost : null;
 			
 			// Get default cost
-			$default_cost = (float) wpd_get_default_cost_price_by_product_id($product_id);
+			$default_cost = (float) wpdai_get_default_cost_price_by_product_id($product_id);
 			
 			// Use custom if set, otherwise default for calculations
 			$effective_cost = $custom_cost !== null ? $custom_cost : $default_cost;
@@ -784,7 +784,7 @@ class WPD_Cost_Of_Goods_Manager {
 		}
 
 		// Clear cache for orders containing this product
-		wpd_delete_order_cache_by_product_ids( [$product_id] );
+		wpdai_delete_order_cache_by_product_ids( [$product_id] );
 
 		wp_send_json_success([
 			'message' => 'Cost updated successfully',
@@ -1046,7 +1046,7 @@ class WPD_Cost_Of_Goods_Manager {
 
 		// Clear cache for orders containing the updated products
 		if (!empty($updated_product_ids)) {
-			wpd_delete_order_cache_by_product_ids( $updated_product_ids );
+			wpdai_delete_order_cache_by_product_ids( $updated_product_ids );
 		}
 
 		wp_send_json_success([

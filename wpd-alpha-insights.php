@@ -688,9 +688,9 @@ class WPD_Alpha_Insights_Free_Plugin {
 			$error['line']
 		);
 
-		// Log the error using wpd_write_log if available, otherwise use the private log method
-		if ( function_exists( 'wpd_write_log' ) ) {
-			wpd_write_log( $log_entry, 'fatal_error' );
+		// Log the error using wpdai_write_log if available, otherwise use the private log method
+		if ( function_exists( 'wpdai_write_log' ) ) {
+			wpdai_write_log( $log_entry, 'fatal_error' );
 		} else {
 			$this->log( $log_entry, 'fatal_error' );
 		}
@@ -904,8 +904,8 @@ class WPD_Alpha_Insights_Free_Plugin {
 		if ( get_transient('_wpd_updating_all_orders_cache') === 1 ) {
 			
 			// Output notice - check if function exists
-			if ( function_exists( 'wpd_admin_notice' ) ) {
-				wpd_admin_notice( __( 'Your Alpha Insights Order Cache is currently being updated, depending on how many orders you have this may take a few minutes.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
+			if ( function_exists( 'wpdai_admin_notice' ) ) {
+				wpdai_admin_notice( __( 'Your Alpha Insights Order Cache is currently being updated, depending on how many orders you have this may take a few minutes.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
 			}
 
 		}
@@ -914,8 +914,8 @@ class WPD_Alpha_Insights_Free_Plugin {
 		if ( isset( $_GET['wpd-notice'] ) && sanitize_text_field( $_GET['wpd-notice'] ) == 'invalid-license' ) {
 
 			// Output notice - check if function exists
-			if ( function_exists( 'wpd_admin_notice' ) ) {
-				wpd_admin_notice( __( 'Your Alpha Insights license has expired or is invalid. Please update your license to continue using the plugin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
+			if ( function_exists( 'wpdai_admin_notice' ) ) {
+				wpdai_admin_notice( __( 'Your Alpha Insights license has expired or is invalid. Please update your license to continue using the plugin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
 			}
 
 		}
@@ -969,8 +969,8 @@ class WPD_Alpha_Insights_Free_Plugin {
 	private function clear_cache() {
 
 		// Check if function exists before calling
-		if ( function_exists( 'wpd_delete_all_data_caches' ) ) {
-			wpd_delete_all_data_caches();
+		if ( function_exists( 'wpdai_delete_all_data_caches' ) ) {
+			wpdai_delete_all_data_caches();
 		}
 
 		// Set latest version since this has been cleared

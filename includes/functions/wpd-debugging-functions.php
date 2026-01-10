@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
  *	@param bool $var_dump Whether or not to var_dump, true to show additional details
  *
  */
-function wpd_debug( $data, $title = false, $var_dump = false, $file = false ) {
+function wpdai_debug( $data, $title = false, $var_dump = false, $file = false ) {
 
 	// Setup the heading
 	$heading = ( $title !== false ) ? 'Debug Container - ' . $title : 'Debug Container';
@@ -30,7 +30,7 @@ function wpd_debug( $data, $title = false, $var_dump = false, $file = false ) {
 	if ( $file ) {
 
 		// Get Data
-		$file_data = wpd_get_debug_log_data( $file );
+		$file_data = wpdai_get_debug_log_data( $file );
 
 		// Delete log file
 		$additional_elements = '<span class="wpd-delete-log" data-file="' . $file . '">Delete Log</span>';
@@ -70,7 +70,7 @@ function wpd_debug( $data, $title = false, $var_dump = false, $file = false ) {
  * 	@return string Full server log directory
  * 
  **/
-function wpd_debug_log_directory() {
+function wpdai_debug_log_directory() {
 
 	$directory = WPD_AI_UPLOADS_FOLDER_SYSTEM . 'log/';
 	$directory = str_replace( '\\', '/', $directory );
@@ -86,7 +86,7 @@ function wpd_debug_log_directory() {
  * 	@return string Server log URL for public access
  * 
  **/
-function wpd_debug_log_url() {
+function wpdai_debug_log_url() {
 
 	$directory = WPD_AI_UPLOADS_FOLDER . 'log/';
 	$directory = str_replace( '\\', '/', $directory );
@@ -102,7 +102,7 @@ function wpd_debug_log_url() {
  *  @param bool $human_readable_size, if set to true will return file size in KB, MB, GB, if set to false will return size in bytes
  * 
  **/
-function wpd_get_file_size( $file, $human_readable = true ) {
+function wpdai_get_file_size( $file, $human_readable = true ) {
 
 	// No file found
 	if ( ! file_exists($file) ) {
@@ -139,7 +139,7 @@ function wpd_get_file_size( $file, $human_readable = true ) {
  * 	@return array An associative array of log(s)
  * 
  **/
-function wpd_get_debug_log_data( $file = false, $human_readable_size = true ) {
+function wpdai_get_debug_log_data( $file = false, $human_readable_size = true ) {
 
 	// Return array
 	$available_log_data = array();
@@ -149,7 +149,7 @@ function wpd_get_debug_log_data( $file = false, $human_readable_size = true ) {
 
 		if ( file_exists($file) ) {
 
-			$file_name = str_replace( wpd_debug_log_directory(), '', $file );
+			$file_name = str_replace( wpdai_debug_log_directory(), '', $file );
 			$available_logs = array($file_name);
 
 		} else {
@@ -161,7 +161,7 @@ function wpd_get_debug_log_data( $file = false, $human_readable_size = true ) {
 	} else {
 
 		// Otherwise check for all Logs
-		$available_logs = scandir( wpd_debug_log_directory() );
+		$available_logs = scandir( wpdai_debug_log_directory() );
 
 	}
 
@@ -174,10 +174,10 @@ function wpd_get_debug_log_data( $file = false, $human_readable_size = true ) {
 			if ( strpos($file_name, '.txt') === false ) continue;
 
 			// Title
-			$title = wpd_clean_string( str_replace( 'wpd_', '', str_replace( '.txt', '', $file_name) ) );
-			$file_location = wpd_debug_log_directory() . $file_name;
-			$file_size = ($human_readable_size) ? wpd_get_file_size($file_location) : wpd_get_file_size($file_location, false);
-			$file_url = wpd_debug_log_url() . $file_name;
+			$title = wpdai_clean_string( str_replace( 'wpd_', '', str_replace( '.txt', '', $file_name) ) );
+			$file_location = wpdai_debug_log_directory() . $file_name;
+			$file_size = ($human_readable_size) ? wpdai_get_file_size($file_location) : wpdai_get_file_size($file_location, false);
+			$file_url = wpdai_debug_log_url() . $file_name;
 
 			// Array Push
 			$log = array(
@@ -216,7 +216,7 @@ function wpd_get_debug_log_data( $file = false, $human_readable_size = true ) {
  * 	@return output Will echo the error log
  * 
  **/
-function wpd_display_log( $log, $title = false ) {
+function wpdai_display_log( $log, $title = false ) {
 
 	// Clean naming and try find file
 	$log = str_replace( '.txt', '', $log );
@@ -227,10 +227,10 @@ function wpd_display_log( $log, $title = false ) {
 	$file_contents = (file_exists($file)) ? file_get_contents( $file ) : 'Log is empty.';
 
 	// Create Title
-	$log_title = ( $title ) ? $title : wpd_clean_string( $log );
+	$log_title = ( $title ) ? $title : wpdai_clean_string( $log );
 
 	// Output Container
-	wpd_debug( $file_contents, $log_title, false, $file );
+	wpdai_debug( $file_contents, $log_title, false, $file );
 
 }
 
@@ -240,11 +240,11 @@ function wpd_display_log( $log, $title = false ) {
  *	@return $peak_memory_usage if true, otherwise returns false
  *
  */
-function wpd_is_memory_usage_greater_than( $percent = 90 ) {
+function wpdai_is_memory_usage_greater_than( $percent = 90 ) {
 
     $peak_memory_usage 	= memory_get_peak_usage( true );
-    $wp_memory_limit 	= wpd_get_memory_limit( true );
-    $memory_usage 		= wpd_divide( $peak_memory_usage, $wp_memory_limit ) * 100;
+    $wp_memory_limit 	= wpdai_get_memory_limit( true );
+    $memory_usage 		= wpdai_divide( $peak_memory_usage, $wp_memory_limit ) * 100;
 
     if ( $memory_usage > $percent ) {
 
@@ -265,7 +265,7 @@ function wpd_is_memory_usage_greater_than( $percent = 90 ) {
  * 	@param bool Return in bytes, defaults to false. Will return MB if left on false, or bytes on true.
  * 
  */
-function wpd_get_memory_limit( $return_bytes = false ) {
+function wpdai_get_memory_limit( $return_bytes = false ) {
 	
     $val 	= trim( ini_get('memory_limit') );
     $last 	= strtolower($val[strlen($val)-1]);
@@ -291,7 +291,7 @@ function wpd_get_memory_limit( $return_bytes = false ) {
  * 	Returns max execution time for a the PHP script on this server in seconds
  * 
  **/
-function wpd_get_php_max_execution_time() {
+function wpdai_get_php_max_execution_time() {
 
 	return (int) ini_get( 'max_execution_time' );
 
@@ -302,7 +302,7 @@ function wpd_get_php_max_execution_time() {
  *  Gets peak memory usage for script and returns it in MB
  * 
  **/
-function wpd_get_peak_memory_usage() {
+function wpdai_get_peak_memory_usage() {
 
 	return round( memory_get_peak_usage() / 1024 / 1024, 2);
 
@@ -313,7 +313,7 @@ function wpd_get_peak_memory_usage() {
  * 	Debugging in Query Montior
  * 
  **/
-function wpd_qm_debug( $debug ) {
+function wpdai_qm_debug( $debug ) {
 	
 	do_action('qm/debug', $debug);
 
@@ -326,10 +326,10 @@ function wpd_qm_debug( $debug ) {
  * 	@return int Count of log files that were deleted
  * 
  **/
-function wpd_delete_large_logs( $max_size_in_mb = 10 ) {
+function wpdai_delete_large_logs( $max_size_in_mb = 10 ) {
 
 	// Get all logs
-	$log_files = wpd_get_debug_log_data(false, false);
+	$log_files = wpdai_get_debug_log_data(false, false);
 
 	// Iterate on each deletion
 	$delete_count = 0;

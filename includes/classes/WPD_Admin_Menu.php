@@ -65,7 +65,7 @@ class WPD_Admin_Menu {
     public function register_admin_menu_and_pages() {
 
         // Check if user is authorized to view Alpha Insights
-        $capability = wpd_is_user_authorized_to_view_alpha_insights() ? 'read' : 'do_not_allow';
+        $capability = wpdai_is_user_authorized_to_view_alpha_insights() ? 'read' : 'do_not_allow';
     
         // Top level menu item - Defaults to Sales Reports
         add_menu_page(
@@ -210,7 +210,7 @@ class WPD_Admin_Menu {
     public function output_alpha_insights_menu() {
 
         // Only on WPD pages
-        if ( ! is_wpd_page() ) return false; 
+        if ( ! is_wpdai_page() ) return false; 
 
         // Get the alpha insights menu
         $alpha_insights_menu = $this->register_alpha_insights_menu();
@@ -422,7 +422,7 @@ class WPD_Admin_Menu {
         );
 
         // Build dynamic menu items
-        $react_reports = wpd_get_installed_react_reports();
+        $react_reports = wpdai_get_installed_react_reports();
 
         // Add each report to relevant category
         foreach( $react_reports as $report ) {
@@ -680,7 +680,7 @@ class WPD_Admin_Menu {
         }
 
         // ✅ Add authorization check
-        if ( ! wpd_is_user_authorized_to_view_alpha_insights() ) {
+        if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) {
             wp_send_json_error( array( 'message' => 'Unauthorized access' ) );
             return;
         }

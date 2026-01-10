@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  *	@args from_date, to_date, subject
  *
  */
-function wpd_email( $email, $preview = false, $args = array() ) {
+function wpdai_email( $email, $preview = false, $args = array() ) {
 	
 	$mail_send 			= true;
 	$options 			= get_option( 'wpd_ai_email_settings' );
@@ -33,8 +33,8 @@ function wpd_email( $email, $preview = false, $args = array() ) {
 	$site_name 			= get_bloginfo( 'name' );
 
 	// Debug logging
-	wpd_write_log('Starting email generation for type: ' . $email, 'email');
-	wpd_write_log('Email args: ' . print_r($args, true), 'email');
+	wpdai_write_log('Starting email generation for type: ' . $email, 'email');
+	wpdai_write_log('Email args: ' . print_r($args, true), 'email');
 
 	/**
 	 *
@@ -67,14 +67,14 @@ function wpd_email( $email, $preview = false, $args = array() ) {
 
 			// Check if message is empty
 			if (empty(trim($mail_message))) {
-				wpd_write_log('WARNING - Profit report email message is empty!', 'email');
+				wpdai_write_log('WARNING - Profit report email message is empty!', 'email');
 				$mail_message = '<p>No data available for the selected period. Please check your store data and settings.</p>';
 			}
 
-			wpd_write_log('Profit report email generated successfully. Message length: ' . strlen($mail_message), 'email');
+			wpdai_write_log('Profit report email generated successfully. Message length: ' . strlen($mail_message), 'email');
 
 		} catch (Exception $e) {
-			wpd_write_log('ERROR generating profit report email: ' . $e->getMessage(), 'email');
+			wpdai_write_log('ERROR generating profit report email: ' . $e->getMessage(), 'email');
 			$mail_message = '<p>Error generating profit report. Please check your store configuration.</p>';
 			$mail_to = $admin_email; // Fallback to admin
 			/* translators: %s: Site name */
@@ -116,12 +116,12 @@ function wpd_email( $email, $preview = false, $args = array() ) {
 
 			// Check if message is empty
 			if (empty(trim($mail_message))) {
-				wpd_write_log('WARNING - Expense report email message is empty!', 'email');
+				wpdai_write_log('WARNING - Expense report email message is empty!', 'email');
 				$mail_message = '<p>No expense data available for the selected period.</p>';
 			}
 
 		} catch (Exception $e) {
-			wpd_write_log('ERROR generating expense report email: ' . $e->getMessage(), 'email');
+			wpdai_write_log('ERROR generating expense report email: ' . $e->getMessage(), 'email');
 			$mail_message = '<p>Error generating expense report. Please check your store configuration.</p>';
 			$mail_to = $admin_email;
 			/* translators: %s: Site name */
@@ -140,7 +140,7 @@ function wpd_email( $email, $preview = false, $args = array() ) {
 		$mail_send = false;
 		$response['email_sent'] = false;
 		$response['message'] = __( 'Email doesn\'t exist.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
-		wpd_write_log('Unknown email type requested: ' . $email, 'email');
+		wpdai_write_log('Unknown email type requested: ' . $email, 'email');
 
 	}
 
@@ -164,7 +164,7 @@ function wpd_email( $email, $preview = false, $args = array() ) {
 	// Fallback to admin email
 	if ( empty( $mail_to ) ) {
 		$mail_to = $admin_email;
-		wpd_write_log('No recipients found, falling back to admin email: ' . $admin_email, 'email');
+		wpdai_write_log('No recipients found, falling back to admin email: ' . $admin_email, 'email');
 	}
 
 	/**
@@ -192,11 +192,11 @@ function wpd_email( $email, $preview = false, $args = array() ) {
 			$response['email_sent'] = wp_mail( $mail_to, $mail_subject, $mail_message, $mail_headers );
 
 			if ($response['email_sent']) {
-				wpd_write_log('Email sent successfully to: ' . $mail_to, 'email');
+				wpdai_write_log('Email sent successfully to: ' . $mail_to, 'email');
 				/* translators: %s: Email recipients */
 				$response['message'] = sprintf( __( 'Email sent successfully to %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $mail_to ) );
 			} else {
-				wpd_write_log('Failed to send email to: ' . $mail_to, 'email');
+				wpdai_write_log('Failed to send email to: ' . $mail_to, 'email');
 				$response['message'] = __( 'Email failed to send. Please check your WordPress email configuration (SMTP settings) and try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 			}
 		}
@@ -220,10 +220,10 @@ function wpd_email( $email, $preview = false, $args = array() ) {
 
 }
 
-add_action( 'wp_mail_failed', 'wpd_on_mail_error', 10, 1 );
-function wpd_on_mail_error( $wp_error ) {
+add_action( 'wp_mail_failed', 'wpdai_on_mail_error', 10, 1 );
+function wpdai_on_mail_error( $wp_error ) {
 
-	wpd_write_log( print_r($wp_error, true), 'email' );
+	wpdai_write_log( print_r($wp_error, true), 'email' );
 	
 } 
 
@@ -232,7 +232,7 @@ function wpd_on_mail_error( $wp_error ) {
  *	Include Header
  *
  */
-function wpd_email_header( $heading, $subheading = null ) {
+function wpdai_email_header( $heading, $subheading = null ) {
 
 	$site_name = get_bloginfo( 'name' );
 
@@ -252,7 +252,7 @@ function wpd_email_header( $heading, $subheading = null ) {
  *	Include Header
  *
  */
-function wpd_email_footer(  ) {
+function wpdai_email_footer(  ) {
 
 	require_once( WPD_AI_PATH . 'includes/emails/wpd-email-template_footer.php' );
 
@@ -263,7 +263,7 @@ function wpd_email_footer(  ) {
  *	Display <tr>For the label / value </tr>
  *
  */
-function wpd_table_row_report_data( $label, $value ) {
+function wpdai_table_row_report_data( $label, $value ) {
 
 	?>
         <tr>
@@ -285,7 +285,7 @@ function wpd_table_row_report_data( $label, $value ) {
  *	Email spacer
  *
  */
-function wpd_email_divider() {
+function wpdai_email_divider() {
 
 	?>
 		<table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnDividerBlock" style="min-width:100%;">
@@ -314,7 +314,7 @@ function wpd_email_divider() {
  *	Button
  *
  */
-function wpd_email_button( $text, $url ) {
+function wpdai_email_button( $text, $url ) {
 
 	?><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnButtonBlock" style="min-width:100%;">
 		    <tbody class="mcnButtonBlockOuter">
@@ -341,7 +341,7 @@ function wpd_email_button( $text, $url ) {
  *	Image container
  *
  */
-function wpd_email_image( $image ) {
+function wpdai_email_image( $image ) {
 
 	?>
 		<table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnImageBlock" style="min-width:100%;">

@@ -19,23 +19,23 @@ defined( 'ABSPATH' ) || exit;
  *  @return bool|int Will return false on failure, true if cache is complete and order count representing number of updates
  * 
  **/
-function wpd_fetch_and_store_last_n_uncached_orders_cron() {
+function wpdai_fetch_and_store_last_n_uncached_orders_cron() {
 
     // Start timer
 	$start = microtime( true );
     $memory_usage = 0;
 
-    wpd_write_log( 'Executing wpd_schedule_order_calculation_cache_collector', 'cron' );
-    wpd_write_log( 'Executing wpd_schedule_order_calculation_cache_collector', 'cache' );
+    wpdai_write_log( 'Executing wpd_schedule_order_calculation_cache_collector', 'cron' );
+    wpdai_write_log( 'Executing wpd_schedule_order_calculation_cache_collector', 'cache' );
 
     // Check if cache is complete
     $order_cache_complete = get_option( 'wpd_ai_all_orders_cached', 0 );
     if ( $order_cache_complete == 1 ) {
 
-        wpd_write_log( 'Order cache has already been determined as complete, not continuing.', 'cron' );
-        wpd_write_log( 'Completed wpd_schedule_order_calculation_cache_collector.', 'cron' );
-        wpd_write_log( 'Order cache has already been determined as complete, not continuing.', 'cache' );
-        wpd_write_log( 'Completed wpd_schedule_order_calculation_cache_collector.', 'cache' );
+        wpdai_write_log( 'Order cache has already been determined as complete, not continuing.', 'cron' );
+        wpdai_write_log( 'Completed wpd_schedule_order_calculation_cache_collector.', 'cron' );
+        wpdai_write_log( 'Order cache has already been determined as complete, not continuing.', 'cache' );
+        wpdai_write_log( 'Completed wpd_schedule_order_calculation_cache_collector.', 'cache' );
 
         return true; 
 
@@ -44,60 +44,60 @@ function wpd_fetch_and_store_last_n_uncached_orders_cron() {
     // Get last n orders
     $max_count = 250;
 
-    wpd_write_log( 'Searching database for the latest ' . $max_count . ' orders that dont have the cache set.', 'cron' );
-    wpd_write_log( 'Searching database for the latest ' . $max_count . ' orders that dont have the cache set.', 'cache' );
+    wpdai_write_log( 'Searching database for the latest ' . $max_count . ' orders that dont have the cache set.', 'cron' );
+    wpdai_write_log( 'Searching database for the latest ' . $max_count . ' orders that dont have the cache set.', 'cache' );
 
-    $last_n_orders_without_cache = wpd_get_order_ids_without_calculation_cache( $max_count );
+    $last_n_orders_without_cache = wpdai_get_order_ids_without_calculation_cache( $max_count );
 
     // Safety Check
     if ( ! is_array($last_n_orders_without_cache) ) {
 
-        wpd_write_log( 'Couldnt produce an array when searching for orders without cache, execution stopping.', 'cron' );
-        wpd_write_log( 'Completed wpd_schedule_order_calculation_cache_collector.', 'cron' );
-        wpd_write_log( 'Couldnt produce an array when searching for orders without cache, execution stopping.', 'cache' );
-        wpd_write_log( 'Completed wpd_schedule_order_calculation_cache_collector.', 'cache' );
+        wpdai_write_log( 'Couldnt produce an array when searching for orders without cache, execution stopping.', 'cron' );
+        wpdai_write_log( 'Completed wpd_schedule_order_calculation_cache_collector.', 'cron' );
+        wpdai_write_log( 'Couldnt produce an array when searching for orders without cache, execution stopping.', 'cache' );
+        wpdai_write_log( 'Completed wpd_schedule_order_calculation_cache_collector.', 'cache' );
 
         return false; 
     }
 
-    wpd_write_log( 'Found ' . count( $last_n_orders_without_cache ) . ' orders with max search count of ' . $max_count, 'cron' );
-    wpd_write_log( 'Found ' . count( $last_n_orders_without_cache ) . ' orders with max search count of ' . $max_count, 'cache' );
+    wpdai_write_log( 'Found ' . count( $last_n_orders_without_cache ) . ' orders with max search count of ' . $max_count, 'cron' );
+    wpdai_write_log( 'Found ' . count( $last_n_orders_without_cache ) . ' orders with max search count of ' . $max_count, 'cache' );
 
     // If we've got some, update the calculations
     if ( count( $last_n_orders_without_cache ) > 0 ) {
 
-        wpd_write_log( 'Looping throgh ' . count( $last_n_orders_without_cache ) . ' orders to update the cache.', 'cron' );
-        wpd_write_log( 'Looping throgh ' . count( $last_n_orders_without_cache ) . ' orders to update the cache.', 'cache' );
+        wpdai_write_log( 'Looping throgh ' . count( $last_n_orders_without_cache ) . ' orders to update the cache.', 'cron' );
+        wpdai_write_log( 'Looping throgh ' . count( $last_n_orders_without_cache ) . ' orders to update the cache.', 'cache' );
 
         foreach( $last_n_orders_without_cache as $order_id ) {
 
             // Log the memory usage
-            if ( wpd_get_peak_memory_usage() > $memory_usage ) $memory_usage = wpd_get_peak_memory_usage();
+            if ( wpdai_get_peak_memory_usage() > $memory_usage ) $memory_usage = wpdai_get_peak_memory_usage();
 
-            wpd_calculate_cost_profit_by_order( $order_id, true );
+            wpdai_calculate_cost_profit_by_order( $order_id, true );
 
         }
 
         $finish             = microtime( true );
         $total_time_elapsed = round( $finish - $start, 2 );
 
-        wpd_write_log( 'Completed wpd_schedule_order_calculation_cache_collector. Process took ' . $total_time_elapsed . ' seconds and ' . $memory_usage . ' memory usage.', 'cron' );
-        wpd_write_log( 'Completed wpd_schedule_order_calculation_cache_collector. Process took ' . $total_time_elapsed . ' seconds and ' . $memory_usage . ' memory usage.', 'cache' );
+        wpdai_write_log( 'Completed wpd_schedule_order_calculation_cache_collector. Process took ' . $total_time_elapsed . ' seconds and ' . $memory_usage . ' memory usage.', 'cron' );
+        wpdai_write_log( 'Completed wpd_schedule_order_calculation_cache_collector. Process took ' . $total_time_elapsed . ' seconds and ' . $memory_usage . ' memory usage.', 'cache' );
 
         return count( $last_n_orders_without_cache );
 
     } else {
 
-        wpd_write_log( 'Count of orders was 0, so we must be finished processing the order cache, updating the database to complete.', 'cron' );
-        wpd_write_log( 'Completed wpd_schedule_order_calculation_cache_collector.', 'cron' );
-        wpd_write_log( 'Count of orders was 0, so we must be finished processing the order cache, updating the database to complete.', 'cache' );
-        wpd_write_log( 'Completed wpd_schedule_order_calculation_cache_collector.', 'cache' );
+        wpdai_write_log( 'Count of orders was 0, so we must be finished processing the order cache, updating the database to complete.', 'cron' );
+        wpdai_write_log( 'Completed wpd_schedule_order_calculation_cache_collector.', 'cron' );
+        wpdai_write_log( 'Count of orders was 0, so we must be finished processing the order cache, updating the database to complete.', 'cache' );
+        wpdai_write_log( 'Completed wpd_schedule_order_calculation_cache_collector.', 'cache' );
 
         $finish             = microtime( true );
         $total_time_elapsed = round( $finish - $start, 2 );
 
         // Log the memory usage
-        if ( wpd_get_peak_memory_usage() > $memory_usage ) $memory_usage = wpd_get_peak_memory_usage();
+        if ( wpdai_get_peak_memory_usage() > $memory_usage ) $memory_usage = wpdai_get_peak_memory_usage();
 
         // Set order cache as complete
         $order_cache_complete = update_option( 'wpd_ai_all_orders_cached', 1 );
@@ -119,20 +119,20 @@ function wpd_fetch_and_store_last_n_uncached_orders_cron() {
  *  Will fetch info like total sales etc etc
  * 
  **/
-function wpd_collect_customer_statistics_cron() {
+function wpdai_collect_customer_statistics_cron() {
 
-    wpd_write_log( 'Executing wpd_schedule_customer_analytics_collector', 'cron' );
+    wpdai_write_log( 'Executing wpd_schedule_customer_analytics_collector', 'cron' );
 
     // Start timer
 	$start = microtime( true );
     $memory_usage = 0;
 
     // List of user Id's
-    $user_ids =  wpd_query_user_ids_for_analytics_collector( 25 ); // Process 25 users at a time
+    $user_ids =  wpdai_query_user_ids_for_analytics_collector( 25 ); // Process 25 users at a time
     
     // Log start
-	wpd_write_log( 'Executing Customer Analytics cache builder on ' . count( $user_ids ) . ' users', 'cache' );
-	wpd_write_log( 'Executing Customer Analytics cache builder on ' . count( $user_ids ) . ' users', 'cron' );
+	wpdai_write_log( 'Executing Customer Analytics cache builder on ' . count( $user_ids ) . ' users', 'cache' );
+	wpdai_write_log( 'Executing Customer Analytics cache builder on ' . count( $user_ids ) . ' users', 'cron' );
 
     // Safety check the data
     if ( is_array($user_ids) && ! empty($user_ids) ) {
@@ -141,26 +141,26 @@ function wpd_collect_customer_statistics_cron() {
         $i = 1;
 
         // Entry logging
-        wpd_write_log( 'We have an array of User IDs, ' . $user_count . ' users found.', 'cron' );
-        wpd_write_log( 'Looping through User IDs to fetch customer analytics.', 'cron' );
+        wpdai_write_log( 'We have an array of User IDs, ' . $user_count . ' users found.', 'cron' );
+        wpdai_write_log( 'Looping through User IDs to fetch customer analytics.', 'cron' );
 
         // Loop through users
         foreach( $user_ids as $user_id ) {
 
             // False = force refresh data collection and update transients and meta
-            $user_analytics = wpd_fetch_customer_analytics_by_user_id( $user_id, false );
+            $user_analytics = wpdai_fetch_customer_analytics_by_user_id( $user_id, false );
 
             // Log iteration
-            wpd_write_log( '(' . $i . '/' . $user_count . ') Calculating analytics for user id: ' . $user_id . '.', 'cron' );
+            wpdai_write_log( '(' . $i . '/' . $user_count . ') Calculating analytics for user id: ' . $user_id . '.', 'cron' );
 
             if ( is_array($user_analytics) && ! empty( $user_analytics ) ) {
 
-                wpd_write_log( 'Update succesful.', 'cron' );
+                wpdai_write_log( 'Update succesful.', 'cron' );
     
             }
 
             // Log the memory usage
-            if ( wpd_get_peak_memory_usage() > $memory_usage ) $memory_usage = wpd_get_peak_memory_usage();
+            if ( wpdai_get_peak_memory_usage() > $memory_usage ) $memory_usage = wpdai_get_peak_memory_usage();
 
             // Iterator
             $i++;
@@ -169,15 +169,15 @@ function wpd_collect_customer_statistics_cron() {
 
     } else {
 
-        wpd_write_log( 'We couldnt find a good data collection, the format wasnt an array or it was empty. Couldnt find user IDs? Check debug.log.', 'cron' );
+        wpdai_write_log( 'We couldnt find a good data collection, the format wasnt an array or it was empty. Couldnt find user IDs? Check debug.log.', 'cron' );
 
     }
 
     $finish             = microtime( true );
 	$total_time_elapsed = round( $finish - $start, 2 );
 
-    wpd_write_log( 'Completed wpd_schedule_customer_analytics_collector. Process took ' . $total_time_elapsed . ' seconds and ' . $memory_usage . ' memory usage.', 'cron' );
-    wpd_write_log( 'Completed wpd_schedule_customer_analytics_collector. Process took ' . $total_time_elapsed . ' seconds and ' . $memory_usage . ' memory usage.', 'cache' );
+    wpdai_write_log( 'Completed wpd_schedule_customer_analytics_collector. Process took ' . $total_time_elapsed . ' seconds and ' . $memory_usage . ' memory usage.', 'cron' );
+    wpdai_write_log( 'Completed wpd_schedule_customer_analytics_collector. Process took ' . $total_time_elapsed . ' seconds and ' . $memory_usage . ' memory usage.', 'cache' );
 
 }
 
@@ -188,18 +188,18 @@ function wpd_collect_customer_statistics_cron() {
  *  Will fetch info like total sales etc etc
  * 
  **/
-function wpd_collect_product_statistics_cron() {
+function wpdai_collect_product_statistics_cron() {
 
     // Start timer
 	$start          = microtime( true );
     $memory_usage   = 0;
 
-    wpd_write_log( 'Executing wpd_schedule_product_analytics_collector', 'cron' );
-    wpd_write_log( 'This function will store sales data and reference the analytics database to check for website activity and store in the DB.', 'cron' );
-    wpd_write_log( 'Collecting product IDs', 'cron' );
+    wpdai_write_log( 'Executing wpd_schedule_product_analytics_collector', 'cron' );
+    wpdai_write_log( 'This function will store sales data and reference the analytics database to check for website activity and store in the DB.', 'cron' );
+    wpdai_write_log( 'Collecting product IDs', 'cron' );
     
     // List of product Id's
-    $product_ids = wpd_query_product_ids_for_analytics_collector( 25 ); // Collect 25 products
+    $product_ids = wpdai_query_product_ids_for_analytics_collector( 25 ); // Collect 25 products
 
     // Make sure the data is correct
     if ( is_array($product_ids) && ! empty($product_ids) ) {
@@ -208,25 +208,25 @@ function wpd_collect_product_statistics_cron() {
         $i = 1;
 
         // Entry logging
-        wpd_write_log( 'We have an array of product IDs, ' . $product_count . ' products found.', 'cron' );
-        wpd_write_log( 'Looping through product IDs to fetch product analytics.', 'cron' );
+        wpdai_write_log( 'We have an array of product IDs, ' . $product_count . ' products found.', 'cron' );
+        wpdai_write_log( 'Looping through product IDs to fetch product analytics.', 'cron' );
 
         foreach( $product_ids as $product_id ) {
 
             // False = force refresh data collection and update transients and meta
-            $product_analytics = wpd_fetch_product_analytics_by_product_id( $product_id, false );
+            $product_analytics = wpdai_fetch_product_analytics_by_product_id( $product_id, false );
 
             // Log iteration
-            wpd_write_log( '(' . $i . '/' . $product_count . ') Calculating analytics for product id: ' . $product_id . '.', 'cron' );
+            wpdai_write_log( '(' . $i . '/' . $product_count . ') Calculating analytics for product id: ' . $product_id . '.', 'cron' );
 
             if ( is_array($product_analytics) && ! empty( $product_analytics ) ) {
 
-                wpd_write_log( 'Update succesful.', 'cron' );
+                wpdai_write_log( 'Update succesful.', 'cron' );
     
             }
 
             // Log the memory usage
-            if ( wpd_get_peak_memory_usage() > $memory_usage ) $memory_usage = wpd_get_peak_memory_usage();
+            if ( wpdai_get_peak_memory_usage() > $memory_usage ) $memory_usage = wpdai_get_peak_memory_usage();
 
             // Iterator
             $i++;
@@ -235,15 +235,15 @@ function wpd_collect_product_statistics_cron() {
 
     } else {
 
-        wpd_write_log( 'We couldnt find a good data collection, the format wasnt an array or it was empty. Couldnt find product IDs? Check debug.log.', 'cron' );
+        wpdai_write_log( 'We couldnt find a good data collection, the format wasnt an array or it was empty. Couldnt find product IDs? Check debug.log.', 'cron' );
         
     }
 
     $finish             = microtime( true );
 	$total_time_elapsed = round( $finish - $start, 2 );
 
-    wpd_write_log( 'Completed wpd_schedule_product_analytics_collector. Process took ' . $total_time_elapsed . ' seconds and ' . $memory_usage . ' memory usage.', 'cron' );
-    wpd_write_log( 'Completed wpd_schedule_product_analytics_collector. Process took ' . $total_time_elapsed . ' seconds and ' . $memory_usage . ' memory usage.', 'cache' );
+    wpdai_write_log( 'Completed wpd_schedule_product_analytics_collector. Process took ' . $total_time_elapsed . ' seconds and ' . $memory_usage . ' memory usage.', 'cron' );
+    wpdai_write_log( 'Completed wpd_schedule_product_analytics_collector. Process took ' . $total_time_elapsed . ' seconds and ' . $memory_usage . ' memory usage.', 'cache' );
 
 }
 
@@ -252,9 +252,9 @@ function wpd_collect_product_statistics_cron() {
  *  Check DB upgrade once daily 
  * 
  **/
-function wpd_schedule_database_upgrade_function() {
+function wpdai_schedule_database_upgrade_function() {
 
-    wpd_write_log( 'Executing wpd_schedule_database_upgrade', 'cron' );
+    wpdai_write_log( 'Executing wpd_schedule_database_upgrade', 'cron' );
 
     if ( ! class_exists('WPD_Database_Interactor') ) {
         require_once( WPD_AI_PATH . 'includes/classes/WPD_Database_Interactor.php');
@@ -268,7 +268,7 @@ function wpd_schedule_database_upgrade_function() {
 
     }
 
-    wpd_write_log( 'Completed wpd_schedule_database_upgrade', 'cron' );
+    wpdai_write_log( 'Completed wpd_schedule_database_upgrade', 'cron' );
 
 }
 
@@ -281,7 +281,7 @@ function wpd_schedule_database_upgrade_function() {
  *  This is for once off tasks, usually minor migration related things
  * 
  **/
-function wpd_schedule_daily_task_runner_once_off_function() {
+function wpdai_schedule_daily_task_runner_once_off_function() {
 
     // Run the task runner class
     $task_runner = new WPD_Task_Runner();
@@ -296,16 +296,16 @@ function wpd_schedule_daily_task_runner_once_off_function() {
  *  Gets rid of bot traffic, crawlers, and other dodgy looking data 
  * 
  **/
-function wpd_schedule_analytics_db_cleanup_function() {
+function wpdai_schedule_analytics_db_cleanup_function() {
 
     $days = 2;
     
-    wpd_write_log( 'Executing wpd_schedule_analytics_db_cleanup for the past ' . $days . ' days', 'cron' );
+    wpdai_write_log( 'Executing wpd_schedule_analytics_db_cleanup for the past ' . $days . ' days', 'cron' );
 
     // Clean up data from the last N days
-    wpd_cleanup_analytics_data( $days );
+    wpdai_cleanup_analytics_data( $days );
 
-    wpd_write_log( 'wpd_schedule_analytics_db_cleanup', 'cron' );
+    wpdai_write_log( 'wpd_schedule_analytics_db_cleanup', 'cron' );
 
 
 }
@@ -323,7 +323,7 @@ function wpd_schedule_analytics_db_cleanup_function() {
  *  @since 2.0.50
  *  
  **/
-function wpd_cleanup_analytics_data( $days_ago = 30 ) {
+function wpdai_cleanup_analytics_data( $days_ago = 30 ) {
 
 	global $wpdb;
 
@@ -336,7 +336,7 @@ function wpd_cleanup_analytics_data( $days_ago = 30 ) {
 
 	$days_ago_string = '-' . strval($days_ago) . ' days';
 
-	wpd_write_log( 'Cleaning up analytics data in the last ' . $days_ago_string, 'db_cleanup' );
+	wpdai_write_log( 'Cleaning up analytics data in the last ' . $days_ago_string, 'db_cleanup' );
 
 	// Number of days to check
 	$start_date = gmdate("Y-m-d H:i:s", strtotime($days_ago_string));
@@ -355,9 +355,9 @@ function wpd_cleanup_analytics_data( $days_ago = 30 ) {
 
 	if ( $wpdb->last_error  ) {
 
-		wpd_write_log( 'Error capturing analytics data from DB, dumping the error and query.', 'db_error' );
-		wpd_write_log( $wpdb->last_error, 'db_error' );
-		wpd_write_log( $wpdb->last_query, 'db_error' );
+		wpdai_write_log( 'Error capturing analytics data from DB, dumping the error and query.', 'db_error' );
+		wpdai_write_log( $wpdb->last_error, 'db_error' );
+		wpdai_write_log( $wpdb->last_query, 'db_error' );
 
 		return $wpdb->last_error;
 
@@ -366,7 +366,7 @@ function wpd_cleanup_analytics_data( $days_ago = 30 ) {
 	// Do some manual cleaning on bots, crawlers, and incomplete sessions
 	if ( is_array($results) && ! empty($results) ) {
 
-		wpd_write_log( 'Found ' . count( $results ) . ' sessions that we will check for bots, crawlers and incomplete data. ', 'db_cleanup' );
+		wpdai_write_log( 'Found ' . count( $results ) . ' sessions that we will check for bots, crawlers and incomplete data. ', 'db_cleanup' );
 
 		foreach( $results as $row ) {
 
@@ -421,18 +421,18 @@ function wpd_cleanup_analytics_data( $days_ago = 30 ) {
 		}
 	} else {
 
-		wpd_write_log( 'Didnt find any data to cleanup, check the db_error log to see if there was an issue capturing data. ', 'db_cleanup' );
+		wpdai_write_log( 'Didnt find any data to cleanup, check the db_error log to see if there was an issue capturing data. ', 'db_cleanup' );
 
 	}
 
 	// Logging sessions deleted
 	if ( $sessions_deleted > 0 ) {
-		wpd_write_log( $sessions_deleted . ' Sessions were deleted from your database.', 'db_cleanup' );
+		wpdai_write_log( $sessions_deleted . ' Sessions were deleted from your database.', 'db_cleanup' );
 	} else {
-		wpd_write_log( 'No sessions were deleted from your database, everything looks clean.', 'db_cleanup' );
+		wpdai_write_log( 'No sessions were deleted from your database, everything looks clean.', 'db_cleanup' );
 	}
 
-	wpd_write_log( 'Now we\'ll just remove any sessions or events that don\'t have corresponding data in the other table.', 'db_cleanup' );
+	wpdai_write_log( 'Now we\'ll just remove any sessions or events that don\'t have corresponding data in the other table.', 'db_cleanup' );
 
 	// Events stored that have no session data
 	$sql_query = "SELECT session_id
@@ -446,9 +446,9 @@ function wpd_cleanup_analytics_data( $days_ago = 30 ) {
 	$results = $wpdb->get_results( $sql_query, 'ARRAY_A' );
 	if ( $wpdb->last_error  ) {
 
-		wpd_write_log( 'Error capturing analytics data from DB, dumping the error and query.', 'db_error' );
-		wpd_write_log( $wpdb->last_error, 'db_error' );
-		wpd_write_log( $wpdb->last_query, 'db_error' );
+		wpdai_write_log( 'Error capturing analytics data from DB, dumping the error and query.', 'db_error' );
+		wpdai_write_log( $wpdb->last_error, 'db_error' );
+		wpdai_write_log( $wpdb->last_query, 'db_error' );
 
 		return $wpdb->last_error;
 
@@ -475,9 +475,9 @@ function wpd_cleanup_analytics_data( $days_ago = 30 ) {
 	$results = $wpdb->get_results( $sql_query, 'ARRAY_A' );
 	if ( $wpdb->last_error  ) {
 
-		wpd_write_log( 'Error capturing analytics data from DB, dumping the error and query.', 'db_error' );
-		wpd_write_log( $wpdb->last_error, 'db_error' );
-		wpd_write_log( $wpdb->last_query, 'db_error' );
+		wpdai_write_log( 'Error capturing analytics data from DB, dumping the error and query.', 'db_error' );
+		wpdai_write_log( $wpdb->last_error, 'db_error' );
+		wpdai_write_log( $wpdb->last_query, 'db_error' );
 
 		return $wpdb->last_error;
 
@@ -492,7 +492,7 @@ function wpd_cleanup_analytics_data( $days_ago = 30 ) {
 		}
 	}
 
-	wpd_write_log( 'Cleanup complete, your analytics database has now been cleaned.', 'db_cleanup' );
+	wpdai_write_log( 'Cleanup complete, your analytics database has now been cleaned.', 'db_cleanup' );
 
 	return true;
 
@@ -503,19 +503,19 @@ function wpd_cleanup_analytics_data( $days_ago = 30 ) {
  *  Deletes any log files that are larger than 10mb - daily
  * 
  **/
-function wpd_schedule_log_cleanup_function() {
+function wpdai_schedule_log_cleanup_function() {
 
     // Log init
-    wpd_write_log( 'Executing wpd_schedule_log_cleanup', 'cron' );
+    wpdai_write_log( 'Executing wpd_schedule_log_cleanup', 'cron' );
 
     // Cleanup all logs larger than 10mb
-    $deletion_count = wpd_delete_large_logs( 10 );
+    $deletion_count = wpdai_delete_large_logs( 10 );
 
     // Log count
-    wpd_write_log( $deletion_count . ' Log files were deleted.', 'cron' );
+    wpdai_write_log( $deletion_count . ' Log files were deleted.', 'cron' );
 
     // Log completion
-    wpd_write_log( 'Completed wpd_schedule_log_cleanup', 'cron' );
+    wpdai_write_log( 'Completed wpd_schedule_log_cleanup', 'cron' );
 
 }
 
@@ -524,18 +524,18 @@ function wpd_schedule_log_cleanup_function() {
  *  Fetch new exchange rates
  *
  */
-function wpd_schedule_webhook_post() {
+function wpdai_schedule_webhook_post() {
 
-    wpd_write_log( 'Executing wpd_schedule_webhook', 'cron' );
+    wpdai_write_log( 'Executing wpd_schedule_webhook', 'cron' );
 
     /**
      *
      *  Only take this seriously if we're at the 1st hour
      *
      */
-    $site_time_hour     = (int) wpd_site_date_time( 'H' );
-    $site_day_of_week   = wpd_site_date_time( 'D' );
-    $site_day_of_month  = (int) wpd_site_date_time( 'j' );
+    $site_time_hour     = (int) wpdai_site_date_time( 'H' );
+    $site_day_of_week   = wpdai_site_date_time( 'D' );
+    $site_day_of_month  = (int) wpdai_site_date_time( 'j' );
 
     // Webhook export
     $webhook_settings   = get_option( 'wpd_ai_webhook_settings' );
@@ -551,7 +551,7 @@ function wpd_schedule_webhook_post() {
 
     } else {
 
-        wpd_write_log( 'Not sending webhook post as there is no URL set.', 'cron' );
+        wpdai_write_log( 'Not sending webhook post as there is no URL set.', 'cron' );
 
         return false; // No URL to post to
 
@@ -574,19 +574,19 @@ function wpd_schedule_webhook_post() {
      */
     if ( $site_time_hour === 1 ) {
 
-        $daily_from_date    = wpd_site_date_time( WPD_AI_PHP_ISO_DATE, 'yesterday' );
-        $daily_to_date      = wpd_site_date_time( WPD_AI_PHP_ISO_DATE, 'yesterday' );
+        $daily_from_date    = wpdai_site_date_time( WPD_AI_PHP_ISO_DATE, 'yesterday' );
+        $daily_to_date      = wpdai_site_date_time( WPD_AI_PHP_ISO_DATE, 'yesterday' );
 
         // Send webhook request
         if ( $webhook_schedule === 'daily' ) {
 
             // Make webhook request
-            wpd_write_log( 'Executing daily webhook post', 'webhook' );
-            wpd_write_log( 'Executing daily webhook post', 'cron' );
+            wpdai_write_log( 'Executing daily webhook post', 'webhook' );
+            wpdai_write_log( 'Executing daily webhook post', 'cron' );
 
-            $webhook_response = wpd_webhook_post_data( $daily_from_date, $daily_to_date );
+            $webhook_response = wpdai_webhook_post_data( $daily_from_date, $daily_to_date );
 
-            wpd_write_log( $webhook_response, 'cron' );
+            wpdai_write_log( $webhook_response, 'cron' );
 
         }
 
@@ -598,19 +598,19 @@ function wpd_schedule_webhook_post() {
      */
     if ( $site_time_hour === 1 && $site_day_of_week === 'Mon' ) {
 
-        $weekly_from_date   = wpd_site_date_time( WPD_AI_PHP_ISO_DATE, 'Monday last week' );
-        $weekly_to_date     = wpd_site_date_time( WPD_AI_PHP_ISO_DATE, 'Sunday last week' );
+        $weekly_from_date   = wpdai_site_date_time( WPD_AI_PHP_ISO_DATE, 'Monday last week' );
+        $weekly_to_date     = wpdai_site_date_time( WPD_AI_PHP_ISO_DATE, 'Sunday last week' );
 
         // Send webhook request
         if ( $webhook_schedule === 'weekly' ) {
 
             // Make webhook request
-            wpd_write_log( 'Executing weekly webhook post', 'webhook' );
-            wpd_write_log( 'Executing weekly webhook post', 'cron' );
+            wpdai_write_log( 'Executing weekly webhook post', 'webhook' );
+            wpdai_write_log( 'Executing weekly webhook post', 'cron' );
 
-            $webhook_response = wpd_webhook_post_data( $weekly_from_date, $weekly_to_date );
+            $webhook_response = wpdai_webhook_post_data( $weekly_from_date, $weekly_to_date );
 
-            wpd_write_log( $webhook_response, 'cron' );
+            wpdai_write_log( $webhook_response, 'cron' );
 
         }
 
@@ -624,38 +624,38 @@ function wpd_schedule_webhook_post() {
      */
     if ( $site_time_hour === 1 && $site_day_of_month === 1 ) {
 
-        $monthly_from_date  = wpd_site_date_time( WPD_AI_PHP_ISO_DATE, 'first day of last month' );
-        $monthly_to_date    = wpd_site_date_time( WPD_AI_PHP_ISO_DATE, 'last day of last month' );
+        $monthly_from_date  = wpdai_site_date_time( WPD_AI_PHP_ISO_DATE, 'first day of last month' );
+        $monthly_to_date    = wpdai_site_date_time( WPD_AI_PHP_ISO_DATE, 'last day of last month' );
 
         // Send webhook request
         if ( $webhook_schedule === 'monthly' ) {
 
             // Make webhook request
-            wpd_write_log( 'Executing monthly webhook post', 'webhook' );
-            wpd_write_log( 'Executing monthly webhook post', 'cron' );
+            wpdai_write_log( 'Executing monthly webhook post', 'webhook' );
+            wpdai_write_log( 'Executing monthly webhook post', 'cron' );
 
-            $webhook_response = wpd_webhook_post_data( $monthly_from_date, $monthly_to_date );
+            $webhook_response = wpdai_webhook_post_data( $monthly_from_date, $monthly_to_date );
 
-            wpd_write_log( $webhook_response, 'cron' );
+            wpdai_write_log( $webhook_response, 'cron' );
 
         }
 
     }
 
-    wpd_write_log( 'Complete wpd_schedule_webhook.', 'cron' );
+    wpdai_write_log( 'Complete wpd_schedule_webhook.', 'cron' );
 
 }
 
-function wpd_schedule_emails_function() {
+function wpdai_schedule_emails_function() {
 
 	/**
 	 *
 	 *	Only take this seriously if we're at the 8th hour
 	 *
 	 */
-	$site_time_hour     = (int) wpd_site_date_time( 'H' );
-	$site_day_of_week 	= wpd_site_date_time( 'D' );
-	$site_day_of_month 	= (int) wpd_site_date_time( 'j' );
+	$site_time_hour     = (int) wpdai_site_date_time( 'H' );
+	$site_day_of_week 	= wpdai_site_date_time( 'D' );
+	$site_day_of_month 	= (int) wpdai_site_date_time( 'j' );
 	$email_settings 	= get_option( 'wpd_ai_email_settings' );
 
     // Check if we've sent emails
@@ -681,8 +681,8 @@ function wpd_schedule_emails_function() {
      *	Daily Emails
      *
      */
-	$daily_from_date 	= wpd_site_date_time( WPD_AI_PHP_ISO_DATE, 'yesterday' );
-	$daily_to_date 		= wpd_site_date_time( WPD_AI_PHP_ISO_DATE, 'yesterday' );
+	$daily_from_date 	= wpdai_site_date_time( WPD_AI_PHP_ISO_DATE, 'yesterday' );
+	$daily_to_date 		= wpdai_site_date_time( WPD_AI_PHP_ISO_DATE, 'yesterday' );
 
     // Only send once
     if ( $daily_emails_sent != $daily_from_date ) {
@@ -690,7 +690,7 @@ function wpd_schedule_emails_function() {
     	// Send profit report
     	if ( isset( $email_settings['profit-report']['frequency']['daily'] ) && $email_settings['profit-report']['frequency']['daily'] ) {
 
-    		wpd_email( 'wpd_profit_report', false, array(
+    		wpdai_email( 'wpd_profit_report', false, array(
 
     			'from_date' => $daily_from_date,
     			'to_date' 	=> $daily_to_date,
@@ -706,7 +706,7 @@ function wpd_schedule_emails_function() {
     	// Send inventory report
     	// if ( $email_settings['inventory-report']['frequency']['daily'] ) {
 
-    	// 	wpd_email( 'wpd_inventory_report', false, array(
+    	// 	wpdai_email( 'wpd_inventory_report', false, array(
 
     	// 		'from_date' => $daily_from_date,
     	// 		'to_date' 	=> $daily_to_date,
@@ -720,7 +720,7 @@ function wpd_schedule_emails_function() {
     	// Send expense report
     	if ( isset( $email_settings['expense-report']['frequency']['daily'] ) && $email_settings['expense-report']['frequency']['daily'] ) {
 
-    		wpd_email( 'wpd_expense_report', false, array(
+    		wpdai_email( 'wpd_expense_report', false, array(
 
     			'from_date' => $daily_from_date,
     			'to_date' 	=> $daily_to_date,
@@ -744,8 +744,8 @@ function wpd_schedule_emails_function() {
      */
     if ( $site_day_of_week === 'Mon' ) {
 
-    	$weekly_from_date 	= wpd_site_date_time( WPD_AI_PHP_ISO_DATE, 'Monday last week' );
-		$weekly_to_date 	= wpd_site_date_time( WPD_AI_PHP_ISO_DATE, 'Sunday last week' );
+    	$weekly_from_date 	= wpdai_site_date_time( WPD_AI_PHP_ISO_DATE, 'Monday last week' );
+		$weekly_to_date 	= wpdai_site_date_time( WPD_AI_PHP_ISO_DATE, 'Sunday last week' );
 
         // Only send once
         if (  $weekly_emails_sent != $weekly_from_date ) {
@@ -753,7 +753,7 @@ function wpd_schedule_emails_function() {
         	// Send profit report
         	if ( isset( $email_settings['profit-report']['frequency']['weekly'] ) && $email_settings['profit-report']['frequency']['weekly'] ) {
 
-        		wpd_email( 'wpd_profit_report', false, array(
+        		wpdai_email( 'wpd_profit_report', false, array(
 
         			'from_date' => $weekly_from_date,
         			'to_date' 	=> $weekly_to_date,
@@ -768,7 +768,7 @@ function wpd_schedule_emails_function() {
         	// Send inventory report
         	// if ( $email_settings['inventory-report']['frequency']['weekly'] ) {
 
-        	// 	wpd_email( 'wpd_inventory_report', false, array(
+        	// 	wpdai_email( 'wpd_inventory_report', false, array(
 
         	// 		'from_date' => $weekly_from_date,
         	// 		'to_date' 	=> $weekly_to_date,
@@ -782,7 +782,7 @@ function wpd_schedule_emails_function() {
         	// Send expense report
         	if ( isset( $email_settings['expense-report']['frequency']['weekly'] ) && $email_settings['expense-report']['frequency']['weekly'] ) {
 
-        		wpd_email( 'wpd_expense_report', false, array(
+        		wpdai_email( 'wpd_expense_report', false, array(
 
         			'from_date' => $weekly_from_date,
         			'to_date' 	=> $weekly_to_date,
@@ -808,8 +808,8 @@ function wpd_schedule_emails_function() {
      */
     if ( $site_day_of_month === 1 ) {
 
-		$monthly_from_date 	= wpd_site_date_time( WPD_AI_PHP_ISO_DATE, 'first day of last month' );
-		$monthly_to_date 	= wpd_site_date_time( WPD_AI_PHP_ISO_DATE, 'last day of last month' );
+		$monthly_from_date 	= wpdai_site_date_time( WPD_AI_PHP_ISO_DATE, 'first day of last month' );
+		$monthly_to_date 	= wpdai_site_date_time( WPD_AI_PHP_ISO_DATE, 'last day of last month' );
 
         // Only send once
         if ( $monthly_emails_sent != $monthly_from_date ) {
@@ -817,7 +817,7 @@ function wpd_schedule_emails_function() {
         	// Send profit report
         	if ( isset( $email_settings['profit-report']['frequency']['monthly'] ) && $email_settings['profit-report']['frequency']['monthly'] ) {
 
-        		wpd_email( 'wpd_profit_report', false, array(
+        		wpdai_email( 'wpd_profit_report', false, array(
 
         			'from_date' => $monthly_from_date,
         			'to_date' 	=> $monthly_to_date,
@@ -829,24 +829,10 @@ function wpd_schedule_emails_function() {
 
         	}
 
-        	// Send inventory report
-        	// if ( $email_settings['inventory-report']['frequency']['monthly'] ) {
-
-        	// 	wpd_email( 'wpd_inventory_report', false, array(
-
-        	// 		'from_date' => $monthly_from_date,
-        	// 		'to_date' 	=> $monthly_to_date,
-        	// 		'subject' 	=> sprintf( __( 'Your Monthly Inventory Report From %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'Alpha Insights' ),
-
-        	// 		) 
-        	// 	);
-
-        	// }
-
         	// Send expense report
         	if ( isset( $email_settings['expense-report']['frequency']['monthly'] ) && $email_settings['expense-report']['frequency']['monthly'] ) {
 
-        		wpd_email( 'wpd_expense_report', false, array(
+        		wpdai_email( 'wpd_expense_report', false, array(
 
         			'from_date' => $monthly_from_date,
         			'to_date' 	=> $monthly_to_date,
@@ -874,7 +860,7 @@ function wpd_schedule_emails_function() {
  * 	@return bool|int Returns false on failure, or count of updates on success.
  * 
  **/
-function wpd_set_post_id_post_type_on_null_events_analytics_table() {
+function wpdai_set_post_id_post_type_on_null_events_analytics_table() {
 
 	// Load vars
 	global $wpdb;
@@ -899,9 +885,9 @@ function wpd_set_post_id_post_type_on_null_events_analytics_table() {
 
 	// DB Error
 	if ( $wpdb->last_error  ) {
-		wpd_write_log( 'Error updating the post ID\'s for null values in the analytics table.', 'db_error' );
-		wpd_write_log( $wpdb->last_error, 'db_error' );
-		wpd_write_log( $wpdb->last_query, 'db_error' );
+		wpdai_write_log( 'Error updating the post ID\'s for null values in the analytics table.', 'db_error' );
+		wpdai_write_log( $wpdb->last_error, 'db_error' );
+		wpdai_write_log( $wpdb->last_query, 'db_error' );
 		return false;
 	}
 

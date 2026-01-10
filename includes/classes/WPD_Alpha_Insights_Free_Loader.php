@@ -121,10 +121,10 @@ class WPD_Alpha_Insights_Notices {
      */
     public function handle_custom_report_rendering($dashboard_id, $dashboard_config) {
 
-        $default_react_report_ids = wpd_get_default_react_report_ids();
+        $default_react_report_ids = wpdai_get_default_react_report_ids();
         if ( ! in_array($dashboard_id, $default_react_report_ids) ) {
             
-            $safe_redirect = wpd_admin_page_url('reports');
+            $safe_redirect = wpdai_admin_page_url('reports');
             wp_safe_redirect($safe_redirect);
             exit;
 

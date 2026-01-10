@@ -28,15 +28,15 @@ class WPD_Getting_Started {
 
         // Get data for settings
         $cost_defaults = get_option( 'wpd_ai_cost_defaults' );
-        $payment_gateway_cost_settings = wpd_get_payment_gateway_cost_settings();
-        $available_payment_gateways = wpd_get_available_payment_gateways();
+        $payment_gateway_cost_settings = wpdai_get_payment_gateway_cost_settings();
+        $available_payment_gateways = wpdai_get_available_payment_gateways();
         $logo_icon_url = WPD_AI_URL_PATH . 'assets/img/Alpha-Insights-Icon-Large.png';
 
         // Localize script with data (Free version - no license logic)
         wp_localize_script( 'wpd-alpha-insights-getting-started', 'wpdGettingStarted', array(
             'ajaxUrl' => admin_url( 'admin-ajax.php' ),
             'nonce' => wp_create_nonce( WPD_AI_AJAX_NONCE_ACTION ),
-            'salesReportUrl' => wpd_admin_page_url( 'reports-orders' ),
+            'salesReportUrl' => wpdai_admin_page_url( 'reports-orders' ),
             'licenseStatus' => 'active', // Free version doesn't need license
             'isPro' => false,
         ));
@@ -237,7 +237,7 @@ class WPD_Getting_Started {
                             <!-- Primary Action with Background -->
                             <div class="wpd-gs-primary-action">
                                 <div class="wpd-gs-report-preview-bg"></div>
-                                <a href="<?php echo esc_url( wpd_admin_page_url( 'reports-orders' ) ); ?>" class="wpd-gs-button wpd-gs-button-primary wpd-gs-button-large">
+                                <a href="<?php echo esc_url( wpdai_admin_page_url( 'reports-orders' ) ); ?>" class="wpd-gs-button wpd-gs-button-primary wpd-gs-button-large">
                                     <span class="dashicons dashicons-chart-bar"></span>
                                     <?php esc_html_e('View Your First Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>
                                 </a>
@@ -256,7 +256,7 @@ class WPD_Getting_Started {
                                                 <?php esc_html_e('Update Cost of Goods', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>
                                             </h4>
                                             <p><?php esc_html_e('Add actual supplier costs for your products instead of using default percentages.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
-                                            <a href="<?php echo esc_url( wpd_admin_page_url( 'cost-of-goods-manager' ) ); ?>" class="wpd-gs-link"><?php esc_html_e('Go to Cost Manager →', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></a>
+                                            <a href="<?php echo esc_url( wpdai_admin_page_url( 'cost-of-goods-manager' ) ); ?>" class="wpd-gs-link"><?php esc_html_e('Go to Cost Manager →', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></a>
                                         </div>
                                     </div>
                                     
@@ -294,7 +294,7 @@ class WPD_Getting_Started {
                                                 <?php esc_html_e('Review All Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>
                                             </h4>
                                             <p><?php esc_html_e('Fine-tune currency conversion, order statuses, and calculation methods.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
-                                            <a href="<?php echo esc_url( wpd_admin_page_url( 'settings' ) ); ?>" class="wpd-gs-link"><?php esc_html_e('Open Settings →', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></a>
+                                            <a href="<?php echo esc_url( wpdai_admin_page_url( 'settings' ) ); ?>" class="wpd-gs-link"><?php esc_html_e('Open Settings →', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></a>
                                         </div>
                                     </div>
                                 </div>

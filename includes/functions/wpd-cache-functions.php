@@ -17,10 +17,10 @@ defined( 'ABSPATH' ) || exit;
  * 	Deletes all stored caches
  * 
  **/
-function wpd_delete_all_data_caches() {
+function wpdai_delete_all_data_caches() {
 
-	wpd_delete_all_order_data_cache();
-	wpd_delete_all_product_cache();
+	wpdai_delete_all_order_data_cache();
+	wpdai_delete_all_product_cache();
 
 	return true;
 
@@ -32,9 +32,9 @@ function wpd_delete_all_data_caches() {
  * 	Will also delete the product statistics cache
  * 
  **/
-function wpd_delete_all_product_cache() {
+function wpdai_delete_all_product_cache() {
 
-	wpd_write_log( 'Attempting to delete all product cache', 'cache' );
+	wpdai_write_log( 'Attempting to delete all product cache', 'cache' );
 
     $products_IDs = new WP_Query( 
     	array(
@@ -49,11 +49,11 @@ function wpd_delete_all_product_cache() {
 	$total_records 		= count( $products_IDs );
 	$records_updated 	= 0;
 
-	wpd_write_log('About to loop through ' . $total_records . ' products and delete their transients & cache(s).', 'cache');
+	wpdai_write_log('About to loop through ' . $total_records . ' products and delete their transients & cache(s).', 'cache');
 
 	foreach( $products_IDs as $product_id ) {
 
-		$deleted = wpd_delete_product_cache_by_product_id( $product_id );
+		$deleted = wpdai_delete_product_cache_by_product_id( $product_id );
 
 		if ( $deleted ) $records_updated++;
 		
@@ -72,8 +72,8 @@ function wpd_delete_all_product_cache() {
 
 	}
 
-	wpd_write_log( 'Product cache delete complete, dumping response.', 'cache' );
-	wpd_write_log( $response, 'cache' );
+	wpdai_write_log( 'Product cache delete complete, dumping response.', 'cache' );
+	wpdai_write_log( $response, 'cache' );
 
 	return $response;
 
@@ -84,7 +84,7 @@ function wpd_delete_all_product_cache() {
  *	Delete product data cache by product ID
  *
  */
-function wpd_delete_product_cache_by_product_id( $product_id ) {
+function wpdai_delete_product_cache_by_product_id( $product_id ) {
 
 	// Deletes the transient used for analytics reporting
 	$delete_transient = delete_transient( '_wpd_product_statistics_' . $product_id );
@@ -102,9 +102,9 @@ function wpd_delete_product_cache_by_product_id( $product_id ) {
  *	Store prodct cache
  *
  */
-function wpd_update_product_cache_by_product_id( $product_id ) {
+function wpdai_update_product_cache_by_product_id( $product_id ) {
 
-	$product_data_collection 	= wpd_product_data_collection( $product_id );
+	$product_data_collection 	= wpdai_product_data_collection( $product_id );
 	$product_data_store 		= update_post_meta( $product_id, '_wpd_ai_product_data_store', $product_data_collection );
 
 	return array(
@@ -125,7 +125,7 @@ function wpd_update_product_cache_by_product_id( $product_id ) {
  *	@return bool True on success, false on failure (if we couldn't find an order)
  *
  */
-function wpd_delete_order_cache_by_order_id( $order_id ) {
+function wpdai_delete_order_cache_by_order_id( $order_id ) {
 
 	// Safety check our order ID
 	if ( ! is_numeric($order_id) || $order_id < 1 ) {
@@ -150,8 +150,8 @@ function wpd_delete_order_cache_by_order_id( $order_id ) {
 	if ( $wpdb->last_error ) {
 
 		$result = $wpdb->last_error;
-		wpd_write_log( 'Error deleting the order cache for order id: ' . $order_id, 'db_error' );
-		wpd_write_log( $result, 'db_error' );
+		wpdai_write_log( 'Error deleting the order cache for order id: ' . $order_id, 'db_error' );
+		wpdai_write_log( $result, 'db_error' );
 		return false;
 
 	}
@@ -171,7 +171,7 @@ function wpd_delete_order_cache_by_order_id( $order_id ) {
  *	@since 4.9.0
  *
  */
-function wpd_delete_order_cache_by_order_ids( $order_ids ) {
+function wpdai_delete_order_cache_by_order_ids( $order_ids ) {
 
 	// Safety check - must be an array
 	if ( ! is_array( $order_ids ) || empty( $order_ids ) ) {
@@ -211,8 +211,8 @@ function wpd_delete_order_cache_by_order_ids( $order_ids ) {
 	if ( $wpdb->last_error ) {
 
 		$error = $wpdb->last_error;
-		wpd_write_log( 'Error deleting order cache for ' . count( $sanitized_ids ) . ' order IDs', 'db_error' );
-		wpd_write_log( $error, 'db_error' );
+		wpdai_write_log( 'Error deleting order cache for ' . count( $sanitized_ids ) . ' order IDs', 'db_error' );
+		wpdai_write_log( $error, 'db_error' );
 		return false;
 
 	}
@@ -243,33 +243,33 @@ function wpd_delete_order_cache_by_order_ids( $order_ids ) {
  *	@since 4.9.0
  *
  */
-function wpd_delete_order_cache_by_product_ids( $product_ids ) {
+function wpdai_delete_order_cache_by_product_ids( $product_ids ) {
 
-	wpd_write_log( 'Attempting to delete order cache by product IDs', 'cache' );
+	wpdai_write_log( 'Attempting to delete order cache by product IDs', 'cache' );
 
 	// Safety check - must be an array
 	if ( ! is_array( $product_ids ) || empty( $product_ids ) ) {
-		wpd_write_log( 'Product IDs not an array or empty', 'cache' );
+		wpdai_write_log( 'Product IDs not an array or empty', 'cache' );
 		return false;
 	}
-	wpd_write_log( 'Product IDs', 'cache' );
-	wpd_write_log( $product_ids, 'cache' );
+	wpdai_write_log( 'Product IDs', 'cache' );
+	wpdai_write_log( $product_ids, 'cache' );
 
 	// Get all order IDs that contain these products
-	$order_ids = wpd_get_order_ids_by_product_ids( $product_ids );
+	$order_ids = wpdai_get_order_ids_by_product_ids( $product_ids );
 
-	wpd_write_log( 'Order IDs found', 'cache' );
-	wpd_write_log( $order_ids, 'cache' );
+	wpdai_write_log( 'Order IDs found', 'cache' );
+	wpdai_write_log( $order_ids, 'cache' );
 
 	// If no orders found with these products, return true (nothing to delete, but not an error)
 	if ( empty( $order_ids ) ) {
-		wpd_write_log( 'No order IDs found, returning true', 'cache' );
+		wpdai_write_log( 'No order IDs found, returning true', 'cache' );
 		return true;
 	}
 
 	// Delete cache for all related orders
-	$deleted_records = wpd_delete_order_cache_by_order_ids( $order_ids );
-	wpd_write_log( 'Deleted ' . $deleted_records . ' cache records', 'cache' );
+	$deleted_records = wpdai_delete_order_cache_by_order_ids( $order_ids );
+	wpdai_write_log( 'Deleted ' . $deleted_records . ' cache records', 'cache' );
 	return $deleted_records;
 
 }
@@ -281,9 +281,9 @@ function wpd_delete_order_cache_by_product_ids( $product_ids ) {
  * 	@return int|bool The number of orders built, false on failure
  * 
  **/
-function wpd_build_order_cache_in_batch( $batch_size = 500 ) {
+function wpdai_build_order_cache_in_batch( $batch_size = 500 ) {
 
-	$orders = wpd_get_order_ids_without_calculation_cache($batch_size);
+	$orders = wpdai_get_order_ids_without_calculation_cache($batch_size);
 
 	$i = 0;
 	if ( is_array($orders) ) {
@@ -295,7 +295,7 @@ function wpd_build_order_cache_in_batch( $batch_size = 500 ) {
 		}
 
 		foreach( $orders as $order ) {
-			wpd_calculate_cost_profit_by_order( $order );
+			wpdai_calculate_cost_profit_by_order( $order );
 			$i++;
 		}
 
@@ -316,12 +316,12 @@ function wpd_build_order_cache_in_batch( $batch_size = 500 ) {
  * 	@return bool|int Will return false on failure, number of records deleted on success
  * 
  **/
-function wpd_delete_all_order_data_cache() {
+function wpdai_delete_all_order_data_cache() {
 
 	$start = microtime( true );
 
 	// Log
-	wpd_write_log( 'Executing WC Orders cache delete on orders from custom table.', 'cache' );
+	wpdai_write_log( 'Executing WC Orders cache delete on orders from custom table.', 'cache' );
 
 	// Load the DB Interactor
 	$db_interactor = new WPD_Database_Interactor();
@@ -337,8 +337,8 @@ function wpd_delete_all_order_data_cache() {
 	if ( $wpdb->last_error ) {
 
 		$result = $wpdb->last_error;
-		wpd_write_log( 'Error deleting the order meta cache', 'db_error' );
-		wpd_write_log( $result, 'db_error' );
+		wpdai_write_log( 'Error deleting the order meta cache', 'db_error' );
+		wpdai_write_log( $result, 'db_error' );
 		return false;
 
 	}
@@ -347,9 +347,9 @@ function wpd_delete_all_order_data_cache() {
 
 	$finish = microtime( true );
 	$total_time_elapsed = $finish - $start;
-	$memory_usage = wpd_get_peak_memory_usage();
+	$memory_usage = wpdai_get_peak_memory_usage();
 
-	wpd_write_log( 'Execution of WC Orders cache delete succesfully completed. Process took ' . $total_time_elapsed . ' seconds and ' . $memory_usage . ' memory usage.', 'cache' );
+	wpdai_write_log( 'Execution of WC Orders cache delete succesfully completed. Process took ' . $total_time_elapsed . ' seconds and ' . $memory_usage . ' memory usage.', 'cache' );
 
 	delete_option( 'wpd_ai_all_orders_cached' );
 
@@ -364,7 +364,7 @@ function wpd_delete_all_order_data_cache() {
  * 	@param WC_Order|WC_Order_Refund $order
  * 	
  **/
-function wpd_clear_wc_order_object_cache( $order ) {
+function wpdai_clear_wc_order_object_cache( $order ) {
 
 	if ( ! method_exists($order, 'get_id') ) {
 		return false;
@@ -382,7 +382,7 @@ function wpd_clear_wc_order_object_cache( $order ) {
  *	Deletes all order meta overrides
  * 
  */
-function wpd_delete_order_meta_overrides( $order_id ) {
+function wpdai_delete_order_meta_overrides( $order_id ) {
 
 	$order = wc_get_order( $order_id );
 
@@ -405,7 +405,7 @@ function wpd_delete_order_meta_overrides( $order_id ) {
  * 	@see Used for WPD Product Cache - stored in meta
  *
  */
-function wpd_product_data_collection( $active_product_id ) {
+function wpdai_product_data_collection( $active_product_id ) {
 
 	// Get product object
 	$product = wc_get_product( $active_product_id );
@@ -442,7 +442,7 @@ function wpd_product_data_collection( $active_product_id ) {
 	$product_stock_status 					= $product->get_stock_status();
 	$product_type 							= $product->get_type();
 	$product_rrp 							= (float) $product->get_regular_price();
-	$product_cost_price 					= wpd_get_cost_price_by_product_id( $active_product_id );
+	$product_cost_price 					= wpdai_get_cost_price_by_product_id( $active_product_id );
 	$parent_id 								= '';
 	$combine_variations_product_image 	   	= '';
 	$combine_variations_product_name 	   	= '';
@@ -548,7 +548,7 @@ function wpd_product_data_collection( $active_product_id ) {
  * 	@return int|bool The number of records deleted, false on failure
  * 
  **/
-function wpd_delete_all_order_line_item_meta_cogs() {
+function wpdai_delete_all_order_line_item_meta_cogs() {
 
 	// Default count
 	$result = 0;
@@ -569,8 +569,8 @@ function wpd_delete_all_order_line_item_meta_cogs() {
 	if ( $wpdb->last_error ) {
 
 		// Log the error
-		wpd_write_log( 'Error trying to delete all line item COGS data.', 'db_error' );
-		wpd_write_log( $wpdb->last_error, 'db_error' );
+		wpdai_write_log( 'Error trying to delete all line item COGS data.', 'db_error' );
+		wpdai_write_log( $wpdb->last_error, 'db_error' );
 
 		// Return fail
 		return false;
@@ -591,7 +591,7 @@ function wpd_delete_all_order_line_item_meta_cogs() {
  * 	@return int|bool The number of records deleted, false on failure
  * 
  **/
-function wpd_delete_all_order_meta_overrides() {
+function wpdai_delete_all_order_meta_overrides() {
 
 	// Default count
 	$result = 0;
@@ -618,8 +618,8 @@ function wpd_delete_all_order_meta_overrides() {
 	if ( $wpdb->last_error ) {
 
 		// Log the error
-		wpd_write_log( 'Error trying to delete all order meta overrides from the posts table.', 'db_error' );
-		wpd_write_log( $wpdb->last_error, 'db_error' );
+		wpdai_write_log( 'Error trying to delete all order meta overrides from the posts table.', 'db_error' );
+		wpdai_write_log( $wpdb->last_error, 'db_error' );
 
 		// Return a fail
 		return false;
@@ -630,7 +630,7 @@ function wpd_delete_all_order_meta_overrides() {
 	if ( is_numeric($post_meta_delete_count) ) $result += $post_meta_delete_count; 
 
 	// Now process the WC meta table
-	if ( wpd_is_hpos_enabled() ) {
+	if ( wpdai_is_hpos_enabled() ) {
 
 		// Sanitize the query
 		$query = $wpdb->prepare(
@@ -647,8 +647,8 @@ function wpd_delete_all_order_meta_overrides() {
 		if ( $wpdb->last_error ) {
 
 			// Log the error
-			wpd_write_log( 'Error trying to delete all order meta overrides from the WC order meta table.', 'db_error' );
-			wpd_write_log( $wpdb->last_error, 'db_error' );
+			wpdai_write_log( 'Error trying to delete all order meta overrides from the WC order meta table.', 'db_error' );
+			wpdai_write_log( $wpdb->last_error, 'db_error' );
 
 			// Return a fail
 			return false;
@@ -670,12 +670,12 @@ function wpd_delete_all_order_meta_overrides() {
  * 	Stores the order calculation in custom WP Table
  * 
  * 	@param int The Order ID
- * 	@param array Expects the order calculation as part of wpd_calculate_cost_profit_by_order
+ * 	@param array Expects the order calculation as part of wpdai_calculate_cost_profit_by_order
  * 
  * 	@return bool|int Returns false on failure, or the number of updated rows if correct
  * 
  **/
-function wpd_set_order_calculations_cache( $order_id, $order_calculation ) {
+function wpdai_set_order_calculations_cache( $order_id, $order_calculation ) {
 
 	// Check the order id
 	if ( ! is_numeric($order_id) ) return false;
@@ -732,7 +732,7 @@ function wpd_set_order_calculations_cache( $order_id, $order_calculation ) {
  * 	@return bool|array Will return false on failure, otherwise the array for the order calculation
  * 
  **/
-function wpd_get_order_calculation_cache( $order_id ) {
+function wpdai_get_order_calculation_cache( $order_id ) {
 
 	// Safety Check
 	if ( ! is_numeric($order_id) ) return false;
@@ -768,8 +768,8 @@ function wpd_get_order_calculation_cache( $order_id ) {
 	if ( $wpdb->last_error ) {
 
 		$result = $wpdb->last_error;
-		wpd_write_log( 'Error pulling the order meta for order id' . $order_id, 'db_error' );
-		wpd_write_log( $result, 'db_error' );
+		wpdai_write_log( 'Error pulling the order meta for order id' . $order_id, 'db_error' );
+		wpdai_write_log( $result, 'db_error' );
 		return false;
 
 	}
@@ -801,13 +801,13 @@ function wpd_get_order_calculation_cache( $order_id ) {
  * 	@return array An array of order IDs, empty if none found
  * 
  **/
-function wpd_get_order_ids_without_calculation_cache( $limit = -1 ) {
+function wpdai_get_order_ids_without_calculation_cache( $limit = -1 ) {
 
 	// Get all Order IDS
-	$all_order_ids = (array) wpd_get_all_order_ids();
+	$all_order_ids = (array) wpdai_get_all_order_ids();
 
 	// Get Order IDS that have a cache set
-	$order_ids_with_cache = (array) wpd_get_order_ids_with_calculation_cache();
+	$order_ids_with_cache = (array) wpdai_get_order_ids_with_calculation_cache();
 
 	// Get the difference between the two (uncached)
 	$without_cache = array_diff( $all_order_ids, $order_ids_with_cache );
@@ -826,7 +826,7 @@ function wpd_get_order_ids_without_calculation_cache( $limit = -1 ) {
  * 	@return array|bool An array of order IDs, empty if none found, false on failure
  * 
  **/
-function wpd_get_order_ids_with_calculation_cache() {
+function wpdai_get_order_ids_with_calculation_cache() {
 
 	// Load WPDB
 	global $wpdb;
@@ -844,8 +844,8 @@ function wpd_get_order_ids_with_calculation_cache() {
 	// Check for DB errors
 	if ( $wpdb->last_error ) {
 
-		wpd_write_log( 'Error getting the list of order IDs with a calculation cache', 'db_error' );
-		wpd_write_log( $wpdb->last_error, 'db_error' );
+		wpdai_write_log( 'Error getting the list of order IDs with a calculation cache', 'db_error' );
+		wpdai_write_log( $wpdb->last_error, 'db_error' );
 
 		return false;
 
@@ -865,7 +865,7 @@ function wpd_get_order_ids_with_calculation_cache() {
  * 	@return int|bool Will return the count of orders stored in cache, or false on failure
  * 
  **/
-function wpd_setup_order_calculations_in_object_cache( $order_ids = array() ) {
+function wpdai_setup_order_calculations_in_object_cache( $order_ids = array() ) {
 
 	// return true;
 
@@ -897,8 +897,8 @@ function wpd_setup_order_calculations_in_object_cache( $order_ids = array() ) {
 	// Check for DB errors
 	if ( $wpdb->last_error ) {
 
-		wpd_write_log( 'Error setting order calculations in the object cache.', 'db_error' );
-		wpd_write_log( $wpdb->last_error, 'db_error' );
+		wpdai_write_log( 'Error setting order calculations in the object cache.', 'db_error' );
+		wpdai_write_log( $wpdb->last_error, 'db_error' );
 
 		return false;
 
@@ -926,7 +926,7 @@ function wpd_setup_order_calculations_in_object_cache( $order_ids = array() ) {
  * 	@return int|bool Will return the count of orders stored in cache, or false on failure
  * 
  **/
-function wpd_delete_order_calculations_in_object_cache( $order_ids = array() ) {
+function wpdai_delete_order_calculations_in_object_cache( $order_ids = array() ) {
 
 	// Safety check
 	if ( ! is_array($order_ids) || empty($order_ids) ) return false;

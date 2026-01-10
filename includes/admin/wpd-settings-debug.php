@@ -12,14 +12,14 @@
 defined( 'ABSPATH' ) || exit;
 
 // Delete any log files over 10mb
-wpd_delete_large_logs();
+wpdai_delete_large_logs();
 
 /**
  * 
  *  Get all log files
  * 
  **/
-$log_files = wpd_get_debug_log_data();
+$log_files = wpdai_get_debug_log_data();
 
 // Setup defaults
 $order_id = '';
@@ -34,13 +34,13 @@ if ( isset($_POST['wpd_ai_debug_order_id']) && ! empty($_POST['wpd_ai_debug_orde
     $order = wc_get_order( $order_id );
 
     // Get calculation meta
-    $calculation = wpd_calculate_cost_profit_by_order( $order, true );
+    $calculation = wpdai_calculate_cost_profit_by_order( $order, true );
 
     // Fetch additional meta  for debugging
     $calculation['order_meta'] = $order->get_meta_data();
 
     // Output notices
-    ( $calculation ) ? wpd_admin_notice( 'Order ID #' . $order_id . ' found. Outputting results.' ) : wpd_admin_notice( 'Could not find order ID #' . $order_id );
+    ( $calculation ) ? wpdai_admin_notice( 'Order ID #' . $order_id . ' found. Outputting results.' ) : wpdai_admin_notice( 'Could not find order ID #' . $order_id );
 
 }
 
@@ -78,7 +78,7 @@ if ( isset($_POST['wpd_ai_debug_order_id']) && ! empty($_POST['wpd_ai_debug_orde
             <?php if ( isset( $calculation ) ) : ?>
                 <tr>
                     <td colspan="2">
-                         <?php wpd_debug( $calculation, 'Order ' . $order_id . ' Data Dump' ); ?>
+                         <?php wpdai_debug( $calculation, 'Order ' . $order_id . ' Data Dump' ); ?>
                     </td>
                 </tr>
             <?php endif; ?>
@@ -108,7 +108,7 @@ if ( isset($_POST['wpd_ai_debug_order_id']) && ! empty($_POST['wpd_ai_debug_orde
                                 <?php $i = 0; ?>
                                 <?php foreach($log_files as $log) : ?>
                                     <?php if ( ! is_array($log) ) continue; ?>
-                                    <div class="wpd-debug-log-output<?php if ( $i == 0 ) echo ' active'; echo ' ' . esc_attr( sanitize_title($log['title']) ); ?>"><?php wpd_display_log( $log['file_name'], $log['title'] ); ?></div>
+                                    <div class="wpd-debug-log-output<?php if ( $i == 0 ) echo ' active'; echo ' ' . esc_attr( sanitize_title($log['title']) ); ?>"><?php wpdai_display_log( $log['file_name'], $log['title'] ); ?></div>
                                     <?php $i++; ?>
                                 <?php endforeach; ?>
                             </div>

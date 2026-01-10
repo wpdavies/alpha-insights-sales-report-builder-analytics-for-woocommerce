@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  * 	@return array
  * 
  **/
-function wpd_get_custom_order_cost_options() {
+function wpdai_get_custom_order_cost_options() {
 
 	// Gets saved values
 	$return_array 		= array();
@@ -59,7 +59,7 @@ function wpd_get_custom_order_cost_options() {
  * 	@return array
  * 
  **/
-function wpd_get_custom_product_cost_options( int $product_id = 0 ) {
+function wpdai_get_custom_product_cost_options( int $product_id = 0 ) {
 
 	$cached_results = wp_cache_get( $product_id, '_wpd_ai_custom_product_costs' );
 
@@ -167,7 +167,7 @@ function wpd_get_custom_product_cost_options( int $product_id = 0 ) {
  *  @return float The calculated value.
  * 
  **/
-function wpd_calculate_custom_product_cost_by_line_item( $item, $custom_cost_data ) {
+function wpdai_calculate_custom_product_cost_by_line_item( $item, $custom_cost_data ) {
 
     // Safety Check
     if ( ! is_a($item, 'WC_Order_Item_Product') || ! is_array($custom_cost_data) ) return 0;
@@ -175,10 +175,10 @@ function wpd_calculate_custom_product_cost_by_line_item( $item, $custom_cost_dat
     $static_fee                 = (float) $custom_cost_data['static_fee'];
     $percent_of_sell_price      = (float) $custom_cost_data['percent_of_sell_price'];
     $product_revenue            = (float) $item->get_total() + (float) $item->get_total_tax();
-    $product_revenue_per_unit   = wpd_divide( $product_revenue, (float) $item->get_quantity() );
+    $product_revenue_per_unit   = wpdai_divide( $product_revenue, (float) $item->get_quantity() );
 
     // Make calculation
-    $result = ( $product_revenue_per_unit * wpd_divide( $percent_of_sell_price, 100 ) ) + $static_fee;
+    $result = ( $product_revenue_per_unit * wpdai_divide( $percent_of_sell_price, 100 ) ) + $static_fee;
 
     // Return result
     return (float) $result;
@@ -192,10 +192,10 @@ function wpd_calculate_custom_product_cost_by_line_item( $item, $custom_cost_dat
  * 	@return array Associative array containing all costs, and a total key for the total amount in the store's currency
  * 
  **/
-function wpd_get_additional_costs_by_product_id( int $product_id ) {
+function wpdai_get_additional_costs_by_product_id( int $product_id ) {
 
 	$return_values              = array('total' => 0, 'string' => '');
-	$custom_product_cost_values = wpd_get_custom_product_cost_options( $product_id );
+	$custom_product_cost_values = wpdai_get_custom_product_cost_options( $product_id );
     $product                    = wc_get_product( $product_id );
     $price                      = ( is_a($product, 'WC_Product') ) ? (float) $product->get_price() : 0;
 
@@ -205,7 +205,7 @@ function wpd_get_additional_costs_by_product_id( int $product_id ) {
 
             $static_fee                 = (float) $custom_cost_data['static_fee'];
             $percent_of_sell_price      = (float) $custom_cost_data['percent_of_sell_price'];
-            $cost_value                 = ( $price * wpd_divide( $percent_of_sell_price, 100 ) ) + $static_fee;
+            $cost_value                 = ( $price * wpdai_divide( $percent_of_sell_price, 100 ) ) + $static_fee;
 
             $return_values[$slug] = (float) $cost_value;
 			$return_values['total'] += (float) $cost_value;

@@ -127,7 +127,7 @@ class WPD_Migration {
      */
     public function run_pending_migrations() {
 
-        wpd_write_log( 'Starting migration runner to check for pending migrations', 'migration' );
+        wpdai_write_log( 'Starting migration runner to check for pending migrations', 'migration' );
 
         // Get list of completed migrations
         $completed_migrations = get_option( self::MIGRATION_COMPLETED_OPTION, array() );
@@ -148,16 +148,16 @@ class WPD_Migration {
 
         // If no pending migrations, log and return
         if ( empty( $pending_migrations ) ) {
-            wpd_write_log( 'No pending migrations found. All migrations are up to date.', 'migration' );
+            wpdai_write_log( 'No pending migrations found. All migrations are up to date.', 'migration' );
             return true;
         }
 
         /* translators: %d: Number of pending migrations */
-        wpd_write_log( sprintf( __( 'Found %d pending migration(s) to schedule.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), count( $pending_migrations ) ), 'migration' );
+        wpdai_write_log( sprintf( __( 'Found %d pending migration(s) to schedule.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), count( $pending_migrations ) ), 'migration' );
 
         // Schedule each pending migration
         if ( ! class_exists( 'WPD_Action_Scheduler' ) ) {
-            wpd_write_log( 'WPD_Action_Scheduler class not found. Cannot schedule migrations.', 'migration_error' );
+            wpdai_write_log( 'WPD_Action_Scheduler class not found. Cannot schedule migrations.', 'migration_error' );
             return false;
         }
 
@@ -173,19 +173,19 @@ class WPD_Migration {
                 if ( $result ) {
                     $scheduled_count++;
                     /* translators: 1: Migration key, 2: Migration description */
-                    wpd_write_log( sprintf( __( 'Scheduled migration: %1$s (%2$s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $migration_key, $migration_data['description'] ), 'migration' );
+                    wpdai_write_log( sprintf( __( 'Scheduled migration: %1$s (%2$s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $migration_key, $migration_data['description'] ), 'migration' );
                 } else {
                     /* translators: %s: Migration key */
-                    wpd_write_log( sprintf( __( 'Failed to schedule migration: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $migration_key ), 'migration_error' );
+                    wpdai_write_log( sprintf( __( 'Failed to schedule migration: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $migration_key ), 'migration_error' );
                 }
             } else {
                 /* translators: %s: Migration key */
-                wpd_write_log( sprintf( __( 'Migration already scheduled: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $migration_key ), 'migration' );
+                wpdai_write_log( sprintf( __( 'Migration already scheduled: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $migration_key ), 'migration' );
             }
         }
 
         /* translators: %d: Number of scheduled migrations */
-        wpd_write_log( sprintf( __( 'Migration runner completed. Scheduled %d migration(s).', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $scheduled_count ), 'migration' );
+        wpdai_write_log( sprintf( __( 'Migration runner completed. Scheduled %d migration(s).', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $scheduled_count ), 'migration' );
 
         return true;
 
@@ -217,7 +217,7 @@ class WPD_Migration {
             update_option( 'wpd_ai_migrations_completion_times', $completion_times );
             
             /* translators: %s: Migration key */
-            wpd_write_log( sprintf( __( 'Marked migration as completed: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $migration_key ), 'migration' );
+            wpdai_write_log( sprintf( __( 'Marked migration as completed: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $migration_key ), 'migration' );
         }
 
         return true;
@@ -235,7 +235,7 @@ class WPD_Migration {
      */
     public function build_engaged_sessions() {
 
-        wpd_write_log( 'Starting migration: build_engaged_sessions', 'migration' );
+        wpdai_write_log( 'Starting migration: build_engaged_sessions', 'migration' );
 
         global $wpdb;
 
@@ -252,7 +252,7 @@ class WPD_Migration {
         ) );
 
         if ( ! $column_exists ) {
-            wpd_write_log( 'Column engaged_session does not exist. Migration cannot proceed.', 'migration_error' );
+            wpdai_write_log( 'Column engaged_session does not exist. Migration cannot proceed.', 'migration_error' );
             return false;
         }
 
@@ -302,16 +302,16 @@ class WPD_Migration {
                 $error = $wpdb->last_error;
                 $query = $wpdb->last_query;
                 /* translators: %d: Batch number */
-                wpd_write_log( sprintf( __( 'Error occurred during build_engaged_sessions migration at batch %d', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $batch_number ), 'migration_error' );
-                wpd_write_log( $error, 'migration_error' );
-                wpd_write_log( $query, 'migration_error' );
+                wpdai_write_log( sprintf( __( 'Error occurred during build_engaged_sessions migration at batch %d', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $batch_number ), 'migration_error' );
+                wpdai_write_log( $error, 'migration_error' );
+                wpdai_write_log( $query, 'migration_error' );
                 return false;
             }
 
             $total_updated += $updated_rows;
 
             /* translators: 1: Batch number, 2: Number of updated sessions in this batch, 3: Total updated sessions */
-            wpd_write_log( sprintf( __( 'Migration build_engaged_sessions batch %1$d completed. Updated %2$d sessions (Total: %3$d).', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $batch_number, $updated_rows, $total_updated ), 'migration' );
+            wpdai_write_log( sprintf( __( 'Migration build_engaged_sessions batch %1$d completed. Updated %2$d sessions (Total: %3$d).', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $batch_number, $updated_rows, $total_updated ), 'migration' );
 
             // If we got fewer rows than the batch size, we've processed all remaining sessions
             if ( count( $session_ids ) < $batch_size ) {
@@ -320,7 +320,7 @@ class WPD_Migration {
         }
 
         /* translators: %d: Total number of updated sessions */
-        wpd_write_log( sprintf( __( 'Migration build_engaged_sessions completed. Updated %d sessions in %d batches.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $total_updated, $batch_number ), 'migration' );
+        wpdai_write_log( sprintf( __( 'Migration build_engaged_sessions completed. Updated %d sessions in %d batches.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $total_updated, $batch_number ), 'migration' );
 
         // Mark this migration as completed
         $this->mark_migration_completed( 'build_engaged_sessions' );
@@ -464,12 +464,12 @@ class WPD_Migration {
      */
     public function run_migration_ajax_handler() {
         // Verify AJAX request
-        if ( ! function_exists( 'wpd_verify_ajax_request' ) ) {
+        if ( ! function_exists( 'wpdai_verify_ajax_request' ) ) {
             require_once( WPD_AI_PATH . 'includes/wpd-ajax.php' );
         }
         
-        if ( ! wpd_verify_ajax_request() ) {
-            return; // wpd_verify_ajax_request sends JSON error and dies
+        if ( ! wpdai_verify_ajax_request() ) {
+            return; // wpdai_verify_ajax_request sends JSON error and dies
         }
 
         // Get migration key

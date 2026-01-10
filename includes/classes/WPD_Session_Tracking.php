@@ -147,14 +147,14 @@ class WPD_Session_Tracking {
      */
     private function log( $message, $error = false ) {
 
-        if ( function_exists( 'wpd_write_log' ) ) {
+        if ( function_exists( 'wpdai_write_log' ) ) {
 
             if ( $this->enable_logging ) {
-                wpd_write_log( $message, 'session_tracking' );
+                wpdai_write_log( $message, 'session_tracking' );
             }
 
             if ( $error ) {
-                wpd_write_log( $message, 'session_tracking_error' );
+                wpdai_write_log( $message, 'session_tracking_error' );
             }
         }
 
@@ -401,14 +401,6 @@ class WPD_Session_Tracking {
             return false;
         }
 
-        // Start session if not already started
-        if ( session_status() === PHP_SESSION_NONE && ! headers_sent() ) {
-            // Use a custom session name to avoid conflicts
-            if ( ! session_id() ) {
-                @session_start();
-            }
-        }
-
         // Get session ID and timestamp from $_SESSION
         if ( session_status() === PHP_SESSION_ACTIVE ) {
             
@@ -459,11 +451,6 @@ class WPD_Session_Tracking {
         // Check if sessions are enabled and not disabled
         if ( session_status() === PHP_SESSION_DISABLED ) {
             return;
-        }
-
-        // Start session if not already started
-        if ( session_status() === PHP_SESSION_NONE && ! headers_sent() ) {
-            @session_start();
         }
 
         // Store session ID and current timestamp in $_SESSION
@@ -571,13 +558,6 @@ class WPD_Session_Tracking {
             return false;
         }
 
-        // Start session if not already started
-        if ( session_status() === PHP_SESSION_NONE && ! headers_sent() ) {
-            if ( ! session_id() ) {
-                @session_start();
-            }
-        }
-
         // Get referral URL from $_SESSION
         if ( session_status() === PHP_SESSION_ACTIVE && isset($_SESSION['wpd_ai_referral_url']) && ! empty($_SESSION['wpd_ai_referral_url']) ) {
             return esc_url_raw( $_SESSION['wpd_ai_referral_url'] );
@@ -604,11 +584,6 @@ class WPD_Session_Tracking {
         // Check if sessions are enabled and not disabled
         if ( session_status() === PHP_SESSION_DISABLED ) {
             return;
-        }
-
-        // Start session if not already started
-        if ( session_status() === PHP_SESSION_NONE && ! headers_sent() ) {
-            @session_start();
         }
 
         // Store referral URL in $_SESSION (only if not already set, to preserve original)
@@ -731,13 +706,6 @@ class WPD_Session_Tracking {
             return false;
         }
 
-        // Start session if not already started
-        if ( session_status() === PHP_SESSION_NONE && ! headers_sent() ) {
-            if ( ! session_id() ) {
-                @session_start();
-            }
-        }
-
         // Get landing page from $_SESSION
         if ( session_status() === PHP_SESSION_ACTIVE && isset($_SESSION['wpd_ai_landing_page']) && ! empty($_SESSION['wpd_ai_landing_page']) ) {
             return esc_url_raw( $_SESSION['wpd_ai_landing_page'] );
@@ -764,11 +732,6 @@ class WPD_Session_Tracking {
         // Check if sessions are enabled and not disabled
         if ( session_status() === PHP_SESSION_DISABLED ) {
             return;
-        }
-
-        // Start session if not already started
-        if ( session_status() === PHP_SESSION_NONE && ! headers_sent() ) {
-            @session_start();
         }
 
         // Store landing page in $_SESSION (only if not already set, to preserve original)
@@ -952,8 +915,8 @@ class WPD_Session_Tracking {
         }
         // Priority 5: Fallback to HTTP_REFERER if cookie/sessions don't exist (only external domains)
         // This captures referrers on first page load before JavaScript sets the cookie
-        elseif ( function_exists('wpd_get_referral_url_raw') ) {
-            $http_referrer = wpd_get_referral_url_raw();
+        elseif ( function_exists('wpdai_get_referral_url_raw') ) {
+            $http_referrer = wpdai_get_referral_url_raw();
             if ( ! empty($http_referrer) ) {
                 $this->log( '[Session ID: ' . $this->session_id . '] Priority 5: HTTP_REFERER method SUCCESS - Referral URL: ' . $http_referrer );
                 $referral_url = esc_url_raw( $http_referrer );

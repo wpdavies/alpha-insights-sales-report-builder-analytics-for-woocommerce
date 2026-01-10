@@ -199,7 +199,7 @@ class WPD_Task_Runner {
      **/
     private function log( $data ) {
 
-        wpd_write_log( $data, 'task_runner' );
+        wpdai_write_log( $data, 'task_runner' );
 
     }
 

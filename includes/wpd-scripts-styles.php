@@ -17,8 +17,8 @@ defined( 'ABSPATH' ) || exit;
  *	Testing the dev branch
  *
  **/
-add_action('admin_enqueue_scripts', 'wpd_ai_admin_enqueue');
-function wpd_ai_admin_enqueue() {
+add_action('admin_enqueue_scripts', 'wpdai_admin_enqueue');
+function wpdai_admin_enqueue() {
 
 	/**
 	 *
@@ -50,11 +50,11 @@ function wpd_ai_admin_enqueue() {
 	 */
 	// Localize the script with new data
 	$wpd_ai_vars = array(
-	    'processing' 			=> wpd_preloader( 40, true, true ),
-	    'success' 				=> wpd_success( 40, true, true ),
-	    'failure' 				=> wpd_failure( 40, true, true ),
+	    'processing' 			=> wpdai_preloader( 40, true, true ),
+	    'success' 				=> wpdai_success( 40, true, true ),
+	    'failure' 				=> wpdai_failure( 40, true, true ),
 		'ajax_url' 				=> admin_url('admin-ajax.php'),
-		'site_creation_date' 	=> wpd_get_site_creation_date(),
+		'site_creation_date' 	=> wpdai_get_site_creation_date(),
 		'nonce' 				=> wp_create_nonce( WPD_AI_AJAX_NONCE_ACTION ),
 		'strings' 				=> array(
 			'processing' 		=> __( 'Processing...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
@@ -84,7 +84,7 @@ function wpd_ai_admin_enqueue() {
 	 *
 	 */
 	// Only load my styles on my pages
-	if ( is_wpd_page() ) {
+	if ( is_wpdai_page() ) {
 		wp_enqueue_style( 'wpd-alpha-insights-admin' );
 	}
 
@@ -110,7 +110,7 @@ function wpd_ai_admin_enqueue() {
 	// Always enqueue WordPress admin JS for global menu enhancements
 	wp_enqueue_script( 'wpd-alpha-insights-wordpress-admin' );
 	
-	if ( is_wpd_page() ) {
+	if ( is_wpdai_page() ) {
 		wp_enqueue_script( 'wpd-alpha-insights-admin' );
 		wp_enqueue_script( 'wpd-submenu-scroll' );
 	}
@@ -232,8 +232,8 @@ function wpd_ai_admin_enqueue() {
  *	Front end enqueue
  *
  */
-add_action( 'wp_enqueue_scripts', 'wpd_alpha_insights_frontend_scripts_styles' ); 
-function wpd_alpha_insights_frontend_scripts_styles() {
+add_action( 'wp_enqueue_scripts', 'wpdai_alpha_insights_frontend_scripts_styles' ); 
+function wpdai_alpha_insights_frontend_scripts_styles() {
 
 	// Register script
 	wp_register_script( 'wpd-alpha-insights-frontend', WPD_AI_URL_PATH . 'assets/js/wpd-alpha-insights-frontend.js', array('jquery'), WPD_AI_VER, true );

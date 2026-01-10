@@ -172,7 +172,7 @@ class WPD_Order_Calculator {
         if ( $this->force_recalculation === false ) {
 
             // Get cache from object if set, otherwise call the DB directly
-            $order_calculations = wpd_get_order_calculation_cache( $this->order_id );
+            $order_calculations = wpdai_get_order_calculation_cache( $this->order_id );
 
             // Fact check the data
             if ( is_array($order_calculations) && ! empty($order_calculations) ) {
@@ -272,11 +272,11 @@ class WPD_Order_Calculator {
 
         // Load Props
         $this->order_currency                       = $this->order->get_currency();
-        $this->store_currency                       = wpd_get_store_currency();
+        $this->store_currency                       = wpdai_get_store_currency();
         $this->multi_currency_order                 = ( $this->order_currency !== $this->store_currency ) ? 1 : 0;
         $this->cost_defaults                        = get_option( 'wpd_ai_cost_defaults' );
-        $this->payment_gateway_cost_settings        = wpd_get_payment_gateway_cost_settings();
-        $this->exchange_rate 			            = wpd_get_order_currency_conversion_rate( $this->order );
+        $this->payment_gateway_cost_settings        = wpdai_get_payment_gateway_cost_settings();
+        $this->exchange_rate 			            = wpdai_get_order_currency_conversion_rate( $this->order );
 
         // Basic Vars
         $total_order_revenue            = (float) $this->order->get_total(); // Does not include refunded amount
@@ -303,7 +303,7 @@ class WPD_Order_Calculator {
         $total_order_tax                = $total_order_tax - $total_order_tax_refunded;
         $date_paid 						= ( is_a($this->order->get_date_paid(), 'WC_DateTime') ) ? $this->order->get_date_paid()->getOffsetTimestamp() : null;
         $date_created					= ( is_a($this->order->get_date_created(), 'WC_DateTime') ) ? $this->order->get_date_created()->getOffsetTimestamp() : null;
-        $new_customer 					= ( wpd_customers_first_order( $this->order ) ) ? 'new' : 'returning';
+        $new_customer 					= ( wpdai_customers_first_order( $this->order ) ) ? 'new' : 'returning';
         $registered_user                = ( is_numeric($this->order->get_user_id()) && $this->order->get_user_id() > 0 ) ? 1 : 0;
         $partial_refund                 = ( $total_order_refund_amount > 0 ) ? 1 : 0;
         $full_refund                    = 0;
@@ -315,21 +315,21 @@ class WPD_Order_Calculator {
         
         // User Agent Data
         $user_agent                     = $this->order->get_customer_user_agent();
-        $user_agent_data                = ( ! empty($user_agent) ) ? wpd_parse_user_agent( $user_agent ) : array();
+        $user_agent_data                = ( ! empty($user_agent) ) ? wpdai_parse_user_agent( $user_agent ) : array();
         $device_type                    = ( isset( $user_agent_data['device_category'] ) ) ? $user_agent_data['device_category'] : 'Unknown';
         $device_browser                 = ( isset( $user_agent_data['browser'] ) ) ? $user_agent_data['browser'] : 'Unknown';
 
         // Traffic Source Data
-        $query_params 				    = wpd_get_query_params( $landing_page );
-		$traffic_source 			    = ( $created_via === 'admin' ) ? 'Admin' : wpd_get_traffic_type( $referrer_url, $query_params );
+        $query_params 				    = wpdai_get_query_params( $landing_page );
+		$traffic_source 			    = ( $created_via === 'admin' ) ? 'Admin' : wpdai_get_traffic_type( $referrer_url, $query_params );
         $campaign_name 			        = '';
         $meta_campaign_id 				= $this->order->get_meta( '_wpd_ai_meta_campaign_id' );
         $google_campaign_id 			= $this->order->get_meta( '_wpd_ai_google_campaign_id' );
 
-        if ( isset($meta_campaign_id) && ! empty($meta_campaign_id) && function_exists('wpd_get_facebook_campaign_name_by_id') ) {
-            $campaign_name = wpd_get_facebook_campaign_name_by_id( $meta_campaign_id );
-        } else if ( isset($google_campaign_id) && ! empty($google_campaign_id) && function_exists('wpd_get_google_campaign_name_by_id') ) {
-            $campaign_name = wpd_get_google_campaign_name_by_id( $google_campaign_id );
+        if ( isset($meta_campaign_id) && ! empty($meta_campaign_id) && function_exists('wpdai_get_facebook_campaign_name_by_id') ) {
+            $campaign_name = wpdai_get_facebook_campaign_name_by_id( $meta_campaign_id );
+        } else if ( isset($google_campaign_id) && ! empty($google_campaign_id) && function_exists('wpdai_get_google_campaign_name_by_id') ) {
+            $campaign_name = wpdai_get_google_campaign_name_by_id( $google_campaign_id );
         } else {
             $campaign_name = ( isset($query_params['utm_campaign']) && ! empty($query_params['utm_campaign']) ) ? $query_params['utm_campaign'] : '';
         }
@@ -380,7 +380,7 @@ class WPD_Order_Calculator {
             // Discount Data - Coupons
             'total_order_revenue_before_coupons' 	        => $total_coupon_discounts + $total_order_revenue,
             'total_coupon_discounts' 				        => $total_coupon_discounts, // Coupon Discount Amount
-            'total_coupon_discount_percent' 		        => wpd_calculate_percentage( $total_coupon_discounts, ( $total_coupon_discounts + $total_order_revenue ) ), // Coupon Discount Percent
+            'total_coupon_discount_percent' 		        => wpdai_calculate_percentage( $total_coupon_discounts, ( $total_coupon_discounts + $total_order_revenue ) ), // Coupon Discount Percent
             'coupons_used' 							        => array(),
 
             // Discount Data - Product Discounts
@@ -465,8 +465,8 @@ class WPD_Order_Calculator {
     private function calculate_shipping_costs() {
 
         // Default Options
-        $shipping_cost_multiplier_order_revenue 	= (float) wpd_divide( $this->cost_defaults['default_shipping_cost_percent'], 100 );
-        $shipping_cost_multiplier_shipping_charged 	= (float) wpd_divide( $this->cost_defaults['default_shipping_cost_percent_shipping_charged'], 100 );
+        $shipping_cost_multiplier_order_revenue 	= (float) wpdai_divide( $this->cost_defaults['default_shipping_cost_percent'], 100 );
+        $shipping_cost_multiplier_shipping_charged 	= (float) wpdai_divide( $this->cost_defaults['default_shipping_cost_percent_shipping_charged'], 100 );
         $shipping_cost_fee 							= (float) $this->cost_defaults['default_shipping_cost_fee'];
 
         // Calculate Default Value
@@ -510,12 +510,12 @@ class WPD_Order_Calculator {
         $payment_gateway_fee_meta_keys = apply_filters( 'wpd_ai_payment_gateway_fee_meta_keys', $payment_gateway_fee_meta_keys );
 
         // Default Payment Gateway Cost
-        $payment_gateway_cost_multiplier 	= (float) wpd_divide( $payment_gateway_cost_settings['default']['percent_of_sales'], 100 ); // As a percentage
+        $payment_gateway_cost_multiplier 	= (float) wpdai_divide( $payment_gateway_cost_settings['default']['percent_of_sales'], 100 ); // As a percentage
         $payment_gateway_cost_fee 			= (float) $payment_gateway_cost_settings['default']['static_fee'];
 
         // If we've got a matching gateway cost in the settings, use it
         if ( isset($payment_gateway_cost_settings[$current_payment_gateway]) ) {
-            $payment_gateway_cost_multiplier 	= (float) wpd_divide( $payment_gateway_cost_settings[$current_payment_gateway]['percent_of_sales'], 100 );
+            $payment_gateway_cost_multiplier 	= (float) wpdai_divide( $payment_gateway_cost_settings[$current_payment_gateway]['percent_of_sales'], 100 );
             $payment_gateway_cost_fee 			= (float) $payment_gateway_cost_settings[$current_payment_gateway]['static_fee'];
         }
 
@@ -715,14 +715,14 @@ class WPD_Order_Calculator {
         // Load options
         $total_custom_order_costs   = 0;
         $custom_order_cost_array    = array();
-        $custom_order_costs         = wpd_get_custom_order_cost_options();
+        $custom_order_costs         = wpdai_get_custom_order_cost_options();
 
         foreach( $custom_order_costs as $cost_slug => $cost_data ) {
 
             // Default calculation
             $default_cost_percent_of_order  = (float) $cost_data['percent_of_order_value'];
             $default_static_fee             = (float) $cost_data['static_fee'];
-            $custom_cost_value              = ( $this->results['total_order_revenue'] * wpd_divide( $default_cost_percent_of_order, 100 ) ) + $default_static_fee;
+            $custom_cost_value              = ( $this->results['total_order_revenue'] * wpdai_divide( $default_cost_percent_of_order, 100 ) ) + $default_static_fee;
     
             /**
              * 
@@ -761,7 +761,7 @@ class WPD_Order_Calculator {
      **/
     private function calculate_subscription_data() {
 
-        if ( wpd_is_wc_subscriptions_active() ) {
+        if ( wpdai_is_wc_subscriptions_active() ) {
 
             // Defaults
             $is_subscription_parent_order   = 0;
@@ -784,7 +784,7 @@ class WPD_Order_Calculator {
                     $parent_subscription_ids[] = $parent_subscription->get_id();
                     
                     // Force recalculate parent subscriptions while we're at it
-                    // wpd_calculate_cost_profit_by_order( $parent_subscription->get_id(), true );
+                    // wpdai_calculate_cost_profit_by_order( $parent_subscription->get_id(), true );
     
                 }
     
@@ -859,7 +859,7 @@ class WPD_Order_Calculator {
                 $line_item_tax_before_discounts 			= round( $item->get_subtotal_tax(), 2);
                 $line_item_tax_after_discounts 				= round( $item->get_total_tax(), 2);
                 $active_product_id                          = ( is_numeric($variation_id) && $variation_id > 0 ) ? (int) $variation_id : (int) $product_id;
-                $cost_price_per_unit                        = ( is_numeric($order_item_cogs) ) ? (float) $order_item_cogs : (float) wpd_get_cost_price_by_product_id( $active_product_id );
+                $cost_price_per_unit                        = ( is_numeric($order_item_cogs) ) ? (float) $order_item_cogs : (float) wpdai_get_cost_price_by_product_id( $active_product_id );
                 $product_object                             = wc_get_product( $active_product_id );
 
                 // Convert prices if multi
@@ -884,7 +884,7 @@ class WPD_Order_Calculator {
                 );
 
                 // Line Item Totals
-                $custom_product_costs_per_unit              = wpd_divide( $total_line_item_custom_product_cost, $quantity );
+                $custom_product_costs_per_unit              = wpdai_divide( $total_line_item_custom_product_cost, $quantity );
                 $line_item_total_before_discounts_inc_tax 	= round( $line_item_total_before_discounts_ex_tax + $line_item_tax_before_discounts, 2);
                 $line_item_total_after_discounts_inc_tax 	= round( $line_item_total_after_discounts_ex_tax + $line_item_tax_after_discounts, 2);
                 $total_cost_per_unit                        = $cost_price_per_unit + $custom_product_costs_per_unit;
@@ -892,8 +892,8 @@ class WPD_Order_Calculator {
                 $total_line_item_product_cogs               = $cost_price_per_unit * $quantity;
 
                 // Per Unit
-                $sell_price_per_unit_including_tax 			= wpd_divide( $line_item_total_after_discounts_inc_tax, $quantity );
-                $sell_price_per_unit_excluding_tax 			= wpd_divide( $line_item_total_after_discounts_ex_tax, $quantity );
+                $sell_price_per_unit_including_tax 			= wpdai_divide( $line_item_total_after_discounts_inc_tax, $quantity );
+                $sell_price_per_unit_excluding_tax 			= wpdai_divide( $line_item_total_after_discounts_ex_tax, $quantity );
                 $tax_per_unit                               = $sell_price_per_unit_including_tax - $sell_price_per_unit_excluding_tax;
                 $line_item_tax                              = $tax_per_unit * $quantity;
         
@@ -907,7 +907,7 @@ class WPD_Order_Calculator {
                 // Coupon discounts must be the difference between the amount paid and the pre-discount amount
                 $product_coupon_discount_amount = $line_item_total_before_discounts_inc_tax - $line_item_total_after_discounts_inc_tax;
                 if ( $product_coupon_discount_amount < 0.01 ) $product_coupon_discount_amount = 0; 
-                $product_coupon_discount_percentage = wpd_calculate_percentage( $product_coupon_discount_amount, $line_item_total_before_discounts_inc_tax );
+                $product_coupon_discount_percentage = wpdai_calculate_percentage( $product_coupon_discount_amount, $line_item_total_before_discounts_inc_tax );
         
                 // Refund adjustments
                 if ( $this->results['total_refund_amount'] > 0 ) {
@@ -928,7 +928,7 @@ class WPD_Order_Calculator {
                         $total_line_item_product_cogs       -= $cost_price_refund_exemption;
                         $total_line_item_cost_price         -= $cost_price_refund_exemption;
                         $total_quantity_refunded 			+= $qty_refunded;
-                        $custom_product_costs_per_unit      = wpd_divide( $total_line_item_custom_product_cost, $quantity );
+                        $custom_product_costs_per_unit      = wpdai_divide( $total_line_item_custom_product_cost, $quantity );
                         $total_cost_per_unit                = $cost_price_per_unit + $custom_product_costs_per_unit;
 
                         // Adjust actual tax amount
@@ -968,12 +968,12 @@ class WPD_Order_Calculator {
                     // Reduce rounding issues that come from combining tax and ex tax amount
                     $product_discount_amount 		= $product_revenue_at_rrp - $line_item_total_before_discounts_inc_tax;
                     if ( $product_discount_amount < 0.01 ) $product_discount_amount = 0; 
-                    $product_discount_percentage = wpd_calculate_percentage( $product_discount_amount, $product_revenue_at_rrp );
+                    $product_discount_percentage = wpdai_calculate_percentage( $product_discount_amount, $product_revenue_at_rrp );
                     $total_product_discounts += $product_discount_amount;
     
                     // Total discounts
                     $total_product_discount_amount = $product_discount_amount + $product_coupon_discount_amount;
-                    $total_product_discount_percentage = wpd_calculate_percentage( $total_product_discount_amount, $product_revenue_at_rrp );
+                    $total_product_discount_percentage = wpdai_calculate_percentage( $total_product_discount_amount, $product_revenue_at_rrp );
 
                     // If this line item has been fully refunded, 0 out some vars
                     if ( $qty_refunded == $item->get_quantity() ) {
@@ -1026,7 +1026,7 @@ class WPD_Order_Calculator {
     
                         'total_profit' 								=> $line_item_profit,
                         'profit_per_unit' 							=> $profit_per_product,
-                        'product_margin'							=> wpd_calculate_margin( $line_item_profit, $line_item_total_after_discounts_ex_tax ),
+                        'product_margin'							=> wpdai_calculate_margin( $line_item_profit, $line_item_total_after_discounts_ex_tax ),
     
                         'product_discount_amount' 					=> $product_discount_amount, // Only Considers Sale Price
                         'product_discount_percentage' 				=> $product_discount_percentage, // Only Considers Sale Price
@@ -1071,7 +1071,7 @@ class WPD_Order_Calculator {
         // Few calculation variables
         $total_product_profit 		                                    = $total_product_revenue_ex_tax - $total_product_cost;
         $refunded_sku_count 		                                    = ( is_array($refunded_skus) ) ? count($refunded_skus) : 0;
-        $total_product_discount_percent                                 = wpd_calculate_percentage( $total_product_discounts, $total_product_revenue_at_rrp );
+        $total_product_discount_percent                                 = wpdai_calculate_percentage( $total_product_discounts, $total_product_revenue_at_rrp );
         $order_revenue_before_product_discounts                         = $total_product_discounts + $this->results['total_order_revenue'];
 
         // Update Results
@@ -1103,7 +1103,7 @@ class WPD_Order_Calculator {
     private function calculate_custom_product_costs( $active_product_id, $item, $quantity, &$line_item_custom_product_cost_data, &$total_line_item_custom_product_cost, &$total_product_custom_costs, &$custom_product_cost_data) {
 
         // Custom Line Item Product Costs
-        $custom_product_cost_defaults = wpd_get_custom_product_cost_options( $active_product_id );
+        $custom_product_cost_defaults = wpdai_get_custom_product_cost_options( $active_product_id );
 
         if ( is_array($custom_product_cost_defaults) && ! empty($custom_product_cost_defaults) ) {
 
@@ -1118,7 +1118,7 @@ class WPD_Order_Calculator {
             foreach( $custom_product_cost_defaults as $custom_cost_slug => $custom_cost_data ) {
                 
                 // Default custom product cost value for filtering
-				$default_custom_product_cost_value = (float) wpd_calculate_custom_product_cost_by_line_item( $item, $custom_cost_data );
+				$default_custom_product_cost_value = (float) wpdai_calculate_custom_product_cost_by_line_item( $item, $custom_cost_data );
 
                 /**
                  * 
@@ -1197,10 +1197,10 @@ class WPD_Order_Calculator {
         // Order Discounts
         $this->results['total_order_discounts'] = $this->results['total_product_discounts'] + $this->results['total_coupon_discounts'];
         $this->results['total_order_revenue_before_discounts'] = $this->results['total_order_revenue'] + $this->results['total_order_discounts'];
-        $this->results['total_order_discount_percent'] = wpd_calculate_percentage( $this->results['total_order_discounts'], $this->results['total_order_revenue_before_discounts'] );
+        $this->results['total_order_discount_percent'] = wpdai_calculate_percentage( $this->results['total_order_discounts'], $this->results['total_order_revenue_before_discounts'] );
 
         // Calculate the margin on the tax-exclusive revenue
-        $this->results['total_order_margin'] = wpd_calculate_margin( $this->results['total_order_profit'], $this->results['total_order_revenue_excluding_tax'], true );
+        $this->results['total_order_margin'] = wpdai_calculate_margin( $this->results['total_order_profit'], $this->results['total_order_revenue_excluding_tax'], true );
 
     }
 
@@ -1221,7 +1221,7 @@ class WPD_Order_Calculator {
     private function adjust_costs_for_fully_refunded_order() {
         
         // Get refunded order costs settings
-        $refunded_order_costs = wpd_get_refunded_order_costs_settings();
+        $refunded_order_costs = wpdai_get_refunded_order_costs_settings();
 
         // Target keys to null if fully refunded
         $array_keys_to_adjust_to_zero = array(
@@ -1341,10 +1341,10 @@ class WPD_Order_Calculator {
         $order_id = ( $this->refund_order_id > 0 ) ? $this->refund_order_id : $this->order_id;
 
         // Save Value
-        $update = wpd_set_order_calculations_cache( $order_id, $this->results );
+        $update = wpdai_set_order_calculations_cache( $order_id, $this->results );
 
         // Log an error
-        if ( $update === false ) wpd_write_log( 'Unable to update the order cache for Order ID: #' . $order_id, 'order_update_error' );
+        if ( $update === false ) wpdai_write_log( 'Unable to update the order cache for Order ID: #' . $order_id, 'order_update_error' );
 
     }
 
@@ -1355,7 +1355,7 @@ class WPD_Order_Calculator {
      **/
     private function convert_currency( $amount ) {
 
-        $converted_amount = (float) wpd_convert_currency($this->order_currency, $this->store_currency, (float) $amount, $this->exchange_rate );
+        $converted_amount = (float) wpdai_convert_currency($this->order_currency, $this->store_currency, (float) $amount, $this->exchange_rate );
 
         return $converted_amount;
 

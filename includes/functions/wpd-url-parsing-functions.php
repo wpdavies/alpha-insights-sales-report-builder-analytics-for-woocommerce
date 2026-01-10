@@ -21,15 +21,11 @@ defined( 'ABSPATH' ) || exit;
  *	@return array key|value pair of query params
  *
  */
-if ( ! function_exists( 'wpd_parse_query_params' ) ) {
+function wpdai_parse_query_params( $url ) {
 
-	function wpd_parse_query_params( $url ) {
+    parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_params );
 
-		parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_params );
-
-		return $query_params;
-
-	}
+    return $query_params;
 
 }
 
@@ -42,7 +38,7 @@ if ( ! function_exists( 'wpd_parse_query_params' ) ) {
  * 	@return string Returns the cleaned string
  * 
  **/
-function wpd_strip_query_parameters_from_url( $url ) {
+function wpdai_strip_query_parameters_from_url( $url ) {
 
 	$parsed_url = wp_parse_url( $url );
     
@@ -60,7 +56,7 @@ function wpd_strip_query_parameters_from_url( $url ) {
  *	Collect URL Query Params
  *
  */
-function wpd_get_query_params( $url ) {
+function wpdai_get_query_params( $url ) {
 
 	$query_params = array();
 
@@ -93,7 +89,7 @@ function wpd_get_query_params( $url ) {
  * 	@return string $url Current URL path and all query params at that time of code execution or "/" if nothing found
  * 
  **/
-function wpd_get_current_url_path_raw() {
+function wpdai_get_current_url_path_raw() {
 
 	if ( isset($_SERVER['REQUEST_URI']) ) {
 
@@ -117,7 +113,7 @@ function wpd_get_current_url_path_raw() {
  * 	@return string $url Current URL path and all query params at that time of code execution or "/" if nothing found
  * 
  **/
-function wpd_get_current_url_raw() {
+function wpdai_get_current_url_raw() {
 
 	$https_value = isset($_SERVER['HTTPS']) ? sanitize_text_field($_SERVER['HTTPS']) : '';
 	$scheme = ( ! empty($https_value) && $https_value === 'on' ? "https" : "http");
@@ -138,7 +134,7 @@ function wpd_get_current_url_raw() {
  *  @return string|null The referral URL
  * 
  */
-function wpd_get_referral_url_raw() {
+function wpdai_get_referral_url_raw() {
 
     // Prefer WordPress-native referer
     $referral_url = wp_get_referer();

@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * 
  * @return string CSS content for email templates
  */
-function wpd_get_email_template_styles() {
+function wpdai_get_email_template_styles() {
 	// Get CSS file path
 	$css_file = defined( 'WPD_AI_PATH' ) ? WPD_AI_PATH . 'assets/css/wpd-email-template-styles.css' : plugin_dir_path( dirname( dirname( __FILE__ ) ) ) . 'assets/css/wpd-email-template-styles.css';
 	
@@ -45,7 +45,7 @@ function wpd_get_email_template_styles() {
 }
 
 // Get CSS content
-$email_styles = wpd_get_email_template_styles();
+$email_styles = wpdai_get_email_template_styles();
 
 /**
  * Filter email template styles
@@ -54,7 +54,7 @@ $email_styles = wpd_get_email_template_styles();
  * 
  * @param string $email_styles CSS content for email templates
  */
-$email_styles = apply_filters( 'wpd_email_template_styles', $email_styles );
+$email_styles = apply_filters( 'wpdai_email_template_styles', $email_styles );
 
 // Output styles in <style> tag (required for email client compatibility)
 if ( ! empty( $email_styles ) ) {

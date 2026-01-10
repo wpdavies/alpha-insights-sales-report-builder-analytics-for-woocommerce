@@ -113,10 +113,10 @@ class WPD_Alpha_Insights_Core {
 		}
 
 		// Current URL
-		update_user_meta( $user_id, '_wpd_ai_registration_url_current', wpd_get_current_url_raw() );
+		update_user_meta( $user_id, '_wpd_ai_registration_url_current', wpdai_get_current_url_raw() );
 
 		// Referral URL
-		update_user_meta( $user_id, '_wpd_ai_registration_url_referral', wpd_get_referral_url_raw() );
+		update_user_meta( $user_id, '_wpd_ai_registration_url_referral', wpdai_get_referral_url_raw() );
 
 		// Last Login
 		update_user_meta( $user_id, '_wpd_ai_last_login_unix', time() );
@@ -145,10 +145,10 @@ class WPD_Alpha_Insights_Core {
 		if ( ! is_a($user, 'WP_User') ) return false;
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpd_is_user_authorized_to_view_alpha_insights() ) return false;
+		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return false;
 
 		// Cached data
-		$user_data							= wpd_fetch_customer_analytics_by_user_id( $user->ID );
+		$user_data							= wpdai_fetch_customer_analytics_by_user_id( $user->ID );
 		$registration_date 					= $user_data['registration_date_pretty'];
 		$display_name 						= $user_data['display_name'];
 		$registration_session_landing_page 	= $user_data['landing_page_url'];
@@ -219,7 +219,7 @@ class WPD_Alpha_Insights_Core {
 		$order 				= false;
 		
 		// Get cost price
-		$cost_price = wpd_get_cost_price_by_product_id( $product_id );
+		$cost_price = wpdai_get_cost_price_by_product_id( $product_id );
 
 		// Save data to line item
 		if ( is_numeric($cost_price) ) {
@@ -245,7 +245,7 @@ class WPD_Alpha_Insights_Core {
 		}
 
 		// Get cost price
-		$cost_price 			= wpd_get_cost_price_by_product_id( $product_id );
+		$cost_price 			= wpdai_get_cost_price_by_product_id( $product_id );
 		$quantity 				= $item->get_quantity();
 
 		// Save data to line item
@@ -298,15 +298,15 @@ class WPD_Alpha_Insights_Core {
 		}
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpd_is_user_authorized_to_view_alpha_insights() ) return false;
+		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return false;
 
 		// Display product COGS data
 		$product_id 				= $product->get_id();
 		$line_item_cogs 			= $item->get_meta( '_wpd_ai_product_cogs' );
-		$default_line_item_cogs 	= wpd_get_cost_price_by_product_id( $product_id );
+		$default_line_item_cogs 	= wpdai_get_cost_price_by_product_id( $product_id );
 
 		// COGS input
-		$currency_string = wpd_store_currency_string();
+		$currency_string = wpdai_store_currency_string();
 		woocommerce_wp_text_input( array(
 			'id' => 'line-item-cogs[' . $item_id . ']',
 			/* translators: %s: Currency code */
@@ -319,7 +319,7 @@ class WPD_Alpha_Insights_Core {
 		) );
 
 		// Custom product cogs
-		$custom_product_costs = wpd_get_custom_product_cost_options( $product_id );
+		$custom_product_costs = wpdai_get_custom_product_cost_options( $product_id );
 		if ( is_array($custom_product_costs) && ! empty($custom_product_costs) ) {
 
 			$custom_cost_meta = $item->get_meta( '_wpd_ai_custom_product_costs' );
@@ -327,7 +327,7 @@ class WPD_Alpha_Insights_Core {
 			foreach( $custom_product_costs as $custom_cost_slug => $custom_cost_data ) {
 
 				// Calculated value
-				$default_calculated_value = (float) wpd_calculate_custom_product_cost_by_line_item( $item, $custom_cost_data );
+				$default_calculated_value = (float) wpdai_calculate_custom_product_cost_by_line_item( $item, $custom_cost_data );
 
 				// Saved Value
 				$custom_cost_meta_value = ( isset( $custom_cost_meta[$custom_cost_slug] ) ) ? (float) $custom_cost_meta[$custom_cost_slug] : null;
@@ -352,7 +352,7 @@ class WPD_Alpha_Insights_Core {
 
 						'id'          => '_wpd_ai_custom_product_costs['.$item_id.']['.$custom_cost_slug.']',
 						/* translators: 1: Custom cost label, 2: Currency code */
-						'label' 	  => sprintf( __( '%1$s Per Unit (%2$s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $custom_cost_data['label'] ), esc_html( wpd_store_currency_string() ) ),
+						'label' 	  => sprintf( __( '%1$s Per Unit (%2$s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $custom_cost_data['label'] ), esc_html( wpdai_store_currency_string() ) ),
 						'value'       => $custom_cost_meta_value,
 						'data_type'   => 'price',
 						'placeholder' => wp_strip_all_tags( wc_price( $default_calculated_value ) ),
@@ -377,10 +377,10 @@ class WPD_Alpha_Insights_Core {
 	public function show_profit_in_order_summary( $order_id ) {
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpd_is_user_authorized_to_view_alpha_insights() ) return false;
+		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return false;
 
 	    // Here set your data and calculations
-	    $order_data 				= wpd_calculate_cost_profit_by_order( $order_id );
+	    $order_data 				= wpdai_calculate_cost_profit_by_order( $order_id );
 	    $calculation_string 		= 'Net Profit = Net Sales (Excl. Tax) - Total Order Costs';
 	    $string_styles 				= 'font-size: 90%; opacity: .5; border-top: solid 1px #888; border-bottom: solid 1px #888; text-align: right;';
 
@@ -435,7 +435,7 @@ class WPD_Alpha_Insights_Core {
 	public function add_cost_price_to_admin_order_meta_line_item_heading( $order ){
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpd_is_user_authorized_to_view_alpha_insights() ) return false;
+		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return false;
 
 		?><th class="wpd_cogs" width="300px">Alpha Insights COGS</th><?php
 
@@ -451,7 +451,7 @@ class WPD_Alpha_Insights_Core {
 	public function add_cost_price_to_admin_order_meta_line_item( $product, $item, $item_id = null ) {
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpd_is_user_authorized_to_view_alpha_insights() ) return false;
+		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return false;
 
 		// Only continue if product is object and item is of type product
 		if ( is_a( $item, 'WC_Order_Item_Product' ) && is_a( $product, 'WC_Product' ) ) :
@@ -459,7 +459,7 @@ class WPD_Alpha_Insights_Core {
 			// Load Vars
 			$multi_currency = 0;
 			$product_data 	= array();
-			$order_data 	= wpd_calculate_cost_profit_by_order( $item->get_order() );
+			$order_data 	= wpdai_calculate_cost_profit_by_order( $item->get_order() );
 			
 			// Try get the data we need
 			if ( is_array($order_data) && is_array($order_data['product_data']) ) {
@@ -494,7 +494,7 @@ class WPD_Alpha_Insights_Core {
 			if ( $multi_currency ) {
 
 				$order_currency = $order_data['order_currency'];
-				$original_amount = wpd_store_price( $item->get_total(), array('currency' => $order_currency) );
+				$original_amount = wc_price( $item->get_total(), array('currency' => $order_currency) );
 				$currency_conversion_string = sprintf( 
 					/* translators: 1: Currency code, 2: Original amount */
 					__( 'This order was paid for in %1$s. <br>The original amount is %2$s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 
@@ -510,22 +510,22 @@ class WPD_Alpha_Insights_Core {
 						<table class="display_meta fixed wpd-line-item-summary">
 							<tbody>
 								<tr>
-									<th><?php esc_html_e( 'Revenue Excl. Tax:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?><?php if ( $multi_currency ) echo esc_html( ' (' . wpd_get_store_currency() . ')' ); ?></th>
-									<td><?php echo wp_kses_post( wpd_store_price( $product_data['product_revenue_excluding_tax'] ) ); ?></td>
+									<th><?php esc_html_e( 'Revenue Excl. Tax:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?><?php if ( $multi_currency ) echo esc_html( ' (' . wpdai_get_store_currency() . ')' ); ?></th>
+									<td><?php echo wp_kses_post( wc_price( $product_data['product_revenue_excluding_tax'] ) ); ?></td>
 								</tr>
 								<tr>
 									<th><?php esc_html_e( 'Cost Of Goods:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
-									<td><?php echo wp_kses_post( wpd_store_price( $product_data['total_product_cogs'] ) ); ?></td>
+									<td><?php echo wp_kses_post( wc_price( $product_data['total_product_cogs'] ) ); ?></td>
 								</tr>
 								<?php if ( $product_data['total_custom_product_cost'] ) : ?>
 									<tr>
 										<th><?php esc_html_e( 'Custom Costs:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
-										<td><?php echo wp_kses_post( wpd_store_price( $product_data['total_custom_product_cost'] ) ); ?></td>
+										<td><?php echo wp_kses_post( wc_price( $product_data['total_custom_product_cost'] ) ); ?></td>
 									</tr>
 								<?php endif; ?>
 								<tr>
 									<th><?php esc_html_e( 'Profit:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
-									<td><?php echo wp_kses_post( wpd_store_price( $product_data['total_profit'] ) ); ?></td>
+									<td><?php echo wp_kses_post( wc_price( $product_data['total_profit'] ) ); ?></td>
 								</tr>
 								<tr>
 									<th><?php esc_html_e( 'Margin:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
@@ -558,7 +558,7 @@ class WPD_Alpha_Insights_Core {
 	public function register_order_admin_meta_boxes() {
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpd_is_user_authorized_to_view_alpha_insights() ) return false;
+		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return false;
 
 		// For compatability with WC HPOS
 		// Fixed: Proper class reference in get() method
@@ -587,7 +587,7 @@ class WPD_Alpha_Insights_Core {
 	public function order_admin_metabox_dashboard( $post_or_order_object ) {
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpd_is_user_authorized_to_view_alpha_insights() ) return false;
+		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return false;
 
 		// Load the order
 		$order = ( $post_or_order_object instanceof WP_Post ) ? wc_get_order( $post_or_order_object->ID ) : $post_or_order_object;
@@ -607,10 +607,10 @@ class WPD_Alpha_Insights_Core {
 		$referral 					= $order->get_meta( '_wpd_ai_referral_source' );
 
 		// Custom Order Costs
-		$custom_order_costs 		= wpd_get_custom_order_cost_options();
+		$custom_order_costs 		= wpdai_get_custom_order_cost_options();
 
 		// Calculate Totals
-		$order_data 				= wpd_calculate_cost_profit_by_order( $order_id );
+		$order_data 				= wpdai_calculate_cost_profit_by_order( $order_id );
 		$total_product_cost 		= $order_data[ 'total_product_cost_of_goods' ];
 		$total_shipping_cost 		= $order_data[ 'total_shipping_cost' ];
 		$payment_gateway_cost 		= $order_data[ 'payment_gateway_cost' ];
@@ -619,8 +619,8 @@ class WPD_Alpha_Insights_Core {
 		$total_order_tax  			= $order_data[ 'total_order_tax' ];
 
 		// Other Calculations
-		$query_params 				= wpd_get_query_params( $landing_page );
-		$traffic_source 			= wpd_get_traffic_type( $referral, $query_params );
+		$query_params 				= wpdai_get_query_params( $landing_page );
+		$traffic_source 			= wpdai_get_traffic_type( $referral, $query_params );
 
 		// Haven't really loaded anything in yet
 		if ( $order->get_status() == 'auto-draft'  ) {
@@ -636,7 +636,7 @@ class WPD_Alpha_Insights_Core {
 			// Force by billing email for now
 			$ip_address 			= $order->get_customer_ip_address();
 			$billing_email 			= $order->get_billing_email();
-			$session_count 			= wpd_get_session_count_by_ip_address( $ip_address );
+			$session_count 			= wpdai_get_session_count_by_ip_address( $ip_address );
 
 			// Customer Details
 			if ( is_string( $billing_email ) && ! empty( $billing_email ) ) {
@@ -666,9 +666,9 @@ class WPD_Alpha_Insights_Core {
 
 				} else {
 
-					$order_count 			= wpd_customer_order_count_by_email_address($billing_email); // Review this
-					$lifetime_value			= wpd_customer_lifetime_value_by_email_address($billing_email);
-					$average_order_value 	= wpd_customer_average_order_value_by_email_address($billing_email);
+					$order_count 			= wpdai_customer_order_count_by_email_address($billing_email); // Review this
+					$lifetime_value			= wpdai_customer_lifetime_value_by_email_address($billing_email);
+					$average_order_value 	= wpdai_customer_average_order_value_by_email_address($billing_email);
 
 				}
 
@@ -677,7 +677,7 @@ class WPD_Alpha_Insights_Core {
 		}
 		
 		// Calculate conversion rate
-		$conversion_rate = ( $session_count == 0 || $order_count == 0 ) ? 'N/A' : wpd_calculate_percentage( $order_count, $session_count ) . '%';?>
+		$conversion_rate = ( $session_count == 0 || $order_count == 0 ) ? 'N/A' : wpdai_calculate_percentage( $order_count, $session_count ) . '%';?>
 		<?php do_action('wpd_ai_order_dashboard_before_content', $order); ?>
 		<div class="wpd-order-dashboard">
 			<!-- Titles -->
@@ -715,7 +715,7 @@ class WPD_Alpha_Insights_Core {
 			<!-- Cost Input Overrides -->
 			<div class="wpd-order-cost-inputs">
 				<div class="edit_address"><?php
-					$currency_string = wpd_store_currency_string();
+					$currency_string = wpdai_store_currency_string();
 					woocommerce_wp_text_input( array(
 						'id' => 'total_product_cost',
 						/* translators: %s: Currency code */
@@ -732,7 +732,7 @@ class WPD_Alpha_Insights_Core {
 						foreach( $order_data['product_data'] as $product_id_slug => $product_data ) {
 
 							// Check that there's at least one product in this order that has a custom order cost defined
-							if ( ! empty( wpd_get_custom_product_cost_options($product_data['product_id']) ) ) {
+							if ( ! empty( wpdai_get_custom_product_cost_options($product_data['product_id']) ) ) {
 
 								// Get the meta value
 								$meta_total_order_product_custom_cost = $order->get_meta( '_wpd_ai_total_order_product_custom_cost' );
@@ -740,7 +740,7 @@ class WPD_Alpha_Insights_Core {
 								woocommerce_wp_text_input( array(
 									'id' => '_wpd_ai_total_order_product_custom_cost',
 									/* translators: %s: Currency code */
-									'label' => sprintf( __( 'Total Product Custom Costs (%s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), wpd_store_currency_string() ) . ':',
+									'label' => sprintf( __( 'Total Product Custom Costs (%s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), wpdai_store_currency_string() ) . ':',
 									'value' => $meta_total_order_product_custom_cost,
 									'placeholder' => wp_strip_all_tags( wc_price( $order_data['total_product_custom_costs'] ) ),
 									'wrapper_class' => 'form-field-wide',
@@ -758,7 +758,7 @@ class WPD_Alpha_Insights_Core {
 					woocommerce_wp_text_input( array(
 						'id' => 'total_shipping_cost',
 						/* translators: %s: Currency code */
-						'label' => sprintf( __( 'Total Shipping Cost (%s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), wpd_store_currency_string() ) . ':',
+						'label' => sprintf( __( 'Total Shipping Cost (%s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), wpdai_store_currency_string() ) . ':',
 						'value' => $meta_total_shipping_cost,
 						'placeholder' => wp_strip_all_tags( wc_price( $total_shipping_cost ) ),
 						'wrapper_class' => 'form-field-wide',
@@ -768,7 +768,7 @@ class WPD_Alpha_Insights_Core {
 					woocommerce_wp_text_input( array(
 						'id' => 'payment_gateway_cost',
 						/* translators: %s: Currency code */
-						'label' => sprintf( __( 'Payment Gateway Cost (%s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), wpd_store_currency_string() ) . ':',
+						'label' => sprintf( __( 'Payment Gateway Cost (%s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), wpdai_store_currency_string() ) . ':',
 						'value' => $meta_payment_gateway_cost,
 						'placeholder' => esc_attr( wp_strip_all_tags( wc_price( $payment_gateway_cost ) ) ),
 						'wrapper_class' => 'form-field-wide',
@@ -791,7 +791,7 @@ class WPD_Alpha_Insights_Core {
 						woocommerce_wp_text_input( array(
 							'id' => '_wpd_ai_custom_order_cost_' . $cost_slug,
 							/* translators: 1: Cost label, 2: Currency code */
-							'label' => sprintf( __( '%1$s (%2$s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $cost_data['label'] ), esc_html( wpd_store_currency_string() ) ) . ':',
+							'label' => sprintf( __( '%1$s (%2$s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $cost_data['label'] ), esc_html( wpdai_store_currency_string() ) ) . ':',
 							'value' => $custom_order_cost_value, // Need to figure out
 							'placeholder' => esc_attr( wp_strip_all_tags( wc_price( $custom_order_cost_placeholder ) ) ),
 							'wrapper_class' => 'form-field-wide',
@@ -815,7 +815,7 @@ class WPD_Alpha_Insights_Core {
 						</tr>
 						<tr>
 							<td><strong>Landing Page</strong></td>
-							<td><?php echo esc_html( wpd_strip_query_parameters_from_url( $landing_page ) ); ?></td>
+							<td><?php echo esc_html( wpdai_strip_query_parameters_from_url( $landing_page ) ); ?></td>
 						</tr>
 						<tr>
 							<td colspan="2">
@@ -861,7 +861,7 @@ class WPD_Alpha_Insights_Core {
 				</div>
 			</div>
 			<div class="wpd-grid-footer wpd-grid-full-span">
-				<p style="float:left;">You can use the arrows in the top right corner to reposition this dashboard.<br>Don't want this dashboard? <a href="<?php echo esc_url( wpd_admin_page_url( 'settings' ) ); ?>">Update your WordPress Admin Display Extensions settings</a> in Alpha Insights.</p>
+				<p style="float:left;">You can use the arrows in the top right corner to reposition this dashboard.<br>Don't want this dashboard? <a href="<?php echo esc_url( wpdai_admin_page_url( 'settings' ) ); ?>">Update your WordPress Admin Display Extensions settings</a> in Alpha Insights.</p>
 				<p style="float:right;"><?php submit_button( __( 'Save & Recalculate', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'primary wpd-ai-submit', 'submit', false ); ?></p>
 			</div>
 		</div>
@@ -911,16 +911,13 @@ class WPD_Alpha_Insights_Core {
 
 			// Current action for debugging
 			$action = current_action();
-			$url = wpd_get_current_url_path_raw();
+			$url = wpdai_get_current_url_path_raw();
 
 			// Safety check statuses that we don't want to process yet
 			if ( $order->get_status() == 'auto-draft' || $order->get_status() == 'draft' || $order->get_status() == 'checkout-draft' ) {
 				self::$is_handling_save = false;
 				return false;
 			}
-
-			// Allow us to save or manipulate meta before it gets calculatd
-			do_action( 'wpd_save_post_data_to_order_before_calculations', $order, $_POST );
 
 			// Saves relevant _COOKIES and session data to the order
 			$this->save_landing_page_to_order_meta( $order );
@@ -944,7 +941,7 @@ class WPD_Alpha_Insights_Core {
 			}
 
 			// Process custom order costs
-			$custom_order_costs = wpd_get_custom_order_cost_options();
+			$custom_order_costs = wpdai_get_custom_order_cost_options();
 			foreach( $custom_order_costs as $cost_slug => $cost_data ) {
 				$custom_cost_meta_key = '_wpd_ai_custom_order_cost_' . sanitize_key( $cost_slug );
 				if ( isset($_POST[$custom_cost_meta_key]) ) {
@@ -1058,7 +1055,7 @@ class WPD_Alpha_Insights_Core {
 			$order->save_meta_data();
 	
 			// Calculate totals ... MUST force a resave otherwise all data will not be saved
-			wpd_calculate_cost_profit_by_order( $order_id, true );
+			wpdai_calculate_cost_profit_by_order( $order_id, true );
 			self::$is_handling_save = false;
 			return true;
 
@@ -1075,7 +1072,7 @@ class WPD_Alpha_Insights_Core {
 	public function register_admin_order_columns( $columns ) {
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpd_is_user_authorized_to_view_alpha_insights() ) return $columns;
+		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return $columns;
 
 		if ( isset($columns['order_total']) ) {
 			unset( $columns['order_total'] );
@@ -1090,7 +1087,7 @@ class WPD_Alpha_Insights_Core {
 	    $columns['order_total'] 	= __( 'Total', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); // Reorders order_total
 
 		// Custom Columns
-		$custom_admin_columns = wpd_get_admin_custom_column_settings();
+		$custom_admin_columns = wpdai_get_admin_custom_column_settings();
 
 		if ( is_array($custom_admin_columns) && isset($custom_admin_columns['orders']) ) {
 
@@ -1129,7 +1126,7 @@ class WPD_Alpha_Insights_Core {
 			}
 
 			// Data
-	        $order_datas 			= wpd_calculate_cost_profit_by_order( $order_id );
+	        $order_datas 			= wpdai_calculate_cost_profit_by_order( $order_id );
 			$calculated_profit 		= $order_datas['total_order_profit'];
 			$margin 				= $order_datas['total_order_margin'];
 			$new_returning 			= $order_datas['new_returning_customer'];
@@ -1138,11 +1135,11 @@ class WPD_Alpha_Insights_Core {
 
 				if ( empty( $calculated_profit ) ) {
 
-					echo wp_kses_post( wpd_store_price( 0 ) );
+					echo wp_kses_post( wc_price( 0 ) );
 
 				} else {
 
-					echo wp_kses_post( wpd_store_price( $calculated_profit ) );
+					echo wp_kses_post( wc_price( $calculated_profit ) );
 
 				}
 
@@ -1169,7 +1166,7 @@ class WPD_Alpha_Insights_Core {
 
 			if ( ! is_a($order, 'WC_Order') ) return false;
 
-			$order_data 				= wpd_calculate_cost_profit_by_order( $order );
+			$order_data 				= wpdai_calculate_cost_profit_by_order( $order );
 			$referral_source_url 		= $order_data['referral_source_url'];
 			$landing_page_url_raw 		= $order_data['landing_page_url'];
 			$traffic_type 			 	= $order_data['traffic_source'];
@@ -1187,7 +1184,7 @@ class WPD_Alpha_Insights_Core {
 			if ( ! is_a($order, 'WC_Order') ) return false;
 
 			$landing_page_url_raw 		= $order->get_meta( '_wpd_ai_landing_page' );
-			$query_params 				= wpd_get_query_params( $landing_page_url_raw );
+			$query_params 				= wpdai_get_query_params( $landing_page_url_raw );
 			$query_params_string = '';
 
 			if ( is_array($query_params) && ! empty($query_params) ) {
@@ -1233,7 +1230,7 @@ class WPD_Alpha_Insights_Core {
 				$updated = true;
 
 				// Now lets check the query params for additional data
-				$query_params = wpd_get_query_params( $landing_page );
+				$query_params = wpdai_get_query_params( $landing_page );
 				$meta_tracking_key = 'meta_cid';
 				$google_tracking_key = 'google_cid';
 
@@ -1273,7 +1270,7 @@ class WPD_Alpha_Insights_Core {
 	public function register_product_cost_of_goods_tab( $product_data_tabs ) {
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpd_is_user_authorized_to_view_alpha_insights() ) return $product_data_tabs;
+		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return $product_data_tabs;
 
 		$product_id 			= get_the_ID();
 		$product 				= wc_get_product();
@@ -1306,7 +1303,7 @@ class WPD_Alpha_Insights_Core {
 	public function output_product_cost_of_goods_tab_content() {
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpd_is_user_authorized_to_view_alpha_insights() ) return false;
+		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return false;
 
 		// Globals
 		global $woocommerce, $post;
@@ -1317,7 +1314,7 @@ class WPD_Alpha_Insights_Core {
 		$cost_price 					= get_post_meta( $product_id, '_wpd_ai_product_cost', true );
 		$is_variable 					= $product->is_type( 'variable' );
 		$is_bundle 						= ( $product->is_type('bundle') || $product->is_type('woosb') ) ? true : false;
-		$custom_product_costs 			= wpd_get_custom_product_cost_options( $product_id );
+		$custom_product_costs 			= wpdai_get_custom_product_cost_options( $product_id );
 
 		?>
 		<div id="wpd-ai-cost-of-goods" class="panel woocommerce_options_panel">
@@ -1333,14 +1330,14 @@ class WPD_Alpha_Insights_Core {
 						<tbody>
 							<tr>
 								<td colspan="2">
-									<label><?php echo esc_html( ( $is_variable ) ? 'Default Product Cost Of Goods (' . wpd_store_currency_string() . ')' : 'Product Cost Of Goods (' . wpd_store_currency_string() . ')' ); ?></label>
+									<label><?php echo esc_html( ( $is_variable ) ? 'Default Product Cost Of Goods (' . wpdai_store_currency_string() . ')' : 'Product Cost Of Goods (' . wpdai_store_currency_string() . ')' ); ?></label>
 									<div class="wpd-meta">This is the cost of goods per unit for this product. 
 										<?php if ($is_variable) : ?>This will be used as the default value for variations if you have not set the cost of goods for each variation below.<?php endif; ?>
 									</div>
 								</td>
 								<td colspan="2">
 									<?php
-										$default_cost = wpd_get_default_cost_price_by_product_id($product_id);
+										$default_cost = wpdai_get_default_cost_price_by_product_id($product_id);
 										$placeholder_text = $default_cost > 0 
 											? 'Default: ' . wp_strip_all_tags(wc_price($default_cost))
 											: 'No cost price set';
@@ -1370,7 +1367,7 @@ class WPD_Alpha_Insights_Core {
 									?>
 									<tr>
 										<td colspan="2">
-											<label><?php echo esc_html( ( ! is_null($custom_cost_data['label']) ) ? $custom_cost_data['label'] : $custom_cost_slug ); ?> (<?php echo esc_html( wpd_store_currency_string() ); ?>)</label>
+											<label><?php echo esc_html( ( ! is_null($custom_cost_data['label']) ) ? $custom_cost_data['label'] : $custom_cost_slug ); ?> (<?php echo esc_html( wpdai_store_currency_string() ); ?>)</label>
 											<div class="wpd-meta"><?php echo esc_html( $custom_cost_data['description'] ); ?></div>
 										</td>
 										<td colspan="1">
@@ -1422,18 +1419,18 @@ class WPD_Alpha_Insights_Core {
 								<tr>
 									<?php
 										$current_price  = (float) $product->get_price();
-										$cost_price 	= (float) wpd_get_cost_price_by_product_id( $product_id );
+										$cost_price 	= (float) wpdai_get_cost_price_by_product_id( $product_id );
 										$additional_cost_string = '';
 
 										// Additional Cost Strings
 										if ( ! empty($custom_product_costs) ) {
-											$additional_costs = wpd_get_additional_costs_by_product_id( $product_id );
+											$additional_costs = wpdai_get_additional_costs_by_product_id( $product_id );
 											$cost_price += (float) $additional_costs['total'];
 										}
 
 										// Calculate Margin
 										$profit = $current_price - $cost_price;
-										$margin	= wpd_calculate_margin($profit, $current_price);
+										$margin	= wpdai_calculate_margin($profit, $current_price);
 
 									?>
 									<td><?php echo wp_kses_post( wc_price( $current_price ) ); ?></td>
@@ -1456,7 +1453,7 @@ class WPD_Alpha_Insights_Core {
 										<td>Product</td>
 										<td>Current Price</td>
 										<td>Profit</td>
-										<td>Cost of Goods (<?php echo esc_html( wpd_store_currency_string() ); ?>)</td>
+										<td>Cost of Goods (<?php echo esc_html( wpdai_store_currency_string() ); ?>)</td>
 									</tr>
 								</thead>
 								<tbody>
@@ -1474,7 +1471,7 @@ class WPD_Alpha_Insights_Core {
 												<?php echo wp_kses_post( wc_price( $variation->get_price() ) ); ?>
 											</td>
 											<td>
-												<?php $profit = (float) $variation->get_price() - (float) wpd_get_cost_price_by_product_id($variation_id); ?>
+												<?php $profit = (float) $variation->get_price() - (float) wpdai_get_cost_price_by_product_id($variation_id); ?>
 												<?php echo wp_kses_post( wc_price( $profit ) ); ?>
 											</td>
 											<td>
@@ -1488,7 +1485,7 @@ class WPD_Alpha_Insights_Core {
 															'data_type'   => 'price',
 															'description' => '',
 															'label' 	  => '',
-															'placeholder' => esc_attr( 'Default: ' . wp_strip_all_tags( wc_price( wpd_get_default_cost_price_by_product_id( $variation_id ) ) ) ),
+															'placeholder' => esc_attr( 'Default: ' . wp_strip_all_tags( wc_price( wpdai_get_default_cost_price_by_product_id( $variation_id ) ) ) ),
 															'wrapper_class' => 'form-field-wide',
 
 														)
@@ -1598,11 +1595,11 @@ class WPD_Alpha_Insights_Core {
 
 		// Update product data cache
 		// @todo need to async this
-		$update = wpd_update_product_cache_by_product_id( $product_id );
+		$update = wpdai_update_product_cache_by_product_id( $product_id );
 
 		// Clear cache for orders containing the updated products
 		if ( ! empty( $updated_product_ids ) && is_array($updated_product_ids) ) {
-			wpd_delete_order_cache_by_product_ids( array_unique( $updated_product_ids ) );
+			wpdai_delete_order_cache_by_product_ids( array_unique( $updated_product_ids ) );
 		}
 
 	}
@@ -1615,10 +1612,10 @@ class WPD_Alpha_Insights_Core {
 	public function register_product_custom_columns( $columns ) {
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpd_is_user_authorized_to_view_alpha_insights() ) return $columns;
+		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return $columns;
 
 		// Custom Columns
-		$custom_admin_columns 	= wpd_get_admin_custom_column_settings();
+		$custom_admin_columns 	= wpdai_get_admin_custom_column_settings();
 
 		// Make sure it's set
 		if ( is_array($custom_admin_columns) && isset($custom_admin_columns['products']) ) {
@@ -1655,7 +1652,7 @@ class WPD_Alpha_Insights_Core {
 			$has_children = $product->has_child();
 			if ( $has_children) {
 				
-				$cogs_range = wpd_get_min_max_product_cogs_range( $product );
+				$cogs_range = wpdai_get_min_max_product_cogs_range( $product );
 				if ( $cogs_range ) {
 
 					$min_cost_price = $cogs_range['min'];
@@ -1677,7 +1674,7 @@ class WPD_Alpha_Insights_Core {
 			} else {
 
 				// Simple product
-				echo wp_kses_post( wc_price( wpd_get_cost_price_by_product_id( $post_id ) ) );
+				echo wp_kses_post( wc_price( wpdai_get_cost_price_by_product_id( $post_id ) ) );
 
 			}
 
@@ -1692,7 +1689,7 @@ class WPD_Alpha_Insights_Core {
 			$has_children = $product->has_child();
 			if ( $has_children) {
 
-				$margin_range = wpd_get_min_max_product_margin_range( $product );
+				$margin_range = wpdai_get_min_max_product_margin_range( $product );
 
 				if ( $margin_range ) {
 
@@ -1713,7 +1710,7 @@ class WPD_Alpha_Insights_Core {
 
 			} else {
 
-				$margin_percentage = wpd_calculate_margin_by_product( $product );
+				$margin_percentage = wpdai_calculate_margin_by_product( $product );
 				echo esc_html( $margin_percentage ) . '%';
 
 			}
@@ -1722,7 +1719,7 @@ class WPD_Alpha_Insights_Core {
 
 			// Fetch Data
 			$target_key  		= 'product_cat_page_clicks';
-			$product_analytics 	= wpd_fetch_product_analytics_by_product_id( $post_id );
+			$product_analytics 	= wpdai_fetch_product_analytics_by_product_id( $post_id );
 			
 			// Output Data
 			if ( is_array($product_analytics) && isset($product_analytics[$target_key]) ) {
@@ -1733,7 +1730,7 @@ class WPD_Alpha_Insights_Core {
 
 			// Fetch Data
 			$target_key  		= 'product_page_views';
-			$product_analytics 	= wpd_fetch_product_analytics_by_product_id( $post_id );
+			$product_analytics 	= wpdai_fetch_product_analytics_by_product_id( $post_id );
 			
 			// Output Data
 			if ( is_array($product_analytics) && isset($product_analytics[$target_key]) ) {
@@ -1744,7 +1741,7 @@ class WPD_Alpha_Insights_Core {
 
 			// Fetch Data
 			$target_key  		= 'product_add_to_carts';
-			$product_analytics 	= wpd_fetch_product_analytics_by_product_id( $post_id );
+			$product_analytics 	= wpdai_fetch_product_analytics_by_product_id( $post_id );
 			
 			// Output Data
 			if ( is_array($product_analytics) && isset($product_analytics[$target_key]) ) {
@@ -1755,7 +1752,7 @@ class WPD_Alpha_Insights_Core {
 
 			// Fetch Data
 			$target_key  		= 'product_purchases';
-			$product_analytics 	= wpd_fetch_product_analytics_by_product_id( $post_id );
+			$product_analytics 	= wpdai_fetch_product_analytics_by_product_id( $post_id );
 			
 			// Output Data
 			if ( is_array($product_analytics) && isset($product_analytics[$target_key]) ) {
@@ -1766,7 +1763,7 @@ class WPD_Alpha_Insights_Core {
 
 			// Fetch Data
 			$target_key  		= 'page_view_to_atc_conversion_rate';
-			$product_analytics 	= wpd_fetch_product_analytics_by_product_id( $post_id );
+			$product_analytics 	= wpdai_fetch_product_analytics_by_product_id( $post_id );
 			
 			// Output Data
 			if ( is_array($product_analytics) && isset($product_analytics[$target_key]) ) {
@@ -1777,7 +1774,7 @@ class WPD_Alpha_Insights_Core {
 
 			// Fetch Data
 			$target_key  		= 'page_view_to_atc_conversion_rate';
-			$product_analytics 	= wpd_fetch_product_analytics_by_product_id( $post_id );
+			$product_analytics 	= wpdai_fetch_product_analytics_by_product_id( $post_id );
 			
 			// Output Data
 			if ( is_array($product_analytics) && isset($product_analytics[$target_key]) ) {
@@ -1788,7 +1785,7 @@ class WPD_Alpha_Insights_Core {
 
 			// Fetch Data
 			$target_key  		= 'wc_total_qty_purchased';
-			$product_analytics 	= wpd_fetch_product_analytics_by_product_id( $post_id );
+			$product_analytics 	= wpdai_fetch_product_analytics_by_product_id( $post_id );
 			
 			// Output Data
 			if ( is_array($product_analytics) && isset($product_analytics[$target_key]) ) {
@@ -1799,7 +1796,7 @@ class WPD_Alpha_Insights_Core {
 	
 			// Fetch Data
 			$target_key  		= 'average_price_post_discount';
-			$product_analytics 	= wpd_fetch_product_analytics_by_product_id( $post_id );
+			$product_analytics 	= wpdai_fetch_product_analytics_by_product_id( $post_id );
 			
 			// Output Data
 			if ( is_array($product_analytics) && isset($product_analytics[$target_key]) ) {
@@ -1810,7 +1807,7 @@ class WPD_Alpha_Insights_Core {
 	
 			// Fetch Data
 			$target_key  		= 'total_revenue_post_discount';
-			$product_analytics 	= wpd_fetch_product_analytics_by_product_id( $post_id );
+			$product_analytics 	= wpdai_fetch_product_analytics_by_product_id( $post_id );
 			
 			// Output Data
 			if ( is_array($product_analytics) && isset($product_analytics[$target_key]) ) {
@@ -1821,7 +1818,7 @@ class WPD_Alpha_Insights_Core {
 	
 			// Fetch Data
 			$target_key  		= 'total_profit';
-			$product_analytics 	= wpd_fetch_product_analytics_by_product_id( $post_id );
+			$product_analytics 	= wpdai_fetch_product_analytics_by_product_id( $post_id );
 			
 			// Output Data
 			if ( is_array($product_analytics) && isset($product_analytics[$target_key]) ) {
@@ -1840,13 +1837,13 @@ class WPD_Alpha_Insights_Core {
 	public function register_user_custom_columns( $columns ) {
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpd_is_user_authorized_to_view_alpha_insights() ) return $columns;
+		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return $columns;
 
 		// Change this to last
 		if ( isset($columns['posts']) ) unset( $columns['posts'] );
 
 		// Custom Columns
-		$custom_admin_columns = wpd_get_admin_custom_column_settings();
+		$custom_admin_columns = wpdai_get_admin_custom_column_settings();
 
 		if ( is_array($custom_admin_columns) && isset($custom_admin_columns['users']) ) {
 
@@ -1873,7 +1870,7 @@ class WPD_Alpha_Insights_Core {
 
 			// Fetch Data
 			$target_key  		= 'total_session_count';
-			$customer_analytics = wpd_fetch_customer_analytics_by_user_id( $user_id);
+			$customer_analytics = wpdai_fetch_customer_analytics_by_user_id( $user_id);
 			
 			// Output Data
 			if ( is_array($customer_analytics) && isset($customer_analytics[$target_key]) ) {
@@ -1885,7 +1882,7 @@ class WPD_Alpha_Insights_Core {
 
 			// Fetch Data
 			$target_key  		= 'total_order_count';
-			$customer_analytics = wpd_fetch_customer_analytics_by_user_id( $user_id);
+			$customer_analytics = wpdai_fetch_customer_analytics_by_user_id( $user_id);
 			
 			// Output Data
 			if ( is_array($customer_analytics) && isset($customer_analytics[$target_key]) ) {
@@ -1896,7 +1893,7 @@ class WPD_Alpha_Insights_Core {
 
 			// Fetch Data
 			$target_key  		= 'lifetime_value';
-			$customer_analytics = wpd_fetch_customer_analytics_by_user_id( $user_id);
+			$customer_analytics = wpdai_fetch_customer_analytics_by_user_id( $user_id);
 			
 			// Output Data
 			if ( is_array($customer_analytics) && isset($customer_analytics[$target_key]) ) {
@@ -1907,7 +1904,7 @@ class WPD_Alpha_Insights_Core {
 
 			// Fetch Data
 			$target_key  		= 'average_order_value';
-			$customer_analytics = wpd_fetch_customer_analytics_by_user_id( $user_id);
+			$customer_analytics = wpdai_fetch_customer_analytics_by_user_id( $user_id);
 			
 			// Output Data
 			if ( is_array($customer_analytics) && isset($customer_analytics[$target_key]) ) {
@@ -1918,7 +1915,7 @@ class WPD_Alpha_Insights_Core {
 
 			// Fetch Data
 			$target_key  		= 'conversion_rate';
-			$customer_analytics = wpd_fetch_customer_analytics_by_user_id( $user_id);
+			$customer_analytics = wpdai_fetch_customer_analytics_by_user_id( $user_id);
 
 			$session_count = $customer_analytics['total_session_count'];
 
@@ -1941,7 +1938,7 @@ class WPD_Alpha_Insights_Core {
 
 			// Fetch Data
 			$target_key  		= 'registration_date_pretty';
-			$customer_analytics = wpd_fetch_customer_analytics_by_user_id( $user_id);
+			$customer_analytics = wpdai_fetch_customer_analytics_by_user_id( $user_id);
 			
 			// Output Data
 			if ( is_array($customer_analytics) && isset($customer_analytics[$target_key]) ) {

@@ -602,7 +602,7 @@ class WPD_Data_Warehouse_React {
 		$datediff = $date_to - $date_from;
 
         // Difference in days
-        return wpd_divide( $datediff, (60 * 60 * 24) );
+        return wpdai_divide( $datediff, (60 * 60 * 24) );
 
 	}
 
@@ -862,7 +862,7 @@ class WPD_Data_Warehouse_React {
 
         // Only load it if this has been called
         if ( empty($this->store_currency) ) {
-            $this->store_currency = wpd_get_store_currency();
+            $this->store_currency = wpdai_get_store_currency();
         }
 
         // Safety Check
@@ -948,7 +948,7 @@ class WPD_Data_Warehouse_React {
         // Run and store a product collection if we couldnt find a data store
         if ( ! is_array($product_data_store) || empty($product_data_store) ) {
 
-            $product_data_store 	    = wpd_product_data_collection( $product_id );
+            $product_data_store 	    = wpdai_product_data_collection( $product_id );
             $product_data_store_update 	= update_post_meta( $product_id, '_wpd_ai_product_data_store', $product_data_store );    
 
         }
@@ -1015,7 +1015,7 @@ class WPD_Data_Warehouse_React {
                 'orderby' => 'date',
                 'order' => 'DESC',
                 'return' => 'ids',
-                'status' => wpd_paid_order_statuses(),
+                'status' => wpdai_paid_order_statuses(),
                 'date_created' => $date_from . "..." . $date_to, //'2018-02-01...2018-02-28',
                 'meta_key' => '_wpd_ai_meta_campaign_id',
                 'meta_compare' => 'EXISTS'
@@ -1029,7 +1029,7 @@ class WPD_Data_Warehouse_React {
                 'orderby' => 'date',
                 'order' => 'DESC',
                 'return' => 'ids',
-                'status' => wpd_paid_order_statuses(),
+                'status' => wpdai_paid_order_statuses(),
                 'date_created' => $date_from . "..." . $date_to, //'2018-02-01...2018-02-28',
                 'meta_key' => '_wpd_ai_landing_page',
                 'meta_value' => 'fbclid',
@@ -1045,20 +1045,20 @@ class WPD_Data_Warehouse_React {
 
         // Load the desired calculation cache
         if ( is_array($order_ids) && ! empty($order_ids) ) {
-            wpd_setup_order_calculations_in_object_cache( $order_ids );
+            wpdai_setup_order_calculations_in_object_cache( $order_ids );
         }
 
         // Loop through Order IDs to build useful array
         foreach( $order_ids as $order_id ) {
 
             // Collect data
-            $order_data = wpd_calculate_cost_profit_by_order( $order_id );
+            $order_data = wpdai_calculate_cost_profit_by_order( $order_id );
 
             // Only deal with paid orders - Little buggy with custom order statuses, rely on filter above
             // if ( $order_data['is_paid'] != 1 ) continue; 
 
             // Fetch Campaign ID
-            $campaign_id = wpd_get_order_meta_by_order_id( $order_id, '_wpd_ai_meta_campaign_id' );
+            $campaign_id = wpdai_get_order_meta_by_order_id( $order_id, '_wpd_ai_meta_campaign_id' );
 
             // Set a default value for non-found campaign ids
             if ( ! is_numeric($campaign_id) ) $campaign_id = 'unknown';
@@ -1092,7 +1092,7 @@ class WPD_Data_Warehouse_React {
                 'orderby' => 'date',
                 'order' => 'DESC',
                 'return' => 'ids',
-                'status' => wpd_paid_order_statuses(),
+                'status' => wpdai_paid_order_statuses(),
                 'date_created' => $date_from . "..." . $date_to, //'2018-02-01...2018-02-28',
                 'meta_key' => '_wpd_ai_google_campaign_id',
                 'meta_compare' => 'EXISTS'
@@ -1106,7 +1106,7 @@ class WPD_Data_Warehouse_React {
                 'orderby' => 'date',
                 'order' => 'DESC',
                 'return' => 'ids',
-                'status' => wpd_paid_order_statuses(),
+                'status' => wpdai_paid_order_statuses(),
                 'date_created' => $date_from . "..." . $date_to, //'2018-02-01...2018-02-28',
                 'meta_key' => '_wpd_ai_landing_page',
                 'meta_value' => 'gclid',
@@ -1119,20 +1119,20 @@ class WPD_Data_Warehouse_React {
 
         // Load the desired calculation cache
         if ( is_array($order_ids) && ! empty($order_ids) ) {
-            wpd_setup_order_calculations_in_object_cache( $order_ids );
+            wpdai_setup_order_calculations_in_object_cache( $order_ids );
         }
 
         // Loop through Order IDs to build useful array
         foreach( $order_ids as $order_id ) {
 
             // Collect data
-            $order_data = wpd_calculate_cost_profit_by_order( $order_id );
+            $order_data = wpdai_calculate_cost_profit_by_order( $order_id );
 
             // Only deal with paid orders - Little buggy with custom order statuses, rely on filter above
             // if ( $order_data['is_paid'] != 1 ) continue; 
 
             // Fetch Campaign ID
-            $campaign_id = wpd_get_order_meta_by_order_id( $order_id, '_wpd_ai_google_campaign_id' );
+            $campaign_id = wpdai_get_order_meta_by_order_id( $order_id, '_wpd_ai_google_campaign_id' );
 
             // Set a default value for non-found campaign ids
             if ( ! is_numeric($campaign_id) ) $campaign_id = 'unknown';
@@ -1163,7 +1163,7 @@ class WPD_Data_Warehouse_React {
         $start_time = microtime(true);
 
         // Dont bother if they dont have subscriptions
-        if ( ! wpd_is_wc_subscriptions_active() ){
+        if ( ! wpdai_is_wc_subscriptions_active() ){
             $this->set_error( 'WC_Subscriptions is not active.' );
             return $this->get_data('subscriptions');
         }
@@ -1323,7 +1323,7 @@ class WPD_Data_Warehouse_React {
         foreach( $order_data_table as $order_id => $order_data ) {
 
             // Memory Check
-			if ( wpd_is_memory_usage_greater_than(90) ) {
+			if ( wpdai_is_memory_usage_greater_than(90) ) {
 				$this->set_error(
 					sprintf(
 						/* translators: 1: Number of processed orders/subscriptions, 2: Total number of orders/subscriptions, 3: PHP memory limit */
@@ -1404,7 +1404,7 @@ class WPD_Data_Warehouse_React {
 		foreach ( $subscriptions as $subscription_id ) {
 
             // Memory Check
-			if ( wpd_is_memory_usage_greater_than(90) ) {
+			if ( wpdai_is_memory_usage_greater_than(90) ) {
 				$this->set_error(
 					sprintf(
 						/* translators: 1: Number of processed orders/subscriptions, 2: Total number of orders/subscriptions, 3: PHP memory limit */
@@ -1439,7 +1439,7 @@ class WPD_Data_Warehouse_React {
             $data_table[$subscription_id]['billing_interval'] 				= $subscription->get_billing_interval();
             $data_table[$subscription_id]['billing_period'] 				= $subscription->get_billing_period();
             $data_table[$subscription_id]['related_orders_in_period_count'] = count($data_table[$subscription_id]['related_orders_in_period']);
-            $data_table[$subscription_id]['average_margin']					= wpd_calculate_margin( $data_table[$subscription_id]['total_profit'], $data_table[$subscription_id]['total_revenue'] );
+            $data_table[$subscription_id]['average_margin']					= wpdai_calculate_margin( $data_table[$subscription_id]['total_profit'], $data_table[$subscription_id]['total_revenue'] );
             $data_table[$subscription_id]['subscription_active_today'] 		= ( $data_table[$subscription_id]['status'] === 'active' ) ? 1 : 0;
             $data_table[$subscription_id]['active_subscription_days']		= ( $data_table[$subscription_id]['date_end'] > 0 ) ? $this->days_between_dates( $data_table[$subscription_id]['date_created'], $data_table[$subscription_id]['date_end'] ) : $this->days_between_dates( $data_table[$subscription_id]['date_created'], current_time( 'timestamp' ) );
             $data_table[$subscription_id]['renewal_revenue']                = (float) $recurring_subscription_revenue = (float) $subscription->get_total();
@@ -1563,7 +1563,7 @@ class WPD_Data_Warehouse_React {
                     $date_cancelled_day_timestamp = ($data_table[$subscription_id]['date_cancelled']) ? strtotime( $this->convert_date_string( gmdate( 'Y-m-d', $data_table[$subscription_id]['date_cancelled'] ) ) ) : 0;
 
                     // Active subscriptions by date
-                    if ( wpd_is_subscription_active_on_date( $date_created_day_timestamp, $date_cancelled_day_timestamp, strtotime($date_key) ) ) {
+                    if ( wpdai_is_subscription_active_on_date( $date_created_day_timestamp, $date_cancelled_day_timestamp, strtotime($date_key) ) ) {
                         $data_by_date['active_subscriptions_by_date'][$date_key]++;
                     }
 
@@ -1628,17 +1628,17 @@ class WPD_Data_Warehouse_React {
 
         // Calculate totals
         $totals['total_subscriptions']                                          = count( $subscriptions );
-        $totals['average_active_subscription_days']                             = wpd_divide( $totals['total_active_subscription_days'], $totals['total_subscriptions'] );
-        $totals['average_subscription_revenue_in_period']                       = wpd_divide( $totals['total_subscription_revenue_in_period'], $totals['total_subscriptions'] );
-        $totals['average_subscription_profit_in_period']                        = wpd_divide( $totals['total_subscription_profit_in_period'], $totals['total_subscriptions'] );
-        $totals['average_subscription_margin_in_period']                        = wpd_calculate_margin( $totals['total_subscription_profit_in_period'], $totals['total_subscription_revenue_in_period'] );
+        $totals['average_active_subscription_days']                             = wpdai_divide( $totals['total_active_subscription_days'], $totals['total_subscriptions'] );
+        $totals['average_subscription_revenue_in_period']                       = wpdai_divide( $totals['total_subscription_revenue_in_period'], $totals['total_subscriptions'] );
+        $totals['average_subscription_profit_in_period']                        = wpdai_divide( $totals['total_subscription_profit_in_period'], $totals['total_subscriptions'] );
+        $totals['average_subscription_margin_in_period']                        = wpdai_calculate_margin( $totals['total_subscription_profit_in_period'], $totals['total_subscription_revenue_in_period'] );
         $categorized_data['subscriptions_created_forecast']['this_period']      = $totals['total_subscriptions_created_in_period'];
-        $categorized_data['subscriptions_created_forecast']['daily']            = wpd_divide( $totals['total_subscriptions_created_in_period'], $this->get_n_days_range(), 2 );
+        $categorized_data['subscriptions_created_forecast']['daily']            = wpdai_divide( $totals['total_subscriptions_created_in_period'], $this->get_n_days_range(), 2 );
         $categorized_data['subscriptions_created_forecast']['30_day']           = round( $categorized_data['subscriptions_created_forecast']['daily'] * 30, 2);
         $categorized_data['subscriptions_created_forecast']['90_day']           = round( $categorized_data['subscriptions_created_forecast']['daily'] * 90, 2);
         $categorized_data['subscriptions_created_forecast']['180_day']          = round( $categorized_data['subscriptions_created_forecast']['daily'] * 180, 2);
         $categorized_data['subscriptions_created_forecast']['365_day']          = round( $categorized_data['subscriptions_created_forecast']['daily'] * 365, 2);
-		$totals['cancellation_rate_in_period'] 	                                = wpd_calculate_percentage( $totals['total_subscriptions_cancelled_in_period'], $totals['total_subscriptions_created_in_period'] );
+		$totals['cancellation_rate_in_period'] 	                                = wpdai_calculate_percentage( $totals['total_subscriptions_cancelled_in_period'], $totals['total_subscriptions_created_in_period'] );
 
         // Create no data found array
         $data_by_date = $this->maybe_create_no_data_found_date_array( $data_by_date );
@@ -1958,7 +1958,7 @@ class WPD_Data_Warehouse_React {
         $date_to                                   = $this->get_date_to();
         $n_days_period                              = $this->get_n_days_range();
         $date_format                                = $this->get_filter( 'date_format_string' );
-        $custom_order_cost_options                  = wpd_get_custom_order_cost_options();
+        $custom_order_cost_options                  = wpdai_get_custom_order_cost_options();
         $memory_limit                               = ini_get('memory_limit');
 
         // Default Array Variables
@@ -2034,7 +2034,7 @@ class WPD_Data_Warehouse_React {
 		    'order' 			=> 'DESC',
 		    'date_created' 		=> $date_from . "..." . $date_to, //'2018-02-01...2018-02-28',
 		    'type' 				=> array( 'shop_order' ),
-		    'status' 			=> wpd_paid_order_statuses(),
+		    'status' 			=> wpdai_paid_order_statuses(),
 		    'return' 			=> 'ids',
 		);
 
@@ -2088,7 +2088,7 @@ class WPD_Data_Warehouse_React {
         // Run in batches
         $batch_size = 2500;
         $offset = 0;
-        $total_batches = ceil( wpd_divide($total_db_records, $batch_size) );
+        $total_batches = ceil( wpdai_divide($total_db_records, $batch_size) );
 
         while( $offset < $total_batches ) {
 
@@ -2098,13 +2098,13 @@ class WPD_Data_Warehouse_React {
             if ( empty( $current_order_ids_batch ) ) break; // No more orders to process
 
             // Load the desired calculation cache
-            wpd_setup_order_calculations_in_object_cache( $current_order_ids_batch );
+            wpdai_setup_order_calculations_in_object_cache( $current_order_ids_batch );
             
             // Loop through order ID's to build organised data and calculate totals
             foreach ( $current_order_ids_batch as $order_id ) {
 
                 // Memory Check
-                if ( wpd_is_memory_usage_greater_than(90) ) {
+                if ( wpdai_is_memory_usage_greater_than(90) ) {
                     $this->set_error(
                         sprintf(
                             /* translators: 1: Number of processed orders, 2: Total number of orders, 3: PHP memory limit */
@@ -2118,7 +2118,7 @@ class WPD_Data_Warehouse_React {
                 }
 
                 // Calculate order totals via cache
-                $order_data = wpd_calculate_cost_profit_by_order( $order_id );
+                $order_data = wpdai_calculate_cost_profit_by_order( $order_id );
 
                 // Safety Check
                 if ( ! is_array($order_data) ) continue;
@@ -2133,8 +2133,8 @@ class WPD_Data_Warehouse_React {
                 $referral_source_url    = $order_data['referral_source_url'];
                 $campaign_name          = $order_data['campaign_name'];
                 $traffic_type 		    = $order_data['traffic_source'];
-                $query_params 		    = wpd_get_query_params( $landing_page_url_raw );
-                $landing_page           = wpd_strip_params_from_url( $landing_page_url_raw );
+                $query_params 		    = wpdai_get_query_params( $landing_page_url_raw );
+                $landing_page           = wpdai_strip_params_from_url( $landing_page_url_raw );
 
                 // Transform if required
                 if ( empty($traffic_type) ) $traffic_type = 'unknown';
@@ -2222,7 +2222,7 @@ class WPD_Data_Warehouse_React {
                     }
 
                     // Calculate order product discount
-                    $order_data['total_product_discount_percent'] = wpd_calculate_percentage( $order_data['total_product_discounts'], $order_data['total_product_revenue_at_rrp'] );
+                    $order_data['total_product_discount_percent'] = wpdai_calculate_percentage( $order_data['total_product_discounts'], $order_data['total_product_revenue_at_rrp'] );
 
                 }
 
@@ -2289,7 +2289,7 @@ class WPD_Data_Warehouse_React {
                     if ( ! $order_has_target_product_category_or_tag ) continue;
 
                     // Any recalculations required
-                    $order_data['total_product_discount_percent'] = wpd_calculate_percentage( $order_data['total_product_discounts'], $order_data['total_product_revenue_at_rrp'] );
+                    $order_data['total_product_discount_percent'] = wpdai_calculate_percentage( $order_data['total_product_discounts'], $order_data['total_product_revenue_at_rrp'] );
 
                 }
 
@@ -2356,7 +2356,7 @@ class WPD_Data_Warehouse_React {
                     if ( ! $order_has_target_product_tag ) continue;
 
                     // Any recalculations required
-                    $order_data['total_product_discount_percent'] = wpd_calculate_percentage( $order_data['total_product_discounts'], $order_data['total_product_revenue_at_rrp'] );
+                    $order_data['total_product_discount_percent'] = wpdai_calculate_percentage( $order_data['total_product_discounts'], $order_data['total_product_revenue_at_rrp'] );
 
                 }
 
@@ -2556,8 +2556,8 @@ class WPD_Data_Warehouse_React {
                     if( isset($data_by_date['order_metrics']['revenue_excluding_tax_by_date'][$date_range_key]) ) $data_by_date['order_metrics']['revenue_excluding_tax_by_date'][$date_range_key] += $order_revenue_ex_tax;
                     if( isset($data_by_date['order_metrics']['profit_by_date'][$date_range_key]) ) $data_by_date['order_metrics']['profit_by_date'][$date_range_key] += $order_profit;
                     
-                    if( isset($data_by_date['order_metrics']['average_order_value_by_date'][$date_range_key]) ) $data_by_date['order_metrics']['average_order_value_by_date'][$date_range_key] = wpd_divide( $data_by_date['order_metrics']['revenue_by_date'][$date_range_key], $data_by_date['order_metrics']['order_count_by_date'][$date_range_key], 2 );
-                    if( isset($data_by_date['order_metrics']['average_order_margin_by_date'][$date_range_key]) ) $data_by_date['order_metrics']['average_order_margin_by_date'][$date_range_key] = wpd_calculate_margin( $data_by_date['order_metrics']['profit_by_date'][$date_range_key], $data_by_date['order_metrics']['revenue_excluding_tax_by_date'][$date_range_key] );
+                    if( isset($data_by_date['order_metrics']['average_order_value_by_date'][$date_range_key]) ) $data_by_date['order_metrics']['average_order_value_by_date'][$date_range_key] = wpdai_divide( $data_by_date['order_metrics']['revenue_by_date'][$date_range_key], $data_by_date['order_metrics']['order_count_by_date'][$date_range_key], 2 );
+                    if( isset($data_by_date['order_metrics']['average_order_margin_by_date'][$date_range_key]) ) $data_by_date['order_metrics']['average_order_margin_by_date'][$date_range_key] = wpdai_calculate_margin( $data_by_date['order_metrics']['profit_by_date'][$date_range_key], $data_by_date['order_metrics']['revenue_excluding_tax_by_date'][$date_range_key] );
 
                     // Daily Data
                     if( isset($categorized_data['order_metrics']['revenue_by_day_of_week'][$day_of_week_key]) ) $categorized_data['order_metrics']['revenue_by_day_of_week'][$day_of_week_key] += $order_revenue;
@@ -3182,7 +3182,7 @@ class WPD_Data_Warehouse_React {
             } // End Order Loop
             
             // Delete the calculation cache
-            wpd_delete_order_calculations_in_object_cache( $current_order_ids_batch );
+            wpdai_delete_order_calculations_in_object_cache( $current_order_ids_batch );
 
             // Force garbage collection
             if ( function_exists('gc_collect_cycles') ) {
@@ -3200,21 +3200,21 @@ class WPD_Data_Warehouse_React {
         // Additional Product Data Calculations
         if ( isset( $additional_data['products'] ) && $additional_data['products'] ) {
 
-            $average_qty_sold_per_day                   = wpd_divide( $total_qty_sold, $n_days_period );
-            $average_products_sold_per_day              = wpd_divide( $total_product_line_items_sold, $n_days_period );
-            $average_skus_sold_per_day                  = wpd_divide( $total_skus_sold, $n_days_period );
-            $average_profit_per_product                 = wpd_divide( $total_product_profit, $total_product_line_items_sold );
-            $average_product_margin                     = wpd_calculate_margin( $total_product_profit, $total_product_revenue_ex_tax );
-            $average_product_margin_at_rrp              = wpd_calculate_margin( $total_product_profit_at_rrp, $total_product_revenue_at_rrp );
+            $average_qty_sold_per_day                   = wpdai_divide( $total_qty_sold, $n_days_period );
+            $average_products_sold_per_day              = wpdai_divide( $total_product_line_items_sold, $n_days_period );
+            $average_skus_sold_per_day                  = wpdai_divide( $total_skus_sold, $n_days_period );
+            $average_profit_per_product                 = wpdai_divide( $total_product_profit, $total_product_line_items_sold );
+            $average_product_margin                     = wpdai_calculate_margin( $total_product_profit, $total_product_revenue_ex_tax );
+            $average_product_margin_at_rrp              = wpdai_calculate_margin( $total_product_profit_at_rrp, $total_product_revenue_at_rrp );
 
             foreach( $product_item_data as $product_id => $product_data ) {
     
                 // Calculations
-                $product_item_data[$product_id]['purchase_rate']                    = wpd_divide( $product_data['total_times_sold'], $total_order_count ) * 100;
-                $product_item_data[$product_id]['refund_rate']                      = wpd_divide( $product_data['total_times_refunded'], $product_data['total_times_sold'] ) * 100;
-                $product_item_data[$product_id]['average_margin']                   = wpd_divide( $product_data['average_margin_sum'], $product_data['total_times_sold'] );
-                $product_item_data[$product_id]['average_product_discount_percent'] = wpd_divide( $product_data['average_product_discount_percent_sum'], $product_data['total_times_sold'] );
-                $product_item_data[$product_id]['average_sell_price']               = wpd_divide( $product_data['average_sell_price_sum'], $product_data['total_times_sold'] );
+                $product_item_data[$product_id]['purchase_rate']                    = wpdai_divide( $product_data['total_times_sold'], $total_order_count ) * 100;
+                $product_item_data[$product_id]['refund_rate']                      = wpdai_divide( $product_data['total_times_refunded'], $product_data['total_times_sold'] ) * 100;
+                $product_item_data[$product_id]['average_margin']                   = wpdai_divide( $product_data['average_margin_sum'], $product_data['total_times_sold'] );
+                $product_item_data[$product_id]['average_product_discount_percent'] = wpdai_divide( $product_data['average_product_discount_percent_sum'], $product_data['total_times_sold'] );
+                $product_item_data[$product_id]['average_sell_price']               = wpdai_divide( $product_data['average_sell_price_sum'], $product_data['total_times_sold'] );
     
                 // Get rid of trash
                 unset( $product_item_data[$product_id]['average_margin_sum'] );
@@ -3231,54 +3231,54 @@ class WPD_Data_Warehouse_React {
             // Traffic Type
             foreach( $categorized_data['order_metrics']['acquisition_traffic_type'] as $data_key => $data ) {
 
-                $categorized_data['order_metrics']['acquisition_traffic_type'][$data_key]['margin_percentage'] = wpd_calculate_margin( $data['total_profit'], $data['total_revenue'] );
-                $categorized_data['order_metrics']['acquisition_traffic_type'][$data_key]['average_order_value'] = wpd_divide( $data['total_revenue'], $data['total_order_count'], 2 );
-                $categorized_data['order_metrics']['acquisition_traffic_type'][$data_key]['percent_of_revenue'] = wpd_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
+                $categorized_data['order_metrics']['acquisition_traffic_type'][$data_key]['margin_percentage'] = wpdai_calculate_margin( $data['total_profit'], $data['total_revenue'] );
+                $categorized_data['order_metrics']['acquisition_traffic_type'][$data_key]['average_order_value'] = wpdai_divide( $data['total_revenue'], $data['total_order_count'], 2 );
+                $categorized_data['order_metrics']['acquisition_traffic_type'][$data_key]['percent_of_revenue'] = wpdai_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
 
             }
 
             // Query Parameter Keys
             foreach( $categorized_data['order_metrics']['acquisition_query_parameter_keys'] as $data_key => $data ) {
 
-                $categorized_data['order_metrics']['acquisition_query_parameter_keys'][$data_key]['margin_percentage'] = wpd_calculate_margin( $data['total_profit'], $data['total_revenue'] );
-                $categorized_data['order_metrics']['acquisition_query_parameter_keys'][$data_key]['average_order_value'] = wpd_divide( $data['total_revenue'], $data['total_order_count'], 2 );
-                $categorized_data['order_metrics']['acquisition_query_parameter_keys'][$data_key]['percent_of_revenue'] = wpd_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
+                $categorized_data['order_metrics']['acquisition_query_parameter_keys'][$data_key]['margin_percentage'] = wpdai_calculate_margin( $data['total_profit'], $data['total_revenue'] );
+                $categorized_data['order_metrics']['acquisition_query_parameter_keys'][$data_key]['average_order_value'] = wpdai_divide( $data['total_revenue'], $data['total_order_count'], 2 );
+                $categorized_data['order_metrics']['acquisition_query_parameter_keys'][$data_key]['percent_of_revenue'] = wpdai_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
 
             }
 
             // Query Parameter Values
             foreach( $categorized_data['order_metrics']['acquisition_query_parameter_values'] as $data_key => $data ) {
 
-                $categorized_data['order_metrics']['acquisition_query_parameter_values'][$data_key]['margin_percentage'] = wpd_calculate_margin( $data['total_profit'], $data['total_revenue'] );
-                $categorized_data['order_metrics']['acquisition_query_parameter_values'][$data_key]['average_order_value'] = wpd_divide( $data['total_revenue'], $data['total_order_count'], 2 );
-                $categorized_data['order_metrics']['acquisition_query_parameter_values'][$data_key]['percent_of_revenue'] = wpd_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
+                $categorized_data['order_metrics']['acquisition_query_parameter_values'][$data_key]['margin_percentage'] = wpdai_calculate_margin( $data['total_profit'], $data['total_revenue'] );
+                $categorized_data['order_metrics']['acquisition_query_parameter_values'][$data_key]['average_order_value'] = wpdai_divide( $data['total_revenue'], $data['total_order_count'], 2 );
+                $categorized_data['order_metrics']['acquisition_query_parameter_values'][$data_key]['percent_of_revenue'] = wpdai_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
 
             }
 
             // Landing Page
             foreach( $categorized_data['order_metrics']['acquisition_landing_page'] as $data_key => $data ) {
 
-                $categorized_data['order_metrics']['acquisition_landing_page'][$data_key]['margin_percentage'] = wpd_calculate_margin( $data['total_profit'], $data['total_revenue'] );
-                $categorized_data['order_metrics']['acquisition_landing_page'][$data_key]['average_order_value'] = wpd_divide( $data['total_revenue'], $data['total_order_count'], 2 );
-                $categorized_data['order_metrics']['acquisition_landing_page'][$data_key]['percent_of_revenue'] = wpd_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
+                $categorized_data['order_metrics']['acquisition_landing_page'][$data_key]['margin_percentage'] = wpdai_calculate_margin( $data['total_profit'], $data['total_revenue'] );
+                $categorized_data['order_metrics']['acquisition_landing_page'][$data_key]['average_order_value'] = wpdai_divide( $data['total_revenue'], $data['total_order_count'], 2 );
+                $categorized_data['order_metrics']['acquisition_landing_page'][$data_key]['percent_of_revenue'] = wpdai_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
 
             }
 
             // Referral Source
             foreach( $categorized_data['order_metrics']['acquisition_referral_source'] as $data_key => $data ) {
 
-                $categorized_data['order_metrics']['acquisition_referral_source'][$data_key]['margin_percentage'] = wpd_calculate_margin( $data['total_profit'], $data['total_revenue'] );
-                $categorized_data['order_metrics']['acquisition_referral_source'][$data_key]['average_order_value'] = wpd_divide( $data['total_revenue'], $data['total_order_count'], 2 );
-                $categorized_data['order_metrics']['acquisition_referral_source'][$data_key]['percent_of_revenue'] = wpd_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
+                $categorized_data['order_metrics']['acquisition_referral_source'][$data_key]['margin_percentage'] = wpdai_calculate_margin( $data['total_profit'], $data['total_revenue'] );
+                $categorized_data['order_metrics']['acquisition_referral_source'][$data_key]['average_order_value'] = wpdai_divide( $data['total_revenue'], $data['total_order_count'], 2 );
+                $categorized_data['order_metrics']['acquisition_referral_source'][$data_key]['percent_of_revenue'] = wpdai_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
 
             }
 
             // Campaign Name
             foreach( $categorized_data['order_metrics']['acquisition_campaign_name'] as $data_key => $data ) {
 
-                $categorized_data['order_metrics']['acquisition_campaign_name'][$data_key]['margin_percentage'] = wpd_calculate_margin( $data['total_profit'], $data['total_revenue'] );
-                $categorized_data['order_metrics']['acquisition_campaign_name'][$data_key]['average_order_value'] = wpd_divide( $data['total_revenue'], $data['total_order_count'], 2 );
-                $categorized_data['order_metrics']['acquisition_campaign_name'][$data_key]['percent_of_revenue'] = wpd_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
+                $categorized_data['order_metrics']['acquisition_campaign_name'][$data_key]['margin_percentage'] = wpdai_calculate_margin( $data['total_profit'], $data['total_revenue'] );
+                $categorized_data['order_metrics']['acquisition_campaign_name'][$data_key]['average_order_value'] = wpdai_divide( $data['total_revenue'], $data['total_order_count'], 2 );
+                $categorized_data['order_metrics']['acquisition_campaign_name'][$data_key]['percent_of_revenue'] = wpdai_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
 
             }
 
@@ -3289,9 +3289,9 @@ class WPD_Data_Warehouse_React {
 
             foreach( $categorized_data['coupon_metrics']['orders_with_and_without_coupons'] as $data_key => $data ) {
 
-                $categorized_data['coupon_metrics']['orders_with_and_without_coupons'][$data_key]['margin_percentage'] = wpd_calculate_margin( $data['total_profit'], $data['total_revenue'] );
-                $categorized_data['coupon_metrics']['orders_with_and_without_coupons'][$data_key]['average_order_value'] = wpd_divide( $data['total_revenue'], $data['total_order_count'], 2 );
-                $categorized_data['coupon_metrics']['orders_with_and_without_coupons'][$data_key]['percent_of_revenue'] = wpd_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
+                $categorized_data['coupon_metrics']['orders_with_and_without_coupons'][$data_key]['margin_percentage'] = wpdai_calculate_margin( $data['total_profit'], $data['total_revenue'] );
+                $categorized_data['coupon_metrics']['orders_with_and_without_coupons'][$data_key]['average_order_value'] = wpdai_divide( $data['total_revenue'], $data['total_order_count'], 2 );
+                $categorized_data['coupon_metrics']['orders_with_and_without_coupons'][$data_key]['percent_of_revenue'] = wpdai_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
     
             }
 
@@ -3304,9 +3304,9 @@ class WPD_Data_Warehouse_React {
             foreach( $categorized_data['customer_metrics']['new_vs_returning_data'] as $data_key => $data ) {
 
                 $categorized_data['customer_metrics']['new_vs_returning_data'][$data_key]['distinct_count'] = count( array_unique( $categorized_data['customer_metrics']['new_vs_returning_data'][$data_key]['distinct_count'] ) );
-                $categorized_data['customer_metrics']['new_vs_returning_data'][$data_key]['margin_percentage'] = wpd_calculate_margin( $data['total_profit'], $data['total_revenue'] );
-                $categorized_data['customer_metrics']['new_vs_returning_data'][$data_key]['average_order_value'] = wpd_divide( $data['total_revenue'], $data['total_order_count'], 2 );
-                $categorized_data['customer_metrics']['new_vs_returning_data'][$data_key]['percent_of_revenue'] = wpd_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
+                $categorized_data['customer_metrics']['new_vs_returning_data'][$data_key]['margin_percentage'] = wpdai_calculate_margin( $data['total_profit'], $data['total_revenue'] );
+                $categorized_data['customer_metrics']['new_vs_returning_data'][$data_key]['average_order_value'] = wpdai_divide( $data['total_revenue'], $data['total_order_count'], 2 );
+                $categorized_data['customer_metrics']['new_vs_returning_data'][$data_key]['percent_of_revenue'] = wpdai_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
 
             }
 
@@ -3314,18 +3314,18 @@ class WPD_Data_Warehouse_React {
             foreach( $categorized_data['customer_metrics']['guest_vs_registered_data'] as $data_key => $data ) {
 
                 $categorized_data['customer_metrics']['guest_vs_registered_data'][$data_key]['distinct_count'] = count( array_unique( $categorized_data['customer_metrics']['guest_vs_registered_data'][$data_key]['distinct_count'] ) );
-                $categorized_data['customer_metrics']['guest_vs_registered_data'][$data_key]['margin_percentage'] = wpd_calculate_margin( $data['total_profit'], $data['total_revenue'] );
-                $categorized_data['customer_metrics']['guest_vs_registered_data'][$data_key]['average_order_value'] = wpd_divide( $data['total_revenue'], $data['total_order_count'], 2 );
-                $categorized_data['customer_metrics']['guest_vs_registered_data'][$data_key]['percent_of_revenue'] = wpd_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
+                $categorized_data['customer_metrics']['guest_vs_registered_data'][$data_key]['margin_percentage'] = wpdai_calculate_margin( $data['total_profit'], $data['total_revenue'] );
+                $categorized_data['customer_metrics']['guest_vs_registered_data'][$data_key]['average_order_value'] = wpdai_divide( $data['total_revenue'], $data['total_order_count'], 2 );
+                $categorized_data['customer_metrics']['guest_vs_registered_data'][$data_key]['percent_of_revenue'] = wpdai_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
 
             }
 
             // Device Browser
             foreach( $categorized_data['customer_metrics']['device_browser_data'] as $data_key => $data ) {
 
-                $categorized_data['customer_metrics']['device_browser_data'][$data_key]['margin_percentage'] = wpd_calculate_margin( $data['total_profit'], $data['total_revenue'] );
-                $categorized_data['customer_metrics']['device_browser_data'][$data_key]['average_order_value'] = wpd_divide( $data['total_revenue'], $data['total_order_count'], 2 );
-                $categorized_data['customer_metrics']['device_browser_data'][$data_key]['percent_of_revenue'] = wpd_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
+                $categorized_data['customer_metrics']['device_browser_data'][$data_key]['margin_percentage'] = wpdai_calculate_margin( $data['total_profit'], $data['total_revenue'] );
+                $categorized_data['customer_metrics']['device_browser_data'][$data_key]['average_order_value'] = wpdai_divide( $data['total_revenue'], $data['total_order_count'], 2 );
+                $categorized_data['customer_metrics']['device_browser_data'][$data_key]['percent_of_revenue'] = wpdai_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
                 if ( isset( $categorized_data['customer_metrics']['device_browser_data'][$data_key]['distinct_count'] ) ) unset( $categorized_data['customer_metrics']['device_browser_data'][$data_key]['distinct_count'] );
 
             }
@@ -3333,9 +3333,9 @@ class WPD_Data_Warehouse_React {
             // Device Type
             foreach( $categorized_data['customer_metrics']['device_type_data'] as $data_key => $data ) {
 
-                $categorized_data['customer_metrics']['device_type_data'][$data_key]['margin_percentage'] = wpd_calculate_margin( $data['total_profit'], $data['total_revenue'] );
-                $categorized_data['customer_metrics']['device_type_data'][$data_key]['average_order_value'] = wpd_divide( $data['total_revenue'], $data['total_order_count'], 2 );
-                $categorized_data['customer_metrics']['device_type_data'][$data_key]['percent_of_revenue'] = wpd_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
+                $categorized_data['customer_metrics']['device_type_data'][$data_key]['margin_percentage'] = wpdai_calculate_margin( $data['total_profit'], $data['total_revenue'] );
+                $categorized_data['customer_metrics']['device_type_data'][$data_key]['average_order_value'] = wpdai_divide( $data['total_revenue'], $data['total_order_count'], 2 );
+                $categorized_data['customer_metrics']['device_type_data'][$data_key]['percent_of_revenue'] = wpdai_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
                 if ( isset( $categorized_data['customer_metrics']['device_type_data'][$data_key]['distinct_count'] ) ) unset( $categorized_data['customer_metrics']['device_type_data'][$data_key]['distinct_count'] );
 
             }
@@ -3347,9 +3347,9 @@ class WPD_Data_Warehouse_React {
                 $customer_country_count++;
 
                 // Country level data
-                $data['margin_percentage'] = wpd_calculate_margin( $data['total_profit'], $data['total_revenue'] );
-                $data['average_order_value'] = wpd_divide( $data['total_revenue'], $data['total_order_count'], 2 );
-                $data['percent_of_revenue'] = wpd_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
+                $data['margin_percentage'] = wpdai_calculate_margin( $data['total_profit'], $data['total_revenue'] );
+                $data['average_order_value'] = wpdai_divide( $data['total_revenue'], $data['total_order_count'], 2 );
+                $data['percent_of_revenue'] = wpdai_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
                 
                 // Cleaning
                 if ( isset($data['distinct_count']) ) unset( $data['distinct_count'] );
@@ -3359,9 +3359,9 @@ class WPD_Data_Warehouse_React {
             // Location Data - State
             foreach( $categorized_data['customer_metrics']['state_location_data'] as $state_code => &$data ) {
 
-                $data['margin_percentage'] = wpd_calculate_margin( $data['total_profit'], $data['total_revenue'] );
-                $data['average_order_value'] = wpd_divide( $data['total_revenue'], $data['total_order_count'], 2 );
-                $data['percent_of_revenue'] = wpd_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
+                $data['margin_percentage'] = wpdai_calculate_margin( $data['total_profit'], $data['total_revenue'] );
+                $data['average_order_value'] = wpdai_divide( $data['total_revenue'], $data['total_order_count'], 2 );
+                $data['percent_of_revenue'] = wpdai_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
                 if ( isset($data['distinct_count']) ) unset( $data['distinct_count'] );
 
             }
@@ -3369,10 +3369,10 @@ class WPD_Data_Warehouse_React {
             // Customer Calculations
             foreach( $data_table['customer_metrics'] as $data_key => $data ) {
 
-                $data_table['customer_metrics'][$data_key]['margin_percentage']   = wpd_calculate_margin( $data['total_profit'], $data['total_revenue'] );
-                $data_table['customer_metrics'][$data_key]['average_order_value'] = wpd_divide( $data['total_revenue'], $data['total_order_count'], 2 );
-                $data_table['customer_metrics'][$data_key]['percent_of_revenue']  = wpd_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
-                $data_table['customer_metrics'][$data_key]['refund_rate']         = wpd_calculate_percentage( $data['refund_count'], $data['total_order_count'], 2 );
+                $data_table['customer_metrics'][$data_key]['margin_percentage']   = wpdai_calculate_margin( $data['total_profit'], $data['total_revenue'] );
+                $data_table['customer_metrics'][$data_key]['average_order_value'] = wpdai_divide( $data['total_revenue'], $data['total_order_count'], 2 );
+                $data_table['customer_metrics'][$data_key]['percent_of_revenue']  = wpdai_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
+                $data_table['customer_metrics'][$data_key]['refund_rate']         = wpdai_calculate_percentage( $data['refund_count'], $data['total_order_count'], 2 );
 
                 if ( $data['total_order_count'] > 1 ) $customer_count_purchase_more_than_once++;
                 if ( $data['refund_count'] > 0 ) $customers_with_refund_count++;
@@ -3385,24 +3385,24 @@ class WPD_Data_Warehouse_React {
             $guest_customer_count               = (int) $categorized_data['customer_metrics']['guest_vs_registered_data']['guest_customer']['distinct_count'];
             $new_customer_count                 = (int) $categorized_data['customer_metrics']['new_vs_returning_data']['new_customer']['distinct_count'];
             $returning_customer_count           = (int) $categorized_data['customer_metrics']['new_vs_returning_data']['returning_customer']['distinct_count'];
-            $average_customer_value_revenue     = (float) wpd_divide( $total_revenue, $unique_customer_count, 2 );
-            $average_customer_value_profit      = (float) wpd_divide( $total_profit, $unique_customer_count, 2 );
-            $orders_per_customer                = (float) wpd_divide( $totals['order_metrics']['total_order_count'], $unique_customer_count, 2 );
-            $refunds_per_customer               = (float) wpd_divide( $totals['refund_metrics']['total_order_count_with_refund'], $unique_customer_count, 4 );
-            $customer_refund_rate               = (float) wpd_calculate_percentage( $customers_with_refund_count, $unique_customer_count, 2 );
-            $products_purchased_per_customer    = (float) wpd_divide( $total_product_line_items_sold, $unique_customer_count, 2 );
-            $quantity_purchased_per_customer    = (float) wpd_divide( $total_qty_sold, $unique_customer_count, 2 );
+            $average_customer_value_revenue     = (float) wpdai_divide( $total_revenue, $unique_customer_count, 2 );
+            $average_customer_value_profit      = (float) wpdai_divide( $total_profit, $unique_customer_count, 2 );
+            $orders_per_customer                = (float) wpdai_divide( $totals['order_metrics']['total_order_count'], $unique_customer_count, 2 );
+            $refunds_per_customer               = (float) wpdai_divide( $totals['refund_metrics']['total_order_count_with_refund'], $unique_customer_count, 4 );
+            $customer_refund_rate               = (float) wpdai_calculate_percentage( $customers_with_refund_count, $unique_customer_count, 2 );
+            $products_purchased_per_customer    = (float) wpdai_divide( $total_product_line_items_sold, $unique_customer_count, 2 );
+            $quantity_purchased_per_customer    = (float) wpdai_divide( $total_qty_sold, $unique_customer_count, 2 );
 
             // Calculate some totals based on organised data
             $totals['customer_metrics']['customer_count_by_email_address']           = $unique_customer_count;
             $totals['customer_metrics']['registered_customer_count']                 = $registered_customer_count;
-            $totals['customer_metrics']['registered_customer_percentage']            = wpd_calculate_percentage( $registered_customer_count, $unique_customer_count );
+            $totals['customer_metrics']['registered_customer_percentage']            = wpdai_calculate_percentage( $registered_customer_count, $unique_customer_count );
             $totals['customer_metrics']['guest_customer_count']                      = $guest_customer_count;
-            $totals['customer_metrics']['guest_customer_percentage']                 = wpd_calculate_percentage( $guest_customer_count, $unique_customer_count );
+            $totals['customer_metrics']['guest_customer_percentage']                 = wpdai_calculate_percentage( $guest_customer_count, $unique_customer_count );
             $totals['customer_metrics']['new_customer_count']                        = $new_customer_count;
-            $totals['customer_metrics']['new_customer_percentage']                   = wpd_calculate_percentage( $new_customer_count, $unique_customer_count );
+            $totals['customer_metrics']['new_customer_percentage']                   = wpdai_calculate_percentage( $new_customer_count, $unique_customer_count );
             $totals['customer_metrics']['returning_customer_count']                  = $returning_customer_count;
-            $totals['customer_metrics']['returning_customer_percentage']             = wpd_calculate_percentage( $returning_customer_count, $unique_customer_count );
+            $totals['customer_metrics']['returning_customer_percentage']             = wpdai_calculate_percentage( $returning_customer_count, $unique_customer_count );
             $totals['customer_metrics']['average_customer_value_revenue']            = $average_customer_value_revenue;
             $totals['customer_metrics']['average_customer_value_profit']             = $average_customer_value_profit;
             $totals['customer_metrics']['orders_per_customer']                       = $orders_per_customer;
@@ -3445,9 +3445,9 @@ class WPD_Data_Warehouse_React {
                 }
 
                 // Coupon specific data
-                $data_table['coupon_metrics'][$data_key]['percent_of_orders_applied']               = wpd_calculate_percentage($data['total_orders_applied'], $totals['order_metrics']['total_order_count'], 2);
-                $data_table['coupon_metrics'][$data_key]['percent_of_orders_where_coupon_used']     = wpd_calculate_percentage($data['total_orders_applied'], $totals['coupon_metrics']['orders_with_coupons'], 2);
-                $data_table['coupon_metrics'][$data_key]['average_margin']                          = wpd_calculate_margin($data['total_profit'], $data['total_revenue']);
+                $data_table['coupon_metrics'][$data_key]['percent_of_orders_applied']               = wpdai_calculate_percentage($data['total_orders_applied'], $totals['order_metrics']['total_order_count'], 2);
+                $data_table['coupon_metrics'][$data_key]['percent_of_orders_where_coupon_used']     = wpdai_calculate_percentage($data['total_orders_applied'], $totals['coupon_metrics']['orders_with_coupons'], 2);
+                $data_table['coupon_metrics'][$data_key]['average_margin']                          = wpdai_calculate_margin($data['total_profit'], $data['total_revenue']);
                 $data_table['coupon_metrics'][$data_key]['customers_by_email_address']              = (is_array($data_table['coupon_metrics'][$data_key]['customers_by_email_address'])) ?  array_unique($data_table['coupon_metrics'][$data_key]['customers_by_email_address']) : array();
                 $data_table['coupon_metrics'][$data_key]['total_customers_applied']                 = count($data_table['coupon_metrics'][$data_key]['customers_by_email_address']);
                 $data_table['coupon_metrics'][$data_key]['customers_by_email_address']              = (is_array($data_table['coupon_metrics'][$data_key]['customers_by_email_address'])) ?  array_unique($data_table['coupon_metrics'][$data_key]['customers_by_email_address']) : array();
@@ -3458,25 +3458,25 @@ class WPD_Data_Warehouse_React {
             }
 
             // More totals
-            $totals['coupon_metrics']['average_margin_with_coupons']                             = wpd_calculate_margin( $totals['coupon_metrics']['total_profit_with_coupons'], $totals['coupon_metrics']['total_revenue_with_coupons'] );
-            $totals['coupon_metrics']['revenue_percent_with_coupons']                            = wpd_calculate_percentage( $totals['coupon_metrics']['total_revenue_with_coupons'], $total_revenue, 2 );
-            $totals['coupon_metrics']['profit_percent_with_coupons']                             = wpd_calculate_percentage( $totals['coupon_metrics']['total_profit_with_coupons'], $total_profit, 2 );
-            $totals['coupon_metrics']['order_percent_with_coupons']                              = wpd_calculate_percentage( $totals['coupon_metrics']['orders_with_coupons'], $totals['order_metrics']['total_order_count'], 2 );
-            $totals['coupon_metrics']['coupons_per_order']                                       = wpd_divide( $totals['coupon_metrics']['orders_with_coupons'], $totals['order_metrics']['total_order_count'], 4 );
-            $totals['coupon_metrics']['average_coupon_discount_per_discounted_order']            = wpd_divide( $totals['coupon_metrics']['total_discount_amount'], $totals['coupon_metrics']['orders_with_coupons'], 2 );
-            $totals['coupon_metrics']['average_coupon_discount_percent_per_discounted_order']    = wpd_calculate_percentage( $totals['coupon_metrics']['total_discount_amount'], $totals['coupon_metrics']['total_discount_amount'] + $totals['coupon_metrics']['total_revenue_with_coupons'], 2 );
+            $totals['coupon_metrics']['average_margin_with_coupons']                             = wpdai_calculate_margin( $totals['coupon_metrics']['total_profit_with_coupons'], $totals['coupon_metrics']['total_revenue_with_coupons'] );
+            $totals['coupon_metrics']['revenue_percent_with_coupons']                            = wpdai_calculate_percentage( $totals['coupon_metrics']['total_revenue_with_coupons'], $total_revenue, 2 );
+            $totals['coupon_metrics']['profit_percent_with_coupons']                             = wpdai_calculate_percentage( $totals['coupon_metrics']['total_profit_with_coupons'], $total_profit, 2 );
+            $totals['coupon_metrics']['order_percent_with_coupons']                              = wpdai_calculate_percentage( $totals['coupon_metrics']['orders_with_coupons'], $totals['order_metrics']['total_order_count'], 2 );
+            $totals['coupon_metrics']['coupons_per_order']                                       = wpdai_divide( $totals['coupon_metrics']['orders_with_coupons'], $totals['order_metrics']['total_order_count'], 4 );
+            $totals['coupon_metrics']['average_coupon_discount_per_discounted_order']            = wpdai_divide( $totals['coupon_metrics']['total_discount_amount'], $totals['coupon_metrics']['orders_with_coupons'], 2 );
+            $totals['coupon_metrics']['average_coupon_discount_percent_per_discounted_order']    = wpdai_calculate_percentage( $totals['coupon_metrics']['total_discount_amount'], $totals['coupon_metrics']['total_discount_amount'] + $totals['coupon_metrics']['total_revenue_with_coupons'], 2 );
             $totals['coupon_metrics']['orders_without_coupons']                                  = (int) $totals['order_metrics']['total_order_count'] - (int) $totals['coupon_metrics']['orders_with_coupons'];
-            $totals['coupon_metrics']['percent_of_orders_with_coupons']                          = wpd_calculate_percentage( $totals['coupon_metrics']['orders_with_coupons'], $totals['order_metrics']['total_order_count'] );
-            $totals['coupon_metrics']['percent_of_orders_without_coupons']                       = wpd_calculate_percentage( $totals['coupon_metrics']['orders_without_coupons'], $totals['order_metrics']['total_order_count'] );
+            $totals['coupon_metrics']['percent_of_orders_with_coupons']                          = wpdai_calculate_percentage( $totals['coupon_metrics']['orders_with_coupons'], $totals['order_metrics']['total_order_count'] );
+            $totals['coupon_metrics']['percent_of_orders_without_coupons']                       = wpdai_calculate_percentage( $totals['coupon_metrics']['orders_without_coupons'], $totals['order_metrics']['total_order_count'] );
 
         }
 
         // After the order loop, calculate percentages
         if ( is_array($payment_gateway_data) && ! empty($payment_gateway_data) ) {
             foreach ($payment_gateway_data as $gateway_id => &$data) {
-                $data['percent_of_orders'] = wpd_calculate_percentage($data['order_count'], $total_order_count);
-                $data['percent_of_revenue'] = wpd_calculate_percentage($data['revenue'], $total_revenue);
-                $data['average_order_value'] = wpd_divide($data['revenue'], $data['order_count']);
+                $data['percent_of_orders'] = wpdai_calculate_percentage($data['order_count'], $total_order_count);
+                $data['percent_of_revenue'] = wpdai_calculate_percentage($data['revenue'], $total_revenue);
+                $data['average_order_value'] = wpdai_divide($data['revenue'], $data['order_count']);
                 unset($data['distinct_count']);
             }
         }
@@ -3484,10 +3484,10 @@ class WPD_Data_Warehouse_React {
         // After the order loop, calculate percentages chris
         if ( is_array($categorized_data['order_metrics']['order_status_data']) && ! empty($categorized_data['order_metrics']['order_status_data']) ) {
             foreach ($categorized_data['order_metrics']['order_status_data'] as $order_status => &$data) {
-                $data['percent_of_orders'] = wpd_calculate_percentage($data['total_order_count'], $total_order_count);
-                $data['percent_of_revenue'] = wpd_calculate_percentage($data['total_revenue'], $total_revenue);
-                $data['average_order_value'] = wpd_divide($data['total_revenue'], $data['total_order_count']);
-                $data['margin_percentage'] = wpd_calculate_margin( $data['total_profit'], $data['total_revenue'] );
+                $data['percent_of_orders'] = wpdai_calculate_percentage($data['total_order_count'], $total_order_count);
+                $data['percent_of_revenue'] = wpdai_calculate_percentage($data['total_revenue'], $total_revenue);
+                $data['average_order_value'] = wpdai_divide($data['total_revenue'], $data['total_order_count']);
+                $data['margin_percentage'] = wpdai_calculate_margin( $data['total_profit'], $data['total_revenue'] );
                 unset($data['distinct_count']);
             }
         }
@@ -3545,36 +3545,36 @@ class WPD_Data_Warehouse_React {
         // Discount Data    
         $totals['product_metrics']['total_product_revenue_at_rrp'] 		      = $total_product_revenue_at_rrp;
         $totals['product_metrics']['total_product_discount_amount'] 		  = $total_product_discounts;
-        $totals['product_metrics']['average_product_discount_percent']        = wpd_calculate_percentage( $total_product_discounts, $total_product_revenue_at_rrp );
+        $totals['product_metrics']['average_product_discount_percent']        = wpdai_calculate_percentage( $total_product_discounts, $total_product_revenue_at_rrp );
         $totals['coupon_metrics']['total_coupon_discount_amount'] 	          = $total_coupon_discounts;
         $totals['order_metrics']['total_order_revenue_before_coupons'] 	      = $total_order_revenue_before_coupons;
-        $totals['coupon_metrics']['average_coupon_discount_percent']          = wpd_calculate_percentage( $total_coupon_discounts, $total_order_revenue_before_coupons );
+        $totals['coupon_metrics']['average_coupon_discount_percent']          = wpdai_calculate_percentage( $total_coupon_discounts, $total_order_revenue_before_coupons );
         $totals['order_metrics']['total_order_discount_amount']               = $total_order_discounts;
         $totals['order_metrics']['total_order_revenue_before_discounts']      = $total_order_revenue_before_discounts;
-        $totals['order_metrics']['average_order_discount_percent']            = wpd_calculate_percentage( $total_order_discounts, $total_order_revenue_before_discounts );
+        $totals['order_metrics']['average_order_discount_percent']            = wpdai_calculate_percentage( $total_order_discounts, $total_order_revenue_before_discounts );
         $totals['order_metrics']['orders_with_discount']                      = $orders_with_discount;
-        $totals['order_metrics']['discounted_order_percent']                  = wpd_calculate_percentage( $orders_with_discount, $total_order_count );
+        $totals['order_metrics']['discounted_order_percent']                  = wpdai_calculate_percentage( $orders_with_discount, $total_order_count );
 
         // Calculations 
         $totals['order_metrics']['largest_order_revenue'] 				      = $largest_order_revenue;
         $totals['order_metrics']['largest_order_cost'] 					      = $largest_order_cost;
         $totals['order_metrics']['largest_order_profit'] 				      = $largest_order_profit;
-        $totals['order_metrics']['average_order_margin']					  = wpd_calculate_percentage( $total_profit, $total_order_revenue_ex_tax, 2 );
-        $totals['order_metrics']['average_order_revenue'] 				      = wpd_divide( $total_revenue, $total_order_count, 2 );
-        $totals['order_metrics']['average_order_cost']					      = wpd_divide( $total_cost, $total_order_count, 2 );
-        $totals['order_metrics']['average_order_profit'] 				      = wpd_divide( $total_profit, $total_order_count, 2 );
-        $totals['order_metrics']['average_line_items_per_order']              = wpd_divide( $total_product_line_items_sold, $total_order_count, 2 );
-        $totals['order_metrics']['daily_average_order_count']                 = wpd_divide( $total_order_count, $n_days_period );
-        $totals['order_metrics']['daily_average_order_revenue']               = wpd_divide( $total_revenue, $n_days_period );
-        $totals['order_metrics']['daily_average_order_cost']                  = wpd_divide( $total_cost, $n_days_period );
-        $totals['order_metrics']['daily_average_order_profit']                = wpd_divide( $total_profit, $n_days_period );
-        $totals['order_metrics']['cost_percentage_of_revenue']                = wpd_calculate_percentage( $total_cost, $total_revenue );
+        $totals['order_metrics']['average_order_margin']					  = wpdai_calculate_percentage( $total_profit, $total_order_revenue_ex_tax, 2 );
+        $totals['order_metrics']['average_order_revenue'] 				      = wpdai_divide( $total_revenue, $total_order_count, 2 );
+        $totals['order_metrics']['average_order_cost']					      = wpdai_divide( $total_cost, $total_order_count, 2 );
+        $totals['order_metrics']['average_order_profit'] 				      = wpdai_divide( $total_profit, $total_order_count, 2 );
+        $totals['order_metrics']['average_line_items_per_order']              = wpdai_divide( $total_product_line_items_sold, $total_order_count, 2 );
+        $totals['order_metrics']['daily_average_order_count']                 = wpdai_divide( $total_order_count, $n_days_period );
+        $totals['order_metrics']['daily_average_order_revenue']               = wpdai_divide( $total_revenue, $n_days_period );
+        $totals['order_metrics']['daily_average_order_cost']                  = wpdai_divide( $total_cost, $n_days_period );
+        $totals['order_metrics']['daily_average_order_profit']                = wpdai_divide( $total_profit, $n_days_period );
+        $totals['order_metrics']['cost_percentage_of_revenue']                = wpdai_calculate_percentage( $total_cost, $total_revenue );
 
         // Refund data  
         $totals['refund_metrics']['total_refund_amount'] 					  = $total_refunds;
-        $totals['refund_metrics']['refund_percent_of_revenue']                = wpd_calculate_percentage( $total_refunds, $total_revenue );
-        $totals['refund_metrics']['refund_rate_percentage']                   = wpd_calculate_percentage( $totals['refund_metrics']['total_order_count_with_refund'], $totals['order_metrics']['total_order_count'] );
-        $totals['refund_metrics']['refunds_per_day']                          = wpd_divide( $totals['refund_metrics']['total_order_count_with_refund'], $n_days_period );
+        $totals['refund_metrics']['refund_percent_of_revenue']                = wpdai_calculate_percentage( $total_refunds, $total_revenue );
+        $totals['refund_metrics']['refund_rate_percentage']                   = wpdai_calculate_percentage( $totals['refund_metrics']['total_order_count_with_refund'], $totals['order_metrics']['total_order_count'] );
+        $totals['refund_metrics']['refunds_per_day']                          = wpdai_divide( $totals['refund_metrics']['total_order_count_with_refund'], $n_days_period );
         $totals['refund_metrics']['total_skus_refunded']                      = count( $refunded_product_ids );
 
         // Additional Data  
@@ -3603,21 +3603,21 @@ class WPD_Data_Warehouse_React {
         // After the order loop, calculate averages and percentages
         if ($totals['order_metrics']['total_tax_collected'] > 0) {
             foreach ($data_table['tax_metrics'] as $rate_id => &$summary) {
-                $summary['average_per_order'] = wpd_divide($summary['total_amount'], $summary['order_count']);
-                $summary['percent_of_total_tax'] = wpd_calculate_percentage(
+                $summary['average_per_order'] = wpdai_divide($summary['total_amount'], $summary['order_count']);
+                $summary['percent_of_total_tax'] = wpdai_calculate_percentage(
                     $summary['total_amount'],
                     $totals['order_metrics']['total_tax_collected']
                 );
             }
             foreach($categorized_data['tax_metrics']['tax_rate_summaries'] as $rate_id => &$summary) {
-                $summary['average_per_order'] = wpd_divide($summary['total_amount'], $summary['order_count']);
-                $summary['percent_of_total_tax'] = wpd_calculate_percentage(
+                $summary['average_per_order'] = wpdai_divide($summary['total_amount'], $summary['order_count']);
+                $summary['percent_of_total_tax'] = wpdai_calculate_percentage(
                     $summary['total_amount'],
                     $totals['order_metrics']['total_tax_collected']
                 );
             }
             // Override our other calculation
-            $totals['tax_metrics']['tax_as_percentage_of_revenue'] = wpd_calculate_percentage( $totals['order_metrics']['total_tax_collected'], $totals['tax_metrics']['total_revenue_where_tax_was_collected'] );
+            $totals['tax_metrics']['tax_as_percentage_of_revenue'] = wpdai_calculate_percentage( $totals['order_metrics']['total_tax_collected'], $totals['tax_metrics']['total_revenue_where_tax_was_collected'] );
 
         }
 
@@ -3722,7 +3722,7 @@ class WPD_Data_Warehouse_React {
 			'total_store_profit'                    => 0,
             'average_store_margin'                  => 0, // Bottomline Store Margin
             'daily_average_store_profit'            => 0,
-            'expense_percentage_of_order_profit'    => 0, // wpd_calculate_percentage( $total_other_expenses, $total_order_profit)
+            'expense_percentage_of_order_profit'    => 0, // wpdai_calculate_percentage( $total_other_expenses, $total_order_profit)
         );
         $categorized_data = array(
             'profit_loss_statement_data' => array(
@@ -3778,15 +3778,15 @@ class WPD_Data_Warehouse_React {
 
         // Totals
         $totals['total_store_profit']                   = $orders_data['totals']['total_order_profit'] - $expense_data['totals']['total_amount_paid'];
-        $totals['average_store_margin']                 = wpd_calculate_percentage( $totals['total_store_profit'], $orders_data['totals']['total_order_revenue_ex_tax'] );
-        $totals['daily_average_store_profit']           = wpd_divide( $totals['total_store_profit'], $n_days_period );
-        $totals['expense_percentage_of_order_profit']   = wpd_calculate_percentage( $expense_data['totals']['total_amount_paid'], $orders_data['totals']['total_order_profit'] );
+        $totals['average_store_margin']                 = wpdai_calculate_percentage( $totals['total_store_profit'], $orders_data['totals']['total_order_revenue_ex_tax'] );
+        $totals['daily_average_store_profit']           = wpdai_divide( $totals['total_store_profit'], $n_days_period );
+        $totals['expense_percentage_of_order_profit']   = wpdai_calculate_percentage( $expense_data['totals']['total_amount_paid'], $orders_data['totals']['total_order_profit'] );
 
         // Setup parent expense array
         $parent_expense_array = array();
         if ( is_array($expense_data['categorized_data']['parent_expense_type_categories']) && ! empty($expense_data['categorized_data']['parent_expense_type_categories']) ) {
             foreach( $expense_data['categorized_data']['parent_expense_type_categories'] as $parent_expense_slug => $parent_expense ) {
-                $parent_expense_array[wpd_clean_string($parent_expense_slug)] = $parent_expense['total_amount_paid'];
+                $parent_expense_array[wpdai_clean_string($parent_expense_slug)] = $parent_expense['total_amount_paid'];
             }
         }
 
@@ -3794,7 +3794,7 @@ class WPD_Data_Warehouse_React {
         $custom_order_cost_array = array();
         if ( is_array($orders_data['categorized_data']['custom_order_cost_data']) && ! empty($orders_data['categorized_data']['custom_order_cost_data']) ) {
             foreach( $orders_data['categorized_data']['custom_order_cost_data'] as $custom_order_cost_slug => $custom_order_cost ) {
-                $custom_order_cost_array[wpd_clean_string($custom_order_cost_slug)] = $custom_order_cost;
+                $custom_order_cost_array[wpdai_clean_string($custom_order_cost_slug)] = $custom_order_cost;
             }
         }
 
@@ -4015,7 +4015,7 @@ class WPD_Data_Warehouse_React {
 			 *	If memory use is higher than 90%, dont try and find anymore
 			 *
 			 */
-			if ( wpd_is_memory_usage_greater_than(90) ) {
+			if ( wpdai_is_memory_usage_greater_than(90) ) {
 
 				$memory_limit = ini_get('memory_limit');
 				$this->set_error(
@@ -4150,7 +4150,7 @@ class WPD_Data_Warehouse_React {
 
 					// Validate timestamp advancement to prevent infinite loops
 					if ( $new_timestamp === false || $new_timestamp <= $recurring_expense_date_started_string ) {
-						wpd_write_log( "Recurring expense loop validation failed for expense ID: {$post_id}. Breaking loop to prevent infinite loop.", 'expense_error' );
+						wpdai_write_log( "Recurring expense loop validation failed for expense ID: {$post_id}. Breaking loop to prevent infinite loop.", 'expense_error' );
 						break;
 					}
 
@@ -4173,7 +4173,7 @@ class WPD_Data_Warehouse_React {
 
                     // Currency Conversion
 					if ( $wpd_amount_paid_currency != $store_currency ) {
-						$converted_value = wpd_convert_currency( $wpd_amount_paid_currency, $store_currency, $wpd_amount_paid );
+						$converted_value = wpdai_convert_currency( $wpd_amount_paid_currency, $store_currency, $wpd_amount_paid );
 					} else {
 						$converted_value = $wpd_amount_paid; 
 					}
@@ -4368,7 +4368,7 @@ class WPD_Data_Warehouse_React {
 
 				// Validate timestamp advancement to prevent infinite loops
 				if ( $new_timestamp === false || $new_timestamp <= $recurring_expense_date_started_string ) {
-					wpd_write_log( "Recurring expense loop validation failed for expense ID: {$post_id}. Breaking loop to prevent infinite loop.", 'expense_error' );
+					wpdai_write_log( "Recurring expense loop validation failed for expense ID: {$post_id}. Breaking loop to prevent infinite loop.", 'expense_error' );
 					break;
 				}
 
@@ -4384,7 +4384,7 @@ class WPD_Data_Warehouse_React {
                 // Make conversions if required
 				if ( $wpd_amount_paid_currency != $store_currency ) {
 
-					$converted_value = wpd_convert_currency( $wpd_amount_paid_currency, $store_currency, $wpd_amount_paid );
+					$converted_value = wpdai_convert_currency( $wpd_amount_paid_currency, $store_currency, $wpd_amount_paid );
 
 				} else {
 
@@ -4554,7 +4554,7 @@ class WPD_Data_Warehouse_React {
         // Sort arrays
         // Parent Expense Taxonomy
         if ( isset($parent_expense_by_type) && is_array($parent_expense_by_type) && ! empty($parent_expense_by_type) ) {
-            // $parent_expense_by_type = wpd_sort_multi_level_array( $parent_expense_by_type, 'total' );
+            // $parent_expense_by_type = wpdai_sort_multi_level_array( $parent_expense_by_type, 'total' );
             foreach( $parent_expense_by_type as $key => &$value ) {
                 unset($value['id']);
                 unset($value['label']);
@@ -4562,14 +4562,14 @@ class WPD_Data_Warehouse_React {
                 unset($value['parent_id']);
                 unset($value['slug']);
                 unset($value['unique_expenses']);
-                $parent_expense_by_type[$key]['percent_of_total_expenses'] = wpd_calculate_percentage( $value['total_amount'], $total_amount );
+                $parent_expense_by_type[$key]['percent_of_total_expenses'] = wpdai_calculate_percentage( $value['total_amount'], $total_amount );
             }
         } else {
             $parent_expense_by_type = array();
         }
         // Child expense by taxonomy
         if ( isset($child_expense_by_type) && is_array($child_expense_by_type) && ! empty($child_expense_by_type) ) {
-            // $child_expense_by_type = wpd_sort_multi_level_array( $child_expense_by_type, 'total' );
+            // $child_expense_by_type = wpdai_sort_multi_level_array( $child_expense_by_type, 'total' );
             foreach( $child_expense_by_type as $key => &$value ) {
                 unset($value['id']);
                 unset($value['label']);
@@ -4577,7 +4577,7 @@ class WPD_Data_Warehouse_React {
                 unset($value['parent_id']);
                 unset($value['slug']);
                 unset($value['unique_expenses']);
-                $child_expense_by_type[$key]['percent_of_total_expenses'] = wpd_calculate_percentage( $value['total_amount'], $total_amount );
+                $child_expense_by_type[$key]['percent_of_total_expenses'] = wpdai_calculate_percentage( $value['total_amount'], $total_amount );
             }
         } else {
             $child_expense_by_type = array();
@@ -4592,7 +4592,7 @@ class WPD_Data_Warehouse_React {
                 unset($value['parent_id']);
                 unset($value['slug']);
                 unset($value['unique_expenses']);
-                $value['percent_of_total_expenses'] = wpd_calculate_percentage( $value['total_amount'], $total_amount );
+                $value['percent_of_total_expenses'] = wpdai_calculate_percentage( $value['total_amount'], $total_amount );
             }
 
         } else {
@@ -4603,14 +4603,14 @@ class WPD_Data_Warehouse_React {
         $totals['total_amount_paid']  		            = $total_amount_paid;
         $totals['total_amount_unpaid']  		        = $total_amount_unpaid;
         $totals['total_amount']                         = $total_amount;
-        $totals['average_expenses_per_day'] 	        = wpd_divide( $total_amount, $n_days_period );
+        $totals['average_expenses_per_day'] 	        = wpdai_divide( $total_amount, $n_days_period );
         $totals['total_expense_count']                  = $total_expense_count;
         $totals['total_unpaid_expense_count']           = $total_unpaid_expense_count;
         $totals['total_paid_expense_count']             = $total_paid_expense_count;
         $totals['total_standard_expense_count']         = $total_standard_expense_count;
         $totals['total_recurring_expense_count']        = $total_recurring_expense_count;
         $totals['total_unique_recurring_expense_count'] = $total_unique_recurring_expense_count;
-        $totals['daily_average_expense_count']          = wpd_divide( $total_expense_count, $n_days_period );
+        $totals['daily_average_expense_count']          = wpdai_divide( $total_expense_count, $n_days_period );
         $totals['daily_average_expense_amount']         = $totals['average_expenses_per_day']; // New key
         
         // Store categorized data
@@ -4667,7 +4667,7 @@ class WPD_Data_Warehouse_React {
         $date_format                = $this->get_filter( 'date_format_string' );
         $unix_date_from             = strtotime( $start . ' 23:59:59' ); // Make sure it includes orders that day
         $unix_date_to               = strtotime( $end . ' 23:59:59' ); // Make sure it includes orders that day
-        $store_currency             = wpd_get_store_currency();
+        $store_currency             = wpdai_get_store_currency();
 
         $default_product_sales_data = array(
             'product_name' => '',
@@ -5007,7 +5007,7 @@ class WPD_Data_Warehouse_React {
                             $categorized_data['product_data'][$product_name]['total_product_profit'] += $product_data['total_profit'];
                             $categorized_data['product_data'][$product_name]['total_qty_sold'] += $product_data['qty_sold'];
                             $categorized_data['product_data'][$product_name]['total_times_sold']++;
-                            $categorized_data['product_data'][$product_name]['average_margin'] = wpd_calculate_margin( $categorized_data['product_data'][$product_name]['total_product_profit'], $categorized_data['product_data'][$product_name]['total_product_revenue_excluding_tax'] );
+                            $categorized_data['product_data'][$product_name]['average_margin'] = wpdai_calculate_margin( $categorized_data['product_data'][$product_name]['total_product_profit'], $categorized_data['product_data'][$product_name]['total_product_revenue_excluding_tax'] );
 
                         }
 
@@ -5023,19 +5023,19 @@ class WPD_Data_Warehouse_React {
             }
 
             // Campaign Totals - API Values
-            $campaign_average_cpc           = wpd_divide( $campaign_spend, $campaign_clicks ); // Calculation
-            $campaign_average_ctr           = wpd_calculate_percentage( $campaign_clicks, $campaign_impressions ); // Calculation
-            $campaign_conversion_rate       = wpd_calculate_percentage( $campaign_conversions, $campaign_clicks ); // Calculation
-            $campaign_roas                  = wpd_divide( $campaign_conversion_value, $campaign_spend ); // Calculation
+            $campaign_average_cpc           = wpdai_divide( $campaign_spend, $campaign_clicks ); // Calculation
+            $campaign_average_ctr           = wpdai_calculate_percentage( $campaign_clicks, $campaign_impressions ); // Calculation
+            $campaign_conversion_rate       = wpdai_calculate_percentage( $campaign_conversions, $campaign_clicks ); // Calculation
+            $campaign_roas                  = wpdai_divide( $campaign_conversion_value, $campaign_spend ); // Calculation
 
             // Campaign Totals - Store Calculated Values
             $campaign_total_profit          = $campaign_order_profit - $campaign_spend;
-            $campaign_order_conversion_rate = wpd_calculate_percentage( $campaign_order_count, $campaign_clicks );
-            $campaign_order_revenue_roas    = wpd_divide( $campaign_order_revenue, $campaign_spend );
-            $campaign_adjusted_roas         = wpd_divide( $campaign_total_profit, $campaign_spend );
-            $campaign_adjusted_margin       = wpd_calculate_margin( $campaign_total_profit, $campaign_order_revenue );
-            $campaign_cost_per_order        = wpd_divide( $campaign_order_count, $campaign_spend );
-            $campaign_cost_per_new_customer = wpd_divide( $campaign_new_customer_count, $campaign_spend );
+            $campaign_order_conversion_rate = wpdai_calculate_percentage( $campaign_order_count, $campaign_clicks );
+            $campaign_order_revenue_roas    = wpdai_divide( $campaign_order_revenue, $campaign_spend );
+            $campaign_adjusted_roas         = wpdai_divide( $campaign_total_profit, $campaign_spend );
+            $campaign_adjusted_margin       = wpdai_calculate_margin( $campaign_total_profit, $campaign_order_revenue );
+            $campaign_cost_per_order        = wpdai_divide( $campaign_order_count, $campaign_spend );
+            $campaign_cost_per_new_customer = wpdai_divide( $campaign_new_customer_count, $campaign_spend );
 
             // Iterate active campaigns
             $filtered_campaign_count++;
@@ -5110,16 +5110,16 @@ class WPD_Data_Warehouse_React {
             $data_by_date['campaign_actual_profit_by_date'][$date_key] = $data_by_date['campaign_order_profit_by_date'][$date_key] - $data_by_date['campaign_spend_by_date'][$date_key];
                        
             // Actual ROAS by date
-            $data_by_date['campaign_actual_roas_by_date'][$date_key] = wpd_divide( $data_by_date['campaign_order_profit_by_date'][$date_key], $data_by_date['campaign_spend_by_date'][$date_key], 2 );
+            $data_by_date['campaign_actual_roas_by_date'][$date_key] = wpdai_divide( $data_by_date['campaign_order_profit_by_date'][$date_key], $data_by_date['campaign_spend_by_date'][$date_key], 2 );
 
             // Cost Per New Customer
-            $data_by_date['campaign_cost_per_new_customer_by_date'][$date_key] = wpd_divide( $data_by_date['campaign_spend_by_date'][$date_key], $data_by_date['campaign_new_customer_count_by_date'][$date_key], 2 );
+            $data_by_date['campaign_cost_per_new_customer_by_date'][$date_key] = wpdai_divide( $data_by_date['campaign_spend_by_date'][$date_key], $data_by_date['campaign_new_customer_count_by_date'][$date_key], 2 );
             
             // Cost Per Order Placed
-            $data_by_date['campaign_cost_per_order_placed_by_date'][$date_key] = wpd_divide( $data_by_date['campaign_spend_by_date'][$date_key], $data_by_date['campaign_order_count_by_date'][$date_key], 2 );
+            $data_by_date['campaign_cost_per_order_placed_by_date'][$date_key] = wpdai_divide( $data_by_date['campaign_spend_by_date'][$date_key], $data_by_date['campaign_order_count_by_date'][$date_key], 2 );
 
             // Conversion Rate
-            $data_by_date['campaign_conversion_rate_by_date'][$date_key] = wpd_calculate_percentage( $data_by_date['campaign_order_count_by_date'][$date_key], $data_by_date['campaign_clicks_by_date'][$date_key], 2 );
+            $data_by_date['campaign_conversion_rate_by_date'][$date_key] = wpdai_calculate_percentage( $data_by_date['campaign_order_count_by_date'][$date_key], $data_by_date['campaign_clicks_by_date'][$date_key], 2 );
 
             // Campaign Specific Array
             foreach( $data_by_date['campaign_comparison_actual_profit_by_date'] as $campaign_name => $campaign_date_data ) {
@@ -5133,26 +5133,26 @@ class WPD_Data_Warehouse_React {
 
         // Final calculations
         $totals['campaigns_found'] = $filtered_campaign_count;
-        $totals['campaign_api_roas'] = wpd_divide( $totals['campaign_api_revenue'], $totals['campaign_spend'] );
-        $totals['campaign_api_conversion_rate'] = wpd_calculate_percentage( $totals['campaign_api_conversions'], $totals['campaign_clicks'] );
-        $totals['campaign_average_cpc'] = wpd_divide( $totals['campaign_spend'], $totals['campaign_clicks'] );
-        $totals['campaign_average_ctr'] = wpd_calculate_percentage( $totals['campaign_clicks'], $totals['campaign_impressions'] );
-        $totals['campaign_order_margin'] = wpd_calculate_margin( $totals['campaign_order_profit'], $totals['campaign_order_revenue'] );
-        $totals['campaign_order_conversion_rate'] = wpd_calculate_percentage( $totals['campaign_order_count'], $totals['campaign_clicks'] );
-        $totals['campaign_revenue_roas'] = wpd_divide( $totals['campaign_order_revenue'], $totals['campaign_spend'] );
-        $totals['campaign_adjusted_roas'] = wpd_divide( $totals['campaign_total_profit'], $totals['campaign_spend'] );
-        $totals['campaign_adjusted_margin'] = wpd_calculate_margin( $totals['campaign_total_profit'], $totals['campaign_order_revenue'] );
-        $totals['campaign_cost_per_order'] = wpd_divide( $totals['campaign_spend'], $totals['campaign_order_count'] );
-        $totals['campaign_average_days_active'] = wpd_divide( $totals['campaign_total_days_active'], $totals['campaigns_found'] );
-        $totals['campaign_total_profit_per_day'] = wpd_divide( $totals['campaign_total_profit'], $totals['campaign_total_days_active'] );
-        $totals['campaign_average_order_value'] = wpd_divide( $totals['campaign_order_revenue'], $totals['campaign_order_count'] );
-        $totals['campaign_orders_per_active_campaign_day'] = wpd_divide( $totals['campaign_order_count'], $totals['campaign_total_days_active'] );
-        $totals['campaign_orders_per_click'] = wpd_divide( $totals['campaign_order_count'], $totals['campaign_clicks'] );
-        $totals['campaign_spend_per_active_day'] = wpd_divide( $totals['campaign_spend'], $totals['campaign_total_days_active'] );
+        $totals['campaign_api_roas'] = wpdai_divide( $totals['campaign_api_revenue'], $totals['campaign_spend'] );
+        $totals['campaign_api_conversion_rate'] = wpdai_calculate_percentage( $totals['campaign_api_conversions'], $totals['campaign_clicks'] );
+        $totals['campaign_average_cpc'] = wpdai_divide( $totals['campaign_spend'], $totals['campaign_clicks'] );
+        $totals['campaign_average_ctr'] = wpdai_calculate_percentage( $totals['campaign_clicks'], $totals['campaign_impressions'] );
+        $totals['campaign_order_margin'] = wpdai_calculate_margin( $totals['campaign_order_profit'], $totals['campaign_order_revenue'] );
+        $totals['campaign_order_conversion_rate'] = wpdai_calculate_percentage( $totals['campaign_order_count'], $totals['campaign_clicks'] );
+        $totals['campaign_revenue_roas'] = wpdai_divide( $totals['campaign_order_revenue'], $totals['campaign_spend'] );
+        $totals['campaign_adjusted_roas'] = wpdai_divide( $totals['campaign_total_profit'], $totals['campaign_spend'] );
+        $totals['campaign_adjusted_margin'] = wpdai_calculate_margin( $totals['campaign_total_profit'], $totals['campaign_order_revenue'] );
+        $totals['campaign_cost_per_order'] = wpdai_divide( $totals['campaign_spend'], $totals['campaign_order_count'] );
+        $totals['campaign_average_days_active'] = wpdai_divide( $totals['campaign_total_days_active'], $totals['campaigns_found'] );
+        $totals['campaign_total_profit_per_day'] = wpdai_divide( $totals['campaign_total_profit'], $totals['campaign_total_days_active'] );
+        $totals['campaign_average_order_value'] = wpdai_divide( $totals['campaign_order_revenue'], $totals['campaign_order_count'] );
+        $totals['campaign_orders_per_active_campaign_day'] = wpdai_divide( $totals['campaign_order_count'], $totals['campaign_total_days_active'] );
+        $totals['campaign_orders_per_click'] = wpdai_divide( $totals['campaign_order_count'], $totals['campaign_clicks'] );
+        $totals['campaign_spend_per_active_day'] = wpdai_divide( $totals['campaign_spend'], $totals['campaign_total_days_active'] );
         $categorized_data['customers_by_email_address'] = array_unique( $categorized_data['customers_by_email_address'] ); // New
         $totals['total_customer_count'] = count( $categorized_data['customers_by_email_address'] ); // New
-        $totals['cost_per_new_customer'] = wpd_divide( $totals['campaign_spend'], $totals['new_customer_count'] ); // New
-        $totals['cost_per_customer'] = wpd_divide( $totals['campaign_spend'], $totals['total_customer_count'] ); // New
+        $totals['cost_per_new_customer'] = wpdai_divide( $totals['campaign_spend'], $totals['new_customer_count'] ); // New
+        $totals['cost_per_customer'] = wpdai_divide( $totals['campaign_spend'], $totals['total_customer_count'] ); // New
 
         // Create no data found array
         $data_by_date = $this->maybe_create_no_data_found_date_array( $data_by_date );
@@ -5286,7 +5286,7 @@ class WPD_Data_Warehouse_React {
         $unix_date_to = strtotime($date_to . ' 23:59:59' );
         $search_by_campaign_id = false; // Null for now
         $date_format = $this->get_filter( 'date_format_string' );
-        $store_currency = wpd_get_store_currency();
+        $store_currency = wpdai_get_store_currency();
 
         // Let's get a list of all campaigns
         if ( WPD_AI_PRO ) {
@@ -5526,7 +5526,7 @@ class WPD_Data_Warehouse_React {
                                 $categorized_data['product_data'][$product_name]['total_product_profit'] += $product_data['total_profit'];
                                 $categorized_data['product_data'][$product_name]['total_qty_sold'] += $product_data['qty_sold'];
                                 $categorized_data['product_data'][$product_name]['total_times_sold']++;
-                                $categorized_data['product_data'][$product_name]['average_margin'] = wpd_calculate_margin( $categorized_data['product_data'][$product_name]['total_product_profit'], $categorized_data['product_data'][$product_name]['total_product_revenue_excluding_tax'] );
+                                $categorized_data['product_data'][$product_name]['average_margin'] = wpdai_calculate_margin( $categorized_data['product_data'][$product_name]['total_product_profit'], $categorized_data['product_data'][$product_name]['total_product_revenue_excluding_tax'] );
 
                             }
 
@@ -5542,19 +5542,19 @@ class WPD_Data_Warehouse_React {
                 }
 
                 // Campaign Totals - API Values
-                $campaign_average_cpc           = wpd_divide( $campaign_spend, $campaign_clicks ); // Calculation
-                $campaign_average_ctr           = wpd_calculate_percentage( $campaign_clicks, $campaign_impressions ); // Calculation
-                $campaign_conversion_rate       = wpd_calculate_percentage( $campaign_conversions, $campaign_clicks ); // Calculation
-                $campaign_roas                  = wpd_divide( $campaign_conversion_value, $campaign_spend ); // Calculation
+                $campaign_average_cpc           = wpdai_divide( $campaign_spend, $campaign_clicks ); // Calculation
+                $campaign_average_ctr           = wpdai_calculate_percentage( $campaign_clicks, $campaign_impressions ); // Calculation
+                $campaign_conversion_rate       = wpdai_calculate_percentage( $campaign_conversions, $campaign_clicks ); // Calculation
+                $campaign_roas                  = wpdai_divide( $campaign_conversion_value, $campaign_spend ); // Calculation
 
                 // Campaign Totals - Store Calculated Values
                 $campaign_total_profit          = $campaign_order_profit - $campaign_spend;
-                $campaign_order_conversion_rate = wpd_calculate_percentage( $campaign_order_count, $campaign_clicks );
-                $campaign_order_revenue_roas    = wpd_divide( $campaign_order_revenue, $campaign_spend );
-                $campaign_adjusted_roas         = wpd_divide( $campaign_total_profit, $campaign_spend );
-                $campaign_adjusted_margin       = wpd_calculate_margin( $campaign_total_profit, $campaign_order_revenue );
-                $campaign_cost_per_order        = wpd_divide( $campaign_order_count, $campaign_spend );
-                $campaign_cost_per_new_customer = wpd_divide( $campaign_new_customer_count, $campaign_spend );
+                $campaign_order_conversion_rate = wpdai_calculate_percentage( $campaign_order_count, $campaign_clicks );
+                $campaign_order_revenue_roas    = wpdai_divide( $campaign_order_revenue, $campaign_spend );
+                $campaign_adjusted_roas         = wpdai_divide( $campaign_total_profit, $campaign_spend );
+                $campaign_adjusted_margin       = wpdai_calculate_margin( $campaign_total_profit, $campaign_order_revenue );
+                $campaign_cost_per_order        = wpdai_divide( $campaign_order_count, $campaign_spend );
+                $campaign_cost_per_new_customer = wpdai_divide( $campaign_new_customer_count, $campaign_spend );
 
                 // Setup Organised Arrays
                 $data_table[$campaign_name] = array(
@@ -5627,19 +5627,19 @@ class WPD_Data_Warehouse_React {
             $data_by_date['campaign_actual_profit_by_date'][$date_key] = $data_by_date['campaign_order_profit_by_date'][$date_key] - $data_by_date['campaign_spend_by_date'][$date_key];
            
             // Campaign ROAS By Date
-            $data_by_date['campaign_roas_by_date'][$date_key] = wpd_divide( $data_by_date['campaign_order_revenue_by_date'][$date_key], $data_by_date['campaign_spend_by_date'][$date_key], 2 );
+            $data_by_date['campaign_roas_by_date'][$date_key] = wpdai_divide( $data_by_date['campaign_order_revenue_by_date'][$date_key], $data_by_date['campaign_spend_by_date'][$date_key], 2 );
             
             // Actual ROAS by date
-            $data_by_date['campaign_actual_roas_by_date'][$date_key] = wpd_divide( $data_by_date['campaign_order_profit_by_date'][$date_key], $data_by_date['campaign_spend_by_date'][$date_key], 2 );
+            $data_by_date['campaign_actual_roas_by_date'][$date_key] = wpdai_divide( $data_by_date['campaign_order_profit_by_date'][$date_key], $data_by_date['campaign_spend_by_date'][$date_key], 2 );
 
             // Cost Per New Customer
-            $data_by_date['campaign_cost_per_new_customer_by_date'][$date_key] = wpd_divide( $data_by_date['campaign_spend_by_date'][$date_key], $data_by_date['campaign_new_customer_count_by_date'][$date_key], 2 );
+            $data_by_date['campaign_cost_per_new_customer_by_date'][$date_key] = wpdai_divide( $data_by_date['campaign_spend_by_date'][$date_key], $data_by_date['campaign_new_customer_count_by_date'][$date_key], 2 );
 
             // Cost Per Order Placed
-            $data_by_date['campaign_cost_per_order_placed_by_date'][$date_key] = wpd_divide( $data_by_date['campaign_spend_by_date'][$date_key], $data_by_date['campaign_order_count_by_date'][$date_key], 2 );
+            $data_by_date['campaign_cost_per_order_placed_by_date'][$date_key] = wpdai_divide( $data_by_date['campaign_spend_by_date'][$date_key], $data_by_date['campaign_order_count_by_date'][$date_key], 2 );
 
             // Conversion Rate
-            $data_by_date['campaign_conversion_rate_by_date'][$date_key] = wpd_calculate_percentage( $data_by_date['campaign_order_count_by_date'][$date_key], $data_by_date['campaign_clicks_by_date'][$date_key], 2 );
+            $data_by_date['campaign_conversion_rate_by_date'][$date_key] = wpdai_calculate_percentage( $data_by_date['campaign_order_count_by_date'][$date_key], $data_by_date['campaign_clicks_by_date'][$date_key], 2 );
 
             // Campaign Specific Array
             foreach( $data_by_date['campaign_comparison_actual_profit_by_date'] as $campaign_name => $campaign_date_data ) {
@@ -5652,26 +5652,26 @@ class WPD_Data_Warehouse_React {
         }
 
         // Final calculations
-        $totals['campaign_api_roas'] = wpd_divide( $totals['campaign_api_revenue'], $totals['campaign_spend'] );
-        $totals['campaign_api_conversion_rate'] = wpd_calculate_percentage( $totals['campaign_api_conversions'], $totals['campaign_clicks'] );
-        $totals['campaign_average_cpc'] = wpd_divide( $totals['campaign_spend'], $totals['campaign_clicks'] );
-        $totals['campaign_average_ctr'] = wpd_calculate_percentage( $totals['campaign_clicks'], $totals['campaign_impressions'] );
-        $totals['campaign_order_margin'] = wpd_calculate_margin( $totals['campaign_order_profit'], $totals['campaign_order_revenue'] );
-        $totals['campaign_order_conversion_rate'] = wpd_calculate_percentage( $totals['campaign_order_count'], $totals['campaign_clicks'] );
-        $totals['campaign_revenue_roas'] = wpd_divide( $totals['campaign_order_revenue'], $totals['campaign_spend'] );
-        $totals['campaign_adjusted_roas'] = wpd_divide( $totals['campaign_total_profit'], $totals['campaign_spend'] );
-        $totals['campaign_adjusted_margin'] = wpd_calculate_margin( $totals['campaign_total_profit'], $totals['campaign_order_revenue'] );
-        $totals['campaign_cost_per_order'] = wpd_divide( $totals['campaign_spend'], $totals['campaign_order_count'] );
-        $totals['campaign_average_days_active'] = wpd_divide( $totals['campaign_total_days_active'], $totals['campaigns_found'] );
-        $totals['campaign_total_profit_per_day'] = wpd_divide( $totals['campaign_total_profit'], $totals['campaign_total_days_active'] );
-        $totals['campaign_average_order_value'] = wpd_divide( $totals['campaign_order_revenue'], $totals['campaign_order_count'] );
-        $totals['campaign_orders_per_active_campaign_day'] = wpd_divide( $totals['campaign_order_count'], $totals['campaign_total_days_active'] );
-        $totals['campaign_orders_per_click'] = wpd_divide( $totals['campaign_order_count'], $totals['campaign_clicks'] );
-        $totals['campaign_spend_per_active_day'] = wpd_divide( $totals['campaign_spend'], $totals['campaign_total_days_active'] );
+        $totals['campaign_api_roas'] = wpdai_divide( $totals['campaign_api_revenue'], $totals['campaign_spend'] );
+        $totals['campaign_api_conversion_rate'] = wpdai_calculate_percentage( $totals['campaign_api_conversions'], $totals['campaign_clicks'] );
+        $totals['campaign_average_cpc'] = wpdai_divide( $totals['campaign_spend'], $totals['campaign_clicks'] );
+        $totals['campaign_average_ctr'] = wpdai_calculate_percentage( $totals['campaign_clicks'], $totals['campaign_impressions'] );
+        $totals['campaign_order_margin'] = wpdai_calculate_margin( $totals['campaign_order_profit'], $totals['campaign_order_revenue'] );
+        $totals['campaign_order_conversion_rate'] = wpdai_calculate_percentage( $totals['campaign_order_count'], $totals['campaign_clicks'] );
+        $totals['campaign_revenue_roas'] = wpdai_divide( $totals['campaign_order_revenue'], $totals['campaign_spend'] );
+        $totals['campaign_adjusted_roas'] = wpdai_divide( $totals['campaign_total_profit'], $totals['campaign_spend'] );
+        $totals['campaign_adjusted_margin'] = wpdai_calculate_margin( $totals['campaign_total_profit'], $totals['campaign_order_revenue'] );
+        $totals['campaign_cost_per_order'] = wpdai_divide( $totals['campaign_spend'], $totals['campaign_order_count'] );
+        $totals['campaign_average_days_active'] = wpdai_divide( $totals['campaign_total_days_active'], $totals['campaigns_found'] );
+        $totals['campaign_total_profit_per_day'] = wpdai_divide( $totals['campaign_total_profit'], $totals['campaign_total_days_active'] );
+        $totals['campaign_average_order_value'] = wpdai_divide( $totals['campaign_order_revenue'], $totals['campaign_order_count'] );
+        $totals['campaign_orders_per_active_campaign_day'] = wpdai_divide( $totals['campaign_order_count'], $totals['campaign_total_days_active'] );
+        $totals['campaign_orders_per_click'] = wpdai_divide( $totals['campaign_order_count'], $totals['campaign_clicks'] );
+        $totals['campaign_spend_per_active_day'] = wpdai_divide( $totals['campaign_spend'], $totals['campaign_total_days_active'] );
         $categorized_data['customers_by_email_address'] = array_unique( $categorized_data['customers_by_email_address'] ); // New
         $totals['total_customer_count'] = count( $categorized_data['customers_by_email_address'] ); // New
-        $totals['cost_per_new_customer'] = wpd_divide( $totals['campaign_spend'], $totals['new_customer_count'] ); // New
-        $totals['cost_per_customer'] = wpd_divide( $totals['campaign_spend'], $totals['total_customer_count'] ); // New
+        $totals['cost_per_new_customer'] = wpdai_divide( $totals['campaign_spend'], $totals['new_customer_count'] ); // New
+        $totals['cost_per_customer'] = wpdai_divide( $totals['campaign_spend'], $totals['total_customer_count'] ); // New
 
         // Create no data found array
         $data_by_date = $this->maybe_create_no_data_found_date_array( $data_by_date );
@@ -6091,9 +6091,9 @@ class WPD_Data_Warehouse_React {
         $total_count        = (int) $wpdb->get_var( $count_sql_query );
         
         if ( $wpdb->last_error ) {
-            wpd_write_log( 'Error getting analytics event count from DB, dumping the error and query.', 'db_error' );
-            wpd_write_log( $wpdb->last_error, 'db_error' );
-            wpd_write_log( $wpdb->last_query, 'db_error' );
+            wpdai_write_log( 'Error getting analytics event count from DB, dumping the error and query.', 'db_error' );
+            wpdai_write_log( $wpdb->last_error, 'db_error' );
+            wpdai_write_log( $wpdb->last_query, 'db_error' );
             return false;
         }
 
@@ -6122,9 +6122,9 @@ class WPD_Data_Warehouse_React {
         $total_count        = (int) $wpdb->get_var( $count_sql_query );
         
         if ( $wpdb->last_error ) {
-            wpd_write_log( 'Error getting analytics session count from DB, dumping the error and query.', 'db_error' );
-            wpd_write_log( $wpdb->last_error, 'db_error' );
-            wpd_write_log( $wpdb->last_query, 'db_error' );
+            wpdai_write_log( 'Error getting analytics session count from DB, dumping the error and query.', 'db_error' );
+            wpdai_write_log( $wpdb->last_error, 'db_error' );
+            wpdai_write_log( $wpdb->last_query, 'db_error' );
             return false;
         }
 
@@ -6178,9 +6178,9 @@ class WPD_Data_Warehouse_React {
         $raw_analytics_data = $wpdb->get_results( $events_sql_query, 'ARRAY_A' );
 
         if ( $wpdb->last_error ) {
-            wpd_write_log( 'Error capturing analytics data from DB, dumping the error and query.', 'db_error' );
-            wpd_write_log( $wpdb->last_error, 'db_error' );
-            wpd_write_log( $wpdb->last_query, 'db_error' );
+            wpdai_write_log( 'Error capturing analytics data from DB, dumping the error and query.', 'db_error' );
+            wpdai_write_log( $wpdb->last_error, 'db_error' );
+            wpdai_write_log( $wpdb->last_query, 'db_error' );
             return false;
         }
 
@@ -6271,7 +6271,7 @@ class WPD_Data_Warehouse_React {
 
                 // Check if prepare() succeeded (it can fail silently)
                 if ( $session_sql_query === false ) {
-                    wpd_write_log( 
+                    wpdai_write_log( 
                         sprintf( 
                             'ERROR: wpdb->prepare() failed for chunk %d/%d (%d session_ids, ~%d bytes). This may indicate query size limit exceeded.', 
                             $chunk_index + 1,
@@ -6289,7 +6289,7 @@ class WPD_Data_Warehouse_React {
 
                 // Log db error
                 if ( $wpdb->last_error ) {
-                    wpd_write_log( 
+                    wpdai_write_log( 
                         sprintf( 
                             'ERROR: Database error capturing session data (chunk %d/%d, %d session_ids, ~%d bytes). Error: %s', 
                             $chunk_index + 1,
@@ -6300,7 +6300,7 @@ class WPD_Data_Warehouse_React {
                         ), 
                         'db_error' 
                     );
-                    wpd_write_log( 'Query: ' . substr($wpdb->last_query, 0, 500) . '...', 'db_error' );
+                    wpdai_write_log( 'Query: ' . substr($wpdb->last_query, 0, 500) . '...', 'db_error' );
                     $chunks_failed++;
                     // Continue with other chunks even if one fails
                     continue;
@@ -6308,7 +6308,7 @@ class WPD_Data_Warehouse_React {
 
                 // Check if query returned results (even if empty, it should be an array)
                 if ( ! is_array($chunk_results) ) {
-                    wpd_write_log( 
+                    wpdai_write_log( 
                         sprintf( 
                             'WARNING: Query returned non-array result for chunk %d/%d (%d session_ids). Result type: %s', 
                             $chunk_index + 1,
@@ -6343,7 +6343,7 @@ class WPD_Data_Warehouse_React {
             
             // Log chunk processing summary
             if ( $chunks_failed > 0 || $chunks_empty > 0 ) {
-                wpd_write_log( 
+                wpdai_write_log( 
                     sprintf( 
                         'Session data chunk processing summary: %d total chunks, %d processed successfully, %d returned empty, %d failed. Chunk size: %d, Avg session ID length: %.1f chars', 
                         count($session_id_chunks),
@@ -6373,7 +6373,7 @@ class WPD_Data_Warehouse_React {
                     $total_count = count($session_ids);
                     $found_count = count($all_found_session_ids);
                     
-                    wpd_write_log( 
+                    wpdai_write_log( 
                         sprintf( 
                             'Session data lookup: Found %d/%d session records (%d chunks total: %d processed, %d empty, %d failed). Missing %d session_ids in batch (offset: %d). Sample missing IDs: %s', 
                             $found_count,
@@ -6393,7 +6393,7 @@ class WPD_Data_Warehouse_React {
                     if ( $missing_count > 0 && $found_count > 0 ) {
                         $sample_missing = array_slice($missing_session_ids, 0, 3);
                         $sample_found = array_slice($all_found_session_ids, 0, 3);
-                        wpd_write_log( 
+                        wpdai_write_log( 
                             sprintf( 
                                 'Sample missing session_ids: [%s] | Sample found session_ids: [%s]', 
                                 implode(', ', $sample_missing),
@@ -6408,7 +6408,7 @@ class WPD_Data_Warehouse_React {
                 $this->set_data( 'analytics', array( 'total_db_records' => $current_db_records + count($all_session_data_results) ) );
             } else {
                 // No results found at all
-                wpd_write_log( 
+                wpdai_write_log( 
                     sprintf( 
                         'Session data lookup: No session_data records found for %d session_ids in %d chunks (batch offset: %d). Sample session_ids: %s', 
                         count($session_ids),
@@ -6632,7 +6632,7 @@ class WPD_Data_Warehouse_React {
             return false;
         }
 
-        $total_batches = ceil( wpd_divide($total_count, $limit) );
+        $total_batches = ceil( wpdai_divide($total_count, $limit) );
         $processed_records = 0;
 
         // Initialize session_data_map outside the loop so it persists across batches
@@ -6670,7 +6670,7 @@ class WPD_Data_Warehouse_React {
             foreach( $raw_analytics_data as $event ) {
 
                 // Memory Check
-                if ( wpd_is_memory_usage_greater_than(90) ) {
+                if ( wpdai_is_memory_usage_greater_than(90) ) {
                     $memory_limit = ini_get('memory_limit');
                     $this->set_error(
                         sprintf(
@@ -7259,7 +7259,7 @@ class WPD_Data_Warehouse_React {
 
             $session_count  = ( isset($data_by_date['sessions_by_date']) ) ? (int) $data_by_date['sessions_by_date'][$date_key] : 0;
             $transactions   = ( isset($data_by_date['transactions_by_date']) ) ? (int) $data_by_date['transactions_by_date'][$date_key] : 0;
-            $conversion_rate = wpd_calculate_percentage( $transactions, $session_count );
+            $conversion_rate = wpdai_calculate_percentage( $transactions, $session_count );
             $data_by_date['conversion_rate_by_date'][$date_key] = $conversion_rate;
 
         }
@@ -7285,10 +7285,10 @@ class WPD_Data_Warehouse_React {
             foreach( $categorized_data['acquisition_summary'] as $acquisition_channel => $acquisition_data ) {
                 $categorized_data['acquisition_summary'][$acquisition_channel]['user_count'] = count($acquisition_data['user_count']);
                 $categorized_data['acquisition_summary'][$acquisition_channel]['session_count'] = count($acquisition_data['session_count']);
-                $categorized_data['acquisition_summary'][$acquisition_channel]['conversion_rate'] = wpd_calculate_percentage( $categorized_data['acquisition_summary'][$acquisition_channel]['transactions'], $categorized_data['acquisition_summary'][$acquisition_channel]['session_count'], 2 );
-                $categorized_data['acquisition_summary'][$acquisition_channel]['channel_percent'] = wpd_calculate_percentage( $categorized_data['acquisition_summary'][$acquisition_channel]['session_count'], $totals['sessions'], 2 );
-                $categorized_data['acquisition_summary'][$acquisition_channel]['average_session_duration'] = wpd_divide( $categorized_data['acquisition_summary'][$acquisition_channel]['total_session_duration'], $categorized_data['acquisition_summary'][$acquisition_channel]['session_count'], 2 );
-                $categorized_data['acquisition_summary'][$acquisition_channel]['page_views_per_session'] = wpd_divide( $categorized_data['acquisition_summary'][$acquisition_channel]['page_views'], $categorized_data['acquisition_summary'][$acquisition_channel]['session_count'], 2 );
+                $categorized_data['acquisition_summary'][$acquisition_channel]['conversion_rate'] = wpdai_calculate_percentage( $categorized_data['acquisition_summary'][$acquisition_channel]['transactions'], $categorized_data['acquisition_summary'][$acquisition_channel]['session_count'], 2 );
+                $categorized_data['acquisition_summary'][$acquisition_channel]['channel_percent'] = wpdai_calculate_percentage( $categorized_data['acquisition_summary'][$acquisition_channel]['session_count'], $totals['sessions'], 2 );
+                $categorized_data['acquisition_summary'][$acquisition_channel]['average_session_duration'] = wpdai_divide( $categorized_data['acquisition_summary'][$acquisition_channel]['total_session_duration'], $categorized_data['acquisition_summary'][$acquisition_channel]['session_count'], 2 );
+                $categorized_data['acquisition_summary'][$acquisition_channel]['page_views_per_session'] = wpdai_divide( $categorized_data['acquisition_summary'][$acquisition_channel]['page_views'], $categorized_data['acquisition_summary'][$acquisition_channel]['session_count'], 2 );
             }
         } else {
             $categorized_data['acquisition_summary']['no_acquisition_data_found'] = $analytics_performance_container;
@@ -7298,10 +7298,10 @@ class WPD_Data_Warehouse_React {
             foreach( $categorized_data['device_category_summary'] as $device_category => $device_data ) {
                 $categorized_data['device_category_summary'][$device_category]['user_count'] = count($device_data['user_count']);
                 $categorized_data['device_category_summary'][$device_category]['session_count'] = count($device_data['session_count']);
-                $categorized_data['device_category_summary'][$device_category]['conversion_rate'] = wpd_calculate_percentage( $categorized_data['device_category_summary'][$device_category]['transactions'], $categorized_data['device_category_summary'][$device_category]['session_count'], 2 );
-                $categorized_data['device_category_summary'][$device_category]['channel_percent'] = wpd_calculate_percentage( $categorized_data['device_category_summary'][$device_category]['session_count'], $totals['sessions'], 2 );
-                $categorized_data['device_category_summary'][$device_category]['average_session_duration'] = wpd_divide( $categorized_data['device_category_summary'][$device_category]['total_session_duration'], $categorized_data['device_category_summary'][$device_category]['session_count'], 2 );
-                $categorized_data['device_category_summary'][$device_category]['page_views_per_session'] = wpd_divide( $categorized_data['device_category_summary'][$device_category]['page_views'], $categorized_data['device_category_summary'][$device_category]['session_count'], 2 );
+                $categorized_data['device_category_summary'][$device_category]['conversion_rate'] = wpdai_calculate_percentage( $categorized_data['device_category_summary'][$device_category]['transactions'], $categorized_data['device_category_summary'][$device_category]['session_count'], 2 );
+                $categorized_data['device_category_summary'][$device_category]['channel_percent'] = wpdai_calculate_percentage( $categorized_data['device_category_summary'][$device_category]['session_count'], $totals['sessions'], 2 );
+                $categorized_data['device_category_summary'][$device_category]['average_session_duration'] = wpdai_divide( $categorized_data['device_category_summary'][$device_category]['total_session_duration'], $categorized_data['device_category_summary'][$device_category]['session_count'], 2 );
+                $categorized_data['device_category_summary'][$device_category]['page_views_per_session'] = wpdai_divide( $categorized_data['device_category_summary'][$device_category]['page_views'], $categorized_data['device_category_summary'][$device_category]['session_count'], 2 );
             }
         } else {
             $categorized_data['device_category_summary']['no_device_category_data_found'] = $analytics_performance_container;
@@ -7311,10 +7311,10 @@ class WPD_Data_Warehouse_React {
             foreach( $categorized_data['campaign_summary'] as $campaign_name => $campaign_data ) {
                 $categorized_data['campaign_summary'][$campaign_name]['user_count'] = count($campaign_data['user_count']);
                 $categorized_data['campaign_summary'][$campaign_name]['session_count'] = count($campaign_data['session_count']);
-                $categorized_data['campaign_summary'][$campaign_name]['conversion_rate'] = wpd_calculate_percentage( $categorized_data['campaign_summary'][$campaign_name]['transactions'], $categorized_data['campaign_summary'][$campaign_name]['session_count'], 2 );
-                $categorized_data['campaign_summary'][$campaign_name]['channel_percent'] = wpd_calculate_percentage( $categorized_data['campaign_summary'][$campaign_name]['session_count'], $totals['sessions'], 2 );
-                $categorized_data['campaign_summary'][$campaign_name]['average_session_duration'] = wpd_divide( $categorized_data['campaign_summary'][$campaign_name]['total_session_duration'], $categorized_data['campaign_summary'][$campaign_name]['session_count'], 2 );
-                $categorized_data['campaign_summary'][$campaign_name]['page_views_per_session'] = wpd_divide( $categorized_data['campaign_summary'][$campaign_name]['page_views'], $categorized_data['campaign_summary'][$campaign_name]['session_count'], 2 );
+                $categorized_data['campaign_summary'][$campaign_name]['conversion_rate'] = wpdai_calculate_percentage( $categorized_data['campaign_summary'][$campaign_name]['transactions'], $categorized_data['campaign_summary'][$campaign_name]['session_count'], 2 );
+                $categorized_data['campaign_summary'][$campaign_name]['channel_percent'] = wpdai_calculate_percentage( $categorized_data['campaign_summary'][$campaign_name]['session_count'], $totals['sessions'], 2 );
+                $categorized_data['campaign_summary'][$campaign_name]['average_session_duration'] = wpdai_divide( $categorized_data['campaign_summary'][$campaign_name]['total_session_duration'], $categorized_data['campaign_summary'][$campaign_name]['session_count'], 2 );
+                $categorized_data['campaign_summary'][$campaign_name]['page_views_per_session'] = wpdai_divide( $categorized_data['campaign_summary'][$campaign_name]['page_views'], $categorized_data['campaign_summary'][$campaign_name]['session_count'], 2 );
             }
         } else {
             $categorized_data['campaign_summary']['no_campaign_data_found'] = $analytics_performance_container;
@@ -7324,10 +7324,10 @@ class WPD_Data_Warehouse_React {
             foreach($categorized_data['landing_page_summary'] as $page_view_href => $page_data) {
                 $categorized_data['landing_page_summary'][$page_view_href]['user_count'] = count( $page_data['user_count'] );
                 $categorized_data['landing_page_summary'][$page_view_href]['session_count'] = count( $page_data['session_count'] );
-                $categorized_data['landing_page_summary'][$page_view_href]['conversion_rate'] = wpd_calculate_percentage( $categorized_data['landing_page_summary'][$page_view_href]['transactions'], $categorized_data['landing_page_summary'][$page_view_href]['session_count'], 2 );
-                $categorized_data['landing_page_summary'][$page_view_href]['channel_percent'] = wpd_calculate_percentage( $categorized_data['landing_page_summary'][$page_view_href]['session_count'], $totals['sessions'], 2 );
-                $categorized_data['landing_page_summary'][$page_view_href]['average_session_duration'] = wpd_divide( $categorized_data['landing_page_summary'][$page_view_href]['total_session_duration'], $categorized_data['landing_page_summary'][$page_view_href]['session_count'], 2 );
-                $categorized_data['landing_page_summary'][$page_view_href]['page_views_per_session'] = wpd_divide( $categorized_data['landing_page_summary'][$page_view_href]['page_views'], $categorized_data['landing_page_summary'][$page_view_href]['session_count'], 2 );
+                $categorized_data['landing_page_summary'][$page_view_href]['conversion_rate'] = wpdai_calculate_percentage( $categorized_data['landing_page_summary'][$page_view_href]['transactions'], $categorized_data['landing_page_summary'][$page_view_href]['session_count'], 2 );
+                $categorized_data['landing_page_summary'][$page_view_href]['channel_percent'] = wpdai_calculate_percentage( $categorized_data['landing_page_summary'][$page_view_href]['session_count'], $totals['sessions'], 2 );
+                $categorized_data['landing_page_summary'][$page_view_href]['average_session_duration'] = wpdai_divide( $categorized_data['landing_page_summary'][$page_view_href]['total_session_duration'], $categorized_data['landing_page_summary'][$page_view_href]['session_count'], 2 );
+                $categorized_data['landing_page_summary'][$page_view_href]['page_views_per_session'] = wpdai_divide( $categorized_data['landing_page_summary'][$page_view_href]['page_views'], $categorized_data['landing_page_summary'][$page_view_href]['session_count'], 2 );
             }
         } else {
             $categorized_data['landing_page_summary']['no_landing_page_data_found'] = $analytics_performance_container;
@@ -7337,10 +7337,10 @@ class WPD_Data_Warehouse_React {
             foreach($categorized_data['referral_url_summary'] as $page_view_href => $page_data) {
                 $categorized_data['referral_url_summary'][$page_view_href]['user_count'] = count( $page_data['user_count'] );
                 $categorized_data['referral_url_summary'][$page_view_href]['session_count'] = count( $page_data['session_count'] );
-                $categorized_data['referral_url_summary'][$page_view_href]['conversion_rate'] = wpd_calculate_percentage( $categorized_data['referral_url_summary'][$page_view_href]['transactions'], $categorized_data['referral_url_summary'][$page_view_href]['session_count'], 2 );
-                $categorized_data['referral_url_summary'][$page_view_href]['channel_percent'] = wpd_calculate_percentage( $categorized_data['referral_url_summary'][$page_view_href]['session_count'], $totals['sessions'], 2 );
-                $categorized_data['referral_url_summary'][$page_view_href]['average_session_duration'] = wpd_divide( $categorized_data['referral_url_summary'][$page_view_href]['total_session_duration'], $categorized_data['referral_url_summary'][$page_view_href]['session_count'], 2 );
-                $categorized_data['referral_url_summary'][$page_view_href]['page_views_per_session'] = wpd_divide( $categorized_data['referral_url_summary'][$page_view_href]['page_views'], $categorized_data['referral_url_summary'][$page_view_href]['session_count'], 2 );
+                $categorized_data['referral_url_summary'][$page_view_href]['conversion_rate'] = wpdai_calculate_percentage( $categorized_data['referral_url_summary'][$page_view_href]['transactions'], $categorized_data['referral_url_summary'][$page_view_href]['session_count'], 2 );
+                $categorized_data['referral_url_summary'][$page_view_href]['channel_percent'] = wpdai_calculate_percentage( $categorized_data['referral_url_summary'][$page_view_href]['session_count'], $totals['sessions'], 2 );
+                $categorized_data['referral_url_summary'][$page_view_href]['average_session_duration'] = wpdai_divide( $categorized_data['referral_url_summary'][$page_view_href]['total_session_duration'], $categorized_data['referral_url_summary'][$page_view_href]['session_count'], 2 );
+                $categorized_data['referral_url_summary'][$page_view_href]['page_views_per_session'] = wpdai_divide( $categorized_data['referral_url_summary'][$page_view_href]['page_views'], $categorized_data['referral_url_summary'][$page_view_href]['session_count'], 2 );
             }
         } else {
             $categorized_data['referral_url_summary']['no_referral_url_data_found'] = $analytics_performance_container;
@@ -7369,8 +7369,8 @@ class WPD_Data_Warehouse_React {
                 }
 
                 // Few more calculations
-                $categorized_data['product_summary'][$product_id]['conversion_rate'] = wpd_calculate_percentage( $product_data['transactions'],$categorized_data['product_summary'][$product_id]['session_count'], 2 );
-                $categorized_data['product_summary'][$product_id]['percent_of_sessions_with_add_to_cart'] = wpd_calculate_percentage( $product_data['add_to_cart'], $categorized_data['product_summary'][$product_id]['session_count'], 2 );
+                $categorized_data['product_summary'][$product_id]['conversion_rate'] = wpdai_calculate_percentage( $product_data['transactions'],$categorized_data['product_summary'][$product_id]['session_count'], 2 );
+                $categorized_data['product_summary'][$product_id]['percent_of_sessions_with_add_to_cart'] = wpdai_calculate_percentage( $product_data['add_to_cart'], $categorized_data['product_summary'][$product_id]['session_count'], 2 );
 
             }
 
@@ -7416,23 +7416,23 @@ class WPD_Data_Warehouse_React {
         // Enrich the form submissions
         if ( is_array($categorized_data['form_submits_by_id_summary']) && ! empty($categorized_data['form_submits_by_id_summary']) ) {
             foreach( $categorized_data['form_submits_by_id_summary'] as $form_id => $form_data ) {
-                $categorized_data['form_submits_by_id_summary'][$form_id]['conversion_rate'] = wpd_calculate_percentage( $form_data['sessions_with_submission'], $totals['sessions'], 2 );
+                $categorized_data['form_submits_by_id_summary'][$form_id]['conversion_rate'] = wpdai_calculate_percentage( $form_data['sessions_with_submission'], $totals['sessions'], 2 );
             }
         }
 
         // Do total calculations
         $number_of_days = $this->data_by_date_containers['n_days_period'];
-        $totals['average_session_duration'] = wpd_divide( $totals['session_duration'], $totals['sessions'], 2 );
-        $totals['sessions_per_day'] = wpd_divide( $totals['sessions'], $number_of_days, 2 );
-        $totals['users_per_day'] = wpd_divide( $totals['users'], $number_of_days, 2 );
-        $totals['page_views_per_session'] = wpd_divide( $totals['page_views'], $totals['sessions'], 2 );
-        $totals['events_per_session'] = wpd_divide( $totals['non_page_view_events'], $totals['sessions'], 2 );
-        $totals['percent_sessions_with_category_view'] = wpd_calculate_percentage( $totals['sessions_with_category_page_views'], $totals['sessions'], 2 );
-        $totals['percent_sessions_with_product_page_view'] = wpd_calculate_percentage( $totals['sessions_with_product_page_views'], $totals['sessions'], 2 );
-        $totals['percent_sessions_with_add_to_cart'] = wpd_calculate_percentage( $totals['sessions_with_add_to_cart'], $totals['sessions'], 2 );
-        $totals['percent_sessions_with_initiate_checkout'] = wpd_calculate_percentage( $totals['sessions_with_initiate_checkout'], $totals['sessions'], 2 );
-        $totals['percent_sessions_with_form_submit'] = wpd_calculate_percentage( $totals['sessions_with_form_submit'], $totals['sessions'], 2 );
-        $totals['conversion_rate'] = wpd_calculate_percentage( $totals['transactions'], $totals['sessions'], 2 );
+        $totals['average_session_duration'] = wpdai_divide( $totals['session_duration'], $totals['sessions'], 2 );
+        $totals['sessions_per_day'] = wpdai_divide( $totals['sessions'], $number_of_days, 2 );
+        $totals['users_per_day'] = wpdai_divide( $totals['users'], $number_of_days, 2 );
+        $totals['page_views_per_session'] = wpdai_divide( $totals['page_views'], $totals['sessions'], 2 );
+        $totals['events_per_session'] = wpdai_divide( $totals['non_page_view_events'], $totals['sessions'], 2 );
+        $totals['percent_sessions_with_category_view'] = wpdai_calculate_percentage( $totals['sessions_with_category_page_views'], $totals['sessions'], 2 );
+        $totals['percent_sessions_with_product_page_view'] = wpdai_calculate_percentage( $totals['sessions_with_product_page_views'], $totals['sessions'], 2 );
+        $totals['percent_sessions_with_add_to_cart'] = wpdai_calculate_percentage( $totals['sessions_with_add_to_cart'], $totals['sessions'], 2 );
+        $totals['percent_sessions_with_initiate_checkout'] = wpdai_calculate_percentage( $totals['sessions_with_initiate_checkout'], $totals['sessions'], 2 );
+        $totals['percent_sessions_with_form_submit'] = wpdai_calculate_percentage( $totals['sessions_with_form_submit'], $totals['sessions'], 2 );
+        $totals['conversion_rate'] = wpdai_calculate_percentage( $totals['transactions'], $totals['sessions'], 2 );
 
         // Conversion funnel summary
         $categorized_data['conversion_funnel_summary']['sessions']['count'] = $totals['sessions'];
@@ -7663,13 +7663,13 @@ class WPD_Data_Warehouse_React {
             }
 
             // Log errors
-            wpd_write_log( 'Backtrace function: ' . $last_call, 'data_warehouse_error' );
-            wpd_write_log( $message, 'data_warehouse_error' );
+            wpdai_write_log( 'Backtrace function: ' . $last_call, 'data_warehouse_error' );
+            wpdai_write_log( $message, 'data_warehouse_error' );
             
         }
 
         // Log the message
-        wpd_write_log( $message, 'data_warehouse' );
+        wpdai_write_log( $message, 'data_warehouse' );
 
         return $message;
 

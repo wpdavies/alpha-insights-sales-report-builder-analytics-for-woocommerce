@@ -29,15 +29,15 @@ class WPD_Action_Scheduler {
         add_action('init', array( $this, 'schedule_recurring_events' ));
 
         // Free actions
-        add_action( 'wpd_schedule_emails',                              'wpd_schedule_emails_function' );
-        add_action( 'wpd_schedule_webhook',                             'wpd_schedule_webhook_post' );
-        add_action( 'wpd_schedule_log_cleanup',                         'wpd_schedule_log_cleanup_function' );
-        add_action( 'wpd_schedule_analytics_db_cleanup',                'wpd_schedule_analytics_db_cleanup_function' );
-        add_action( 'wpd_schedule_database_upgrade',                    'wpd_schedule_database_upgrade_function' );
-        add_action( 'wpd_schedule_product_analytics_collector',         'wpd_collect_product_statistics_cron' );
-        add_action( 'wpd_schedule_customer_analytics_collector',        'wpd_collect_customer_statistics_cron' );
-        add_action( 'wpd_schedule_order_calculation_cache_collector',   'wpd_fetch_and_store_last_n_uncached_orders_cron' );
-        add_action( 'wpd_schedule_analytics_table_object_id_check',     'wpd_set_post_id_post_type_on_null_events_analytics_table' );
+        add_action( 'wpd_schedule_emails',                              'wpdai_schedule_emails_function' );
+        add_action( 'wpd_schedule_webhook',                             'wpdai_schedule_webhook_post' );
+        add_action( 'wpd_schedule_log_cleanup',                         'wpdai_schedule_log_cleanup_function' );
+        add_action( 'wpd_schedule_analytics_db_cleanup',                'wpdai_schedule_analytics_db_cleanup_function' );
+        add_action( 'wpd_schedule_database_upgrade',                    'wpdai_schedule_database_upgrade_function' );
+        add_action( 'wpd_schedule_product_analytics_collector',         'wpdai_collect_product_statistics_cron' );
+        add_action( 'wpd_schedule_customer_analytics_collector',        'wpdai_collect_customer_statistics_cron' );
+        add_action( 'wpd_schedule_order_calculation_cache_collector',   'wpdai_fetch_and_store_last_n_uncached_orders_cron' );
+        add_action( 'wpd_schedule_analytics_table_object_id_check',     'wpdai_set_post_id_post_type_on_null_events_analytics_table' );
         
         // Migration check - use lazy loading to avoid class dependency issues
         if ( class_exists( 'WPD_Migration' ) ) {
@@ -45,7 +45,7 @@ class WPD_Action_Scheduler {
         }
 
         // All single action hooks will need to run off this
-        add_action( self::SINGLE_EVENT_REBUILD_PRODUCT_CACHE,           'wpd_delete_all_product_cache');
+        add_action( self::SINGLE_EVENT_REBUILD_PRODUCT_CACHE,           'wpdai_delete_all_product_cache');
         
     }
 

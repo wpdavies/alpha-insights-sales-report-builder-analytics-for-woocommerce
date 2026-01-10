@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  * Admin Activity
  *
  */
-function wpd_profit_reports_page_content() {
+function wpdai_profit_reports_page_content() {
 
 	$react_report_loader = new WPD_React_Report(); // Will default to subpage if no slug passed in
 	$react_report_loader->output_report();
@@ -29,7 +29,7 @@ function wpd_profit_reports_page_content() {
  * 	@class WPD_Analytics_Report_Dashboard
  *
  */
-function wpd_analytics_dashboard() {
+function wpdai_analytics_dashboard() {
 
 	$react_report_loader = new WPD_React_Report(); // Will default to subpage if no slug passed in
 	$react_report_loader->output_report();
@@ -42,7 +42,7 @@ function wpd_analytics_dashboard() {
  * Admin Activity
  *
  */
-function wpd_expense_reports_page() { 
+function wpdai_expense_reports_page() { 
 
 	$react_report_loader = new WPD_React_Report('expenses'); // Will default to subpage if no slug passed in
 	$react_report_loader->output_report();
@@ -54,7 +54,7 @@ function wpd_expense_reports_page() {
  * Admin Activity
  *
  */
-function wpd_advertising_reports_page() { 
+function wpdai_advertising_reports_page() { 
 
 	// Get the option to use React reports
 
@@ -83,7 +83,7 @@ function wpd_advertising_reports_page() {
  *	Inventory Management page
  *
  */
-function wpd_cost_of_goods_manager_page() {
+function wpdai_cost_of_goods_manager_page() {
 
 	// Use modern Cost of Goods Manager
 	WPD_Cost_Of_Goods_Manager::output();
@@ -95,7 +95,7 @@ function wpd_cost_of_goods_manager_page() {
  *	P&L statement page
  *
  */
-function wpd_pl_statement_page() {
+function wpdai_pl_statement_page() {
 
 	$react_report_loader = new WPD_React_Report('profit-loss-statement');
 	$react_report_loader->output_report();
@@ -107,7 +107,7 @@ function wpd_pl_statement_page() {
  *	Expense Management page
  *
  */
-function wpd_expense_management_page() {
+function wpdai_expense_management_page() {
 
 	?>
 	<div class="wrap">
@@ -128,7 +128,7 @@ function wpd_expense_management_page() {
  *	Settings page
  *
  */
-function wpd_settings_page() { 
+function wpdai_settings_page() { 
 
 	(isset($_GET['subpage'])) ? $subpage = sanitize_text_field( $_GET['subpage'] ) : $subpage = null;
 	(isset($_GET['wpd-action'])) ? $wpd_action = sanitize_text_field( $_GET['wpd-action'] ) : $wpd_action = null;
@@ -147,7 +147,7 @@ function wpd_settings_page() {
 					wp_nonce_field( 'wpd_alpha_insights_settings', 'wpd_alpha_insights_settings_nonce' );
 
 					// Output the content for the selected page
-					wpd_output_settings_page_content( $subpage, $wpd_action );
+					wpdai_output_settings_page_content( $subpage, $wpd_action );
 
 				?>
 
@@ -163,7 +163,7 @@ function wpd_settings_page() {
  *	Getting Started page
  *
  */
-function wpd_getting_started_page() {
+function wpdai_getting_started_page() {
 
 	// Use Pro class if available, otherwise fall back to base class
 	if ( class_exists( 'WPD_Getting_Started_Pro' ) ) {

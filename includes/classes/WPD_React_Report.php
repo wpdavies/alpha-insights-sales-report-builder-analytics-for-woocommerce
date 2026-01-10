@@ -51,7 +51,7 @@ class WPD_React_Report {
      */
     public function __construct( $dashboard_slug = null ) {
 
-        $this->site_creation_date = wpd_get_site_creation_date( WPD_AI_PHP_ISO_DATE ); // Y-m-d
+        $this->site_creation_date = wpdai_get_site_creation_date( WPD_AI_PHP_ISO_DATE ); // Y-m-d
         $this->cache_build_batch_size = get_option( 'wpd_ai_cache_build_batch_size', 50 );
         $this->dashboard_slug = $dashboard_slug;
 
@@ -334,6 +334,9 @@ class WPD_React_Report {
         if ( json_last_error() !== JSON_ERROR_NONE ) {
             $filters = [];
         }
+
+        // Sanitize
+        $filters = wpdai_sanitize_json_decoded_array( $filters );
         
         // Merge filters into config
         $dashboard_config['filters'] = array_merge(
@@ -689,7 +692,7 @@ class WPD_React_Report {
         
         // Sanitize and decode JSON config from POST data
         $config_raw = isset($_POST['config']) ? $_POST['config'] : '';
-        $config_data = wpd_sanitize_and_decode_json_config( $config_raw, true );
+        $config_data = wpdai_sanitize_and_decode_json_config( $config_raw, true );
         
         // Handle error case
         if ( is_wp_error( $config_data ) ) {
@@ -742,7 +745,7 @@ class WPD_React_Report {
             if (isset($_POST['config']) && !empty($_POST['config'])) {
                 // Sanitize and decode JSON config from POST data
                 $config_raw = $_POST['config'];
-                $config = wpd_sanitize_and_decode_json_config( $config_raw, false );
+                $config = wpdai_sanitize_and_decode_json_config( $config_raw, false );
                 
                 // Handle error case
                 if ( is_wp_error( $config ) ) {
@@ -905,7 +908,7 @@ class WPD_React_Report {
         if (!empty($_POST['report_config'])) {
             // Sanitize and decode JSON config from POST data
             $full_config_raw = $_POST['report_config'];
-            $full_config = wpd_sanitize_and_decode_json_config( $full_config_raw, false );
+            $full_config = wpdai_sanitize_and_decode_json_config( $full_config_raw, false );
             
             // Only merge if we got a valid array (ignore errors silently in this context)
             if ( ! is_wp_error( $full_config ) && is_array( $full_config ) ) {
@@ -1164,7 +1167,7 @@ class WPD_React_Report {
      */
     public function get_uncached_order_count() {
         $uncached_order_count = 0;
-        $uncached_orders = wpd_get_order_ids_without_calculation_cache();
+        $uncached_orders = wpdai_get_order_ids_without_calculation_cache();
 
         if ( is_array($uncached_orders) && ! empty($uncached_orders) ) {
             $uncached_order_count = count($uncached_orders);
@@ -1190,7 +1193,7 @@ class WPD_React_Report {
      * @return array Response array with cached order count
      */
     public function build_order_cache_batch($batch_size = 50) {
-        $cached_order_count = wpd_build_order_cache_in_batch( $batch_size );
+        $cached_order_count = wpdai_build_order_cache_in_batch( $batch_size );
         
         $response = array(
             'success' => true,
@@ -1662,7 +1665,7 @@ class WPD_React_Report {
             $minimize_data = false;
 
             // Increase memory temporarily if low
-            $server_memory_limit = wpd_get_memory_limit();
+            $server_memory_limit = wpdai_get_memory_limit();
             if ( $server_memory_limit < 512 ) @ini_set('memory_limit', '512M');
             
             // Sanitize the filters passed in
@@ -1822,7 +1825,7 @@ class WPD_React_Report {
             $memory_used_mb             = round($memory_used / 1024 / 1024, 4);
             $memory_peak_mb             = round($memory_peak / 1024 / 1024, 4);
             $memory_limit               = ini_get('memory_limit');
-            $memory_usage_percentage    = wpd_calculate_percentage( $memory_peak, wpd_get_memory_limit( true ) );
+            $memory_usage_percentage    = wpdai_calculate_percentage( $memory_peak, wpdai_get_memory_limit( true ) );
 
             // Restore the original memory limit
             if ( $server_memory_limit ) @ini_set( 'memory_limit', $server_memory_limit );
@@ -2365,7 +2368,7 @@ class WPD_React_Report {
                 );
             case 'all_time':
                 // Use site creation date or fall back to 5 years ago
-                $start_date = wpd_get_site_creation_date( WPD_AI_PHP_ISO_DATE ); // Y-m-d format
+                $start_date = wpdai_get_site_creation_date( WPD_AI_PHP_ISO_DATE ); // Y-m-d format
                 
                 // Validate the date
                 if (empty($start_date) || !strtotime($start_date)) {
@@ -2568,7 +2571,7 @@ class WPD_React_Report {
      *
      */
     public static function log( $log ) {
-        wpd_write_log( $log, 'report' );
+        wpdai_write_log( $log, 'report' );
     }
 
     /**
@@ -2577,7 +2580,7 @@ class WPD_React_Report {
      *
      */
     public static function log_error( $log ) {
-        wpd_write_log( $log, 'report_error' );
+        wpdai_write_log( $log, 'report_error' );
     }
 
     /**
@@ -3138,7 +3141,7 @@ class WPD_React_Report {
             $skipped_reports = array();
 
             // Check for WC Subscriptions
-            $wc_subscriptions = wpd_is_wc_subscriptions_active();
+            $wc_subscriptions = wpdai_is_wc_subscriptions_active();
 
             foreach ( $json_files as $file_path ) {
                 try {

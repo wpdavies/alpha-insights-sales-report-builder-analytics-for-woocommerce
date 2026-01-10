@@ -24,9 +24,9 @@ defined( 'ABSPATH' ) || exit;
  *  @link https://wpdavies.dev/
  * 
  */
-function wpd_get_default_react_report_ids() {
+function wpdai_get_default_react_report_ids() {
 
-    $default_reports = wpd_get_default_react_reports();
+    $default_reports = wpdai_get_default_react_reports();
     $report_ids = array();
     foreach ( $default_reports as $report ) {
         $report_ids[] = $report['dashboard_id'] ?? 'unknown';
@@ -46,7 +46,7 @@ function wpd_get_default_react_report_ids() {
  *  @link https://wpdavies.dev/
  * 
  */
-function wpd_get_default_react_reports() {
+function wpdai_get_default_react_reports() {
 
     $response = array();
 
@@ -118,7 +118,7 @@ function wpd_get_default_react_reports() {
  *  @link https://wpdavies.dev/
  * 
  */
-function wpd_get_installed_react_reports() {
+function wpdai_get_installed_react_reports() {
 
     $response = array();
 
@@ -168,13 +168,13 @@ function wpd_get_installed_react_reports() {
  * 	@return bool True if the key and value pair is valid, false otherwise
  * 
  **/
-function wpd_is_valid_reporting_utm_key_value_pair( $key, $value ) {
+function wpdai_is_valid_reporting_utm_key_value_pair( $key, $value ) {
 
     // Handle arrays (when query parameter appears multiple times, parse_str returns an array)
     if ( is_array( $value ) ) {
         // For arrays, validate each value - return true if at least one is valid
         foreach ( $value as $single_value ) {
-            if ( wpd_is_valid_reporting_utm_key_value_pair( $key, $single_value ) ) {
+            if ( wpdai_is_valid_reporting_utm_key_value_pair( $key, $single_value ) ) {
                 return true;
             }
         }
@@ -185,10 +185,10 @@ function wpd_is_valid_reporting_utm_key_value_pair( $key, $value ) {
     $valid = true;
 
     // Make sure the key is in our allowed keys
-    if ( ! wpd_is_valid_reporting_utm_key( $key ) ) $valid = false;
+    if ( ! wpdai_is_valid_reporting_utm_key( $key ) ) $valid = false;
 
     // Make sure the value is valid
-    if ( ! wpd_is_valid_reporting_utm_value( $value ) ) $valid = false;
+    if ( ! wpdai_is_valid_reporting_utm_value( $value ) ) $valid = false;
 
     // Pass through filter before returning
     return apply_filters( 'wpd_ai_is_valid_reporting_utm_key_value_pair', $valid, $key, $value );
@@ -203,7 +203,7 @@ function wpd_is_valid_reporting_utm_key_value_pair( $key, $value ) {
  * 	@return bool True if the value is valid, false otherwise
  * 
  **/
-function wpd_is_valid_reporting_utm_value( $value ) {
+function wpdai_is_valid_reporting_utm_value( $value ) {
 
     // Default to true
     $valid = true;
@@ -239,9 +239,9 @@ function wpd_is_valid_reporting_utm_value( $value ) {
  * 	@return bool True if the key is valid, false otherwise
  * 
  **/
-function wpd_is_valid_reporting_utm_key( $key ) {
+function wpdai_is_valid_reporting_utm_key( $key ) {
 
-	$valid_utm_keys = wpd_get_valid_reporting_utm_keys();
+	$valid_utm_keys = wpdai_get_valid_reporting_utm_keys();
 
     $is_valid = in_array( $key, $valid_utm_keys );
 
@@ -257,7 +257,7 @@ function wpd_is_valid_reporting_utm_key( $key ) {
  * 	@return array $valid_utm_keys An array of valid UTM keys
  * 
  **/
-function wpd_get_valid_reporting_utm_keys() {
+function wpdai_get_valid_reporting_utm_keys() {
 
 	$valid_utm_keys = array(
         'utm_source',
@@ -295,7 +295,7 @@ function wpd_get_valid_reporting_utm_keys() {
  * @param bool $url_decode Whether to URL decode the data (default: true for form-urlencoded)
  * @return array|WP_Error Decoded config array on success, WP_Error on failure
  */
-function wpd_sanitize_and_decode_json_config( $raw_data, $url_decode = true ) {
+function wpdai_sanitize_and_decode_json_config( $raw_data, $url_decode = true ) {
 	
 	// Handle array input (already processed)
 	if ( is_array( $raw_data ) ) {
@@ -371,8 +371,8 @@ function wpd_sanitize_and_decode_json_config( $raw_data, $url_decode = true ) {
 	}
 	
 	// Sanitize the decoded array if the function exists
-	if ( function_exists( 'wpd_sanitize_json_decoded_array' ) ) {
-		$config_data = wpd_sanitize_json_decoded_array( $config_data );
+	if ( function_exists( 'wpdai_sanitize_json_decoded_array' ) ) {
+		$config_data = wpdai_sanitize_json_decoded_array( $config_data );
 	}
 	
 	return $config_data;

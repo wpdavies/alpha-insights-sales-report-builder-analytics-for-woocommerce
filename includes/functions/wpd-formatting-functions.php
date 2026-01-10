@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  * @example 1,351,216.40 = 1351216.40
  *
  */
-function wpd_float( $val ){
+function wpdai_float( $val ){
 
     $val = str_replace( ",",".", $val );
     $val = preg_replace( '/\.(?=.*\.)/', '', $val );
@@ -35,7 +35,7 @@ function wpd_float( $val ){
  *	Removes "-" and "_" from a key, replacing with a space and capitalized each first word.
  *
  */
-function wpd_clean_string( $string ) {
+function wpdai_clean_string( $string ) {
 
 	return ucwords( str_replace( '-', ' ', str_replace( '_', ' ', $string ) ) );
 
@@ -47,7 +47,7 @@ function wpd_clean_string( $string ) {
  * 	Might consider using sanitize_text_field() instead
  *
  */
-function wpd_sanitize_url( $url ) {
+function wpdai_sanitize_url( $url ) {
 
 	return wp_strip_all_tags( stripslashes( filter_var($url, FILTER_VALIDATE_URL) ) );
 
@@ -59,19 +59,15 @@ function wpd_sanitize_url( $url ) {
  *	Check that this is a number
  *
  */
-if ( ! function_exists('wpd_numbers_only') ) {
+function wpdai_numbers_only( $number ) {
 
-	function wpd_numbers_only( $number ) {
+	if ( is_numeric($number) ) {
 
-		if ( is_numeric($number) ) {
+		return $number;
 
-			return $number;
+	} else {
 
-		} else {
-
-			return 0;
-
-		}
+		return 0;
 
 	}
 
@@ -82,7 +78,7 @@ if ( ! function_exists('wpd_numbers_only') ) {
  *	Strip query params from URL
  *
  */
-function wpd_strip_params_from_url( $url ) {
+function wpdai_strip_params_from_url( $url ) {
 
 	// Bugger off useless data
 	if ( empty( $url ) || ! is_string( $url ) ) {
@@ -114,11 +110,11 @@ function wpd_strip_params_from_url( $url ) {
  * @param mixed $data The data to sanitize (can be array, string, or other types)
  * @return mixed The sanitized data
  */
-function wpd_sanitize_json_decoded_array( $data ) {
+function wpdai_sanitize_json_decoded_array( $data ) {
 	
 	if ( is_array( $data ) ) {
 		// Recursively sanitize each element in the array
-		return array_map( 'wpd_sanitize_json_decoded_array', $data );
+		return array_map( 'wpdai_sanitize_json_decoded_array', $data );
 	} elseif ( is_string( $data ) ) {
 		// Sanitize string values
 		return sanitize_text_field( $data );

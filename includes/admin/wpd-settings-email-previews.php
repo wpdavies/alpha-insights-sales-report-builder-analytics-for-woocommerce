@@ -17,16 +17,16 @@ if ( isset($_GET['email_preview']) && sanitize_text_field( $_GET['email_preview'
 	<div class="wpd-wrapper">
 		<div class="pull-left wpd-section-heading"><?php esc_html_e( 'Profit Report Email', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></div>
 		<div class="pull-right">
-			<a href="<?php echo esc_url( wpd_admin_page_url( 'settings-emails' ) ); ?>" class="wpd-input button button-secondary"><?php esc_html_e( 'Return To Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
+			<a href="<?php echo esc_url( wpdai_admin_page_url( 'settings-emails' ) ); ?>" class="wpd-input button button-secondary"><?php esc_html_e( 'Return To Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
 			<a href="#" id="send-email-profit-report" class="wpd-input button button-primary" data-wpd-email-ajax="wpd_profit_report"><?php esc_html_e( 'Send Email', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
 		</div>
 		<div class="wpd-inline">
 			<span class="wpd-filter-wrapper"><?php esc_html_e( 'Profit Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></span>
-			<a href="<?php echo esc_url( wpd_admin_page_url( 'settings-emails-preview-expense-report' ) ); ?>" class="wpd-filter-wrapper"><?php esc_html_e( 'Expense Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
+			<a href="<?php echo esc_url( wpdai_admin_page_url( 'settings-emails-preview-expense-report' ) ); ?>" class="wpd-filter-wrapper"><?php esc_html_e( 'Expense Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
 		</div>
 	</div>
 	<?php 
-	wpd_email( 'wpd_profit_report', true );
+	wpdai_email( 'wpd_profit_report', true );
 
 } elseif( isset($_GET['email_preview']) && sanitize_text_field( $_GET['email_preview'] ) === 'expense-report' ) {
 
@@ -34,24 +34,24 @@ if ( isset($_GET['email_preview']) && sanitize_text_field( $_GET['email_preview'
 	<div class="wpd-wrapper">
 		<div class="wpd-section-heading pull-left"><?php esc_html_e( 'Expense Report Email', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></div>
 		<div class="pull-right">
-			<a href="<?php echo esc_url( wpd_admin_page_url( 'settings-emails' ) ); ?>" class="wpd-input button button-secondary"><?php esc_html_e( 'Return To Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
+			<a href="<?php echo esc_url( wpdai_admin_page_url( 'settings-emails' ) ); ?>" class="wpd-input button button-secondary"><?php esc_html_e( 'Return To Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
 			<a href="#" id="send-email-expense-report" class="wpd-input button button-primary" data-wpd-email-ajax="wpd_expense_report"><?php esc_html_e( 'Send Email', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
 		</div>
 		<div class="wpd-inline">
-			<a href="<?php echo esc_url( wpd_admin_page_url( 'settings-emails-preview-profit-report' ) ); ?>" class="wpd-filter-wrapper"><?php esc_html_e( 'Profit Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
+			<a href="<?php echo esc_url( wpdai_admin_page_url( 'settings-emails-preview-profit-report' ) ); ?>" class="wpd-filter-wrapper"><?php esc_html_e( 'Profit Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
 			<span class="wpd-filter-wrapper"><?php esc_html_e( 'Expense Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></span>
 		</div>
 	</div>
 
 	<?php
-	wpd_email( 'wpd_expense_report', true );
+	wpdai_email( 'wpd_expense_report', true );
 
 } else {
 
 	?>	
 	<div class="wpd-wrapper">
 		<div class="wpd-section-heading"><?php esc_html_e( 'Sorry, we couldn\'t find this email preview', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></div>
-		<a href="<?php echo esc_url( wpd_admin_page_url( 'settings-emails' ) ); ?>" class="wpd-input button button-secondary pull-right"><?php esc_html_e( 'Return To Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
+		<a href="<?php echo esc_url( wpdai_admin_page_url( 'settings-emails' ) ); ?>" class="wpd-input button button-secondary pull-right"><?php esc_html_e( 'Return To Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a>
 	</div>
 	<?php
 

@@ -78,7 +78,7 @@ class WPD_Data_Manager {
             return self::$hpos_table_exists;
         }
 
-        if ( ! function_exists( 'wpd_is_hpos_enabled' ) || ! wpd_is_hpos_enabled() ) {
+        if ( ! function_exists( 'wpdai_is_hpos_enabled' ) || ! wpdai_is_hpos_enabled() ) {
             self::$hpos_table_exists = false;
             return false;
         }
@@ -121,7 +121,7 @@ class WPD_Data_Manager {
             'wpd_report_filters_website_traffic_events',
             'wpd_fb_app_credentials',
             'wpd_google_app_credentials',
-            'wpd_product_meta_keys',
+            'wpdai_product_meta_keys',
             'wpd_all_order_ids',
             'wpd_all_order_ids_lock',
             '_wpd_updating_all_orders_cache'
@@ -376,7 +376,7 @@ class WPD_Data_Manager {
         }
 
         // Query wc_orders_meta table if HPOS is enabled
-        if ( function_exists( 'wpd_is_hpos_enabled' ) && wpd_is_hpos_enabled() ) {
+        if ( function_exists( 'wpdai_is_hpos_enabled' ) && wpdai_is_hpos_enabled() ) {
             $orders_meta_table = $wpdb->prefix . 'wc_orders_meta';
             
             $table_exists = $wpdb->get_var( $wpdb->prepare( 
@@ -651,7 +651,7 @@ class WPD_Data_Manager {
             $deleted_count += $deleted;
 
             // Also delete from HPOS orders meta table if enabled
-            if ( function_exists( 'wpd_is_hpos_enabled' ) && wpd_is_hpos_enabled() ) {
+            if ( function_exists( 'wpdai_is_hpos_enabled' ) && wpdai_is_hpos_enabled() ) {
                 $orders_meta_table = $wpdb->prefix . 'wc_orders_meta';
                 $table_exists = $wpdb->get_var( $wpdb->prepare( 
                     "SHOW TABLES LIKE %s", 
@@ -955,7 +955,7 @@ class WPD_Data_Manager {
         $deleted_count += $deleted;
 
         // Delete from HPOS orders meta table if enabled
-        if ( function_exists( 'wpd_is_hpos_enabled' ) && wpd_is_hpos_enabled() ) {
+        if ( function_exists( 'wpdai_is_hpos_enabled' ) && wpdai_is_hpos_enabled() ) {
             $orders_meta_table = $wpdb->prefix . 'wc_orders_meta';
             $table_exists = $wpdb->get_var( $wpdb->prepare( 
                 "SHOW TABLES LIKE %s", 
@@ -998,7 +998,7 @@ class WPD_Data_Manager {
         $deleted_count += $deleted;
 
         // Delete from HPOS orders meta table if enabled
-        if ( function_exists( 'wpd_is_hpos_enabled' ) && wpd_is_hpos_enabled() ) {
+        if ( function_exists( 'wpdai_is_hpos_enabled' ) && wpdai_is_hpos_enabled() ) {
             $orders_meta_table = $wpdb->prefix . 'wc_orders_meta';
             $table_exists = $wpdb->get_var( $wpdb->prepare( 
                 "SHOW TABLES LIKE %s", 
@@ -1501,7 +1501,7 @@ class WPD_Data_Manager {
         $count += (int) $wpdb->get_var( $query );
         
         // Count from HPOS orders meta table if enabled
-        if ( function_exists( 'wpd_is_hpos_enabled' ) && wpd_is_hpos_enabled() ) {
+        if ( function_exists( 'wpdai_is_hpos_enabled' ) && wpdai_is_hpos_enabled() ) {
             $orders_meta_table = $wpdb->prefix . 'wc_orders_meta';
             $table_exists = $wpdb->get_var( $wpdb->prepare( 
                 "SHOW TABLES LIKE %s", 
@@ -1738,7 +1738,7 @@ class WPD_Data_Manager {
         }
         
         // Count from HPOS orders meta table if enabled
-        if ( function_exists( 'wpd_is_hpos_enabled' ) && wpd_is_hpos_enabled() ) {
+        if ( function_exists( 'wpdai_is_hpos_enabled' ) && wpdai_is_hpos_enabled() ) {
             $orders_meta_table = $wpdb->prefix . 'wc_orders_meta';
             $table_exists = $wpdb->get_var( $wpdb->prepare( 
                 "SHOW TABLES LIKE %s", 
@@ -2016,12 +2016,12 @@ class WPD_Data_Manager {
      */
     public static function get_data_management_counts_ajax_handler() {
         // Verify AJAX request
-        if ( ! function_exists( 'wpd_verify_ajax_request' ) ) {
+        if ( ! function_exists( 'wpdai_verify_ajax_request' ) ) {
             require_once( WPD_AI_PATH . 'includes/wpd-ajax.php' );
         }
         
-        if ( ! wpd_verify_ajax_request() ) {
-            return; // wpd_verify_ajax_request sends JSON error and dies
+        if ( ! wpdai_verify_ajax_request() ) {
+            return; // wpdai_verify_ajax_request sends JSON error and dies
         }
         
         $data_manager = self::get_instance();
@@ -2076,12 +2076,12 @@ class WPD_Data_Manager {
      */
     public static function delete_entity_ajax_handler() {
         // Verify AJAX request
-        if ( ! function_exists( 'wpd_verify_ajax_request' ) ) {
+        if ( ! function_exists( 'wpdai_verify_ajax_request' ) ) {
             require_once( WPD_AI_PATH . 'includes/wpd-ajax.php' );
         }
         
-        if ( ! wpd_verify_ajax_request() ) {
-            return; // wpd_verify_ajax_request sends JSON error and dies
+        if ( ! wpdai_verify_ajax_request() ) {
+            return; // wpdai_verify_ajax_request sends JSON error and dies
         }
         
         if ( ! isset( $_POST['entity_type'] ) ) {
@@ -2164,11 +2164,11 @@ class WPD_Data_Manager {
      */
     public static function delete_table_ajax_handler() {
         // Verify AJAX request
-        if ( ! function_exists( 'wpd_verify_ajax_request' ) ) {
+        if ( ! function_exists( 'wpdai_verify_ajax_request' ) ) {
             require_once( WPD_AI_PATH . 'includes/wpd-ajax.php' );
         }
         
-        if ( ! wpd_verify_ajax_request() ) {
+        if ( ! wpdai_verify_ajax_request() ) {
             return;
         }
         
@@ -2194,11 +2194,11 @@ class WPD_Data_Manager {
      */
     public static function truncate_table_ajax_handler() {
         // Verify AJAX request
-        if ( ! function_exists( 'wpd_verify_ajax_request' ) ) {
+        if ( ! function_exists( 'wpdai_verify_ajax_request' ) ) {
             require_once( WPD_AI_PATH . 'includes/wpd-ajax.php' );
         }
         
-        if ( ! wpd_verify_ajax_request() ) {
+        if ( ! wpdai_verify_ajax_request() ) {
             return;
         }
         
@@ -2224,11 +2224,11 @@ class WPD_Data_Manager {
      */
     public static function truncate_all_tables_ajax_handler() {
         // Verify AJAX request
-        if ( ! function_exists( 'wpd_verify_ajax_request' ) ) {
+        if ( ! function_exists( 'wpdai_verify_ajax_request' ) ) {
             require_once( WPD_AI_PATH . 'includes/wpd-ajax.php' );
         }
         
-        if ( ! wpd_verify_ajax_request() ) {
+        if ( ! wpdai_verify_ajax_request() ) {
             return;
         }
         
@@ -2255,11 +2255,11 @@ class WPD_Data_Manager {
      */
     public static function delete_meta_key_ajax_handler() {
         // Verify AJAX request
-        if ( ! function_exists( 'wpd_verify_ajax_request' ) ) {
+        if ( ! function_exists( 'wpdai_verify_ajax_request' ) ) {
             require_once( WPD_AI_PATH . 'includes/wpd-ajax.php' );
         }
         
-        if ( ! wpd_verify_ajax_request() ) {
+        if ( ! wpdai_verify_ajax_request() ) {
             return;
         }
         
@@ -2293,11 +2293,11 @@ class WPD_Data_Manager {
      */
     public static function delete_single_item_ajax_handler() {
         // Verify AJAX request
-        if ( ! function_exists( 'wpd_verify_ajax_request' ) ) {
+        if ( ! function_exists( 'wpdai_verify_ajax_request' ) ) {
             require_once( WPD_AI_PATH . 'includes/wpd-ajax.php' );
         }
         
-        if ( ! wpd_verify_ajax_request() ) {
+        if ( ! wpdai_verify_ajax_request() ) {
             return;
         }
         
@@ -2330,12 +2330,12 @@ class WPD_Data_Manager {
      */
     public static function delete_scheduled_task_ajax_handler() {
         // Verify AJAX request
-        if ( ! function_exists( 'wpd_verify_ajax_request' ) ) {
+        if ( ! function_exists( 'wpdai_verify_ajax_request' ) ) {
             require_once( WPD_AI_PATH . 'includes/wpd-ajax.php' );
         }
         
-        if ( ! wpd_verify_ajax_request() ) {
-            return; // wpd_verify_ajax_request sends JSON error and dies
+        if ( ! wpdai_verify_ajax_request() ) {
+            return; // wpdai_verify_ajax_request sends JSON error and dies
         }
         
         if ( ! isset( $_POST['action_id'] ) ) {
@@ -2389,11 +2389,11 @@ class WPD_Data_Manager {
      */
     public static function delete_post_type_meta_ajax_handler() {
         // Verify AJAX request
-        if ( ! function_exists( 'wpd_verify_ajax_request' ) ) {
+        if ( ! function_exists( 'wpdai_verify_ajax_request' ) ) {
             require_once( WPD_AI_PATH . 'includes/wpd-ajax.php' );
         }
         
-        if ( ! wpd_verify_ajax_request() ) {
+        if ( ! wpdai_verify_ajax_request() ) {
             return;
         }
         

@@ -102,7 +102,7 @@ class WPD_Database_Interactor {
         // Table required
         if ( empty( $table_name ) ) {
             
-            wpd_write_log( 'Coudln\'t add row to table as the table name does not exist.', 'db_error' );
+            wpdai_write_log( 'Coudln\'t add row to table as the table name does not exist.', 'db_error' );
             return false;
 
         }
@@ -110,7 +110,7 @@ class WPD_Database_Interactor {
         // Must be set to a defined table
         if ( ! in_array( $table_name, array_values( get_object_vars( $this ) ) ) ) {
 
-            wpd_write_log( 'Coudln\'t add data to table as the table name does not match a defined table within the WPD Database Interactor.', 'db_error' );
+            wpdai_write_log( 'Coudln\'t add data to table as the table name does not match a defined table within the WPD Database Interactor.', 'db_error' );
             return false;
 
         }
@@ -118,7 +118,7 @@ class WPD_Database_Interactor {
         // Need to pass data in
         if ( empty($data) ) {
 
-            wpd_write_log( 'Coudln\'t add data to ' . $table_name . ' as no data was passed.', 'db_error' );
+            wpdai_write_log( 'Coudln\'t add data to ' . $table_name . ' as no data was passed.', 'db_error' );
             return false;
 
         }
@@ -132,8 +132,8 @@ class WPD_Database_Interactor {
         if ( $wpdb->last_error ) {
 
             $result = $wpdb->last_error;
-            wpd_write_log( 'Error occured adding data to ' . $table_name, 'db_error' );
-            wpd_write_log( $result, 'db_error' );
+            wpdai_write_log( 'Error occured adding data to ' . $table_name, 'db_error' );
+            wpdai_write_log( $result, 'db_error' );
             return false;
 
         }
@@ -156,7 +156,7 @@ class WPD_Database_Interactor {
         // Table required
         if ( empty( $table_name ) ) {
     
-            wpd_write_log( 'Coudln\'t add row to table as the table name does not exist.', 'db_error' );
+            wpdai_write_log( 'Coudln\'t add row to table as the table name does not exist.', 'db_error' );
             return false;
 
         }
@@ -164,7 +164,7 @@ class WPD_Database_Interactor {
         // Must be set to a defined table
         if ( ! in_array( $table_name, array_values( get_object_vars( $this ) ) ) ) {
 
-            wpd_write_log( 'Coudln\'t add data to table as the table name does not match a defined table within the WPD Database Interactor.', 'db_error' );
+            wpdai_write_log( 'Coudln\'t add data to table as the table name does not match a defined table within the WPD Database Interactor.', 'db_error' );
             return false;
 
         }
@@ -172,7 +172,7 @@ class WPD_Database_Interactor {
         // Need to pass data in
         if ( empty($data) ) {
 
-            wpd_write_log( 'Coudln\'t add data to ' . $table_name . ' as no data was passed.', 'db_error' );
+            wpdai_write_log( 'Coudln\'t add data to ' . $table_name . ' as no data was passed.', 'db_error' );
             return false;
 
         }
@@ -225,8 +225,8 @@ class WPD_Database_Interactor {
             if ( $wpdb->last_error ) {
                 
                 $result = $wpdb->last_error;
-                wpd_write_log( 'Error occured inserting table rows in the ' . $table_name . ' table.', 'db_error' );
-                wpd_write_log( $result, 'db_error' );
+                wpdai_write_log( 'Error occured inserting table rows in the ' . $table_name . ' table.', 'db_error' );
+                wpdai_write_log( $result, 'db_error' );
                 return false;
                 
             }
@@ -242,8 +242,8 @@ class WPD_Database_Interactor {
         if ( $wpdb->last_error ) {
 
             $result = $wpdb->last_error;
-            wpd_write_log( 'Error occured updating table rows in the ' . $table_name . ' table.', 'db_error' );
-            wpd_write_log( $result, 'db_error' );
+            wpdai_write_log( 'Error occured updating table rows in the ' . $table_name . ' table.', 'db_error' );
+            wpdai_write_log( $result, 'db_error' );
             return false;
 
         }
@@ -309,11 +309,11 @@ class WPD_Database_Interactor {
         // Settings
         $charset_collate            = $wpdb->get_charset_collate();
 
-        wpd_write_log( 'Updating Alpha Insights Database to the latest version.', 'db_upgrade' );
+        wpdai_write_log( 'Updating Alpha Insights Database to the latest version.', 'db_upgrade' );
 
         // Only install if its the latest version
         // if ( version_compare( $this->plugin_db_version, $this->installed_db_version, "<=" )  ) {
-        //     wpd_write_log( 'You have currently got the latest version ('.$this->installed_db_version.') installed, no need to continue.', 'db_upgrade' );
+        //     wpdai_write_log( 'You have currently got the latest version ('.$this->installed_db_version.') installed, no need to continue.', 'db_upgrade' );
         //     return true;
         // }
 
@@ -369,17 +369,17 @@ class WPD_Database_Interactor {
             if ( $wpdb->last_error ) {
                 $error = $wpdb->last_error;
                 $query = $wpdb->last_query;
-                wpd_write_log( 'Error occured creating table: ' . $events_table, 'db_error' );
-                wpd_write_log( $error, 'db_error' );
-                wpd_write_log( $query, 'db_error' );
+                wpdai_write_log( 'Error occured creating table: ' . $events_table, 'db_error' );
+                wpdai_write_log( $error, 'db_error' );
+                wpdai_write_log( $query, 'db_error' );
                 return false;
             }
 
-            wpd_write_log( 'New table created: ' . $events_table . '.', 'db_upgrade' );
+            wpdai_write_log( 'New table created: ' . $events_table . '.', 'db_upgrade' );
 
         } else {
 
-            wpd_write_log( 'Table already exists, no need to create: ' . $events_table . '.', 'db_upgrade' );
+            wpdai_write_log( 'Table already exists, no need to create: ' . $events_table . '.', 'db_upgrade' );
 
         }
 
@@ -435,17 +435,17 @@ class WPD_Database_Interactor {
             if ( $wpdb->last_error ) {
                 $error = $wpdb->last_error;
                 $query = $wpdb->last_query;
-                wpd_write_log( 'Error occured creating table: ' . $session_data_table, 'db_error' );
-                wpd_write_log( $error, 'db_error' );
-                wpd_write_log( $query, 'db_error' );
+                wpdai_write_log( 'Error occured creating table: ' . $session_data_table, 'db_error' );
+                wpdai_write_log( $error, 'db_error' );
+                wpdai_write_log( $query, 'db_error' );
                 return false;
             }
 
-            wpd_write_log( 'New table created: ' . $session_data_table . '.', 'db_upgrade' );
+            wpdai_write_log( 'New table created: ' . $session_data_table . '.', 'db_upgrade' );
 
         } else {
 
-            wpd_write_log( 'Table already exists, no need to create: ' . $session_data_table . '.', 'db_upgrade' );
+            wpdai_write_log( 'Table already exists, no need to create: ' . $session_data_table . '.', 'db_upgrade' );
 
         }
 
@@ -482,17 +482,17 @@ class WPD_Database_Interactor {
             if ( $wpdb->last_error ) {
                 $error = $wpdb->last_error;
                 $query = $wpdb->last_query;
-                wpd_write_log( 'Error occured creating table: ' . $order_calculations_table, 'db_error' );
-                wpd_write_log( $error, 'db_error' );
-                wpd_write_log( $query, 'db_error' );
+                wpdai_write_log( 'Error occured creating table: ' . $order_calculations_table, 'db_error' );
+                wpdai_write_log( $error, 'db_error' );
+                wpdai_write_log( $query, 'db_error' );
                 return false;
             }
 
-            wpd_write_log( 'New table created: ' . $order_calculations_table . '.', 'db_upgrade' );
+            wpdai_write_log( 'New table created: ' . $order_calculations_table . '.', 'db_upgrade' );
 
         } else {
 
-            wpd_write_log( 'Table already exists, no need to create: ' . $order_calculations_table . '.', 'db_upgrade' );
+            wpdai_write_log( 'Table already exists, no need to create: ' . $order_calculations_table . '.', 'db_upgrade' );
 
         }
 
@@ -527,7 +527,7 @@ class WPD_Database_Interactor {
         $this->create_new_column( $session_data_table, 'engaged_session', 'TINYINT(1) DEFAULT NULL' );
         
         // Finally, return response.
-        wpd_write_log( 'Completed Alpha Insights upgrade to Database version ' . $this->plugin_db_version, 'db_upgrade' );
+        wpdai_write_log( 'Completed Alpha Insights upgrade to Database version ' . $this->plugin_db_version, 'db_upgrade' );
 
         // Set new db version
         update_option( "wpd_ai_db_version", $this->plugin_db_version );
@@ -548,7 +548,7 @@ class WPD_Database_Interactor {
         global $wpdb;
 
         // Log beginning
-        wpd_write_log( sprintf( 'Updating column %s in table %s to the following format: %s.', $column, $table, $format ), 'db_upgrade' );
+        wpdai_write_log( sprintf( 'Updating column %s in table %s to the following format: %s.', $column, $table, $format ), 'db_upgrade' );
 
         // Query
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement cannot use prepared statements for table/column names.
@@ -564,9 +564,9 @@ class WPD_Database_Interactor {
             $error = $wpdb->last_error;
             $query = $wpdb->last_query;
 
-            wpd_write_log( 'Error occured updating column ' . $column . ' in ' . $table, 'db_error' );
-            wpd_write_log( $error, 'db_error' );
-            wpd_write_log( $query, 'db_error' );
+            wpdai_write_log( 'Error occured updating column ' . $column . ' in ' . $table, 'db_error' );
+            wpdai_write_log( $error, 'db_error' );
+            wpdai_write_log( $query, 'db_error' );
 
             return false;
 
@@ -574,12 +574,12 @@ class WPD_Database_Interactor {
 
         if ( $update_column_format ) {
 
-            wpd_write_log( sprintf( 'Succesfully updated %s in %s to %s', $column, $table, $format ), 'db_upgrade' );
+            wpdai_write_log( sprintf( 'Succesfully updated %s in %s to %s', $column, $table, $format ), 'db_upgrade' );
             return true;
 
         } else {
 
-            wpd_write_log( sprintf( '%s was not updated, may already be correct.', $column, $table, $format ), 'db_upgrade' );
+            wpdai_write_log( sprintf( '%s was not updated, may already be correct.', $column, $table, $format ), 'db_upgrade' );
             return true;
 
         }
@@ -597,7 +597,7 @@ class WPD_Database_Interactor {
      **/
     public function add_new_index( $table, $column ) {
 
-        wpd_write_log( 'Adding new index "' . $column . '" to '. $table . '.', 'db_upgrade' );
+        wpdai_write_log( 'Adding new index "' . $column . '" to '. $table . '.', 'db_upgrade' );
 
         global $wpdb;
 
@@ -610,9 +610,9 @@ class WPD_Database_Interactor {
         if ( $wpdb->last_error ) {
             $error = $wpdb->last_error;
             $query = $wpdb->last_query;
-            wpd_write_log( 'Error occured adding index ' . $column . ' to ' . $table, 'db_error' );
-            wpd_write_log( $error, 'db_error' );
-            wpd_write_log( $query, 'db_error' );
+            wpdai_write_log( 'Error occured adding index ' . $column . ' to ' . $table, 'db_error' );
+            wpdai_write_log( $error, 'db_error' );
+            wpdai_write_log( $query, 'db_error' );
             return false;
         }
 
@@ -628,17 +628,17 @@ class WPD_Database_Interactor {
             if ( $wpdb->last_error ) {
                 $error = $wpdb->last_error;
                 $query = $wpdb->last_query;
-                wpd_write_log( 'Error occured adding index ' . $column . ' to ' . $table, 'db_error' );
-                wpd_write_log( $error, 'db_error' );
-                wpd_write_log( $query, 'db_error' );
+                wpdai_write_log( 'Error occured adding index ' . $column . ' to ' . $table, 'db_error' );
+                wpdai_write_log( $error, 'db_error' );
+                wpdai_write_log( $query, 'db_error' );
                 return false;
             }
 
-            wpd_write_log( 'Added new index "' . $column . '" to '. $table . '.', 'db_upgrade' );
+            wpdai_write_log( 'Added new index "' . $column . '" to '. $table . '.', 'db_upgrade' );
 
         } else {
 
-            wpd_write_log( 'Index "' . $column . '" in '. $table . ' already exists.', 'db_upgrade' );
+            wpdai_write_log( 'Index "' . $column . '" in '. $table . ' already exists.', 'db_upgrade' );
 
         }
 
@@ -660,11 +660,11 @@ class WPD_Database_Interactor {
     public function add_composite_index( $table, $index_name, $columns ) {
 
         if ( ! is_array( $columns ) || empty( $columns ) ) {
-            wpd_write_log( 'Error: add_composite_index requires an array of column names.', 'db_error' );
+            wpdai_write_log( 'Error: add_composite_index requires an array of column names.', 'db_error' );
             return false;
         }
 
-        wpd_write_log( 'Adding composite index "' . $index_name . '" on columns (' . implode( ', ', $columns ) . ') to ' . $table . '.', 'db_upgrade' );
+        wpdai_write_log( 'Adding composite index "' . $index_name . '" on columns (' . implode( ', ', $columns ) . ') to ' . $table . '.', 'db_upgrade' );
 
         global $wpdb;
 
@@ -678,9 +678,9 @@ class WPD_Database_Interactor {
         if ( $wpdb->last_error ) {
             $error = $wpdb->last_error;
             $query = $wpdb->last_query;
-            wpd_write_log( 'Error checking for composite index ' . $index_name . ' on ' . $table, 'db_error' );
-            wpd_write_log( $error, 'db_error' );
-            wpd_write_log( $query, 'db_error' );
+            wpdai_write_log( 'Error checking for composite index ' . $index_name . ' on ' . $table, 'db_error' );
+            wpdai_write_log( $error, 'db_error' );
+            wpdai_write_log( $query, 'db_error' );
             return false;
         }
 
@@ -700,17 +700,17 @@ class WPD_Database_Interactor {
             if ( $wpdb->last_error ) {
                 $error = $wpdb->last_error;
                 $query = $wpdb->last_query;
-                wpd_write_log( 'Error occured adding composite index ' . $index_name . ' to ' . $table, 'db_error' );
-                wpd_write_log( $error, 'db_error' );
-                wpd_write_log( $query, 'db_error' );
+                wpdai_write_log( 'Error occured adding composite index ' . $index_name . ' to ' . $table, 'db_error' );
+                wpdai_write_log( $error, 'db_error' );
+                wpdai_write_log( $query, 'db_error' );
                 return false;
             }
 
-            wpd_write_log( 'Added composite index "' . $index_name . '" on columns (' . implode( ', ', $columns ) . ') to ' . $table . '.', 'db_upgrade' );
+            wpdai_write_log( 'Added composite index "' . $index_name . '" on columns (' . implode( ', ', $columns ) . ') to ' . $table . '.', 'db_upgrade' );
 
         } else {
 
-            wpd_write_log( 'Composite index "' . $index_name . '" in ' . $table . ' already exists.', 'db_upgrade' );
+            wpdai_write_log( 'Composite index "' . $index_name . '" in ' . $table . ' already exists.', 'db_upgrade' );
 
         }
 
@@ -731,7 +731,7 @@ class WPD_Database_Interactor {
      */
     public function create_new_column( $table_name, $column_name, $settings ) {
 
-        wpd_write_log( 'Checking if column "' . $column_name . '" exists in table ' . $table_name . '.', 'db_upgrade' );
+        wpdai_write_log( 'Checking if column "' . $column_name . '" exists in table ' . $table_name . '.', 'db_upgrade' );
 
         global $wpdb;
 
@@ -743,7 +743,7 @@ class WPD_Database_Interactor {
 
         if ( empty( $row ) ) {
 
-            wpd_write_log( 'Adding new column "' . $column_name . '" to ' . $table_name . ' with settings: ' . $settings . '.', 'db_upgrade' );
+            wpdai_write_log( 'Adding new column "' . $column_name . '" to ' . $table_name . ' with settings: ' . $settings . '.', 'db_upgrade' );
 
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement cannot use prepared statements for table/column names.
             // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names are from trusted source.
@@ -753,17 +753,17 @@ class WPD_Database_Interactor {
             if ( $wpdb->last_error ) {
                 $error = $wpdb->last_error;
                 $query = $wpdb->last_query;
-                wpd_write_log( 'Error occured creating new column ' . $column_name . ' in ' . $table_name, 'db_error' );
-                wpd_write_log( $error, 'db_error' );
-                wpd_write_log( $query, 'db_error' );
+                wpdai_write_log( 'Error occured creating new column ' . $column_name . ' in ' . $table_name, 'db_error' );
+                wpdai_write_log( $error, 'db_error' );
+                wpdai_write_log( $query, 'db_error' );
                 return false;
             }
 
-            wpd_write_log( 'Successfully added new column "' . $column_name . '" to table ' . $table_name . '.', 'db_upgrade' );
+            wpdai_write_log( 'Successfully added new column "' . $column_name . '" to table ' . $table_name . '.', 'db_upgrade' );
 
         } else {
 
-            wpd_write_log( 'Column "' . $column_name . '" already exists in table ' . $table_name . '.', 'db_upgrade' );
+            wpdai_write_log( 'Column "' . $column_name . '" already exists in table ' . $table_name . '.', 'db_upgrade' );
 
         }
 

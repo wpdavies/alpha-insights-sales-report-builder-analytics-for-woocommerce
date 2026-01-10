@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  *   @return bool|WP_Error Bool on success, WP_Error on failure    
  * 
  **/
-function wpd_schedule_once_off_cron_event_delete_products_cache( $execution_delay_in_second = 0 ) {
+function wpdai_schedule_once_off_cron_event_delete_products_cache( $execution_delay_in_second = 0 ) {
 
     $action_scheduler = new WPD_Action_Scheduler();
     return $action_scheduler->schedule_one_off_event( $action_scheduler::SINGLE_EVENT_REBUILD_PRODUCT_CACHE, $execution_delay_in_second );

@@ -56,7 +56,7 @@ class WPD_WooCommerce_Events {
 		$this->settings = get_option( 'wpd_ai_analytics', array()); // Default return empty array
 
 		// Decide if we are going to track events
-		if ( ! wpd_is_analytics_enabled() ) {
+		if ( ! wpdai_is_analytics_enabled() ) {
 
 			$this->event_tracking_enabled = 0;
 
@@ -134,7 +134,7 @@ class WPD_WooCommerce_Events {
 			array(
 				'methods' => 'POST',
 				'callback' => array( $this, 'process_events_api_data' ),
-				'permission_callback' => array( $this, 'verify_events_api_permission' )
+				'permission_callback' => '__return_true' // This is a public endpoint, security checks are already done in the callback
 			)
 		);
 
@@ -153,7 +153,7 @@ class WPD_WooCommerce_Events {
 			array(
 				'methods' => 'POST',
 				'callback' => array( $this, 'process_engaged_session_api_data' ),
-				'permission_callback' => array( $this, 'verify_events_api_permission' )
+				'permission_callback' => '__return_true' // This is a public endpoint, security checks are already done in the callback
 			)
 		);
 
@@ -807,8 +807,8 @@ class WPD_WooCommerce_Events {
 		$this->release_tracking_lock( $order_id );
 
 		// Send off google conversion event
-		if ( function_exists('wpd_schedule_once_off_cron_event_google_ads_profit_conversion_action_from_order_id') ) {
-			wpd_schedule_once_off_cron_event_google_ads_profit_conversion_action_from_order_id( 0, array( 'order_id' => $order_id ) );
+		if ( function_exists('wpdai_schedule_once_off_cron_event_google_ads_profit_conversion_action_from_order_id') ) {
+			wpdai_schedule_once_off_cron_event_google_ads_profit_conversion_action_from_order_id( 0, array( 'order_id' => $order_id ) );
 		}
 
 		// Track individual product purchases
@@ -942,8 +942,8 @@ class WPD_WooCommerce_Events {
 		$this->release_tracking_lock( $order_id );
 
 		// Send off google conversion event
-		if ( function_exists('wpd_schedule_once_off_cron_event_google_ads_profit_conversion_action_from_order_id') ) {
-			wpd_schedule_once_off_cron_event_google_ads_profit_conversion_action_from_order_id( 0, array( 'order_id' => $order_id ) );
+		if ( function_exists('wpdai_schedule_once_off_cron_event_google_ads_profit_conversion_action_from_order_id') ) {
+			wpdai_schedule_once_off_cron_event_google_ads_profit_conversion_action_from_order_id( 0, array( 'order_id' => $order_id ) );
 		}
 
 		// Track individual product purchases
@@ -1207,7 +1207,7 @@ class WPD_WooCommerce_Events {
 		$data = array();
 
 		// Preference the referer in case we are using an AJAX call or it's been triggered from somewhere else
-		$referral_url = wpd_get_referral_url_raw();
+		$referral_url = wpdai_get_referral_url_raw();
 		if ( isset($referral_url) && ! empty($referral_url) ) {
 			$data['page_href'] = $referral_url;
 		}
@@ -1244,8 +1244,8 @@ class WPD_WooCommerce_Events {
 
 		// Send off google conversion event
 		$conversion_value = (float) $data['event_value'] * (int) $data['event_quantity'];
-		if ( function_exists('wpd_schedule_once_off_cron_event_google_ads_add_to_cart_conversion_action_from_gclid') ) {
-			wpd_schedule_once_off_cron_event_google_ads_add_to_cart_conversion_action_from_gclid( 0, array( 'landing_page' => $session_instance->landing_page, 'conversion_value' => $conversion_value ) );
+		if ( function_exists('wpdai_schedule_once_off_cron_event_google_ads_add_to_cart_conversion_action_from_gclid') ) {
+			wpdai_schedule_once_off_cron_event_google_ads_add_to_cart_conversion_action_from_gclid( 0, array( 'landing_page' => $session_instance->landing_page, 'conversion_value' => $conversion_value ) );
 		}
 
 		// Add to DB

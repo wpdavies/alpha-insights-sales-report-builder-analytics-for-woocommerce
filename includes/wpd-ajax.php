@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  * @param string $capability Required capability. Default 'manage_options'.
  * @return bool True if verified, false otherwise (sends JSON error and dies).
  */
-function wpd_verify_ajax_request( $nonce_action = null, $capability = 'manage_options' ) {
+function wpdai_verify_ajax_request( $nonce_action = null, $capability = 'manage_options' ) {
 	// Use constant if no action specified
 	if ( null === $nonce_action ) {
 		$nonce_action = WPD_AI_AJAX_NONCE_ACTION;
@@ -50,11 +50,11 @@ function wpd_verify_ajax_request( $nonce_action = null, $capability = 'manage_op
  * Ajax Request to delete all order meta overrides
  * 
  */
-add_action( 'wp_ajax_wpd_reset_order_meta', 'wpd_reset_order_meta' );
-function wpd_reset_order_meta() {
+add_action( 'wp_ajax_wpd_reset_order_meta', 'wpdai_reset_order_meta' );
+function wpdai_reset_order_meta() {
 
 	// Verify security
-	if ( ! wpd_verify_ajax_request() ) {
+	if ( ! wpdai_verify_ajax_request() ) {
 		return;
 	}
 
@@ -62,7 +62,7 @@ function wpd_reset_order_meta() {
 	$response = array();
 
 	// Execute the delete function
-	$deleted_rows = wpd_delete_all_order_meta_overrides();
+	$deleted_rows = wpdai_delete_all_order_meta_overrides();
 
 	if ( is_numeric($deleted_rows) ) {
 
@@ -86,11 +86,11 @@ function wpd_reset_order_meta() {
  * Ajax Request to delete all order line item COGS
  * 
  */
-add_action( 'wp_ajax_wpd_delete_order_line_item_cogs', 'wpd_delete_order_line_item_cogs_ajax' );
-function wpd_delete_order_line_item_cogs_ajax() {
+add_action( 'wp_ajax_wpd_delete_order_line_item_cogs', 'wpdai_delete_order_line_item_cogs_ajax' );
+function wpdai_delete_order_line_item_cogs_ajax() {
 
 	// Verify security
-	if ( ! wpd_verify_ajax_request() ) {
+	if ( ! wpdai_verify_ajax_request() ) {
 		return;
 	}
 
@@ -98,7 +98,7 @@ function wpd_delete_order_line_item_cogs_ajax() {
 	$response = array();
 
 	// Execute the delete function
-	$deleted_rows = wpd_delete_all_order_line_item_meta_cogs();
+	$deleted_rows = wpdai_delete_all_order_line_item_meta_cogs();
 
 	// Build a response
 	if ( is_numeric($deleted_rows) ) {
@@ -124,16 +124,16 @@ function wpd_delete_order_line_item_cogs_ajax() {
  * Ajax Request to delete all report caches
  * 
  */
-add_action( 'wp_ajax_wpd_delete_all_cache', 'wpd_delete_all_cache_ajax', 10 );
-function wpd_delete_all_cache_ajax() {
+add_action( 'wp_ajax_wpd_delete_all_cache', 'wpdai_delete_all_cache_ajax', 10 );
+function wpdai_delete_all_cache_ajax() {
 
 	// Verify security
-	if ( ! wpd_verify_ajax_request() ) {
+	if ( ! wpdai_verify_ajax_request() ) {
 		return;
 	}
 
 	// Immediately delete
-	$delete_all_cache = wpd_delete_all_data_caches();
+	$delete_all_cache = wpdai_delete_all_data_caches();
 
 	// Schedule rebuild
 	$response = array();
@@ -158,10 +158,10 @@ function wpd_delete_all_cache_ajax() {
  * Legacy inventory export - replaced by WPD_Cost_Of_Goods_Manager::ajax_export_csv()
  * Kept for backward compatibility with old AJAX calls
  */
-add_action('wp_ajax_wpd_export_inventory_to_csv', 'wpd_export_inventory_to_csv' );
-function wpd_export_inventory_to_csv() {
+add_action('wp_ajax_wpd_export_inventory_to_csv', 'wpdai_export_inventory_to_csv' );
+function wpdai_export_inventory_to_csv() {
 	// Verify security - the method will handle its own checks, but verify here too
-	if ( ! wpd_verify_ajax_request() ) {
+	if ( ! wpdai_verify_ajax_request() ) {
 		return;
 	}
 	// Redirect to new export method
@@ -173,15 +173,15 @@ function wpd_export_inventory_to_csv() {
  * Ajax handler for generating PDF from live link (React Reports)
  * 
  * This is an example AJAX handler that demonstrates how to use the
- * wpd_generate_pdf_from_report_slug() function for React-based reports.
+ * wpdai_generate_pdf_from_report_slug() function for React-based reports.
  * 
  * @since 4.7.0
  */
-add_action('wp_ajax_wpd_export_react_report_to_pdf', 'wpd_export_react_report_to_pdf' );
-function wpd_export_react_report_to_pdf() {
+add_action('wp_ajax_wpd_export_react_report_to_pdf', 'wpdai_export_react_report_to_pdf' );
+function wpdai_export_react_report_to_pdf() {
 
 	// Verify security
-	if ( ! wpd_verify_ajax_request() ) {
+	if ( ! wpdai_verify_ajax_request() ) {
 		return;
 	}
 
@@ -198,7 +198,7 @@ function wpd_export_react_report_to_pdf() {
 		}
 
 		// Generate the PDF using report slug (file name auto-generated from report name)
-		$response = wpd_generate_pdf_from_report_slug( $report_slug );
+		$response = wpdai_generate_pdf_from_report_slug( $report_slug );
 
 		if ( isset( $response['success'] ) && $response['success'] ) {
 			wp_send_json_success( $response );
@@ -223,15 +223,15 @@ function wpd_export_react_report_to_pdf() {
  *	Ajax request for sending email
  *
  */
-add_action('wp_ajax_wpd_send_email', 'wpd_send_email_ajax' );
-function wpd_send_email_ajax() {
+add_action('wp_ajax_wpd_send_email', 'wpdai_send_email_ajax' );
+function wpdai_send_email_ajax() {
 
 	// Verify security
-	if ( ! wpd_verify_ajax_request() ) {
+	if ( ! wpdai_verify_ajax_request() ) {
 		return;
 	}
 
-	$requesting_url = isset( $_POST['url'] ) ? wpd_sanitize_url( $_POST['url'] ) : '';
+	$requesting_url = isset( $_POST['url'] ) ? wpdai_sanitize_url( $_POST['url'] ) : '';
 	$email_type = isset( $_POST['email'] ) ? sanitize_text_field( $_POST['email'] ) : '';
 	
 	// Validate email type is one of the allowed types
@@ -241,7 +241,7 @@ function wpd_send_email_ajax() {
 		return;
 	}
 	
-	$response = wpd_email( $email_type, false );
+	$response = wpdai_email( $email_type, false );
 	
 	// Format response for JavaScript - check if email was sent
 	if ( isset( $response['email_sent'] ) && $response['email_sent'] === true ) {
@@ -266,15 +266,15 @@ function wpd_send_email_ajax() {
  *	Manually send out data to webhook
  *
  */
-add_action('wp_ajax_wpd_webhook_export_manual', 'wpd_webhook_export_manual' );
-function wpd_webhook_export_manual() {
+add_action('wp_ajax_wpd_webhook_export_manual', 'wpdai_webhook_export_manual' );
+function wpdai_webhook_export_manual() {
 
 	// Verify security
-	if ( ! wpd_verify_ajax_request() ) {
+	if ( ! wpdai_verify_ajax_request() ) {
 		return;
 	}
 
-	$response = wpd_webhook_post_data();
+	$response = wpdai_webhook_post_data();
 	wp_send_json( $response );
 
 }
@@ -284,11 +284,11 @@ function wpd_webhook_export_manual() {
  * Ajax Request to manually upgrade DB
  * 
  */
-add_action( 'wp_ajax_wpd-update_db_manually', 'wpd_update_wpd_ai_database' );
-function wpd_update_wpd_ai_database() {
+add_action( 'wp_ajax_wpd-update_db_manually', 'wpdai_update_wpd_ai_database' );
+function wpdai_update_wpd_ai_database() {
 
 	// Verify security
-	if ( ! wpd_verify_ajax_request() ) {
+	if ( ! wpdai_verify_ajax_request() ) {
 		return;
 	}
 
@@ -324,11 +324,11 @@ function wpd_update_wpd_ai_database() {
  * Delete a log file
  * 
  */
-add_action( 'wp_ajax_wpd_delete_log', 'wpd_delete_log_ajax' );
-function wpd_delete_log_ajax() {
+add_action( 'wp_ajax_wpd_delete_log', 'wpdai_delete_log_ajax' );
+function wpdai_delete_log_ajax() {
 
 	// Verify security
-	if ( ! wpd_verify_ajax_request() ) {
+	if ( ! wpdai_verify_ajax_request() ) {
 		return;
 	}
 
@@ -379,11 +379,11 @@ function wpd_delete_log_ajax() {
 /**
  * Load all documentation files
  */
-add_action('wp_ajax_wpd_load_documentation', 'wpd_load_documentation_ajax');
-function wpd_load_documentation_ajax() {
+add_action('wp_ajax_wpd_load_documentation', 'wpdai_load_documentation_ajax');
+function wpdai_load_documentation_ajax() {
 
 	// Verify security using standard helper
-	if ( ! wpd_verify_ajax_request() ) {
+	if ( ! wpdai_verify_ajax_request() ) {
 		return;
 	}
 
@@ -401,7 +401,7 @@ function wpd_load_documentation_ajax() {
 		}
 
 		// Recursively load all JSON files
-		$docs_data = wpd_load_docs_recursive($docs_path);
+		$docs_data = wpdai_load_docs_recursive($docs_path);
 
 		$response['success'] = true;
 		$response['data']    = $docs_data;
@@ -422,7 +422,7 @@ function wpd_load_documentation_ajax() {
  * @param string $name Folder or file name
  * @return string Name without numeric prefix
  */
-function wpd_strip_numeric_prefix($name) {
+function wpdai_strip_numeric_prefix($name) {
 	// Remove pattern: two digits followed by underscore (e.g., "00_", "01_", "10_")
 	return preg_replace('/^\d{2}_/', '', $name);
 }
@@ -434,7 +434,7 @@ function wpd_strip_numeric_prefix($name) {
  * @param string $relative_path Relative path for structuring data
  * @return array Documentation data organized by folders
  */
-	function wpd_load_docs_recursive($dir, $relative_path = '') {
+	function wpdai_load_docs_recursive($dir, $relative_path = '') {
 	$result = array();
 
 	// Validate directory path - must be within plugin directory
@@ -471,11 +471,11 @@ function wpd_strip_numeric_prefix($name) {
 
 		if (is_dir($full_path)) {
 			// Recursively process subdirectories
-			$subfolder_data = wpd_load_docs_recursive($full_path . '/', $item_relative_path);
+			$subfolder_data = wpdai_load_docs_recursive($full_path . '/', $item_relative_path);
 			
 			if (!empty($subfolder_data)) {
 				// Strip numeric prefix from folder name for display
-				$display_name = wpd_strip_numeric_prefix($item);
+				$display_name = wpdai_strip_numeric_prefix($item);
 				$display_name = ucwords(str_replace('-', ' ', $display_name));
 				
 				$result[$item] = array(
@@ -527,8 +527,8 @@ function wpd_strip_numeric_prefix($name) {
  * @since 5.0.0
  * @return void
  */
-add_action( 'wp_ajax_wpd_save_getting_started_settings', 'wpd_save_getting_started_settings' );
-function wpd_save_getting_started_settings() {
+add_action( 'wp_ajax_wpd_save_getting_started_settings', 'wpdai_save_getting_started_settings' );
+function wpdai_save_getting_started_settings() {
 	
 	// Check nonce
 	if ( ! check_ajax_referer( WPD_AI_AJAX_NONCE_ACTION, 'nonce', false ) ) {
@@ -588,7 +588,7 @@ function wpd_save_getting_started_settings() {
 		$updated = update_option( 'wpd_ai_payment_gateway_costs', $merged_settings );
 		
 		// Always delete cache when this function is called, regardless of whether update_option returned true
-		wpd_delete_all_order_data_cache();
+		wpdai_delete_all_order_data_cache();
 	}
 
 	// Return success
