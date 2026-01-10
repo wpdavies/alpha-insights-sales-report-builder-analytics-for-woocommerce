@@ -30,7 +30,7 @@ class WPDAI_Getting_Started {
         $cost_defaults = get_option( 'wpd_ai_cost_defaults' );
         $payment_gateway_cost_settings = wpdai_get_payment_gateway_cost_settings();
         $available_payment_gateways = wpdai_get_available_payment_gateways();
-        $logo_icon_url = WPD_AI_URL_PATH . 'assets/img/Alpha-Insights-Icon-Large.png';
+        $logo_icon_url = wpdai_get_logo_icon_url();
 
         // Localize script with data (Free version - no license logic)
         wp_localize_script( 'wpd-alpha-insights-getting-started', 'wpdGettingStarted', array(

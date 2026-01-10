@@ -223,7 +223,7 @@ class WPDAI_Admin_Menu {
                 <!-- Branding container -->
                 <h3 class="nav-tab-wrapper wpd-nav-tab-wrapper" id="wpd-ai-menu">
                     <span class="wpd-plugin-logo">
-                        <img height="50" src="<?php echo esc_url( WPD_AI_URL_PATH ); ?>assets/img/Alpha-Insights-Icon-Large.png" class="alpha-insights-menu-logo">
+                        <img height="50" src="<?php echo esc_url( wpdai_get_logo_icon_url() ); ?>" class="alpha-insights-menu-logo">
                         <span class="product-subtitle">Alpha Insights</span>
                     </span>
                     <!-- Menu items container -->

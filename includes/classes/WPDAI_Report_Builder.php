@@ -230,6 +230,7 @@ class WPDAI_Report_Builder {
             'api_key'                      => get_option('wpd_ai_api_key', null),
             'is_pro'                       => WPD_AI_PRO,
             'default_report_ids'           => wpdai_get_default_react_report_ids(),
+            'logo_icon_url'                => esc_url( wpdai_get_logo_icon_url() ),
             'menu_slugs' => array(
                 'sales_reports'         => WPDAI_Admin_Menu::$sales_report_slug,
                 'website_traffic'       => WPDAI_Admin_Menu::$website_traffic_slug,

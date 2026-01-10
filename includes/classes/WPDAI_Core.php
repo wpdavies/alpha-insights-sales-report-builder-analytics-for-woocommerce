@@ -165,7 +165,7 @@ class WPDAI_Core {
 		$last_updated_date 					= ( ! empty($last_updated) && is_numeric($last_updated) ) ? get_date_from_gmt( gmdate( WPD_AI_PHP_ISO_DATETIME, $last_updated ), WPD_AI_PHP_PRETTY_DATETIME) : 'Not Set';
 		
 		// Logo Avatar
-		$logo = '<span class="wpd-plugin-logo" style="vertical-align: middle; margin-right: 10px;"><img height="50" src="' . esc_url( WPD_AI_URL_PATH ) . '/assets/img/Alpha-Insights-Icon-Large.png" class="alpha-insights-menu-logo"></span>';
+		$logo = '<span class="wpd-plugin-logo" style="vertical-align: middle; margin-right: 10px;"><img height="50" src="' . esc_url( wpdai_get_logo_icon_url() ) . '" class="alpha-insights-menu-logo"></span>';
 
 		?>
 		<table class="wpd-table widefat fixed" style="margin-top: 25px;">

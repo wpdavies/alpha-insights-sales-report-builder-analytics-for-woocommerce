@@ -40,6 +40,21 @@ function wpdai_admin_notification_pop() {
 }
 
 /**
+ * 
+ * 	Get the logo icon URL
+ * 
+ * 	@return string The logo icon URL
+ *  @since 1.0.0
+ *  @version 5.0.0
+ * 
+ */
+function wpdai_get_logo_icon_url() {
+
+	return esc_url( WPD_AI_URL_PATH . 'assets/img/Alpha-Insights-Icon-Large.png' );
+
+}
+
+/**
  * Add Documentation Modal HTML
  */
 add_action('admin_footer', 'wpdai_documentation_modal_html');
@@ -48,9 +63,7 @@ function wpdai_documentation_modal_html() {
 	if ( ! is_wpdai_page() ) {
 		return;
 	}
-	
-	$logo_icon_url = WPD_AI_URL_PATH . 'assets/img/Alpha-Insights-Icon-Large.png';
-	
+		
 	?>
 	<div id="wpd-docs-modal-overlay" class="wpd-docs-modal-overlay">
 		<div class="wpd-docs-modal">
@@ -61,7 +74,7 @@ function wpdai_documentation_modal_html() {
 				<!-- Branding Section -->
 				<div class="wpd-docs-brand-logo-container">
 					<div class="wpd-docs-brand-logo-row">
-						<img src="<?php echo esc_url($logo_icon_url); ?>" alt="Alpha Insights Icon" class="wpd-docs-brand-logo-icon" />
+						<img src="<?php echo esc_url( wpdai_get_logo_icon_url() ); ?>" alt="Alpha Insights Icon" class="wpd-docs-brand-logo-icon" />
 						<div class="wpd-docs-brand-logo-text">
 							<div class="wpd-docs-brand-title"><?php esc_html_e('Alpha Insights', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></div>
 							<div class="wpd-docs-brand-subtitle"><?php esc_html_e('Intelligent Profit Reports', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></div>

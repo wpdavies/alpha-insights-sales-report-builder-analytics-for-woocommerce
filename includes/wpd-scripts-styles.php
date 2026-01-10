@@ -171,7 +171,7 @@ function wpdai_admin_enqueue() {
 			wp_enqueue_style( 'wpd-alpha-insights-wordpress-admin' );
 			
 			// Logo URL
-			$wpd_ai_logo = WPD_AI_URL_PATH . 'assets/img/Alpha-Insights-Icon-Large.png';
+			$wpd_ai_logo = wpdai_get_logo_icon_url();
 			
 			// Add inline style for dashboard metabox logo
 			$dashboard_logo_css = sprintf(
