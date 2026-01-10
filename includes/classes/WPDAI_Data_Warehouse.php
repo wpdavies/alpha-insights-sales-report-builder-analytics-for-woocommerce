@@ -11,7 +11,7 @@
  */
 defined( 'ABSPATH' ) || exit;
 
-class WPD_Data_Warehouse_React {
+class WPDAI_Data_Warehouse {
 
     /**
      *
@@ -217,6 +217,29 @@ class WPD_Data_Warehouse_React {
         // Load passed filter
         $this->filter = array_merge( $this->filter, $filter );
 
+        // Handle date presets
+        $this->handle_date_presets();
+
+    }
+
+    /**
+     * 
+     *  Handle date presets, if found, this will override the date_from and date_to filter values
+     * 
+     */
+    private function handle_date_presets() {
+
+        if ( ! isset($this->filter['date_preset']) ) return;
+
+        // Get dates from preset, returns an array with 'from' and 'to' dates, or false if not valid
+        $date_preset_dates = wpdai_get_dates_from_preset( $this->filter['date_preset'] );
+
+        // If we have dates, update the filter
+        if ( $date_preset_dates ) {
+            $this->filter['date_from'] = $date_preset_dates['from'];
+            $this->filter['date_to'] = $date_preset_dates['to'];
+        }
+
     }
 
     /**
@@ -250,8 +273,8 @@ class WPD_Data_Warehouse_React {
     private function set_data_by_date_containers() {
 
         // Fetch details
-        $max_date       = $this->get_selected_date_range('date_to');    // date in the past
-        $min_date       = $this->get_selected_date_range('date_from');  // current date
+        $min_date       = $this->get_selected_date_range('date_from');  // Date in the past, or older date
+        $max_date       = $this->get_selected_date_range('date_to');    // Current Date, or later date
         $n_days_period  = $this->get_n_days_range();
 
         // Set Default Display Format
@@ -5841,7 +5864,7 @@ class WPD_Data_Warehouse_React {
     private function get_analytics_where_clause() {
 
         global $wpdb;
-        $wpd_db                         = new WPD_Database_Interactor();
+        $wpd_db                         = new WPDAI_Database_Interactor();
         $woo_events_table               = $wpd_db->events_table;
         $session_data_table             = $wpd_db->session_data_table;
         $filters                        = $this->get_filter();
@@ -6084,7 +6107,7 @@ class WPD_Data_Warehouse_React {
 
         global $wpdb;
 
-        $wpd_db             = new WPD_Database_Interactor();
+        $wpd_db             = new WPDAI_Database_Interactor();
         $woo_events_table   = $wpd_db->events_table;
         $where_clause       = $this->get_analytics_where_clause();
         $count_sql_query    = "SELECT COUNT(*) FROM $woo_events_table AS events WHERE 1=1 $where_clause";
@@ -6114,7 +6137,7 @@ class WPD_Data_Warehouse_React {
 
         global $wpdb;
 
-        $wpd_db             = new WPD_Database_Interactor();
+        $wpd_db             = new WPDAI_Database_Interactor();
         $woo_events_table   = $wpd_db->events_table;
         $where_clause       = $this->get_analytics_where_clause();
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are from trusted source.
@@ -6145,7 +6168,7 @@ class WPD_Data_Warehouse_React {
     private function query_analytics_data( &$raw_analytics_data, &$session_data_map, $limit, $offset ) {
 
         global $wpdb;
-        $wpd_db                         = new WPD_Database_Interactor();
+        $wpd_db                         = new WPDAI_Database_Interactor();
         $woo_events_table               = $wpd_db->events_table;
         $session_data_table             = $wpd_db->session_data_table;
         $where_clause                   = $this->get_analytics_where_clause();
@@ -6155,7 +6178,7 @@ class WPD_Data_Warehouse_React {
         $offset = absint( $offset );
 
         // Fetch Events With Limit, Offset & Filters
-        // Note: Table names are trusted (from WPD_Database_Interactor), where_clause uses $wpdb->prepare() internally
+        // Note: Table names are trusted (from WPDAI_Database_Interactor), where_clause uses $wpdb->prepare() internally
         $events_sql_query = 
             "SELECT 
             session_id,
@@ -7618,7 +7641,7 @@ class WPD_Data_Warehouse_React {
      */
     public function determine_traffic_source( $referral_url, $query_parameters = null ) {
 
-        $traffic_type = new WPD_Traffic_Type( $referral_url, $query_parameters );
+        $traffic_type = new WPDAI_Traffic_Type_Detection( $referral_url, $query_parameters );
         return $traffic_type->determine_traffic_source();
 
     }
@@ -7626,7 +7649,7 @@ class WPD_Data_Warehouse_React {
     /**
      * 
      *  Logs general messages and optionally errors to:
-     *  wpd_google_ads_api_log.txt and wpd_google_ads_api_error_log.txt
+     *  WPDAI_Google_Ads_API_log.txt and WPDAI_Google_Ads_API_error_log.txt
      * 
      *  @param string|array|WP_Error $message the content to print to the log
      *  @param bool $error Set to true if you want to log this to the error log in addition to the general api log
@@ -7709,7 +7732,7 @@ class WPD_Data_Warehouse_React {
         }
 
         // Get the custom data source from registry
-        $data_source = WPD_Custom_Data_Source_Registry::get( $entity_name );
+        $data_source = WPDAI_Custom_Data_Source_Registry::get( $entity_name );
 
         if ( ! $data_source ) {
             $this->set_error( sprintf(

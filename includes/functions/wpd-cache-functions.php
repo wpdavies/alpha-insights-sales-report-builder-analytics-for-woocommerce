@@ -134,7 +134,7 @@ function wpdai_delete_order_cache_by_order_id( $order_id ) {
 
 
 	// Load the DB Interactor
-	$db_interactor = new WPD_Database_Interactor();
+	$db_interactor = new WPDAI_Database_Interactor();
 	$order_calculations_table = $db_interactor->order_calculations_table;
 
 	// Load WPDB
@@ -189,7 +189,7 @@ function wpdai_delete_order_cache_by_order_ids( $order_ids ) {
 	}
 
 	// Load the DB Interactor
-	$db_interactor = new WPD_Database_Interactor();
+	$db_interactor = new WPDAI_Database_Interactor();
 	$order_calculations_table = $db_interactor->order_calculations_table;
 
 	// Load WPDB
@@ -324,7 +324,7 @@ function wpdai_delete_all_order_data_cache() {
 	wpdai_write_log( 'Executing WC Orders cache delete on orders from custom table.', 'cache' );
 
 	// Load the DB Interactor
-	$db_interactor = new WPD_Database_Interactor();
+	$db_interactor = new WPDAI_Database_Interactor();
 	$order_calculations_table = $db_interactor->order_calculations_table;
 
 	// Load WPDB
@@ -686,7 +686,7 @@ function wpdai_set_order_calculations_cache( $order_id, $order_calculation ) {
 	if ( ! is_array($order_calculation) || ! isset($order_calculation['order_id']) ) return false;
 
 	// Load DB Interactor
-	$db_interactor = new WPD_Database_Interactor();
+	$db_interactor = new WPDAI_Database_Interactor();
 	$order_calculations_table = $db_interactor->order_calculations_table;
 
 	// Set last updated to GMT timestamp
@@ -752,7 +752,7 @@ function wpdai_get_order_calculation_cache( $order_id ) {
 	}
 
 	// Load the DB Interactor
-	$db_interactor = new WPD_Database_Interactor();
+	$db_interactor = new WPDAI_Database_Interactor();
 	$order_calculations_table = $db_interactor->order_calculations_table;
 
 	// Load WPDB
@@ -832,7 +832,7 @@ function wpdai_get_order_ids_with_calculation_cache() {
 	global $wpdb;
 
 	// Load the DB Interactor
-	$db_interactor = new WPD_Database_Interactor();
+	$db_interactor = new WPDAI_Database_Interactor();
 	$order_calculations_table = $db_interactor->order_calculations_table;
 
 	// Sanitize query
@@ -875,7 +875,7 @@ function wpdai_setup_order_calculations_in_object_cache( $order_ids = array() ) 
 	global $wpdb;
 
 	// Load the DB Interactor
-	$db_interactor = new WPD_Database_Interactor();
+	$db_interactor = new WPDAI_Database_Interactor();
 	$order_calculations_table = $db_interactor->order_calculations_table;
 
 	// Load only the order IDs we would like if relevant

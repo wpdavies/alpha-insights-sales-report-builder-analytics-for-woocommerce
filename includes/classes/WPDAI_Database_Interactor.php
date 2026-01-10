@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
 // In case class is loaded before main plugin
 require_once( WPD_AI_PATH . 'includes/wpd-functions.php');
 
-class WPD_Database_Interactor {
+class WPDAI_Database_Interactor {
 
     public $plugin_db_version          = '';
     public $installed_db_version       = '';
@@ -63,24 +63,90 @@ class WPD_Database_Interactor {
     /**
      *
      *  Check if a value exists within a Table, Column, Value
-     *  @var $table = Table Name (inc prefix)
-     *  @var $column = Column Name
-     *  @var $value = Raw Value
-     *  @var $value_type = Variable Type, this will effect how variable is output. Default to string.
+     * 
+     *  @param string $table Table Name (including prefix)
+     *  @param string $column Column Name
+     *  @param mixed $value Raw Value to search for
+     *  @param string $value_type Optional. Variable Type placeholder (%s, %d, %f). If not provided, will be auto-detected.
+     *  @return bool True if value exists, false otherwise
      */
-    public function does_value_exist( $table, $column, $value, $value_type = '%s' ) {
+    public function does_value_exist( $table, $column, $value, $value_type = null ) {
 
         global $wpdb;
 
         $result = false;
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names are from trusted source.
-        // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- The query is dynamically built with placeholders and then prepared.
-        $sql_query = $wpdb->prepare( "SELECT COUNT(*) FROM $table WHERE $column = $value_type",  $value );
+        // Validate table name - must be one of our defined tables (whitelist validation)
+        if ( empty( $table ) ) {
+            wpdai_write_log( __( 'Cannot check value existence: table name is empty.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'db_error' );
+            return false;
+        }
+
+        // Must be set to a defined table
+        if ( ! in_array( $table, array_values( get_object_vars( $this ) ), true ) ) {
+            wpdai_write_log( sprintf( __( 'Cannot check value existence: table name %s does not match a defined table within the WPD Database Interactor.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $table ) ), 'db_error' );
+            return false;
+        }
+
+        // Validate and sanitize column name
+        if ( empty( $column ) || ! is_string( $column ) ) {
+            wpdai_write_log( __( 'Cannot check value existence: column name is empty or invalid.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'db_error' );
+            return false;
+        }
+
+        // Sanitize column name - only allow valid identifier characters
+        $column = sanitize_key( $column );
+        if ( empty( $column ) ) {
+            wpdai_write_log( __( 'Cannot check value existence: column name contains invalid characters.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'db_error' );
+            return false;
+        }
+
+        // Determine placeholder format if not provided
+        if ( is_null( $value_type ) ) {
+            $value_type = $this->determine_placeholder_format( $value );
+        } else {
+            // Validate value_type placeholder - must be one of the allowed types
+            $allowed_placeholders = array( '%s', '%d', '%f' );
+            if ( ! in_array( $value_type, $allowed_placeholders, true ) ) {
+                wpdai_write_log( sprintf( __( 'Cannot check value existence: invalid placeholder type %s. Must be one of: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $value_type ), implode( ', ', $allowed_placeholders ) ), 'db_error' );
+                return false;
+            }
+        }
+
+        // Escape table and column names for use in SQL (identifiers cannot be placeholders)
+        $table_escaped = esc_sql( $table );
+        $column_escaped = esc_sql( $column );
+
+        // Build query with proper placeholder based on value type (table/column names are validated and escaped)
+        // Use explicit placeholder types as required by WordPress.org standards
+        switch ( $value_type ) {
+            case '%d':
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names are validated against whitelist and escaped.
+                $sql_query = $wpdb->prepare( "SELECT COUNT(*) FROM `{$table_escaped}` WHERE `{$column_escaped}` = %d", absint( $value ) );
+                break;
+            case '%f':
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names are validated against whitelist and escaped.
+                $sql_query = $wpdb->prepare( "SELECT COUNT(*) FROM `{$table_escaped}` WHERE `{$column_escaped}` = %f", floatval( $value ) );
+                break;
+            case '%s':
+            default:
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names are validated against whitelist and escaped.
+                $sql_query = $wpdb->prepare( "SELECT COUNT(*) FROM `{$table_escaped}` WHERE `{$column_escaped}` = %s", $value );
+                break;
+        }
+        
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
         $count = $wpdb->get_var( $sql_query );
 
-        if ( $count > 0 ) $result = true;
+        // Check for database errors
+        if ( $wpdb->last_error ) {
+            wpdai_write_log( sprintf( __( 'Database error while checking value existence in table %s, column %s: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $table ), esc_html( $column ), esc_html( $wpdb->last_error ) ), 'db_error' );
+            return false;
+        }
+
+        if ( $count > 0 ) {
+            $result = true;
+        }
 
         return $result;
 

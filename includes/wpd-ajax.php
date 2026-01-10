@@ -155,7 +155,7 @@ function wpdai_delete_all_cache_ajax() {
 }
 
 /**
- * Legacy inventory export - replaced by WPD_Cost_Of_Goods_Manager::ajax_export_csv()
+ * Legacy inventory export - replaced by WPDAI_Cost_Of_Goods_Manager::ajax_export_csv()
  * Kept for backward compatibility with old AJAX calls
  */
 add_action('wp_ajax_wpd_export_inventory_to_csv', 'wpdai_export_inventory_to_csv' );
@@ -165,7 +165,7 @@ function wpdai_export_inventory_to_csv() {
 		return;
 	}
 	// Redirect to new export method
-	WPD_Cost_Of_Goods_Manager::ajax_export_csv();
+	WPDAI_Cost_Of_Goods_Manager::ajax_export_csv();
 }
 
 
@@ -294,7 +294,7 @@ function wpdai_update_wpd_ai_database() {
 
 	$response = array();
 
-	$db_interactor = new WPD_Database_Interactor();
+	$db_interactor = new WPDAI_Database_Interactor();
 
 	if ( is_object( $db_interactor ) && method_exists( $db_interactor, 'create_update_tables_columns' ) ) {
 
@@ -589,6 +589,11 @@ function wpdai_save_getting_started_settings() {
 		
 		// Always delete cache when this function is called, regardless of whether update_option returned true
 		wpdai_delete_all_order_data_cache();
+	}
+
+	// Mark onboarding as completed when settings are saved from getting started wizard
+	if ( ! get_option( 'wpd_ai_onboarding_completed' ) ) {
+		update_option( 'wpd_ai_onboarding_completed', current_time( 'timestamp' ) );
 	}
 
 	// Return success

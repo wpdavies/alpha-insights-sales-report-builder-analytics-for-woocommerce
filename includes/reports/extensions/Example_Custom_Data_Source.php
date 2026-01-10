@@ -31,7 +31,7 @@ defined( 'ABSPATH' ) || exit;
  * This class demonstrates how to create a custom data source that integrates
  * with Alpha Insights reporting system.
  *
- * IMPORTANT: This class extends WPD_Custom_Data_Source_Base, which handles
+ * IMPORTANT: This class extends WPDAI_Custom_Data_Source_Base, which handles
  * all registration boilerplate automatically. You only need to:
  * 1. Set the $entity_name property (below) - THIS IS THE ONLY REQUIRED PROPERTY
  * 2. Implement fetch_data() method
@@ -44,7 +44,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 5.0.0
  */
-class WPD_AI_Example_Custom_Data_Source extends WPD_Custom_Data_Source_Base {
+class WPD_AI_Example_Custom_Data_Source extends WPDAI_Custom_Data_Source_Base {
 
     /**
      * Entity name for this data source
@@ -78,7 +78,7 @@ class WPD_AI_Example_Custom_Data_Source extends WPD_Custom_Data_Source_Base {
      * @since 5.0.0
      *
      * @param array $filters Array of filters
-     * @param WPD_Data_Warehouse_React|null $data_warehouse Optional. The data warehouse instance.
+     * @param WPDAI_Data_Warehouse|null $data_warehouse Optional. The data warehouse instance.
      * @return array Data structure
      */
     public function fetch_data( $filters, $data_warehouse = null ) {

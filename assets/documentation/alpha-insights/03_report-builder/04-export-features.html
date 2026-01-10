@@ -627,7 +627,7 @@ if ( $result['success'] ) {
 }</code></pre>
 
 <p><strong>Create CSV Export:</strong></p>
-<pre><code>$exporter = new WPD_CSV_Exporter();
+<pre><code>$exporter = new WPDAI_CSV_Exporter();
 $result = $exporter->export_all_data_to_zip(
     $all_data,
     'Report Name'
@@ -638,7 +638,7 @@ if ( $result['success'] ) {
 }</code></pre>
 
 <p><strong>Create Live Share Link:</strong></p>
-<pre><code>$report = new WPD_React_Report( 'report-slug' );
+<pre><code>$report = new WPDAI_Report_Builder( 'report-slug' );
 $result = $report->create_live_share_link(
     'report-slug',
     'Link Name',

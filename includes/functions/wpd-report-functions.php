@@ -98,7 +98,7 @@ function wpdai_get_default_react_reports() {
         }
 
     } catch ( Exception $e ) {
-        WPD_React_Report::log_error( $e->getMessage() );
+        WPDAI_Report_Builder::log_error( $e->getMessage() );
         $default_reports = array();
     }
 
@@ -377,4 +377,119 @@ function wpdai_sanitize_and_decode_json_config( $raw_data, $url_decode = true ) 
 	
 	return $config_data;
 	
+}
+
+    
+/**
+ * Get dates from a preset
+ * 
+ * @param string $preset The preset name
+ * @return array|false Array with 'from' and 'to' dates or false if invalid
+ */
+function wpdai_get_dates_from_preset( $preset ) {
+    switch ($preset) {
+        case 'today':
+            return array(
+                'from' => current_time('Y-m-d'),
+                'to' => current_time('Y-m-d')
+            );
+        case 'yesterday':
+            $wp_timestamp = current_time('timestamp');
+            $yesterday = gmdate('Y-m-d', strtotime('-1 day', $wp_timestamp));
+            return array(
+                'from' => $yesterday,
+                'to' => $yesterday
+            );
+        case 'this_week':
+            // Get start of week (Monday) and end of week (Sunday)
+            // Use WordPress timezone
+            $today = new DateTime('now', wp_timezone());
+            $day_of_week = $today->format('w'); // 0 = Sunday, 1 = Monday, etc.
+            
+            // Calculate days to subtract to get to Monday
+            // If today is Sunday (0), go back 6 days to get to Monday
+            // If today is Monday (1), go back 0 days
+            // If today is Tuesday (2), go back 1 day, etc.
+            $days_to_monday = $day_of_week == 0 ? 6 : $day_of_week - 1;
+            
+            $start_of_week = clone $today;
+            $start_of_week->modify("-{$days_to_monday} days");
+            
+            $end_of_week = clone $start_of_week;
+            $end_of_week->modify('+6 days'); // Sunday is 6 days after Monday
+            
+            return array(
+                'from' => $start_of_week->format('Y-m-d'),
+                'to' => $end_of_week->format('Y-m-d')
+            );
+        case 'this_month':
+            return array(
+                'from' => current_time('Y-m-01'),
+                'to' => current_time('Y-m-t')
+            );
+        case 'last_month':
+            $wp_timestamp = current_time('timestamp');
+            $last_month_start = gmdate('Y-m-01', strtotime('-1 month', $wp_timestamp));
+            $last_month_end = gmdate('Y-m-t', strtotime('-1 month', $wp_timestamp));
+            return array(
+                'from' => $last_month_start,
+                'to' => $last_month_end
+            );
+        case 'month_to_date':
+            return array(
+                'from' => current_time('Y-m-01'),
+                'to' => current_time('Y-m-d')
+            );
+        case 'this_year':
+            return array(
+                'from' => current_time('Y-01-01'),
+                'to' => current_time('Y-12-31')
+            );
+        case 'last_year':
+            $wp_timestamp = current_time('timestamp');
+            return array(
+                'from' => gmdate('Y-01-01', strtotime('-1 year', $wp_timestamp)),
+                'to' => gmdate('Y-12-31', strtotime('-1 year', $wp_timestamp))
+            );
+        case 'last_7_days':
+            $wp_timestamp = current_time('timestamp');
+            return array(
+                'from' => gmdate('Y-m-d', strtotime('-6 days', $wp_timestamp)),
+                'to' => current_time('Y-m-d')
+            );
+        case 'last_30_days':
+            $wp_timestamp = current_time('timestamp');
+            return array(
+                'from' => gmdate('Y-m-d', strtotime('-29 days', $wp_timestamp)),
+                'to' => current_time('Y-m-d')
+            );
+        case 'last_90_days':
+            $wp_timestamp = current_time('timestamp');
+            return array(
+                'from' => gmdate('Y-m-d', strtotime('-89 days', $wp_timestamp)),
+                'to' => current_time('Y-m-d')
+            );
+        case 'ytd':
+            return array(
+                'from' => current_time('Y-01-01'),
+                'to' => current_time('Y-m-d')
+            );
+        case 'all_time':
+            // Use site creation date or fall back to 5 years ago
+            $start_date = wpdai_get_site_creation_date( WPD_AI_PHP_ISO_DATE ); // Y-m-d format
+            
+            // Validate the date
+            if (empty($start_date) || !strtotime($start_date)) {
+                // Fall back to 5 years ago
+                $wp_timestamp = current_time('timestamp');
+                $start_date = gmdate('Y-m-d', strtotime('-5 years', $wp_timestamp));
+            }
+            
+            return array(
+                'from' => $start_date,
+                'to' => current_time('Y-m-d')
+            );
+        default:
+            return false;
+    }
 }

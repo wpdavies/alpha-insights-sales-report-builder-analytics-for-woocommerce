@@ -109,7 +109,7 @@ https://yourstore.com/products?utm_source=facebook&meta_cid={{campaign.id}}
 <li>Campaign ID <code>23851234567890123</code> saved to order meta: <code>_wpd_ai_meta_campaign_id</code></li>
 </ol>
 
-<p><strong>Code Reference:</strong> Attribution logic is in <code>WPD_Alpha_Insights_Core->save_landing_page_to_order_meta()</code> (lines 1312-1357) and <code>WPD_Facebook_API->set_order_campaign_id_via_query_param()</code> (lines 435-491)</p>
+<p><strong>Code Reference:</strong> Attribution logic is in <code>WPDAI_Core->save_landing_page_to_order_meta()</code> (lines 1312-1357) and <code>WPDAI_Facebook_API->set_order_campaign_id_via_query_param()</code> (lines 435-491)</p>
 
 <h3>Understanding Attribution Behavior</h3>
 
@@ -453,21 +453,21 @@ Meta Fields: _wpd_campaign_id, _wpd_campaign_name, etc.
 <h4>Key PHP Functions</h4>
 
 <p><strong>1. Save Landing Page to Order</strong></p>
-<pre><code>Method: WPD_Alpha_Insights_Core->save_landing_page_to_order_meta($order)
+<pre><code>Method: WPDAI_Core->save_landing_page_to_order_meta($order)
 Hook: woocommerce_checkout_order_processed
 Action: Reads cookies, saves landing page and referral to order meta,
         extracts meta_cid and saves to _wpd_ai_meta_campaign_id
 </code></pre>
 
 <p><strong>2. Retroactive Attribution</strong></p>
-<pre><code>Method: WPD_Facebook_API->set_order_campaign_id_via_query_param($days)
+<pre><code>Method: WPDAI_Facebook_API->set_order_campaign_id_via_query_param($days)
 Action: Queries last X days of orders with meta_cid in landing page,
         extracts campaign ID, saves to order meta
 Default: 30 days
 </code></pre>
 
 <p><strong>3. Query Orders by Campaign</strong></p>
-<pre><code>Method: WPD_Data_Warehouse_React->get_facebook_campaign_order_data($date_from, $date_to)
+<pre><code>Method: WPDAI_Data_Warehouse->get_facebook_campaign_order_data($date_from, $date_to)
 Action: Fetches all orders with _wpd_ai_meta_campaign_id,
         groups by campaign ID, calculates metrics
 Returns: Array of order data indexed by campaign ID

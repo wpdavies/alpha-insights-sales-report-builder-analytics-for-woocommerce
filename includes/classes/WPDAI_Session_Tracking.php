@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  *	To be used by any tracking classes that are measuring user activity so that session data is being stored correctly
  *
  */
-class WPD_Session_Tracking {
+class WPDAI_Session_Tracking {
 
     /**
      *
@@ -52,7 +52,7 @@ class WPD_Session_Tracking {
     public function __construct() {
 
         // Check if we should log referral URL tracking
-        $this->enable_logging = apply_filters( 'wpd_session_tracking_enable_logging', false );
+        $this->enable_logging = apply_filters( 'WPDAI_Session_Tracking_enable_logging', false );
 
         // Setup all props
         $this->setup_session_data();
@@ -123,7 +123,7 @@ class WPD_Session_Tracking {
 
         // Build log message
         $log_message = sprintf(
-            __( 'WPD_Session_Tracking initialized. Hook: %s, Context: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+            __( 'WPDAI_Session_Tracking initialized. Hook: %s, Context: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
             $current_hook,
             implode( ', ', $context )
         );
@@ -170,7 +170,7 @@ class WPD_Session_Tracking {
         $this->log_initialization();
 
         // Collect User Agent Data
-        $user_agent = new WPD_User_Agent();
+        $user_agent = new WPDAI_User_Agent_Classification();
 
         // First, check for bots
         // if ( ! empty($this->is_bot) ) $this->is_bot = $user_agent->isBot();
@@ -1345,7 +1345,7 @@ class WPD_Session_Tracking {
 
         // Capture and set defaults
         $result             = true;
-        $db_interactor      = new WPD_Database_Interactor();
+        $db_interactor      = new WPDAI_Database_Interactor();
         $table_name         = $db_interactor->session_data_table;
         $data               = array();
 
@@ -1434,7 +1434,7 @@ class WPD_Session_Tracking {
 
         global $wpdb;
 
-        $db_interactor = new WPD_Database_Interactor();
+        $db_interactor = new WPDAI_Database_Interactor();
         $table_name = $db_interactor->session_data_table;
 
         // Check if session exists

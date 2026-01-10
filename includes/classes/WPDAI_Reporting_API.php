@@ -11,7 +11,7 @@
  */
 defined( 'ABSPATH' ) || exit;
 
-class WPD_Report_API {
+class WPDAI_Reporting_API {
 
     /**
      * Register REST API routes
@@ -69,8 +69,8 @@ class WPD_Report_API {
             // Get parameters from request -> live reports
             $config = $request->get_param('config');
 
-            // Use the existing method from WPD_React_Report to get data
-            $response = WPD_React_Report::get_live_dashboard_data_from_config($config);
+            // Use the existing method from WPDAI_Report_Builder to get data
+            $response = WPDAI_Report_Builder::get_live_dashboard_data_from_config($config);
 
             // Return REST API response
             if ($response['success']) {
@@ -85,7 +85,7 @@ class WPD_Report_API {
 
         } catch (Exception $e) {
             // Log the error
-            WPD_React_Report::log_error('WPD_Report_API: Error in get_dashboard_data: ' . $e->getMessage());
+            WPDAI_Report_Builder::log_error('WPDAI_Reporting_API: Error in get_dashboard_data: ' . $e->getMessage());
             
             return new WP_Error(
                 'server_error',
@@ -100,8 +100,8 @@ class WPD_Report_API {
      */
     public static function get_realtime_data($request) {
         try {
-            // Use the existing method from WPD_React_Report to get realtime data
-            $response = WPD_React_Report::get_realtime_dashboard_data();
+            // Use the existing method from WPDAI_Report_Builder to get realtime data
+            $response = WPDAI_Report_Builder::get_realtime_dashboard_data();
 
             // Return REST API response
             if ($response['success']) {
@@ -116,7 +116,7 @@ class WPD_Report_API {
 
         } catch (Exception $e) {
             // Log the error
-            WPD_React_Report::log_error('WPD_Report_API: Error in get_realtime_data: ' . $e->getMessage());
+            WPDAI_Report_Builder::log_error('WPDAI_Reporting_API: Error in get_realtime_data: ' . $e->getMessage());
             
             return new WP_Error(
                 'server_error',

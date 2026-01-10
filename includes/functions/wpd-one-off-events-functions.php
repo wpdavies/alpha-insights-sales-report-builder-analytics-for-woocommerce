@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * One off event functions that are run by WPD_Action_Scheduler
+ * One off event functions that are run by WPDAI_Action_Scheduler
  *
  * @package Alpha Insights
  * @version 4.4.0
@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  **/
 function wpdai_schedule_once_off_cron_event_delete_products_cache( $execution_delay_in_second = 0 ) {
 
-    $action_scheduler = new WPD_Action_Scheduler();
+    $action_scheduler = new WPDAI_Action_Scheduler();
     return $action_scheduler->schedule_one_off_event( $action_scheduler::SINGLE_EVENT_REBUILD_PRODUCT_CACHE, $execution_delay_in_second );
 
 }

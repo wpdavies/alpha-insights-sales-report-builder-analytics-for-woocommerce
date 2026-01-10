@@ -14,12 +14,12 @@
  */
 defined( 'ABSPATH' ) || exit;
 
-class WPD_Custom_Data_Source_Registry {
+class WPDAI_Custom_Data_Source_Registry {
 
     /**
      * Registered data sources
      *
-     * @var array<string, WPD_Custom_Data_Source_Interface>
+     * @var array<string, WPDAI_Custom_Data_Source_Interface>
      */
     private static array $data_sources = array();
 
@@ -54,7 +54,7 @@ class WPD_Custom_Data_Source_Registry {
         $registered_sources = apply_filters( 'wpd_alpha_insights_register_data_sources', array() );
 
         foreach ( $registered_sources as $source ) {
-            if ( $source instanceof WPD_Custom_Data_Source_Interface ) {
+            if ( $source instanceof WPDAI_Custom_Data_Source_Interface ) {
                 $entity_name = $source->get_entity_name();
                 
                 // Validate entity name
@@ -85,7 +85,7 @@ class WPD_Custom_Data_Source_Registry {
      *
      * @since 5.0.0
      *
-     * @return array<string, WPD_Custom_Data_Source_Interface>
+     * @return array<string, WPDAI_Custom_Data_Source_Interface>
      */
     public static function get_all() {
         self::init();
@@ -98,7 +98,7 @@ class WPD_Custom_Data_Source_Registry {
      * @since 5.0.0
      *
      * @param string $entity_name The entity name
-     * @return WPD_Custom_Data_Source_Interface|null
+     * @return WPDAI_Custom_Data_Source_Interface|null
      */
     public static function get( $entity_name ) {
         self::init();

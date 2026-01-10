@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  *	WooCommerce Event Tracking
  *
  */
-class WPD_WooCommerce_Events {
+class WPDAI_WooCommerce_Event_Tracking {
 
 	/**
 	 *
@@ -40,7 +40,7 @@ class WPD_WooCommerce_Events {
 	public array 	$settings 				= array();
     public int      $track_user 			= 1;
 	private static 	$instance 				= null; // Singleton pattern so that we can call the insert_event without reinitializing the whole thing
-	public ?object 	$session_instance 		= null; // WPD_Session_Tracking instance
+	public ?object 	$session_instance 		= null; // WPDAI_Session_Tracking instance
 	
 	/**
 	 *
@@ -108,7 +108,7 @@ class WPD_WooCommerce_Events {
 	/**
 	 * 
 	 * 	Singleton pattern - used for calling one instance of the insert_event() without creating a new instance of the object
-	 * 	e.g. WPD_WooCommerce_Events::get_instance()->insert_event($event_data);
+	 * 	e.g. WPDAI_WooCommerce_Event_Tracking::get_instance()->insert_event($event_data);
 	 * 
 	 **/
 	public static function get_instance() {
@@ -319,8 +319,8 @@ class WPD_WooCommerce_Events {
 
 		}
 
-		// Call WPD_Session_Tracking to update engaged session
-		$session_tracking = new WPD_Session_Tracking();
+		// Call WPDAI_Session_Tracking to update engaged session
+		$session_tracking = new WPDAI_Session_Tracking();
 		$result = $session_tracking->update_engaged_session();
 
 		if ( $result ) {
@@ -340,14 +340,14 @@ class WPD_WooCommerce_Events {
 
 	/**
 	 *
-	 *	Get or set session instance from WPD_Session_Tracking
+	 *	Get or set session instance from WPDAI_Session_Tracking
 	 *
 	 */
 	public function get_set_session_instance() {
 		if ( ! empty($this->session_instance) && is_object($this->session_instance) ) {
 			return $this->session_instance;
 		}
-		$this->session_instance = new WPD_Session_Tracking();
+		$this->session_instance = new WPDAI_Session_Tracking();
 		return $this->session_instance;
 	}
 
@@ -417,7 +417,7 @@ class WPD_WooCommerce_Events {
 			return 70;
 		}
 
-		$db_interactor 			= new WPD_Database_Interactor();
+		$db_interactor 			= new WPDAI_Database_Interactor();
 		$table_name 			= $db_interactor->events_table;
 
 		// Cant be overriden
@@ -1054,7 +1054,7 @@ class WPD_WooCommerce_Events {
 		// This prevents duplicates even if meta wasn't set, and handles race conditions
 		// Using EXISTS with LIMIT 1 is much faster than COUNT(*) - stops at first match
 		global $wpdb;
-		$db_interactor = new WPD_Database_Interactor();
+		$db_interactor = new WPDAI_Database_Interactor();
 		$events_table = $db_interactor->events_table;
 
 		// Optimized query: Use object_id first (most selective), then event_type (indexed), then object_type
@@ -1278,4 +1278,4 @@ class WPD_WooCommerce_Events {
 }
 
 // Init
-$WPD_WooCommerce_Events = new WPD_WooCommerce_Events();
+$WPDAI_WooCommerce_Event_Tracking = new WPDAI_WooCommerce_Event_Tracking();

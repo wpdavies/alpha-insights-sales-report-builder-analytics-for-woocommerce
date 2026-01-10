@@ -5,7 +5,7 @@
  * Allows developers to extend Alpha Insights with custom data sources
  * that integrate seamlessly with the reporting system.
  *
- * RECOMMENDED: Use WPD_Custom_Data_Source_Base instead of implementing
+ * RECOMMENDED: Use WPDAI_Custom_Data_Source_Base instead of implementing
  * this interface directly. The base class handles registration boilerplate automatically.
  *
  * @package Alpha Insights
@@ -22,13 +22,13 @@ defined( 'ABSPATH' ) || exit;
  * Defines the contract that custom data sources must implement to integrate
  * with Alpha Insights reporting system.
  *
- * IMPLEMENTATION NOTE: Consider extending WPD_Custom_Data_Source_Base
+ * IMPLEMENTATION NOTE: Consider extending WPDAI_Custom_Data_Source_Base
  * instead of implementing this interface directly. The base class handles
  * automatic registration and you only need to set the entity_name property.
  *
  * @since 5.0.0
  */
-interface WPD_Custom_Data_Source_Interface {
+interface WPDAI_Custom_Data_Source_Interface {
 
     /**
      * Get the entity name for this data source
@@ -64,7 +64,7 @@ interface WPD_Custom_Data_Source_Interface {
      *                      - 'date_to' (string): End date in Y-m-d format (e.g., '2024-12-31')
      *                      - 'date_format_display' (string): Date grouping format - 'day', 'month', 'quarter', or 'year'
      *                      - Additional custom filters may be present based on widget configuration
-     * @param WPD_Data_Warehouse_React|null $data_warehouse The data warehouse instance.
+     * @param WPDAI_Data_Warehouse|null $data_warehouse The data warehouse instance.
      *                                                      Provides access to helper methods:
      *                                                      - get_data_by_date_range_container() - Returns empty date array for initialization
      *                                                      - get_data_by_date_containers() - Returns full date containers with metadata
@@ -74,7 +74,7 @@ interface WPD_Custom_Data_Source_Interface {
      *                                                      - get_data($entity, $key) - Access data from other entities (orders, customers, etc.)
      *                                                      - get_store_currency() - Get WooCommerce store currency code
      *                                                      - get_data_table_limit($entity) - Get data table limit for pagination
-     *                                                      - And more - see WPD_Data_Warehouse_React class for full API
+     *                                                      - And more - see WPDAI_Data_Warehouse class for full API
      *
      * @return array Data structure matching the warehouse format. All keys are optional:
      *               - 'totals' (array): Aggregated totals/metrics keyed by metric name.

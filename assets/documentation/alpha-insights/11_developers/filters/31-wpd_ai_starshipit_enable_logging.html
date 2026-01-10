@@ -8,8 +8,8 @@
 
 <h4>Location</h4>
 
-<p><strong>File:</strong> <code>includes/integrations/pro/WPD_StarShipIt.php</code></p>
-<p><strong>Method:</strong> <code>WPD_StarShipIt::__construct()</code></p>
+<p><strong>File:</strong> <code>includes/integrations/pro/WPDAI_StarShipIt.php</code></p>
+<p><strong>Method:</strong> <code>WPDAI_StarShipIt::__construct()</code></p>
 <p><strong>Line:</strong> ~50</p>
 
 <h3>Parameters</h3>
@@ -76,7 +76,7 @@ function enable_starshipit_logging_for_admins( $enable_logging ) {
 <pre><code>add_filter( 'wpd_ai_starshipit_enable_logging', 'enable_logging_on_errors' );
 function enable_logging_on_errors( $enable_logging ) {
     // Check recent error rate
-    $recent_errors = get_transient( 'wpd_starshipit_error_count' );
+    $recent_errors = get_transient( 'WPDAI_StarShipIt_error_count' );
     
     // Enable logging if we've had errors recently
     if ( $recent_errors && $recent_errors > 5 ) {
@@ -156,7 +156,7 @@ function enable_logging_on_errors( $enable_logging ) {
 <h3>Related Classes</h3>
 
 <ul>
-    <li><code>WPD_StarShipIt</code> - StarShipIt shipping integration</li>
+    <li><code>WPDAI_StarShipIt</code> - StarShipIt shipping integration</li>
 </ul>
 
 <h3>Debugging</h3>

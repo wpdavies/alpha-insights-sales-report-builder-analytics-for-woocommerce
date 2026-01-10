@@ -13,11 +13,11 @@
  */
 defined( 'ABSPATH' ) || exit;
 
-class WPD_Action_Scheduler {
+class WPDAI_Action_Scheduler {
 
     public const EVENT_GROUP_SLUG                   = 'WP Davies';
     public const SINGLE_EVENT_REBUILD_PRODUCT_CACHE = 'wpd_rebuild_product_cache';
-    public const SINGLE_EVENT_MIGRATION_RUNNER      = 'wpd_migration_runner';
+    public const SINGLE_EVENT_MIGRATION_RUNNER      = 'WPDAI_Migration_runner';
     public const RECURRING_EVENT_MIGRATION_CHECK    = 'wpd_schedule_migration_check';
     
     /**
@@ -40,8 +40,8 @@ class WPD_Action_Scheduler {
         add_action( 'wpd_schedule_analytics_table_object_id_check',     'wpdai_set_post_id_post_type_on_null_events_analytics_table' );
         
         // Migration check - use lazy loading to avoid class dependency issues
-        if ( class_exists( 'WPD_Migration' ) ) {
-            add_action( self::RECURRING_EVENT_MIGRATION_CHECK, array( WPD_Migration::get_instance(), 'run_pending_migrations' ) );
+        if ( class_exists( 'WPDAI_Migration' ) ) {
+            add_action( self::RECURRING_EVENT_MIGRATION_CHECK, array( WPDAI_Migration::get_instance(), 'run_pending_migrations' ) );
         }
 
         // All single action hooks will need to run off this
@@ -57,7 +57,7 @@ class WPD_Action_Scheduler {
         /**
          * Action hook to schedule recurring events.
          * 
-         * @param WPD_Action_Scheduler $this The instance of the WPD_Action_Scheduler class.
+         * @param WPDAI_Action_Scheduler $this The instance of the WPDAI_Action_Scheduler class.
          */
         do_action( 'wpd_schedule_recurring_events', $this );
 
@@ -137,4 +137,4 @@ class WPD_Action_Scheduler {
 }
 
 // Initialize the class
-new WPD_Action_Scheduler();
+new WPDAI_Action_Scheduler();

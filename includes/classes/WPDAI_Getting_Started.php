@@ -11,7 +11,7 @@
  */
 defined( 'ABSPATH' ) || exit;
 
-class WPD_Getting_Started {
+class WPDAI_Getting_Started {
 
     /**
      * Render the getting started page
@@ -269,8 +269,8 @@ class WPD_Getting_Started {
                                             </h4>
                                             <p><?php esc_html_e('Link Google Ads and Facebook Ads to track which campaigns are actually profitable.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
                                             <div class="wpd-gs-action-links">
-                                                <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . WPD_Admin_Menu::$settings_slug . '&subpage=google-ads' ) ); ?>" class="wpd-gs-link"><?php esc_html_e('Connect Google Ads →', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></a>
-                                                <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . WPD_Admin_Menu::$settings_slug . '&subpage=facebook' ) ); ?>" class="wpd-gs-link"><?php esc_html_e('Connect Facebook Ads →', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></a>
+                                                <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . WPDAI_Admin_Menu::$settings_slug . '&subpage=google-ads' ) ); ?>" class="wpd-gs-link"><?php esc_html_e('Connect Google Ads →', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></a>
+                                                <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . WPDAI_Admin_Menu::$settings_slug . '&subpage=facebook' ) ); ?>" class="wpd-gs-link"><?php esc_html_e('Connect Facebook Ads →', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></a>
                                             </div>
                                         </div>
                                     </div>
@@ -283,7 +283,7 @@ class WPD_Getting_Started {
                                                 <span class="wpd-gs-pro-badge" title="<?php esc_attr_e('Pro Feature', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>"><?php esc_html_e('Pro', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></span>
                                             </h4>
                                             <p><?php esc_html_e('Track rent, software subscriptions, salaries, and other costs for complete P&L reports.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
-                                            <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . WPD_Admin_Menu::$manage_expenses_slug ) ); ?>" class="wpd-gs-link"><?php esc_html_e('Open Expense Manager →', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></a>
+                                            <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . WPDAI_Admin_Menu::$manage_expenses_slug ) ); ?>" class="wpd-gs-link"><?php esc_html_e('Open Expense Manager →', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></a>
                                         </div>
                                     </div>
                                     

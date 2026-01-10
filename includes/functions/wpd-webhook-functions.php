@@ -24,12 +24,12 @@ function wpdai_webhook_data_request( $from_date = null, $to_date = null, $JSON =
 	// Collect data
 	if ( is_string( $from_date ) && is_string( $to_date ) ) {
 
-		$data_warehouse = new WPD_Data_Warehouse_React( array( 'date_from' => $from_date, 'date_to' => $to_date ) );
+		$data_warehouse = new WPDAI_Data_Warehouse( array( 'date_from' => $from_date, 'date_to' => $to_date ) );
 		$data_warehouse->fetch_store_profit_data();
 
 	} else {
 
-		$data_warehouse = new WPD_Data_Warehouse_React();
+		$data_warehouse = new WPDAI_Data_Warehouse();
 		$data_warehouse->fetch_store_profit_data();
 
 	}

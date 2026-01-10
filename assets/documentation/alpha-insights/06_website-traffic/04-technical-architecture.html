@@ -53,11 +53,11 @@
 │                       ↓                                     │
 │  ┌──────────────────────────────────────────────────────┐ │
 │  │   PHP Classes:                                        │ │
-│  │   - WPD_WooCommerce_Events (event processing)        │ │
-│  │   - WPD_Session_Tracking (session management)        │ │
-│  │   - WPD_Traffic_Type (source classification)         │ │
-│  │   - WPD_User_Agent (device/bot detection)            │ │
-│  │   - WPD_Database_Interactor (DB operations)          │ │
+│  │   - WPDAI_WooCommerce_Event_Tracking (event processing)        │ │
+│  │   - WPDAI_Session_Tracking (session management)        │ │
+│  │   - WPDAI_Traffic_Type_Detection (source classification)         │ │
+│  │   - WPDAI_User_Agent_Classification (device/bot detection)            │ │
+│  │   - WPDAI_Database_Interactor (DB operations)          │ │
 │  └──────────────────────────────────────────────────────┘ │
 │                       │                                     │
 │                       ↓                                     │
@@ -78,7 +78,7 @@
 │                       ↓                                     │
 │  ┌──────────────────────────────────────────────────────┐ │
 │  │   Reporting Engine:                                   │ │
-│  │   - WPD_Data_Warehouse_React                          │ │
+│  │   - WPDAI_Data_Warehouse                          │ │
 │  │   - Aggregates sessions + events + orders            │ │
 │  │   - Calculates metrics                                │ │
 │  │   - Generates report data                             │ │
@@ -161,7 +161,7 @@
 <li><strong>Expiry:</strong> 10 minutes from last activity</li>
 <li><strong>Renewal:</strong> Refreshed on every page load</li>
 <li><strong>Path:</strong> / (site-wide)</li>
-<li><strong>Generation:</strong> <code>WPD_Session_Tracking::generate_unique_session_id()</code></li>
+<li><strong>Generation:</strong> <code>WPDAI_Session_Tracking::generate_unique_session_id()</code></li>
 </ul>
 
 <h4>wpd_ai_landing_page</h4>
@@ -217,9 +217,9 @@ if (cookie 'wpd_ai_session_id' exists) {
 
 <h3>3. Server-Side Session Management</h3>
 
-<p><strong>Class:</strong> <code>WPD_Session_Tracking</code></p>
+<p><strong>Class:</strong> <code>WPDAI_Session_Tracking</code></p>
 
-<p><strong>File:</strong> <code>includes/classes/WPD_Session_Tracking.php</code></p>
+<p><strong>File:</strong> <code>includes/classes/WPDAI_Session_Tracking.php</code></p>
 
 <p><strong>Responsibilities:</strong></p>
 
@@ -227,7 +227,7 @@ if (cookie 'wpd_ai_session_id' exists) {
 <li>Generate unique session IDs</li>
 <li>Manage session cookies</li>
 <li>Capture referral URLs from HTTP headers</li>
-<li>Detect device type, browser, OS (via WPD_User_Agent)</li>
+<li>Detect device type, browser, OS (via WPDAI_User_Agent_Classification)</li>
 <li>Store/update session data in database</li>
 <li>Bot detection and filtering</li>
 </ul>
@@ -245,7 +245,7 @@ if (cookie 'wpd_ai_session_id' exists) {
 
 <p><strong>Session properties:</strong></p>
 
-<pre><code>class WPD_Session_Tracking {
+<pre><code>class WPDAI_Session_Tracking {
   public string $session_id = '';
   public string $ip_address = '';
   public string $landing_page = '';
@@ -267,7 +267,7 @@ if (cookie 'wpd_ai_session_id' exists) {
 
 <ol>
 <li>WordPress loads and fires <code>template_redirect</code> hook</li>
-<li><code>WPD_Session_Tracking->store_session_in_db_hook()</code> executes</li>
+<li><code>WPDAI_Session_Tracking->store_session_in_db_hook()</code> executes</li>
 <li>Checks if CRON, AJAX, or admin (skip if true)</li>
 <li>Checks if main query (skip if not)</li>
 <li>Calls <code>store_session_in_db()</code></li>
@@ -278,9 +278,9 @@ if (cookie 'wpd_ai_session_id' exists) {
 
 <h3>4. Event Tracking System</h3>
 
-<p><strong>Class:</strong> <code>WPD_WooCommerce_Events</code> (extends <code>WPD_Session_Tracking</code>)</p>
+<p><strong>Class:</strong> <code>WPDAI_WooCommerce_Event_Tracking</code> (extends <code>WPDAI_Session_Tracking</code>)</p>
 
-<p><strong>File:</strong> <code>includes/classes/WPD_WooCommerce_Events.php</code></p>
+<p><strong>File:</strong> <code>includes/classes/WPDAI_WooCommerce_Event_Tracking.php</code></p>
 
 <p>For complete details on all tracked events, see the <a href='/documentation/alpha-insights/website-traffic/event-types-reference.html'>Event Types Reference</a>.</p>
 
@@ -310,7 +310,7 @@ if (cookie 'wpd_ai_session_id' exists) {
 <ol>
 <li><strong>Referer check:</strong> Request must come from same domain</li>
 <li><strong>Event type required:</strong> <code>event_type</code> parameter must be present</li>
-<li><strong>Bot detection:</strong> Checked via <code>WPD_User_Agent->isBot()</code></li>
+<li><strong>Bot detection:</strong> Checked via <code>WPDAI_User_Agent_Classification->isBot()</code></li>
 <li><strong>Rate limiting:</strong> Max 60 requests/minute (tracked in transients)</li>
 <li><strong>Bad request check:</strong> page_href must be present and from same domain</li>
 <li><strong>Tracking enabled:</strong> User role not in exclusion list</li>
@@ -347,9 +347,9 @@ array(
 
 <h3>5. Traffic Source Classification</h3>
 
-<p><strong>Class:</strong> <code>WPD_Traffic_Type</code></p>
+<p><strong>Class:</strong> <code>WPDAI_Traffic_Type_Detection</code></p>
 
-<p><strong>File:</strong> <code>includes/classes/WPD_Traffic_Type.php</code></p>
+<p><strong>File:</strong> <code>includes/classes/WPDAI_Traffic_Type_Detection.php</code></p>
 
 <p><strong>Purpose:</strong> Categorize traffic into standardized sources. For complete source detection logic and optimization strategies, see the <a href='/documentation/alpha-insights/website-traffic/traffic-source-analysis.html'>Traffic Source Analysis guide</a>.</p>
 
@@ -481,7 +481,7 @@ array(
 
 <p><strong>Hook:</strong> <code>woocommerce_checkout_order_processed</code> or manual order save</p>
 
-<p><strong>Method:</strong> <code>WPD_Alpha_Insights_Core->save_landing_page_to_order_meta()</code></p>
+<p><strong>Method:</strong> <code>WPDAI_Core->save_landing_page_to_order_meta()</code></p>
 
 <p><strong>Process:</strong></p>
 
@@ -522,9 +522,9 @@ _wpd_ai_google_campaign_id  = "987654321" (if google_cid present)</code></pre>
 
 <h3>8. Reporting & Data Aggregation</h3>
 
-<p><strong>Class:</strong> <code>WPD_Data_Warehouse_React</code></p>
+<p><strong>Class:</strong> <code>WPDAI_Data_Warehouse</code></p>
 
-<p><strong>File:</strong> <code>includes/classes/WPD_Data_Warehouse_React.php</code></p>
+<p><strong>File:</strong> <code>includes/classes/WPDAI_Data_Warehouse.php</code></p>
 
 <p><strong>Purpose:</strong> Aggregate raw session and event data into reportable metrics</p>
 
@@ -563,7 +563,7 @@ _wpd_ai_google_campaign_id  = "987654321" (if google_cid present)</code></pre>
 
 <h3>9. Bot Detection</h3>
 
-<p><strong>Class:</strong> <code>WPD_User_Agent</code></p>
+<p><strong>Class:</strong> <code>WPDAI_User_Agent_Classification</code></p>
 
 <p><strong>Purpose:</strong> Identify and filter bot traffic</p>
 

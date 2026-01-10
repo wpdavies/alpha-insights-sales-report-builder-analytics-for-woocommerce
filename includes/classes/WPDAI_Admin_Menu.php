@@ -1,6 +1,6 @@
 <?php
 /**
- * WPD_Admin_Menu Class
+ * WPDAI_Admin_Menu Class
  * 
  * Handles the registration and output of the Alpha Insights admin menu
  * 
@@ -12,7 +12,7 @@
  */
 defined( 'ABSPATH' ) || exit;
 
-class WPD_Admin_Menu {
+class WPDAI_Admin_Menu {
 
     // Alpha Insights root menu
     public static $top_level_menu_slug          = 'wpd-sales-reports';
@@ -73,7 +73,7 @@ class WPD_Admin_Menu {
             __( 'Alpha Insights', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 					// Menu Title
             $capability, 													// Capability
             self::$top_level_menu_slug, 									// Menu Slug
-            'wpd_profit_reports_page_content',								// Callback (page content)
+            'wpdai_profit_reports_page_content',								// Callback (page content)
             WPD_AI_URL_PATH . 'assets/img/Alpha-Insights-Icon-20x20.png', 	// Icon URL
             5																// Position (defaults to 5)
         );
@@ -87,7 +87,7 @@ class WPD_Admin_Menu {
                 'page_title' => __( 'Sales Reports', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                 'menu_title' => __( 'Sales Reports', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                 'menu_slug' => self::$sales_report_slug,
-                'page_callback' => 'wpd_profit_reports_page_content',
+                'page_callback' => 'wpdai_profit_reports_page_content',
                 'menu_position' => 10,
             ),
 
@@ -97,7 +97,7 @@ class WPD_Admin_Menu {
                 'page_title' => __( 'Website Traffic', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                 'menu_title' => __( 'Website Traffic', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                 'menu_slug' => self::$website_traffic_slug,
-                'page_callback' => 'wpd_analytics_dashboard',
+                'page_callback' => 'wpdai_analytics_dashboard',
                 'menu_position' => 20,
             ),
         
@@ -107,7 +107,7 @@ class WPD_Admin_Menu {
                 'page_title' => __( 'P&L Statement', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                 'menu_title' => __( 'P&L Statement', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                 'menu_slug' => self::$profit_loss_statement_slug,
-                'page_callback' => 'wpd_pl_statement_page',
+                'page_callback' => 'wpdai_pl_statement_page',
                 'menu_position' => 30,
             ),
         
@@ -117,7 +117,7 @@ class WPD_Admin_Menu {
                 'page_title' => __( 'Cost Of Goods', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                 'menu_title' => __( 'Cost Of Goods', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                 'menu_slug' => self::$cost_of_goods_slug,
-                'page_callback' => 'wpd_cost_of_goods_manager_page',
+                'page_callback' => 'wpdai_cost_of_goods_manager_page',
                 'menu_position' => 70,
             ),
         
@@ -127,7 +127,7 @@ class WPD_Admin_Menu {
                 'page_title' => __( 'Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                 'menu_title' => __( 'Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                 'menu_slug' => self::$settings_slug,
-                'page_callback' => 'wpd_settings_page',
+                'page_callback' => 'wpdai_settings_page',
                 'menu_position' => 80,
             ),
 
@@ -137,7 +137,7 @@ class WPD_Admin_Menu {
                 'page_title' => __( 'Getting Started', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                 'menu_title' => __( 'Getting Started', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                 'menu_slug' => self::$getting_started_slug,
-                'page_callback' => 'wpd_getting_started_page',
+                'page_callback' => 'wpdai_getting_started_page',
                 'menu_position' => 90,
             )
 
@@ -700,4 +700,4 @@ class WPD_Admin_Menu {
 }
 
 // Init
-new WPD_Admin_Menu();
+new WPDAI_Admin_Menu();

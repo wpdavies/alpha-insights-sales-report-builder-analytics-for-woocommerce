@@ -13,12 +13,12 @@
  */
 defined( 'ABSPATH' ) || exit;
 
-class WPD_Migration {
+class WPDAI_Migration {
 
     /**
      * Instance of this class
      *
-     * @var WPD_Migration
+     * @var WPDAI_Migration
      */
     private static $instance = null;
 
@@ -30,7 +30,7 @@ class WPD_Migration {
     /**
      * Get the singleton instance of this class
      *
-     * @return WPD_Migration
+     * @return WPDAI_Migration
      */
     public static function get_instance() {
         if ( null === self::$instance ) {
@@ -62,10 +62,10 @@ class WPD_Migration {
      */
     private function __construct() {
         // Hook into the migration runner action
-        add_action( 'wpd_migration_runner', array( $this, 'run_pending_migrations' ) );
+        add_action( 'WPDAI_Migration_runner', array( $this, 'run_pending_migrations' ) );
         
         // Hook into individual migration actions
-        add_action( 'wpd_migration_build_engaged_sessions', array( $this, 'build_engaged_sessions' ) );
+        add_action( 'WPDAI_Migration_build_engaged_sessions', array( $this, 'build_engaged_sessions' ) );
         
         // Register AJAX actions
         add_action( 'wp_ajax_wpd_run_migration', array( $this, 'run_migration_ajax_handler' ) );
@@ -79,7 +79,7 @@ class WPD_Migration {
     public function get_available_migrations() {
         return array(
             'build_engaged_sessions' => array(
-                'hook' => 'wpd_migration_build_engaged_sessions',
+                'hook' => 'WPDAI_Migration_build_engaged_sessions',
                 'version' => '5.2.1',
                 'description' => __( 'Build engaged sessions flag for existing sessions', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
                 'name' => __( 'Build Engaged Sessions', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
@@ -156,12 +156,12 @@ class WPD_Migration {
         wpdai_write_log( sprintf( __( 'Found %d pending migration(s) to schedule.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), count( $pending_migrations ) ), 'migration' );
 
         // Schedule each pending migration
-        if ( ! class_exists( 'WPD_Action_Scheduler' ) ) {
-            wpdai_write_log( 'WPD_Action_Scheduler class not found. Cannot schedule migrations.', 'migration_error' );
+        if ( ! class_exists( 'WPDAI_Action_Scheduler' ) ) {
+            wpdai_write_log( 'WPDAI_Action_Scheduler class not found. Cannot schedule migrations.', 'migration_error' );
             return false;
         }
 
-        $action_scheduler = new WPD_Action_Scheduler();
+        $action_scheduler = new WPDAI_Action_Scheduler();
         $scheduled_count = 0;
 
         foreach ( $pending_migrations as $migration_key => $migration_data ) {
@@ -240,7 +240,7 @@ class WPD_Migration {
         global $wpdb;
 
         // Get the database interactor instance
-        $db_interactor = new WPD_Database_Interactor();
+        $db_interactor = new WPDAI_Database_Interactor();
         $session_data_table = $db_interactor->session_data_table;
 
         // Check if the column exists
@@ -520,5 +520,5 @@ class WPD_Migration {
 }
 
 // Initialize the class
-WPD_Migration::get_instance();
+WPDAI_Migration::get_instance();
 

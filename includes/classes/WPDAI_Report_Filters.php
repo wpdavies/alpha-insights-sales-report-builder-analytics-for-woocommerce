@@ -13,7 +13,7 @@
  */
 defined( 'ABSPATH' ) || exit;
 
-class WPD_Report_Filters {
+class WPDAI_Report_Filters {
 
     /**
      *
@@ -76,7 +76,7 @@ class WPD_Report_Filters {
             return $this->instance_cache['traffic_sources'];
         }
 
-        $traffic_types = WPD_Traffic_Type::available_traffic_types();
+        $traffic_types = WPDAI_Traffic_Type_Detection::available_traffic_types();
         $traffic_types_array = array();
         foreach( $traffic_types as $traffic_type => $traffic_type_name ) {
             $traffic_types_array[$traffic_type_name] = $traffic_type_name;
@@ -106,7 +106,7 @@ class WPD_Report_Filters {
         }
 
         // Get results
-        $results = get_transient( 'wpd_report_filters_order_query_parameter_values' );
+        $results = get_transient( 'WPDAI_Report_Filters_order_query_parameter_values' );
 
         if ( $results && $this->is_transient_enabled ) {
             $this->instance_cache['order_query_params'] = $results;
@@ -218,7 +218,7 @@ class WPD_Report_Filters {
         ksort( $parsed_values );
     
         // Store transient
-        if ( ! empty($parsed_values) ) set_transient( 'wpd_report_filters_order_query_parameter_values', $parsed_values, $this->transient_duration_in_seconds );
+        if ( ! empty($parsed_values) ) set_transient( 'WPDAI_Report_Filters_order_query_parameter_values', $parsed_values, $this->transient_duration_in_seconds );
 
         // Store in instance cache
         $this->instance_cache['order_query_params'] = $parsed_values;
@@ -244,7 +244,7 @@ class WPD_Report_Filters {
         }
 
         // Attempt transient
-        $results = get_transient( 'wpd_report_filters_users' );
+        $results = get_transient( 'WPDAI_Report_Filters_users' );
 
         if ( $results && $this->is_transient_enabled ) {
             $this->instance_cache['users'] = $results;
@@ -323,7 +323,7 @@ class WPD_Report_Filters {
 
         // Cache
         if ( ! empty( $results ) ) {
-            set_transient( 'wpd_report_filters_users', $results, $this->transient_duration_in_seconds );
+            set_transient( 'WPDAI_Report_Filters_users', $results, $this->transient_duration_in_seconds );
         }
 
         // Store in instance cache
@@ -349,7 +349,7 @@ class WPD_Report_Filters {
         }
 
         // Get results
-        $results = get_transient( 'wpd_report_filters_products' );
+        $results = get_transient( 'WPDAI_Report_Filters_products' );
 
         if ( $results && $this->is_transient_enabled ) {
             $this->instance_cache['products'] = $results;
@@ -445,7 +445,7 @@ class WPD_Report_Filters {
         }
 
         // Store transient
-        if ( ! empty($results) ) set_transient( 'wpd_report_filters_products', $results, $this->transient_duration_in_seconds );
+        if ( ! empty($results) ) set_transient( 'WPDAI_Report_Filters_products', $results, $this->transient_duration_in_seconds );
 
         // Store in instance cache
         $this->instance_cache['products'] = $results;
@@ -466,7 +466,7 @@ class WPD_Report_Filters {
     public function get_filter_values_product_categories() {
 
         // Get results
-        $results = get_transient( 'wpd_report_filters_product_categories' );
+        $results = get_transient( 'WPDAI_Report_Filters_product_categories' );
 
         if ( $results && $this->is_transient_enabled ) {
             return $results;
@@ -486,7 +486,7 @@ class WPD_Report_Filters {
         }
 
         // Store transient
-        if ( ! empty($category_array) ) set_transient( 'wpd_report_filters_product_categories', $category_array, $this->transient_duration_in_seconds );
+        if ( ! empty($category_array) ) set_transient( 'WPDAI_Report_Filters_product_categories', $category_array, $this->transient_duration_in_seconds );
 
         // Return Results
         return $category_array;
@@ -504,7 +504,7 @@ class WPD_Report_Filters {
     public function get_filter_values_product_tags() {
 
         // Get results
-        $results = get_transient( 'wpd_report_filters_product_tags' );
+        $results = get_transient( 'WPDAI_Report_Filters_product_tags' );
 
         if ( $results && $this->is_transient_enabled ) {
             return $results;
@@ -524,7 +524,7 @@ class WPD_Report_Filters {
         }
 
         // Store transient
-        if ( ! empty($tag_array) ) set_transient( 'wpd_report_filters_product_tags', $tag_array, $this->transient_duration_in_seconds );
+        if ( ! empty($tag_array) ) set_transient( 'WPDAI_Report_Filters_product_tags', $tag_array, $this->transient_duration_in_seconds );
 
         // Return Results
         return $tag_array;
@@ -542,7 +542,7 @@ class WPD_Report_Filters {
     public function get_filter_values_billing_countries() {
 
         // Get results
-        $results = get_transient( 'wpd_report_filters_billing_countries' );
+        $results = get_transient( 'WPDAI_Report_Filters_billing_countries' );
 
         if ( $results && $this->is_transient_enabled ) {
             return $results;
@@ -551,7 +551,7 @@ class WPD_Report_Filters {
         $results = WC()->countries->get_countries();
 
         // Store transient
-        if ( empty($results) ) set_transient( 'wpd_report_filters_billing_countries', $results, $this->transient_duration_in_seconds );
+        if ( empty($results) ) set_transient( 'WPDAI_Report_Filters_billing_countries', $results, $this->transient_duration_in_seconds );
 
         // Return Results
         return WC()->countries->get_countries();
@@ -569,7 +569,7 @@ class WPD_Report_Filters {
     public function get_filter_values_facebook_campaigns() {
 
         // Get results
-        $results = get_transient( 'wpd_report_filters_facebook_campaigns' );
+        $results = get_transient( 'WPDAI_Report_Filters_facebook_campaigns' );
 
         if ( $results && $this->is_transient_enabled ) {
             return $results;
@@ -578,7 +578,7 @@ class WPD_Report_Filters {
         $results = (function_exists('wpdai_get_all_meta_campaigns')) ? wpdai_get_all_meta_campaigns() : array();
 
         // Store transient
-        if ( ! empty($results) ) set_transient( 'wpd_report_filters_facebook_campaigns', $results, $this->transient_duration_in_seconds );
+        if ( ! empty($results) ) set_transient( 'WPDAI_Report_Filters_facebook_campaigns', $results, $this->transient_duration_in_seconds );
 
         // Return Results
         return $results;
@@ -596,7 +596,7 @@ class WPD_Report_Filters {
     public function get_filter_values_google_campaigns() {
 
         // Get results
-        $results = get_transient( 'wpd_report_filters_google_campaigns' );
+        $results = get_transient( 'WPDAI_Report_Filters_google_campaigns' );
 
         if ( $results && $this->is_transient_enabled ) {
             return $results;
@@ -605,7 +605,7 @@ class WPD_Report_Filters {
         $results = (function_exists('wpdai_get_all_google_campaigns')) ? wpdai_get_all_google_campaigns() : array();
 
         // Store transient
-        if ( ! empty($results) ) set_transient( 'wpd_report_filters_google_campaigns', $results, $this->transient_duration_in_seconds );
+        if ( ! empty($results) ) set_transient( 'WPDAI_Report_Filters_google_campaigns', $results, $this->transient_duration_in_seconds );
 
         // Return Results
         return $results;
@@ -623,7 +623,7 @@ class WPD_Report_Filters {
     public function get_filter_values_expense_categories() {
 
         // Get results
-        $results = get_transient( 'wpd_report_filters_expense_categories' );
+        $results = get_transient( 'WPDAI_Report_Filters_expense_categories' );
 
         if ( $results && $this->is_transient_enabled ) {
             return $results;
@@ -643,7 +643,7 @@ class WPD_Report_Filters {
         }
 
         // Store transient
-        if ( ! empty($category_array) ) set_transient( 'wpd_report_filters_expense_categories', $category_array, $this->transient_duration_in_seconds );
+        if ( ! empty($category_array) ) set_transient( 'WPDAI_Report_Filters_expense_categories', $category_array, $this->transient_duration_in_seconds );
 
         // Return Results
         return $category_array;
@@ -667,7 +667,7 @@ class WPD_Report_Filters {
         }
 
         // Get results
-        $results = get_transient( 'wpd_report_filters_website_traffic_query_parameter_values' );
+        $results = get_transient( 'WPDAI_Report_Filters_website_traffic_query_parameter_values' );
 
         if ( $results && $this->is_transient_enabled ) {
             $this->instance_cache['traffic_query_params'] = $results;
@@ -676,7 +676,7 @@ class WPD_Report_Filters {
 
         global $wpdb;
 
-        $wpd_db = new WPD_Database_Interactor();
+        $wpd_db = new WPDAI_Database_Interactor();
         $session_data_table = $wpd_db->session_data_table;
 
         // Validate table name for security
@@ -770,7 +770,7 @@ class WPD_Report_Filters {
         ksort( $parsed_values );
 
         // Store transient
-        if ( ! empty($parsed_values) ) set_transient( 'wpd_report_filters_website_traffic_query_parameter_values', $parsed_values, $this->transient_duration_in_seconds );
+        if ( ! empty($parsed_values) ) set_transient( 'WPDAI_Report_Filters_website_traffic_query_parameter_values', $parsed_values, $this->transient_duration_in_seconds );
 
         // Store in instance cache
         $this->instance_cache['traffic_query_params'] = $parsed_values;
@@ -791,7 +791,7 @@ class WPD_Report_Filters {
     public function get_filter_values_website_traffic_events() {
 
         // Get results
-        $results = get_transient( 'wpd_report_filters_website_traffic_events' );
+        $results = get_transient( 'WPDAI_Report_Filters_website_traffic_events' );
 
         if ( $results && $this->is_transient_enabled ) {
             return $results;
@@ -800,7 +800,7 @@ class WPD_Report_Filters {
         global $wpdb;
 
         // Collect Vars
-        $wpd_db = new WPD_Database_Interactor();
+        $wpd_db = new WPDAI_Database_Interactor();
         // WordPress's $wpdb->prepare() doesn't support %i placeholder, so we validate and use direct concatenation
         $events_table = esc_sql( $wpd_db->events_table );
         $sql_query = "SELECT DISTINCT event_type FROM {$events_table}";
@@ -841,7 +841,7 @@ class WPD_Report_Filters {
         foreach( $results as $result ) $key_values[$result] = wpdai_clean_string( $result );
 
         // Store transient
-        if ( ! empty($key_values) ) set_transient( 'wpd_report_filters_website_traffic_events', $key_values, $this->transient_duration_in_seconds );
+        if ( ! empty($key_values) ) set_transient( 'WPDAI_Report_Filters_website_traffic_events', $key_values, $this->transient_duration_in_seconds );
 
         // Return results
         return $key_values;

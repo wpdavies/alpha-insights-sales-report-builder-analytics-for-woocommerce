@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  */
 function wpdai_profit_reports_page_content() {
 
-	$react_report_loader = new WPD_React_Report(); // Will default to subpage if no slug passed in
+	$react_report_loader = new WPDAI_Report_Builder(); // Will default to subpage if no slug passed in
 	$react_report_loader->output_report();
 
 }
@@ -31,7 +31,7 @@ function wpdai_profit_reports_page_content() {
  */
 function wpdai_analytics_dashboard() {
 
-	$react_report_loader = new WPD_React_Report(); // Will default to subpage if no slug passed in
+	$react_report_loader = new WPDAI_Report_Builder(); // Will default to subpage if no slug passed in
 	$react_report_loader->output_report();
 	return null;
 
@@ -44,7 +44,7 @@ function wpdai_analytics_dashboard() {
  */
 function wpdai_expense_reports_page() { 
 
-	$react_report_loader = new WPD_React_Report('expenses'); // Will default to subpage if no slug passed in
+	$react_report_loader = new WPDAI_Report_Builder('expenses'); // Will default to subpage if no slug passed in
 	$react_report_loader->output_report();
 	return null;
 
@@ -61,17 +61,17 @@ function wpdai_advertising_reports_page() {
 	$subpage = ( isset($_GET['subpage']) ) ? sanitize_text_field( $_GET['subpage'] ) : null;
 	if ( ! empty( $subpage ) && $subpage == 'facebook' ) {
 
-		$react_report_loader = new WPD_React_Report('facebook'); // Will default to subpage if no slug passed in
+		$react_report_loader = new WPDAI_Report_Builder('facebook'); // Will default to subpage if no slug passed in
 		$react_report_loader->output_report();
 
 	} elseif ( ! empty( $subpage ) && $subpage == 'google-ads' ) {
 
-		$react_report_loader = new WPD_React_Report('google-ads'); // Will default to subpage if no slug passed in
+		$react_report_loader = new WPDAI_Report_Builder('google-ads'); // Will default to subpage if no slug passed in
 		$react_report_loader->output_report();
 
 	} else {
 
-		$react_report_loader = new WPD_React_Report(); // Will default to subpage if no slug passed in
+		$react_report_loader = new WPDAI_Report_Builder(); // Will default to subpage if no slug passed in
 		$react_report_loader->output_report();
 
 	}
@@ -86,7 +86,7 @@ function wpdai_advertising_reports_page() {
 function wpdai_cost_of_goods_manager_page() {
 
 	// Use modern Cost of Goods Manager
-	WPD_Cost_Of_Goods_Manager::output();
+	WPDAI_Cost_Of_Goods_Manager::output();
 
 }
 
@@ -97,7 +97,7 @@ function wpdai_cost_of_goods_manager_page() {
  */
 function wpdai_pl_statement_page() {
 
-	$react_report_loader = new WPD_React_Report('profit-loss-statement');
+	$react_report_loader = new WPDAI_Report_Builder('profit-loss-statement');
 	$react_report_loader->output_report();
 
 }
@@ -114,7 +114,7 @@ function wpdai_expense_management_page() {
 		<?php
 
 			// Load React Expense Management app
-			$expense_management = new WPD_Expense_Management_React();
+			$expense_management = new WPDAI_Expense_Management_Dashboard();
 			$expense_management->output_expense_management();
 
 		?>
@@ -166,10 +166,10 @@ function wpdai_settings_page() {
 function wpdai_getting_started_page() {
 
 	// Use Pro class if available, otherwise fall back to base class
-	if ( class_exists( 'WPD_Getting_Started_Pro' ) ) {
-		WPD_Getting_Started_Pro::render_getting_started_page();
+	if ( class_exists( 'WPDAI_Getting_Started_Pro' ) ) {
+		WPDAI_Getting_Started_Pro::render_getting_started_page();
 	} else {
-		WPD_Getting_Started::render_getting_started_page();
+		WPDAI_Getting_Started::render_getting_started_page();
 	}
 	
 }

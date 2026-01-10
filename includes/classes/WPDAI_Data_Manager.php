@@ -12,19 +12,19 @@
  */
 defined( 'ABSPATH' ) || exit;
 
-class WPD_Data_Manager {
+class WPDAI_Data_Manager {
 
     /**
      * Instance of this class
      *
-     * @var WPD_Data_Manager
+     * @var WPDAI_Data_Manager
      */
     private static $instance = null;
 
     /**
      * Get the singleton instance of this class
      *
-     * @return WPD_Data_Manager
+     * @return WPDAI_Data_Manager
      */
     public static function get_instance() {
         if ( null === self::$instance ) {
@@ -108,17 +108,17 @@ class WPD_Data_Manager {
 
         $static_values = array(
             'wpd_ai_activation_redirect',
-            'wpd_report_filters_order_query_parameter_values',
-            'wpd_report_filters_users',
-            'wpd_report_filters_products',
-            'wpd_report_filters_product_categories',
-            'wpd_report_filters_product_tags',
-            'wpd_report_filters_billing_countries',
-            'wpd_report_filters_facebook_campaigns',
-            'wpd_report_filters_google_campaigns',
-            'wpd_report_filters_expense_categories',
-            'wpd_report_filters_website_traffic_query_parameter_values',
-            'wpd_report_filters_website_traffic_events',
+            'WPDAI_Report_Filters_order_query_parameter_values',
+            'WPDAI_Report_Filters_users',
+            'WPDAI_Report_Filters_products',
+            'WPDAI_Report_Filters_product_categories',
+            'WPDAI_Report_Filters_product_tags',
+            'WPDAI_Report_Filters_billing_countries',
+            'WPDAI_Report_Filters_facebook_campaigns',
+            'WPDAI_Report_Filters_google_campaigns',
+            'WPDAI_Report_Filters_expense_categories',
+            'WPDAI_Report_Filters_website_traffic_query_parameter_values',
+            'WPDAI_Report_Filters_website_traffic_events',
             'wpd_fb_app_credentials',
             'wpd_google_app_credentials',
             'wpdai_product_meta_keys',
@@ -583,11 +583,11 @@ class WPD_Data_Manager {
      */
     public function get_db_table_names() {
 
-        if ( ! class_exists('WPD_Database_Interactor') ) {
-            require_once( WPD_AI_PATH . 'includes/classes/WPD_Database_Interactor.php');
+        if ( ! class_exists('WPDAI_Database_Interactor') ) {
+            require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Database_Interactor.php');
         }
 
-        return ( new WPD_Database_Interactor() )->get_all_table_names();
+        return ( new WPDAI_Database_Interactor() )->get_all_table_names();
 
     }
 

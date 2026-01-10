@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  *  Class to determine traffic type
  *
  */
-class WPD_Traffic_Type {
+class WPDAI_Traffic_Type_Detection {
 
     /*
      * Organic sources

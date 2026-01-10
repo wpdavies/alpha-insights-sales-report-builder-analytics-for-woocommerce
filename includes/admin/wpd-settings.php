@@ -190,7 +190,7 @@ function wpdai_register_settings() {
 	 *	Submit POST data
 	 *
 	 */
-	if ( isset($_GET['page']) && sanitize_text_field( $_GET['page'] ) === WPD_Admin_Menu::$settings_slug ) {
+	if ( isset($_GET['page']) && sanitize_text_field( $_GET['page'] ) === WPDAI_Admin_Menu::$settings_slug ) {
 		
 		// Only process form submission if POST data exists and submit button was clicked
 		if ( isset( $_POST['submit'] ) && ! empty( $_POST['submit'] ) ) {

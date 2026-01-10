@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * Recurring functions that are run by WPD_Action_Scheduler and functions that will trigger these one off events
+ * Recurring functions that are run by WPDAI_Action_Scheduler and functions that will trigger these one off events
  *
  * @package Alpha Insights
  * @version 4.4.0
@@ -256,11 +256,11 @@ function wpdai_schedule_database_upgrade_function() {
 
     wpdai_write_log( 'Executing wpd_schedule_database_upgrade', 'cron' );
 
-    if ( ! class_exists('WPD_Database_Interactor') ) {
-        require_once( WPD_AI_PATH . 'includes/classes/WPD_Database_Interactor.php');
+    if ( ! class_exists('WPDAI_Database_Interactor') ) {
+        require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Database_Interactor.php');
     }
 
-    $db_interactor = new WPD_Database_Interactor();
+    $db_interactor = new WPDAI_Database_Interactor();
 
     if ( is_object( $db_interactor ) && method_exists( $db_interactor, 'create_update_tables_columns' ) ) {
 
@@ -284,7 +284,7 @@ function wpdai_schedule_database_upgrade_function() {
 function wpdai_schedule_daily_task_runner_once_off_function() {
 
     // Run the task runner class
-    $task_runner = new WPD_Task_Runner();
+    $task_runner = new WPDAI_Task_Runner();
 
     // Run incomplete tasks
     $task_runner->run_incomplete_tasks();
@@ -328,7 +328,7 @@ function wpdai_cleanup_analytics_data( $days_ago = 30 ) {
 	global $wpdb;
 
 	// Collect Vars
-	$wpd_db = new WPD_Database_Interactor();
+	$wpd_db = new WPDAI_Database_Interactor();
 	$woo_events_table = $wpd_db->events_table;
 	$session_data_table = $wpd_db->session_data_table;
 
@@ -864,7 +864,7 @@ function wpdai_set_post_id_post_type_on_null_events_analytics_table() {
 
 	// Load vars
 	global $wpdb;
-	$wpd_db 			= new WPD_Database_Interactor();
+	$wpd_db 			= new WPDAI_Database_Interactor();
 	$woo_events_table 	= $wpd_db->events_table;
 	$count_of_updates 	= 0;
 	$limit 				= 5000; // Roughly 10s

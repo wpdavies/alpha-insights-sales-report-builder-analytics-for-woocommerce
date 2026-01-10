@@ -1,6 +1,6 @@
 <?php
 /**
- * Class WPD_User_Agent
+ * Class WPDAI_User_Agent_Classification
  *
  * Analyzes and classifies user agent strings for Alpha Insights.
  *
@@ -12,7 +12,7 @@
 
 defined('ABSPATH') || exit;
 
-class WPD_User_Agent {
+class WPDAI_User_Agent_Classification {
     /**
      * @var string Device category (e.g., Mobile, Tablet, Console, Television, Desktop, Unknown)
      */
@@ -450,7 +450,7 @@ class WPD_User_Agent {
     protected function getCrawlerBots()
     {
         if ($this->crawlers_bots === null) {
-            $this->crawlers_bots = require(WPD_AI_PATH . 'includes/classes/WPD_Crawler_Bots.php');
+            $this->crawlers_bots = require(WPD_AI_PATH . 'includes/classes/WPDAI_Crawler_Bots.php');
         }
         return $this->crawlers_bots;
     }

@@ -211,7 +211,7 @@ function wpdai_setup_notice_hook() {
 function wpdai_calculate_cost_profit_by_order( $order_id_or_object = null, $update_values = false ) {
 
 	// Prepare Object
-	$order_calculator = new WPD_Order_Calculator( $order_id_or_object, $update_values );
+	$order_calculator = new WPDAI_Order_Calculator( $order_id_or_object, $update_values );
 
 	// Return Results
 	return $order_calculator->get_results();
@@ -457,15 +457,15 @@ function is_wpdai_page() {
 			|| $screen_post_type == 'google_ad_campaign'
 			|| $taxonomy == 'expense_category'
 			|| $taxonomy == 'suppliers'
-			|| $page == WPD_Admin_Menu::$sales_report_slug
-			|| $page == WPD_Admin_Menu::$website_traffic_slug
-			|| $page == WPD_Admin_Menu::$profit_loss_statement_slug
-			|| $page == WPD_Admin_Menu::$manage_expenses_slug
-			|| $page == WPD_Admin_Menu::$advertising_slug
-			|| $page == WPD_Admin_Menu::$cost_of_goods_slug
-			|| $page == WPD_Admin_Menu::$settings_slug
-			|| $page == WPD_Admin_Menu::$about_help_slug
-			|| $page == WPD_Admin_Menu::$getting_started_slug
+			|| $page == WPDAI_Admin_Menu::$sales_report_slug
+			|| $page == WPDAI_Admin_Menu::$website_traffic_slug
+			|| $page == WPDAI_Admin_Menu::$profit_loss_statement_slug
+			|| $page == WPDAI_Admin_Menu::$manage_expenses_slug
+			|| $page == WPDAI_Admin_Menu::$advertising_slug
+			|| $page == WPDAI_Admin_Menu::$cost_of_goods_slug
+			|| $page == WPDAI_Admin_Menu::$settings_slug
+			|| $page == WPDAI_Admin_Menu::$about_help_slug
+			|| $page == WPDAI_Admin_Menu::$getting_started_slug
 		) {
 
 		$bool = true;
@@ -485,87 +485,87 @@ function wpdai_admin_page_url( $target ) {
 
 	if ( $target === 'inventory-management' ) {
 
-		return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$cost_of_goods_slug;
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$cost_of_goods_slug;
 
 	} elseif( $target === 'settings' ) {
 
-		return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$settings_slug;
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$settings_slug;
 
 	} elseif( $target === 'settings-emails' ) {
 
-		return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$settings_slug . '&subpage=email';
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$settings_slug . '&subpage=email';
 
 	} elseif( $target === 'settings-emails-preview-profit-report' ) {
 
-		return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$settings_slug . '&subpage=email&email_preview=profit-report';
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$settings_slug . '&subpage=email&email_preview=profit-report';
 
 	} elseif( $target === 'settings-emails-preview-expense-report' ) {
 
-		return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$settings_slug . '&subpage=email&email_preview=expense-report';
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$settings_slug . '&subpage=email&email_preview=expense-report';
 
 	} elseif( $target === 'settings-emails-preview-inventory-report' ) {
 
-		return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$settings_slug . '&subpage=email&email_preview=inventory-report';
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$settings_slug . '&subpage=email&email_preview=inventory-report';
 
 	} elseif( $target === 'settings' ) {
 
-		return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$settings_slug;
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$settings_slug;
 
 	} elseif( $target === 'settings-bulk-import' ) {
 
-		return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$cost_of_goods_slug;
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$cost_of_goods_slug;
 
 	} elseif( $target === 'settings-product-cogs' ) {
 
-		return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$cost_of_goods_slug;
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$cost_of_goods_slug;
 
 	} elseif( $target === 'settings-license' ) {
 
-		return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$settings_slug . '&subpage=license';
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$settings_slug . '&subpage=license';
 
 	} elseif( $target === 'reports' ) {
 
-		return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$sales_report_slug;
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$sales_report_slug;
 
 	} elseif( $target === 'reports-orders' ) {
 
-		return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$sales_report_slug;
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$sales_report_slug;
 
 	} elseif( $target === 'reports-products' ) {
 
-		return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$sales_report_slug . '&subpage=products';
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$sales_report_slug . '&subpage=products';
 
 	} elseif( $target === 'reports-customers' ) {
 
-		return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$sales_report_slug . '&subpage=customers';
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$sales_report_slug . '&subpage=customers';
 
 	} elseif( $target === 'reports-expenses' ) {
 
-		return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$expense_reports_slug;
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$expense_reports_slug;
 
 	} elseif( $target === 'pl-statement' ) {
 
-		return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$profit_loss_statement_slug;
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$profit_loss_statement_slug;
 
 	} elseif( $target === 'facebook-report' ) {
 
-		return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$sales_report_slug . '&subpage=facebook';
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$sales_report_slug . '&subpage=facebook';
 
 	} elseif( $target === 'google-report' ) {
 
-		return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$sales_report_slug . '&subpage=google-ads';
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$sales_report_slug . '&subpage=google-ads';
 
 	} elseif( $target === 'add-expense-type' ) {
 
-		return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$manage_expenses_slug . '&subpage=manage-expense-taxonomies';
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$manage_expenses_slug . '&subpage=manage-expense-taxonomies';
 
 	} elseif( $target === 'manage-suppliers' ) {
 
-		return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$manage_expenses_slug . '&subpage=manage-expense-taxonomies';
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$manage_expenses_slug . '&subpage=manage-expense-taxonomies';
 
 	} elseif( $target === 'cost-of-goods-manager' ) {
 
-		return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$cost_of_goods_slug;
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$cost_of_goods_slug;
 
 	} else {
 
@@ -582,7 +582,7 @@ function wpdai_admin_page_url( $target ) {
  */
 function wpdai_get_traffic_type( $url, $query_params = array() ) {
 
-	$traffic_class = new WPD_Traffic_Type( $url, $query_params );
+	$traffic_class = new WPDAI_Traffic_Type_Detection( $url, $query_params );
 	$traffic_source_type = $traffic_class->determine_traffic_source();
 
 	return $traffic_source_type;
@@ -720,7 +720,7 @@ function wpdai_sort_multi_level_array( $array, $key, $desc = true ) {
  */
 function wpdai_parse_user_agent( $user_agent ) {
 
-	$ua_parser 	= new WPD_User_Agent( $user_agent );
+	$ua_parser 	= new WPDAI_User_Agent_Classification( $user_agent );
 	if ( ! is_object($ua_parser) ) return false;
 	$results 	= $ua_parser->getInfo();
 	return $results;
@@ -1298,7 +1298,7 @@ function wpdai_get_attachment_data_by_id( $attachment_id ) {
 function wpdai_send_woocommerce_event( $data ) {
 
 	// Call event tracking class
-	$result = WPD_WooCommerce_Events::get_instance()->insert_event( $data );
+	$result = WPDAI_WooCommerce_Event_Tracking::get_instance()->insert_event( $data );
 
 	// return results
 	return $result;

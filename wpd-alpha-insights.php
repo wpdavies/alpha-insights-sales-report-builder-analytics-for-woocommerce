@@ -496,9 +496,9 @@ class WPD_Alpha_Insights_Free_Plugin {
 					$this->log( 'Default reports installation scheduled for next admin page load.' );
 
 					// Schedule migration runner to check for pending migrations
-					if ( class_exists( 'WPD_Action_Scheduler' ) ) {
-						$action_scheduler = new WPD_Action_Scheduler();
-						$action_scheduler->schedule_one_off_event( WPD_Action_Scheduler::SINGLE_EVENT_MIGRATION_RUNNER, 0 );
+					if ( class_exists( 'WPDAI_Action_Scheduler' ) ) {
+						$action_scheduler = new WPDAI_Action_Scheduler();
+						$action_scheduler->schedule_one_off_event( WPDAI_Action_Scheduler::SINGLE_EVENT_MIGRATION_RUNNER, 0 );
 						$this->log( 'Migration runner scheduled via action scheduler.' );
 					} else {
 						update_option( 'wpd_ai_pending_migration_runner', true );
@@ -534,59 +534,59 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		}
 
-		// Task 2: Rewrite rules flush (requires WPD_Live_Share_Handler class)
+		// Task 2: Rewrite rules flush (requires WPDAI_Live_Share_Handler class)
 		if ( get_option( 'wpd_ai_pending_rewrite_flush' ) ) {
 
 			// Verify the class exists (all dependencies loaded)
-			if ( class_exists( 'WPD_Live_Share_Handler' ) ) {
+			if ( class_exists( 'WPDAI_Live_Share_Handler' ) ) {
 
 				$this->log( 'Flushing pending rewrite rules for live share URLs.' );
-				WPD_Live_Share_Handler::flush_rewrite_rules();
+				WPDAI_Live_Share_Handler::flush_rewrite_rules();
 				delete_option( 'wpd_ai_pending_rewrite_flush' );
 				$this->log( 'Rewrite rules flushed successfully for live share URLs.' );
 
 			} else {
 
-				$this->log( 'WPD_Live_Share_Handler class not found during deferred flush, will retry on next admin load.' );
+				$this->log( 'WPDAI_Live_Share_Handler class not found during deferred flush, will retry on next admin load.' );
 
 			}
 
 		}
 
-		// Task 3: Default reports installation (requires WPD_React_Report class and DB tables)
+		// Task 3: Default reports installation (requires WPDAI_Report_Builder class and DB tables)
 		if ( get_option( 'wpd_ai_pending_report_installation' ) ) {
 
 			// Verify the class exists (all dependencies loaded)
-			if ( class_exists( 'WPD_React_Report' ) ) {
+			if ( class_exists( 'WPDAI_Report_Builder' ) ) {
 
 				$this->log( 'Installing pending default reports.' );
-				WPD_React_Report::import_all_default_reports( false );
+				WPDAI_Report_Builder::import_all_default_reports( false );
 				delete_option( 'wpd_ai_pending_report_installation' );
 				$this->log( 'Default reports installed successfully.' );
 
 			} else {
 
-				$this->log( 'WPD_React_Report class not found during deferred installation, will retry on next admin load.' );
+				$this->log( 'WPDAI_Report_Builder class not found during deferred installation, will retry on next admin load.' );
 
 			}
 
 		}
 
-		// Task 4: Migration runner (requires WPD_Action_Scheduler class)
+		// Task 4: Migration runner (requires WPDAI_Action_Scheduler class)
 		if ( get_option( 'wpd_ai_pending_migration_runner' ) ) {
 
 			// Verify the class exists (all dependencies loaded)
-			if ( class_exists( 'WPD_Action_Scheduler' ) ) {
+			if ( class_exists( 'WPDAI_Action_Scheduler' ) ) {
 
 				$this->log( 'Scheduling pending migration runner.' );
-				$action_scheduler = new WPD_Action_Scheduler();
-				$action_scheduler->schedule_one_off_event( WPD_Action_Scheduler::SINGLE_EVENT_MIGRATION_RUNNER, 0 );
+				$action_scheduler = new WPDAI_Action_Scheduler();
+				$action_scheduler->schedule_one_off_event( WPDAI_Action_Scheduler::SINGLE_EVENT_MIGRATION_RUNNER, 0 );
 				delete_option( 'wpd_ai_pending_migration_runner' );
 				$this->log( 'Migration runner scheduled successfully.' );
 
 			} else {
 
-				$this->log( 'WPD_Action_Scheduler class not found during deferred migration scheduling, will retry on next admin load.' );
+				$this->log( 'WPDAI_Action_Scheduler class not found during deferred migration scheduling, will retry on next admin load.' );
 
 			}
 
@@ -598,22 +598,29 @@ class WPD_Alpha_Insights_Free_Plugin {
 			// Delete the transient
 			delete_transient( 'wpd_ai_activation_redirect' );
 
+			// Get current page to prevent redirect loops
+			$current_page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+
 			// Only redirect if:
 			// 1. Not in AJAX request
 			// 2. Not in bulk activation
 			// 3. User has capability to manage options
 			// 4. Onboarding not completed
+			// 5. Not already on getting started page (prevent loop)
+			// 6. Not on reports pages (prevent redirect loop when user finishes wizard)
 			if ( 
 				! wp_doing_ajax() 
 				&& ! isset( $_GET['activate-multi'] ) 
 				&& current_user_can( 'manage_options' ) 
 				&& ! get_option( 'wpd_ai_onboarding_completed' )
+				&& $current_page !== WPDAI_Admin_Menu::$getting_started_slug
+				&& $current_page !== WPDAI_Admin_Menu::$sales_report_slug
 			) {
 
 				$this->log( 'Redirecting to getting started page.' );
 				
 				// Perform redirect
-				wp_safe_redirect( admin_url( 'admin.php?page=' . WPD_Admin_Menu::$getting_started_slug ) );
+				wp_safe_redirect( admin_url( 'admin.php?page=' . WPDAI_Admin_Menu::$getting_started_slug ) );
 				exit;
 
 			}
@@ -788,46 +795,46 @@ class WPD_Alpha_Insights_Free_Plugin {
 		require_once( WPD_AI_PATH . 'includes/admin/wpd-settings.php');
 
 		// Framework
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Alpha_Insights_Core.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Core.php');
 		require_once( WPD_AI_PATH . 'includes/wpd-scripts-styles.php' );
 		require_once( WPD_AI_PATH . 'includes/wpd-ajax.php' );
 
 		// Additional Classes -> No Dependencies
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Admin_Menu.php');		
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Order_Calculator.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Database_Interactor.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Migration.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Action_Scheduler.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_User_Agent.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Traffic_Type.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_CSV_Exporter.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Session_Tracking.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Task_Runner.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Report_API.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Getting_Started.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Data_Manager.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Admin_Menu.php');		
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Order_Calculator.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Database_Interactor.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Migration.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Action_Scheduler.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_User_Agent_Classification.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Traffic_Type_Detection.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_CSV_Exporter.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Session_Tracking.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Task_Runner.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Reporting_API.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Getting_Started.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Data_Manager.php');
 
 		// Additional Classes - With Dependencies
-		require_once( WPD_AI_PATH . 'includes/classes/interfaces/WPD_Custom_Data_Source_Interface.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Custom_Data_Source_Base.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Custom_Data_Source_Registry.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Data_Warehouse_React.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_React_Report.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Report_Filters.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_WooCommerce_Events.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Cost_Of_Goods_Manager.php');
+		require_once( WPD_AI_PATH . 'includes/classes/interfaces/WPDAI_Custom_Data_Source_Interface.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Custom_Data_Source_Base.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Custom_Data_Source_Registry.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Data_Warehouse.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Report_Builder.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Report_Filters.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_WooCommerce_Event_Tracking.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Cost_Of_Goods_Manager.php');
 
 		// Register Relevant Actions
-		WPD_React_Report::register_ajax_actions();
-		WPD_Cost_Of_Goods_Manager::register_ajax_actions();
-		WPD_Report_API::register_routes();
-		WPD_Data_Manager::register_ajax_actions();
+		WPDAI_Report_Builder::register_ajax_actions();
+		WPDAI_Cost_Of_Goods_Manager::register_ajax_actions();
+		WPDAI_Reporting_API::register_routes();
+		WPDAI_Data_Manager::register_ajax_actions();
 
 		// Load the appropriate loader based on the plugin version
 		if ( WPD_AI_PRO ) {
-			require_once( WPD_AI_PATH . 'includes/classes/pro/WPD_Alpha_Insights_Pro_Loader.php');
+			require_once( WPD_AI_PATH . 'includes/classes/pro/WPDAI_Pro_Loader.php');
 		} else {
-			require_once( WPD_AI_PATH . 'includes/classes/WPD_Alpha_Insights_Free_Loader.php');
+			require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Free_Loader.php');
 		}
 
 	}
@@ -990,11 +997,11 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		$this->log( 'Verifying the database structure, updating if required.' );
 
-		if ( ! class_exists('WPD_Database_Interactor') ) {
-			require_once( WPD_AI_PATH . 'includes/classes/WPD_Database_Interactor.php');
+		if ( ! class_exists('WPDAI_Database_Interactor') ) {
+			require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Database_Interactor.php');
 		}
 
-		$db_interactor = new WPD_Database_Interactor();
+		$db_interactor = new WPDAI_Database_Interactor();
 		$this->log( 'DB interactor has been initialized, going to attempt to update the DB to the latest version.' );
 
 		if ( is_object( $db_interactor ) && method_exists( $db_interactor, 'create_update_tables_columns' ) ) {

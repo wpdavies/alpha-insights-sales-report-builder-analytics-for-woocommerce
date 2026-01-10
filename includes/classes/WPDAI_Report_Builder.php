@@ -12,7 +12,7 @@
  */
 defined( 'ABSPATH' ) || exit;
 
-class WPD_React_Report {
+class WPDAI_Report_Builder {
 
     /**
      *
@@ -43,7 +43,7 @@ class WPD_React_Report {
     public static $mandatory_report_slugs = array('orders', 'facebook', 'google-ads', 'expenses', 'profit-loss-statement', 'analytics-overview');
 
     /**
-     * Constructor for WPD_React_Report class
+     * Constructor for WPDAI_Report_Builder class
      *
      * @since 4.7.0
      *
@@ -229,17 +229,17 @@ class WPD_React_Report {
             'filters_data_map_values'      => $this->get_filters_data_map_values(),
             'api_key'                      => get_option('wpd_ai_api_key', null),    
             'menu_slugs' => array(
-                'sales_reports'         => WPD_Admin_Menu::$sales_report_slug,
-                'website_traffic'       => WPD_Admin_Menu::$website_traffic_slug,
-                'profit_loss_statement' => WPD_Admin_Menu::$profit_loss_statement_slug,
-                'manage_expenses'       => WPD_Admin_Menu::$manage_expenses_slug,
-                'expense_reports'       => WPD_Admin_Menu::$expense_reports_slug,
-                'advertising'           => WPD_Admin_Menu::$advertising_slug,
-                'cost_of_goods'         => WPD_Admin_Menu::$cost_of_goods_slug,
-                'settings'              => WPD_Admin_Menu::$settings_slug,
-                'about_help'            => WPD_Admin_Menu::$about_help_slug,
+                'sales_reports'         => WPDAI_Admin_Menu::$sales_report_slug,
+                'website_traffic'       => WPDAI_Admin_Menu::$website_traffic_slug,
+                'profit_loss_statement' => WPDAI_Admin_Menu::$profit_loss_statement_slug,
+                'manage_expenses'       => WPDAI_Admin_Menu::$manage_expenses_slug,
+                'expense_reports'       => WPDAI_Admin_Menu::$expense_reports_slug,
+                'advertising'           => WPDAI_Admin_Menu::$advertising_slug,
+                'cost_of_goods'         => WPDAI_Admin_Menu::$cost_of_goods_slug,
+                'settings'              => WPDAI_Admin_Menu::$settings_slug,
+                'about_help'            => WPDAI_Admin_Menu::$about_help_slug,
             ),
-            'custom_data_source_mappings' => WPD_Custom_Data_Source_Registry::get_all_mappings(),
+            'custom_data_source_mappings' => WPDAI_Custom_Data_Source_Registry::get_all_mappings(),
         ));
     }
 
@@ -358,7 +358,7 @@ class WPD_React_Report {
         $all_data = $data_response['data'];
         
         // Create CSV exporter instance
-        $csv_exporter = new WPD_CSV_Exporter();
+        $csv_exporter = new WPDAI_CSV_Exporter();
         
         // Get report name for filename
         $report_name = isset( $dashboard_config['name'] ) ? $dashboard_config['name'] : $dashboard_id;
@@ -723,7 +723,7 @@ class WPD_React_Report {
 
         // Verify nonce - accept both regular AJAX nonce and live share nonce
         if (!isset($_POST['nonce'])) {
-            self::log_error('WPD_React_Report: No nonce provided');
+            self::log_error('WPDAI_Report_Builder: No nonce provided');
             wp_send_json_error('No nonce provided');
             return;
         }
@@ -733,7 +733,7 @@ class WPD_React_Report {
         $live_share_nonce_valid = wp_verify_nonce( $nonce, 'wpd_live_share_nonce' );
         
         if (!$regular_nonce_valid && !$live_share_nonce_valid) {
-            self::log_error('WPD_React_Report: Nonce verification failed');
+            self::log_error('WPDAI_Report_Builder: Nonce verification failed');
             wp_send_json_error('Security check failed');
             return;
         }
@@ -749,8 +749,8 @@ class WPD_React_Report {
                 
                 // Handle error case
                 if ( is_wp_error( $config ) ) {
-                    self::log_error('WPD_React_Report: Invalid config format: ' . substr( $config_raw, 0, 200 ) );
-                    self::log_error('WPD_React_Report: JSON decode error: ' . $config->get_error_message() );
+                    self::log_error('WPDAI_Report_Builder: Invalid config format: ' . substr( $config_raw, 0, 200 ) );
+                    self::log_error('WPDAI_Report_Builder: JSON decode error: ' . $config->get_error_message() );
                     wp_send_json_error( array( 
                         'message' => sprintf(
                             /* translators: %s: JSON error message */
@@ -772,8 +772,8 @@ class WPD_React_Report {
             wp_send_json($response);
             
         } catch (Exception $e) {
-            self::log_error('WPD_React_Report: Error fetching live data: ' . $e->getMessage());
-            self::log_error('WPD_React_Report: Error stack trace: ' . $e->getTraceAsString());
+            self::log_error('WPDAI_Report_Builder: Error fetching live data: ' . $e->getMessage());
+            self::log_error('WPDAI_Report_Builder: Error stack trace: ' . $e->getTraceAsString());
             wp_send_json_error('Error fetching live data: ' . $e->getMessage());
         }
 
@@ -790,7 +790,7 @@ class WPD_React_Report {
 
         // Verify nonce - accept both regular AJAX nonce and live share nonce
         if (!isset($_POST['nonce'])) {
-            self::log_error('WPD_React_Report: No nonce provided for realtime data');
+            self::log_error('WPDAI_Report_Builder: No nonce provided for realtime data');
             wp_send_json_error('No nonce provided');
             return;
         }
@@ -800,7 +800,7 @@ class WPD_React_Report {
         $live_share_nonce_valid = wp_verify_nonce( $nonce, 'wpd_live_share_nonce' );
         
         if (!$regular_nonce_valid && !$live_share_nonce_valid) {
-            self::log_error('WPD_React_Report: Nonce verification failed for realtime data');
+            self::log_error('WPDAI_Report_Builder: Nonce verification failed for realtime data');
             wp_send_json_error('Security check failed');
             return;
         }
@@ -812,8 +812,8 @@ class WPD_React_Report {
             wp_send_json($response);
             
         } catch (Exception $e) {
-            self::log_error('WPD_React_Report: Error fetching realtime data: ' . $e->getMessage());
-            self::log_error('WPD_React_Report: Error stack trace: ' . $e->getTraceAsString());
+            self::log_error('WPDAI_Report_Builder: Error fetching realtime data: ' . $e->getMessage());
+            self::log_error('WPDAI_Report_Builder: Error stack trace: ' . $e->getTraceAsString());
             wp_send_json_error('Error fetching realtime data: ' . $e->getMessage());
         }
 
@@ -1115,7 +1115,7 @@ class WPD_React_Report {
      */
     public function get_filters_data_map_values() {
 
-        $report_filters = new WPD_Report_Filters();
+        $report_filters = new WPDAI_Report_Filters();
 
         // Cache filter values to avoid duplicate queries
         // These filters are used in multiple places, so we fetch them once
@@ -1594,7 +1594,7 @@ class WPD_React_Report {
             );
 
             // Init data warehouse
-            $data_warehouse = new WPD_Data_Warehouse_React( $filter );
+            $data_warehouse = new WPDAI_Data_Warehouse( $filter );
 
             // Fetch analytics data
             $data_warehouse->fetch_analytics_data();
@@ -1622,8 +1622,8 @@ class WPD_React_Report {
 
         } catch (Exception $e) {
             // Log the error
-            self::log_error('WPD_React_Report: Error in get_live_dashboard_data_from_config: ' . $e->getMessage());
-            self::log_error('WPD_React_Report: Error stack trace: ' . $e->getTraceAsString());
+            self::log_error('WPDAI_Report_Builder: Error in get_live_dashboard_data_from_config: ' . $e->getMessage());
+            self::log_error('WPDAI_Report_Builder: Error stack trace: ' . $e->getTraceAsString());
             
             // Return error response
             return array(
@@ -1727,7 +1727,7 @@ class WPD_React_Report {
             $filters['additional_order_data'] = $additional_data_requirements;
 
             // Load the warehouse
-            $data_warehouse = new WPD_Data_Warehouse_React( $filters );
+            $data_warehouse = new WPDAI_Data_Warehouse( $filters );
 
             // Fetch the data we need
             if (in_array('orders', $required_data)) $data_warehouse->fetch_sales_data();
@@ -1739,7 +1739,7 @@ class WPD_React_Report {
             if (in_array('subscriptions', $required_data)) $data_warehouse->fetch_subscriptions_data();
 
             // Fetch custom data sources
-            $custom_data_sources = WPD_Custom_Data_Source_Registry::get_entity_names();
+            $custom_data_sources = WPDAI_Custom_Data_Source_Registry::get_entity_names();
             foreach ( $custom_data_sources as $custom_entity ) {
                 if ( in_array( $custom_entity, $required_data ) ) {
                     $data_warehouse->fetch_custom_data_source( $custom_entity );
@@ -1770,9 +1770,12 @@ class WPD_React_Report {
                 $comparison_filters = $filters;
                 $comparison_filters['date_from'] = $filters['comparison_date_from'];
                 $comparison_filters['date_to'] = $filters['comparison_date_to'];
+
+                // Remove date preset filter in case, because it would call the warehouse incorrectly in comparison data
+                if ( isset($comparison_filters['date_preset']) ) unset($comparison_filters['date_preset']);
                 
                 // Create new data warehouse instance for comparison period
-                $comparison_warehouse = new WPD_Data_Warehouse_React($comparison_filters);
+                $comparison_warehouse = new WPDAI_Data_Warehouse($comparison_filters);
                 
                 if (in_array('orders', $required_data)) $comparison_warehouse->fetch_sales_data();
                 if (in_array('expenses', $required_data)) $comparison_warehouse->fetch_expense_data();
@@ -1783,7 +1786,7 @@ class WPD_React_Report {
                 if (in_array('subscriptions', $required_data)) $comparison_warehouse->fetch_subscriptions_data();
 
                 // Fetch custom data sources for comparison
-                $custom_data_sources = WPD_Custom_Data_Source_Registry::get_entity_names();
+                $custom_data_sources = WPDAI_Custom_Data_Source_Registry::get_entity_names();
                 foreach ( $custom_data_sources as $custom_entity ) {
                     if ( in_array( $custom_entity, $required_data ) ) {
                         $comparison_warehouse->fetch_custom_data_source( $custom_entity );
@@ -1861,8 +1864,8 @@ class WPD_React_Report {
 
         } catch (Exception $e) {
             // Log the error
-            self::log_error('WPD_React_Report: Error in get_live_dashboard_data_from_config: ' . $e->getMessage());
-            self::log_error('WPD_React_Report: Error stack trace: ' . $e->getTraceAsString());
+            self::log_error('WPDAI_Report_Builder: Error in get_live_dashboard_data_from_config: ' . $e->getMessage());
+            self::log_error('WPDAI_Report_Builder: Error stack trace: ' . $e->getTraceAsString());
             
             // Return error response
             return array(
@@ -2279,114 +2282,12 @@ class WPD_React_Report {
      * @return array|false Array with 'from' and 'to' dates or false if invalid
      */
     private static function get_dates_from_preset( $preset ) {
-        switch ($preset) {
-            case 'today':
-                return array(
-                    'from' => current_time('Y-m-d'),
-                    'to' => current_time('Y-m-d')
-                );
-            case 'yesterday':
-                $wp_timestamp = current_time('timestamp');
-                $yesterday = gmdate('Y-m-d', strtotime('-1 day', $wp_timestamp));
-                return array(
-                    'from' => $yesterday,
-                    'to' => $yesterday
-                );
-            case 'this_week':
-                // Get start of week (Monday) and end of week (Sunday)
-                // Use WordPress timezone
-                $today = new DateTime('now', wp_timezone());
-                $day_of_week = $today->format('w'); // 0 = Sunday, 1 = Monday, etc.
-                
-                // Calculate days to subtract to get to Monday
-                // If today is Sunday (0), go back 6 days to get to Monday
-                // If today is Monday (1), go back 0 days
-                // If today is Tuesday (2), go back 1 day, etc.
-                $days_to_monday = $day_of_week == 0 ? 6 : $day_of_week - 1;
-                
-                $start_of_week = clone $today;
-                $start_of_week->modify("-{$days_to_monday} days");
-                
-                $end_of_week = clone $start_of_week;
-                $end_of_week->modify('+6 days'); // Sunday is 6 days after Monday
-                
-                return array(
-                    'from' => $start_of_week->format('Y-m-d'),
-                    'to' => $end_of_week->format('Y-m-d')
-                );
-            case 'this_month':
-                return array(
-                    'from' => current_time('Y-m-01'),
-                    'to' => current_time('Y-m-t')
-                );
-            case 'last_month':
-                $wp_timestamp = current_time('timestamp');
-                $last_month_start = gmdate('Y-m-01', strtotime('-1 month', $wp_timestamp));
-                $last_month_end = gmdate('Y-m-t', strtotime('-1 month', $wp_timestamp));
-                return array(
-                    'from' => $last_month_start,
-                    'to' => $last_month_end
-                );
-            case 'month_to_date':
-                return array(
-                    'from' => current_time('Y-m-01'),
-                    'to' => current_time('Y-m-d')
-                );
-            case 'this_year':
-                return array(
-                    'from' => current_time('Y-01-01'),
-                    'to' => current_time('Y-12-31')
-                );
-            case 'last_year':
-                $wp_timestamp = current_time('timestamp');
-                return array(
-                    'from' => gmdate('Y-01-01', strtotime('-1 year', $wp_timestamp)),
-                    'to' => gmdate('Y-12-31', strtotime('-1 year', $wp_timestamp))
-                );
-            case 'last_7_days':
-                $wp_timestamp = current_time('timestamp');
-                return array(
-                    'from' => gmdate('Y-m-d', strtotime('-6 days', $wp_timestamp)),
-                    'to' => current_time('Y-m-d')
-                );
-            case 'last_30_days':
-                $wp_timestamp = current_time('timestamp');
-                return array(
-                    'from' => gmdate('Y-m-d', strtotime('-29 days', $wp_timestamp)),
-                    'to' => current_time('Y-m-d')
-                );
-            case 'last_90_days':
-                $wp_timestamp = current_time('timestamp');
-                return array(
-                    'from' => gmdate('Y-m-d', strtotime('-89 days', $wp_timestamp)),
-                    'to' => current_time('Y-m-d')
-                );
-            case 'ytd':
-                return array(
-                    'from' => current_time('Y-01-01'),
-                    'to' => current_time('Y-m-d')
-                );
-            case 'all_time':
-                // Use site creation date or fall back to 5 years ago
-                $start_date = wpdai_get_site_creation_date( WPD_AI_PHP_ISO_DATE ); // Y-m-d format
-                
-                // Validate the date
-                if (empty($start_date) || !strtotime($start_date)) {
-                    // Fall back to 5 years ago
-                    $wp_timestamp = current_time('timestamp');
-                    $start_date = gmdate('Y-m-d', strtotime('-5 years', $wp_timestamp));
-                }
-                
-                return array(
-                    'from' => $start_date,
-                    'to' => current_time('Y-m-d')
-                );
-            default:
-                return false;
-        }
+
+        return wpdai_get_dates_from_preset( $preset );
+
     }
     
-         /**
+    /**
       * Get comparison dates from preset
       * 
       * @param string $preset The comparison preset name

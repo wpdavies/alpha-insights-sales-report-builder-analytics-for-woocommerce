@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 5.0.0
  */
-abstract class WPD_Custom_Data_Source_Base implements WPD_Custom_Data_Source_Interface {
+abstract class WPDAI_Custom_Data_Source_Base implements WPDAI_Custom_Data_Source_Interface {
 
     /**
      * The entity name for this data source
@@ -87,7 +87,7 @@ abstract class WPD_Custom_Data_Source_Base implements WPD_Custom_Data_Source_Int
      * @since 5.0.0
      *
      * @param array $filters Array of filters - see interface documentation for details
-     * @param WPD_Data_Warehouse_React|null $data_warehouse Optional. The data warehouse instance.
+     * @param WPDAI_Data_Warehouse|null $data_warehouse Optional. The data warehouse instance.
      * @return array Data structure - see interface documentation for details
      */
     abstract public function fetch_data( $filters, $data_warehouse = null );

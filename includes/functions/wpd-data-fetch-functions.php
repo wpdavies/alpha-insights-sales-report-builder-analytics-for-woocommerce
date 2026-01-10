@@ -466,7 +466,7 @@ function wpdai_fetch_session_data( $session_id ) {
 			)
 		)
 	);
-	$wpd_data = new WPD_Data_Warehouse_React( $filter );
+	$wpd_data = new WPDAI_Data_Warehouse( $filter );
 	$wpd_data->fetch_analytics_data();
 	$session_tables = $wpd_data->get_data('analytics', 'data_table');
 
@@ -500,7 +500,7 @@ function wpdai_get_session_count_by_user_id( $user_id ) {
 			)
 		)
 	);
-	$wpd_data = new WPD_Data_Warehouse_React( $filter );
+	$wpd_data = new WPDAI_Data_Warehouse( $filter );
 	$session_data = $wpd_data->get_analytics_session_count();
 
 	return $session_data;
@@ -528,7 +528,7 @@ function wpdai_get_session_count_by_ip_address( $ip_address ) {
 			)
 		)
 	);
-	$wpd_data = new WPD_Data_Warehouse_React( $filter );
+	$wpd_data = new WPDAI_Data_Warehouse( $filter );
 	$session_data = $wpd_data->get_analytics_session_count();
 
 	return $session_data;
@@ -559,7 +559,7 @@ function wpdai_get_product_statistic( $event_type, $product_id ) {
 			)
 		)
 	);
-	$wpd_data = new WPD_Data_Warehouse_React( $filter );
+	$wpd_data = new WPDAI_Data_Warehouse( $filter );
 	return $wpd_data->get_analytics_event_count();
 
 }

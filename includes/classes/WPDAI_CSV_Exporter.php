@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-class WPD_CSV_Exporter {
+class WPDAI_CSV_Exporter {
 
     /**
      * Temporary directory for CSV file generation

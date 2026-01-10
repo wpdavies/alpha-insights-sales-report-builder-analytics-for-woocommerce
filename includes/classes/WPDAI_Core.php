@@ -14,7 +14,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Class init
-class WPD_Alpha_Insights_Core {
+class WPDAI_Core {
 
 	/**
 	 * 
@@ -642,7 +642,7 @@ class WPD_Alpha_Insights_Core {
 			if ( is_string( $billing_email ) && ! empty( $billing_email ) ) {
 
 				// Call the data warehouse for this customer
-				$data_warehouse = new WPD_Data_Warehouse_React( 
+				$data_warehouse = new WPDAI_Data_Warehouse( 
 					array(
 						'date_preset' => 'all_time',
 						'data_filters' => array(
@@ -1952,4 +1952,4 @@ class WPD_Alpha_Insights_Core {
 }
 
 // Init
-new WPD_Alpha_Insights_Core();
+new WPDAI_Core();

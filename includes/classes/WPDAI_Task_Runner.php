@@ -14,7 +14,7 @@
  */
 defined( 'ABSPATH' ) || exit;
 
-class WPD_Task_Runner {
+class WPDAI_Task_Runner {
 
     /**
      * 

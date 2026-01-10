@@ -1,6 +1,6 @@
 <?php
 /**
- * Class WPD_Order_Calculator
+ * Class WPDAI_Order_Calculator
  *
  * Handles the calculation of costs, profits, and other metrics for WooCommerce orders.
  *
@@ -12,7 +12,7 @@
  */
 defined('ABSPATH') || exit;
 
-class WPD_Order_Calculator {
+class WPDAI_Order_Calculator {
 
     /**
      * 

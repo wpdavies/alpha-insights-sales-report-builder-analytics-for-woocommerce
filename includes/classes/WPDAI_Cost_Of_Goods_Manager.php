@@ -11,7 +11,7 @@
  */
 defined( 'ABSPATH' ) || exit;
 
-class WPD_Cost_Of_Goods_Manager {
+class WPDAI_Cost_Of_Goods_Manager {
 
 	/**
 	 * Register AJAX actions

@@ -12,19 +12,19 @@
  */
 defined( 'ABSPATH' ) || exit;
 
-class WPD_Alpha_Insights_Notices {
+class WPDAI_Free_Loader {
 
     /**
      * Instance of this class
      *
-     * @var WPD_Alpha_Insights_Notices
+     * @var WPDAI_Free_Loader
      */
     private static $instance = null;
 
     /**
      * Get the singleton instance of this class
      *
-     * @return WPD_Alpha_Insights_Notices
+     * @return WPDAI_Free_Loader
      */
     public static function get_instance() {
         if ( null === self::$instance ) {
@@ -134,4 +134,4 @@ class WPD_Alpha_Insights_Notices {
 }
 
 // Initialize the class
-WPD_Alpha_Insights_Notices::get_instance();
+WPDAI_Free_Loader::get_instance();
