@@ -78,15 +78,21 @@ class WPDAI_Cost_Of_Goods_Manager {
 	 * Render the modern COGS management page
 	 */
 	private static function render_page() {
+
 		$categories = get_terms([
 			'taxonomy' => 'product_cat',
 			'hide_empty' => false
 		]);
+
+		if ( ! is_array( $categories ) ) $categories = [];
 		
 		$suppliers = get_terms([
 			'taxonomy' => 'suppliers',
 			'hide_empty' => false
 		]);
+
+		if ( ! is_array( $suppliers ) ) $suppliers = [];
+
 		?>
         <div class="wrap">
             <div class="wpd-cogs-container" id="wpd-cogs-manager">

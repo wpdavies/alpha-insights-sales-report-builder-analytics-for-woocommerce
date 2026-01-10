@@ -113,25 +113,27 @@ class WPDAI_Database_Interactor {
             }
         }
 
-        // Escape table and column names for use in SQL (identifiers cannot be placeholders)
-        $table_escaped = esc_sql( $table );
-        $column_escaped = esc_sql( $column );
-
-        // Build query with proper placeholder based on value type (table/column names are validated and escaped)
+        // Table and column names are already validated against whitelist above
+        // For WordPress.org compliance: identifiers are validated, not escaped with esc_sql()
+        // Table name is validated against whitelist (line 86), column name is sanitized (line 98)
+        // Since identifiers are validated, we can safely use them directly in the query
+        // Build query with proper placeholder based on value type (table/column names are validated)
         // Use explicit placeholder types as required by WordPress.org standards
         switch ( $value_type ) {
             case '%d':
-                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names are validated against whitelist and escaped.
-                $sql_query = $wpdb->prepare( "SELECT COUNT(*) FROM `{$table_escaped}` WHERE `{$column_escaped}` = %d", absint( $value ) );
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names are validated against whitelist.
+                $sql_query = $wpdb->prepare( "SELECT COUNT(*) FROM `{$table}` WHERE `{$column}` = %d", absint( $value ) );
                 break;
             case '%f':
-                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names are validated against whitelist and escaped.
-                $sql_query = $wpdb->prepare( "SELECT COUNT(*) FROM `{$table_escaped}` WHERE `{$column_escaped}` = %f", floatval( $value ) );
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names are validated against whitelist.
+                $sql_query = $wpdb->prepare( "SELECT COUNT(*) FROM `{$table}` WHERE `{$column}` = %f", floatval( $value ) );
                 break;
             case '%s':
             default:
-                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names are validated against whitelist and escaped.
-                $sql_query = $wpdb->prepare( "SELECT COUNT(*) FROM `{$table_escaped}` WHERE `{$column_escaped}` = %s", $value );
+                // Sanitize string value for database query (prepare handles escaping, but we sanitize for safety)
+                $value = sanitize_text_field( $value );
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names are validated against whitelist.
+                $sql_query = $wpdb->prepare( "SELECT COUNT(*) FROM `{$table}` WHERE `{$column}` = %s", $value );
                 break;
         }
         
@@ -406,8 +408,16 @@ class WPDAI_Database_Interactor {
          *  @see // Product /includes/integrations/product-analytics-api.php
          *
          */
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
-        if ( $wpdb->get_var("SHOW TABLES LIKE '{$events_table}'") != $events_table ) {
+        // Validate table name against whitelist
+        if ( ! in_array( $events_table, array( $this->events_table, $this->session_data_table, $this->order_calculations_table ), true ) ) {
+            wpdai_write_log( sprintf( __( 'Invalid table name for table existence check: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $events_table ) ), 'db_error' );
+            return false;
+        }
+        
+        // Use prepare() for table name in SHOW TABLES query (WordPress.org compliance)
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is validated against whitelist and prepared.
+        $table_check = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $events_table ) );
+        if ( $table_check != $events_table ) {
 
             $sql = "CREATE TABLE $events_table (
                     ID BIGINT(20) NOT NULL AUTO_INCREMENT,
@@ -471,8 +481,16 @@ class WPDAI_Database_Interactor {
          *  @see // Session Data -> /includes/integrations/session-tracking-api.php
          *
          */
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
-        if ( $wpdb->get_var("SHOW TABLES LIKE '{$session_data_table}'") != $session_data_table ) {
+        // Validate table name against whitelist
+        if ( ! in_array( $session_data_table, array( $this->events_table, $this->session_data_table, $this->order_calculations_table ), true ) ) {
+            wpdai_write_log( sprintf( __( 'Invalid table name for table existence check: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $session_data_table ) ), 'db_error' );
+            return false;
+        }
+        
+        // Use prepare() for table name in SHOW TABLES query (WordPress.org compliance)
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is validated against whitelist and prepared.
+        $table_check = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $session_data_table ) );
+        if ( $table_check != $session_data_table ) {
 
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement cannot use prepared statements for table names.
             $sql = "CREATE TABLE $session_data_table (
@@ -529,8 +547,16 @@ class WPDAI_Database_Interactor {
          *  @see // Session Data -> /includes/integrations/session-tracking-api.php
          *
          */
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
-        if ( $wpdb->get_var("SHOW TABLES LIKE '{$order_calculations_table}'") != $order_calculations_table ) {
+        // Validate table name against whitelist
+        if ( ! in_array( $order_calculations_table, array( $this->events_table, $this->session_data_table, $this->order_calculations_table ), true ) ) {
+            wpdai_write_log( sprintf( __( 'Invalid table name for table existence check: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $order_calculations_table ) ), 'db_error' );
+            return false;
+        }
+        
+        // Use prepare() for table name in SHOW TABLES query (WordPress.org compliance)
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is validated against whitelist and prepared.
+        $table_check = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $order_calculations_table ) );
+        if ( $table_check != $order_calculations_table ) {
 
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement cannot use prepared statements for table names.
             $sql = "CREATE TABLE $order_calculations_table (
@@ -613,12 +639,34 @@ class WPDAI_Database_Interactor {
         // Fetch global
         global $wpdb;
 
-        // Log beginning
-        wpdai_write_log( sprintf( 'Updating column %s in table %s to the following format: %s.', $column, $table, $format ), 'db_upgrade' );
+        // Validate table name against whitelist
+        if ( ! in_array( $table, array( $this->events_table, $this->session_data_table, $this->order_calculations_table ), true ) ) {
+            wpdai_write_log( sprintf( __( 'Invalid table name for column type change: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $table ) ), 'db_error' );
+            return false;
+        }
 
-        // Query
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement cannot use prepared statements for table/column names.
-        $sql_query = "ALTER TABLE $table MODIFY COLUMN $column $format;";
+        // Validate and sanitize column name
+        $column_original = $column;
+        $column = sanitize_key( $column );
+        if ( empty( $column ) || $column !== $column_original ) {
+            wpdai_write_log( sprintf( __( 'Invalid column name for column type change: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $column_original ) ), 'db_error' );
+            return false;
+        }
+
+        // Validate format parameter - only allow safe SQL column definition patterns
+        $format = preg_replace( '/[^A-Za-z0-9\s\(\)\-\_\.\'\",=]/', '', $format );
+        if ( empty( $format ) ) {
+            wpdai_write_log( sprintf( __( 'Invalid format for column type change: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $format ) ), 'db_error' );
+            return false;
+        }
+
+        // Log beginning
+        wpdai_write_log( sprintf( __( 'Updating column %s in table %s to the following format: %s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $column ), esc_html( $table ), esc_html( $format ) ), 'db_upgrade' );
+
+        // For DDL statements, table and column names are validated above
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement. Table and column names validated against whitelist.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names are validated above.
+        $sql_query = "ALTER TABLE `{$table}` MODIFY COLUMN `{$column}` {$format};";
 
         // Execute
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement passed to query.
@@ -640,12 +688,12 @@ class WPDAI_Database_Interactor {
 
         if ( $update_column_format ) {
 
-            wpdai_write_log( sprintf( 'Succesfully updated %s in %s to %s', $column, $table, $format ), 'db_upgrade' );
+            wpdai_write_log( sprintf( __( 'Successfully updated %s in %s to %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $column ), esc_html( $table ), esc_html( $format ) ), 'db_upgrade' );
             return true;
 
         } else {
 
-            wpdai_write_log( sprintf( '%s was not updated, may already be correct.', $column, $table, $format ), 'db_upgrade' );
+            wpdai_write_log( sprintf( __( '%s was not updated, may already be correct.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $column ) ), 'db_upgrade' );
             return true;
 
         }
@@ -667,28 +715,43 @@ class WPDAI_Database_Interactor {
 
         global $wpdb;
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement cannot use prepared statements for table/column names.
-        $sql_query  = "SHOW INDEXES FROM $table WHERE column_name = '$column';";
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement passed to query.
-        $index_check = $wpdb->query( $sql_query );
+        // Validate table name against whitelist
+        if ( ! in_array( $table, array( $this->events_table, $this->session_data_table, $this->order_calculations_table ), true ) ) {
+            wpdai_write_log( sprintf( __( 'Invalid table name for index check: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $table ) ), 'db_error' );
+            return false;
+        }
+
+        // Validate column name - sanitize to ensure only valid identifier characters
+        $column = sanitize_key( $column );
+        if ( empty( $column ) ) {
+            wpdai_write_log( sprintf( __( 'Invalid column name for index check: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $column ) ), 'db_error' );
+            return false;
+        }
+
+        // Use prepare() for column name in WHERE clause for WordPress.org compliance
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is validated against whitelist.
+        $sql_query = $wpdb->prepare( "SHOW INDEXES FROM `{$table}` WHERE column_name = %s", $column );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
+        $index_check = $wpdb->get_results( $sql_query );
 
         // Something went wrong.
         if ( $wpdb->last_error ) {
             $error = $wpdb->last_error;
             $query = $wpdb->last_query;
-            wpdai_write_log( 'Error occured adding index ' . $column . ' to ' . $table, 'db_error' );
-            wpdai_write_log( $error, 'db_error' );
+            wpdai_write_log( sprintf( __( 'Error occurred checking index %s on table %s: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $column ), esc_html( $table ), esc_html( $error ) ), 'db_error' );
             wpdai_write_log( $query, 'db_error' );
             return false;
         }
 
-        // Index doesnt exist, lets create the index
-        if ( $index_check == 0 ) {
+        // Index doesn't exist, create the index
+        // Check if index_check is empty (no results) rather than checking count
+        if ( empty( $index_check ) || ! is_array( $index_check ) ) {
 
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement cannot use prepared statements for table/column names.
-            $sql_query = "CREATE INDEX $column ON $table ($column)" ;
+            // For DDL statements, table and column names are validated above
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement. Table and column names validated against whitelist.
+            $sql_query = $wpdb->prepare( "CREATE INDEX `%s` ON `{$table}` (`%s`)", $column, $column );
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement passed to query.
-            $index_update = $wpdb->query($sql_query);
+            $index_update = $wpdb->query( $sql_query );
 
             // Something went wrong.
             if ( $wpdb->last_error ) {
@@ -753,9 +816,21 @@ class WPDAI_Database_Interactor {
         // Index doesn't exist, create it
         if ( empty( $index_check ) ) {
 
-            $columns_sql = implode( ', ', array_map( function( $col ) {
-                return '`' . esc_sql( $col ) . '`';
-            }, $columns ) );
+            // Validate and sanitize column names - WordPress.org prefers validation over esc_sql()
+            $validated_columns = array();
+            foreach ( $columns as $col ) {
+                $sanitized_col = sanitize_key( $col );
+                if ( ! empty( $sanitized_col ) ) {
+                    $validated_columns[] = '`' . str_replace( array( '`', ';' ), '', $sanitized_col ) . '`';
+                }
+            }
+            
+            if ( empty( $validated_columns ) ) {
+                wpdai_write_log( __( 'Error: No valid column names provided for composite index.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'db_error' );
+                return false;
+            }
+            
+            $columns_sql = implode( ', ', $validated_columns );
 
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement cannot use prepared statements for table/index names.
             $sql_query = "CREATE INDEX `$index_name` ON $table ($columns_sql)";
@@ -797,23 +872,46 @@ class WPDAI_Database_Interactor {
      */
     public function create_new_column( $table_name, $column_name, $settings ) {
 
-        wpdai_write_log( 'Checking if column "' . $column_name . '" exists in table ' . $table_name . '.', 'db_upgrade' );
+        wpdai_write_log( sprintf( __( 'Checking if column "%s" exists in table %s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $column_name ), esc_html( $table_name ) ), 'db_upgrade' );
 
         global $wpdb;
 
+        // Validate table name against whitelist
+        if ( ! in_array( $table_name, array( $this->events_table, $this->session_data_table, $this->order_calculations_table ), true ) ) {
+            wpdai_write_log( sprintf( __( 'Invalid table name for column creation: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $table_name ) ), 'db_error' );
+            return false;
+        }
+
+        // Validate and sanitize column name
+        $column_name_original = $column_name;
+        $column_name = sanitize_key( $column_name );
+        if ( empty( $column_name ) || $column_name !== $column_name_original ) {
+            wpdai_write_log( sprintf( __( 'Invalid column name for column creation: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $column_name_original ) ), 'db_error' );
+            return false;
+        }
+
+        // Validate settings parameter - only allow safe SQL column definition patterns
+        // Remove any potentially dangerous characters but allow valid SQL column definitions
+        $settings = preg_replace( '/[^A-Za-z0-9\s\(\)\-\_\.\'\",=]/', '', $settings );
+        if ( empty( $settings ) ) {
+            wpdai_write_log( sprintf( __( 'Invalid column settings for column creation: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $settings ) ), 'db_error' );
+            return false;
+        }
+
         // Check if column exists
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is from trusted source.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is validated against whitelist.
         $query = $wpdb->prepare( "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = %s AND column_name = %s", $table_name, $column_name );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
         $row = $wpdb->get_results( $query );
 
         if ( empty( $row ) ) {
 
-            wpdai_write_log( 'Adding new column "' . $column_name . '" to ' . $table_name . ' with settings: ' . $settings . '.', 'db_upgrade' );
+            wpdai_write_log( sprintf( __( 'Adding new column "%s" to %s with settings: %s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $column_name ), esc_html( $table_name ), esc_html( $settings ) ), 'db_upgrade' );
 
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement cannot use prepared statements for table/column names.
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names are from trusted source.
-            $wpdb->query( "ALTER TABLE $table_name ADD $column_name $settings" );
+            // For DDL statements, table and column names are validated above
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement. Table and column names validated against whitelist.
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names are validated above.
+            $wpdb->query( "ALTER TABLE `{$table_name}` ADD `{$column_name}` {$settings}" );
 
             // Something went wrong.
             if ( $wpdb->last_error ) {

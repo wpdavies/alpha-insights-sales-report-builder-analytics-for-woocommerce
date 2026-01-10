@@ -227,7 +227,9 @@ class WPDAI_Report_Builder {
             'site_creation_date'           => $this->site_creation_date,
             'site_name'                    => get_bloginfo( 'name' ),
             'filters_data_map_values'      => $this->get_filters_data_map_values(),
-            'api_key'                      => get_option('wpd_ai_api_key', null),    
+            'api_key'                      => get_option('wpd_ai_api_key', null),
+            'is_pro'                       => WPD_AI_PRO,
+            'default_report_ids'           => wpdai_get_default_react_report_ids(),
             'menu_slugs' => array(
                 'sales_reports'         => WPDAI_Admin_Menu::$sales_report_slug,
                 'website_traffic'       => WPDAI_Admin_Menu::$website_traffic_slug,

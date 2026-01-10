@@ -121,6 +121,12 @@ class WPDAI_Free_Loader {
      */
     public function handle_custom_report_rendering($dashboard_id, $dashboard_config) {
 
+        // Look at which report we're on, if not on a report, no redirect needed
+        $report_page = isset($_GET['subpage']) ? sanitize_text_field(wp_unslash($_GET['subpage'])) : null;
+
+        // If not on a report, no redirect needed
+        if ( empty( $report_page ) ) return;
+
         $default_react_report_ids = wpdai_get_default_react_report_ids();
         if ( ! in_array($dashboard_id, $default_react_report_ids) ) {
             

@@ -679,8 +679,12 @@ class WPDAI_Report_Filters {
         $wpd_db = new WPDAI_Database_Interactor();
         $session_data_table = $wpd_db->session_data_table;
 
-        // Validate table name for security
-        $session_data_table = esc_sql( $session_data_table );
+        // Validate table name against whitelist (WordPress.org compliance - prefer validation over esc_sql)
+        $valid_tables = $wpd_db->get_all_table_names();
+        if ( ! in_array( $session_data_table, $valid_tables, true ) ) {
+            wpdai_write_log( sprintf( __( 'Invalid table name for query: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $session_data_table ) ), 'db_error' );
+            return array();
+        }
         
         $parsed_values = array();
         
@@ -693,14 +697,15 @@ class WPDAI_Report_Filters {
         while ( $has_more && $batch_count < $max_batches ) {
             
             // Fetch session data in batches
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is validated against whitelist.
             $session_sql_query = $wpdb->prepare(
                 "SELECT DISTINCT landing_page
-                 FROM {$session_data_table}
+                 FROM `{$session_data_table}`
                  WHERE landing_page LIKE %s
                  LIMIT %d OFFSET %d",
                 '%' . $wpdb->esc_like( '?' ) . '%',
-                $this->batch_size,
-                $offset
+                absint( $this->batch_size ),
+                absint( $offset )
             );
 
             $results = $wpdb->get_col( $session_sql_query );
@@ -801,11 +806,20 @@ class WPDAI_Report_Filters {
 
         // Collect Vars
         $wpd_db = new WPDAI_Database_Interactor();
-        // WordPress's $wpdb->prepare() doesn't support %i placeholder, so we validate and use direct concatenation
-        $events_table = esc_sql( $wpd_db->events_table );
-        $sql_query = "SELECT DISTINCT event_type FROM {$events_table}";
+        $events_table = $wpd_db->events_table;
+
+        // Validate table name against whitelist (WordPress.org compliance - prefer validation over esc_sql)
+        $valid_tables = $wpd_db->get_all_table_names();
+        if ( ! in_array( $events_table, $valid_tables, true ) ) {
+            wpdai_write_log( sprintf( __( 'Invalid table name for query: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $events_table ) ), 'db_error' );
+            return array();
+        }
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is validated against whitelist.
+        $sql_query = "SELECT DISTINCT event_type FROM `{$events_table}`";
 
         // Fetch Results
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name is validated above.
         $results = $wpdb->get_col( $sql_query );
 
         // DB Error

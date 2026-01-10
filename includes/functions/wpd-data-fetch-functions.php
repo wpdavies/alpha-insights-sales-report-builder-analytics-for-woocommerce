@@ -670,30 +670,36 @@ function wpdai_collect_product_sales_data_db_direct( $product_id ) {
 
     global $wpdb;
 
+	// Table names are constructed from trusted $wpdb->prefix + known strings
+	// WordPress.org compliance: validate table name patterns rather than using esc_sql()
 	$item_meta_table = $wpdb->prefix . 'woocommerce_order_itemmeta';
 	$order_item_table = $wpdb->prefix . 'woocommerce_order_items';
-	$posts_table = $wpdb->prefix . 'posts';
+	$posts_table = $wpdb->posts; // Use wpdb property directly for standard tables
 	$hpos_orders_table = $wpdb->prefix . 'wc_orders';
 
-	// Validate table names are safe (constructed from trusted prefix + known strings)
-	// WordPress's $wpdb->prepare() doesn't support %i placeholder, so we validate and use direct concatenation
-	$item_meta_table = esc_sql( $item_meta_table );
-	$order_item_table = esc_sql( $order_item_table );
-	$posts_table = esc_sql( $posts_table );
-	$hpos_orders_table = esc_sql( $hpos_orders_table );
+	// Validate table name patterns (WordPress.org prefers validation over esc_sql)
+	// Ensure table names match expected pattern (only alphanumeric, underscore, prefix)
+	$table_name_pattern = '/^' . preg_quote( $wpdb->prefix, '/' ) . '[a-z0-9_]+$/i';
+	$valid_tables = array( $item_meta_table, $order_item_table, $hpos_orders_table );
+	foreach ( $valid_tables as $table ) {
+		if ( ! preg_match( $table_name_pattern, $table ) ) {
+			wpdai_write_log( sprintf( __( 'Invalid table name pattern: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $table ) ), 'db_error' );
+			return $product_data;
+		}
+	}
 
 	if ( wpdai_is_hpos_enabled() ) {
 
-		// Note: Table names are validated above, product_id is prepared with %d
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are validated above.
 		$sql_query = $wpdb->prepare("
 			SELECT *
-			FROM {$item_meta_table} AS item_meta
+			FROM `{$item_meta_table}` AS item_meta
 			WHERE item_meta.order_item_id IN (
 				SELECT order_items.order_item_id
-				FROM {$order_item_table} AS order_items
-				LEFT JOIN {$item_meta_table} AS item_meta ON order_items.order_item_id = item_meta.order_item_id
-				LEFT JOIN {$hpos_orders_table} AS post ON order_items.order_id = post.id
-				where order_items.order_item_type = 'line_item'
+				FROM `{$order_item_table}` AS order_items
+				LEFT JOIN `{$item_meta_table}` AS item_meta ON order_items.order_item_id = item_meta.order_item_id
+				LEFT JOIN `{$hpos_orders_table}` AS post ON order_items.order_id = post.id
+				WHERE order_items.order_item_type = 'line_item'
 				AND item_meta.meta_key = '_product_id'
 				AND item_meta.meta_value = %d
 				AND post.status IN ('wc-completed', 'wc-processing')
@@ -705,16 +711,16 @@ function wpdai_collect_product_sales_data_db_direct( $product_id ) {
 
 	} else {
 
-		// Note: Table names are validated above, product_id is prepared with %d
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are validated above, $posts_table is wpdb property.
 		$sql_query = $wpdb->prepare("
 			SELECT *
-			FROM {$item_meta_table} AS item_meta
+			FROM `{$item_meta_table}` AS item_meta
 			WHERE item_meta.order_item_id IN (
 				SELECT order_items.order_item_id
-				FROM {$order_item_table} AS order_items
-				LEFT JOIN {$item_meta_table} AS item_meta ON order_items.order_item_id = item_meta.order_item_id
-				LEFT JOIN {$posts_table} AS post ON order_items.order_id = post.id
-				where order_items.order_item_type = 'line_item'
+				FROM `{$order_item_table}` AS order_items
+				LEFT JOIN `{$item_meta_table}` AS item_meta ON order_items.order_item_id = item_meta.order_item_id
+				LEFT JOIN {$posts_table} AS post ON order_items.order_id = post.ID
+				WHERE order_items.order_item_type = 'line_item'
 				AND item_meta.meta_key = '_product_id'
 				AND item_meta.meta_value = %d
 				AND post.post_status IN ('wc-completed', 'wc-processing')
@@ -1360,7 +1366,9 @@ function wpdai_get_site_creation_date( $date_format = null ) {
 	global $wpdb;	
 
 	// Get the earliest user directly via DB
-	$first_user_registration_date = $wpdb->get_var( "SELECT user_registered FROM $wpdb->users ORDER BY user_registered ASC LIMIT 1" );
+	// Use wpdb property directly for standard WordPress tables (WordPress.org compliant)
+	// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Using wpdb property for standard table name.
+	$first_user_registration_date = $wpdb->get_var( "SELECT user_registered FROM {$wpdb->users} ORDER BY user_registered ASC LIMIT 1" );
 
 	// DB Error
 	if ( $wpdb->last_error || $first_user_registration_date === null  ) {
