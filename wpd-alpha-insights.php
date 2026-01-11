@@ -22,14 +22,14 @@
  * Domain Path: 		/languages
  *
  * Alpha Insights
- * Copyright (C) 2025, WP Davies, support@wpdavies.dev
+ * Copyright (C) 2026, WP Davies, support@wpdavies.dev
  *
   * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
  * @category            Plugin
- * @copyright           Copyright WP Davies © 2025
+ * @copyright           Copyright WP Davies © 2026
  * @author              WP Davies
  * @package             Alpha Insights
  * @textdomain 			alpha-insights-pro
