@@ -16,16 +16,17 @@ $cost_defaults 								= get_option( 'wpd_ai_cost_defaults' );
 $order_status 								= get_option( 'wpd_ai_order_status' );
 $admin_style_override 						= get_option( 'wpd_ai_admin_style_override', 0 );
 $prevent_notices 							= get_option( 'wpd_ai_prevent_wp_notices', 0 );
-$admin_custom_column_settings 				= wpd_get_admin_custom_column_settings();
+$admin_custom_column_settings 				= wpdai_get_admin_custom_column_settings();
 $wpd_ai_use_legacy_order_admin_metaboxes	= get_option( 'wpd_ai_use_legacy_order_admin_metaboxes', 0 );
-$custom_order_cost_options 					= (function_exists('wpd_get_custom_order_cost_options')) ? wpd_get_custom_order_cost_options() : array();
-$custom_product_cost_options 				= (function_exists('wpd_get_custom_product_cost_options')) ? wpd_get_custom_product_cost_options() : array();
+$custom_order_cost_options 					= wpdai_get_custom_order_cost_options();
+$custom_product_cost_options 				= wpdai_get_custom_product_cost_options();
 $analytics_settings							= get_option( 'wpd_ai_analytics');
 $enable_woocommerce_analytics 				= (isset($analytics_settings['enable_woocommerce_analytics'])) ? (int) $analytics_settings['enable_woocommerce_analytics'] : 1;
-$allowed_roles 								= wpd_get_authorized_user_roles_settings();
+$only_track_engaged_sessions 				= get_option( 'wpd_ai_analytics_only_track_engaged_sessionss', 0 );
+$allowed_roles 								= wpdai_get_authorized_user_roles_settings();
 $refunded_order_costs 						= get_option( 'wpd_ai_refunded_order_costs' );
-$payment_gateway_cost_settings				= wpd_get_payment_gateway_cost_settings();
-$available_payment_gateways					= wpd_get_available_payment_gateways();
+$payment_gateway_cost_settings				= wpdai_get_payment_gateway_cost_settings();
+$available_payment_gateways					= wpdai_get_available_payment_gateways();
 
 ?>
 <div class="wpd-wrapper">
@@ -95,7 +96,7 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 						<tbody>
 							<tr>
 								<td><input class="wpd-input" type="number" name="wpd_ai_cost_defaults[default_product_cost_percent]" value="<?php echo esc_attr( $cost_defaults['default_product_cost_percent'] ); ?>" step="0.01" placeholder="Percent of RRP"></td>
-								<td colspan="2"><a href="<?php echo esc_url( wpd_admin_page_url('cost-of-goods-manager') ); ?>" target="_blank" class="button btn wpd-input"><?php esc_html_e( 'Configure COGS Per Product', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a></td>
+								<td colspan="2"><a href="<?php echo esc_url( wpdai_admin_page_url('cost-of-goods-manager') ); ?>" target="_blank" class="button btn wpd-input"><?php esc_html_e( 'Configure COGS Per Product', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a></td>
 							</tr>
 						</tbody>
 					</table>
@@ -145,7 +146,7 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 				<td>
 					<select class="wpd-input wpd-combo-select" name="wpd_ai_order_status[]" value="" multiple="multiple">
 						<?php 
-							$chosen_status 	= wpd_paid_order_statuses();
+							$chosen_status 	= wpdai_paid_order_statuses();
 							$order_status 	= wc_get_order_statuses();
 							foreach( $order_status as $key => $value ) {
 								$selected = '';
@@ -187,11 +188,11 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 				<td>
 					<!-- Ensure a value is always set -->
 					<input type="hidden" name="wpd-refunded-order-costs[__none]" value="0">
-					<?php wpd_checkbox( 'wpd-refunded-order-costs[total_product_cost_of_goods]', $refunded_order_costs['total_product_cost_of_goods'], __( 'Product Cost Of Goods', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>
-					<?php wpd_checkbox( 'wpd-refunded-order-costs[total_product_custom_costs]', $refunded_order_costs['total_product_custom_costs'], __( 'Product Custom Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>
-					<?php wpd_checkbox( 'wpd-refunded-order-costs[total_shipping_cost]', $refunded_order_costs['total_shipping_cost'], __( 'Shipping Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>
-					<?php wpd_checkbox( 'wpd-refunded-order-costs[payment_gateway_cost]', $refunded_order_costs['payment_gateway_cost'], __( 'Payment Gateway Fees', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>
-					<?php wpd_checkbox( 'wpd-refunded-order-costs[total_custom_order_costs]', $refunded_order_costs['total_custom_order_costs'], __( 'Custom Order Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>
+					<?php wpdai_checkbox( 'wpd-refunded-order-costs[total_product_cost_of_goods]', $refunded_order_costs['total_product_cost_of_goods'], __( 'Product Cost Of Goods', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>
+					<?php wpdai_checkbox( 'wpd-refunded-order-costs[total_product_custom_costs]', $refunded_order_costs['total_product_custom_costs'], __( 'Product Custom Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>
+					<?php wpdai_checkbox( 'wpd-refunded-order-costs[total_shipping_cost]', $refunded_order_costs['total_shipping_cost'], __( 'Shipping Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>
+					<?php wpdai_checkbox( 'wpd-refunded-order-costs[payment_gateway_cost]', $refunded_order_costs['payment_gateway_cost'], __( 'Payment Gateway Fees', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>
+					<?php wpdai_checkbox( 'wpd-refunded-order-costs[total_custom_order_costs]', $refunded_order_costs['total_custom_order_costs'], __( 'Custom Order Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') ); ?>
 				</td>
 			</tr>
 		</tbody>
@@ -342,8 +343,8 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_analytics[enable_woocommerce_analytics]">
-						<option value="1" <?php echo esc_attr( wpd_selected_option( '1', $enable_woocommerce_analytics ) ); ?> ><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="0" <?php echo esc_attr( wpd_selected_option( '0', $enable_woocommerce_analytics ) ); ?> ><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="1" <?php echo esc_attr( wpdai_selected_option( '1', $enable_woocommerce_analytics ) ); ?> ><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="0" <?php echo esc_attr( wpdai_selected_option( '0', $enable_woocommerce_analytics ) ); ?> ><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
 					</select>
 				</td>
 			</tr>
@@ -356,7 +357,7 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 					<select class="wpd-input wpd-combo-select" name="wpd_ai_analytics[exclude_roles][]" value="" multiple="multiple" placeholder="Select Role Type(s) To Exclude">
 						<?php 
 							$analytics_excluded_roles 	= (isset($analytics_settings['exclude_roles']) && ! empty($analytics_settings['exclude_roles'])) ? $analytics_settings['exclude_roles'] : array();
-							$analytics_all_roles 		= wpd_get_available_store_roles();
+							$analytics_all_roles 		= wpdai_get_available_store_roles();
 							foreach( $analytics_all_roles as $analytics_role ) {
 								$analytics_selected = '';
 								$analytics_role = 'exclude_' . $analytics_role; // Prevent collisions with other settings?
@@ -366,6 +367,18 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 								echo '<option value="' . esc_attr( $analytics_role ) . '" ' . esc_attr( $analytics_selected ) . '>' . esc_html( $analytics_role ) . '</option>';
 							}
 						?>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label><?php esc_html_e( 'Only Track Engaged Sessions In Website Traffic Reports', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'This will only track engaged sessions in your website traffic reports. Page views will only be tracked if there\'s mouse movement or the session is greater than 0s in duration.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+				</td>
+				<td>
+					<select class="wpd-input" name="wpd_ai_analytics_only_track_engaged_sessionss">
+						<option value="1" <?php echo esc_attr( wpdai_selected_option( '1', $only_track_engaged_sessions ) ); ?>><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="0" <?php echo esc_attr( wpdai_selected_option( '0', $only_track_engaged_sessions ) ); ?>><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
 					</select>
 				</td>
 			</tr>
@@ -379,7 +392,7 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 				<th colspan="2">
 					<?php esc_html_e( 'WordPress Admin Display Extensions', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
 					<div class="wpd-meta">These checkboxes will display / hide any extensions to the standard WP Admin columns.</div>
-					<?php $admin_custom_column_defaults = wpd_get_admin_custom_column_defaults(); ?>
+					<?php $admin_custom_column_defaults = wpdai_get_admin_custom_column_defaults(); ?>
 					<!-- Hidden input allows for saving empty values across the board due to empty multi-select not passing into _POST -->
 					<input type="hidden" name="wpd_ai_admin_custom_columns[]" value="" />
 				</th>
@@ -465,14 +478,14 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 		<tbody>
 			<tr>
 				<td>
-					<label><?php esc_html_e( 'Limit Plugin Visibility', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php echo wp_kses_post( __( 'Choose which user roles can view this plugin. Those who are denied access will not see any part of the plugin.<br>Administrators will always have access.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
+					<label><?php esc_html_e( 'Plugin Access Permissions', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php echo wp_kses_post( __( 'Choose which user roles can view and use this plugin. Those who are denied access will not see any part of the plugin.<br>Administrators will always have access.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input wpd-combo-select" name="wpd_ai_plugin_visibility[]" multiple="multiple" placeholder="Select Role Type(s) To Include">
 						<?php
 
-						    $all_roles = wpd_get_available_store_roles();
+						    $all_roles = wpdai_get_available_store_roles();
 
 							foreach( $all_roles as $role ) {
 
@@ -500,8 +513,8 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_admin_style_override">
-						<option value="0" <?php echo esc_attr( wpd_selected_option( '0', $admin_style_override ) ); ?> ><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="1" <?php echo esc_attr( wpd_selected_option( '1', $admin_style_override ) ); ?> ><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="0" <?php echo esc_attr( wpdai_selected_option( '0', $admin_style_override ) ); ?> ><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="1" <?php echo esc_attr( wpdai_selected_option( '1', $admin_style_override ) ); ?> ><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
 					</select>
 				</td>
 			</tr>
@@ -512,8 +525,8 @@ $available_payment_gateways					= wpd_get_available_payment_gateways();
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_prevent_wp_notices">
-						<option value="0" <?php echo esc_attr( wpd_selected_option( '0', $prevent_notices ) ); ?> ><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="1" <?php echo esc_attr( wpd_selected_option( '1', $prevent_notices ) ); ?> ><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="0" <?php echo esc_attr( wpdai_selected_option( '0', $prevent_notices ) ); ?> ><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="1" <?php echo esc_attr( wpdai_selected_option( '1', $prevent_notices ) ); ?> ><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
 					</select>
 				</td>
 			</tr>

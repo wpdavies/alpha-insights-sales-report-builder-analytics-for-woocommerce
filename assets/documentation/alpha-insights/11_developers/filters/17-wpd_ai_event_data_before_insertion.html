@@ -8,8 +8,8 @@
 
 <h4>Location</h4>
 
-<p><strong>File:</strong> <code>includes/classes/WPD_WooCommerce_Events.php</code></p>
-<p><strong>Method:</strong> <code>WPD_WooCommerce_Events::insert_event()</code></p>
+<p><strong>File:</strong> <code>includes/classes/WPDAI_WooCommerce_Event_Tracking.php</code></p>
+<p><strong>Method:</strong> <code>WPDAI_WooCommerce_Event_Tracking::insert_event()</code></p>
 <p><strong>Line:</strong> ~354</p>
 
 <h3>Parameters</h3>
@@ -84,7 +84,7 @@ function ai_skip_untrusted_events( $data )
     if ( empty( $data['page_href'] ) || false === strpos( $data['page_href'], 'yourstore.com' ) )
     {
         // Return early by throwing a WP_Error or logging & returning untouched data.
-        // To fully halt insertion, hook into WPD_WooCommerce_Events earlier and stop the process.
+        // To fully halt insertion, hook into WPDAI_WooCommerce_Event_Tracking earlier and stop the process.
         $data['additional_data'] = wp_json_encode( array( 'discarded_event' => true ) );
     }
     return $data;
@@ -119,8 +119,8 @@ function ai_skip_untrusted_events( $data )
 <h3>Related Classes</h3>
 
 <ul>
-    <li><code>WPD_WooCommerce_Events</code> - Captures and stores storefront events.</li>
-    <li><code>WPD_Database_Interactor</code> - Handles reads/writes to Alpha Insights tables.</li>
+    <li><code>WPDAI_WooCommerce_Event_Tracking</code> - Captures and stores storefront events.</li>
+    <li><code>WPDAI_Database_Interactor</code> - Handles reads/writes to Alpha Insights tables.</li>
 </ul>
 
 

@@ -1,0 +1,176 @@
+<h2>Filter: wpd_ai_starshipit_enable_logging</h2>
+
+<p>Control whether logging is enabled for the StarShipIt integration. This allows you to enable or disable debug logging for shipping integration operations.</p>
+
+<h3>Description</h3>
+
+<p>The StarShipIt integration can log API requests, responses, and errors for debugging purposes. This filter allows you to control whether this logging is enabled, which is useful for troubleshooting shipping integration issues or disabling logs in production.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/integrations/pro/WPDAI_StarShipIt.php</code></p>
+<p><strong>Method:</strong> <code>WPDAI_StarShipIt::__construct()</code></p>
+<p><strong>Line:</strong> ~50</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$enable_logging</td>
+        <td>bool</td>
+        <td>Whether logging is enabled (default: false)</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> bool</p>
+<p><strong>Description:</strong> True to enable logging, false to disable</p>
+
+<h3>Example Usage</h3>
+
+<h3>Enable Logging in Development</h3>
+
+<pre><code>add_filter( 'wpd_ai_starshipit_enable_logging', 'enable_starshipit_logging_dev' );
+function enable_starshipit_logging_dev( $enable_logging ) {
+    // Enable logging in development environment
+    if ( defined( 'WP_ENVIRONMENT_TYPE' ) && WP_ENVIRONMENT_TYPE === 'development' ) {
+        return true;
+    }
+    return $enable_logging;
+}</code></pre>
+
+<h3>Enable Logging When Debug Mode is On</h3>
+
+<pre><code>add_filter( 'wpd_ai_starshipit_enable_logging', 'enable_starshipit_logging_debug' );
+function enable_starshipit_logging_debug( $enable_logging ) {
+    // Enable logging when WP_DEBUG is enabled
+    if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+        return true;
+    }
+    return $enable_logging;
+}</code></pre>
+
+<h3>Enable Logging for Specific Users</h3>
+
+<pre><code>add_filter( 'wpd_ai_starshipit_enable_logging', 'enable_starshipit_logging_for_admins' );
+function enable_starshipit_logging_for_admins( $enable_logging ) {
+    // Enable logging for administrators
+    if ( current_user_can( 'manage_options' ) ) {
+        return true;
+    }
+    return $enable_logging;
+}</code></pre>
+
+<h3>Always Enable Logging</h3>
+
+<pre><code>add_filter( 'wpd_ai_starshipit_enable_logging', '__return_true' );</code></pre>
+
+<h3>Conditional Logging Based on Error Rate</h3>
+
+<pre><code>add_filter( 'wpd_ai_starshipit_enable_logging', 'enable_logging_on_errors' );
+function enable_logging_on_errors( $enable_logging ) {
+    // Check recent error rate
+    $recent_errors = get_transient( 'WPDAI_StarShipIt_error_count' );
+    
+    // Enable logging if we've had errors recently
+    if ( $recent_errors && $recent_errors > 5 ) {
+        return true;
+    }
+    
+    return $enable_logging;
+}</code></pre>
+
+<h3>Best Practices</h3>
+
+<ul>
+    <li>Keep logging disabled in production for performance</li>
+    <li>Enable logging only when troubleshooting issues</li>
+    <li>Use conditional logic based on environment or user role</li>
+    <li>Monitor log file size if logging is enabled</li>
+    <li>Disable logging after resolving issues</li>
+    <li>Logs can help diagnose API integration problems</li>
+</ul>
+
+<h3>What Gets Logged</h3>
+
+<p>When logging is enabled, the StarShipIt integration logs:</p>
+<ul>
+    <li>API request URLs and parameters</li>
+    <li>API response data</li>
+    <li>Error messages and exceptions</li>
+    <li>Authentication attempts</li>
+    <li>Shipping label generation attempts</li>
+    <li>Rate calculation requests</li>
+</ul>
+
+<h3>Important Notes</h3>
+
+<ul>
+    <li>Default is false - logging is disabled by default</li>
+    <li>Logging can generate large log files over time</li>
+    <li>Enable logging only when needed for debugging</li>
+    <li>Logs may contain sensitive API information</li>
+    <li>This only affects StarShipIt integration logging</li>
+    <li>Check your WordPress debug log location for log files</li>
+</ul>
+
+<h3>Finding Log Files</h3>
+
+<p>Logs are typically written to:</p>
+<ul>
+    <li>WordPress debug log (if <code>WP_DEBUG_LOG</code> is enabled)</li>
+    <li>Location defined by <code>WP_DEBUG_LOG</code> constant</li>
+    <li>Default: <code>wp-content/debug.log</code></li>
+</p>
+
+<p>To check your log location:</p>
+<pre><code>if ( defined( 'WP_DEBUG_LOG' ) ) {
+    error_log( 'Debug log location: ' . WP_DEBUG_LOG );
+}</code></pre>
+
+<h3>When to Enable Logging</h3>
+
+<p><strong>Enable logging when:</strong></p>
+<ul>
+    <li>Troubleshooting StarShipIt integration issues</li>
+    <li>API requests are failing</li>
+    <li>Shipping labels aren't generating</li>
+    <li>Rate calculations are incorrect</li>
+    <li>In development or staging environments</li>
+</ul>
+
+<p><strong>Keep logging disabled when:</strong></p>
+<ul>
+    <li>Integration is working correctly</li>
+    <li>In production environments</li>
+    <li>Performance is a concern</li>
+    <li>Log files are growing too large</li>
+</ul>
+
+<h3>Related Classes</h3>
+
+<ul>
+    <li><code>WPDAI_StarShipIt</code> - StarShipIt shipping integration</li>
+</ul>
+
+<h3>Debugging</h3>
+
+<pre><code>add_filter( 'wpd_ai_starshipit_enable_logging', 'debug_starshipit_logging', 999 );
+function debug_starshipit_logging( $enable_logging ) {
+    error_log( 'Alpha Insights StarShipIt Logging: ' . ( $enable_logging ? 'ENABLED' : 'DISABLED' ) );
+    return $enable_logging;
+}</code></pre>
+
+<p>To view logs in real-time (Linux/Mac):</p>
+<pre><code>tail -f wp-content/debug.log | grep -i starshipit</code></pre>
+
+
+
+
+

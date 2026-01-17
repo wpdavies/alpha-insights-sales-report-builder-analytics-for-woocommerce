@@ -19,17 +19,17 @@ defined( 'ABSPATH' ) || exit;
  *	Webhook data request
  *
  */
-function wpd_webhook_data_request( $from_date = null, $to_date = null, $JSON = true ) {
+function wpdai_webhook_data_request( $from_date = null, $to_date = null, $JSON = true ) {
 
 	// Collect data
 	if ( is_string( $from_date ) && is_string( $to_date ) ) {
 
-		$data_warehouse = new WPD_Data_Warehouse_React( array( 'date_from' => $from_date, 'date_to' => $to_date ) );
+		$data_warehouse = new WPDAI_Data_Warehouse( array( 'date_from' => $from_date, 'date_to' => $to_date ) );
 		$data_warehouse->fetch_store_profit_data();
 
 	} else {
 
-		$data_warehouse = new WPD_Data_Warehouse_React();
+		$data_warehouse = new WPDAI_Data_Warehouse();
 		$data_warehouse->fetch_store_profit_data();
 
 	}
@@ -54,7 +54,7 @@ function wpd_webhook_data_request( $from_date = null, $to_date = null, $JSON = t
  *	Execute Webhook Post
  *
  */
-function wpd_webhook_post_data( $from_date = null, $to_date = null ) {
+function wpdai_webhook_post_data( $from_date = null, $to_date = null ) {
 
 	// Vars and data
 	$response 			= array();
@@ -64,11 +64,11 @@ function wpd_webhook_post_data( $from_date = null, $to_date = null ) {
 	// Format according to date if necessary
 	if ( $from_date === null && $to_date === null ) {
 
-		$json_data = wpd_webhook_data_request();
+		$json_data = wpdai_webhook_data_request();
 
 	} else {
 
-		$json_data = wpd_webhook_data_request( $from_date, $to_date );
+		$json_data = wpdai_webhook_data_request( $from_date, $to_date );
 
 	}
 
@@ -83,7 +83,7 @@ function wpd_webhook_post_data( $from_date = null, $to_date = null ) {
 	) );
 
 	// Store data for debug
-	$response['time_executed'] 	= wpd_site_date_time( "D M d, Y G:i" );
+	$response['time_executed'] 	= wpdai_site_date_time( "D M d, Y G:i" );
 	$response['url_sent_to'] 	= $url;
 
 	// Check response
@@ -121,8 +121,8 @@ function wpd_webhook_post_data( $from_date = null, $to_date = null ) {
 	// Show data sent and response received
 	$response['data_sent'] = json_decode( $json_data );
 
-	wpd_write_log( 'Webhook log report (' . $response['time_executed'] . '):', 'webhook' );
-	wpd_write_log( $response, 'webhook' );
+	wpdai_write_log( 'Webhook log report (' . $response['time_executed'] . '):', 'webhook' );
+	wpdai_write_log( $response, 'webhook' );
 
 	return $response;
 

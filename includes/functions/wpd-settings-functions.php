@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
  *  @return array
  * 
  **/
-function wpd_get_payment_gateway_cost_settings() {
+function wpdai_get_payment_gateway_cost_settings() {
 
 	$settings = array(
 		'default' => array(
@@ -53,7 +53,7 @@ function wpd_get_payment_gateway_cost_settings() {
 	if ( count($settings) == 1 ) {
 
 		// Get available payment gateways
-		$available_payment_gateways = wpd_get_available_payment_gateways();
+		$available_payment_gateways = wpdai_get_available_payment_gateways();
 
 		// If we have available payment gateways, let's add them to the settings
 		if ( count($available_payment_gateways) > 0 ) {
@@ -86,7 +86,7 @@ function wpd_get_payment_gateway_cost_settings() {
  *  @return array
  * 
  **/
-function wpd_get_refunded_order_costs_settings() {
+function wpdai_get_refunded_order_costs_settings() {
     
     $default_settings = array(
         'total_product_cost_of_goods' 	=> 0,
@@ -108,7 +108,7 @@ function wpd_get_refunded_order_costs_settings() {
  *	Just check if analytics is enabled
  *
  */
-function wpd_is_analytics_enabled() {
+function wpdai_is_analytics_enabled() {
 
 	// Get settings
 	$analytics_settings = get_option( 'wpd_ai_analytics', array() );
@@ -138,7 +138,7 @@ function wpd_is_analytics_enabled() {
  * 	@since 3.1.2 Removed 7 unnecessary keys from defaults, adds unnecessary load
  * 
  **/
-function wpd_get_admin_custom_column_defaults() {
+function wpdai_get_admin_custom_column_defaults() {
 
 	return array(
 
@@ -190,9 +190,9 @@ function wpd_get_admin_custom_column_defaults() {
  *	Users can opt out of this in General Settings
  * 
  **/
-function wpd_get_admin_custom_column_settings() {
+function wpdai_get_admin_custom_column_settings() {
 
-	$admin_column_settings = wpd_get_admin_custom_column_defaults();
+	$admin_column_settings = wpdai_get_admin_custom_column_defaults();
 	$user_admin_column_settings = get_option( 'wpd_ai_admin_custom_columns' );
 
 	// Make sure the 
@@ -234,35 +234,26 @@ function wpd_get_admin_custom_column_settings() {
  * 	@link https://wpdavies.dev/
  * 
  **/
-function wpd_get_authorized_user_roles_settings() {
+function wpdai_get_authorized_user_roles_settings() {
 
 	$authorized_roles = get_option( 'wpd_ai_plugin_visibility' );
 
-	// Load up all roles if none are set
 	if ( ! is_array( $authorized_roles ) || empty( $authorized_roles ) ) {
 		global $wp_roles;
-		$all_roles = array_keys( $wp_roles->roles );
-		$authorized_roles = $all_roles;
+
+		$authorized_roles = array();
+
+		foreach ( $wp_roles->roles as $role => $details ) {
+			if ( ! empty( $details['capabilities']['publish_posts'] ) ) {
+				$authorized_roles[] = $role;
+			}
+		}
 	}
 
-	// Check if administrator is not in the list, and add it
-	if ( !in_array( 'administrator', $authorized_roles ) ) {
+	if ( ! in_array( 'administrator', $authorized_roles, true ) ) {
 		$authorized_roles[] = 'administrator';
 	}
 
-	// Return the authorized roles
-	return $authorized_roles;
-
-}
-
-/**
- * 
- * 	Returns the WPD License key, if set
- * 
- **/
-function wpd_get_license_key() {
-
-	return get_option( 'wpd_ai_api_key', false );
-
+	return array_values( array_unique( $authorized_roles ) );
 
 }

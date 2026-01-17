@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  * 	@return bool True on correct, false on failure
  *
  **/
-function wpd_validate_date_format( $date, $format = 'Y-m-d' ){
+function wpdai_validate_date_format( $date, $format = 'Y-m-d' ){
 
     $d = DateTime::createFromFormat($format, $date);
     return $d && $d->format($format) === $date;
@@ -40,7 +40,7 @@ function wpd_validate_date_format( $date, $format = 'Y-m-d' ){
  * 	@return bool|int Will return false if there's an issue, otherwise return days of difference
  * 
  **/
-function wpd_calculate_days_between_dates( $from_date, $to_date = false ) {
+function wpdai_calculate_days_between_dates( $from_date, $to_date = false ) {
 
 	// Setup default day to today
 	if ( $to_date === false ) {
@@ -76,7 +76,7 @@ function wpd_calculate_days_between_dates( $from_date, $to_date = false ) {
  *	@link https://www.php.net/manual/en/datetime.formats.relative.php relative formats
  *
  */
-function wpd_site_date_time( $format = 'Y-m-d H:i:s', $modify = false ) {
+function wpdai_site_date_time( $format = 'Y-m-d H:i:s', $modify = false ) {
 
     // $date = new DateTime( current_time( 'Y-m-d H:i:s' ) );
     $date = date_create( current_time( 'Y-m-d H:i:s' ) );
@@ -96,7 +96,7 @@ function wpd_site_date_time( $format = 'Y-m-d H:i:s', $modify = false ) {
  *	Date picker
  *
  */
-function wpd_date_picker( $selected_date = null, $name = '_wpd_date_paid', $classes = '', $placeholder = 'yyyy-mm-dd' ) {
+function wpdai_date_picker( $selected_date = null, $name = '_wpd_date_paid', $classes = '', $placeholder = 'yyyy-mm-dd' ) {
 
     return '<span class="wpd-date-picker-input"><input type="text" placeholder="' . $placeholder . '" class="wpd-input wpd-jquery-datepicker ' . $classes . '" name="'.$name.'" value="' . $selected_date . '" autocomplete="off"></span>';
 
@@ -112,7 +112,7 @@ function wpd_date_picker( $selected_date = null, $name = '_wpd_date_paid', $clas
  * 	@param int $to Unix timestamp to end the time difference. Default becomes time() if not set.
  * 
  **/
-function wpd_calculate_time_difference( $from, $to = 0 ) {
+function wpdai_calculate_time_difference( $from, $to = 0 ) {
 
 	// Convert $to to store time
 	if ( $to === 0 ) {

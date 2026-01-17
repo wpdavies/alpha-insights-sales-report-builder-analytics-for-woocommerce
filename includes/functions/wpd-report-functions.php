@@ -13,11 +13,112 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- *
- * AJAX handler for getting available dashboard reports
- *
+ * 
+ *  Function for retrieving the IDs of all the default React Reports that come with Alpha Insights
+ * 
+ *  @return array $report_ids An array of the dashboard_ids of all the default React Reports that come with Alpha Insights
+ * 
+ *  @since 5.0.0
+ * 
+ *  @author WPDavies
+ *  @link https://wpdavies.dev/
+ * 
  */
-function wpd_get_available_react_reports() {
+function wpdai_get_default_react_report_ids() {
+
+    $default_reports = wpdai_get_default_react_reports();
+    $report_ids = array();
+    foreach ( $default_reports as $report ) {
+        $report_ids[] = $report['dashboard_id'] ?? 'unknown';
+    }
+    return $report_ids;
+}
+
+/**
+ * 
+ *  Function for retrieving all the default React Reports that come with Alpha Insights
+ * 
+ *  @return array $reports An array of default React reports with some basic meta data about the report. Does not include the configuration data.
+ * 
+ *  @since 5.0.0
+ * 
+ *  @author WPDavies
+ *  @link https://wpdavies.dev/
+ * 
+ */
+function wpdai_get_default_react_reports() {
+
+    $response = array();
+
+    try {
+        // Get the reports directory path
+        $reports_dir = WPD_AI_PATH . 'includes/reports/';
+        
+        if ( ! is_dir( $reports_dir ) ) {
+            throw new Exception( 'Reports directory not found' );
+        }
+
+        // Get all JSON files in the reports directory
+        $json_files = glob( $reports_dir . '*.json' );
+        
+        if ( empty( $json_files ) ) {
+            throw new Exception( 'No default reports found' );
+        }
+
+        // Get currently installed reports
+        $default_reports = array();
+
+        foreach ( $json_files as $file_path ) {
+            $filename = basename( $file_path );
+            $slug = str_replace( array( 'dashboard-config-', '.json' ), '', $filename );
+            
+            // Read and parse the JSON file
+            $json_content = file_get_contents( $file_path );
+            if ( $json_content === false ) {
+                continue;
+            }
+
+            $report_data = json_decode( $json_content, true );
+            if ( json_last_error() !== JSON_ERROR_NONE ) {
+                continue;
+            }
+
+            // Get the actual dashboard_id from the JSON file
+            $actual_dashboard_id = isset( $report_data['dashboard_id'] ) ? $report_data['dashboard_id'] : $slug;
+
+            $default_reports[] = array(
+                'dashboard_id' => $actual_dashboard_id,
+                'name' => isset( $report_data['name'] ) ? $report_data['name'] : ucwords( str_replace( '-', ' ', $actual_dashboard_id ) ),
+                'category' => isset( $report_data['report_category'] ) ? $report_data['report_category'] : 'sales_reports',
+                'version' => isset( $report_data['version_number'] ) ? $report_data['version_number'] : '1.0',
+                'icon' => isset( $report_data['icon'] ) ? $report_data['icon'] : 'bar_chart',
+                'color' => isset( $report_data['color'] ) ? $report_data['color'] : 'blue',
+                'file_path' => $file_path
+            );
+        }
+
+    } catch ( Exception $e ) {
+        WPDAI_Report_Builder::log_error( $e->getMessage() );
+        $default_reports = array();
+    }
+
+    return $default_reports;
+
+}
+
+/**
+ *
+ *  Function for retrieving all installed React reports with their configuration data
+ * 
+ *  @return array $reports An array of installed React reports with their configuration data
+ * 
+ *  @since 5.0.0
+ * 
+ *  @author WPDavies
+ *  @link https://wpdavies.dev/
+ * 
+ */
+function wpdai_get_installed_react_reports() {
 
     $response = array();
 
@@ -67,13 +168,13 @@ function wpd_get_available_react_reports() {
  * 	@return bool True if the key and value pair is valid, false otherwise
  * 
  **/
-function wpd_is_valid_reporting_utm_key_value_pair( $key, $value ) {
+function wpdai_is_valid_reporting_utm_key_value_pair( $key, $value ) {
 
     // Handle arrays (when query parameter appears multiple times, parse_str returns an array)
     if ( is_array( $value ) ) {
         // For arrays, validate each value - return true if at least one is valid
         foreach ( $value as $single_value ) {
-            if ( wpd_is_valid_reporting_utm_key_value_pair( $key, $single_value ) ) {
+            if ( wpdai_is_valid_reporting_utm_key_value_pair( $key, $single_value ) ) {
                 return true;
             }
         }
@@ -84,10 +185,10 @@ function wpd_is_valid_reporting_utm_key_value_pair( $key, $value ) {
     $valid = true;
 
     // Make sure the key is in our allowed keys
-    if ( ! wpd_is_valid_reporting_utm_key( $key ) ) $valid = false;
+    if ( ! wpdai_is_valid_reporting_utm_key( $key ) ) $valid = false;
 
     // Make sure the value is valid
-    if ( ! wpd_is_valid_reporting_utm_value( $value ) ) $valid = false;
+    if ( ! wpdai_is_valid_reporting_utm_value( $value ) ) $valid = false;
 
     // Pass through filter before returning
     return apply_filters( 'wpd_ai_is_valid_reporting_utm_key_value_pair', $valid, $key, $value );
@@ -102,7 +203,7 @@ function wpd_is_valid_reporting_utm_key_value_pair( $key, $value ) {
  * 	@return bool True if the value is valid, false otherwise
  * 
  **/
-function wpd_is_valid_reporting_utm_value( $value ) {
+function wpdai_is_valid_reporting_utm_value( $value ) {
 
     // Default to true
     $valid = true;
@@ -138,9 +239,9 @@ function wpd_is_valid_reporting_utm_value( $value ) {
  * 	@return bool True if the key is valid, false otherwise
  * 
  **/
-function wpd_is_valid_reporting_utm_key( $key ) {
+function wpdai_is_valid_reporting_utm_key( $key ) {
 
-	$valid_utm_keys = wpd_get_valid_reporting_utm_keys();
+	$valid_utm_keys = wpdai_get_valid_reporting_utm_keys();
 
     $is_valid = in_array( $key, $valid_utm_keys );
 
@@ -156,7 +257,7 @@ function wpd_is_valid_reporting_utm_key( $key ) {
  * 	@return array $valid_utm_keys An array of valid UTM keys
  * 
  **/
-function wpd_get_valid_reporting_utm_keys() {
+function wpdai_get_valid_reporting_utm_keys() {
 
 	$valid_utm_keys = array(
         'utm_source',
@@ -194,7 +295,7 @@ function wpd_get_valid_reporting_utm_keys() {
  * @param bool $url_decode Whether to URL decode the data (default: true for form-urlencoded)
  * @return array|WP_Error Decoded config array on success, WP_Error on failure
  */
-function wpd_sanitize_and_decode_json_config( $raw_data, $url_decode = true ) {
+function wpdai_sanitize_and_decode_json_config( $raw_data, $url_decode = true ) {
 	
 	// Handle array input (already processed)
 	if ( is_array( $raw_data ) ) {
@@ -270,10 +371,125 @@ function wpd_sanitize_and_decode_json_config( $raw_data, $url_decode = true ) {
 	}
 	
 	// Sanitize the decoded array if the function exists
-	if ( function_exists( 'wpd_sanitize_json_decoded_array' ) ) {
-		$config_data = wpd_sanitize_json_decoded_array( $config_data );
+	if ( function_exists( 'wpdai_sanitize_json_decoded_array' ) ) {
+		$config_data = wpdai_sanitize_json_decoded_array( $config_data );
 	}
 	
 	return $config_data;
 	
+}
+
+    
+/**
+ * Get dates from a preset
+ * 
+ * @param string $preset The preset name
+ * @return array|false Array with 'from' and 'to' dates or false if invalid
+ */
+function wpdai_get_dates_from_preset( $preset ) {
+    switch ($preset) {
+        case 'today':
+            return array(
+                'from' => current_time('Y-m-d'),
+                'to' => current_time('Y-m-d')
+            );
+        case 'yesterday':
+            $wp_timestamp = current_time('timestamp');
+            $yesterday = gmdate('Y-m-d', strtotime('-1 day', $wp_timestamp));
+            return array(
+                'from' => $yesterday,
+                'to' => $yesterday
+            );
+        case 'this_week':
+            // Get start of week (Monday) and end of week (Sunday)
+            // Use WordPress timezone
+            $today = new DateTime('now', wp_timezone());
+            $day_of_week = $today->format('w'); // 0 = Sunday, 1 = Monday, etc.
+            
+            // Calculate days to subtract to get to Monday
+            // If today is Sunday (0), go back 6 days to get to Monday
+            // If today is Monday (1), go back 0 days
+            // If today is Tuesday (2), go back 1 day, etc.
+            $days_to_monday = $day_of_week == 0 ? 6 : $day_of_week - 1;
+            
+            $start_of_week = clone $today;
+            $start_of_week->modify("-{$days_to_monday} days");
+            
+            $end_of_week = clone $start_of_week;
+            $end_of_week->modify('+6 days'); // Sunday is 6 days after Monday
+            
+            return array(
+                'from' => $start_of_week->format('Y-m-d'),
+                'to' => $end_of_week->format('Y-m-d')
+            );
+        case 'this_month':
+            return array(
+                'from' => current_time('Y-m-01'),
+                'to' => current_time('Y-m-t')
+            );
+        case 'last_month':
+            $wp_timestamp = current_time('timestamp');
+            $last_month_start = gmdate('Y-m-01', strtotime('-1 month', $wp_timestamp));
+            $last_month_end = gmdate('Y-m-t', strtotime('-1 month', $wp_timestamp));
+            return array(
+                'from' => $last_month_start,
+                'to' => $last_month_end
+            );
+        case 'month_to_date':
+            return array(
+                'from' => current_time('Y-m-01'),
+                'to' => current_time('Y-m-d')
+            );
+        case 'this_year':
+            return array(
+                'from' => current_time('Y-01-01'),
+                'to' => current_time('Y-12-31')
+            );
+        case 'last_year':
+            $wp_timestamp = current_time('timestamp');
+            return array(
+                'from' => gmdate('Y-01-01', strtotime('-1 year', $wp_timestamp)),
+                'to' => gmdate('Y-12-31', strtotime('-1 year', $wp_timestamp))
+            );
+        case 'last_7_days':
+            $wp_timestamp = current_time('timestamp');
+            return array(
+                'from' => gmdate('Y-m-d', strtotime('-6 days', $wp_timestamp)),
+                'to' => current_time('Y-m-d')
+            );
+        case 'last_30_days':
+            $wp_timestamp = current_time('timestamp');
+            return array(
+                'from' => gmdate('Y-m-d', strtotime('-29 days', $wp_timestamp)),
+                'to' => current_time('Y-m-d')
+            );
+        case 'last_90_days':
+            $wp_timestamp = current_time('timestamp');
+            return array(
+                'from' => gmdate('Y-m-d', strtotime('-89 days', $wp_timestamp)),
+                'to' => current_time('Y-m-d')
+            );
+        case 'ytd':
+            return array(
+                'from' => current_time('Y-01-01'),
+                'to' => current_time('Y-m-d')
+            );
+        case 'all_time':
+            // Use site creation date or fall back to 5 years ago
+            $start_date = wpdai_get_site_creation_date( WPD_AI_PHP_ISO_DATE ); // Y-m-d format
+            
+            // Validate the date
+            if (empty($start_date) || !strtotime($start_date)) {
+                // Fall back to 5 years ago
+                $wp_timestamp = current_time('timestamp');
+                $start_date = gmdate('Y-m-d', strtotime('-5 years', $wp_timestamp));
+            }
+            
+            return array(
+                'from' => $start_date,
+                'to' => current_time('Y-m-d')
+            );
+        default:
+            return false;
+    }
 }

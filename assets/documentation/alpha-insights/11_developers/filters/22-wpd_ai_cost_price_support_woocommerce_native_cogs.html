@@ -1,0 +1,135 @@
+<h2>Filter: wpd_ai_cost_price_support_woocommerce_native_cogs</h2>
+
+<p>Control whether Alpha Insights should check for and use WooCommerce's native Cost of Goods Sold (COGS) plugin data when retrieving product costs.</p>
+
+<h3>Description</h3>
+
+<p>If you're using WooCommerce's official Cost of Goods Sold plugin or a compatible plugin that stores cost data in WooCommerce's standard meta fields, Alpha Insights can automatically detect and use that data. This filter allows you to enable or disable this integration.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/wpd-functions.php</code></p>
+<p><strong>Function:</strong> <code>wpd_get_default_cost_price_by_product_id()</code></p>
+<p><strong>Line:</strong> ~326</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$support_native_cogs</td>
+        <td>bool</td>
+        <td>Whether to check for WooCommerce native COGS data (default: true)</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> bool</p>
+<p><strong>Description:</strong> True to support native COGS, false to disable</p>
+
+<h3>Example Usage</h3>
+
+<h3>Disable Native COGS Support</h3>
+
+<pre><code>add_filter( 'wpd_ai_cost_price_support_woocommerce_native_cogs', '__return_false' );</code></pre>
+
+<h3>Conditional Support Based on Plugin Availability</h3>
+
+<pre><code>add_filter( 'wpd_ai_cost_price_support_woocommerce_native_cogs', 'conditional_native_cogs_support' );
+function conditional_native_cogs_support( $support_native_cogs ) {
+    // Only support native COGS if WooCommerce COGS plugin is active
+    if ( class_exists( 'WC_COGS' ) ) {
+        return true;
+    }
+    return false;
+}</code></pre>
+
+<h3>Disable for Specific Products</h3>
+
+<pre><code>add_filter( 'wpd_ai_cost_price_support_woocommerce_native_cogs', 'disable_native_cogs_for_specific_products' );
+function disable_native_cogs_for_specific_products( $support_native_cogs ) {
+    // Check if we're in a context where we have a product ID
+    // This is a simplified example - actual implementation would need product context
+    if ( isset( $_GET['product_id'] ) ) {
+        $product_id = absint( $_GET['product_id'] );
+        // Disable for specific product categories
+        if ( has_term( 'custom-costing', 'product_cat', $product_id ) ) {
+            return false;
+        }
+    }
+    return $support_native_cogs;
+}</code></pre>
+
+<h3>Best Practices</h3>
+
+<ul>
+    <li>Keep enabled (default) if using WooCommerce COGS plugin</li>
+    <li>Disable if you only want to use Alpha Insights cost fields</li>
+    <li>Use this filter to prioritize one cost source over another</li>
+    <li>Alpha Insights cost fields take precedence when both exist</li>
+    <li>This only affects cost retrieval, not cost storage</li>
+</ul>
+
+<h3>How It Works</h3>
+
+<p>When enabled (default), Alpha Insights checks for cost data in this order:</p>
+<ol>
+    <li>Alpha Insights custom cost fields (highest priority)</li>
+    <li>WooCommerce native COGS meta fields (if this filter returns true)</li>
+    <li>Default cost value (0 if nothing found)</li>
+</ol>
+
+<p>When disabled, Alpha Insights only checks:</p>
+<ol>
+    <li>Alpha Insights custom cost fields</li>
+    <li>Default cost value (0 if nothing found)</li>
+</ol>
+
+<h3>Compatible Plugins</h3>
+
+<p>This filter works with plugins that store cost data in standard WooCommerce meta fields, including:</p>
+<ul>
+    <li>WooCommerce Cost of Goods Sold (official)</li>
+    <li>Other COGS plugins using standard meta keys</li>
+</p>
+
+<h3>Important Notes</h3>
+
+<ul>
+    <li>Default is true - native COGS support is enabled by default</li>
+    <li>Alpha Insights cost fields always take priority over native COGS</li>
+    <li>Disabling this doesn't affect existing cost data</li>
+    <li>This only affects cost retrieval, not storage</li>
+    <li>Use this filter if you want to use only Alpha Insights cost fields</li>
+</ul>
+
+<h3>Debugging</h3>
+
+<pre><code>add_filter( 'wpd_ai_cost_price_support_woocommerce_native_cogs', 'debug_native_cogs_support', 999 );
+function debug_native_cogs_support( $support_native_cogs ) {
+    error_log( 'Alpha Insights Native COGS Support: ' . ( $support_native_cogs ? 'ENABLED' : 'DISABLED' ) );
+    return $support_native_cogs;
+}</code></pre>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_cost_price_per_unit.html'>wpd_ai_cost_price_per_unit</a> - Filter the final cost price value</li>
+</ul>
+
+<h3>Related Functions</h3>
+
+<ul>
+    <li><code>wpd_get_cost_price_by_product_id()</code> - Retrieve product cost</li>
+    <li><code>wpd_get_default_cost_price_by_product_id()</code> - Get default cost price</li>
+</ul>
+
+
+
+
+

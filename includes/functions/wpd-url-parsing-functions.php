@@ -21,15 +21,11 @@ defined( 'ABSPATH' ) || exit;
  *	@return array key|value pair of query params
  *
  */
-if ( ! function_exists( 'wpd_parse_query_params' ) ) {
+function wpdai_parse_query_params( $url ) {
 
-	function wpd_parse_query_params( $url ) {
+    parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_params );
 
-		parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_params );
-
-		return $query_params;
-
-	}
+    return $query_params;
 
 }
 
@@ -42,7 +38,7 @@ if ( ! function_exists( 'wpd_parse_query_params' ) ) {
  * 	@return string Returns the cleaned string
  * 
  **/
-function wpd_strip_query_parameters_from_url( $url ) {
+function wpdai_strip_query_parameters_from_url( $url ) {
 
 	$parsed_url = wp_parse_url( $url );
     
@@ -60,7 +56,7 @@ function wpd_strip_query_parameters_from_url( $url ) {
  *	Collect URL Query Params
  *
  */
-function wpd_get_query_params( $url ) {
+function wpdai_get_query_params( $url ) {
 
 	$query_params = array();
 
@@ -93,7 +89,7 @@ function wpd_get_query_params( $url ) {
  * 	@return string $url Current URL path and all query params at that time of code execution or "/" if nothing found
  * 
  **/
-function wpd_get_current_url_path_raw() {
+function wpdai_get_current_url_path_raw() {
 
 	if ( isset($_SERVER['REQUEST_URI']) ) {
 
@@ -117,7 +113,7 @@ function wpd_get_current_url_path_raw() {
  * 	@return string $url Current URL path and all query params at that time of code execution or "/" if nothing found
  * 
  **/
-function wpd_get_current_url_raw() {
+function wpdai_get_current_url_raw() {
 
 	$https_value = isset($_SERVER['HTTPS']) ? sanitize_text_field($_SERVER['HTTPS']) : '';
 	$scheme = ( ! empty($https_value) && $https_value === 'on' ? "https" : "http");
@@ -131,39 +127,42 @@ function wpd_get_current_url_raw() {
 
 /**
  * 
- * 	Gets the referral url provided from $_SERVER["HTTP_REFERER"]
+ *  Gets the referral URL, preferring WordPress-native wp_get_referer()
  * 
- * 	Will return null if the referral url is our own domain
+ *  Will return null if the referral URL is our own domain
  * 
- * 	@return string|null The HTTP Referer, if set
+ *  @return string|null The referral URL
  * 
- **/
-function wpd_get_referral_url_raw() {
+ */
+function wpdai_get_referral_url_raw() {
 
-    // Return HTTP Referer if found
-    if ( isset($_SERVER["HTTP_REFERER"]) && ! empty($_SERVER["HTTP_REFERER"]) ) {
+    // Prefer WordPress-native referer
+    $referral_url = wp_get_referer();
 
-        // Capture raw referral URL and sanitize immediately
-        $referral_url = sanitize_text_field( $_SERVER["HTTP_REFERER"] );
-
-        // Basic sanitization — ensures it's a valid URL
-        $referral_url = filter_var($referral_url, FILTER_SANITIZE_URL);
-
-        // Try get domain from referral URL
-        $referring_domain = wp_parse_url($referral_url, PHP_URL_HOST);
-
-        // Get current site host
-        $site_host = wp_parse_url(site_url(), PHP_URL_HOST);
-
-        // Check if referral URL is our own domain, and return null if so
-        if ( $referring_domain === $site_host ) {
-            return null;
-        }
-
-        return esc_url_raw($referral_url);
+    // Fallback explicitly to HTTP_REFERER if needed
+    if ( ! $referral_url && ! empty( $_SERVER['HTTP_REFERER'] ) ) {
+        $referral_url = $_SERVER['HTTP_REFERER'];
     }
 
-    // Else return null
-    return null;
-	
+    if ( empty( $referral_url ) ) {
+        return null;
+    }
+
+    // Ensure it's clean
+    $referral_url = esc_url_raw( $referral_url );
+
+    // Parse domains
+    $referring_domain = wp_parse_url( $referral_url, PHP_URL_HOST );
+    $site_host        = wp_parse_url( site_url(), PHP_URL_HOST );
+
+    // Normalize www
+    $referring_domain = preg_replace( '/^www\./', '', $referring_domain );
+    $site_host        = preg_replace( '/^www\./', '', $site_host );
+
+    // Ignore internal referrals
+    if ( $referring_domain === $site_host ) {
+        return null;
+    }
+
+    return $referral_url;
 }

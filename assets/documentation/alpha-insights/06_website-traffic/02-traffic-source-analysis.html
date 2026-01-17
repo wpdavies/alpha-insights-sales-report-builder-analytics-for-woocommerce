@@ -6,7 +6,7 @@
 
 <h3>Traffic Source Categories</h3>
 
-<p>Alpha Insights automatically categorizes all traffic into these sources using the <code>WPD_Traffic_Type</code> class:</p>
+<p>Alpha Insights automatically categorizes all traffic into these sources using the <code>WPDAI_Traffic_Type_Detection</code> class:</p>
 
 <h3>Organic Search</h3>
 
@@ -426,7 +426,7 @@ https://yourstore.com?utm_source=google&utm_medium=cpc</code></pre>
 <tr>
 <td>Source</td>
 <td>Traffic source category</td>
-<td>Determined by WPD_Traffic_Type class</td>
+<td>Determined by WPDAI_Traffic_Type_Detection class</td>
 </tr>
 <tr>
 <td>Sessions</td>
@@ -913,7 +913,7 @@ Direct → Best for:
 
 <h4>Technical Reference: Source Detection Logic</h4>
 
-<p><strong>PHP Class:</strong> <code>WPD_Traffic_Type</code></p>
+<p><strong>PHP Class:</strong> <code>WPDAI_Traffic_Type_Detection</code></p>
 
 <p><strong>Detection method:</strong> <code>determine_traffic_source($referral_url, $query_parameters)</code></p>
 
@@ -930,7 +930,7 @@ Direct → Best for:
 <li>Final checks: Own domain → Direct, app:// → App, otherwise → Referral</li>
 </ol>
 
-<p><strong>Available traffic types function:</strong> <code>WPD_Traffic_Type::available_traffic_types()</code></p>
+<p><strong>Available traffic types function:</strong> <code>WPDAI_Traffic_Type_Detection::available_traffic_types()</code></p>
 
 <p><strong>Returns array:</strong></p>
 <pre><code>[

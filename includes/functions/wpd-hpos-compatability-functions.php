@@ -26,7 +26,7 @@ defined( 'ABSPATH' ) || exit;
  * 	@author Christopher Davies - WP Davies
  * 
  **/
-function wpd_get_order_meta_by_order_id( $order_id, $meta_key ) {
+function wpdai_get_order_meta_by_order_id( $order_id, $meta_key ) {
 
 	// Default result
 	$result = null;
@@ -38,7 +38,7 @@ function wpd_get_order_meta_by_order_id( $order_id, $meta_key ) {
 	if ( ! is_string($meta_key) ) return false;
 
 	// If we are using HPOS
-	if ( wpd_is_hpos_enabled() ) {
+	if ( wpdai_is_hpos_enabled() ) {
 
 		// Call the database directly
 		global $wpdb;
@@ -78,7 +78,7 @@ function wpd_get_order_meta_by_order_id( $order_id, $meta_key ) {
  * 	@author Christopher Davies - WP Davies
  * 
  **/
-function wpd_delete_order_meta_by_order_id( $order_id, $meta_key ) {
+function wpdai_delete_order_meta_by_order_id( $order_id, $meta_key ) {
 
 	// Default result
 	$result = null;
@@ -90,7 +90,7 @@ function wpd_delete_order_meta_by_order_id( $order_id, $meta_key ) {
 	if ( ! is_string($meta_key) ) return false;
 
 	// If we are using HPOS
-	if ( wpd_is_hpos_enabled() ) {
+	if ( wpdai_is_hpos_enabled() ) {
 
 		// Call the database directly
 		global $wpdb;
@@ -124,7 +124,7 @@ function wpd_delete_order_meta_by_order_id( $order_id, $meta_key ) {
  * 	@author Christopher Davies - WP Davies
  *	 
  **/
-function wpd_is_hpos_enabled() {
+function wpdai_is_hpos_enabled() {
 
 	// Fixed: Added quotes around class name and backslash for namespace
 	if ( class_exists('\\Automattic\\WooCommerce\\Utilities\\OrderUtil') ) {

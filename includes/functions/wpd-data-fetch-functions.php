@@ -26,7 +26,7 @@ defined( 'ABSPATH' ) || exit;
  *  @return bool $bool True if this is this customer's first order, false if they've ordered prior to this order date
  * 
  **/
-function wpd_customers_first_order( $order, $use_cache = true ) {
+function wpdai_customers_first_order( $order, $use_cache = true ) {
 	
 	// Check if we've passed an Order ID
 	if ( is_int($order) && $order > 0 ) {
@@ -68,7 +68,7 @@ function wpd_customers_first_order( $order, $use_cache = true ) {
 		'billing_email' => $billing_email,
 		'date_created' 	=> '<' . $date_created, // This must be in UTC -> causing issues when we compare against offset timestamp
 		'return' 		=> 'ids',
-		'status' 		=> wpd_paid_order_statuses()
+		'status' 		=> wpdai_paid_order_statuses()
 	);
 
 	// Search for orders
@@ -103,7 +103,7 @@ function wpd_customers_first_order( $order, $use_cache = true ) {
  *  @since 2.0.50
  *
  **/
-function wpd_customer_order_ids_by_email_address( string $email_address ) {
+function wpdai_customer_order_ids_by_email_address( string $email_address ) {
 
 	// Safety check
 	if ( empty($email_address) || ! is_string($email_address) ) return 0;
@@ -111,7 +111,7 @@ function wpd_customer_order_ids_by_email_address( string $email_address ) {
 	$args = array(
 		'limit' 		=> -1,
 		'billing_email' => $email_address,
-		'status' 		=> wpd_paid_order_statuses(),
+		'status' 		=> wpdai_paid_order_statuses(),
 		'return' 		=> 'ids',
 	);
 
@@ -133,12 +133,12 @@ function wpd_customer_order_ids_by_email_address( string $email_address ) {
  * 	@todo cache this with transients
  *
  **/
-function wpd_customer_order_count_by_email_address( string $email_address ) {
+function wpdai_customer_order_count_by_email_address( string $email_address ) {
 
 	// Safety check
 	if ( empty($email_address) || ! is_string($email_address) ) return 0;
 
-	$orders = wpd_customer_order_ids_by_email_address( $email_address );
+	$orders = wpdai_customer_order_ids_by_email_address( $email_address );
 
 	if ( is_array($orders) && ! empty($orders) ) {
 		return count($orders);
@@ -161,10 +161,10 @@ function wpd_customer_order_count_by_email_address( string $email_address ) {
  *  @since 2.0.50
  * 
  **/
-function wpd_customer_lifetime_value_by_email_address( string $email_address ) {
+function wpdai_customer_lifetime_value_by_email_address( string $email_address ) {
 
 	$lifetime_value = (float) 0;
-	$customer_order_ids = wpd_customer_order_ids_by_email_address( $email_address );
+	$customer_order_ids = wpdai_customer_order_ids_by_email_address( $email_address );
 
 	if ( is_array($customer_order_ids) && ! empty($customer_order_ids) ) {
 
@@ -202,12 +202,12 @@ function wpd_customer_lifetime_value_by_email_address( string $email_address ) {
  *  @since 2.0.50
  * 
  **/
-function wpd_customer_average_order_value_by_email_address( string $email_address) {
+function wpdai_customer_average_order_value_by_email_address( string $email_address) {
 
-	$order_count = wpd_customer_order_count_by_email_address( $email_address );
-	$lifetime_value = wpd_customer_lifetime_value_by_email_address( $email_address );
+	$order_count = wpdai_customer_order_count_by_email_address( $email_address );
+	$lifetime_value = wpdai_customer_lifetime_value_by_email_address( $email_address );
 
-	$aov = wpd_divide( $lifetime_value, $order_count );
+	$aov = wpdai_divide( $lifetime_value, $order_count );
 	return $aov;
 
 }
@@ -225,7 +225,7 @@ function wpd_customer_average_order_value_by_email_address( string $email_addres
  *  @since 2.0.50
  * 
  **/
-function wpd_customer_order_ids_by_user_id( int $user_id ) {
+function wpdai_customer_order_ids_by_user_id( int $user_id ) {
 
 	// Safety check
 	if ( ! is_numeric($user_id) || $user_id === 0 ) return 0;
@@ -236,7 +236,7 @@ function wpd_customer_order_ids_by_user_id( int $user_id ) {
 		'customer_id' 	=> $user_id,
 		'return' 		=> 'ids',
 		'type' 			=> array( 'shop_order' ),
-		'status' 		=> wpd_paid_order_statuses()
+		'status' 		=> wpdai_paid_order_statuses()
 	);
 
 	$orders = wc_get_orders( $args );
@@ -265,7 +265,7 @@ function wpd_customer_order_ids_by_user_id( int $user_id ) {
 	// 			'billing_email' => $email_address,
 	// 			'return' 		=> 'ids',
 	// 			'type' 			=> array( 'shop_order' ),
-	// 			'status' 		=> wpd_paid_order_statuses()
+	// 			'status' 		=> wpdai_paid_order_statuses()
 	// 		);
 	// 		$orders = wc_get_orders( $args );
 	// 		if ( is_array($orders) && ! empty($orders) ) {
@@ -311,9 +311,9 @@ function wpd_customer_order_ids_by_user_id( int $user_id ) {
  *  @since 2.0.50
  * 
  **/
-function wpd_customer_order_count_by_user_id( int $user_id ) {
+function wpdai_customer_order_count_by_user_id( int $user_id ) {
 
-	$customer_order_ids = wpd_customer_order_ids_by_user_id( $user_id );
+	$customer_order_ids = wpdai_customer_order_ids_by_user_id( $user_id );
 
 	if ( is_array($customer_order_ids) && ! empty($customer_order_ids) ) {
 
@@ -340,10 +340,10 @@ function wpd_customer_order_count_by_user_id( int $user_id ) {
  *  @since 2.0.50
  * 
  **/
-function wpd_customer_lifetime_value_by_user_id( int $user_id ) {
+function wpdai_customer_lifetime_value_by_user_id( int $user_id ) {
 
 	$lifetime_value = (float) 0;
-	$customer_order_ids = wpd_customer_order_ids_by_user_id( $user_id );
+	$customer_order_ids = wpdai_customer_order_ids_by_user_id( $user_id );
 
 	if ( is_array($customer_order_ids) && ! empty($customer_order_ids) ) {
 
@@ -375,7 +375,7 @@ function wpd_customer_lifetime_value_by_user_id( int $user_id ) {
  * 	@return array An array of data
  * 
  **/
-function wpd_get_customer_transaction_statistics_by_user_id( $user_id ) {
+function wpdai_get_customer_transaction_statistics_by_user_id( $user_id ) {
 
 	// Defaults
 	$customer_behaviour = array(
@@ -391,7 +391,7 @@ function wpd_get_customer_transaction_statistics_by_user_id( $user_id ) {
 	$lifetime_value 		= 0;
 	$order_count 			= 0;
 	$average_order_value 	= 0;
-	$customer_order_ids 	= wpd_customer_order_ids_by_user_id( $user_id );
+	$customer_order_ids 	= wpdai_customer_order_ids_by_user_id( $user_id );
 
 	if ( is_array($customer_order_ids) && ! empty($customer_order_ids) ) {
 
@@ -408,7 +408,7 @@ function wpd_get_customer_transaction_statistics_by_user_id( $user_id ) {
 
 		// Calcs
 		$order_count = count( $customer_order_ids );
-		$average_order_value = wpd_divide( $lifetime_value, $order_count );
+		$average_order_value = wpdai_divide( $lifetime_value, $order_count );
 
 		// Update values
 		$customer_behaviour['order_count'] = $order_count;
@@ -435,12 +435,12 @@ function wpd_get_customer_transaction_statistics_by_user_id( $user_id ) {
  *  @since 2.0.50
  * 
  **/
-function wpd_customer_average_order_value_by_user_id( int $user_id ) {
+function wpdai_customer_average_order_value_by_user_id( int $user_id ) {
 
-	$order_count = wpd_customer_order_count_by_user_id( $user_id );
-	$lifetime_value = wpd_customer_lifetime_value_by_user_id( $user_id );
+	$order_count = wpdai_customer_order_count_by_user_id( $user_id );
+	$lifetime_value = wpdai_customer_lifetime_value_by_user_id( $user_id );
 
-	$aov = wpd_divide( $lifetime_value, $order_count );
+	$aov = wpdai_divide( $lifetime_value, $order_count );
 	return $aov;
 
 }
@@ -453,7 +453,7 @@ function wpd_customer_average_order_value_by_user_id( int $user_id ) {
  * @return array with key value pairs e.g. page_views, etc etc or empty array if no data found
  * 
  */
-function wpd_fetch_session_data( $session_id ) {
+function wpdai_fetch_session_data( $session_id ) {
 
 	// Safety check
 	if ( ! is_string($session_id) || empty($session_id) ) return array();
@@ -466,7 +466,7 @@ function wpd_fetch_session_data( $session_id ) {
 			)
 		)
 	);
-	$wpd_data = new WPD_Data_Warehouse_React( $filter );
+	$wpd_data = new WPDAI_Data_Warehouse( $filter );
 	$wpd_data->fetch_analytics_data();
 	$session_tables = $wpd_data->get_data('analytics', 'data_table');
 
@@ -487,7 +487,7 @@ function wpd_fetch_session_data( $session_id ) {
  * @return int|false Count of sessions found for User ID or false on error
  * 
  */
-function wpd_get_session_count_by_user_id( $user_id ) {
+function wpdai_get_session_count_by_user_id( $user_id ) {
 
 	// Safety check
 	if ( ! is_numeric($user_id) || empty($user_id) ) return false;
@@ -500,7 +500,7 @@ function wpd_get_session_count_by_user_id( $user_id ) {
 			)
 		)
 	);
-	$wpd_data = new WPD_Data_Warehouse_React( $filter );
+	$wpd_data = new WPDAI_Data_Warehouse( $filter );
 	$session_data = $wpd_data->get_analytics_session_count();
 
 	return $session_data;
@@ -515,7 +515,7 @@ function wpd_get_session_count_by_user_id( $user_id ) {
  * @return int|false Count of sessions found for Ip Address or false on error
  * 
  */
-function wpd_get_session_count_by_ip_address( $ip_address ) {
+function wpdai_get_session_count_by_ip_address( $ip_address ) {
 
 	// Safety check
 	if ( ! is_string($ip_address) || empty($ip_address) ) return false;
@@ -528,7 +528,7 @@ function wpd_get_session_count_by_ip_address( $ip_address ) {
 			)
 		)
 	);
-	$wpd_data = new WPD_Data_Warehouse_React( $filter );
+	$wpd_data = new WPDAI_Data_Warehouse( $filter );
 	$session_data = $wpd_data->get_analytics_session_count();
 
 	return $session_data;
@@ -545,7 +545,7 @@ function wpd_get_session_count_by_ip_address( $ip_address ) {
  * 	@return int The Result, default null on nothing
  * 
  */
-function wpd_get_product_statistic( $event_type, $product_id ) {
+function wpdai_get_product_statistic( $event_type, $product_id ) {
 
 	// Convert non-standard event
 	if ( $event_type === 'product_page_view' ) $event_type = 'page_view';
@@ -559,7 +559,7 @@ function wpd_get_product_statistic( $event_type, $product_id ) {
 			)
 		)
 	);
-	$wpd_data = new WPD_Data_Warehouse_React( $filter );
+	$wpd_data = new WPDAI_Data_Warehouse( $filter );
 	return $wpd_data->get_analytics_event_count();
 
 }
@@ -574,7 +574,7 @@ function wpd_get_product_statistic( $event_type, $product_id ) {
  * 	@return array
  * 
  */
-function wpd_fetch_product_analytics_by_product_id( $product_id = 0, $cache = true ) {
+function wpdai_fetch_product_analytics_by_product_id( $product_id = 0, $cache = true ) {
 
 	// Safety check
 	if ( ! is_numeric($product_id) || $product_id < 1 ) {
@@ -598,11 +598,11 @@ function wpd_fetch_product_analytics_by_product_id( $product_id = 0, $cache = tr
 		
 	}
 
-	$sales_data 					= wpd_ai_collect_product_sales_data_db_direct( $product_id );
-	$product_page_views 			= (int) wpd_get_product_statistic( 'page_view', $product_id );
-	$product_cat_page_clicks 		= (int) wpd_get_product_statistic( 'product_click', $product_id );
-	$product_add_to_carts 			= (int) wpd_get_product_statistic( 'add_to_cart', $product_id );
-	$product_purchases_wpd_ai 		= (int) wpd_get_product_statistic( 'product_purchase', $product_id );
+	$sales_data 					= wpdai_collect_product_sales_data_db_direct( $product_id );
+	$product_page_views 			= (int) wpdai_get_product_statistic( 'page_view', $product_id );
+	$product_cat_page_clicks 		= (int) wpdai_get_product_statistic( 'product_click', $product_id );
+	$product_add_to_carts 			= (int) wpdai_get_product_statistic( 'add_to_cart', $product_id );
+	$product_purchases_wpd_ai 		= (int) wpdai_get_product_statistic( 'product_purchase', $product_id );
 	$product_qty_purchased_wpd_ai 	= (int) 0;
 	$wc_total_qty_purchased 		= (int) $sales_data['total_qty_sold'];
 	$total_revenue_pre_discount 	= (float) $sales_data['total_revenue_pre_discount'];
@@ -619,9 +619,9 @@ function wpd_fetch_product_analytics_by_product_id( $product_id = 0, $cache = tr
 		'product_add_to_carts' 						=> $product_add_to_carts,
 		'product_purchases' 						=> $product_purchases_wpd_ai,
 		'product_qty_purchased' 					=> $product_qty_purchased_wpd_ai,
-		'page_view_to_atc_conversion_rate' 			=> wpd_calculate_percentage( $product_add_to_carts, $product_page_views, 2 ),
-		'page_view_to_purchase_conversion_rate' 	=> wpd_calculate_percentage( $product_purchases_wpd_ai, $product_page_views, 2 ),
-		'atc_to_purchase_conversion_rate' 			=> wpd_calculate_percentage( $product_purchases_wpd_ai, $product_add_to_carts, 2 ),
+		'page_view_to_atc_conversion_rate' 			=> wpdai_calculate_percentage( $product_add_to_carts, $product_page_views, 2 ),
+		'page_view_to_purchase_conversion_rate' 	=> wpdai_calculate_percentage( $product_purchases_wpd_ai, $product_page_views, 2 ),
+		'atc_to_purchase_conversion_rate' 			=> wpdai_calculate_percentage( $product_purchases_wpd_ai, $product_add_to_carts, 2 ),
 		'wc_total_qty_purchased' 					=> $wc_total_qty_purchased,
         'total_revenue_pre_discount' 				=> $total_revenue_pre_discount,
         'total_revenue_post_discount' 				=> $total_revenue_post_discount,
@@ -653,7 +653,7 @@ function wpd_fetch_product_analytics_by_product_id( $product_id = 0, $cache = tr
  * @return array $product_data
  * 
  */
-function wpd_ai_collect_product_sales_data_db_direct( $product_id ) {
+function wpdai_collect_product_sales_data_db_direct( $product_id ) {
 
     $product_data = array(
 
@@ -670,30 +670,36 @@ function wpd_ai_collect_product_sales_data_db_direct( $product_id ) {
 
     global $wpdb;
 
+	// Table names are constructed from trusted $wpdb->prefix + known strings
+	// WordPress.org compliance: validate table name patterns rather than using esc_sql()
 	$item_meta_table = $wpdb->prefix . 'woocommerce_order_itemmeta';
 	$order_item_table = $wpdb->prefix . 'woocommerce_order_items';
-	$posts_table = $wpdb->prefix . 'posts';
+	$posts_table = $wpdb->posts; // Use wpdb property directly for standard tables
 	$hpos_orders_table = $wpdb->prefix . 'wc_orders';
 
-	// Validate table names are safe (constructed from trusted prefix + known strings)
-	// WordPress's $wpdb->prepare() doesn't support %i placeholder, so we validate and use direct concatenation
-	$item_meta_table = esc_sql( $item_meta_table );
-	$order_item_table = esc_sql( $order_item_table );
-	$posts_table = esc_sql( $posts_table );
-	$hpos_orders_table = esc_sql( $hpos_orders_table );
+	// Validate table name patterns (WordPress.org prefers validation over esc_sql)
+	// Ensure table names match expected pattern (only alphanumeric, underscore, prefix)
+	$table_name_pattern = '/^' . preg_quote( $wpdb->prefix, '/' ) . '[a-z0-9_]+$/i';
+	$valid_tables = array( $item_meta_table, $order_item_table, $hpos_orders_table );
+	foreach ( $valid_tables as $table ) {
+		if ( ! preg_match( $table_name_pattern, $table ) ) {
+			wpdai_write_log( sprintf( __( 'Invalid table name pattern: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $table ) ), 'db_error' );
+			return $product_data;
+		}
+	}
 
-	if ( wpd_is_hpos_enabled() ) {
+	if ( wpdai_is_hpos_enabled() ) {
 
-		// Note: Table names are validated above, product_id is prepared with %d
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are validated above.
 		$sql_query = $wpdb->prepare("
 			SELECT *
-			FROM {$item_meta_table} AS item_meta
+			FROM `{$item_meta_table}` AS item_meta
 			WHERE item_meta.order_item_id IN (
 				SELECT order_items.order_item_id
-				FROM {$order_item_table} AS order_items
-				LEFT JOIN {$item_meta_table} AS item_meta ON order_items.order_item_id = item_meta.order_item_id
-				LEFT JOIN {$hpos_orders_table} AS post ON order_items.order_id = post.id
-				where order_items.order_item_type = 'line_item'
+				FROM `{$order_item_table}` AS order_items
+				LEFT JOIN `{$item_meta_table}` AS item_meta ON order_items.order_item_id = item_meta.order_item_id
+				LEFT JOIN `{$hpos_orders_table}` AS post ON order_items.order_id = post.id
+				WHERE order_items.order_item_type = 'line_item'
 				AND item_meta.meta_key = '_product_id'
 				AND item_meta.meta_value = %d
 				AND post.status IN ('wc-completed', 'wc-processing')
@@ -705,16 +711,16 @@ function wpd_ai_collect_product_sales_data_db_direct( $product_id ) {
 
 	} else {
 
-		// Note: Table names are validated above, product_id is prepared with %d
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are validated above, $posts_table is wpdb property.
 		$sql_query = $wpdb->prepare("
 			SELECT *
-			FROM {$item_meta_table} AS item_meta
+			FROM `{$item_meta_table}` AS item_meta
 			WHERE item_meta.order_item_id IN (
 				SELECT order_items.order_item_id
-				FROM {$order_item_table} AS order_items
-				LEFT JOIN {$item_meta_table} AS item_meta ON order_items.order_item_id = item_meta.order_item_id
-				LEFT JOIN {$posts_table} AS post ON order_items.order_id = post.id
-				where order_items.order_item_type = 'line_item'
+				FROM `{$order_item_table}` AS order_items
+				LEFT JOIN `{$item_meta_table}` AS item_meta ON order_items.order_item_id = item_meta.order_item_id
+				LEFT JOIN {$posts_table} AS post ON order_items.order_id = post.ID
+				WHERE order_items.order_item_type = 'line_item'
 				AND item_meta.meta_key = '_product_id'
 				AND item_meta.meta_value = %d
 				AND post.post_status IN ('wc-completed', 'wc-processing')
@@ -731,7 +737,7 @@ function wpd_ai_collect_product_sales_data_db_direct( $product_id ) {
     // DB Error
     if ( $wpdb->last_error ) {
 
-      wpd_write_log( $wpdb->last_error, 'db_error' );
+      wpdai_write_log( $wpdb->last_error, 'db_error' );
       return $product_data;
 
     }
@@ -756,7 +762,7 @@ function wpd_ai_collect_product_sales_data_db_direct( $product_id ) {
                 $product_data['total_revenue_pre_discount'] += $line_item_value;
 
                 if ( $product_data['total_revenue_pre_discount'] && $product_data['total_qty_sold'] ) {
-                    $product_data['average_price_pre_discount'] = wpd_divide( $product_data['total_revenue_pre_discount'], $product_data['total_qty_sold'], 2);
+                    $product_data['average_price_pre_discount'] = wpdai_divide( $product_data['total_revenue_pre_discount'], $product_data['total_qty_sold'], 2);
                 }
 
             } 
@@ -767,7 +773,7 @@ function wpd_ai_collect_product_sales_data_db_direct( $product_id ) {
                 $product_data['total_revenue_post_discount'] += $line_item_value;
 
                 if ( $product_data['total_revenue_post_discount'] && $product_data['total_qty_sold'] ) {
-                    $product_data['average_price_post_discount'] = wpd_divide( $product_data['total_revenue_post_discount'], $product_data['total_qty_sold'], 2);
+                    $product_data['average_price_post_discount'] = wpdai_divide( $product_data['total_revenue_post_discount'], $product_data['total_qty_sold'], 2);
                 }
 
             }
@@ -776,7 +782,7 @@ function wpd_ai_collect_product_sales_data_db_direct( $product_id ) {
 
 		// And a few calculations
 		$total_revenue = (float) $product_data['total_revenue_post_discount'];
-		$unit_cost_price = wpd_get_cost_price_by_product_id( $product_id );
+		$unit_cost_price = wpdai_get_cost_price_by_product_id( $product_id );
 		$total_cost = $unit_cost_price * $product_data['total_qty_sold'];
 		$total_profit = (float) $total_revenue - $total_cost;
 		$product_data['total_revenue'] = $total_revenue;
@@ -796,7 +802,7 @@ function wpd_ai_collect_product_sales_data_db_direct( $product_id ) {
  * 	@return array|false $customer_analytics An array of data relating to this customer's behaviour, returns false if a bad user_id has been passed in
  * 
  **/
-function wpd_fetch_customer_analytics_by_user_id( $user_id, $cache = true ) {
+function wpdai_fetch_customer_analytics_by_user_id( $user_id, $cache = true ) {
 
 	// Safety Check for correct data
 	if ( ! is_numeric($user_id) || $user_id < 1  ) return false;
@@ -843,17 +849,17 @@ function wpd_fetch_customer_analytics_by_user_id( $user_id, $cache = true ) {
 	$last_login_date_pretty 			= ( is_numeric($last_login_date) && $last_login_date > 0 ) ? get_date_from_gmt( gmdate( WPD_AI_PHP_ISO_DATETIME, $last_login_date ), WPD_AI_PHP_PRETTY_DATETIME) : null;
 
 	// Calculate session source
-	$query_params 						= wpd_get_query_params( $registration_session_landing_page );
-	$traffic_source 					= wpd_get_traffic_type( $registration_session_referral_url, $query_params );
+	$query_params 						= wpdai_get_query_params( $registration_session_landing_page );
+	$traffic_source 					= wpdai_get_traffic_type( $registration_session_referral_url, $query_params );
 
 	// Expensive analytics calculations
-	$session_count 						= wpd_get_session_count_by_user_id( $user_id );
-	$transactional_data 				= wpd_get_customer_transaction_statistics_by_user_id( $user_id );
+	$session_count 						= wpdai_get_session_count_by_user_id( $user_id );
+	$transactional_data 				= wpdai_get_customer_transaction_statistics_by_user_id( $user_id );
 	$order_count 						= $transactional_data['order_count'];
 	$lifetime_value 					= $transactional_data['lifetime_value'];
 	$average_order_value 				= $transactional_data['average_order_value'];
 	$order_ids 							= $transactional_data['order_ids'];
-	$conversion_rate 					= wpd_calculate_percentage( $order_count, $session_count );
+	$conversion_rate 					= wpdai_calculate_percentage( $order_count, $session_count );
 
 	// Build Payload
 	$customer_analytics = array(
@@ -903,7 +909,7 @@ function wpd_fetch_customer_analytics_by_user_id( $user_id, $cache = true ) {
  * @param array $product_ids Array of product IDs to match.
  * @return array Array of matching order IDs.
  */
-function wpd_get_order_ids_by_product_ids( $product_ids = [] ) {
+function wpdai_get_order_ids_by_product_ids( $product_ids = [] ) {
 	
     if ( empty( $product_ids ) || ! is_array( $product_ids ) ) {
         return [];
@@ -912,7 +918,7 @@ function wpd_get_order_ids_by_product_ids( $product_ids = [] ) {
     global $wpdb;
 
     // Detect if HPOS is enabled
-    $is_hpos_enabled = wpd_is_hpos_enabled();
+    $is_hpos_enabled = wpdai_is_hpos_enabled();
 
     if ( $is_hpos_enabled ) {
         // ✅ HPOS query
@@ -969,23 +975,19 @@ function wpd_get_order_ids_by_product_ids( $product_ids = [] ) {
  *	Get all post meta keys
  *
  */
-if ( ! function_exists( 'wpd_product_meta_keys' ) ) {
+function wpdai_product_meta_keys() {
 
-	function wpd_product_meta_keys() {
-
-	    global $wpdb;
-	    $query = "
-	        SELECT DISTINCT($wpdb->postmeta.meta_key) 
-	        FROM $wpdb->posts 
-	        LEFT JOIN $wpdb->postmeta 
-	        ON $wpdb->posts.ID = $wpdb->postmeta.post_id 
-	        WHERE $wpdb->posts.post_type IN ('product', 'product_variation')
-	    ";
-	    $meta_keys = $wpdb->get_col( $query );
-	    set_transient('wpd_product_meta_keys', $meta_keys, 60*60*24); # create 1 Day Expiration
-	    return $meta_keys;
-
-	}
+	global $wpdb;
+	$query = "
+		SELECT DISTINCT($wpdb->postmeta.meta_key) 
+		FROM $wpdb->posts 
+		LEFT JOIN $wpdb->postmeta 
+		ON $wpdb->posts.ID = $wpdb->postmeta.post_id 
+		WHERE $wpdb->posts.post_type IN ('product', 'product_variation')
+	";
+	$meta_keys = $wpdb->get_col( $query );
+	set_transient('wpdai_product_meta_keys', $meta_keys, 60*60*24); # create 1 Day Expiration
+	return $meta_keys;
 
 }
 
@@ -994,17 +996,14 @@ if ( ! function_exists( 'wpd_product_meta_keys' ) ) {
  *	Collect product IDS from SQL Query
  *
  */
-if ( ! function_exists( 'wpd_get_product_meta_keys' ) ) {
+function wpdai_get_product_meta_keys() {
 
-	function wpd_get_product_meta_keys() {
-
-	    $cache = get_transient('wpd_product_meta_keys');
-	    $meta_keys = $cache ? $cache : wpd_product_meta_keys();
-	    return $meta_keys;
-
-	}
+	$cache = get_transient('wpdai_product_meta_keys');
+	$meta_keys = $cache ? $cache : wpdai_product_meta_keys();
+	return $meta_keys;
 
 }
+
 
 /**
  * 
@@ -1013,7 +1012,7 @@ if ( ! function_exists( 'wpd_get_product_meta_keys' ) ) {
  * 	@return array An array of product ID's that are next in line for updating
  * 
  **/
-function wpd_query_product_ids_for_analytics_collector( $limit = 25 ) {
+function wpdai_query_product_ids_for_analytics_collector( $limit = 25 ) {
 
 	$product_ids = array();
 
@@ -1075,7 +1074,7 @@ function wpd_query_product_ids_for_analytics_collector( $limit = 25 ) {
  * 	@return array|bool Returns an array of results if succesful, returns false on failure
  *
  */
-function wpd_query_user_ids_for_analytics_collector( $limit = 25 ) {
+function wpdai_query_user_ids_for_analytics_collector( $limit = 25 ) {
 
 	$user_ids = array();
 
@@ -1126,7 +1125,7 @@ function wpd_query_user_ids_for_analytics_collector( $limit = 25 ) {
  * 	@return array|bool Returns an array of results if succesful, returns false on failure
  *
  */
-function wpd_collect_user_ids() {
+function wpdai_collect_user_ids() {
 
 	// DB Global
 	global $wpdb;
@@ -1139,9 +1138,9 @@ function wpd_collect_user_ids() {
 
 	// DB Error
 	if ( $wpdb->last_error  ) {
-		wpd_write_log( 'Error capturing list of users from DB, dumping the error and query.', 'db_error' );
-		wpd_write_log( $wpdb->last_error, 'db_error' );
-		wpd_write_log( $wpdb->last_query, 'db_error' );
+		wpdai_write_log( 'Error capturing list of users from DB, dumping the error and query.', 'db_error' );
+		wpdai_write_log( $wpdb->last_error, 'db_error' );
+		wpdai_write_log( $wpdb->last_query, 'db_error' );
 		return false;
 	}
 
@@ -1158,7 +1157,7 @@ function wpd_collect_user_ids() {
  * 	@return array An array of option keys
  * 
  **/
-function wpd_fetch_all_option_keys() {
+function wpdai_fetch_all_option_keys() {
 
 	global $wpdb;
 
@@ -1184,7 +1183,7 @@ function wpd_fetch_all_option_keys() {
  * 	@return array An array of product ids
  *
  */
-function wpd_get_all_product_ids( $include_variations = true ) {
+function wpdai_get_all_product_ids( $include_variations = true ) {
 
 	// Args
 	$args = array(
@@ -1216,7 +1215,7 @@ function wpd_get_all_product_ids( $include_variations = true ) {
  *
  * @return array
  */
-function wpd_get_all_order_ids() {
+function wpdai_get_all_order_ids() {
 
     $transient_key = 'wpd_all_order_ids';
     $lock_key      = 'wpd_all_order_ids_lock';
@@ -1255,15 +1254,15 @@ function wpd_get_all_order_ids() {
             ]);
 
             // Safety check: If result is WP_Error → abort
-            if ( is_wp_error( $query ) ) {
-                wpd_write_log( 'WPD: Failed to fetch order IDs: ' . $query->get_error_message(), 'db_error' );
+            if ( $query instanceof WP_Error ) {
+                wpdai_write_log( 'WPD: Failed to fetch order IDs: ' . $query->get_error_message(), 'db_error' );
                 break;
             }
 
             // Safety check: Prevent runaway loops or huge stores
             if ( $page > 10000 ) { 
                 // 10000 pages × 2000 per page = 20M orders — we bail safely
-                wpd_write_log( 'WPD: Page limit exceeded while fetching orders.', 'db_error' );
+                wpdai_write_log( 'WPD: Page limit exceeded while fetching orders.', 'db_error' );
                 break;
             }
 
@@ -1276,7 +1275,7 @@ function wpd_get_all_order_ids() {
         } while ( ! empty( $query ) );
 
     } catch ( Exception $e ) {
-        wpd_write_log( 'WPD: Exception while fetching order IDs: ' . $e->getMessage(), 'db_error' );
+        wpdai_write_log( 'WPD: Exception while fetching order IDs: ' . $e->getMessage(), 'db_error' );
     }
 
     // Remove lock
@@ -1296,7 +1295,7 @@ function wpd_get_all_order_ids() {
  * 	Fetches all orders, will only include shop_order
  * 
  **/
-function wpd_get_all_order_ids_legacy() {
+function wpdai_get_all_order_ids_legacy() {
 
 	// Legacy Fetch All
 	$args = array(
@@ -1320,15 +1319,15 @@ function wpd_get_all_order_ids_legacy() {
  * 
  * 	Fetches a count of all orders under shop_order (no refunds or other custom objects)
  * 	Default status will be wc_get_order_statuses()
- * 	Relies on wpd_get_all_order_ids()
+ * 	Relies on wpdai_get_all_order_ids()
  * 
  * 	@return int $order_count A count of all orders found
  * 
  **/
-function wpd_get_store_order_count() {
+function wpdai_get_store_order_count() {
 
 	// Fetch all order IDs
-	$order_ids = wpd_get_all_order_ids();
+	$order_ids = wpdai_get_all_order_ids();
 
 	if ( is_array($order_ids) ) {
 
@@ -1352,7 +1351,7 @@ function wpd_get_store_order_count() {
  * 	@return bool|string Returns false on failure, Y-m-d H:i:s on success in local time as default or timestamp as specified
  * 
  **/
-function wpd_get_site_creation_date( $date_format = null ) {
+function wpdai_get_site_creation_date( $date_format = null ) {
 
 	// Set ISO DateTime format as default date
 	if ( is_null($date_format) ) $date_format = WPD_AI_PHP_ISO_DATETIME;
@@ -1367,14 +1366,16 @@ function wpd_get_site_creation_date( $date_format = null ) {
 	global $wpdb;	
 
 	// Get the earliest user directly via DB
-	$first_user_registration_date = $wpdb->get_var( "SELECT user_registered FROM $wpdb->users ORDER BY user_registered ASC LIMIT 1" );
+	// Use wpdb property directly for standard WordPress tables (WordPress.org compliant)
+	// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Using wpdb property for standard table name.
+	$first_user_registration_date = $wpdb->get_var( "SELECT user_registered FROM {$wpdb->users} ORDER BY user_registered ASC LIMIT 1" );
 
 	// DB Error
 	if ( $wpdb->last_error || $first_user_registration_date === null  ) {
 
-		wpd_write_log( 'Error finding earliest user from DB, dumping the error & query.', 'db_error' );
-		wpd_write_log( $wpdb->last_error, 'db_error' );
-		wpd_write_log( $wpdb->last_query, 'db_error' );
+		wpdai_write_log( 'Error finding earliest user from DB, dumping the error & query.', 'db_error' );
+		wpdai_write_log( $wpdb->last_error, 'db_error' );
+		wpdai_write_log( $wpdb->last_query, 'db_error' );
 
 		return false;
 	}

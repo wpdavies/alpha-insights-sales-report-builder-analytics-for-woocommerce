@@ -1,0 +1,180 @@
+<h2>Filter: wpd_session_timeout_seconds</h2>
+
+<p>Control the session timeout duration in seconds. Sessions expire after this period of inactivity.</p>
+
+<h3>Description</h3>
+
+<p>Alpha Insights tracks user sessions for traffic analytics. A session expires after a period of inactivity (no events). This filter allows you to customize the timeout duration to match your business needs or analytics requirements.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPDAI_Session_Tracking.php</code></p>
+<p><strong>Methods:</strong> <code>WPDAI_Session_Tracking::get_or_create_session()</code> and <code>WPDAI_Session_Tracking::is_session_expired()</code></p>
+<p><strong>Lines:</strong> ~317 and ~405</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$timeout_seconds</td>
+        <td>int</td>
+        <td>Session timeout in seconds (default: 1800 = 30 minutes)</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> int</p>
+<p><strong>Description:</strong> Modified timeout in seconds (must be a positive integer)</p>
+
+<h3>Example Usage</h3>
+
+<h3>Increase Session Timeout to 1 Hour</h3>
+
+<pre><code>add_filter( 'wpd_session_timeout_seconds', 'increase_session_timeout' );
+function increase_session_timeout( $timeout_seconds ) {
+    // 1 hour = 3600 seconds
+    return 3600;
+}</code></pre>
+
+<h3>Decrease Session Timeout to 15 Minutes</h3>
+
+<pre><code>add_filter( 'wpd_session_timeout_seconds', 'decrease_session_timeout' );
+function decrease_session_timeout( $timeout_seconds ) {
+    // 15 minutes = 900 seconds
+    return 900;
+}</code></pre>
+
+<h3>Google Analytics Compatible Timeout</h3>
+
+<pre><code>add_filter( 'wpd_session_timeout_seconds', 'ga_compatible_timeout' );
+function ga_compatible_timeout( $timeout_seconds ) {
+    // Google Analytics default: 30 minutes of inactivity
+    // This matches Alpha Insights default, but explicitly set for compatibility
+    return 1800;
+}</code></pre>
+
+<h3>Dynamic Timeout Based on Time of Day</h3>
+
+<pre><code>add_filter( 'wpd_session_timeout_seconds', 'time_based_session_timeout' );
+function time_based_session_timeout( $timeout_seconds ) {
+    $current_hour = (int) current_time( 'H' );
+    
+    // Longer timeout during business hours (9 AM - 5 PM)
+    if ( $current_hour >= 9 && $current_hour < 17 ) {
+        return 3600; // 1 hour during business hours
+    }
+    
+    // Shorter timeout outside business hours
+    return 1800; // 30 minutes
+}</code></pre>
+
+<h3>Mobile vs Desktop Different Timeouts</h3>
+
+<pre><code>add_filter( 'wpd_session_timeout_seconds', 'device_based_session_timeout' );
+function device_based_session_timeout( $timeout_seconds ) {
+    // Check if user is on mobile device
+    if ( wp_is_mobile() ) {
+        // Mobile users tend to browse in shorter bursts
+        return 900; // 15 minutes for mobile
+    }
+    
+    // Desktop users typically have longer sessions
+    return 1800; // 30 minutes for desktop
+}</code></pre>
+
+<h3>Best Practices</h3>
+
+<ul>
+    <li>30 minutes (1800 seconds) is the industry standard</li>
+    <li>Shorter timeouts = more accurate session counts</li>
+    <li>Longer timeouts = fewer sessions, higher session duration</li>
+    <li>Match your analytics platform (Google Analytics, etc.) for consistency</li>
+    <li>Consider your typical user behavior patterns</li>
+    <li>Don't set too short (&lt;5 minutes) as it fragments sessions</li>
+    <li>Don't set too long (&gt;2 hours) as it inflates session metrics</li>
+</ul>
+
+<h3>Impact on Analytics</h3>
+
+<p><strong>Shorter Timeout (e.g., 15 minutes):</strong></p>
+<ul>
+    <li>More accurate session counts</li>
+    <li>Lower average session duration</li>
+    <li>More sessions recorded</li>
+    <li>Better for tracking quick visits</li>
+</ul>
+
+<p><strong>Longer Timeout (e.g., 1 hour):</strong></p>
+<ul>
+    <li>Fewer total sessions</li>
+    <li>Higher average session duration</li>
+    <li>Better for tracking engaged users</li>
+    <li>May combine separate visits into one session</li>
+</ul>
+
+<h3>Important Notes</h3>
+
+<ul>
+    <li>Timeout must be a positive integer (seconds)</li>
+    <li>Default of 30 minutes (1800 seconds) is recommended</li>
+    <li>Changing this affects how sessions are counted</li>
+    <li>Historical data is not affected by changes</li>
+    <li>Only new sessions use the updated timeout</li>
+    <li>This is inactivity timeout, not total session duration</li>
+</ul>
+
+<h3>Common Timeout Values</h3>
+
+<table>
+    <tr>
+        <th>Duration</th>
+        <th>Seconds</th>
+        <th>Use Case</th>
+    </tr>
+    <tr>
+        <td>15 minutes</td>
+        <td>900</td>
+        <td>Quick browsing, mobile-focused</td>
+    </tr>
+    <tr>
+        <td>30 minutes (default)</td>
+        <td>1800</td>
+        <td>Standard, matches Google Analytics</td>
+    </tr>
+    <tr>
+        <td>1 hour</td>
+        <td>3600</td>
+        <td>Engaged browsing, research sites</td>
+    </tr>
+    <tr>
+        <td>2 hours</td>
+        <td>7200</td>
+        <td>Long-form content, detailed research</td>
+    </tr>
+</table>
+
+<h3>Debugging</h3>
+
+<pre><code>add_filter( 'wpd_session_timeout_seconds', 'debug_session_timeout', 999 );
+function debug_session_timeout( $timeout_seconds ) {
+    error_log( 'Alpha Insights Session Timeout: ' . $timeout_seconds . ' seconds (' . ( $timeout_seconds / 60 ) . ' minutes)' );
+    return $timeout_seconds;
+}</code></pre>
+
+<h3>Related Classes</h3>
+
+<ul>
+    <li><code>WPDAI_Session_Tracking</code> - Session tracking and management</li>
+    <li><code>WPDAI_WooCommerce_Event_Tracking</code> - Event tracking</li>
+</ul>
+
+
+
+
+

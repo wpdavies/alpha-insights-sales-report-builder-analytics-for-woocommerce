@@ -1,0 +1,173 @@
+<h2>Filter: wpd_ai_analytics_data_fetch_batch_size</h2>
+
+<p>Control the batch size used when fetching analytics data from the database. This helps optimize query performance for large datasets.</p>
+
+<h3>Description</h3>
+
+<p>When fetching analytics data for reports, Alpha Insights processes records in batches to avoid memory exhaustion and optimize database performance. This filter allows you to customize the batch size based on your server capabilities and data volume.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPDAI_Data_Warehouse.php</code></p>
+<p><strong>Method:</strong> <code>WPDAI_Data_Warehouse::get_analytics_data()</code></p>
+<p><strong>Line:</strong> ~6611</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$batch_size</td>
+        <td>int</td>
+        <td>The number of records to fetch per batch (default: 10000)</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> int</p>
+<p><strong>Description:</strong> Modified batch size (must be a positive integer)</p>
+
+<h3>Example Usage</h3>
+
+<h3>Increase Batch Size for Better Performance</h3>
+
+<pre><code>add_filter( 'wpd_ai_analytics_data_fetch_batch_size', 'increase_analytics_batch_size' );
+function increase_analytics_batch_size( $batch_size ) {
+    // Increase to 25000 for high-performance servers
+    return 25000;
+}</code></pre>
+
+<h3>Reduce Batch Size for Memory-Constrained Servers</h3>
+
+<pre><code>add_filter( 'wpd_ai_analytics_data_fetch_batch_size', 'reduce_analytics_batch_size' );
+function reduce_analytics_batch_size( $batch_size ) {
+    // Reduce to 5000 for servers with limited memory
+    return 5000;
+}</code></pre>
+
+<h3>Dynamic Batch Size Based on Data Volume</h3>
+
+<pre><code>add_filter( 'wpd_ai_analytics_data_fetch_batch_size', 'dynamic_analytics_batch_size' );
+function dynamic_analytics_batch_size( $batch_size ) {
+    global $wpdb;
+    
+    // Get total analytics records count
+    $total_records = $wpdb->get_var( 
+        "SELECT COUNT(*) FROM {$wpdb->prefix}wpd_ai_events" 
+    );
+    
+    // Adjust batch size based on total records
+    if ( $total_records > 1000000 ) {
+        // Very large dataset: use smaller batches
+        return 5000;
+    } elseif ( $total_records > 100000 ) {
+        // Large dataset: use medium batches
+        return 10000;
+    } else {
+        // Small dataset: use larger batches
+        return 20000;
+    }
+}</code></pre>
+
+<h3>Batch Size Based on Available Memory</h3>
+
+<pre><code>add_filter( 'wpd_ai_analytics_data_fetch_batch_size', 'memory_based_analytics_batch_size' );
+function memory_based_analytics_batch_size( $batch_size ) {
+    // Get available memory
+    $memory_limit = ini_get( 'memory_limit' );
+    $memory_limit_bytes = wp_convert_hr_to_bytes( $memory_limit );
+    $memory_usage = memory_get_usage( true );
+    $available_memory = $memory_limit_bytes - $memory_usage;
+    
+    // Adjust batch size based on available memory
+    if ( $available_memory < 128 * 1024 * 1024 ) { // Less than 128MB
+        return 5000;
+    } elseif ( $available_memory < 256 * 1024 * 1024 ) { // Less than 256MB
+        return 10000;
+    } else {
+        return 20000; // More memory available, use larger batches
+    }
+}</code></pre>
+
+<h3>Best Practices</h3>
+
+<ul>
+    <li>Default of 10,000 works well for most stores</li>
+    <li>Monitor memory usage when increasing batch size</li>
+    <li>Use smaller batches on shared hosting environments</li>
+    <li>Larger batches = fewer queries but more memory usage</li>
+    <li>Smaller batches = more queries but less memory usage</li>
+    <li>Test with your actual data volume before production</li>
+</ul>
+
+<h3>Performance Impact</h3>
+
+<table>
+    <tr>
+        <th>Batch Size</th>
+        <th>Memory Usage</th>
+        <th>Query Count</th>
+        <th>Best For</th>
+    </tr>
+    <tr>
+        <td>5,000</td>
+        <td>Low</td>
+        <td>High</td>
+        <td>Shared hosting, low memory, very large datasets</td>
+    </tr>
+    <tr>
+        <td>10,000 (default)</td>
+        <td>Medium</td>
+        <td>Medium</td>
+        <td>Most standard setups</td>
+    </tr>
+    <tr>
+        <td>20,000-25,000</td>
+        <td>High</td>
+        <td>Low</td>
+        <td>Dedicated servers, high memory, medium datasets</td>
+    </tr>
+</table>
+
+<h3>Important Notes</h3>
+
+<ul>
+    <li>Batch size must be a positive integer</li>
+    <li>Very large batch sizes may cause memory exhaustion</li>
+    <li>Very small batch sizes may slow down queries</li>
+    <li>Default value is optimized for most use cases</li>
+    <li>Only adjust if you're experiencing performance issues</li>
+    <li>This affects analytics data fetching, not session data</li>
+</ul>
+
+<h3>Debugging</h3>
+
+<pre><code>add_filter( 'wpd_ai_analytics_data_fetch_batch_size', 'debug_analytics_batch_size', 999 );
+function debug_analytics_batch_size( $batch_size ) {
+    error_log( 'Alpha Insights Analytics Batch Size: ' . $batch_size );
+    error_log( 'Memory Usage: ' . size_format( memory_get_usage( true ) ) );
+    return $batch_size;
+}</code></pre>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_session_data_chunk_size.html'>wpd_ai_session_data_chunk_size</a> - Control session data chunk size</li>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_report_filters_batch_size.html'>wpd_ai_report_filters_batch_size</a> - Control report filters batch size</li>
+</ul>
+
+<h3>Related Classes</h3>
+
+<ul>
+    <li><code>WPDAI_Data_Warehouse</code> - React dashboard data warehouse</li>
+</ul>
+
+
+
+
+

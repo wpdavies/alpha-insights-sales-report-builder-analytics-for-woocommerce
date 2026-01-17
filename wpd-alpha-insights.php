@@ -22,14 +22,14 @@
  * Domain Path: 		/languages
  *
  * Alpha Insights
- * Copyright (C) 2025, WP Davies, support@wpdavies.dev
+ * Copyright (C) 2026, WP Davies, support@wpdavies.dev
  *
   * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
  * @category            Plugin
- * @copyright           Copyright WP Davies © 2025
+ * @copyright           Copyright WP Davies © 2026
  * @author              WP Davies
  * @package             Alpha Insights
  * @textdomain 			alpha-insights-pro
@@ -111,6 +111,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 		if ( $this->is_plugin_compatible() ) {
 			// Load the plugin
 			add_action( 'plugins_loaded', array( $this, 'initialize_plugin' ), 20 );
+			// $this->initialize_plugin();
 		}
 
 		// Output plugin init admin notices (hook only fires in admin area)
@@ -162,20 +163,17 @@ class WPD_Alpha_Insights_Free_Plugin {
 		if ( ! defined('WPD_AI_PATH') ) define( 'WPD_AI_PATH', plugin_dir_path( __FILE__ ) ); // Server Path
 		if ( ! defined('WPD_AI_URL_PATH') ) define( 'WPD_AI_URL_PATH', plugin_dir_url( __FILE__ ) ); // Public URL Path
 
-		// Additional Paths - with safe wp_upload_dir() access
-		if ( ! defined('WPD_AI_UPLOADS_FOLDER_SYSTEM') ) {
-			$upload_dir = wp_upload_dir();
-			if ( $upload_dir && is_array( $upload_dir ) && isset( $upload_dir['basedir'] ) ) {
-				define( 'WPD_AI_UPLOADS_FOLDER_SYSTEM', trailingslashit( $upload_dir['basedir'] ) . 'alpha-insights/' );
-			} else {
-				// Fallback to wp-content/uploads if wp_upload_dir() fails
-				define( 'WPD_AI_UPLOADS_FOLDER_SYSTEM', trailingslashit( WP_CONTENT_DIR ) . 'uploads/alpha-insights/' );
-			}
-		}
-		
-		if ( ! defined('WPD_AI_UPLOADS_FOLDER') ) define( 'WPD_AI_UPLOADS_FOLDER', $this->get_wp_uploads_folder() . 'alpha-insights/' );
-		if ( ! defined('WPD_AI_CSV_PATH') ) define( 'WPD_AI_CSV_PATH', WPD_AI_UPLOADS_FOLDER . 'exports/csv_files/' );
-		if ( ! defined('WPD_AI_CSV_SYSTEM_PATH') ) define( 'WPD_AI_CSV_SYSTEM_PATH', WPD_AI_UPLOADS_FOLDER_SYSTEM . 'exports/csv_files/' );
+		// Make sure function is available at this stage
+		if ( ! function_exists( 'wp_upload_dir' ) ) require_once ABSPATH . WPINC . '/functions.php';
+
+		// Get upload directories
+		$upload_directory = wp_upload_dir();
+
+		// Content paths
+		if ( ! defined('WPD_AI_UPLOADS_FOLDER_SYSTEM') ) define( 'WPD_AI_UPLOADS_FOLDER_SYSTEM', trailingslashit( $upload_directory['basedir'] ) . 'alpha-insights/' ); // System Path
+		if ( ! defined('WPD_AI_UPLOADS_FOLDER') ) define( 'WPD_AI_UPLOADS_FOLDER', trailingslashit( $upload_directory['baseurl'] ) . 'alpha-insights/' ); // Public URL Path
+		if ( ! defined('WPD_AI_CSV_SYSTEM_PATH') ) define( 'WPD_AI_CSV_SYSTEM_PATH', trailingslashit( $upload_directory['basedir'] ) . 'alpha-insights/exports/csv_files/' ); // System Path
+		if ( ! defined('WPD_AI_CSV_PATH') ) define( 'WPD_AI_CSV_PATH', trailingslashit( $upload_directory['baseurl'] ) . 'alpha-insights/exports/csv_files/' ); // Public URL Path
 
 		// Minimum Versions
 		if ( ! defined('WPD_AI_MIN_PHP_VER') ) define( 'WPD_AI_MIN_PHP_VER', '7.4.0' );
@@ -183,7 +181,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 		if ( ! defined('WPD_AI_MIN_WC_VER') ) define( 'WPD_AI_MIN_WC_VER', '3.0.0' );
 
 		// APIs
-		if ( ! defined('WPD_AI_FACEBOOK_API_VER') ) define( 'WPD_AI_FACEBOOK_API_VER', 'v23.0' );
+		if ( ! defined('WPD_AI_FACEBOOK_API_VER') ) define( 'WPD_AI_FACEBOOK_API_VER', 'v24.0' );
 		if ( ! defined('WPD_AI_GOOGLE_ADS_API_VER') ) define( 'WPD_AI_GOOGLE_ADS_API_VER', 'v20' );
 
 	}
@@ -324,12 +322,12 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		// Check DB Version - Schedule deferred update instead of immediate
 		if ( defined( 'WPD_AI_DB_VERSION' ) ) {
-		$installed_db_version = get_option( 'wpd_ai_db_version', null );
-			if ( is_string( $installed_db_version ) && version_compare( $installed_db_version, WPD_AI_DB_VERSION, '<' ) ) {
-			// Schedule DB update to run when classes are loaded
-			update_option( 'wpd_ai_pending_db_update', true );
-			$this->log( 'Database version check detected outdated schema, scheduled deferred update.' );
-		}
+			$installed_db_version = get_option( 'wpd_ai_db_version', null );
+				if ( is_string( $installed_db_version ) && version_compare( $installed_db_version, WPD_AI_DB_VERSION, '<' ) ) {
+				// Schedule DB update to run when classes are loaded
+				update_option( 'wpd_ai_pending_db_update', true );
+				$this->log( 'Database version check detected outdated schema, scheduled deferred update.' );
+			}
 		}
 
 		// Return all collected notices
@@ -491,11 +489,21 @@ class WPD_Alpha_Insights_Free_Plugin {
 						update_option( 'wpd_ai_pending_rewrite_flush', true );
 						$this->log( 'Rewrite rules flush scheduled for next admin page load.' );
 
-						// Schedule default report installation for next admin load
-						update_option( 'wpd_ai_pending_report_installation', true );
-						$this->log( 'Default reports installation scheduled for next admin page load.' );
+					// Schedule default report installation for next admin load
+					update_option( 'wpd_ai_pending_report_installation', true );
+					$this->log( 'Default reports installation scheduled for next admin page load.' );
 
-						$this->log( 'Plugin update scheduling complete.' );
+					// Schedule migration runner to check for pending migrations
+					if ( class_exists( 'WPDAI_Action_Scheduler' ) ) {
+						$action_scheduler = new WPDAI_Action_Scheduler();
+						$action_scheduler->schedule_one_off_event( WPDAI_Action_Scheduler::SINGLE_EVENT_MIGRATION_RUNNER, 0 );
+						$this->log( 'Migration runner scheduled via action scheduler.' );
+					} else {
+						update_option( 'wpd_ai_pending_migration_runner', true );
+						$this->log( 'Migration runner scheduled for next admin page load.' );
+					}
+
+					$this->log( 'Plugin update scheduling complete.' );
 
 					}
 	
@@ -524,39 +532,59 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		}
 
-		// Task 2: Rewrite rules flush (requires WPD_Live_Share_Handler class)
+		// Task 2: Rewrite rules flush (requires WPDAI_Live_Share_Handler class)
 		if ( get_option( 'wpd_ai_pending_rewrite_flush' ) ) {
 
 			// Verify the class exists (all dependencies loaded)
-			if ( class_exists( 'WPD_Live_Share_Handler' ) ) {
+			if ( class_exists( 'WPDAI_Live_Share_Handler' ) ) {
 
 				$this->log( 'Flushing pending rewrite rules for live share URLs.' );
-				WPD_Live_Share_Handler::flush_rewrite_rules();
+				WPDAI_Live_Share_Handler::flush_rewrite_rules();
 				delete_option( 'wpd_ai_pending_rewrite_flush' );
 				$this->log( 'Rewrite rules flushed successfully for live share URLs.' );
 
 			} else {
 
-				$this->log( 'WPD_Live_Share_Handler class not found during deferred flush, will retry on next admin load.' );
+				$this->log( 'WPDAI_Live_Share_Handler class not found during deferred flush, will retry on next admin load.' );
 
 			}
 
 		}
 
-		// Task 3: Default reports installation (requires WPD_React_Report class and DB tables)
+		// Task 3: Default reports installation (requires WPDAI_Report_Builder class and DB tables)
 		if ( get_option( 'wpd_ai_pending_report_installation' ) ) {
 
 			// Verify the class exists (all dependencies loaded)
-			if ( class_exists( 'WPD_React_Report' ) ) {
+			if ( class_exists( 'WPDAI_Report_Builder' ) ) {
 
 				$this->log( 'Installing pending default reports.' );
-				WPD_React_Report::import_all_default_reports( false );
+				WPDAI_Report_Builder::import_all_default_reports( false );
 				delete_option( 'wpd_ai_pending_report_installation' );
 				$this->log( 'Default reports installed successfully.' );
 
 			} else {
 
-				$this->log( 'WPD_React_Report class not found during deferred installation, will retry on next admin load.' );
+				$this->log( 'WPDAI_Report_Builder class not found during deferred installation, will retry on next admin load.' );
+
+			}
+
+		}
+
+		// Task 4: Migration runner (requires WPDAI_Action_Scheduler class)
+		if ( get_option( 'wpd_ai_pending_migration_runner' ) ) {
+
+			// Verify the class exists (all dependencies loaded)
+			if ( class_exists( 'WPDAI_Action_Scheduler' ) ) {
+
+				$this->log( 'Scheduling pending migration runner.' );
+				$action_scheduler = new WPDAI_Action_Scheduler();
+				$action_scheduler->schedule_one_off_event( WPDAI_Action_Scheduler::SINGLE_EVENT_MIGRATION_RUNNER, 0 );
+				delete_option( 'wpd_ai_pending_migration_runner' );
+				$this->log( 'Migration runner scheduled successfully.' );
+
+			} else {
+
+				$this->log( 'WPDAI_Action_Scheduler class not found during deferred migration scheduling, will retry on next admin load.' );
 
 			}
 
@@ -568,22 +596,29 @@ class WPD_Alpha_Insights_Free_Plugin {
 			// Delete the transient
 			delete_transient( 'wpd_ai_activation_redirect' );
 
+			// Get current page to prevent redirect loops
+			$current_page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+
 			// Only redirect if:
 			// 1. Not in AJAX request
 			// 2. Not in bulk activation
 			// 3. User has capability to manage options
 			// 4. Onboarding not completed
+			// 5. Not already on getting started page (prevent loop)
+			// 6. Not on reports pages (prevent redirect loop when user finishes wizard)
 			if ( 
 				! wp_doing_ajax() 
 				&& ! isset( $_GET['activate-multi'] ) 
 				&& current_user_can( 'manage_options' ) 
 				&& ! get_option( 'wpd_ai_onboarding_completed' )
+				&& $current_page !== WPDAI_Admin_Menu::$getting_started_slug
+				&& $current_page !== WPDAI_Admin_Menu::$sales_report_slug
 			) {
 
 				$this->log( 'Redirecting to getting started page.' );
 				
 				// Perform redirect
-				wp_safe_redirect( admin_url( 'admin.php?page=' . WPD_Admin_Menu::$getting_started_slug ) );
+				wp_safe_redirect( admin_url( 'admin.php?page=' . WPDAI_Admin_Menu::$getting_started_slug ) );
 				exit;
 
 			}
@@ -658,9 +693,9 @@ class WPD_Alpha_Insights_Free_Plugin {
 			$error['line']
 		);
 
-		// Log the error using wpd_write_log if available, otherwise use the private log method
-		if ( function_exists( 'wpd_write_log' ) ) {
-			wpd_write_log( $log_entry, 'fatal_error' );
+		// Log the error using wpdai_write_log if available, otherwise use the private log method
+		if ( function_exists( 'wpdai_write_log' ) ) {
+			wpdai_write_log( $log_entry, 'fatal_error' );
 		} else {
 			$this->log( $log_entry, 'fatal_error' );
 		}
@@ -725,9 +760,6 @@ class WPD_Alpha_Insights_Free_Plugin {
 		$this->include_plugin_files();	
 		$this->create_uploads_folders();
 
-		// Pro version updating
-		if ( WPD_AI_PRO ) $this->check_for_updates();
-
 	}
 
 	/**
@@ -737,11 +769,10 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		// Functions
 		require_once( WPD_AI_PATH . 'includes/wpd-functions.php');
-		require_once( WPD_AI_PATH . 'includes/functions/wpd-license-functions.php');
+		require_once( WPD_AI_PATH . 'includes/functions/wpd-csv-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-hpos-compatability-functions.php');
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-currency-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-url-parsing-functions.php' );
-		require_once( WPD_AI_PATH . 'includes/functions/wpd-csv-pdf-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-cache-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-formatting-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-data-fetch-functions.php' );
@@ -753,10 +784,8 @@ class WPD_Alpha_Insights_Free_Plugin {
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-report-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-settings-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-deprecated.php');
-		require_once( WPD_AI_PATH . 'includes/emails/wpd-email-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-subscription-functions.php' );
-		require_once( WPD_AI_PATH . 'includes/functions/wpd-google-functions.php' );
-		require_once( WPD_AI_PATH . 'includes/functions/wpd-facebook-functions.php' );
+		require_once( WPD_AI_PATH . 'includes/emails/wpd-email-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-custom-cost-functions.php' );
 		
 		// Admin
@@ -764,66 +793,47 @@ class WPD_Alpha_Insights_Free_Plugin {
 		require_once( WPD_AI_PATH . 'includes/admin/wpd-settings.php');
 
 		// Framework
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Alpha_Insights_Core.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Core.php');
 		require_once( WPD_AI_PATH . 'includes/wpd-scripts-styles.php' );
 		require_once( WPD_AI_PATH . 'includes/wpd-ajax.php' );
 
-		// Register Custom Post Types
-		if ( WPD_AI_PRO ) {
-			require_once( WPD_AI_PATH . 'includes/custom-post-types/expense-custom-post-type.php');
-			require_once( WPD_AI_PATH . 'includes/custom-post-types/facebook-campaigns-custom-post-type.php');
-			require_once( WPD_AI_PATH . 'includes/custom-post-types/google-ad-campaigns-custom-post-type.php');
-		}
-
 		// Additional Classes -> No Dependencies
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Admin_Menu.php');		
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Action_Scheduler.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Order_Calculator.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Database_Interactor.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_User_Agent.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Traffic_Type.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_CSV_Exporter.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Session_Tracking.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Task_Runner.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Report_API.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Getting_Started.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Data_Manager.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Admin_Menu.php');		
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Order_Calculator.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Database_Interactor.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Migration.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Action_Scheduler.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_User_Agent_Classification.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Traffic_Type_Detection.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_CSV_Exporter.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Session_Tracking.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Task_Runner.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Reporting_API.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Getting_Started.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Data_Manager.php');
 
 		// Additional Classes - With Dependencies
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Data_Warehouse_React.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_React_Report.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Report_Filters.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_WooCommerce_Events.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Cost_Of_Goods_Manager.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPD_Expense_Management_React.php');
-
-		// Pro API classes
-		if ( WPD_AI_PRO ) {
-			require_once( WPD_AI_PATH . 'includes/classes/pro/WPD_Live_Share_Handler.php');
-			require_once( WPD_AI_PATH . 'includes/classes/pro/WPD_Authenticator.php');
-			require_once( WPD_AI_PATH . 'includes/classes/pro/WPD_Facebook_API.php');
-			require_once( WPD_AI_PATH . 'includes/classes/pro/WPD_Facebook_Auth.php');
-			require_once( WPD_AI_PATH . 'includes/classes/pro/WPD_Google_Ads_API.php');
-			require_once( WPD_AI_PATH . 'includes/classes/pro/WPD_Google_Ads_Auth.php');
-
-			// Load AJAX actions
-			new WPD_Facebook_Auth(); // Initialize Facebook Auth (registers AJAX handlers)
-			new WPD_Google_Ads_Auth(); // Initialize Google Ads Auth (registers AJAX handlers)
-		} else {
-			require_once( WPD_AI_PATH . 'includes/classes/WPD_Alpha_Insights_Notices.php');
-		}
-
-		// Pro Integration Classes
-		if ( WPD_AI_PRO ) {
-			require_once( WPD_AI_PATH . 'includes/integrations/pro/WPD_StarShipIt.php');
-		}
+		require_once( WPD_AI_PATH . 'includes/classes/interfaces/WPDAI_Custom_Data_Source_Interface.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Custom_Data_Source_Base.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Custom_Data_Source_Registry.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Data_Warehouse.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Report_Builder.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Report_Filters.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Woocommerce_Event_Tracking.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Cost_Of_Goods_Manager.php');
 
 		// Register Relevant Actions
-		WPD_React_Report::register_ajax_actions();
-		WPD_Cost_Of_Goods_Manager::register_ajax_actions();
-		WPD_Report_API::register_routes();
-		WPD_Expense_Management_React::register_ajax_actions();
-		WPD_Data_Manager::register_ajax_actions();
+		WPDAI_Report_Builder::register_ajax_actions();
+		WPDAI_Cost_Of_Goods_Manager::register_ajax_actions();
+		WPDAI_Reporting_API::register_routes();
+		WPDAI_Data_Manager::register_ajax_actions();
+
+		// Load the appropriate loader based on the plugin version
+		if ( WPD_AI_PRO ) {
+			require_once( WPD_AI_PATH . 'includes/classes/pro/WPDAI_Pro_Loader.php');
+		} else {
+			require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Free_Loader.php');
+		}
 
 	}
 
@@ -865,22 +875,6 @@ class WPD_Alpha_Insights_Free_Plugin {
 	}
 
 	/**
-	 * Fetch updates
-	 */
-	public function check_for_updates() {
-
-		if ( get_option( 'wpd_ai_api_key', false ) ) {
-
-			// Just in case plugin isn't loaded
-			if ( function_exists('wpd_fetch_for_updates') && WPD_AI_PRO ) {
-				wpd_fetch_for_updates();
-			}
-
-		}
-
-	}
-
-	/**
 	 * Responsible for loading any initialization admin notices
 	 */
 	public function output_alpha_insights_init_admin_notices() {
@@ -915,8 +909,8 @@ class WPD_Alpha_Insights_Free_Plugin {
 		if ( get_transient('_wpd_updating_all_orders_cache') === 1 ) {
 			
 			// Output notice - check if function exists
-			if ( function_exists( 'wpd_admin_notice' ) ) {
-				wpd_admin_notice( __( 'Your Alpha Insights Order Cache is currently being updated, depending on how many orders you have this may take a few minutes.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
+			if ( function_exists( 'wpdai_admin_notice' ) ) {
+				wpdai_admin_notice( __( 'Your Alpha Insights Order Cache is currently being updated, depending on how many orders you have this may take a few minutes.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
 			}
 
 		}
@@ -925,8 +919,8 @@ class WPD_Alpha_Insights_Free_Plugin {
 		if ( isset( $_GET['wpd-notice'] ) && sanitize_text_field( $_GET['wpd-notice'] ) == 'invalid-license' ) {
 
 			// Output notice - check if function exists
-			if ( function_exists( 'wpd_admin_notice' ) ) {
-				wpd_admin_notice( __( 'Your Alpha Insights license has expired or is invalid. Please update your license to continue using the plugin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
+			if ( function_exists( 'wpdai_admin_notice' ) ) {
+				wpdai_admin_notice( __( 'Your Alpha Insights license has expired or is invalid. Please update your license to continue using the plugin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
 			}
 
 		}
@@ -980,8 +974,8 @@ class WPD_Alpha_Insights_Free_Plugin {
 	private function clear_cache() {
 
 		// Check if function exists before calling
-		if ( function_exists( 'wpd_delete_all_data_caches' ) ) {
-			wpd_delete_all_data_caches();
+		if ( function_exists( 'wpdai_delete_all_data_caches' ) ) {
+			wpdai_delete_all_data_caches();
 		}
 
 		// Set latest version since this has been cleared
@@ -1001,11 +995,11 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		$this->log( 'Verifying the database structure, updating if required.' );
 
-		if ( ! class_exists('WPD_Database_Interactor') ) {
-			require_once( WPD_AI_PATH . 'includes/classes/WPD_Database_Interactor.php');
+		if ( ! class_exists('WPDAI_Database_Interactor') ) {
+			require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Database_Interactor.php');
 		}
 
-		$db_interactor = new WPD_Database_Interactor();
+		$db_interactor = new WPDAI_Database_Interactor();
 		$this->log( 'DB interactor has been initialized, going to attempt to update the DB to the latest version.' );
 
 		if ( is_object( $db_interactor ) && method_exists( $db_interactor, 'create_update_tables_columns' ) ) {
@@ -1050,32 +1044,6 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		return $this->version_check;
 
-	}
-
-	/**
-	 * Fix wp_upload_dir() not using https
-	 *
-	 * @return string
-	 */
-	private function get_wp_uploads_folder() {
-
-		$upload_dir = wp_upload_dir();
-		
-		// Check if wp_upload_dir() returned valid data
-		if ( ! $upload_dir || ! is_array( $upload_dir ) || ! isset( $upload_dir['baseurl'] ) ) {
-			// Fallback to content_url/uploads
-			$url = trailingslashit( content_url( 'uploads' ) );
-		} else {
-			$url = trailingslashit( $upload_dir['baseurl'] );
-		}
-		
-		// Ensure HTTPS if SSL is enabled
-		if ( is_ssl() ) {
-			$url = str_replace( 'http://', 'https://', $url );
-		}
-		
-		return $url;
-	
 	}
 
 	/**

@@ -17,8 +17,8 @@ defined( 'ABSPATH' ) || exit;
  *	Testing the dev branch
  *
  **/
-add_action('admin_enqueue_scripts', 'wpd_ai_admin_enqueue');
-function wpd_ai_admin_enqueue() {
+add_action('admin_enqueue_scripts', 'wpdai_admin_enqueue');
+function wpdai_admin_enqueue() {
 
 	/**
 	 *
@@ -50,11 +50,11 @@ function wpd_ai_admin_enqueue() {
 	 */
 	// Localize the script with new data
 	$wpd_ai_vars = array(
-	    'processing' 			=> wpd_preloader( 40, true, true ),
-	    'success' 				=> wpd_success( 40, true, true ),
-	    'failure' 				=> wpd_failure( 40, true, true ),
+	    'processing' 			=> wpdai_preloader( 40, true, true ),
+	    'success' 				=> wpdai_success( 40, true, true ),
+	    'failure' 				=> wpdai_failure( 40, true, true ),
 		'ajax_url' 				=> admin_url('admin-ajax.php'),
-		'site_creation_date' 	=> wpd_get_site_creation_date(),
+		'site_creation_date' 	=> wpdai_get_site_creation_date(),
 		'nonce' 				=> wp_create_nonce( WPD_AI_AJAX_NONCE_ACTION ),
 		'strings' 				=> array(
 			'processing' 		=> __( 'Processing...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
@@ -84,7 +84,7 @@ function wpd_ai_admin_enqueue() {
 	 *
 	 */
 	// Only load my styles on my pages
-	if ( is_wpd_page() ) {
+	if ( is_wpdai_page() ) {
 		wp_enqueue_style( 'wpd-alpha-insights-admin' );
 	}
 
@@ -110,7 +110,7 @@ function wpd_ai_admin_enqueue() {
 	// Always enqueue WordPress admin JS for global menu enhancements
 	wp_enqueue_script( 'wpd-alpha-insights-wordpress-admin' );
 	
-	if ( is_wpd_page() ) {
+	if ( is_wpdai_page() ) {
 		wp_enqueue_script( 'wpd-alpha-insights-admin' );
 		wp_enqueue_script( 'wpd-submenu-scroll' );
 	}
@@ -138,6 +138,93 @@ function wpd_ai_admin_enqueue() {
 		wp_add_inline_style( 'wpd-alpha-insights-wordpress-admin', $hide_notices_css );
 	}
 
+	/**
+	 *
+	 *	Add inline style for order dashboard metabox logo
+	 *
+	 */
+	$screen = get_current_screen();
+	if ( $screen && class_exists( 'WooCommerce' ) ) {
+		// Check if we're on the order edit screen (HPOS or traditional)
+		$is_order_edit_screen = false;
+		
+		// Traditional WooCommerce orders - check post type
+		if ( property_exists( $screen, 'post_type' ) && $screen->post_type === 'shop_order' ) {
+			$is_order_edit_screen = true;
+		}
+		
+		// HPOS (High-Performance Order Storage) - check screen ID
+		if ( ! $is_order_edit_screen && function_exists( 'wc_get_page_screen_id' ) ) {
+			$hpos_screen_id = wc_get_page_screen_id( 'shop-order' );
+			if ( $hpos_screen_id && $screen->id === $hpos_screen_id ) {
+				$is_order_edit_screen = true;
+			}
+		}
+		
+		// Fallback: check screen ID for traditional orders
+		if ( ! $is_order_edit_screen && $screen->id === 'shop_order' ) {
+			$is_order_edit_screen = true;
+		}
+		
+		if ( $is_order_edit_screen ) {
+			// Ensure the stylesheet is enqueued
+			wp_enqueue_style( 'wpd-alpha-insights-wordpress-admin' );
+			
+			// Logo URL
+			$wpd_ai_logo = wpdai_get_logo_icon_url();
+			
+			// Add inline style for dashboard metabox logo
+			$dashboard_logo_css = sprintf(
+				"
+				div#wpd-ai-dashboard-summary .postbox-header h2::before {
+					content: '';
+					position: absolute;
+					background-image: url(%s);
+					width: 30px;
+					height: 30px;
+					background-size: contain;
+					background-repeat: no-repeat;
+					left: 15px;
+				}",
+				esc_url( $wpd_ai_logo )
+			);
+			
+			wp_add_inline_style( 'wpd-alpha-insights-wordpress-admin', $dashboard_logo_css );
+		}
+
+		/**
+		 *
+		 *	Add inline style for WooCommerce dashboard widget
+		 *
+		 */
+		if ( $screen->id === 'dashboard' ) {
+			// Ensure the stylesheet is enqueued
+			wp_enqueue_style( 'wpd-alpha-insights-wordpress-admin' );
+			
+			// Icon URL
+			$wpd_ai_icon = WPD_AI_URL_PATH . 'assets/img/Alpha-Insights-Icon-20x20.png';
+			
+			// Add inline style for WooCommerce dashboard widget
+			$dashboard_widget_css = sprintf(
+				"
+				#woocommerce_dashboard_status .wc_status_list li.gross-profit-this-month {
+					border-right: 1px solid #ececec;
+				}
+				#woocommerce_dashboard_status .wc_status_list li.wpd-status-widget-item a::before {
+					content: '';
+					background-image: url(%s);
+					background-repeat: no-repeat;
+					width: 20px;
+					background-size: cover;
+					height: 20px;
+				}",
+				esc_url( $wpd_ai_icon )
+			);
+			
+			wp_add_inline_style( 'wpd-alpha-insights-wordpress-admin', $dashboard_widget_css );
+		}
+	}
+
 }
 
 /**
@@ -145,8 +232,8 @@ function wpd_ai_admin_enqueue() {
  *	Front end enqueue
  *
  */
-add_action( 'wp_enqueue_scripts', 'wpd_alpha_insights_frontend_scripts_styles' ); 
-function wpd_alpha_insights_frontend_scripts_styles() {
+add_action( 'wp_enqueue_scripts', 'wpdai_alpha_insights_frontend_scripts_styles' ); 
+function wpdai_alpha_insights_frontend_scripts_styles() {
 
 	// Register script
 	wp_register_script( 'wpd-alpha-insights-frontend', WPD_AI_URL_PATH . 'assets/js/wpd-alpha-insights-frontend.js', array('jquery'), WPD_AI_VER, true );

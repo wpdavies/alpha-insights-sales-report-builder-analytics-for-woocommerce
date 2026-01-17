@@ -140,7 +140,7 @@ LIMIT 10;</code></pre>
 <pre><code>// Test if you're being flagged as a bot
 // Add this temporarily to your theme's functions.php
 add_action('template_redirect', function() {
-  $user_agent = new WPD_User_Agent();
+  $user_agent = new WPDAI_User_Agent_Classification();
   if ($user_agent->isBot()) {
     error_log('Bot detected: ' . $_SERVER['HTTP_USER_AGENT']);
   }
@@ -416,7 +416,7 @@ LIMIT 20;</code></pre>
 <p><strong>3. Check traffic source classification logic</strong></p>
 
 <pre><code>// Test traffic source detection
-$traffic_type = new WPD_Traffic_Type($referral_url, $query_params);
+$traffic_type = new WPDAI_Traffic_Type_Detection($referral_url, $query_params);
 $source = $traffic_type->determine_traffic_source();
 echo "Traffic source: " . $source;</code></pre>
 

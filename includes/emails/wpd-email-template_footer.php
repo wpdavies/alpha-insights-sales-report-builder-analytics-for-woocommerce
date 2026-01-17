@@ -52,7 +52,7 @@ $options = get_option( 'wpd_ai_email_settings' );
 												                <table align="left" border="0" cellpadding="0" cellspacing="0" style="max-width:100%; min-width:100%;" width="100%" class="mcnTextContentContainer">
 												                    <tbody>
 												                    	<tr>
-												                        	<td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">Want to change how you receive these emails?<br>Click here to <a href="<?php echo esc_url( wpd_admin_page_url('settings-emails') ); ?>">update your preferences</a>.<br><br>This report is powered by <a href="https://wpdavies.dev/plugins/alpha-insights/?utm_campaign=Alpha+Insights+Email+Report&utm_source=Alpha+Insights+Plugin" target="_blank">Alpha Insights</a> by <a href="https://wpdavies.dev/?utm_campaign=Alpha+Insights+Email+Report&utm_source=Alpha+Insights+Plugin" target="_blank">WP Davies</a></td>
+												                        	<td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">Want to change how you receive these emails?<br>Click here to <a href="<?php echo esc_url( wpdai_admin_page_url('settings-emails') ); ?>">update your preferences</a>.<br><br>This report is powered by <a href="https://wpdavies.dev/plugins/alpha-insights/?utm_campaign=Alpha+Insights+Email+Report&utm_source=Alpha+Insights+Plugin" target="_blank">Alpha Insights</a> by <a href="https://wpdavies.dev/?utm_campaign=Alpha+Insights+Email+Report&utm_source=Alpha+Insights+Plugin" target="_blank">WP Davies</a></td>
 												                    	</tr>
 												                	</tbody>
 												            	</table>

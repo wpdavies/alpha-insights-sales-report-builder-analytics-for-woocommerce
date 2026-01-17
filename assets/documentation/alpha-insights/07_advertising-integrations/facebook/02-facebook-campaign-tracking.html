@@ -130,7 +130,7 @@
 <li><strong>Above 5.0:</strong> Excellent! These campaigns are winners</li>
 </ul>
 <p>
-<strong>Code Reference:</strong> Calculated at line 976 of <code>WPD_Facebook_API.php</code>
+<strong>Code Reference:</strong> Calculated at line 976 of <code>WPDAI_Facebook_API.php</code>
 </p>
 <h4>Profit (Facebook's Simple Calculation)</h4>
 <p>
@@ -155,7 +155,7 @@
 <strong>Why it matters:</strong> This gives you a quick profitability indicator, but for true profit analysis, you should use Alpha Insights' full profit reports which factor in all costs.
 </p>
 <p>
-<strong>Code Reference:</strong> Calculated at line 979 of <code>WPD_Facebook_API.php</code>
+<strong>Code Reference:</strong> Calculated at line 979 of <code>WPDAI_Facebook_API.php</code>
 </p>
 <h4>Conversion Rate</h4>
 <p>
@@ -174,7 +174,7 @@
 <strong>Note:</strong> Uses Outbound Clicks (website views) not total clicks, giving you accurate site conversion rate
 </p>
 <p>
-<strong>Code Reference:</strong> Calculated at line 970 of <code>WPD_Facebook_API.php</code> using <code>wpd_calculate_percentage()</code> helper function
+<strong>Code Reference:</strong> Calculated at line 970 of <code>WPDAI_Facebook_API.php</code> using <code>wpd_calculate_percentage()</code> helper function
 </p>
 <h3>Viewing Campaign Details</h3>
 <h4>Individual Campaign Page</h4>
@@ -344,7 +344,7 @@
 <li>When the visitor places an order, the campaign ID is stored in order meta: <code>_wpd_ai_meta_campaign_id</code></li>
 <li>You can then run reports showing actual orders and profit by campaign</li>
 </ol>
-<p><strong>Code Reference:</strong> Order campaign ID attribution happens in <code>set_order_campaign_id_via_query_param()</code> method (lines 417-473 of <code>WPD_Facebook_API.php</code>)</p>
+<p><strong>Code Reference:</strong> Order campaign ID attribution happens in <code>set_order_campaign_id_via_query_param()</code> method (lines 417-473 of <code>WPDAI_Facebook_API.php</code>)</p>
 <h4>Important Notes About Attribution</h4>
 <ul>
 <li><strong>No configurable attribution window:</strong> Orders are matched based on the landing page parameter, not time-based windows</li>

@@ -236,10 +236,10 @@ Backup attribution: GCLID can be looked up via API if google_cid fails
 
 <p><strong>Order attribution logic:</strong></p>
 <ul>
-<li><code>WPD_Alpha_Insights_Core->save_landing_page_to_order_meta()</code> (lines 1312-1357)</li>
-<li><code>WPD_Google_Ads_API->set_order_campaign_id_via_query_param()</code> (lines 676-732)</li>
-<li><code>WPD_Google_Ads_API->set_order_campaign_id_via_api_last_x_days()</code> (lines 741-855)</li>
-<li><code>WPD_Google_Ads_API->api_fetch_campaign_id_by_gclid()</code> (lines 1701-1738)</li>
+<li><code>WPDAI_Core->save_landing_page_to_order_meta()</code> (lines 1312-1357)</li>
+<li><code>WPDAI_Google_Ads_API->set_order_campaign_id_via_query_param()</code> (lines 676-732)</li>
+<li><code>WPDAI_Google_Ads_API->set_order_campaign_id_via_api_last_x_days()</code> (lines 741-855)</li>
+<li><code>WPDAI_Google_Ads_API->api_fetch_campaign_id_by_gclid()</code> (lines 1701-1738)</li>
 </ul>
 
 <h3>Understanding Attribution Behavior</h3>
@@ -747,21 +747,21 @@ Meta Fields: _wpd_campaign_id, _wpd_campaign_name, _wpd_campaign_spend, etc.
 <h4>Key PHP Functions</h4>
 
 <p><strong>1. Save Landing Page to Order</strong></p>
-<pre><code>Method: WPD_Alpha_Insights_Core->save_landing_page_to_order_meta($order)
+<pre><code>Method: WPDAI_Core->save_landing_page_to_order_meta($order)
 Hook: woocommerce_checkout_order_processed
 Action: Reads cookies, saves landing page and referral to order meta,
         extracts google_cid if present and saves to _wpd_ai_google_campaign_id
 </code></pre>
 
 <p><strong>2. Retroactive Attribution via Query Parameter</strong></p>
-<pre><code>Method: WPD_Google_Ads_API->set_order_campaign_id_via_query_param($days)
+<pre><code>Method: WPDAI_Google_Ads_API->set_order_campaign_id_via_query_param($days)
 Action: Queries last X days of orders with google_cid in landing page,
         extracts campaign ID, saves to order meta
 Default: 30 days
 </code></pre>
 
 <p><strong>3. GCLID Lookup via API</strong></p>
-<pre><code>Method: WPD_Google_Ads_API->set_order_campaign_id_via_api_last_x_days($days, $hard_refresh)
+<pre><code>Method: WPDAI_Google_Ads_API->set_order_campaign_id_via_api_last_x_days($days, $hard_refresh)
 Action: Queries orders with GCLID, looks up campaign ID via Google Ads API,
         saves campaign ID to order meta
 Default: 30 days
@@ -770,14 +770,14 @@ Throttling: 0.5 second delay between requests
 </code></pre>
 
 <p><strong>4. API Campaign Lookup by GCLID</strong></p>
-<pre><code>Method: WPD_Google_Ads_API->api_fetch_campaign_id_by_gclid($gclid, $date)
+<pre><code>Method: WPDAI_Google_Ads_API->api_fetch_campaign_id_by_gclid($gclid, $date)
 API Query: SELECT campaign.id, campaign.name FROM click_view 
            WHERE segments.date = 'YYYY-MM-DD' AND click_view.gclid = 'GCLID'
 Returns: Campaign ID or false if not found
 </code></pre>
 
 <p><strong>5. Query Orders by Campaign</strong></p>
-<pre><code>Method: WPD_Data_Warehouse_React->get_google_campaign_order_data($date_from, $date_to)
+<pre><code>Method: WPDAI_Data_Warehouse->get_google_campaign_order_data($date_from, $date_to)
 Action: Fetches orders with _wpd_ai_google_campaign_id OR orders with GCLID,
         groups by campaign ID, calculates metrics
 Returns: Array of order data indexed by campaign ID

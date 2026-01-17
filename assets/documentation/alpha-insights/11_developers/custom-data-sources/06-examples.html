@@ -1,0 +1,528 @@
+<h2>Examples</h2>
+
+<p>This section provides real-world examples of custom data sources. Use these as templates for your own implementations.</p>
+
+<h3>Example 1: Database Table Custom Data Source</h3>
+
+<p>This example shows how to fetch data from a custom database table:</p>
+
+<pre><code>&lt;?php
+/**
+ * Custom Inventory Data Source
+ * Fetches data from a custom inventory tracking table
+ */
+defined( 'ABSPATH' ) || exit;
+
+class Inventory_Data_Source extends WPD_Alpha_Insights_Data_Source_Base {
+    
+    protected $entity_name = 'inventory_tracking';
+    
+    public function fetch_data( $filters, $data_warehouse = null ) {
+        // NOTE: execution_time and memory_usage are automatically tracked
+        
+        if ( ! $data_warehouse || ! method_exists( $data_warehouse, 'get_data_by_date_range_container' ) ) {
+            return array(
+                'totals' => array(),
+                'data_by_date' => array(),
+                'total_db_records' => 0,
+                // execution_time and memory_usage are automatically added
+            );
+        }
+        
+        global $wpdb;
+        $date_from = $data_warehouse->get_date_from();
+        $date_to = $data_warehouse->get_date_to();
+        
+        // Fetch inventory data from custom table
+        $results = $wpdb->get_results( $wpdb->prepare(
+            "SELECT 
+                DATE(date_recorded) as date,
+                SUM(value) as total_value,
+                SUM(quantity) as total_quantity,
+                COUNT(*) as item_count
+            FROM {$wpdb->prefix}inventory_tracking
+            WHERE date_recorded >= %s AND date_recorded <= %s
+            GROUP BY DATE(date_recorded)
+            ORDER BY date ASC",
+            $date_from,
+            $date_to
+        ) );
+        
+        // Get date range container
+        $date_range_container = $data_warehouse->get_data_by_date_range_container();
+        
+        // Build totals
+        $totals = array(
+            'total_inventory_value' => 0,
+            'total_items' => 0,
+        );
+        
+        // Build data_by_date
+        $data_by_date = array(
+            'inventory_value_by_date' => $date_range_container,
+            'items_by_date' => $date_range_container,
+        );
+        
+        // Process results
+        foreach ( $results as $row ) {
+            $date_key = date( 'Y-m-d', strtotime( $row->date ) );
+            
+            // Update totals
+            $totals['total_inventory_value'] += floatval( $row->total_value );
+            $totals['total_items'] += intval( $row->total_quantity );
+            
+            // Update data_by_date
+            if ( isset( $data_by_date['inventory_value_by_date'][ $date_key ] ) ) {
+                $data_by_date['inventory_value_by_date'][ $date_key ] = floatval( $row->total_value );
+                $data_by_date['items_by_date'][ $date_key ] = intval( $row->total_quantity );
+            }
+        }
+        
+        // Return data structure
+        // NOTE: execution_time and memory_usage are automatically tracked and added
+        return array(
+            'totals' => $totals,
+            'data_by_date' => $data_by_date,
+            'total_db_records' => count( $results ),
+            // execution_time and memory_usage are automatically added
+        );
+    }
+    
+    public function get_data_mapping() {
+        return array(
+            'totals' => array(
+                'label' => 'Inventory Tracking',
+                'icon' => 'inventory_2',
+                'totals' => array(
+                    'total_inventory_value' => array(
+                        'label' => 'Total Inventory Value',
+                        'type' => 'currency',
+                        'format' => 'currency',
+                        'description' => 'Total value of all inventory items',
+                    ),
+                    'total_items' => array(
+                        'label' => 'Total Items',
+                        'type' => 'number',
+                        'format' => 'integer',
+                        'description' => 'Total number of inventory items',
+                    ),
+                ),
+            ),
+            'data_by_date' => array(
+                'inventory_value_by_date' => array(
+                    'label' => 'Inventory Value Over Time',
+                    'type' => 'currency',
+                    'format' => 'currency',
+                    'chart_calculation' => 'sum',
+                ),
+                'items_by_date' => array(
+                    'label' => 'Items Over Time',
+                    'type' => 'number',
+                    'format' => 'integer',
+                    'chart_calculation' => 'sum',
+                ),
+            ),
+        );
+    }
+}
+
+new Inventory_Data_Source();</code></pre>
+
+<h3>Example 2: External API Custom Data Source</h3>
+
+<p>This example shows how to fetch data from an external API:</p>
+
+<pre><code>&lt;?php
+/**
+ * Third-Party Analytics Data Source
+ * Fetches data from an external analytics API
+ */
+defined( 'ABSPATH' ) || exit;
+
+class Third_Party_Analytics_Data_Source extends WPD_Alpha_Insights_Data_Source_Base {
+    
+    protected $entity_name = 'third_party_analytics';
+    
+    private function fetch_from_api( $date_from, $date_to ) {
+        $api_key = get_option( 'my_analytics_api_key' );
+        if ( ! $api_key ) {
+            return array();
+        }
+        
+        $url = add_query_arg( array(
+            'api_key' => $api_key,
+            'start_date' => $date_from,
+            'end_date' => $date_to,
+        ), 'https://api.example.com/analytics' );
+        
+        $response = wp_remote_get( $url, array(
+            'timeout' => 30,
+        ) );
+        
+        if ( is_wp_error( $response ) ) {
+            error_log( 'Analytics API error: ' . $response->get_error_message() );
+            return array();
+        }
+        
+        $body = wp_remote_retrieve_body( $response );
+        $data = json_decode( $body, true );
+        
+        return $data ? $data : array();
+    }
+    
+    public function fetch_data( $filters, $data_warehouse = null ) {
+        // NOTE: execution_time and memory_usage are automatically tracked
+        
+        if ( ! $data_warehouse || ! method_exists( $data_warehouse, 'get_data_by_date_range_container' ) ) {
+            return array(
+                'totals' => array(),
+                'data_by_date' => array(),
+                'total_db_records' => 0,
+                // execution_time and memory_usage are automatically added
+            );
+        }
+        
+        $date_from = $data_warehouse->get_date_from();
+        $date_to = $data_warehouse->get_date_to();
+        
+        // Fetch from external API
+        $api_data = $this->fetch_from_api( $date_from, $date_to );
+        
+        if ( empty( $api_data ) ) {
+            return array(
+                'totals' => array(),
+                'data_by_date' => array(),
+                'total_db_records' => 0,
+                'execution_time' => microtime( true ) - $start_time,
+            );
+        }
+        
+        // Get date range container
+        $date_range_container = $data_warehouse->get_data_by_date_range_container();
+        
+        // Build totals
+        $totals = array(
+            'total_visits' => isset( $api_data['total_visits'] ) ? intval( $api_data['total_visits'] ) : 0,
+            'total_page_views' => isset( $api_data['total_page_views'] ) ? intval( $api_data['total_page_views'] ) : 0,
+        );
+        
+        // Build data_by_date
+        $data_by_date = array(
+            'visits_by_date' => $date_range_container,
+            'page_views_by_date' => $date_range_container,
+        );
+        
+        // Process API data
+        if ( isset( $api_data['daily_data'] ) && is_array( $api_data['daily_data'] ) ) {
+            foreach ( $api_data['daily_data'] as $day_data ) {
+                $date_key = isset( $day_data['date'] ) ? $day_data['date'] : '';
+                
+                if ( isset( $data_by_date['visits_by_date'][ $date_key ] ) ) {
+                    $data_by_date['visits_by_date'][ $date_key ] = intval( $day_data['visits'] ?? 0 );
+                    $data_by_date['page_views_by_date'][ $date_key ] = intval( $day_data['page_views'] ?? 0 );
+                }
+            }
+        }
+        
+        return array(
+            'totals' => $totals,
+            'data_by_date' => $data_by_date,
+            'total_db_records' => count( $api_data['daily_data'] ?? array() ),
+            'execution_time' => microtime( true ) - $start_time,
+        );
+    }
+    
+    public function get_data_mapping() {
+        return array(
+            'totals' => array(
+                'label' => 'Third-Party Analytics',
+                'icon' => 'analytics',
+                'totals' => array(
+                    'total_visits' => array(
+                        'label' => 'Total Visits',
+                        'type' => 'number',
+                        'format' => 'integer',
+                    ),
+                    'total_page_views' => array(
+                        'label' => 'Total Page Views',
+                        'type' => 'number',
+                        'format' => 'integer',
+                    ),
+                ),
+            ),
+            'data_by_date' => array(
+                'visits_by_date' => array(
+                    'label' => 'Visits Over Time',
+                    'type' => 'number',
+                    'format' => 'integer',
+                    'chart_calculation' => 'sum',
+                ),
+                'page_views_by_date' => array(
+                    'label' => 'Page Views Over Time',
+                    'type' => 'number',
+                    'format' => 'integer',
+                    'chart_calculation' => 'sum',
+                ),
+            ),
+        );
+    }
+}
+
+new Third_Party_Analytics_Data_Source();</code></pre>
+
+<h3>Example 3: Complex Data Source with Categories and Tables</h3>
+
+<p>This example shows a complete implementation with totals, categorized data, data tables, and time-series data:</p>
+
+<pre><code>&lt;?php
+/**
+ * Complete Custom Data Source Example
+ * Demonstrates all data types: totals, categorized_data, data_table, data_by_date
+ */
+defined( 'ABSPATH' ) || exit;
+
+class Complete_Custom_Data_Source extends WPD_Alpha_Insights_Data_Source_Base {
+    
+    protected $entity_name = 'complete_example';
+    
+    public function fetch_data( $filters, $data_warehouse = null ) {
+        $start_time = microtime( true );
+        
+        if ( ! $data_warehouse || ! method_exists( $data_warehouse, 'get_data_by_date_range_container' ) ) {
+            return array(
+                'totals' => array(),
+                'categorized_data' => array(),
+                'data_table' => array(),
+                'data_by_date' => array(),
+                'total_db_records' => 0,
+                'execution_time' => microtime( true ) - $start_time,
+            );
+        }
+        
+        global $wpdb;
+        $date_from = $data_warehouse->get_date_from();
+        $date_to = $data_warehouse->get_date_to();
+        $limit = $data_warehouse->get_data_table_limit();
+        
+        // Fetch data from database
+        $results = $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}custom_data
+            WHERE date >= %s AND date <= %s
+            ORDER BY date DESC
+            LIMIT %d",
+            $date_from,
+            $date_to,
+            $limit
+        ) );
+        
+        // Get date range container
+        $date_range_container = $data_warehouse->get_data_by_date_range_container();
+        
+        // Initialize data structures
+        $totals = array(
+            'total_value' => 0,
+            'total_count' => 0,
+        );
+        
+        $categorized_data = array();
+        
+        $data_table = array(
+            'items' => array(),
+        );
+        
+        $data_by_date = array(
+            'value_by_date' => $date_range_container,
+            'count_by_date' => $date_range_container,
+        );
+        
+        // Process results
+        foreach ( $results as $row ) {
+            $category = $row->category ?? 'uncategorized';
+            $date_key = date( 'Y-m-d', strtotime( $row->date ) );
+            $value = floatval( $row->value );
+            
+            // Update totals
+            $totals['total_value'] += $value;
+            $totals['total_count']++;
+            
+            // Update categorized_data
+            if ( ! isset( $categorized_data[ $category ] ) ) {
+                $categorized_data[ $category ] = array(
+                    'label' => ucfirst( $category ),
+                    'total_value' => 0,
+                    'total_count' => 0,
+                );
+            }
+            $categorized_data[ $category ]['total_value'] += $value;
+            $categorized_data[ $category ]['total_count']++;
+            
+            // Add to data_table
+            $data_table['items'][] = array(
+                'id' => intval( $row->id ),
+                'name' => sanitize_text_field( $row->name ),
+                'value' => $value,
+                'category' => $category,
+                'date' => $date_key,
+            );
+            
+            // Update data_by_date
+            if ( isset( $data_by_date['value_by_date'][ $date_key ] ) ) {
+                $data_by_date['value_by_date'][ $date_key ] += $value;
+                $data_by_date['count_by_date'][ $date_key ]++;
+            }
+        }
+        
+        return array(
+            'totals' => $totals,
+            'categorized_data' => $categorized_data,
+            'data_table' => $data_table,
+            'data_by_date' => $data_by_date,
+            'total_db_records' => count( $results ),
+            'execution_time' => microtime( true ) - $start_time,
+        );
+    }
+    
+    public function get_data_mapping() {
+        return array(
+            'totals' => array(
+                'label' => 'Complete Example',
+                'icon' => 'dashboard',
+                'totals' => array(
+                    'total_value' => array(
+                        'label' => 'Total Value',
+                        'type' => 'currency',
+                        'format' => 'currency',
+                    ),
+                    'total_count' => array(
+                        'label' => 'Total Count',
+                        'type' => 'number',
+                        'format' => 'integer',
+                    ),
+                ),
+            ),
+            'data_by_date' => array(
+                'value_by_date' => array(
+                    'label' => 'Value Over Time',
+                    'type' => 'currency',
+                    'format' => 'currency',
+                    'chart_calculation' => 'sum',
+                ),
+                'count_by_date' => array(
+                    'label' => 'Count Over Time',
+                    'type' => 'number',
+                    'format' => 'integer',
+                    'chart_calculation' => 'sum',
+                ),
+            ),
+            'categorized_data' => array(
+                'items_by_category' => array(
+                    'label' => 'Items by Category',
+                    'description' => 'Items broken down by category',
+                    'color' => '#4caf50',
+                    'icon' => 'category',
+                    'metric_fields' => array(
+                        array(
+                            'label' => 'Total Value',
+                            'value' => 'total_value',
+                            'type' => 'currency',
+                        ),
+                        array(
+                            'label' => 'Total Count',
+                            'value' => 'total_count',
+                            'type' => 'number',
+                        ),
+                    ),
+                ),
+            ),
+            'data_table' => array(
+                'items' => array(
+                    'label' => 'Items',
+                    'icon' => 'table_chart',
+                    'columns' => array(
+                        'id' => array(
+                            'label' => 'ID',
+                            'type' => 'number',
+                            'format' => 'integer',
+                        ),
+                        'name' => array(
+                            'label' => 'Name',
+                            'type' => 'text',
+                        ),
+                        'value' => array(
+                            'label' => 'Value',
+                            'type' => 'currency',
+                            'format' => 'currency',
+                        ),
+                        'category' => array(
+                            'label' => 'Category',
+                            'type' => 'text',
+                        ),
+                        'date' => array(
+                            'label' => 'Date',
+                            'type' => 'date',
+                        ),
+                    ),
+                ),
+            ),
+        );
+    }
+}
+
+new Complete_Custom_Data_Source();</code></pre>
+
+<h3>Example 4: Using Data from Other Entities</h3>
+
+<p>This example shows how to access and use data from other entities (like orders):</p>
+
+<pre><code>public function fetch_data( $filters, $data_warehouse = null ) {
+    // NOTE: execution_time and memory_usage are automatically tracked
+    
+    if ( ! $data_warehouse ) {
+        return array( /* empty */ );
+    }
+    
+    // Access orders data if available
+    $orders_totals = $data_warehouse->get_data( 'orders', 'totals' );
+    
+    // Calculate custom metric based on orders
+    $totals = array(
+        'custom_metric' => 0,
+    );
+    
+    if ( $orders_totals && isset( $orders_totals['total_order_revenue_ex_tax'] ) ) {
+        // Calculate something based on order revenue
+        $revenue = floatval( $orders_totals['total_order_revenue_ex_tax'] );
+        $totals['custom_metric'] = $revenue * 0.15; // Example: 15% of revenue
+    }
+    
+    // Return data structure
+    // NOTE: execution_time and memory_usage are automatically tracked and added
+    return array(
+        'totals' => $totals,
+        'total_db_records' => 1,
+        // execution_time and memory_usage are automatically added
+    );
+}</code></pre>
+
+<h3>Example 5: Reference Implementation</h3>
+
+<p>For a complete reference implementation with extensive comments, see the example file in the plugin:</p>
+
+<p><code>wp-content/plugins/wp-davies-alpha-insights/includes/reports/extensions/Example_Custom_Data_Source.php</code></p>
+
+<p>This file includes:</p>
+<ul>
+<li>Complete implementation of all data types</li>
+<li>Extensive inline documentation</li>
+<li>Examples of all mapping structures</li>
+<li>Best practices and patterns</li>
+</ul>
+
+<h3>Related Documentation</h3>
+
+<ul>
+<li><strong>Creating a Custom Data Source</strong> - Step-by-step guide</li>
+<li><strong>The fetch_data() Method</strong> - Detailed reference</li>
+<li><strong>The get_data_mapping() Method</strong> - Detailed reference</li>
+<li><strong>Data Warehouse API Reference</strong> - Available helper methods</li>
+</ul>

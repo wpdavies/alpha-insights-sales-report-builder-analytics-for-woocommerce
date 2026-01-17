@@ -1,0 +1,179 @@
+<h2>Filter: wpd_ai_valid_reporting_utm_keys</h2>
+
+<p>Filter the list of valid UTM keys that Alpha Insights recognizes for reporting. This allows you to add custom tracking parameters or modify the default list.</p>
+
+<h3>Description</h3>
+
+<p>Alpha Insights maintains a list of valid UTM keys that are recognized for reporting. This filter allows you to add custom tracking parameters, remove default keys, or modify the entire list to match your tracking needs.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/functions/wpd-report-functions.php</code></p>
+<p><strong>Function:</strong> <code>wpd_get_valid_reporting_utm_keys()</code></p>
+<p><strong>Line:</strong> ~181</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$valid_utm_keys</td>
+        <td>array</td>
+        <td>Array of valid UTM key strings (default: standard UTM keys plus common alternatives)</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> array</p>
+<p><strong>Description:</strong> Modified array of valid UTM key strings</p>
+
+<h3>Default Valid Keys</h3>
+
+<p>Alpha Insights recognizes these UTM keys by default:</p>
+<ul>
+    <li>utm_source</li>
+    <li>utm_medium</li>
+    <li>utm_campaign</li>
+    <li>utm_content</li>
+    <li>utm_term</li>
+    <li>utm_id</li>
+    <li>ref</li>
+    <li>coupon</li>
+    <li>source</li>
+    <li>campaign</li>
+    <li>content</li>
+    <li>medium</li>
+    <li>term</li>
+    <li>s</li>
+    <li>search</li>
+    <li>google_cid</li>
+    <li>meta_cid</li>
+</ul>
+
+<h3>Example Usage</h3>
+
+<h3>Add Custom Tracking Keys</h3>
+
+<pre><code>add_filter( 'wpd_ai_valid_reporting_utm_keys', 'add_custom_tracking_keys' );
+function add_custom_tracking_keys( $valid_utm_keys ) {
+    // Add custom tracking parameters
+    $custom_keys = array( 'affiliate_id', 'partner_id', 'promo_code', 'referrer_id' );
+    return array_merge( $valid_utm_keys, $custom_keys );
+}</code></pre>
+
+<h3>Remove Specific Keys</h3>
+
+<pre><code>add_filter( 'wpd_ai_valid_reporting_utm_keys', 'remove_specific_keys' );
+function remove_specific_keys( $valid_utm_keys ) {
+    // Remove keys you don't want to track
+    $keys_to_remove = array( 's', 'search' );
+    return array_diff( $valid_utm_keys, $keys_to_remove );
+}</code></pre>
+
+<h3>Replace Entire List</h3>
+
+<pre><code>add_filter( 'wpd_ai_valid_reporting_utm_keys', 'replace_utm_keys_list' );
+function replace_utm_keys_list( $valid_utm_keys ) {
+    // Use only standard UTM parameters
+    return array(
+        'utm_source',
+        'utm_medium',
+        'utm_campaign',
+        'utm_content',
+        'utm_term',
+        'utm_id'
+    );
+}</code></pre>
+
+<h3>Add Platform-Specific Keys</h3>
+
+<pre><code>add_filter( 'wpd_ai_valid_reporting_utm_keys', 'add_platform_keys' );
+function add_platform_keys( $valid_utm_keys ) {
+    // Add keys for specific advertising platforms
+    $platform_keys = array(
+        'fbclid',      // Facebook Click ID
+        'gclid',       // Google Click ID
+        'msclkid',     // Microsoft Click ID
+        'ttclid',      // TikTok Click ID
+        'twclid'       // Twitter Click ID
+    );
+    return array_merge( $valid_utm_keys, $platform_keys );
+}</code></pre>
+
+<h3>Conditional Keys Based on Environment</h3>
+
+<pre><code>add_filter( 'wpd_ai_valid_reporting_utm_keys', 'conditional_utm_keys' );
+function conditional_utm_keys( $valid_utm_keys ) {
+    // Add debug keys only in development
+    if ( defined( 'WP_ENVIRONMENT_TYPE' ) && WP_ENVIRONMENT_TYPE === 'development' ) {
+        $valid_utm_keys[] = 'debug_key';
+        $valid_utm_keys[] = 'test_campaign';
+    }
+    return $valid_utm_keys;
+}</code></pre>
+
+<h3>Best Practices</h3>
+
+<ul>
+    <li>Use array_merge() to add keys without losing defaults</li>
+    <li>Use array_diff() to remove specific keys</li>
+    <li>Keep key names lowercase and use underscores</li>
+    <li>Document custom keys for your team</li>
+    <li>Test that your custom keys work in reports</li>
+    <li>Consider performance impact with very large key lists</li>
+</ul>
+
+<h3>Important Notes</h3>
+
+<ul>
+    <li>Keys are case-sensitive in the array, but validation is case-insensitive</li>
+    <li>Adding a key here makes it available for all reports</li>
+    <li>Keys must be valid URL parameter names (alphanumeric, underscores, hyphens)</li>
+    <li>This affects all UTM validation, not just specific reports</li>
+    <li>Changes apply immediately to new tracking data</li>
+    <li>Historical data is not affected by changes</li>
+</ul>
+
+<h3>Key Naming Conventions</h3>
+
+<p>Recommended key naming:</p>
+<ul>
+    <li>Use lowercase letters</li>
+    <li>Use underscores for word separation</li>
+    <li>Keep names descriptive but concise</li>
+    <li>Avoid special characters</li>
+    <li>Examples: 'affiliate_id', 'partner_code', 'campaign_type'</li>
+</ul>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_is_valid_reporting_utm_key.html'>wpd_ai_is_valid_reporting_utm_key</a> - Validate individual UTM keys</li>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_is_valid_reporting_utm_value.html'>wpd_ai_is_valid_reporting_utm_value</a> - Validate UTM values</li>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_is_valid_reporting_utm_key_value_pair.html'>wpd_ai_is_valid_reporting_utm_key_value_pair</a> - Validate key-value pairs</li>
+</ul>
+
+<h3>Related Functions</h3>
+
+<ul>
+    <li><code>wpd_get_valid_reporting_utm_keys()</code> - Get list of valid UTM keys</li>
+    <li><code>wpd_is_valid_reporting_utm_key()</code> - Check if a key is valid</li>
+</ul>
+
+<h3>Debugging</h3>
+
+<pre><code>add_filter( 'wpd_ai_valid_reporting_utm_keys', 'debug_utm_keys_list', 999 );
+function debug_utm_keys_list( $valid_utm_keys ) {
+    error_log( 'Alpha Insights Valid UTM Keys: ' . implode( ', ', $valid_utm_keys ) );
+    return $valid_utm_keys;
+}</code></pre>
+
+
+
+
+

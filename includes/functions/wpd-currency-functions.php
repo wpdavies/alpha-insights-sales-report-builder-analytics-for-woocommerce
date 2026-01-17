@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  *	Currency Selector
  *
  */
-function wpd_get_woocommerce_currency_list() {
+function wpdai_get_woocommerce_currency_list() {
 
 	$currencies = get_woocommerce_currencies();
 
@@ -30,14 +30,14 @@ function wpd_get_woocommerce_currency_list() {
  *	Currency list in selection option
  *
  */
-function wpd_woocommerce_currency_list_select( $selected = null ) {
+function wpdai_woocommerce_currency_list_select( $selected = null ) {
 
-	$currencies = wpd_get_woocommerce_currency_list();
+	$currencies = wpdai_get_woocommerce_currency_list();
 	$html = '';
 
 	if ( ! is_string($selected) || empty($selected) ) {
 
-		$woocommerce_currency = wpd_get_store_currency();
+		$woocommerce_currency = wpdai_get_store_currency();
 
 		if ( isset($woocommerce_currency) && ! empty($woocommerce_currency) ) {
 
@@ -72,7 +72,7 @@ function wpd_woocommerce_currency_list_select( $selected = null ) {
  *	Get base currency - Currency to display everything in
  *
  */
-function wpd_get_store_currency() {
+function wpdai_get_store_currency() {
 
 	return get_option('woocommerce_currency');
 
@@ -85,9 +85,9 @@ function wpd_get_store_currency() {
  * 	@return string Formatted Currency string including symbol & code
  * 
  **/
-function wpd_store_currency_string() {
+function wpdai_store_currency_string() {
 
-	return get_woocommerce_currency_symbol() . '' . wpd_get_store_currency();
+	return get_woocommerce_currency_symbol() . '' . wpdai_get_store_currency();
 
 }
 
@@ -101,16 +101,16 @@ function wpd_store_currency_string() {
  * 	@return bool false on failure
  * 
  **/
-function wpd_get_currency_conversion_rate( $from, $to ) {
+function wpdai_get_currency_conversion_rate( $from, $to ) {
 
-	$currency_conversion_table = wpd_get_list_of_currency_conversion_rates();
+	$currency_conversion_table = wpdai_get_list_of_currency_conversion_rates();
 
 	// If we cant find exchange rate just return the original value
 	if ( ! array_key_exists($to,$currency_conversion_table) || ! array_key_exists($from,$currency_conversion_table) ) {
 		return false;
 	}
 
-	$rate 	= wpd_divide( $currency_conversion_table[$to], $currency_conversion_table[$from] );
+	$rate 	= wpdai_divide( $currency_conversion_table[$to], $currency_conversion_table[$from] );
 
 	return $rate;
 
@@ -126,7 +126,7 @@ function wpd_get_currency_conversion_rate( $from, $to ) {
  *  @param float $exchange_rate You can pass an exchange rate in, defaults to false means it wont be used
  *
  */
-function wpd_convert_currency( $from, $to, $amount, $exchange_rate = false ) {
+function wpdai_convert_currency( $from, $to, $amount, $exchange_rate = false ) {
 
 	// Eg I have 35AUD, should become 24.87USD
 	// AUD  = 1.41
@@ -149,12 +149,12 @@ function wpd_convert_currency( $from, $to, $amount, $exchange_rate = false ) {
 
 	} else {
 
-		$currency_conversion_table = wpd_get_list_of_currency_conversion_rates();
+		$currency_conversion_table = wpdai_get_list_of_currency_conversion_rates();
 		// If we cant find exchange rate just return the original value
 		if ( ! array_key_exists($to,$currency_conversion_table) || ! array_key_exists($from,$currency_conversion_table) ) {
 			return $amount;
 		}
-		$rate 	= wpd_divide( $currency_conversion_table[$to], $currency_conversion_table[$from] );
+		$rate 	= wpdai_divide( $currency_conversion_table[$to], $currency_conversion_table[$from] );
 
 	}
 
@@ -170,12 +170,12 @@ function wpd_convert_currency( $from, $to, $amount, $exchange_rate = false ) {
  *	Get currency converions list
  *
  */
-function wpd_get_list_of_currency_conversion_rates() {
+function wpdai_get_list_of_currency_conversion_rates() {
 
 	// Deprecated since 3.2.1 -> will just use the OEX API that we feed on each release
 	// $options = get_option( 'wpd_ai_currency_table' );
 
-	$currency_conversion_table = wpd_get_default_currency_conversion_rates();
+	$currency_conversion_table = wpdai_get_default_currency_conversion_rates();
 
 	return $currency_conversion_table;
 
@@ -186,7 +186,7 @@ function wpd_get_list_of_currency_conversion_rates() {
  *	List of default conversion rates
  *
  */
-function wpd_get_default_currency_conversion_rates() {
+function wpdai_get_default_currency_conversion_rates() {
 
     // Check the cache
 	$result = wp_cache_get( '_currency_conversion_array', '_wpd_ai_data' );
@@ -209,10 +209,10 @@ function wpd_get_default_currency_conversion_rates() {
 	$file = WPD_AI_PATH . 'assets/other/default-currency-exchange-rates.csv';
 
 	if ( ! file_exists($file) ) {
-		wpd_write_log( 'Could not find the currency exchange rate file: ' . $file, 'errors' );
+		wpdai_write_log( 'Could not find the currency exchange rate file: ' . $file, 'errors' );
 	}
 
-	$exchange_rates = wpd_csv_to_array( $file );
+	$exchange_rates = wpdai_csv_to_array( $file );
 
 	if ( ! is_array($exchange_rates) || empty($exchange_rates) ) {
 		return array();
@@ -237,67 +237,14 @@ function wpd_get_default_currency_conversion_rates() {
 
 /**
  *
- *	Collect new API data
- *
- */
-function wpd_fetch_currency_exchange_rates_open_exchange( $app_id ) {
-
-	if ( empty($app_id) ) {
-		wpd_write_log( __( 'You need to get an Open Exchange Rates API key for us to be able to download the latest currencies.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'currency-exchange' );
-		return array();
-	}
-
-	// Currency data fetch point
-	$oxr_url = "https://openexchangerates.org/api/latest.json?app_id=" . $app_id;
-
-	// Fetch data using native WP functions @link https://developer.wordpress.org/plugins/http-api/
-	$json = wp_remote_get( $oxr_url );
-	
-	// Check if request was successful
-	if ( is_wp_error( $json ) ) {
-		wpd_write_log( sprintf( __( 'Error fetching currency exchange rates: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $json->get_error_message() ), 'currency-exchange' );
-		return array();
-	}
-	
-	$body = wp_remote_retrieve_body( $json );
-	
-	// Check if body is empty
-	if ( empty( $body ) ) {
-		wpd_write_log( __( 'Empty response body from currency exchange rates API', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'currency-exchange' );
-		return array();
-	}
-
-	// Decode JSON response:
-	$oxr_latest = json_decode( $body );
-	
-	// Check if JSON decode was successful
-	if ( null === $oxr_latest || ! is_object( $oxr_latest ) ) {
-		wpd_write_log( __( 'Failed to decode JSON response from currency exchange rates API', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'currency-exchange' );
-		return array();
-	}
-	
-	// Check if rates property exists
-	if ( ! isset( $oxr_latest->rates ) || ! is_object( $oxr_latest->rates ) ) {
-		wpd_write_log( __( 'Currency exchange rates API response does not contain rates property', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'currency-exchange' );
-		return array();
-	}
-	
-	$rates_array = (array) $oxr_latest->rates;
-
-	return $rates_array;
-
-}
-
-/**
- *
  *
  *	Returns the symbol for a currency
  *
  */
-function wpd_get_woocommerce_currency_symbol( $currency = '' ) { 
+function wpdai_get_woocommerce_currency_symbol( $currency = '' ) { 
 
     if ( ! $currency ) { 
-        $currency = wpd_get_store_currency(); 
+        $currency = wpdai_get_store_currency(); 
     } 
 
     $symbols = apply_filters( 'woocommerce_currency_symbols', array( 
@@ -477,7 +424,7 @@ function wpd_get_woocommerce_currency_symbol( $currency = '' ) {
  * 	@return array $array['exchange_rate', 'rate_key_used']
  * 
  **/
-function wpd_get_order_currency_conversion_rate( $order ) {
+function wpdai_get_order_currency_conversion_rate( $order ) {
 
 	$result = array(
 
@@ -488,7 +435,7 @@ function wpd_get_order_currency_conversion_rate( $order ) {
 
 	$exchange_rate = false;
 	$order_currency = $order->get_currency();
-	$store_currency = wpd_get_store_currency();
+	$store_currency = wpdai_get_store_currency();
 
 	// Lets see if they have used a particular currency exchange rate
     // @todo save the exchange rate at time of transaction as meta
@@ -511,7 +458,7 @@ function wpd_get_order_currency_conversion_rate( $order ) {
 
 	// If we didn't find one
 	if ( ! $exchange_rate ) {
-		$exchange_rate = wpd_get_currency_conversion_rate( $order_currency, $store_currency );
+		$exchange_rate = wpdai_get_currency_conversion_rate( $order_currency, $store_currency );
 		$result['exchange_rate'] = $exchange_rate;
 		$result['rate_key_used'] = 'wpd_currency_conversion_list';
 	}

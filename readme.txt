@@ -3,7 +3,7 @@ Contributors: wpdavies
 Tags: woocommerce, reports, cost-of-goods, profit, analytics
 Requires at least: 5.0.0
 Tested up to: 6.9
-Requires PHP: 7.4.0
+Requires PHP: 7.4
 Stable tag: 1.0.0
 Requires Plugins: woocommerce
 License: GPL-2.0-or-later

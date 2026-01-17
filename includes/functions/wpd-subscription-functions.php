@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  *	Check if user has wc_subscriptions
  *
  */
-function wpd_is_wc_subscriptions_active() {
+function wpdai_is_wc_subscriptions_active() {
 
 	if ( class_exists( 'WC_Subscriptions' ) ) {
 
@@ -43,7 +43,7 @@ function wpd_is_wc_subscriptions_active() {
  * 	@return bool Returns true if active on date, otherwise false
  * 
  **/
-function wpd_is_subscription_active_on_date( $date_created_timestamp, $date_cancelled_timestamp, $date_to_check_timestamp = null ) {
+function wpdai_is_subscription_active_on_date( $date_created_timestamp, $date_cancelled_timestamp, $date_to_check_timestamp = null ) {
 
 	// Convert to Y-m-d so that it checks a date, then return back to timestamp or set as false if not in correct format
 	$date_created_timestamp = ( is_numeric($date_created_timestamp) && $date_created_timestamp > 0 ) ? strtotime( gmdate( 'Y-m-d', $date_created_timestamp ) ) : false;

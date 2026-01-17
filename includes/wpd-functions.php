@@ -17,16 +17,16 @@ defined( 'ABSPATH' ) || exit;
  *	HTML container for small processing notifications	
  *
  */
-add_action( 'admin_footer', 'wpd_admin_notification_pop' );
-function wpd_admin_notification_pop() {
+add_action( 'admin_footer', 'wpdai_admin_notification_pop' );
+function wpdai_admin_notification_pop() {
 
-	if ( ! is_wpd_page() ) return; ?>
+	if ( ! is_wpdai_page() ) return; ?>
 	<div class="wpd-notification-pop" id="wpd-notification-pop">
 		<div class="wpd-exit-notification-pop"><span class="dashicons dashicons-no-alt"></span></div>
 		<table>
 			<tbody>
 				<tr>
-					<td class="wpd-notification-pop-icon"><?php wpd_preloader( 40 ); ?></td>
+					<td class="wpd-notification-pop-icon"><?php wpdai_preloader( 40 ); ?></td>
 					<td>
 						<div class="wpd-notification-pop-title"><?php esc_html_e( 'Processing', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>...</div>
 						<div class="wpd-meta wpd-notification-pop-subtitle"><?php esc_html_e( 'We are working on it!', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></div>
@@ -40,17 +40,30 @@ function wpd_admin_notification_pop() {
 }
 
 /**
+ * 
+ * 	Get the logo icon URL
+ * 
+ * 	@return string The logo icon URL
+ *  @since 1.0.0
+ *  @version 5.0.0
+ * 
+ */
+function wpdai_get_logo_icon_url() {
+
+	return esc_url( WPD_AI_URL_PATH . 'assets/img/Alpha-Insights-Icon-Large.png' );
+
+}
+
+/**
  * Add Documentation Modal HTML
  */
-add_action('admin_footer', 'wpd_documentation_modal_html');
-function wpd_documentation_modal_html() {
+add_action('admin_footer', 'wpdai_documentation_modal_html');
+function wpdai_documentation_modal_html() {
 	
-	if ( ! is_wpd_page() ) {
+	if ( ! is_wpdai_page() ) {
 		return;
 	}
-	
-	$logo_icon_url = WPD_AI_URL_PATH . 'assets/img/Alpha-Insights-Icon-Large.png';
-	
+		
 	?>
 	<div id="wpd-docs-modal-overlay" class="wpd-docs-modal-overlay">
 		<div class="wpd-docs-modal">
@@ -61,7 +74,7 @@ function wpd_documentation_modal_html() {
 				<!-- Branding Section -->
 				<div class="wpd-docs-brand-logo-container">
 					<div class="wpd-docs-brand-logo-row">
-						<img src="<?php echo esc_url($logo_icon_url); ?>" alt="Alpha Insights Icon" class="wpd-docs-brand-logo-icon" />
+						<img src="<?php echo esc_url( wpdai_get_logo_icon_url() ); ?>" alt="Alpha Insights Icon" class="wpd-docs-brand-logo-icon" />
 						<div class="wpd-docs-brand-logo-text">
 							<div class="wpd-docs-brand-title"><?php esc_html_e('Alpha Insights', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></div>
 							<div class="wpd-docs-brand-subtitle"><?php esc_html_e('Intelligent Profit Reports', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></div>
@@ -186,10 +199,10 @@ function wpd_documentation_modal_html() {
  *	You must add your hooks before the do_action
  *
  */
-add_action( 'admin_notices', 'wpd_setup_notice_hook' );
-function wpd_setup_notice_hook() {
+add_action( 'admin_notices', 'wpdai_setup_notice_hook' );
+function wpdai_setup_notice_hook() {
 
-	add_action( 'wpd_before_content', 'wpd_output_notices' );
+	add_action( 'wpd_before_content', 'wpdai_output_notices' );
 
 }
 
@@ -208,10 +221,10 @@ function wpd_setup_notice_hook() {
  * 	@return array|bool Wil return an associative array for of the calculation values saved for this order or false on failure
  *
  */
-function wpd_calculate_cost_profit_by_order( $order_id_or_object = null, $update_values = false ) {
+function wpdai_calculate_cost_profit_by_order( $order_id_or_object = null, $update_values = false ) {
 
 	// Prepare Object
-	$order_calculator = new WPD_Order_Calculator( $order_id_or_object, $update_values );
+	$order_calculator = new WPDAI_Order_Calculator( $order_id_or_object, $update_values );
 
 	// Return Results
 	return $order_calculator->get_results();
@@ -239,7 +252,7 @@ function wpd_calculate_cost_profit_by_order( $order_id_or_object = null, $update
  *  @version 5.0.0
  *
  */
-function wpd_get_cost_price_by_product_id( $product_id ) {
+function wpdai_get_cost_price_by_product_id( $product_id ) {
 
 	// Safety Check
 	if ( ! is_numeric($product_id) ) return false;
@@ -256,7 +269,7 @@ function wpd_get_cost_price_by_product_id( $product_id ) {
 	 *  This is our primary cost price
 	 */
 	$cost_price_per_unit = get_post_meta( $product_id, '_wpd_ai_product_cost', true );
-	if ( is_numeric( $cost_price_per_unit ) ) $cost_price_per_unit = wpd_float( $cost_price_per_unit );
+	if ( is_numeric( $cost_price_per_unit ) ) $cost_price_per_unit = wpdai_float( $cost_price_per_unit );
 
 	/**
 	 *	If cost price doesnt exist, use our default checking function
@@ -266,7 +279,7 @@ function wpd_get_cost_price_by_product_id( $product_id ) {
 	 * 	3. Default Cost Price (General Settings)
 	 */
 	if ( ! is_numeric($cost_price_per_unit)  ) {
-		$cost_price_per_unit = wpd_get_default_cost_price_by_product_id( $product_id ); // This will check WC and then our general settings
+		$cost_price_per_unit = wpdai_get_default_cost_price_by_product_id( $product_id ); // This will check WC and then our general settings
 	}
 
 	/**
@@ -320,7 +333,7 @@ function wpd_get_cost_price_by_product_id( $product_id ) {
  *  @version 5.0.0
  *
  **/
-function wpd_get_default_cost_price_by_product_id( $product_id ) {
+function wpdai_get_default_cost_price_by_product_id( $product_id ) {
 
 	$cost_price_per_unit = 0;
 	$support_native_cogs = apply_filters( 'wpd_ai_cost_price_support_woocommerce_native_cogs', true );
@@ -331,7 +344,7 @@ function wpd_get_default_cost_price_by_product_id( $product_id ) {
 	 */
 	$wc_native_cost_price_per_unit = get_post_meta( $product_id, '_cogs_total_value', true ); // WooCommerce 10.0+ (Native COGS)
 	if ( is_numeric($wc_native_cost_price_per_unit) && $support_native_cogs ) {
-		$cost_price_per_unit = wpd_float( $wc_native_cost_price_per_unit );
+		$cost_price_per_unit = wpdai_float( $wc_native_cost_price_per_unit );
 		return $cost_price_per_unit;
 	}
 
@@ -345,13 +358,13 @@ function wpd_get_default_cost_price_by_product_id( $product_id ) {
 		// Get parent product cost price
 		$cost_price_per_unit = get_post_meta( $parent_id, '_wpd_ai_product_cost', true );
 		if ( is_numeric( $cost_price_per_unit ) ) {
-			$cost_price_per_unit = wpd_float( $cost_price_per_unit );
+			$cost_price_per_unit = wpdai_float( $cost_price_per_unit );
 			return $cost_price_per_unit;
 		}
 		// Also check the WC native cost of goods (WooCommerce Cost of Goods)
 		$wc_native_cost_price_per_unit = get_post_meta( $parent_id, '_cogs_total_value', true ); // WooCommerce 10.0+ (Native COGS)
 		if ( is_numeric( $wc_native_cost_price_per_unit ) && $support_native_cogs ) {
-			$cost_price_per_unit = wpd_float( $wc_native_cost_price_per_unit );
+			$cost_price_per_unit = wpdai_float( $wc_native_cost_price_per_unit );
 			return $cost_price_per_unit;
 		}
 	}
@@ -360,7 +373,7 @@ function wpd_get_default_cost_price_by_product_id( $product_id ) {
 	 *  If cost price is still empty, use our default setting
 	 *  This is the fallback method of getting the cost price
 	 */
-	$cost_price_per_unit = wpd_get_default_cost_price_from_general_settings( $product_id );
+	$cost_price_per_unit = wpdai_get_default_cost_price_from_general_settings( $product_id );
 	if ( is_numeric( $cost_price_per_unit ) ) {
 		return $cost_price_per_unit;
 	}
@@ -369,6 +382,7 @@ function wpd_get_default_cost_price_by_product_id( $product_id ) {
 	return 0;
 
 }
+
 
 /**
  *
@@ -381,49 +395,42 @@ function wpd_get_default_cost_price_by_product_id( $product_id ) {
  *  @version 5.0.0
  *
  */
-function wpd_get_default_cost_price_from_general_settings( $product_id ) {
+function wpdai_get_default_cost_price_from_general_settings( $product_id ) {
 
-	$default_cost_prices 	= get_option( 'wpd_ai_cost_defaults' );
-	$price 					= get_post_meta( $product_id, '_regular_price', true );
+    $default_cost_prices = get_option( 'wpd_ai_cost_defaults', [] );
+    $default_percent = isset( $default_cost_prices['default_product_cost_percent'] ) ? (float) $default_cost_prices['default_product_cost_percent'] : 0;
 
-	// Safety check - ensure default_cost_prices is an array and key exists
-	if ( ! is_array($default_cost_prices) || ! isset($default_cost_prices['default_product_cost_percent']) || is_null($default_cost_prices['default_product_cost_percent']) ) {
-		$default_cost_prices['default_product_cost_percent'] = 0;
-	}
+    if ( $default_percent <= 0 ) {
+        return 0;
+    }
 
-	// If price is null, revert to collecting product object
-	if ( ! $price ) {
+    // Try to get the regular price from post meta
+    $price = get_post_meta( $product_id, '_regular_price', true );
 
-		// Get product
-		$product = wc_get_product( $product_id );
+    if ( ! $price ) {
+        // If not found, load the WC_Product object
+        $product = wc_get_product( $product_id );
 
-		// Safety Check
-		if ( ! is_a($product, 'WC_Product') ) return 0;
+        if ( ! $product ) {
+            return 0;
+        }
 
-		// If we've found an object
-		if ( method_exists( $product, 'get_variation_regular_price' ) ) {
-			$highest_price = (float) $product->get_variation_regular_price( 'max', true );
-			return $highest_price * ( (float) $default_cost_prices['default_product_cost_percent'] / 100 );
-		} else {
-			return 0;
-		}
+        // Determine price based on product type
+        if ( $product instanceof WC_Product_Variable ) {
+            $price = (float) $product->get_variation_regular_price( 'max', true );
+        } else {
+            $price = (float) $product->get_regular_price();
+        }
 
-	}
+        // If still no price, return 0
+        if ( ! $price ) {
+            return 0;
+        }
+    }
 
-	$cost_price_per_unit 	= (float) $price * ( (float) $default_cost_prices['default_product_cost_percent'] / 100 );
-
-	if ( $cost_price_per_unit > 0 ) {
-
-		return $cost_price_per_unit;
-
-	} else {
-
-		return 0;
-
-	}
-
+    // Calculate default cost
+    return $price * ( $default_percent / 100 );
 }
-
 
 /**
  *
@@ -435,16 +442,16 @@ function wpd_get_default_cost_price_from_general_settings( $product_id ) {
  *  @version 5.0.0
  *
  */
-function is_wpd_page() {
+function is_wpdai_page() {
 
 	// No public pages
 	if ( ! is_admin() ) return false;
 
-	$screen 			= get_current_screen();
+	$screen = get_current_screen();
 	
 	// Safety check: get_current_screen() can return null
 	if ( ! is_object($screen) ) return false;
-	
+
 	$page 				= ( isset($_GET['page']) ) ? sanitize_text_field( $_GET['page'] ) : null;
 	$post_type 			= ( isset($_GET['post_type']) ) ? sanitize_text_field( $_GET['post_type'] ) : null;
 	$taxonomy 			= ( isset($_GET['taxonomy']) ) ? sanitize_text_field( $_GET['taxonomy'] ) : null;
@@ -463,22 +470,22 @@ function is_wpd_page() {
 			|| $screen_post_type == 'google_ad_campaign'
 			|| $taxonomy == 'expense_category'
 			|| $taxonomy == 'suppliers'
-			|| $page == WPD_Admin_Menu::$sales_report_slug
-			|| $page == WPD_Admin_Menu::$website_traffic_slug
-			|| $page == WPD_Admin_Menu::$profit_loss_statement_slug
-			|| $page == WPD_Admin_Menu::$manage_expenses_slug
-			|| $page == WPD_Admin_Menu::$advertising_slug
-			|| $page == WPD_Admin_Menu::$cost_of_goods_slug
-			|| $page == WPD_Admin_Menu::$settings_slug
-			|| $page == WPD_Admin_Menu::$about_help_slug
-			|| $page == WPD_Admin_Menu::$getting_started_slug
+			|| $page == WPDAI_Admin_Menu::$sales_report_slug
+			|| $page == WPDAI_Admin_Menu::$website_traffic_slug
+			|| $page == WPDAI_Admin_Menu::$profit_loss_statement_slug
+			|| $page == WPDAI_Admin_Menu::$manage_expenses_slug
+			|| $page == WPDAI_Admin_Menu::$advertising_slug
+			|| $page == WPDAI_Admin_Menu::$cost_of_goods_slug
+			|| $page == WPDAI_Admin_Menu::$settings_slug
+			|| $page == WPDAI_Admin_Menu::$about_help_slug
+			|| $page == WPDAI_Admin_Menu::$getting_started_slug
 		) {
 
 		$bool = true;
 
 	}
 
-	return $bool;
+	return apply_filters( 'wpd_ai_is_wpd_page', $bool );
 
 }
 
@@ -487,95 +494,95 @@ function is_wpd_page() {
  *	Get Admin Menu Item URL
  *
  */
-if ( ! function_exists( 'wpd_admin_page_url' ) ) {
+function wpdai_admin_page_url( $target ) {
 
-	function wpd_admin_page_url( $target ) {
+	if ( $target === 'inventory-management' ) {
 
-		if ( $target === 'inventory-management' ) {
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$cost_of_goods_slug;
 
-			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$cost_of_goods_slug;
+	} elseif( $target === 'settings' ) {
 
-		} elseif( $target === 'settings' ) {
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$settings_slug;
 
-			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$settings_slug;
+	} elseif( $target === 'settings-emails' ) {
 
-		} elseif( $target === 'settings-emails' ) {
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$settings_slug . '&subpage=email';
 
-			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$settings_slug . '&subpage=email';
+	} elseif( $target === 'settings-emails-preview-profit-report' ) {
 
-		} elseif( $target === 'settings-emails-preview-profit-report' ) {
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$settings_slug . '&subpage=email&email_preview=profit-report';
 
-			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$settings_slug . '&subpage=email&email_preview=profit-report';
+	} elseif( $target === 'settings-emails-preview-expense-report' ) {
 
-		} elseif( $target === 'settings-emails-preview-expense-report' ) {
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$settings_slug . '&subpage=email&email_preview=expense-report';
 
-			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$settings_slug . '&subpage=email&email_preview=expense-report';
+	} elseif( $target === 'settings-emails-preview-inventory-report' ) {
 
-		} elseif( $target === 'settings-emails-preview-inventory-report' ) {
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$settings_slug . '&subpage=email&email_preview=inventory-report';
 
-			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$settings_slug . '&subpage=email&email_preview=inventory-report';
+	} elseif( $target === 'settings' ) {
 
-		} elseif( $target === 'settings' ) {
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$settings_slug;
 
-			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$settings_slug;
+	} elseif( $target === 'settings-bulk-import' ) {
 
-		} elseif( $target === 'settings-bulk-import' ) {
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$cost_of_goods_slug;
 
-			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$cost_of_goods_slug;
+	} elseif( $target === 'settings-product-cogs' ) {
 
-		} elseif( $target === 'settings-product-cogs' ) {
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$cost_of_goods_slug;
 
-			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$cost_of_goods_slug;
+	} elseif( $target === 'settings-license' ) {
 
-		} elseif( $target === 'settings-license' ) {
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$settings_slug . '&subpage=license';
 
-			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$settings_slug . '&subpage=license';
+	} elseif( $target === 'reports' ) {
 
-		} elseif( $target === 'reports-orders' ) {
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$sales_report_slug;
 
-			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$sales_report_slug;
+	} elseif( $target === 'reports-orders' ) {
 
-		} elseif( $target === 'reports-products' ) {
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$sales_report_slug;
 
-			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$sales_report_slug . '&subpage=products';
+	} elseif( $target === 'reports-products' ) {
 
-		} elseif( $target === 'reports-customers' ) {
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$sales_report_slug . '&subpage=products';
 
-			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$sales_report_slug . '&subpage=customers';
+	} elseif( $target === 'reports-customers' ) {
 
-		} elseif( $target === 'reports-expenses' ) {
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$sales_report_slug . '&subpage=customers';
 
-			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$expense_reports_slug;
+	} elseif( $target === 'reports-expenses' ) {
 
-		} elseif( $target === 'pl-statement' ) {
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$expense_reports_slug;
 
-			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$profit_loss_statement_slug;
+	} elseif( $target === 'pl-statement' ) {
 
-		} elseif( $target === 'facebook-report' ) {
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$profit_loss_statement_slug;
 
-			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$sales_report_slug . '&subpage=facebook';
+	} elseif( $target === 'facebook-report' ) {
 
-		} elseif( $target === 'google-report' ) {
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$sales_report_slug . '&subpage=facebook';
 
-			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$sales_report_slug . '&subpage=google-ads';
+	} elseif( $target === 'google-report' ) {
 
-		} elseif( $target === 'add-expense-type' ) {
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$sales_report_slug . '&subpage=google-ads';
 
-			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$manage_expenses_slug . '&subpage=manage-expense-taxonomies';
+	} elseif( $target === 'add-expense-type' ) {
 
-		} elseif( $target === 'manage-suppliers' ) {
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$manage_expenses_slug . '&subpage=manage-expense-taxonomies';
 
-			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$manage_expenses_slug . '&subpage=manage-expense-taxonomies';
+	} elseif( $target === 'manage-suppliers' ) {
 
-		} elseif( $target === 'cost-of-goods-manager' ) {
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$manage_expenses_slug . '&subpage=manage-expense-taxonomies';
 
-			return admin_url( 'admin.php') . '?page=' . WPD_Admin_Menu::$cost_of_goods_slug;
+	} elseif( $target === 'cost-of-goods-manager' ) {
 
-		} else {
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$cost_of_goods_slug;
 
-			return '#';
+	} else {
 
-		}
+		return '#';
 
 	}
 
@@ -586,9 +593,9 @@ if ( ! function_exists( 'wpd_admin_page_url' ) ) {
  *	Get traffic source type
  *
  */
-function wpd_get_traffic_type( $url, $query_params = array() ) {
+function wpdai_get_traffic_type( $url, $query_params = array() ) {
 
-	$traffic_class = new WPD_Traffic_Type( $url, $query_params );
+	$traffic_class = new WPDAI_Traffic_Type_Detection( $url, $query_params );
 	$traffic_source_type = $traffic_class->determine_traffic_source();
 
 	return $traffic_source_type;
@@ -600,7 +607,7 @@ function wpd_get_traffic_type( $url, $query_params = array() ) {
  *	Margin calculation
  *
  */
-function wpd_calculate_percentage( $original, $total, $round = 2 ) {
+function wpdai_calculate_percentage( $original, $total, $round = 2 ) {
 
 	// Definitely going to be 0 if any value is 0
 	if ( ! $original || ! $total ) {
@@ -639,7 +646,7 @@ function wpd_calculate_percentage( $original, $total, $round = 2 ) {
  *	Divide calculation (prevents NaN)
  *
  */
-function wpd_divide( $n1, $n2, $round = false ) {
+function wpdai_divide( $n1, $n2, $round = false ) {
 
 	if ( ! $n1 || ! $n2 ) {
 
@@ -672,10 +679,10 @@ function wpd_divide( $n1, $n2, $round = false ) {
  *	Calculate margin
  *
  */
-function wpd_calculate_margin( $num_profit, $num_total, $negative_margin = true ) {
+function wpdai_calculate_margin( $num_profit, $num_total, $negative_margin = true ) {
 
 	$result = 0;
-	$result = (float) round( wpd_divide($num_profit, $num_total) * 100, 2 );
+	$result = (float) round( wpdai_divide($num_profit, $num_total) * 100, 2 );
 
 	if ( $negative_margin === false && $result < 0 ) {
 
@@ -689,35 +696,13 @@ function wpd_calculate_margin( $num_profit, $num_total, $negative_margin = true 
 
 /**
  *
- *	Data Tip ToolTip
- *
- */
-if ( ! function_exists( 'wpd_tooltip' ) ) {
-
-	function wpd_tooltip( $string = null, $primary = true ) {
-
-		( $primary ) ? $class = 'primary' : $class = 'secondary';
-
-		?>
-		<span class="wpd-tooltip <?php echo esc_attr( $class ); ?>">
-			<span class="dashicons dashicons-info"></span>
-			<span class="tooltiptext"><?php echo esc_html( $string ); ?></span>
-		</span>
-		<?php
-
-	}
-
-}
-
-/**
- *
  *	Sort multi level associative array
  *	
  *	@param $array (array) The array
  *	@param $key (string) 'Key to sort by'
  *
  */
-function wpd_sort_multi_level_array( $array, $key, $desc = true ) {
+function wpdai_sort_multi_level_array( $array, $key, $desc = true ) {
 
 	if ( ! is_array($array) ) {
 
@@ -746,16 +731,12 @@ function wpd_sort_multi_level_array( $array, $key, $desc = true ) {
  *	Parse User Agent
  *
  */
-if ( ! function_exists( 'wpd_parse_user_agent' ) ) {
+function wpdai_parse_user_agent( $user_agent ) {
 
-	function wpd_parse_user_agent( $user_agent ) {
-
-		$ua_parser 	= new WPD_User_Agent( $user_agent );
-		if ( ! is_object($ua_parser) ) return false;
-		$results 	= $ua_parser->getInfo();
-		return $results;
-
-	}
+	$ua_parser 	= new WPDAI_User_Agent_Classification( $user_agent );
+	if ( ! is_object($ua_parser) ) return false;
+	$results 	= $ua_parser->getInfo();
+	return $results;
 
 }
 
@@ -764,19 +745,15 @@ if ( ! function_exists( 'wpd_parse_user_agent' ) ) {
  *	Check if this option is selected and return html
  *
  */
-if ( ! function_exists( 'wpd_selected_option' ) ) {
+function wpdai_selected_option( $current_option, $current_value ) {
 
-	function wpd_selected_option( $current_option, $current_value ) {
+	if ( $current_option == $current_value ) {
 
-		if ( $current_option == $current_value ) {
+		return 'selected="selected"';
 
-			return 'selected="selected"';
+	} else {
 
-		} else {
-
-			return '';
-
-		}
+		return '';
 
 	}
 
@@ -787,27 +764,23 @@ if ( ! function_exists( 'wpd_selected_option' ) ) {
  *	Preloaer
  *
  */
-if ( ! function_exists( 'wpd_preloader' ) ) {
+function wpdai_preloader( $width = 30, $visible = true, $return = false ) {
 
-	function wpd_preloader( $width = 30, $visible = true, $return = false ) {
+	$style = 'width: ' . $width . 'px;';
+	$style .= 'height: ' . $width . 'px;';
+	
+	if ( ! $visible ) {
 
-		$style = 'width: ' . $width . 'px;';
-		$style .= 'height: ' . $width . 'px;';
-		
-		if ( ! $visible ) {
+		$style .= 'display:none;';
 
-			$style .= 'display:none;';
+	}
 
-		}
+	$result = '<div class="wpd-preloader" style="' . $style . '"><img src="' . WPD_AI_URL_PATH . '/assets/img/wpd-preloader.svg"></div>';
 
-		$result = '<div class="wpd-preloader" style="' . $style . '"><img src="' . WPD_AI_URL_PATH . '/assets/img/wpd-preloader.svg"></div>';
-
-		if ( $return ) {
-			return $result;
-		} else {
-			echo wp_kses_post( $result );
-		}
-
+	if ( $return ) {
+		return $result;
+	} else {
+		echo wp_kses_post( $result );
 	}
 
 }
@@ -817,27 +790,23 @@ if ( ! function_exists( 'wpd_preloader' ) ) {
  *	Success
  *
  */
-if ( ! function_exists( 'wpd_success' ) ) {
+function wpdai_success( $width = 30, $visible =  true, $return = false ) {
 
-	function wpd_success( $width = 30, $visible =  true, $return = false ) {
+	$style = 'width: ' . $width . 'px;';
+	$style .= 'height: ' . $width . 'px;';
 
-		$style = 'width: ' . $width . 'px;';
-		$style .= 'height: ' . $width . 'px;';
+	if ( ! $visible ) {
 
-		if ( ! $visible ) {
+		$style .= 'display:none;';
 
-			$style .= 'display:none;';
+	}
 
-		}
+	$result = '<div class="wpd-success" style="' . $style . '"><span class="dashicons dashicons-yes" style="line-height: ' . $width . 'px; font-size: ' . $width / 2 . 'px;"></span></div>';
 
-		$result = '<div class="wpd-success" style="' . $style . '"><span class="dashicons dashicons-yes" style="line-height: ' . $width . 'px; font-size: ' . $width / 2 . 'px;"></span></div>';
-
-		if ( $return ) {
-			return $result;
-		} else {
-			echo wp_kses_post( $result );
-		}
-
+	if ( $return ) {
+		return $result;
+	} else {
+		echo wp_kses_post( $result );
 	}
 
 }
@@ -847,27 +816,23 @@ if ( ! function_exists( 'wpd_success' ) ) {
  *	Failure
  *
  */
-if ( ! function_exists( 'wpd_failure' ) ) {
+function wpdai_failure( $width = 30, $visible =  true, $return = false  ) {
 
-	function wpd_failure( $width = 30, $visible =  true, $return = false  ) {
+	$style = 'width: ' . $width . 'px;';
+	$style .= 'height: ' . $width . 'px;';
 
-		$style = 'width: ' . $width . 'px;';
-		$style .= 'height: ' . $width . 'px;';
+	if ( ! $visible ) {
 
-		if ( ! $visible ) {
+		$style .= 'display:none;';
 
-			$style .= 'display:none;';
+	}
 
-		}
+	$result = '<div class="wpd-failure" style="' . $style . '"><span class="dashicons dashicons-no" style="line-height: ' . $width . 'px; font-size: ' . $width / 2 . 'px;"></span></div>';
 
-		$result = '<div class="wpd-failure" style="' . $style . '"><span class="dashicons dashicons-no" style="line-height: ' . $width . 'px; font-size: ' . $width / 2 . 'px;"></span></div>';
-
-		if ( $return ) {
-			return $result;
-		} else {
-			echo wp_kses_post( $result );
-		}
-
+	if ( $return ) {
+		return $result;
+	} else {
+		echo wp_kses_post( $result );
 	}
 
 }
@@ -880,7 +845,7 @@ if ( ! function_exists( 'wpd_failure' ) ) {
  *	@return array $statuses An array of status keys to be used in profit calculations
  *
  */
-function wpd_paid_order_statuses() {
+function wpdai_paid_order_statuses() {
 
 	// User settings
 	$status = get_option( 'wpd_ai_order_status' );
@@ -909,40 +874,33 @@ function wpd_paid_order_statuses() {
  *	Function to register a WP Davies Notice
  *
  */
-if ( ! function_exists( 'wpd_notice' ) ) {
+function wpdai_notice( $string ) {
 
-	function wpd_notice( $string ) {
-
-		$_POST['wpd-notice'][] = $string;
-
-	}
+	$_POST['wpd-notice'][] = $string;
 
 }
+
 
 /**
  *
  *	Loop & Output notices
  *
  */
-if ( ! function_exists( 'wpd_output_notices' ) ) {
+function wpdai_output_notices() {
 
-	function wpd_output_notices() {
+	if ( isset( $_POST['wpd-notice'] ) && ! empty( $_POST['wpd-notice'] ) ) {
 
-		if ( isset( $_POST['wpd-notice'] ) && ! empty( $_POST['wpd-notice'] ) ) {
+		if ( is_array($_POST['wpd-notice']) ) {
 
-			if ( is_array($_POST['wpd-notice']) ) {
+			foreach( $_POST['wpd-notice'] as $message ) {
 
-				foreach( $_POST['wpd-notice'] as $message ) {
-
-					wpd_admin_notice( sanitize_text_field( $message ) );
-
-				}
-
-			} else {
-
-				wpd_admin_notice( sanitize_text_field( $_POST['wpd-notice'] ) );
+				wpdai_admin_notice( sanitize_text_field( $message ) );
 
 			}
+
+		} else {
+
+			wpdai_admin_notice( sanitize_text_field( $_POST['wpd-notice'] ) );
 
 		}
 
@@ -959,41 +917,34 @@ if ( ! function_exists( 'wpd_output_notices' ) ) {
  *	@param string Message type -> success(blue), error(red), warning(amber)
  *
  */
-function wpd_admin_notice( $string, $status = 'success' ) {
+function wpdai_admin_notice( $string, $status = 'success' ) {
 
 	echo '<div class="wpd-notice notice notice-' . esc_attr( $status ) . ' is-dismissible"><p>' . esc_html( $string ) . '</p></div>';
 
 }
-
-
-
 
 /**
  *
  *	Checkbox
  *
  */
-if ( ! function_exists( 'wpd_checkbox' ) ) {
+function wpdai_checkbox( $name, $value = null, $label = null ) {
 
-	function wpd_checkbox( $name, $value = null, $label = null ) {
-
-		if ( $value == true || $value == 1 ) {
-			$checked = 'checked="checked"';
-		} else {
-			$checked = null;
-		}
-
-		?>
-		    <div class="wpd-checkbox-container">
-				<label for="<?php echo esc_attr( $name ); ?>" class="wpd-checkbox-label">
-					<input type="checkbox" name="<?php echo esc_attr( $name ); ?>" value="1" id="<?php echo esc_attr( $name ); ?>" class="wpd-input wpd-checkbox" <?php echo esc_attr( $checked ); ?>>
-					<span class="checkbox-custom rectangular"></span>
-				</label>
-				<span class="wpd-checkbox-text"><?php echo esc_html( $label ); ?></span>
-			</div>
-		<?php
-
+	if ( $value == true || $value == 1 ) {
+		$checked = 'checked="checked"';
+	} else {
+		$checked = null;
 	}
+
+	?>
+		<div class="wpd-checkbox-container">
+			<label for="<?php echo esc_attr( $name ); ?>" class="wpd-checkbox-label">
+				<input type="checkbox" name="<?php echo esc_attr( $name ); ?>" value="1" id="<?php echo esc_attr( $name ); ?>" class="wpd-input wpd-checkbox" <?php echo esc_attr( $checked ); ?>>
+				<span class="checkbox-custom rectangular"></span>
+			</label>
+			<span class="wpd-checkbox-text"><?php echo esc_html( $label ); ?></span>
+		</div>
+	<?php
 
 }
 
@@ -1002,160 +953,42 @@ if ( ! function_exists( 'wpd_checkbox' ) ) {
  *	Write log
  *
  */
-if ( ! function_exists( 'wpd_write_log' ) ) {
+function wpdai_write_log( $data, $log = 'default' ) {
 
-	function wpd_write_log( $data, $log = 'default' ) {
+	if ( $log === 'webhook' ) {
 
-		if ( $log === 'webhook' ) {
+		$filepath 	= WPD_AI_UPLOADS_FOLDER_SYSTEM . 'log/wpd_webhook_log.txt';
 
-			$filepath 	= WPD_AI_UPLOADS_FOLDER_SYSTEM . 'log/wpd_webhook_log.txt';
+	} elseif ( $log === 'email' ) {
 
-		} elseif ( $log === 'email' ) {
+		$filepath 	= WPD_AI_UPLOADS_FOLDER_SYSTEM . 'log/wpdai_email_log.txt';
 
-			$filepath 	= WPD_AI_UPLOADS_FOLDER_SYSTEM . 'log/wpd_email_log.txt';
+	} elseif ( $log === 'default' ) {
 
-		} elseif ( $log === 'default' ) {
+		$filepath 	= WPD_AI_UPLOADS_FOLDER_SYSTEM . 'log/wpd_general_log.txt';
 
-			$filepath 	= WPD_AI_UPLOADS_FOLDER_SYSTEM . 'log/wpd_general_log.txt';
+	} elseif ( $log === 'facebook' ) {
 
-		} elseif ( $log === 'facebook' ) {
-
-			$filepath 	= WPD_AI_UPLOADS_FOLDER_SYSTEM . 'log/wpd_facebook_log.txt';
-
-		} else {
-
-			$filepath 	= WPD_AI_UPLOADS_FOLDER_SYSTEM . 'log/wpd_' . $log . '_log.txt';
-
-		}
-
-		$time_stamp = current_time('Y-m-d h:i:sa') . ': ';
-
-		if ( is_array( $data ) || is_object( $data ) ) {
-
-			file_put_contents( $filepath, $time_stamp . print_r( $data, true ), FILE_APPEND );
-
-		} else {
-
-			file_put_contents( $filepath, $time_stamp . trim( $data ) . PHP_EOL, FILE_APPEND );
-
-		}
-
-	}
-
-}
-
-/**
- *
- *	Fetch for template
- *
- */
-function wpd_template_locate( $template_category, $template_name ) {
-
-	$template_file = WPD_AI_PATH . 'templates/' . $template_category . '/' . $template_name . '.php';
-
-	if ( file_exists( $template_file ) ) {
-
-		return $template_file;
+		$filepath 	= WPD_AI_UPLOADS_FOLDER_SYSTEM . 'log/wpd_facebook_log.txt';
 
 	} else {
 
-		echo esc_html__( 'Template not found', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) . ' (' . esc_html( $template_file ) . ')';
+		$filepath 	= WPD_AI_UPLOADS_FOLDER_SYSTEM . 'log/wpd_' . $log . '_log.txt';
 
 	}
 
-}
+	$time_stamp = current_time('Y-m-d h:i:sa') . ': ';
 
+	if ( is_array( $data ) || is_object( $data ) ) {
 
-/**
- * Format the price with a currency symbol.
- *
- * @param  float $price Raw price.
- * @param  array $args  Arguments to format a price {
- *     Array of arguments.
- *     Defaults to empty array.
- *
- *     @var bool   $ex_tax_label       Adds exclude tax label.
- *                                      Defaults to false.
- *     @var string $currency           Currency code.
- *                                      Defaults to empty string (Use the result from get_woocommerce_currency()).
- *     @var string $decimal_separator  Decimal separator.
- *                                      Defaults the result of wc_get_price_decimal_separator().
- *     @var string $thousand_separator Thousand separator.
- *                                      Defaults the result of wc_get_price_thousand_separator().
- *     @var string $decimals           Number of decimals.
- *                                      Defaults the result of wc_get_price_decimals().
- *     @var string $price_format       Price format depending on the currency position.
- *                                      Defaults the result of get_woocommerce_price_format().
- * }
- * @return string
- */
-function wpd_store_price( $price, $args = array() ) {
+		file_put_contents( $filepath, $time_stamp . print_r( $data, true ), FILE_APPEND );
 
-	$args = apply_filters(
-		'wc_price_args',
-		wp_parse_args(
-			$args,
-			array(
-				'ex_tax_label'       => false,
-				'currency'           => wpd_get_store_currency(),
-				'decimal_separator'  => wc_get_price_decimal_separator(),
-				'thousand_separator' => wc_get_price_thousand_separator(),
-				'decimals'           => wc_get_price_decimals(),
-				'price_format'       => get_woocommerce_price_format(),
-			)
-		)
-	);
+	} else {
 
-	$original_price = $price;
+		file_put_contents( $filepath, $time_stamp . trim( $data ) . PHP_EOL, FILE_APPEND );
 
-	// Convert to float to avoid issues on PHP 8.
-	$price = (float) $price;
-
-	$unformatted_price = $price;
-	$negative          = $price < 0;
-
-	/**
-	 * Filter raw price.
-	 *
-	 * @param float        $raw_price      Raw price.
-	 * @param float|string $original_price Original price as float, or empty string. Since 5.0.0.
-	 */
-	$price = apply_filters( 'raw_woocommerce_price', $negative ? $price * -1 : $price, $original_price );
-
-	/**
-	 * Filter formatted price.
-	 *
-	 * @param float        $formatted_price    Formatted price.
-	 * @param float        $price              Unformatted price.
-	 * @param int          $decimals           Number of decimals.
-	 * @param string       $decimal_separator  Decimal separator.
-	 * @param string       $thousand_separator Thousand separator.
-	 * @param float|string $original_price     Original price as float, or empty string. Since 5.0.0.
-	 */
-	$price = apply_filters( 'formatted_woocommerce_price', number_format( $price, $args['decimals'], $args['decimal_separator'], $args['thousand_separator'] ), $price, $args['decimals'], $args['decimal_separator'], $args['thousand_separator'], $original_price );
-
-	if ( apply_filters( 'woocommerce_price_trim_zeros', false ) && $args['decimals'] > 0 ) {
-		$price = wc_trim_zeros( $price );
 	}
 
-	// Issue here
-	$formatted_price = ( $negative ? '-' : '' ) . sprintf( $args['price_format'], '<span class="woocommerce-Price-currencySymbol">' . esc_html( wpd_get_woocommerce_currency_symbol( $args['currency'] ) ) . '</span>', esc_html( $price ) );
-	$return          = '<span class="woocommerce-Price-amount amount"><bdi>' . wp_kses_post( $formatted_price ) . '</bdi></span>';
-
-	if ( $args['ex_tax_label'] && wc_tax_enabled() ) {
-		$return .= ' <small class="woocommerce-Price-taxLabel tax_label">' . WC()->countries->ex_tax_or_vat() . '</small>';
-	}
-
-	/**
-	 * Filters the string of price markup.
-	 *
-	 * @param string       $return            Price HTML markup.
-	 * @param string       $price             Formatted price.
-	 * @param array        $args              Pass on the args.
-	 * @param float        $unformatted_price Price as float to allow plugins custom formatting. Since 3.2.0.
-	 * @param float|string $original_price    Original price as float, or empty string. Since 5.0.0.
-	 */
-	return apply_filters( 'wpd_price', $return, $price, $args, $unformatted_price, $original_price );
 }
 
 /**
@@ -1164,7 +997,7 @@ function wpd_store_price( $price, $args = array() ) {
  *	@return string HTML status circle
  * 	@var $status = success, error, neutral
  */
-function wpd_status_circle($status = "neutral") {
+function wpdai_status_circle($status = "neutral") {
 
 	$color = '#eaeaea'; // grey
 
@@ -1186,7 +1019,7 @@ function wpd_status_circle($status = "neutral") {
  *	Collect list of available roles
  *
  */
-function wpd_get_available_store_roles( $return_keys = true ) {
+function wpdai_get_available_store_roles( $return_keys = true ) {
 
 	global $wp_roles;
 
@@ -1208,7 +1041,7 @@ function wpd_get_available_store_roles( $return_keys = true ) {
  *	in array format regardles of whether it's a simple product or a variable/grouped product.
  * 
  **/
-function wpd_get_min_max_product_cogs_range( $product ) {
+function wpdai_get_min_max_product_cogs_range( $product ) {
 
 	// If product_id has been passed lets get an object
 	if ( is_numeric($product) ) {
@@ -1229,7 +1062,7 @@ function wpd_get_min_max_product_cogs_range( $product ) {
 
 			// Variations
 			foreach( $variation_ids as $product_id ) {
-				$cost_price[] = wpd_get_cost_price_by_product_id( $product_id );
+				$cost_price[] = wpdai_get_cost_price_by_product_id( $product_id );
 			}
 	
 			$min_cost_price = min( $cost_price );
@@ -1242,7 +1075,7 @@ function wpd_get_min_max_product_cogs_range( $product ) {
 	
 		} else {
 
-			$cost_price = wpd_get_cost_price_by_product_id( $product->get_id() );
+			$cost_price = wpdai_get_cost_price_by_product_id( $product->get_id() );
 
 			return array(
 				'min' => $cost_price,
@@ -1268,7 +1101,7 @@ function wpd_get_min_max_product_cogs_range( $product ) {
  *	in array format regardles of whether it's a simple product or a variable/grouped product.
  * 
  **/
-function wpd_get_min_max_product_margin_range( $product ) {
+function wpdai_get_min_max_product_margin_range( $product ) {
 
 	// If product_id has been passed lets get an object
 	if ( is_numeric($product) && $product > 0  ) {
@@ -1292,7 +1125,7 @@ function wpd_get_min_max_product_margin_range( $product ) {
 			// Variations
 			foreach( $variation_ids as $product_id ) {
 
-				$cost_price = wpd_get_cost_price_by_product_id( $product_id );
+				$cost_price = wpdai_get_cost_price_by_product_id( $product_id );
 				
 				// Reload variation product
 				$product = wc_get_product( $product_id );
@@ -1302,7 +1135,7 @@ function wpd_get_min_max_product_margin_range( $product ) {
 
 				// Create array of margin calculations
 				$profit = $rrp_price - $cost_price;
-				$margin = wpd_calculate_margin( $profit, $rrp_price );
+				$margin = wpdai_calculate_margin( $profit, $rrp_price );
 				$margin_array[] = $margin;
 
 			}
@@ -1317,7 +1150,7 @@ function wpd_get_min_max_product_margin_range( $product ) {
 
 		} else {
 
-			$margin = wpd_calculate_margin_by_product( $product );
+			$margin = wpdai_calculate_margin_by_product( $product );
 
 			return array(
 				'min' => $margin,
@@ -1345,7 +1178,7 @@ function wpd_get_min_max_product_margin_range( $product ) {
  * 	product object or the product has a child
  * 
  **/
-function wpd_calculate_margin_by_product( $product ) {
+function wpdai_calculate_margin_by_product( $product ) {
 
 	// If product_id has been passed lets get an object
 	if ( is_numeric($product) && $product > 0 ) {
@@ -1362,139 +1195,13 @@ function wpd_calculate_margin_by_product( $product ) {
 	} else {
 
 		$rrp 				= (float) $product->get_regular_price();
-		$cogs 				= (float) wpd_get_cost_price_by_product_id( $product->get_id() );
+		$cogs 				= (float) wpdai_get_cost_price_by_product_id( $product->get_id() );
 		$profit 			= $rrp - $cogs;
-		$margin_percentage 	= wpd_calculate_margin( $profit, $rrp );
+		$margin_percentage 	= wpdai_calculate_margin( $profit, $rrp );
 	
 		return (float) $margin_percentage;
 
 	}
-
-}
-
-/**
- * 
- * 	Replaces characters in a string with asterix to improve security
- * 	Shows the last 4 characters, turns the rest into asterix
- * 
- **/
-function wpd_mask_string( $string, $max_length = 16 ) {
-
-	if ( ! $string ) return null;
-
-	$length 		= strlen($string);
-	$visibleCount 	= 4; // (int) round($length / 4);
-	$hiddenCount 	= $length - $visibleCount;
-
-	$string = str_repeat('*', $hiddenCount) . substr($string, ($visibleCount * -1), $visibleCount);
-
-	if ( is_int($max_length) ) {
-		$string = substr($string, ($max_length * -1), $max_length);
-	}
-
-	return $string;
-
-}
-
-/**
- * 
- * 	Calls a WPD API Endpoint
- * 
- * 	Use this function to ensure we always pass the required params
- * 	Can merge additional params if required
- * 	
- * 	This is basically a wrapper for wp_remote_post
- * 
- * 	@param string $url The URL to send the request to
- * 	@param string $method The method, get, post etc..
- * 	@param array $args The args to pass into the request, will merge with our default args which are the license key, plugin_version and requesting URL
- * 
- * 	@return array|WP_Error Response array on success or false on failure
- * 
- * 	@see https://developer.wordpress.org/reference/classes/wp_http/request/ for $args
- * 
- **/
-function wpd_call_wpdavies_api_endpoint( $url, $args = array(), $method = 'post' ) {
-
-	// Get WP Version
-	global $wp_version;
-
-	// Default args, always want to pass this
-	$default_args = array(
-		'method' => $method,
-		'timeout' => 10, // Default 5
-		'body' => array(
-			'license_key' => get_option( 'wpd_ai_api_key', null ),
-			'plugin_version' => WPD_AI_VER,
-			'requesting_url' => site_url(),
-			'product_id' => WPD_AI_PRODUCT_ID,
-			'wp_version' => $wp_version,
-			'php_version' => phpversion()
-		)
-	);
-
-	// If I didn't pass any body or header args, let's assume we're passing in the body args if it's not empty
-	if ( is_array($args) && ! empty($args) && ! array_key_exists('body', $args) && ! array_key_exists('header', $args) ) {
-
-		$default_args['body'] = array_merge( $default_args['body'], $args );
-		$args = $default_args;
-
-	} else {
-
-		// Merge passed args into our default args
-		$args = ( ! empty($args) ) ? array_merge( $default_args, $args ) : $default_args;
-
-	}
-
-	// Send request
-	$response = wp_remote_post( $url, $args );
-
-	// Return response
-	return $response;
-
-}
-
-/**
- *
- *	Function to fetch for updates
- *
- */
-function wpd_fetch_for_updates() {
-
-	// Load API key, default to null
-	$api_key = get_option( 'wpd_ai_api_key', null);
-
-	// Load Class
-	if ( file_exists( WPD_AI_PATH . 'includes/helpers/plugin-update-checker/plugin-update-checker.php' ) ) {
-
-		require_once( WPD_AI_PATH . 'includes/helpers/plugin-update-checker/plugin-update-checker.php' );
-
-		// Build API Endpoint
-		$api_endpoint = 'https://wpdavies.dev/wp-json/wp-davies/v1/alpha-insights/plugin-update/';
-		$query_params = http_build_query([
-			'license_key' => $api_key,
-			'plugin_version' => WPD_AI_VER,
-			'requesting_url' => site_url(),
-			'product_id' => WPD_AI_PRODUCT_ID
-		]);
-
-		// Build Vars
-		$plugin_data_request = $api_endpoint . '?' . $query_params;
-		$alpha_insights_plugin_file = WPD_AI_PATH . '/wpd-alpha-insights.php';
-
-		// Load updater
-		$alpha_insights_updater = Puc_v4_Factory::buildUpdateChecker( $plugin_data_request, $alpha_insights_plugin_file, '' );
-
-		// Return results?
-		return $alpha_insights_updater;
-
-	} else {
-
-		return false;
-
-	}
-
-
 
 }
 
@@ -1507,7 +1214,7 @@ function wpd_fetch_for_updates() {
  * 	@param bool Default return if we can't work it out
  * 
  **/
-function wpd_convert_to_bool( $bool_check, bool $default ) {
+function wpdai_convert_to_bool( $bool_check, bool $default ) {
 
 	// Already boolean, return that
 	if ( is_bool($bool_check) ) {
@@ -1536,7 +1243,7 @@ function wpd_convert_to_bool( $bool_check, bool $default ) {
  * 	@return array List of countries with the country code as the key & the country name as the value
  * 
  **/
-function wpd_get_list_of_available_countries() {
+function wpdai_get_list_of_available_countries() {
 
 	global $woocommerce;
 	$countries_obj  = new WC_Countries();
@@ -1554,7 +1261,7 @@ function wpd_get_list_of_available_countries() {
  * 	@return array|false Associative array or false if a non-numeric value was passed into this function
  * 
  **/
-function wpd_get_attachment_data_by_id( $attachment_id ) {
+function wpdai_get_attachment_data_by_id( $attachment_id ) {
 
 	// Safety Check
 	if ( ! is_numeric($attachment_id) ) {
@@ -1583,19 +1290,6 @@ function wpd_get_attachment_data_by_id( $attachment_id ) {
 
 /**
  * 
- * 	A simple list of available traffic types to use in filtering
- * 
- * 	@return array $traffic_types in slug => name format.
- * 
- **/
-function wpd_available_traffic_types() {
-
-	return WPD_Traffic_Type::available_traffic_types();
-
-}
-
-/**
- * 
  * 	Sends an API call to the woocommerce API endpoint
  * 	@todo create a direct DB call, no need to run through API.
  * 
@@ -1614,10 +1308,10 @@ function wpd_available_traffic_types() {
  *  @var $data['additional_data']   Array Any additional data, stored in JSON 	Default: NULL
  * 
  **/
-function wpd_send_woocommerce_event( $data ) {
+function wpdai_send_woocommerce_event( $data ) {
 
 	// Call event tracking class
-	$result = WPD_WooCommerce_Events::get_instance()->insert_event( $data );
+	$result = WPDAI_WooCommerce_Event_Tracking::get_instance()->insert_event( $data );
 
 	// return results
 	return $result;
@@ -1633,7 +1327,7 @@ function wpd_send_woocommerce_event( $data ) {
  * 	@return array List of payment gateways with id, title, description and enabled status
  * 
  **/
-function wpd_get_available_payment_gateways() {
+function wpdai_get_available_payment_gateways() {
 
 	// Get payment gateways
 	$payment_gateways = WC()->payment_gateways->payment_gateways();
@@ -1688,10 +1382,10 @@ function wpd_get_available_payment_gateways() {
  * 	@link https://wpdavies.dev/
  * 
  **/
-function wpd_is_user_authorized_to_view_alpha_insights() {
+function wpdai_is_user_authorized_to_use_alpha_insights() {
 	
 	// Get authorized roles from settings (should return an array of role slugs)
-	$authorized_roles = (array) wpd_get_authorized_user_roles_settings();
+	$authorized_roles = (array) wpdai_get_authorized_user_roles_settings();
 	
 	// Get current user
 	$current_user = wp_get_current_user();

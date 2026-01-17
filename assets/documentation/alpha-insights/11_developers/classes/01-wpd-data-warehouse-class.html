@@ -1,6 +1,6 @@
-﻿<h2>Class: WPD_Data_Warehouse_React</h2>
+﻿<h2>Class: WPDAI_Data_Warehouse</h2>
 
-<p>The <code>WPD_Data_Warehouse_React</code> class is the centralized data warehouse for Alpha Insights. It fetches, processes, and stores all WooCommerce and analytics data including orders, products, customers, expenses, campaigns, subscriptions, and website analytics.</p>
+<p>The <code>WPDAI_Data_Warehouse</code> class is the centralized data warehouse for Alpha Insights. It fetches, processes, and stores all WooCommerce and analytics data including orders, products, customers, expenses, campaigns, subscriptions, and website analytics.</p>
 
 <h3>Overview</h3>
 
@@ -17,7 +17,7 @@
 </ul>
 
 <h4>Location</h4>
-<p><strong>File:</strong> <code>includes/classes/WPD_Data_Warehouse_React.php</code></p>
+<p><strong>File:</strong> <code>includes/classes/WPDAI_Data_Warehouse.php</code></p>
 
 <h3>Data Structure</h3>
 
@@ -87,7 +87,7 @@
 )
 )
 );
-$warehouse = new WPD_Data_Warehouse_React( $filter );</code></pre>
+$warehouse = new WPDAI_Data_Warehouse( $filter );</code></pre>
 
 <h5>update_filter( $key, $value )</h5>
 <p><strong>Purpose:</strong> Update a specific filter after initialization</p>
@@ -114,7 +114,7 @@ $warehouse = new WPD_Data_Warehouse_React( $filter );</code></pre>
 <p><strong>Returns:</strong> Array of orders data</p>
 <p><strong>Populates:</strong> <code>orders</code>, <code>products</code>, <code>customers</code>, <code>coupons</code>, <code>taxes</code>, <code>refunds</code> data types</p>
 <p><strong>Example:</strong></p>
-<pre><code>$warehouse = new WPD_Data_Warehouse_React( array(
+<pre><code>$warehouse = new WPDAI_Data_Warehouse( array(
 'date_from' => '2024-01-01',
 'date_to'   => '2024-01-31'
 ));
@@ -379,7 +379,7 @@ $orders_by_date = $warehouse->get_data('orders', 'data_by_date');</code></pre>
 <h3>Complete Usage Example</h3>
 
 <pre><code>// Initialize with filters
-$warehouse = new WPD_Data_Warehouse_React( array(
+$warehouse = new WPDAI_Data_Warehouse( array(
 'date_from' => '2024-01-01',
 'date_to'   => '2024-01-31',
 'data_filters' => array(
@@ -421,7 +421,7 @@ echo "Execution Time: " . $execution_time['total'] . " seconds\n";</code></pre>
 <h3>Notes</h3>
 
 <ul>
-<li>The class is used extensively by <code>WPD_React_Report</code> for React-based reports</li>
+<li>The class is used extensively by <code>WPDAI_Report_Builder</code> for React-based reports</li>
 <li>All date ranges respect the store's timezone settings</li>
 <li>Data is cached internally - you can call <code>get_data()</code> multiple times without re-querying</li>
 <li>The <code>fetch_store_profit_data()</code> method automatically fetches orders and expenses if not already loaded</li>
@@ -434,7 +434,7 @@ echo "Execution Time: " . $execution_time['total'] . " seconds\n";</code></pre>
 <h3>Related Classes</h3>
 
 <ul>
-<li><code>WPD_React_Report</code> - Uses this class to fetch data for React reports</li>
-<li><code>WPD_Order_Calculator</code> - Handles profit calculations for individual orders</li>
-<li><code>WPD_Report_API</code> - REST API handler that uses this class for data endpoints</li>
+<li><code>WPDAI_Report_Builder</code> - Uses this class to fetch data for React reports</li>
+<li><code>WPDAI_Order_Calculator</code> - Handles profit calculations for individual orders</li>
+<li><code>WPDAI_Reporting_API</code> - REST API handler that uses this class for data endpoints</li>
 </ul>

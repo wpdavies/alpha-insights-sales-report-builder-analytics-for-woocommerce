@@ -1,0 +1,174 @@
+<h2>Filter: wpd_ai_session_data_chunk_size</h2>
+
+<p>Control the chunk size used when querying session data in batches. This helps optimize database queries for large datasets by processing session IDs in smaller chunks.</p>
+
+<h3>Description</h3>
+
+<p>When fetching session data for analytics reports, Alpha Insights processes session IDs in chunks to avoid memory issues and optimize database performance. This filter allows you to customize the chunk size based on your server capabilities and data volume.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPDAI_Data_Warehouse.php</code></p>
+<p><strong>Method:</strong> <code>WPDAI_Data_Warehouse::get_session_data_by_ids()</code></p>
+<p><strong>Line:</strong> ~6222</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$chunk_size</td>
+        <td>int</td>
+        <td>The number of session IDs to process per chunk (default: 100-200 based on session ID length)</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> int</p>
+<p><strong>Description:</strong> Modified chunk size (must be a positive integer)</p>
+
+<h3>Default Behavior</h3>
+
+<p>The plugin automatically determines chunk size based on average session ID length:</p>
+<ul>
+    <li>Very long session IDs (&gt;60 chars): 100 per chunk</li>
+    <li>Medium-long session IDs (40-60 chars): 150 per chunk</li>
+    <li>Standard session IDs (&lt;40 chars): 200 per chunk</li>
+</ul>
+
+<h3>Example Usage</h3>
+
+<h3>Increase Chunk Size for Better Performance</h3>
+
+<pre><code>add_filter( 'wpd_ai_session_data_chunk_size', 'increase_session_chunk_size' );
+function increase_session_chunk_size( $chunk_size ) {
+    // Increase to 500 for high-performance servers
+    return 500;
+}</code></pre>
+
+<h3>Reduce Chunk Size for Memory-Constrained Servers</h3>
+
+<pre><code>add_filter( 'wpd_ai_session_data_chunk_size', 'reduce_session_chunk_size' );
+function reduce_session_chunk_size( $chunk_size ) {
+    // Reduce to 50 for servers with limited memory
+    return 50;
+}</code></pre>
+
+<h3>Dynamic Chunk Size Based on Server Load</h3>
+
+<pre><code>add_filter( 'wpd_ai_session_data_chunk_size', 'dynamic_session_chunk_size' );
+function dynamic_session_chunk_size( $chunk_size ) {
+    // Get server load average (Unix/Linux only)
+    if ( function_exists( 'sys_getloadavg' ) ) {
+        $load = sys_getloadavg();
+        $current_load = $load[0];
+        
+        // Reduce chunk size if server is under heavy load
+        if ( $current_load > 2.0 ) {
+            return max( 50, (int) ( $chunk_size * 0.5 ) );
+        }
+    }
+    
+    return $chunk_size;
+}</code></pre>
+
+<h3>Chunk Size Based on Available Memory</h3>
+
+<pre><code>add_filter( 'wpd_ai_session_data_chunk_size', 'memory_based_chunk_size' );
+function memory_based_chunk_size( $chunk_size ) {
+    // Get available memory
+    $memory_limit = ini_get( 'memory_limit' );
+    $memory_limit_bytes = wp_convert_hr_to_bytes( $memory_limit );
+    $memory_usage = memory_get_usage( true );
+    $available_memory = $memory_limit_bytes - $memory_usage;
+    
+    // Adjust chunk size based on available memory
+    if ( $available_memory < 64 * 1024 * 1024 ) { // Less than 64MB
+        return 50;
+    } elseif ( $available_memory < 128 * 1024 * 1024 ) { // Less than 128MB
+        return 100;
+    } else {
+        return 300; // More memory available, use larger chunks
+    }
+}</code></pre>
+
+<h3>Best Practices</h3>
+
+<ul>
+    <li>Start with default values and adjust based on performance</li>
+    <li>Monitor memory usage when increasing chunk size</li>
+    <li>Use smaller chunks on shared hosting environments</li>
+    <li>Larger chunks = fewer queries but more memory usage</li>
+    <li>Smaller chunks = more queries but less memory usage</li>
+    <li>Test with your actual data volume before production</li>
+</ul>
+
+<h3>Performance Impact</h3>
+
+<table>
+    <tr>
+        <th>Chunk Size</th>
+        <th>Memory Usage</th>
+        <th>Query Count</th>
+        <th>Best For</th>
+    </tr>
+    <tr>
+        <td>50</td>
+        <td>Low</td>
+        <td>High</td>
+        <td>Shared hosting, low memory</td>
+    </tr>
+    <tr>
+        <td>100-200 (default)</td>
+        <td>Medium</td>
+        <td>Medium</td>
+        <td>Most standard setups</td>
+    </tr>
+    <tr>
+        <td>300-500</td>
+        <td>High</td>
+        <td>Low</td>
+        <td>Dedicated servers, high memory</td>
+    </tr>
+</table>
+
+<h3>Important Notes</h3>
+
+<ul>
+    <li>Chunk size must be a positive integer</li>
+    <li>Very large chunk sizes may cause memory exhaustion</li>
+    <li>Very small chunk sizes may slow down queries</li>
+    <li>Default values are optimized for most use cases</li>
+    <li>Only adjust if you're experiencing performance issues</li>
+</ul>
+
+<h3>Debugging</h3>
+
+<pre><code>add_filter( 'wpd_ai_session_data_chunk_size', 'debug_session_chunk_size', 999 );
+function debug_session_chunk_size( $chunk_size ) {
+    error_log( 'Alpha Insights Session Chunk Size: ' . $chunk_size );
+    error_log( 'Memory Usage: ' . size_format( memory_get_usage( true ) ) );
+    return $chunk_size;
+}</code></pre>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href='/documentation/alpha-insights/developers/filters/wpd_ai_analytics_data_fetch_batch_size.html'>wpd_ai_analytics_data_fetch_batch_size</a> - Control analytics data batch size</li>
+</ul>
+
+<h3>Related Classes</h3>
+
+<ul>
+    <li><code>WPDAI_Data_Warehouse</code> - React dashboard data warehouse</li>
+</ul>
+
+
+
+
+
