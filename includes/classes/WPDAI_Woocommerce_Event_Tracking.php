@@ -36,6 +36,7 @@ class WPDAI_WooCommerce_Event_Tracking {
 	public string   $api_namespace 			= 'alpha-insights/v1';
 	public string   $api_endpoint 			= 'woocommerce-events';
 	public string   $api_url 				= '';
+	public int 		$only_track_engaged_sessions = 0;
 	public int 		$event_tracking_enabled = 1;
 	public array 	$settings 				= array();
     public int      $track_user 			= 1;
@@ -49,27 +50,23 @@ class WPDAI_WooCommerce_Event_Tracking {
 	 */
 	public function __construct() {
 
+		if ( ! wpdai_is_analytics_enabled() ) {
+			$this->event_tracking_enabled = 0;
+		}
+
 		// Load script -> always add tracking script to get around cache issues
 		add_action( 'wp_enqueue_scripts', array($this, 'register_event_tracking_script') );
 
 		// Setup props
 		$this->settings = get_option( 'wpd_ai_analytics', array()); // Default return empty array
+		$this->only_track_engaged_sessions = get_option( 'wpd_ai_analytics_only_track_engaged_sessionss', 0 );
 
-		// Decide if we are going to track events
-		if ( ! wpdai_is_analytics_enabled() ) {
-
-			$this->event_tracking_enabled = 0;
-
-		} else {
+		// If we are going to track events, setup the hooks
+		if ( $this->event_tracking_enabled == 1 ) {
 
 			// Set API URL for calls
 			$this->api_url = '/wp-json/' . $this->api_namespace . '/' . $this->api_endpoint;
 
-			/**
-			 *
-			 *	Event Tracking
-			 *
-			 **/
 			// Setup object info, after things are setup though
 			add_action( 'template_redirect', array( $this, 'setup_object_type_id' ), 1 );
 
@@ -97,9 +94,6 @@ class WPDAI_WooCommerce_Event_Tracking {
 
 			// WooCommerce Events API
 			add_action( 'rest_api_init', array( $this, 'register_wpd_ai_events_api' ) );
-			
-			// Engaged Session API
-			add_action( 'rest_api_init', array( $this, 'register_wpd_ai_engaged_session_api' ) );
 
 		}
 
@@ -142,198 +136,132 @@ class WPDAI_WooCommerce_Event_Tracking {
 
 	/**
 	 *
-	 *	Initialize callback for rest API - Engaged Session Tracking
-	 *
-	 */
-	public function register_wpd_ai_engaged_session_api() {
-
-		register_rest_route(
-			$this->api_namespace, 	// Namespace
-			'engaged-session', 		// Endpoint
-			array(
-				'methods' => 'POST',
-				'callback' => array( $this, 'process_engaged_session_api_data' ),
-				'permission_callback' => '__return_true' // This is a public endpoint, security checks are already done in the callback
-			)
-		);
-
-	}
-	
-	/**
-	 * Verify permission for events API endpoint
-	 * This endpoint is for frontend event tracking and validates referer header
-	 * 
-	 * @return bool True to allow request processing (validation happens in callback)
-	 */
-	public function verify_events_api_permission() {
-		// Allow all requests - actual security validation happens in process_events_api_data()
-		// which checks referer header, rate limiting, bot detection, etc.
-		// This is intentional for frontend tracking - validation is done in the callback
-		return true;
-	}
-
-	/**
-	 *
 	 *	Process data passed to us by the Rest API, this is used for JS event tracking
 	 *
 	 */
 	public function process_events_api_data( WP_REST_Request $request ) {
 
 		// Vars
-		$response 	 	= array();
 		$payload 		= $request->get_params();
 		$referer 		= $request->get_header( 'referer' );
 
 		// No referer set
 		if ( ! $referer ) {
-
-			$response['message'] = '403 Forbidden. Error Code: #1.';
-
 			return new \WP_REST_Response(
-				array($response),
+				array(
+					'success' => false,
+					'message' => __( 'Forbidden: Referer header is required.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+					'code' => 'missing_referer',
+					'data' => array()
+				),
 				403
 			);
-
 		}
 
 		// Referer does not match domain
 		$referring_url 	= wp_parse_url( $referer, PHP_URL_HOST );
 		$site_url 		= wp_parse_url( get_site_url(), PHP_URL_HOST );
 		if ( $referring_url != $site_url  ) {
-
-			$response['message'] = '403 Forbidden. Error Code: #2.'; // Must be an internal request
-
 			return new \WP_REST_Response(
-				array($response),
+				array(
+					'success' => false,
+					'message' => __( 'Forbidden: Referer does not match site domain.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+					'code' => 'invalid_referer',
+					'data' => array()
+				),
 				403
 			);
-
 		}
 
 		// Event Type Not Set
 		if ( ! isset($payload['event_type']) || empty($payload['event_type']) ) {
-
-			$response['message'] = 'Event type is a required parameter.  Error Code: #3.';
-
 			return new \WP_REST_Response(
-				array($response),
-				403
+				array(
+					'success' => false,
+					'message' => __( 'Event type is a required parameter.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+					'code' => 'missing_event_type',
+					'data' => array()
+				),
+				400
 			);
-
 		}
 
 		// Succesful Call, insert into db
 		if ( isset($payload['event_type']) && ! empty($payload['event_type']) ) {
 
 			// Original event
-			$rows_insert 			= $this->insert_event( $payload );
-			$response['message'] 	= $rows_insert . ' rows were inserted into the db.';
-			$response['data'] 	 	= $payload;
+			$insert_result = $this->insert_event( $payload );
+			
+			// Handle structured response
+			if ( is_array( $insert_result ) && isset( $insert_result['success'] ) ) {
 
-			// Attempt to track init_checkout and viewed_cart_page
-			if ( $payload['event_type'] == 'page_view' && is_numeric($payload['object_id']) ) {
+				$response['success'] = $insert_result['success'];
+				$response['message'] = $insert_result['message'];
+				$response['code'] = $insert_result['code'];
+				$response['data'] = $payload;
+				
+				// Track additional events for page_view
+				if ( $payload['event_type'] == 'page_view' && is_numeric($payload['object_id']) && $insert_result['success'] ) {
 
-				if ( intval($payload['object_id']) == wc_get_page_id('checkout') ) {
+					if ( intval($payload['object_id']) == wc_get_page_id('checkout') ) {
 
-					$payload['event_type'] = 'init_checkout';
-					$rows_insert 			= $this->insert_event( $payload );
-					$response['message'] 	= '2 rows were inserted into the db, page view & init checkout.';
-					$response['data'] 	 	= $payload;
+						$payload['event_type'] = 'init_checkout';
+						$checkout_result = $this->insert_event( $payload );
+						
+						if ( is_array( $checkout_result ) && isset( $checkout_result['success'] ) && $checkout_result['success'] ) {
+							$response['message'] = __( 'Page view and checkout initiation successfully tracked.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
+							$response['code'] = 'page_view_and_checkout_tracked';
+						} else {
+							$response['message'] = __( 'Page view tracked, but checkout initiation failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
+						}
+						$response['data'] = $payload;
 
-				} else if ( intval($payload['object_id']) == wc_get_page_id('cart') ) {
+					} else if ( intval($payload['object_id']) == wc_get_page_id('cart') ) {
 
-					$payload['event_type'] = 'viewed_cart_page';
-					$rows_insert 			= $this->insert_event( $payload );
-					$response['message'] 	= '2 rows were inserted into the db, page view & viewed cart page.';
-					$response['data'] 	 	= $payload;
+						$payload['event_type'] = 'viewed_cart_page';
+						$cart_result = $this->insert_event( $payload );
+						
+						if ( is_array( $cart_result ) && isset( $cart_result['success'] ) && $cart_result['success'] ) {
+							$response['message'] = __( 'Page view and cart page view successfully tracked.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
+							$response['code'] = 'page_view_and_cart_tracked';
+						} else {
+							$response['message'] = __( 'Page view tracked, but cart page view failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
+						}
+						$response['data'] = $payload;
 
+					}
 				}
-
+				
+				// Set appropriate HTTP status code
+				$status_code = $insert_result['success'] ? 200 : 400;
+				
+			} else {
+				// Fallback for backward compatibility (shouldn't happen with new code)
+				$response = array(
+					'success' => false,
+					'message' => __( 'Unexpected response format from event insertion.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+					'code' => 'unexpected_response',
+					'data' => $payload
+				);
+				$status_code = 500;
 			}
 			
 			return new \WP_REST_Response(
-				array($response),
-				200
+				$response,
+				$status_code
 			);
 
 		}
 
 		// If we get here, something went wrong
-		$response['message'] = 'Event type is a required parameter.  Error Code: #3.';
-
 		return new \WP_REST_Response(
-			array($response),
+			array(
+				'success' => false,
+				'message' => __( 'Invalid request: Unable to process event tracking request.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+				'code' => 'invalid_request',
+				'data' => array()
+			),
 			400
-		);
-
-	}
-
-	/**
-	 *
-	 *	Process engaged session API data
-	 *	Called when user interacts with the site (click/scroll) to mark session as engaged
-	 *
-	 */
-	public function process_engaged_session_api_data( WP_REST_Request $request ) {
-
-		// Vars
-		$response 	 	= array();
-		$payload 		= $request->get_params();
-		$referer 		= $request->get_header( 'referer' );
-
-		// No referer set
-		if ( ! $referer ) {
-
-			$response['message'] = '403 Forbidden. Error Code: #1.';
-
-			return new \WP_REST_Response(
-				array($response),
-				403
-			);
-
-		}
-
-		// Referer does not match domain
-		$referring_url 	= wp_parse_url( $referer, PHP_URL_HOST );
-		$site_url 		= wp_parse_url( get_site_url(), PHP_URL_HOST );
-		if ( $referring_url != $site_url  ) {
-
-			$response['message'] = '403 Forbidden. Error Code: #2.'; // Must be an internal request
-
-			return new \WP_REST_Response(
-				array($response),
-				403
-			);
-
-		}
-
-		// Check if engaged flag is set
-		if ( ! isset($payload['engaged']) || ! $payload['engaged'] ) {
-
-			$response['message'] = 'Engaged parameter is required. Error Code: #3.';
-
-			return new \WP_REST_Response(
-				array($response),
-				400
-			);
-
-		}
-
-		// Call WPDAI_Session_Tracking to update engaged session
-		$session_tracking = new WPDAI_Session_Tracking();
-		$result = $session_tracking->update_engaged_session();
-
-		if ( $result ) {
-			$response['message'] = 'Session marked as engaged successfully.';
-			$response['success'] = true;
-		} else {
-			$response['message'] = 'Failed to update engaged session.';
-			$response['success'] = false;
-		}
-
-		return new \WP_REST_Response(
-			array($response),
-			200
 		);
 
 	}
@@ -372,9 +300,12 @@ class WPDAI_WooCommerce_Event_Tracking {
      *  @var $data['date_created_gmt']  Date Event Created In GMT Time      	Default: current_time('mysql')
      *  @var $data['additional_data']   Array Any additional data, stored in JSON 	Default: NULL
 	 * 
-	 *  @return Int|false. The number of rows inserted, or false on error.
-	 *
-	 *  @todo Sanitize the data before going to DB
+	 *  @return array {
+	 *      @type bool   $success       Whether the event was successfully inserted
+	 *      @type string $message       Human-readable message (translatable)
+	 *      @type string $code         Programmatic code for the result
+	 *      @type int    $rows_inserted Number of rows inserted (for backward compatibility)
+	 *  }
 	 *
 	 */
 	public function insert_event( $data ) {
@@ -384,37 +315,82 @@ class WPDAI_WooCommerce_Event_Tracking {
 
 		// If we're not tracking, dont enter data
 		if ( ! $this->track_user() || ! $this->event_tracking_enabled ) {
-			return 10;
+			return array(
+				'success' => false,
+				'message' => __( 'Event tracking is disabled for this user.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+				'code' => 'tracking_disabled',
+				'rows_inserted' => 0
+			);
 		}
 
 		// Dont proceed if theyve been ip banned
 		if ( $this->is_ip_banned() ) {
-			return 20;
+			return array(
+				'success' => false,
+				'message' => __( 'IP address is banned from event tracking.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+				'code' => 'ip_banned',
+				'rows_inserted' => 0
+			);
 		}
 
 		// If it's a CRON event, shouldn't be added to DB
         if (defined('DOING_CRON') && DOING_CRON) {
-            return 30;
+            return array(
+				'success' => false,
+				'message' => __( 'Event tracking skipped during CRON execution.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+				'code' => 'cron_skip',
+				'rows_inserted' => 0
+			);
         }
 
         // Dont bother in AJAX
         // if (defined('DOING_AJAX') && DOING_AJAX) {
-        //     return 40;
+        //     return array(
+		// 		'success' => false,
+		// 		'message' => __( 'Event tracking skipped during AJAX request.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		// 		'code' => 'ajax_skip',
+		// 		'rows_inserted' => 0
+		// 	);
         // }
 
 		// Dont store any data from admin
 		if ( is_admin() ) {
-			return 50;
+			return array(
+				'success' => false,
+				'message' => __( 'Event tracking skipped in admin area.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+				'code' => 'admin_skip',
+				'rows_inserted' => 0
+			);
 		}
 
 		// If there's no landing page in the session, probably not a real person.. causes issue in api calls
 		if ( empty( $session_instance->landing_page ) ) {
-			return 60;
+			return array(
+				'success' => false,
+				'message' => __( 'Event tracking skipped: no landing page in session.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+				'code' => 'no_landing_page',
+				'rows_inserted' => 0
+			);
 		}
 
 		// Bot
 		if ( $session_instance->is_bot ) {
-			return 70;
+			return array(
+				'success' => false,
+				'message' => __( 'Event tracking skipped: bot detected.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+				'code' => 'bot_detected',
+				'rows_inserted' => 0
+			);
+		}
+
+		// Block form submissions that contain cart classes, we'll track these through other means
+		if ( $data['event_type'] == 'form_submit' && isset($data['additional_data']['form_element_class']) && strpos($data['additional_data']['form_element_class'], 'cart') !== false ) {
+			return array(
+				'success' => false,
+				'message' => __( 'Event tracking skipped: cart form submission tracked via other means.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+				'code' => 'cart_form_skip',
+				'rows_inserted' => 0
+			);
 		}
 
 		$db_interactor 			= new WPDAI_Database_Interactor();
@@ -423,13 +399,17 @@ class WPDAI_WooCommerce_Event_Tracking {
 		// Cant be overriden
 		$data['date_created_gmt'] 	= current_time( 'mysql', true ); // True = GMT
 
-		// Defaults, if not set or empty
+		// Defaults to session instance values, if not set or empty
 		if ( ! isset($data['session_id']) || empty($data['session_id']) ) $data['session_id'] = $session_instance->session_id;
 		if ( ! isset($data['ip_address']) || empty($data['ip_address']) ) $data['ip_address'] = $session_instance->ip_address;
 		if ( ! isset($data['user_id']) || empty($data['user_id']) ) $data['user_id'] = $session_instance->user_id;
-		if ( ! isset($data['page_href']) || empty($data['page_href']) ) $data['page_href'] = $this->page_href;
+		if ( ! isset($data['page_href']) || empty($data['page_href']) ) $data['page_href'] = $session_instance->page_href;
+
+		// We setup the object type and id during the hooks on this class
 		if ( ! isset($data['object_type']) || empty($data['object_type']) ) $data['object_type'] = $this->object_type;
 		if ( ! isset($data['object_id']) || empty($data['object_id']) ) $data['object_id'] = $this->object_id;
+
+		// Event specific defaults? 
 		if ( ! isset($data['event_type']) || empty($data['event_type']) ) $data['event_type'] = $this->event_type;
 		if ( ! isset($data['event_quantity']) ) $data['event_quantity'] = $this->event_quantity;
 		if ( ! isset($data['event_value']) || empty($data['event_value']) ) $data['event_value'] = $this->event_value;
@@ -456,13 +436,23 @@ class WPDAI_WooCommerce_Event_Tracking {
 
 		// Check rate limiting (max 60 requests per minute)
 		if ( $this->is_rate_limit_exceeded() ) {
-			return false;
+			return array(
+				'success' => false,
+				'message' => __( 'Rate limit exceeded. Too many requests.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+				'code' => 'rate_limit_exceeded',
+				'rows_inserted' => 0
+			);
 		}
 
 		// Finally check over the data before inserting into DB
-		if ( $this->is_bad_request( $data ) ) {
-			return false;
-		} 
+		if ( $this->block_request_by_data( $data ) ) {
+			return array(
+				'success' => false,
+				'message' => __( 'Event tracking blocked: invalid or incomplete data.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+				'code' => 'invalid_data',
+				'rows_inserted' => 0
+			);
+		}
 
 		// Store / Update session in DB
 		$session_instance->store_session_in_db();
@@ -473,37 +463,63 @@ class WPDAI_WooCommerce_Event_Tracking {
 		// Insert data
 		$rows_inserted = $db_interactor->add_row( $table_name, $data );
 		
-		// Return no. rows inserted
-		return $rows_inserted;
+		// Return structured response
+		if ( $rows_inserted > 0 ) {
+			return array(
+				'success' => true,
+				'message' => sprintf(
+					/* translators: %d: Number of rows inserted */
+					_n( 'Event successfully tracked.', 'Events successfully tracked.', $rows_inserted, 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+					$rows_inserted
+				),
+				'code' => 'success',
+				'rows_inserted' => $rows_inserted
+			);
+		} else {
+			return array(
+				'success' => false,
+				'message' => __( 'Failed to insert event into database.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+				'code' => 'insert_failed',
+				'rows_inserted' => 0
+			);
+		}
 
 	}
 
 	/**
 	 * 
-	 * 	Checks for incomplete or dodgy requests
+	 * 	Checks for incomplete or dodgy requests, by data array
+	 * 
+	 * 	@var $data The data array to check
+	 * 	@return bool True if we should block the request, false otherwise
 	 * 
 	 **/
-	private function is_bad_request( $data ) {
+	private function block_request_by_data( $data ) {
 
-		/**
-		 * 
-		 * 	Check for dodgy requests
-		 * 
-		 **/
-		if ( is_array($data) ) {
+		// Setup var to allow filtering
+		$block_request = false;
 
-			// Empty Page Href
-			if ( ! isset($data['page_href']) || empty($data['page_href']) ) {
-				return true;
-			}
-
-			// Page Href is not from the same domain
-			$domain_url = wp_parse_url( get_site_url(), PHP_URL_HOST );
-			if ( ! str_contains($data['page_href'], $domain_url) ) {
-				return true;
-			}
-
+		// Empty / unstructured data array
+		if ( ! is_array($data) || empty($data) ) {
+			$block_request = true;
 		}
+
+		// Empty Page Href
+		if ( ! isset($data['page_href']) || empty($data['page_href']) ) {
+			$block_request = true;
+		}
+
+		// Page Href is not from the same domain
+		$domain_url = wp_parse_url( get_site_url(), PHP_URL_HOST );
+		if ( ! str_contains($data['page_href'], $domain_url) ) {
+			$block_request = true;
+		}
+
+		// Filter
+		$block_request = apply_filters( 'wpd_ai_event_tracking_block_request_by_data', $block_request, $data );
+
+		// Return true if we should block the request
+		return $block_request;
 
 	}
 
@@ -606,7 +622,9 @@ class WPDAI_WooCommerce_Event_Tracking {
     	$track_user = 1;
 
 		// Dont track bots
-		if ( $session_instance->is_bot ) return 0;
+		if ( $session_instance->is_bot ) {
+			return 0;
+		}
 
     	// Are we wanting to exclude any roles?
     	if ( isset($this->settings['exclude_roles']) && ! empty($this->settings['exclude_roles']) && is_array($this->settings['exclude_roles']) ) {
@@ -650,7 +668,6 @@ class WPDAI_WooCommerce_Event_Tracking {
         if ( $wp_query->is_main_query() ) {
 
         	$queried_object = get_queried_object();
-
             $object_id = (int) $wp_query->get_queried_object_id();
 
             // Fallback for Object ID - Usually home page
@@ -672,9 +689,23 @@ class WPDAI_WooCommerce_Event_Tracking {
             } elseif ( is_a($queried_object, 'WP_Post_Type') && $queried_object->name == 'product'  ) {
 
             	// Shop archive doesnt bring up much data - cant get page id from WP_QUERY?
+				$this->object_id = (int) wc_get_page_id( 'shop' );
                 $object_type = 'shop';
 
-            } else {
+            } elseif ( function_exists('is_front_page') && is_front_page() ) {
+
+				$front_page_id = (int) get_option( 'page_on_front' );
+
+				if ( $front_page_id ) {
+					$this->object_id   = $front_page_id;
+					$object_type = 'page';
+				} else {
+					// Latest posts homepage
+					$this->object_id   = 0;
+					$object_type = 'page';
+				}
+
+			} else {
 
             	$object_type = '';
 
@@ -799,7 +830,8 @@ class WPDAI_WooCommerce_Event_Tracking {
 		$event_inserted = $this->insert_event( $transaction_data );
 
 		// Mark this order as tracked to prevent duplicates
-		if ($event_inserted === 1) {
+		// Check new structured response format
+		if ( is_array( $event_inserted ) && isset( $event_inserted['success'] ) && $event_inserted['success'] === true && $event_inserted['rows_inserted'] === 1 ) {
 			$this->mark_order_as_tracked( $order_id );
 		}
 		
@@ -934,7 +966,8 @@ class WPDAI_WooCommerce_Event_Tracking {
 		$event_inserted = $this->insert_event( $transaction_data );
 
 		// Mark this order as tracked to prevent duplicates
-		if ($event_inserted === 1) {
+		// Check new structured response format
+		if ( is_array( $event_inserted ) && isset( $event_inserted['success'] ) && $event_inserted['success'] === true && $event_inserted['rows_inserted'] === 1 ) {
 			$this->mark_order_as_tracked( $order_id );
 		}
 		
@@ -1145,13 +1178,15 @@ class WPDAI_WooCommerce_Event_Tracking {
 		// Setup JS Tracking - see wpd-alpha-insights-event-tracking.js
 		wp_register_script( 'wpd-alpha-insights-event-tracking', WPD_AI_URL_PATH . 'assets/js/wpd-alpha-insights-event-tracking.js', array( 'jquery' ), WPD_AI_VER, true );
 
-		$wpd_ai_event_tracking_params = array();
-		$wpd_ai_event_tracking_params['api_endpoint'] 		= $this->api_url;
-		$wpd_ai_event_tracking_params['current_post_type'] 	= $this->object_type;
-		$wpd_ai_event_tracking_params['current_post_id'] 	= $this->object_id;
-		$wpd_ai_event_tracking_params['track_user'] 		= $this->track_user;
-		$wpd_ai_event_tracking_params['ajax_url'] 			= admin_url('admin-ajax.php');
-
+		$wpd_ai_event_tracking_params = array(
+			'api_endpoint' => $this->api_url,
+			'current_post_type' => $this->object_type,
+			'current_post_id' => $this->object_id,
+			'track_user' => $this->track_user(),
+			'track_engaged_sessions' => $this->only_track_engaged_sessions,
+			'event_tracking_enabled' => $this->event_tracking_enabled,
+			'ajax_url' => admin_url('admin-ajax.php'),
+		);
 
 		// Server vars to pass onto frontend
 		wp_localize_script( 'wpd-alpha-insights-event-tracking', 'wpdAlphaInsightsEventTracking', $wpd_ai_event_tracking_params );

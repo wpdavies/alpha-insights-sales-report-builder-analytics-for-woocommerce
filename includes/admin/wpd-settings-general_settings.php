@@ -18,11 +18,11 @@ $admin_style_override 						= get_option( 'wpd_ai_admin_style_override', 0 );
 $prevent_notices 							= get_option( 'wpd_ai_prevent_wp_notices', 0 );
 $admin_custom_column_settings 				= wpdai_get_admin_custom_column_settings();
 $wpd_ai_use_legacy_order_admin_metaboxes	= get_option( 'wpd_ai_use_legacy_order_admin_metaboxes', 0 );
-$custom_order_cost_options 					= (function_exists('wpdai_get_custom_order_cost_options')) ? wpdai_get_custom_order_cost_options() : array();
-$custom_product_cost_options 				= (function_exists('wpdai_get_custom_product_cost_options')) ? wpdai_get_custom_product_cost_options() : array();
+$custom_order_cost_options 					= wpdai_get_custom_order_cost_options();
+$custom_product_cost_options 				= wpdai_get_custom_product_cost_options();
 $analytics_settings							= get_option( 'wpd_ai_analytics');
 $enable_woocommerce_analytics 				= (isset($analytics_settings['enable_woocommerce_analytics'])) ? (int) $analytics_settings['enable_woocommerce_analytics'] : 1;
-$ignore_unengaged_sessions 					= get_option( 'wpd_ai_analytics_ignored_unengaged_sessions', 0 );
+$only_track_engaged_sessions 				= get_option( 'wpd_ai_analytics_only_track_engaged_sessionss', 0 );
 $allowed_roles 								= wpdai_get_authorized_user_roles_settings();
 $refunded_order_costs 						= get_option( 'wpd_ai_refunded_order_costs' );
 $payment_gateway_cost_settings				= wpdai_get_payment_gateway_cost_settings();
@@ -372,13 +372,13 @@ $available_payment_gateways					= wpdai_get_available_payment_gateways();
 			</tr>
 			<tr>
 				<td>
-					<label><?php esc_html_e( 'Only Count Engaged Sessions In Website Traffic Reports', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php esc_html_e( 'This will only count engaged sessions in your website traffic reports. Unengaged sessions will be excluded. These are sessions greater than 0s in duration or have mouse movements.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Only Track Engaged Sessions In Website Traffic Reports', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'This will only track engaged sessions in your website traffic reports. Page views will only be tracked if there\'s mouse movement or the session is greater than 0s in duration.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
-					<select class="wpd-input" name="wpd_ai_analytics_ignored_unengaged_sessions">
-						<option value="1" <?php echo esc_attr( wpdai_selected_option( '1', $ignore_unengaged_sessions ) ); ?>><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="0" <?php echo esc_attr( wpdai_selected_option( '0', $ignore_unengaged_sessions ) ); ?>><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+					<select class="wpd-input" name="wpd_ai_analytics_only_track_engaged_sessionss">
+						<option value="1" <?php echo esc_attr( wpdai_selected_option( '1', $only_track_engaged_sessions ) ); ?>><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="0" <?php echo esc_attr( wpdai_selected_option( '0', $only_track_engaged_sessions ) ); ?>><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
 					</select>
 				</td>
 			</tr>
@@ -478,8 +478,8 @@ $available_payment_gateways					= wpdai_get_available_payment_gateways();
 		<tbody>
 			<tr>
 				<td>
-					<label><?php esc_html_e( 'Limit Plugin Visibility', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php echo wp_kses_post( __( 'Choose which user roles can view this plugin. Those who are denied access will not see any part of the plugin.<br>Administrators will always have access.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
+					<label><?php esc_html_e( 'Plugin Access Permissions', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php echo wp_kses_post( __( 'Choose which user roles can view and use this plugin. Those who are denied access will not see any part of the plugin.<br>Administrators will always have access.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input wpd-combo-select" name="wpd_ai_plugin_visibility[]" multiple="multiple" placeholder="Select Role Type(s) To Include">

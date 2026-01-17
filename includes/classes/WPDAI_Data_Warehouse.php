@@ -5868,7 +5868,7 @@ class WPDAI_Data_Warehouse {
         $woo_events_table               = $wpd_db->events_table;
         $session_data_table             = $wpd_db->session_data_table;
         $filters                        = $this->get_filter();
-        $ignore_unengaged_sessions      = get_option( 'wpd_ai_analytics_ignored_unengaged_sessions', 0 );
+        $ignore_unengaged_sessions      = get_option( 'wpd_ai_analytics_only_track_engaged_sessionss', 0 );
         $session_id_filter              = $this->get_data_filter('website_traffic', 'session_id');
         $event_type_filter              = $this->get_data_filter('website_traffic', 'event_type');
         $session_contains_event_filter  = $this->get_data_filter('website_traffic', 'session_contains_event');
@@ -6090,6 +6090,7 @@ class WPDAI_Data_Warehouse {
                 SELECT DISTINCT session_id
                 FROM $session_data_table
                 WHERE engaged_session = 1
+                OR date_created_gmt != date_updated_gmt
             )";
         }
 
@@ -7276,6 +7277,10 @@ class WPDAI_Data_Warehouse {
             }
                         
         }
+
+        // Convert the blank performance container into all ints
+        $analytics_performance_container['user_count'] = 0; // These begin as arrays
+        $analytics_performance_container['session_count'] = 0; // These begin as arrays
 
         // Build the conversion rate chart
         foreach( $data_by_date['conversion_rate_by_date'] as $date_key => $value ) {

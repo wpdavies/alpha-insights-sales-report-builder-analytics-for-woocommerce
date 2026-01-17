@@ -35,6 +35,7 @@ class WPDAI_Session_Tracking {
     public string   $operating_system = '';
     public string   $browser = '';
     public string   $device = '';
+    public bool     $engaged_session = false;
     public array    $additional_data = array();
     public int      $is_bot = 0;
     public string   $page_href = '';
@@ -43,6 +44,7 @@ class WPDAI_Session_Tracking {
     public string   $object_type = '';
     private bool    $is_new_session = false; // Track if this is a newly created session (first page load)
     private bool    $enable_logging = false;
+    
 
     /**
      *
@@ -50,9 +52,6 @@ class WPDAI_Session_Tracking {
      * 
      */
     public function __construct() {
-
-        // Check if we should log referral URL tracking
-        $this->enable_logging = apply_filters( 'WPDAI_Session_Tracking_enable_logging', false );
 
         // Setup all props
         $this->setup_session_data();
@@ -149,6 +148,9 @@ class WPDAI_Session_Tracking {
 
         if ( function_exists( 'wpdai_write_log' ) ) {
 
+            // Check if we should log session tracking data
+            $this->enable_logging = apply_filters( 'wpd_ai_session_tracking_enable_logging', false );
+
             if ( $this->enable_logging ) {
                 wpdai_write_log( $message, 'session_tracking' );
             }
@@ -223,6 +225,9 @@ class WPDAI_Session_Tracking {
             'raw_user_agent_data' => $this->raw_user_agent_string 
         );
 
+        // Engaged Session
+        $this->engaged_session = $this->get_set_engaged_session();
+
         return get_object_vars( $this );
 
     }
@@ -236,6 +241,29 @@ class WPDAI_Session_Tracking {
 
         $params = get_object_vars( $this );
         return $params;
+
+    }
+
+    /**
+     *
+     *  Get or set engaged session flag
+     *  This is set as a cookie in the frontend JS file if a user scrolls or clicks on the page
+     *
+     */
+    public function get_set_engaged_session() {
+
+        // Check if engaged session cookie is set, if not, set it on click or scroll and fire AJAX
+        if ( isset($_COOKIE['wpd_ai_engaged_session']) && ! empty($_COOKIE['wpd_ai_engaged_session']) ) {
+
+            $cookie = sanitize_text_field( $_COOKIE['wpd_ai_engaged_session'] );
+            if ( $cookie === '1' ) {
+                $this->engaged_session = true;
+            } else {
+                $this->engaged_session = false;
+            }
+        }
+
+        return $this->engaged_session;
 
     }
 
@@ -870,10 +898,10 @@ class WPDAI_Session_Tracking {
         // Priority 1: Try to get from cookie (set by JavaScript on frontend)
         if ( isset($_COOKIE['wpd_ai_referral_source']) && ! empty($_COOKIE['wpd_ai_referral_source']) ) {
 
-            $this->log( '[Session ID: ' . $this->session_id . '] Priority 1: Checking cookie (wpd_ai_referral_source) - Cookie value: ' . $_COOKIE['wpd_ai_referral_source'] );
-
             // Get raw cookie value and sanitize immediately
             $referral_url = sanitize_text_field( wp_unslash( $_COOKIE['wpd_ai_referral_source'] ) );
+
+            $this->log( '[Session ID: ' . $this->session_id . '] Priority 1: Checking cookie (wpd_ai_referral_source).' );
 
             // Try decoding if it's URL-encoded (may be double-encoded)
             $decoded = rawurldecode($referral_url);
@@ -1362,6 +1390,7 @@ class WPDAI_Session_Tracking {
         $data['browser']            = $this->browser;
         $data['device']             = $this->device;
         $data['additional_data']    = json_encode( $this->additional_data );
+        $data['engaged_session']    = $this->get_set_engaged_session(); // Double check in case of timing
 
         // Sanitize
         $data['session_id']         = sanitize_text_field($data['session_id']);
@@ -1373,6 +1402,7 @@ class WPDAI_Session_Tracking {
         $data['operating_system']   = sanitize_text_field($this->operating_system);
         $data['browser']            = sanitize_text_field($this->browser);
         $data['device']             = sanitize_text_field($this->device);
+        $data['engaged_session']    = (int) $data['engaged_session'];
 
         /**
          *

@@ -447,11 +447,11 @@ function is_wpdai_page() {
 	// No public pages
 	if ( ! is_admin() ) return false;
 
-	$screen 			= get_current_screen();
+	$screen = get_current_screen();
 	
 	// Safety check: get_current_screen() can return null
 	if ( ! is_object($screen) ) return false;
-	
+
 	$page 				= ( isset($_GET['page']) ) ? sanitize_text_field( $_GET['page'] ) : null;
 	$post_type 			= ( isset($_GET['post_type']) ) ? sanitize_text_field( $_GET['post_type'] ) : null;
 	$taxonomy 			= ( isset($_GET['taxonomy']) ) ? sanitize_text_field( $_GET['taxonomy'] ) : null;
@@ -485,7 +485,7 @@ function is_wpdai_page() {
 
 	}
 
-	return apply_filters( 'wpd_ai_is_wpd_page', $bool, $screen, $page, $post_type, $taxonomy, $screen_post_type );
+	return apply_filters( 'wpd_ai_is_wpd_page', $bool );
 
 }
 
@@ -1382,7 +1382,7 @@ function wpdai_get_available_payment_gateways() {
  * 	@link https://wpdavies.dev/
  * 
  **/
-function wpdai_is_user_authorized_to_view_alpha_insights() {
+function wpdai_is_user_authorized_to_use_alpha_insights() {
 	
 	// Get authorized roles from settings (should return an array of role slugs)
 	$authorized_roles = (array) wpdai_get_authorized_user_roles_settings();

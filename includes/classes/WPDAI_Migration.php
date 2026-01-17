@@ -62,10 +62,10 @@ class WPDAI_Migration {
      */
     private function __construct() {
         // Hook into the migration runner action
-        add_action( 'WPDAI_Migration_runner', array( $this, 'run_pending_migrations' ) );
+        add_action( 'wpd_ai_migration_runner', array( $this, 'run_pending_migrations' ) );
         
         // Hook into individual migration actions
-        add_action( 'WPDAI_Migration_build_engaged_sessions', array( $this, 'build_engaged_sessions' ) );
+        add_action( 'wpd_ai_migration_build_engaged_sessions', array( $this, 'build_engaged_sessions' ) );
         
         // Register AJAX actions
         add_action( 'wp_ajax_wpd_run_migration', array( $this, 'run_migration_ajax_handler' ) );
@@ -79,7 +79,7 @@ class WPDAI_Migration {
     public function get_available_migrations() {
         return array(
             'build_engaged_sessions' => array(
-                'hook' => 'WPDAI_Migration_build_engaged_sessions',
+                'hook' => 'wpd_ai_migration_build_engaged_sessions',
                 'version' => '5.2.1',
                 'description' => __( 'Build engaged sessions flag for existing sessions', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
                 'name' => __( 'Build Engaged Sessions', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),

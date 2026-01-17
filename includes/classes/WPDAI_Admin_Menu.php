@@ -65,7 +65,7 @@ class WPDAI_Admin_Menu {
     public function register_admin_menu_and_pages() {
 
         // Check if user is authorized to view Alpha Insights
-        $capability = wpdai_is_user_authorized_to_view_alpha_insights() ? 'read' : 'do_not_allow';
+        $capability = wpdai_is_user_authorized_to_use_alpha_insights() ? 'read' : 'do_not_allow';
     
         // Top level menu item - Defaults to Sales Reports
         add_menu_page(
@@ -681,7 +681,7 @@ class WPDAI_Admin_Menu {
         }
 
         // ✅ Add authorization check
-        if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) {
+        if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
             wp_send_json_error( array( 'message' => 'Unauthorized access' ) );
             return;
         }

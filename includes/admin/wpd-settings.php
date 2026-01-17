@@ -41,19 +41,19 @@ function wpdai_register_settings() {
 
 	/**
 	 * 
-	 * 	Default batch size for cache building (orders)
+	 * 	Default batch size for cache building (orders) on the reports page.
+	 *  This will not effect the cron jobs cache build size
 	 * 
 	 **/
 	add_option( 'wpd_ai_cache_build_batch_size', 50 );
 
 	/**
 	 *
-	 *	Order Status Defaults
+	 *	Allowed Roles to view Alpha Insights
 	 *
 	 */
-	global $wp_roles;
-	$all_roles = array_keys( $wp_roles->roles );
-	add_option( 'wpd_ai_plugin_visibility', $all_roles );
+	$allowed_roles = wpdai_get_authorized_user_roles_settings();
+	add_option( 'wpd_ai_plugin_visibility', $allowed_roles );
 
 	/**
 	 *
@@ -105,7 +105,7 @@ function wpdai_register_settings() {
         'exclude_roles' 					=> array(),
     );
 	add_option( 'wpd_ai_analytics', $analytics_settings );
-	add_option( 'wpd_ai_analytics_ignored_unengaged_sessions', 0 );
+	add_option( 'wpd_ai_analytics_only_track_engaged_sessionss', 0 );
 
 	/**
 	 *
@@ -196,7 +196,7 @@ function wpdai_register_settings() {
 		if ( isset( $_POST['submit'] ) && ! empty( $_POST['submit'] ) ) {
 			
 			// Security: Only allow authorized users to save settings
-			if ( wpdai_is_user_authorized_to_view_alpha_insights() ) {
+			if ( wpdai_is_user_authorized_to_use_alpha_insights() ) {
 				// Verify nonce for settings form submission
 				if ( isset( $_POST['wpd_alpha_insights_settings_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpd_alpha_insights_settings_nonce'] ) ), 'wpd_alpha_insights_settings' ) ) {
 					wpdai_save_settings();
@@ -403,9 +403,9 @@ function wpdai_save_settings() {
 	}
 
 	// Ignore Unengaged Sessions Setting
-	if ( isset($_POST['wpd_ai_analytics_ignored_unengaged_sessions']) ) {
-		$ignore_unengaged_sessions = ( isset($_POST['wpd_ai_analytics_ignored_unengaged_sessions']) ) ? intval($_POST['wpd_ai_analytics_ignored_unengaged_sessions']) : 0;
-		$saved['Ignore Unengaged Sessions'] = update_option( 'wpd_ai_analytics_ignored_unengaged_sessions', $ignore_unengaged_sessions );
+	if ( isset($_POST['wpd_ai_analytics_only_track_engaged_sessionss']) ) {
+		$ignore_unengaged_sessions = ( isset($_POST['wpd_ai_analytics_only_track_engaged_sessionss']) ) ? intval($_POST['wpd_ai_analytics_only_track_engaged_sessionss']) : 0;
+		$saved['Ignore Unengaged Sessions'] = update_option( 'wpd_ai_analytics_only_track_engaged_sessionss', $ignore_unengaged_sessions );
 	}
 
 	// Cache Build Batch Size

@@ -145,7 +145,7 @@ class WPDAI_Core {
 		if ( ! is_a($user, 'WP_User') ) return false;
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return false;
+		if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) return false;
 
 		// Cached data
 		$user_data							= wpdai_fetch_customer_analytics_by_user_id( $user->ID );
@@ -298,7 +298,7 @@ class WPDAI_Core {
 		}
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return false;
+		if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) return false;
 
 		// Display product COGS data
 		$product_id 				= $product->get_id();
@@ -377,7 +377,7 @@ class WPDAI_Core {
 	public function show_profit_in_order_summary( $order_id ) {
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return false;
+		if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) return false;
 
 	    // Here set your data and calculations
 	    $order_data 				= wpdai_calculate_cost_profit_by_order( $order_id );
@@ -435,7 +435,7 @@ class WPDAI_Core {
 	public function add_cost_price_to_admin_order_meta_line_item_heading( $order ){
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return false;
+		if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) return false;
 
 		?><th class="wpd_cogs" width="300px">Alpha Insights COGS</th><?php
 
@@ -451,7 +451,7 @@ class WPDAI_Core {
 	public function add_cost_price_to_admin_order_meta_line_item( $product, $item, $item_id = null ) {
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return false;
+		if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) return false;
 
 		// Only continue if product is object and item is of type product
 		if ( is_a( $item, 'WC_Order_Item_Product' ) && is_a( $product, 'WC_Product' ) ) :
@@ -558,7 +558,7 @@ class WPDAI_Core {
 	public function register_order_admin_meta_boxes() {
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return false;
+		if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) return false;
 
 		// For compatability with WC HPOS
 		// Fixed: Proper class reference in get() method
@@ -587,7 +587,7 @@ class WPDAI_Core {
 	public function order_admin_metabox_dashboard( $post_or_order_object ) {
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return false;
+		if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) return false;
 
 		// Load the order
 		$order = ( $post_or_order_object instanceof WP_Post ) ? wc_get_order( $post_or_order_object->ID ) : $post_or_order_object;
@@ -909,10 +909,6 @@ class WPDAI_Core {
 
 		if ( is_a($order, 'WC_Order') ) {
 
-			// Current action for debugging
-			$action = current_action();
-			$url = wpdai_get_current_url_path_raw();
-
 			// Safety check statuses that we don't want to process yet
 			if ( $order->get_status() == 'auto-draft' || $order->get_status() == 'draft' || $order->get_status() == 'checkout-draft' ) {
 				self::$is_handling_save = false;
@@ -922,134 +918,8 @@ class WPDAI_Core {
 			// Saves relevant _COOKIES and session data to the order
 			$this->save_landing_page_to_order_meta( $order );
 
-			// Process Totals - Note: These are from WooCommerce admin order edit page, WooCommerce handles security
-			if ( isset($_POST[ 'total_product_cost' ]) ) {
-				$total_product_cost = wc_format_decimal( sanitize_text_field( $_POST[ 'total_product_cost' ] ) );
-				$order->update_meta_data( '_wpd_ai_total_product_cost', $total_product_cost );
-			}
-			if ( isset($_POST[ '_wpd_ai_total_order_product_custom_cost' ]) ) {
-				$total_product_cost = wc_format_decimal( sanitize_text_field( $_POST[ '_wpd_ai_total_order_product_custom_cost' ] ) );
-				$order->update_meta_data( '_wpd_ai_total_order_product_custom_cost', $total_product_cost );
-			}
-			if ( isset($_POST[ 'payment_gateway_cost' ]) ) {
-				$total_payment_gateway_cost = wc_format_decimal( sanitize_text_field( $_POST[ 'payment_gateway_cost' ] ) );
-				$order->update_meta_data( '_wpd_ai_total_payment_gateway_cost', $total_payment_gateway_cost );
-			}
-			if ( isset($_POST[ 'total_shipping_cost' ]) ) {
-				$total_shipping_cost = wc_format_decimal( sanitize_text_field( $_POST[ 'total_shipping_cost' ] ) );
-				$order->update_meta_data( '_wpd_ai_total_shipping_cost', $total_shipping_cost );
-			}
-
-			// Process custom order costs
-			$custom_order_costs = wpdai_get_custom_order_cost_options();
-			foreach( $custom_order_costs as $cost_slug => $cost_data ) {
-				$custom_cost_meta_key = '_wpd_ai_custom_order_cost_' . sanitize_key( $cost_slug );
-				if ( isset($_POST[$custom_cost_meta_key]) ) {
-					$custom_cost_value = wc_format_decimal( sanitize_text_field( $_POST[$custom_cost_meta_key] ) );
-					$order->update_meta_data( $custom_cost_meta_key, $custom_cost_value );
-				}
-			}
-
-			// This is the AJAX recalculate button, let's transform the line item cogs in case the user has changed them
-			if ( isset($_POST['action']) && sanitize_text_field( $_POST['action'] ) === 'woocommerce_calc_line_taxes') {
-
-				// Search for Line Items
-				if ( isset($_POST['items']) && ! empty($_POST['items']) ) {
-
-					$undecoded_items = urldecode( sanitize_text_field( $_POST['items'] ) );
-					wp_parse_str( $undecoded_items, $order_item_data );
-
-					// Now let's check if we've got some line item COGS & store it in the post request if there isn't anything there already
-					if ( isset($order_item_data['line-item-cogs']) && ! isset($_POST['line-item-cogs']) ) {
-						$_POST['line-item-cogs'] = $order_item_data['line-item-cogs'];
-					}
-
-				}
-
-			}
-	
-			// Process Line Item COGS
-			if ( isset($_POST['line-item-cogs']) && ! empty($_POST['line-item-cogs']) && is_array($_POST['line-item-cogs']) ) {
-	
-				$line_item_cogs_data = array_map( 'sanitize_text_field', $_POST['line-item-cogs'] );
-				foreach( $line_item_cogs_data as $item_id => $line_item_cogs ) {
-	
-					$line_item_cogs = wc_format_decimal( $line_item_cogs );
-					$item_id = absint( $item_id );
-	
-					if ( $line_item_cogs == 0 || ! empty($line_item_cogs) ) {
-						wc_update_order_item_meta( $item_id, '_wpd_ai_product_cogs', $line_item_cogs );
-					} else {
-						wc_update_order_item_meta( $item_id, '_wpd_ai_product_cogs', null );
-					}
-	
-				}
-	
-			}
-
-			// Process Custom Product Costs
-			if ( isset($_POST['_wpd_ai_custom_product_costs']) && ! empty($_POST['_wpd_ai_custom_product_costs']) && is_array($_POST['_wpd_ai_custom_product_costs']) ) {
-
-				foreach( $_POST['_wpd_ai_custom_product_costs'] as $item_id => $custom_cost_data ) {
-				
-					$item_id = absint( $item_id );
-					
-					// Sanitize data
-					if ( is_array( $custom_cost_data ) ) {
-						foreach( $custom_cost_data as $slug => $cost ) {
-
-							$custom_cost = wc_format_decimal( sanitize_text_field( $cost ) );
-
-							if ( ! empty($custom_cost ) || $custom_cost  == 0 ){
-								$custom_cost_data[$slug] = $custom_cost;
-							} else {
-								$custom_cost_data[$slug] = null;
-							}
-
-						}
-					}
-
-					wc_update_order_item_meta( $item_id, '_wpd_ai_custom_product_costs', $custom_cost_data );
-
-				}
-	
-			}
-
-			// If campaign ID is set
-			if ( isset($_POST['wpd_ai_order_google_campaign_id']) ) {
-
-				$campaign_id_raw = sanitize_text_field( $_POST['wpd_ai_order_google_campaign_id'] );
-				
-				// Google - empty
-				if ( empty( $campaign_id_raw ) ) {
-					$order->delete_meta_data( '_wpd_ai_google_campaign_id' );
-				}
-
-				// Google - filled
-				if ( is_numeric( $campaign_id_raw ) ) {
-					$campaign_id = absint( $campaign_id_raw );
-					$order->update_meta_data( '_wpd_ai_google_campaign_id', $campaign_id );
-				}
-
-			}
-
-			// If campaign ID is set
-			if ( isset($_POST['wpd_ai_order_meta_campaign_id']) ) {
-
-				$campaign_id_raw = sanitize_text_field( $_POST['wpd_ai_order_meta_campaign_id'] );
-				
-				// Meta - empty
-				if ( empty( $campaign_id_raw ) ) {
-					$order->delete_meta_data( '_wpd_ai_meta_campaign_id' );
-				}
-
-				// Meta - filled
-				if ( is_numeric( $campaign_id_raw ) ) {
-					$campaign_id = absint( $campaign_id_raw );
-					$order->update_meta_data( '_wpd_ai_meta_campaign_id', $campaign_id );
-				}
-
-			}
+			// Saves meta if we are editing an order in the admin area - permissions required
+			$this->save_post_meta_order_details( $order_id, $order );
 
 			// Save meta values
 			$order->save_meta_data();
@@ -1062,6 +932,166 @@ class WPDAI_Core {
 		}
 
 	}
+	
+	/**
+	 *
+	 *	Save post meta order details
+	 *
+	 * @param int $order_id The order ID.
+	 * @param WC_Order $order The order object.
+	 * @return bool True if the post meta order details were saved, false otherwise.
+	 */
+	public function save_post_meta_order_details( $order_id, $order ) {
+
+		// Only required in the backend area
+		if ( ! is_admin()) return false;
+
+		// Only allow authorized users to save post meta order details
+		if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) return false;
+
+		// Safety check the order
+		if ( ! is_a($order, 'WC_Order') ) {
+			$order = wc_get_order( $order_id );
+			if ( ! is_a($order, 'WC_Order') ) return false;
+		}
+
+		// Process Totals
+		if ( isset($_POST[ 'total_product_cost' ]) ) {
+			$total_product_cost = wc_format_decimal( sanitize_text_field( $_POST[ 'total_product_cost' ] ) );
+			$order->update_meta_data( '_wpd_ai_total_product_cost', $total_product_cost );
+		}
+		if ( isset($_POST[ '_wpd_ai_total_order_product_custom_cost' ]) ) {
+			$total_product_cost = wc_format_decimal( sanitize_text_field( $_POST[ '_wpd_ai_total_order_product_custom_cost' ] ) );
+			$order->update_meta_data( '_wpd_ai_total_order_product_custom_cost', $total_product_cost );
+		}
+		if ( isset($_POST[ 'payment_gateway_cost' ]) ) {
+			$total_payment_gateway_cost = wc_format_decimal( sanitize_text_field( $_POST[ 'payment_gateway_cost' ] ) );
+			$order->update_meta_data( '_wpd_ai_total_payment_gateway_cost', $total_payment_gateway_cost );
+		}
+		if ( isset($_POST[ 'total_shipping_cost' ]) ) {
+			$total_shipping_cost = wc_format_decimal( sanitize_text_field( $_POST[ 'total_shipping_cost' ] ) );
+			$order->update_meta_data( '_wpd_ai_total_shipping_cost', $total_shipping_cost );
+		}
+
+		// Process custom order costs
+		$custom_order_costs = wpdai_get_custom_order_cost_options();
+		foreach( $custom_order_costs as $cost_slug => $cost_data ) {
+			$custom_cost_meta_key = '_wpd_ai_custom_order_cost_' . sanitize_key( $cost_slug );
+			if ( isset($_POST[$custom_cost_meta_key]) ) {
+				$custom_cost_value = wc_format_decimal( sanitize_text_field( $_POST[$custom_cost_meta_key] ) );
+				$order->update_meta_data( $custom_cost_meta_key, $custom_cost_value );
+			}
+		}
+
+		// This is the AJAX recalculate button, let's transform the line item cogs in case the user has changed them
+		if ( isset($_POST['action']) && sanitize_text_field( $_POST['action'] ) === 'woocommerce_calc_line_taxes') {
+
+			// Search for Line Items
+			if ( isset($_POST['items']) && ! empty($_POST['items']) ) {
+
+				$undecoded_items = urldecode( sanitize_text_field( $_POST['items'] ) );
+				wp_parse_str( $undecoded_items, $order_item_data );
+
+				// Now let's check if we've got some line item COGS & store it in the post request if there isn't anything there already
+				if ( isset($order_item_data['line-item-cogs']) && ! isset($_POST['line-item-cogs']) ) {
+					$_POST['line-item-cogs'] = $order_item_data['line-item-cogs'];
+				}
+
+			}
+
+		}
+
+		// Process Line Item COGS
+		if ( isset($_POST['line-item-cogs']) && ! empty($_POST['line-item-cogs']) && is_array($_POST['line-item-cogs']) ) {
+
+			$line_item_cogs_data = array_map( 'sanitize_text_field', $_POST['line-item-cogs'] );
+			foreach( $line_item_cogs_data as $item_id => $line_item_cogs ) {
+
+				$line_item_cogs = wc_format_decimal( $line_item_cogs );
+				$item_id = absint( $item_id );
+
+				if ( $line_item_cogs == 0 || ! empty($line_item_cogs) ) {
+					wc_update_order_item_meta( $item_id, '_wpd_ai_product_cogs', $line_item_cogs );
+				} else {
+					wc_update_order_item_meta( $item_id, '_wpd_ai_product_cogs', null );
+				}
+
+			}
+
+		}
+
+		// Process Custom Product Costs
+		if ( isset($_POST['_wpd_ai_custom_product_costs']) && ! empty($_POST['_wpd_ai_custom_product_costs']) && is_array($_POST['_wpd_ai_custom_product_costs']) ) {
+
+			$custom_product_cost_options = wpdai_get_custom_product_cost_options();
+			$available_slugs = (is_array($custom_product_cost_options) && ! empty($custom_product_cost_options)) ? array_keys( $custom_product_cost_options ) : array();
+
+			foreach( $_POST['_wpd_ai_custom_product_costs'] as $item_id => $custom_cost_data ) {
+			
+				$item_id = absint( $item_id );
+				
+				// Sanitize data
+				if ( is_array( $custom_cost_data ) ) {
+					foreach( $custom_cost_data as $slug => $cost ) {
+
+						$slug = sanitize_text_field( $slug );
+						if ( ! in_array( $slug, $available_slugs ) ) continue;
+						$custom_cost = wc_format_decimal( sanitize_text_field( $cost ) );
+
+						if ( ! empty($custom_cost ) || $custom_cost  == 0 ){
+							$custom_cost_data[$slug] = $custom_cost;
+						} else {
+							$custom_cost_data[$slug] = null;
+						}
+
+					}
+				}
+
+				wc_update_order_item_meta( $item_id, '_wpd_ai_custom_product_costs', $custom_cost_data );
+
+			}
+
+		}
+
+		// If campaign ID is set
+		if ( isset($_POST['wpd_ai_order_google_campaign_id']) ) {
+
+			$campaign_id_raw = sanitize_text_field( $_POST['wpd_ai_order_google_campaign_id'] );
+			
+			// Google - empty
+			if ( empty( $campaign_id_raw ) ) {
+				$order->delete_meta_data( '_wpd_ai_google_campaign_id' );
+			}
+
+			// Google - filled
+			if ( is_numeric( $campaign_id_raw ) ) {
+				$campaign_id = absint( $campaign_id_raw );
+				$order->update_meta_data( '_wpd_ai_google_campaign_id', $campaign_id );
+			}
+
+		}
+
+		// If campaign ID is set
+		if ( isset($_POST['wpd_ai_order_meta_campaign_id']) ) {
+
+			$campaign_id_raw = sanitize_text_field( $_POST['wpd_ai_order_meta_campaign_id'] );
+			
+			// Meta - empty
+			if ( empty( $campaign_id_raw ) ) {
+				$order->delete_meta_data( '_wpd_ai_meta_campaign_id' );
+			}
+
+			// Meta - filled
+			if ( is_numeric( $campaign_id_raw ) ) {
+				$campaign_id = absint( $campaign_id_raw );
+				$order->update_meta_data( '_wpd_ai_meta_campaign_id', $campaign_id );
+			}
+
+		}
+
+		return true;
+
+	}
 
 	/**
 	 * Adds 'Profit' column header to 'Orders' page immediately after 'Total' column.
@@ -1072,7 +1102,7 @@ class WPDAI_Core {
 	public function register_admin_order_columns( $columns ) {
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return $columns;
+		if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) return $columns;
 
 		if ( isset($columns['order_total']) ) {
 			unset( $columns['order_total'] );
@@ -1270,7 +1300,7 @@ class WPDAI_Core {
 	public function register_product_cost_of_goods_tab( $product_data_tabs ) {
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return $product_data_tabs;
+		if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) return $product_data_tabs;
 
 		$product_id 			= get_the_ID();
 		$product 				= wc_get_product();
@@ -1303,7 +1333,7 @@ class WPDAI_Core {
 	public function output_product_cost_of_goods_tab_content() {
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return false;
+		if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) return false;
 
 		// Globals
 		global $woocommerce, $post;
@@ -1612,7 +1642,7 @@ class WPDAI_Core {
 	public function register_product_custom_columns( $columns ) {
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return $columns;
+		if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) return $columns;
 
 		// Custom Columns
 		$custom_admin_columns 	= wpdai_get_admin_custom_column_settings();
@@ -1837,7 +1867,7 @@ class WPDAI_Core {
 	public function register_user_custom_columns( $columns ) {
 
 		// Don't load HTML for non-authorized users
-		if ( ! wpdai_is_user_authorized_to_view_alpha_insights() ) return $columns;
+		if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) return $columns;
 
 		// Change this to last
 		if ( isset($columns['posts']) ) unset( $columns['posts'] );

@@ -303,7 +303,7 @@ class WPDAI_Report_Builder {
         }
         
         // Check user capabilities
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
             wp_send_json_error( [
                 'message' => __( 'You do not have permission to export data', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ] );
@@ -438,6 +438,14 @@ class WPDAI_Report_Builder {
             return;
         }
 
+        // Check user capabilities
+        if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
+            wp_send_json_error( array(
+                'message' => __('You do not have permission to create live share links', 'alpha-insights-sales-report-builder-analytics-for-woocommerce')
+            ) );
+            return;
+        }
+
         $report_slug = sanitize_text_field($_POST['report_slug'] ?? '');
         $name = sanitize_text_field($_POST['name'] ?? '');
         $expiry_date = sanitize_text_field($_POST['expiry_date'] ?? '');
@@ -485,6 +493,14 @@ class WPDAI_Report_Builder {
             return;
         }
 
+        // Check user capabilities
+        if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
+            wp_send_json_error( array(
+                'message' => __('You do not have permission to delete live share links', 'alpha-insights-sales-report-builder-analytics-for-woocommerce')
+            ) );
+            return;
+        }
+
         $instance = new self();
         $results = $instance->delete_live_share_link($link_id);
         wp_send_json($results);
@@ -508,7 +524,7 @@ class WPDAI_Report_Builder {
         }
 
         // Check capability
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
             wp_send_json_error( array(
                 'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
@@ -541,7 +557,7 @@ class WPDAI_Report_Builder {
         }
 
         // Check capability
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
             wp_send_json_error( array(
                 'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
@@ -597,7 +613,7 @@ class WPDAI_Report_Builder {
         }
 
         // Check capability
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
             wp_send_json_error( array(
                 'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
@@ -632,7 +648,7 @@ class WPDAI_Report_Builder {
         }
 
         // Check capability
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
             wp_send_json_error( array(
                 'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
@@ -662,7 +678,7 @@ class WPDAI_Report_Builder {
         }
 
         // Check capability
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
             wp_send_json_error( array(
                 'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
@@ -752,7 +768,7 @@ class WPDAI_Report_Builder {
                 
                 // Handle error case
                 if ( is_wp_error( $config ) ) {
-                    self::log_error('WPDAI_Report_Builder: Invalid config format: ' . substr( $config_raw, 0, 200 ) );
+                    self::log_error('WPDAI_Report_Builder: Invalid config format.' );
                     self::log_error('WPDAI_Report_Builder: JSON decode error: ' . $config->get_error_message() );
                     wp_send_json_error( array( 
                         'message' => sprintf(
@@ -842,7 +858,7 @@ class WPDAI_Report_Builder {
         }
 
         // Check capability
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
             wp_send_json_error( array(
                 'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
@@ -872,7 +888,7 @@ class WPDAI_Report_Builder {
         }
 
         // Check capability
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
             wp_send_json_error( array(
                 'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
@@ -943,7 +959,7 @@ class WPDAI_Report_Builder {
         }
 
         // Check capability
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
             wp_send_json_error( array(
                 'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
@@ -998,7 +1014,7 @@ class WPDAI_Report_Builder {
         }
 
         // Check capability
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
             wp_send_json_error( array(
                 'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
@@ -1036,7 +1052,7 @@ class WPDAI_Report_Builder {
         }
 
         // Check capability
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
             wp_send_json_error( array(
                 'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
@@ -1064,7 +1080,7 @@ class WPDAI_Report_Builder {
         }
 
         // Check capability
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
             wp_send_json_error( array(
                 'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );
@@ -1097,7 +1113,7 @@ class WPDAI_Report_Builder {
         }
 
         // Check capability
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
             wp_send_json_error( array(
                 'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
             ) );

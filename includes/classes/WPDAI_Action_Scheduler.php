@@ -17,7 +17,7 @@ class WPDAI_Action_Scheduler {
 
     public const EVENT_GROUP_SLUG                   = 'WP Davies';
     public const SINGLE_EVENT_REBUILD_PRODUCT_CACHE = 'wpd_rebuild_product_cache';
-    public const SINGLE_EVENT_MIGRATION_RUNNER      = 'WPDAI_Migration_runner';
+    public const SINGLE_EVENT_MIGRATION_RUNNER      = 'wpd_ai_migration_runner';
     public const RECURRING_EVENT_MIGRATION_CHECK    = 'wpd_schedule_migration_check';
     
     /**

@@ -108,17 +108,18 @@ class WPDAI_Data_Manager {
 
         $static_values = array(
             'wpd_ai_activation_redirect',
-            'WPDAI_Report_Filters_order_query_parameter_values',
-            'WPDAI_Report_Filters_users',
-            'WPDAI_Report_Filters_products',
-            'WPDAI_Report_Filters_product_categories',
-            'WPDAI_Report_Filters_product_tags',
-            'WPDAI_Report_Filters_billing_countries',
-            'WPDAI_Report_Filters_facebook_campaigns',
-            'WPDAI_Report_Filters_google_campaigns',
-            'WPDAI_Report_Filters_expense_categories',
-            'WPDAI_Report_Filters_website_traffic_query_parameter_values',
-            'WPDAI_Report_Filters_website_traffic_events',
+            'wpd_ai_pro_deactivated_free',
+            'wpd_ai_report_filters_order_query_parameter_values',
+            'wpd_ai_report_filters_users',
+            'wpd_ai_report_filters_products',
+            'wpd_ai_report_filters_product_categories',
+            'wpd_ai_report_filters_product_tags',
+            'wpd_ai_report_filters_billing_countries',
+            'wpd_ai_report_filters_facebook_campaigns',
+            'wpd_ai_report_filters_google_campaigns',
+            'wpd_ai_report_filters_expense_categories',
+            'wpd_ai_report_filters_website_traffic_query_parameter_values',
+            'wpd_ai_report_filters_website_traffic_events',
             'wpd_fb_app_credentials',
             'wpd_google_app_credentials',
             'wpdai_product_meta_keys',
@@ -2158,6 +2159,55 @@ class WPDAI_Data_Manager {
     }
 
     /**
+     * Validate if a table name is allowed to be deleted
+     * 
+     * Prevents arbitrary deletion of tables by ensuring the table
+     * is in the plugin's allowed list.
+     *
+     * @param string $table_name The table name to validate
+     * @return bool True if the table is allowed, false otherwise
+     */
+    private static function is_table_name_allowed( $table_name ) {
+        // Sanitize the table name for validation
+        $table_name = sanitize_text_field( $table_name );
+        
+        if ( empty( $table_name ) || ! is_string( $table_name ) ) {
+            return false;
+        }
+        
+        global $wpdb;
+        
+        // Ensure table name has the correct prefix for comparison
+        $table_name_with_prefix = $table_name;
+        if ( strpos( $table_name, $wpdb->prefix ) !== 0 ) {
+            $table_name_with_prefix = $wpdb->prefix . $table_name;
+        }
+        
+        // Create instance to access non-static methods
+        $data_manager = new self();
+        
+        // Get all allowed table names
+        $allowed_tables = $data_manager->get_db_table_names();
+        
+        // Check for exact match in allowed tables
+        if ( in_array( $table_name, $allowed_tables, true ) || in_array( $table_name_with_prefix, $allowed_tables, true ) ) {
+            return true;
+        }
+        
+        // Also check without prefix matching
+        foreach ( $allowed_tables as $allowed_table ) {
+            // Remove prefix for comparison
+            $allowed_table_no_prefix = str_replace( $wpdb->prefix, '', $allowed_table );
+            if ( $table_name === $allowed_table_no_prefix || $table_name_with_prefix === $allowed_table ) {
+                return true;
+            }
+        }
+        
+        // Table name is not in allowed list
+        return false;
+    }
+
+    /**
      * AJAX handler to delete a database table
      *
      * @return void
@@ -2178,6 +2228,13 @@ class WPDAI_Data_Manager {
         }
         
         $table_name = sanitize_text_field( wp_unslash( $_POST['table_name'] ) );
+        
+        // Validate that the table name is allowed (prevent arbitrary deletion)
+        if ( ! self::is_table_name_allowed( $table_name ) ) {
+            wp_send_json_error( array( 'message' => __( 'Table name is not allowed to be deleted.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
+            return;
+        }
+        
         $data_manager = self::get_instance();
         
         if ( $data_manager->delete_database_table( $table_name ) ) {
@@ -2208,6 +2265,13 @@ class WPDAI_Data_Manager {
         }
         
         $table_name = sanitize_text_field( wp_unslash( $_POST['table_name'] ) );
+        
+        // Validate that the table name is allowed (prevent arbitrary deletion)
+        if ( ! self::is_table_name_allowed( $table_name ) ) {
+            wp_send_json_error( array( 'message' => __( 'Table name is not allowed to be truncated.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
+            return;
+        }
+        
         $data_manager = self::get_instance();
         
         if ( $data_manager->truncate_database_table( $table_name ) ) {
@@ -2249,6 +2313,60 @@ class WPDAI_Data_Manager {
     }
 
     /**
+     * Validate if a meta key is allowed to be deleted
+     * 
+     * Prevents arbitrary deletion of meta keys by ensuring the key
+     * is in the plugin's allowed list.
+     *
+     * @param string $meta_key The meta key to validate
+     * @param string $entity_type The entity type ('orders' or 'products')
+     * @return bool True if the meta key is allowed, false otherwise
+     */
+    private static function is_meta_key_allowed( $meta_key, $entity_type ) {
+        // Sanitize the meta key for validation
+        $meta_key = sanitize_key( $meta_key );
+        
+        if ( empty( $meta_key ) ) {
+            return false;
+        }
+        
+        // Create instance to access non-static methods
+        $data_manager = new self();
+        
+        if ( 'orders' === $entity_type ) {
+            // Get all allowed order meta keys
+            $allowed_keys = $data_manager->get_all_order_meta_keys();
+            
+            // Check for exact match in allowed keys
+            if ( in_array( $meta_key, $allowed_keys, true ) ) {
+                return true;
+            }
+            
+            // Also check if key starts with plugin prefix (for dynamic keys)
+            if ( 0 === strpos( $meta_key, '_wpd_ai_' ) || 0 === strpos( $meta_key, '_wpd_' ) ) {
+                return true;
+            }
+            
+        } elseif ( 'products' === $entity_type ) {
+            // Get all allowed product meta keys
+            $allowed_keys = $data_manager->get_all_product_meta_keys();
+            
+            // Check for exact match in allowed keys
+            if ( in_array( $meta_key, $allowed_keys, true ) ) {
+                return true;
+            }
+            
+            // Also check if key starts with plugin prefix (for dynamic keys)
+            if ( 0 === strpos( $meta_key, '_wpd_ai_' ) || 0 === strpos( $meta_key, '_wpd_' ) ) {
+                return true;
+            }
+        }
+        
+        // Meta key is not in allowed list
+        return false;
+    }
+
+    /**
      * AJAX handler to delete a meta key
      *
      * @return void
@@ -2270,12 +2388,27 @@ class WPDAI_Data_Manager {
         
         $entity_type = sanitize_text_field( wp_unslash( $_POST['entity_type'] ) );
         $meta_key = sanitize_text_field( wp_unslash( $_POST['meta_key'] ) );
+        
+        // Validate entity type
+        if ( ! in_array( $entity_type, array( 'orders', 'products' ), true ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid entity type.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
+            return;
+        }
+        
+        // Validate that the meta key is allowed (prevent arbitrary deletion)
+        if ( ! self::is_meta_key_allowed( $meta_key, $entity_type ) ) {
+            wp_send_json_error( array( 'message' => __( 'Meta key is not allowed to be deleted.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
+            return;
+        }
+        
+        // Sanitize the meta key one more time before use
+        $meta_key = sanitize_key( $meta_key );
         $data_manager = self::get_instance();
         $result = false;
         
-        if ( $entity_type === 'orders' ) {
+        if ( 'orders' === $entity_type ) {
             $result = $data_manager->delete_order_meta_by_key( $meta_key );
-        } elseif ( $entity_type === 'products' ) {
+        } elseif ( 'products' === $entity_type ) {
             $result = delete_post_meta_by_key( $meta_key );
         }
         
@@ -2284,6 +2417,78 @@ class WPDAI_Data_Manager {
         } else {
             wp_send_json_error( array( 'message' => __( 'Failed to delete meta key.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
         }
+    }
+
+    /**
+     * Validate if an item key is allowed to be deleted
+     * 
+     * Prevents arbitrary deletion of transients/options by ensuring the key
+     * is in the plugin's allowed list.
+     *
+     * @param string $item_key The key to validate
+     * @param string $entity_type The entity type ('transients' or 'options')
+     * @return bool True if the key is allowed, false otherwise
+     */
+    private static function is_item_key_allowed( $item_key, $entity_type ) {
+        // Sanitize the key for validation
+        $item_key = sanitize_key( $item_key );
+        
+        if ( empty( $item_key ) ) {
+            return false;
+        }
+        
+        // Create instance to access non-static methods
+        $data_manager = new self();
+        
+        if ( 'transients' === $entity_type ) {
+            // Get all allowed transient keys
+            $allowed_keys = $data_manager->get_all_transient_keys();
+            
+            // Check for exact match in allowed keys
+            if ( in_array( $item_key, $allowed_keys, true ) ) {
+                return true;
+            }
+            
+            // Also check if key matches dynamic prefix patterns (for keys that might not be in DB yet)
+            $dynamic_prefixes = array(
+                '_wpd_ip_requests_per_minute',
+                '_wpd_ip_banned_event_tracking',
+                'wpd_fb_auth_state',
+                'wpd_google_auth_state',
+                '_wpd_customer_first_order_id',
+                '_wpd_product_statistics',
+                '_wpd_user_analytics',
+            );
+            
+            foreach ( $dynamic_prefixes as $prefix ) {
+                if ( 0 === strpos( $item_key, $prefix ) ) {
+                    return true;
+                }
+            }
+            
+        } elseif ( 'options' === $entity_type ) {
+            // Get all allowed option keys
+            $allowed_keys = $data_manager->get_all_option_keys();
+            
+            // Check for exact match in allowed keys
+            if ( in_array( $item_key, $allowed_keys, true ) ) {
+                return true;
+            }
+            
+            // Also check if key matches dynamic prefix patterns (for keys that might not be in DB yet)
+            $dynamic_prefixes = array(
+                'wpd_dashboard_config_',
+            );
+            
+            foreach ( $dynamic_prefixes as $prefix ) {
+                if ( 0 === strpos( $item_key, $prefix ) ) {
+                    return true;
+                }
+            }
+        }
+        
+        // Key is not in allowed list
+        return false;
     }
 
     /**
@@ -2308,11 +2513,26 @@ class WPDAI_Data_Manager {
         
         $entity_type = sanitize_text_field( wp_unslash( $_POST['entity_type'] ) );
         $item_key = sanitize_text_field( wp_unslash( $_POST['item_key'] ) );
+        
+        // Validate entity type
+        if ( ! in_array( $entity_type, array( 'transients', 'options' ), true ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid entity type.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
+            return;
+        }
+        
+        // Validate that the item key is allowed (prevent arbitrary deletion)
+        if ( ! self::is_item_key_allowed( $item_key, $entity_type ) ) {
+            wp_send_json_error( array( 'message' => __( 'Item key is not allowed to be deleted.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
+            return;
+        }
+        
+        // Sanitize the key one more time before use
+        $item_key = sanitize_key( $item_key );
         $result = false;
         
-        if ( $entity_type === 'transients' ) {
+        if ( 'transients' === $entity_type ) {
             $result = delete_transient( $item_key );
-        } elseif ( $entity_type === 'options' ) {
+        } elseif ( 'options' === $entity_type ) {
             $result = delete_option( $item_key );
         }
         

@@ -16,10 +16,12 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 5.0.15
  * @param string $nonce_action Nonce action name. Default uses WPD_AI_AJAX_NONCE_ACTION constant.
- * @param string $capability Required capability. Default 'manage_options'.
+ * @param string $capability Required capability. Defaults to null, which will check if the user is authorized to view Alpha Insights.
+ * If a capability is provided, it will check if the user has that capability.
  * @return bool True if verified, false otherwise (sends JSON error and dies).
  */
-function wpdai_verify_ajax_request( $nonce_action = null, $capability = 'manage_options' ) {
+function wpdai_verify_ajax_request( $nonce_action = null, $capability = null ) {
+
 	// Use constant if no action specified
 	if ( null === $nonce_action ) {
 		$nonce_action = WPD_AI_AJAX_NONCE_ACTION;
@@ -32,13 +34,26 @@ function wpdai_verify_ajax_request( $nonce_action = null, $capability = 'manage_
 		) );
 		return false;
 	}
-	
-	// Check capability
-	if ( ! current_user_can( $capability ) ) {
-		wp_send_json_error( array( 
-			'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) 
-		) );
-		return false;
+
+	if ( $capability !== null ) {
+
+		// Check capability
+		if ( ! current_user_can( $capability ) ) {
+			wp_send_json_error( array( 
+				'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) 
+			) );
+			return false;
+		}
+
+	} else {
+
+		if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
+			wp_send_json_error( array( 
+				'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) 
+			) );
+			return false;
+		}
+
 	}
 	
 	return true;
@@ -538,7 +553,7 @@ function wpdai_save_getting_started_settings() {
 	}
 
 	// Check user permissions
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
 		wp_send_json_error( array(
 			'message' => __( 'You do not have permission to save settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
 		) );

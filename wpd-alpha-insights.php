@@ -111,6 +111,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 		if ( $this->is_plugin_compatible() ) {
 			// Load the plugin
 			add_action( 'plugins_loaded', array( $this, 'initialize_plugin' ), 20 );
+			// $this->initialize_plugin();
 		}
 
 		// Output plugin init admin notices (hook only fires in admin area)
@@ -162,20 +163,17 @@ class WPD_Alpha_Insights_Free_Plugin {
 		if ( ! defined('WPD_AI_PATH') ) define( 'WPD_AI_PATH', plugin_dir_path( __FILE__ ) ); // Server Path
 		if ( ! defined('WPD_AI_URL_PATH') ) define( 'WPD_AI_URL_PATH', plugin_dir_url( __FILE__ ) ); // Public URL Path
 
-		// Additional Paths - with safe wp_upload_dir() access
-		if ( ! defined('WPD_AI_UPLOADS_FOLDER_SYSTEM') ) {
-			$upload_dir = wp_upload_dir();
-			if ( $upload_dir && is_array( $upload_dir ) && isset( $upload_dir['basedir'] ) ) {
-				define( 'WPD_AI_UPLOADS_FOLDER_SYSTEM', trailingslashit( $upload_dir['basedir'] ) . 'alpha-insights/' );
-			} else {
-				// Fallback to wp-content/uploads if wp_upload_dir() fails
-				define( 'WPD_AI_UPLOADS_FOLDER_SYSTEM', trailingslashit( WP_CONTENT_DIR ) . 'uploads/alpha-insights/' );
-			}
-		}
-		
-		if ( ! defined('WPD_AI_UPLOADS_FOLDER') ) define( 'WPD_AI_UPLOADS_FOLDER', $this->get_wp_uploads_folder() . 'alpha-insights/' );
-		if ( ! defined('WPD_AI_CSV_PATH') ) define( 'WPD_AI_CSV_PATH', WPD_AI_UPLOADS_FOLDER . 'exports/csv_files/' );
-		if ( ! defined('WPD_AI_CSV_SYSTEM_PATH') ) define( 'WPD_AI_CSV_SYSTEM_PATH', WPD_AI_UPLOADS_FOLDER_SYSTEM . 'exports/csv_files/' );
+		// Make sure function is available at this stage
+		if ( ! function_exists( 'wp_upload_dir' ) ) require_once ABSPATH . WPINC . '/functions.php';
+
+		// Get upload directories
+		$upload_directory = wp_upload_dir();
+
+		// Content paths
+		if ( ! defined('WPD_AI_UPLOADS_FOLDER_SYSTEM') ) define( 'WPD_AI_UPLOADS_FOLDER_SYSTEM', trailingslashit( $upload_directory['basedir'] ) . 'alpha-insights/' ); // System Path
+		if ( ! defined('WPD_AI_UPLOADS_FOLDER') ) define( 'WPD_AI_UPLOADS_FOLDER', trailingslashit( $upload_directory['baseurl'] ) . 'alpha-insights/' ); // Public URL Path
+		if ( ! defined('WPD_AI_CSV_SYSTEM_PATH') ) define( 'WPD_AI_CSV_SYSTEM_PATH', trailingslashit( $upload_directory['basedir'] ) . 'alpha-insights/exports/csv_files/' ); // System Path
+		if ( ! defined('WPD_AI_CSV_PATH') ) define( 'WPD_AI_CSV_PATH', trailingslashit( $upload_directory['baseurl'] ) . 'alpha-insights/exports/csv_files/' ); // Public URL Path
 
 		// Minimum Versions
 		if ( ! defined('WPD_AI_MIN_PHP_VER') ) define( 'WPD_AI_MIN_PHP_VER', '7.4.0' );
@@ -183,7 +181,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 		if ( ! defined('WPD_AI_MIN_WC_VER') ) define( 'WPD_AI_MIN_WC_VER', '3.0.0' );
 
 		// APIs
-		if ( ! defined('WPD_AI_FACEBOOK_API_VER') ) define( 'WPD_AI_FACEBOOK_API_VER', 'v23.0' );
+		if ( ! defined('WPD_AI_FACEBOOK_API_VER') ) define( 'WPD_AI_FACEBOOK_API_VER', 'v24.0' );
 		if ( ! defined('WPD_AI_GOOGLE_ADS_API_VER') ) define( 'WPD_AI_GOOGLE_ADS_API_VER', 'v20' );
 
 	}
@@ -821,7 +819,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Data_Warehouse.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Report_Builder.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Report_Filters.php');
-		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_WooCommerce_Event_Tracking.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Woocommerce_Event_Tracking.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Cost_Of_Goods_Manager.php');
 
 		// Register Relevant Actions
@@ -1046,32 +1044,6 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		return $this->version_check;
 
-	}
-
-	/**
-	 * Fix wp_upload_dir() not using https
-	 *
-	 * @return string
-	 */
-	private function get_wp_uploads_folder() {
-
-		$upload_dir = wp_upload_dir();
-		
-		// Check if wp_upload_dir() returned valid data
-		if ( ! $upload_dir || ! is_array( $upload_dir ) || ! isset( $upload_dir['baseurl'] ) ) {
-			// Fallback to content_url/uploads
-			$url = trailingslashit( content_url( 'uploads' ) );
-		} else {
-			$url = trailingslashit( $upload_dir['baseurl'] );
-		}
-		
-		// Ensure HTTPS if SSL is enabled
-		if ( is_ssl() ) {
-			$url = str_replace( 'http://', 'https://', $url );
-		}
-		
-		return $url;
-	
 	}
 
 	/**

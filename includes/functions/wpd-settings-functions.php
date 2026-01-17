@@ -238,19 +238,22 @@ function wpdai_get_authorized_user_roles_settings() {
 
 	$authorized_roles = get_option( 'wpd_ai_plugin_visibility' );
 
-	// Load up all roles if none are set
 	if ( ! is_array( $authorized_roles ) || empty( $authorized_roles ) ) {
 		global $wp_roles;
-		$all_roles = array_keys( $wp_roles->roles );
-		$authorized_roles = $all_roles;
+
+		$authorized_roles = array();
+
+		foreach ( $wp_roles->roles as $role => $details ) {
+			if ( ! empty( $details['capabilities']['publish_posts'] ) ) {
+				$authorized_roles[] = $role;
+			}
+		}
 	}
 
-	// Check if administrator is not in the list, and add it
-	if ( !in_array( 'administrator', $authorized_roles ) ) {
+	if ( ! in_array( 'administrator', $authorized_roles, true ) ) {
 		$authorized_roles[] = 'administrator';
 	}
 
-	// Return the authorized roles
-	return $authorized_roles;
+	return array_values( array_unique( $authorized_roles ) );
 
 }
