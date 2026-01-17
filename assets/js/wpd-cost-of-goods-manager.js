@@ -319,10 +319,12 @@
 
             let html = '';
             self.products.forEach(function(product) {
-                const margin = product.rrp > 0 
+                // For variable products, RRP, margin, and profit are null (N/A)
+                const isVariableProduct = product.type === 'variable';
+                const margin = isVariableProduct ? null : (product.rrp !== null && product.rrp > 0 
                     ? ((product.rrp - product.cost) / product.rrp * 100).toFixed(1)
-                    : 0;
-                const profit = product.rrp - product.cost;
+                    : 0);
+                const profit = isVariableProduct ? null : (product.rrp !== null ? product.rrp - product.cost : 0);
                 
                 const rowClass = product.cost > 0 ? 'has-cost' : 'no-cost';
                 const stockClass = product.stock_status === 'instock' ? 'in-stock' : 'out-of-stock';
@@ -347,7 +349,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="wpd-cogs-rrp">${self.formatCurrency(product.rrp)}</td>
+                        <td class="wpd-cogs-rrp">${product.rrp !== null && product.rrp !== undefined ? self.formatCurrency(product.rrp) : 'N/A'}</td>
                         <td class="wpd-cogs-cost-cell">
                             <div class="wpd-cogs-cost-wrapper">
                                 <div class="wpd-cogs-cost-input-wrapper">
@@ -370,8 +372,8 @@
                                     ''}
                             </div>
                         </td>
-                        <td class="wpd-cogs-margin ${margin > 0 ? 'positive' : ''}">${margin}%</td>
-                        <td class="wpd-cogs-profit ${profit > 0 ? 'positive' : profit < 0 ? 'negative' : ''}">${self.formatCurrency(profit)}</td>
+                        <td class="wpd-cogs-margin ${margin !== null && margin > 0 ? 'positive' : ''}">${margin !== null ? margin + '%' : 'N/A'}</td>
+                        <td class="wpd-cogs-profit ${profit !== null ? (profit > 0 ? 'positive' : profit < 0 ? 'negative' : '') : ''}">${profit !== null && profit !== undefined ? self.formatCurrency(profit) : 'N/A'}</td>
                         <td class="wpd-cogs-stock ${stockClass}">
                             <span class="wpd-cogs-stock-qty">${product.stock_quantity || '-'}</span>
                             <span class="wpd-cogs-stock-status">${product.stock_status}</span>
@@ -1340,6 +1342,17 @@
         updateRowCalculations: function(productId, newCost, row) {
             const self = this;
             const rrpText = row.find('.wpd-cogs-rrp').text();
+            
+            // Check if this is a variable product (RRP is N/A)
+            const isVariableProduct = rrpText.trim() === 'N/A';
+            
+            // For variable products, don't update calculations - keep as N/A
+            if (isVariableProduct) {
+                row.find('.wpd-cogs-margin').text('N/A').removeClass('positive negative');
+                row.find('.wpd-cogs-profit').text('N/A').removeClass('positive negative');
+                return;
+            }
+            
             const rrp = parseFloat(rrpText.replace(/[^0-9.-]+/g, ''));
             const input = row.find('.wpd-cogs-cost-input');
             const costWrapper = row.find('.wpd-cogs-cost-wrapper');

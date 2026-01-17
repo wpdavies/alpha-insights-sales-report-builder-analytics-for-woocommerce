@@ -387,6 +387,9 @@ class WPDAI_Cost_Of_Goods_Manager {
 			$product = wc_get_product($product_id);
 			if (!$product) continue;
 
+			$product_type = $product->get_type();
+			$is_variable_product = ($product_type === 'variable');
+			
 			$rrp = (float) $product->get_regular_price();
 			
 			// Get the actual meta value (if set by user) - using the correct meta key
@@ -424,14 +427,22 @@ class WPDAI_Cost_Of_Goods_Manager {
 				}
 			}
 
-			$margin = $rrp > 0 ? (($rrp - $cost) / $rrp * 100) : 0;
-			$profit = $rrp - $cost;
+			// For variable products, set RRP, margin, and profit to null (N/A)
+			// Cost can still be set, but calculations are not relevant for variable products
+			if ( $is_variable_product ) {
+				$rrp = null;
+				$margin = null;
+				$profit = null;
+			} else {
+				$margin = $rrp > 0 ? (($rrp - $cost) / $rrp * 100) : 0;
+				$profit = $rrp - $cost;
+			}
 
 			$product_data = [
 				'id' => $product_id,
 				'name' => $product->get_name(),
 				'sku' => $product->get_sku() ?: '',
-				'type' => $product->get_type(),
+				'type' => $product_type,
 				'rrp' => $rrp,
 				'cost' => $cost,
 				'meta_cost' => $meta_cost, // null if not set, 0 if set to 0, value if set
@@ -456,6 +467,17 @@ class WPDAI_Cost_Of_Goods_Manager {
 			usort($products, function($a, $b) use ($sort_by, $sort_order) {
 				$val_a = $a[$sort_by];
 				$val_b = $b[$sort_by];
+				
+				// Handle null values - treat them as lowest value (will appear last in asc, first in desc)
+				if ($val_a === null && $val_b === null) {
+					return 0;
+				}
+				if ($val_a === null) {
+					return $sort_order === 'desc' ? -1 : 1; // Null appears last in asc, first in desc
+				}
+				if ($val_b === null) {
+					return $sort_order === 'desc' ? 1 : -1; // Null appears last in asc, first in desc
+				}
 				
 				$comparison = $val_a <=> $val_b;
 				return $sort_order === 'desc' ? -$comparison : $comparison;
@@ -548,6 +570,9 @@ class WPDAI_Cost_Of_Goods_Manager {
 			$product = wc_get_product($product_id);
 			if (!$product) continue;
 
+			$product_type = $product->get_type();
+			$is_variable_product = ($product_type === 'variable');
+
 			// Check if meta is actually set (distinguish between 0 and not set)
 			$has_meta = metadata_exists('post', $product_id, '_wpd_ai_product_cost');
 			$meta_cost_raw = get_post_meta($product_id, '_wpd_ai_product_cost', true);
@@ -557,7 +582,7 @@ class WPDAI_Cost_Of_Goods_Manager {
 			$cost = $meta_cost !== null ? $meta_cost : (float) $default_cost;
 			$stock_status = $product->get_stock_status();
 			$stock_quantity = (float) $product->get_stock_quantity();
-			$rrp = (float) $product->get_regular_price();
+			$rrp = $is_variable_product ? null : (float) $product->get_regular_price();
 
 			// Apply post-query filters for stats
 			if (!empty($filters['stock_status']) && $stock_status !== $filters['stock_status']) {
@@ -578,14 +603,16 @@ class WPDAI_Cost_Of_Goods_Manager {
 				$stats['products_without_cost']++;
 			}
 
-			// Stock values
+			// Stock values - exclude variable products from RRP calculation
 			if ($product->get_manage_stock() && $stock_quantity > 0) {
-				$stats['total_stock_value_rrp'] += $rrp * $stock_quantity;
+				if (!$is_variable_product && $rrp !== null) {
+					$stats['total_stock_value_rrp'] += $rrp * $stock_quantity;
+				}
 				$stats['total_stock_value_cost'] += $cost * $stock_quantity;
 			}
 
-			// Margin calculation
-			if ($rrp > 0) {
+			// Margin calculation - exclude variable products
+			if (!$is_variable_product && $rrp !== null && $rrp > 0) {
 				$margin = (($rrp - $cost) / $rrp * 100);
 				$stats['total_margin'] += $margin;
 				$stats['margin_count']++;
