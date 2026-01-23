@@ -915,15 +915,8 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		}
 
-		// License failed
-		if ( isset( $_GET['wpd-notice'] ) && sanitize_text_field( $_GET['wpd-notice'] ) == 'invalid-license' ) {
-
-			// Output notice - check if function exists
-			if ( function_exists( 'wpdai_admin_notice' ) ) {
-				wpdai_admin_notice( __( 'Your Alpha Insights license has expired or is invalid. Please update your license to continue using the plugin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
-			}
-
-		}
+		// Output any additional plugin activity notices
+		do_action( 'wpd_ai_output_plugin_activity_notices' );
 
 	}
 
