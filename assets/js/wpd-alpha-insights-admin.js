@@ -707,7 +707,7 @@ jQuery(document).ready(function($) {
             return;
         }
 
-        const path = match[1]; // e.g., "getting-started/activate-your-license"
+        const path = match[1];
         const parts = path.split('/');
         
         // Try to find the document by matching the path with numeric prefixes
@@ -737,7 +737,7 @@ jQuery(document).ready(function($) {
 
     /**
      * Find a document by its URL path, accounting for numeric prefixes
-     * @param {array} pathParts - Array of path segments (e.g., ['getting-started', 'activate-your-license'])
+     * @param {array} pathParts - Array of path segments (e.g., ['getting-started'])
      * @param {object} items - The documentation data object to search
      * @param {number} depth - Current depth in the path (for recursion)
      * @returns {object|null} - The found document or null
@@ -756,7 +756,6 @@ jQuery(document).ready(function($) {
             
             // Normalize the key by removing numeric prefixes
             // Folder format: 00_getting-started -> getting-started
-            // File format: 01-activate-your-license -> activate-your-license
             const normalizedKey = key.replace(/^\d{2}_/, '').replace(/^\d{2}-/, '');
             
             if (normalizedKey === currentSegment) {
