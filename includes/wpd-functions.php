@@ -1369,6 +1369,60 @@ function wpdai_get_available_payment_gateways() {
 
 }
 
+/**
+ * 
+ * 	Returns a list of available shipping methods with id, title, description and enabled status
+ *  Only returns methods that are enabled
+ * 
+ * 	@return array List of shipping methods with id, title, description and enabled status
+ * 
+ **/
+function wpdai_get_available_shipping_methods() {
+
+	$methods_data = array(
+		'default' => array(
+			'id'          => 'default',
+			'instance_id' => 0,
+			'title'       => 'Default',
+			'description' => 'Default shipping cost',
+			'zone'        => 'Default',
+			'enabled'     => true,
+		),
+	);
+
+	$zones = WC_Shipping_Zones::get_zones();
+
+	// Add "locations not covered by other zones"
+	$zones[] = array(
+		'zone_name'        => __( 'Rest of the world', 'woocommerce' ),
+		'shipping_methods' => ( new WC_Shipping_Zone( 0 ) )->get_shipping_methods(),
+	);
+
+	foreach ( $zones as $zone ) {
+		foreach ( $zone['shipping_methods'] as $method ) {
+
+			if ( $method->enabled !== 'yes' ) {
+				continue;
+			}
+
+			// Validate instance_id before use
+			$instance_id = isset( $method->instance_id ) ? (int) $method->instance_id : 0;
+			$zone_name = isset( $zone['zone_name'] ) ? $zone['zone_name'] : __( 'Unknown Zone', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
+
+			$methods_data[ 'instance_' . $instance_id ] = array(
+				'id'          => $method->id,
+				'instance_id' => $instance_id,
+				'title'       => $method->title . ' - ' . $zone_name,
+				'description' => $method->get_method_description(),
+				'zone'        => $zone_name,
+				'enabled'     => true,
+			);
+		}
+	}
+
+	return $methods_data;
+
+}
 
 /**
  * 
@@ -1404,5 +1458,30 @@ function wpdai_is_user_authorized_to_use_alpha_insights() {
 
 	// Default to false
 	return false;
+
+}
+
+/**
+ * 
+ * 	Get or generate a site-level public event token.
+ * 	This token is used to protect public, unauthenticated REST endpoints
+ * 	(e.g. front-end analytics) from blind CSRF attacks while remaining
+ * 	cache-safe and not user/session bound.
+ * 
+ * 	@return string The token
+ * 
+ */
+function wpdai_get_analytics_event_tracking_token() {
+
+	$option_name = 'wpd_ai_analytics_event_tracking_token';
+
+	$token = get_option( $option_name, '' );
+
+	if ( empty( $token ) ) {
+		$token = wp_generate_password( 32, false );
+		update_option( $option_name, $token );
+	}
+
+	return $token;
 
 }

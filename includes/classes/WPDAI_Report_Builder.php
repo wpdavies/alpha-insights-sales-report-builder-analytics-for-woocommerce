@@ -411,6 +411,14 @@ class WPDAI_Report_Builder {
             return;
         }
 
+        // Check user capabilities
+        if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
+            wp_send_json_error( [
+                'message' => __( 'You do not have permission to get live share links', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
+            ] );
+            return;
+        }
+
         $instance = new self();
         $results = $instance->get_live_share_links($report_slug);
         wp_send_json($results);

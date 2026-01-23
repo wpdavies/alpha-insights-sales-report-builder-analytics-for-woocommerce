@@ -12,8 +12,7 @@
 
     // State management
     let currentStep = 1;
-    const isPro = wpdGettingStarted.isPro || false;
-    const totalSteps = isPro ? 4 : 3; // Free version skips license step
+    const totalSteps = 3; // Free version has 3 steps
 
     /**
      * Initialize the getting started wizard
@@ -35,25 +34,8 @@
     function handleNext() {
         const $button = $('.wpd-gs-button-next');
         
-        // Step 2 (License) -> Step 3: Save license before moving (Pro only)
-        if (isPro && currentStep === 2) {
-            // Check if license is already active
-            if (wpdGettingStarted.licenseStatus === 'active') {
-                // License already active, just move to next step
-                currentStep++;
-                showStep(currentStep);
-                return;
-            }
-            
-            // Try to save and activate license
-            saveLicense($button);
-            return;
-        }
-        
-        // Step 3 (Settings) -> Step 4: Save settings before moving (Pro)
-        // Step 2 (Settings) -> Step 3: Save settings before moving (Free)
-        const settingsStep = isPro ? 3 : 2;
-        if (currentStep === settingsStep) {
+        // Step 2 (Settings) -> Step 3: Save settings before moving
+        if (currentStep === 2) {
             saveSettings($button);
             return;
         }
@@ -94,7 +76,7 @@
 
     /**
      * Show a specific step
-     * @param {number} stepNumber - The logical step to show (1-3 for free, 1-4 for pro)
+     * @param {number} stepNumber - The logical step to show (1-3 for free version)
      */
     function showStep(stepNumber) {
         // Update step visibility - show the HTML step with matching class number
@@ -104,7 +86,6 @@
         // Update progress indicators
         // Progress step data-step values match logical step numbers:
         // Free: 1 (Welcome), 2 (Settings), 3 (Ready)
-        // Pro: 1 (Welcome), 2 (License), 3 (Settings), 4 (Ready)
         $('.wpd-gs-progress-step').removeClass('active completed');
         $('.wpd-gs-progress-step').each(function() {
             const stepNum = parseInt($(this).data('step'), 10);
@@ -144,101 +125,19 @@
         // Next button text
         if (currentStep === 1) {
             $nextButton.text("Let's Get Started");
-        } else if (isPro && currentStep === 2) {
-            // License step (Pro only)
-            // Check if license is already active
-            if (wpdGettingStarted.licenseStatus === 'active') {
-                $nextButton.text('Continue');
-            } else {
-                $nextButton.html('<span class="dashicons dashicons-yes-alt"></span> Activate & Continue');
-            }
-        } else if (currentStep === (isPro ? 3 : 2)) {
+        } else if (currentStep === 2) {
             // Settings step
             $nextButton.html('<span class="dashicons dashicons-saved"></span> Save & Continue');
-        } else if (currentStep === (isPro ? 4 : 3)) {
+        } else if (currentStep === 3) {
             // Final step
             $nextButton.html('<span class="dashicons dashicons-yes"></span> Done');
         }
         
         // Hide skip button on final step
-        if (currentStep === (isPro ? 4 : 3)) {
+        if (currentStep === 3) {
             $skipButton.hide();
         } else {
             $skipButton.show();
-        }
-    }
-
-    /**
-     * Save and activate license via AJAX
-     * @param {jQuery} $button - The button that triggered the save
-     */
-    function saveLicense($button) {
-        // Get license key
-        const licenseKey = $('#license_key').val().trim();
-        
-        if (!licenseKey) {
-            showLicenseMessage('Please enter a license key', 'error');
-            return;
-        }
-        
-        // Add button loading state
-        $button.addClass('loading').prop('disabled', true);
-        
-        // Make AJAX request
-        $.ajax({
-            url: wpdGettingStarted.ajaxUrl,
-            type: 'POST',
-            data: {
-                action: 'wpd_getting_started_activate_license',
-                nonce: wpdGettingStarted.nonce,
-                license_key: licenseKey
-            },
-            success: function(response) {
-                if (response.success) {
-                    showLicenseMessage(response.data.message || 'License activated successfully!', 'success');
-                    
-                    // Update global license status
-                    wpdGettingStarted.licenseStatus = 'active';
-                    
-                    // Move to next step after a brief delay
-                    setTimeout(function() {
-                        currentStep++;
-                        showStep(currentStep);
-                    }, 1000);
-                } else {
-                    showLicenseMessage(response.data || 'Failed to activate license. Please check your license key and try again.', 'error');
-                }
-            },
-            error: function(xhr, status, error) {
-                showLicenseMessage('Failed to activate license. Please try again.', 'error');
-                console.error('AJAX Error:', error);
-            },
-            complete: function() {
-                // Remove button loading state
-                $button.removeClass('loading').prop('disabled', false);
-            }
-        });
-    }
-
-    /**
-     * Show license activation message
-     * @param {string} message - The message to display
-     * @param {string} type - The type of message ('success' or 'error')
-     */
-    function showLicenseMessage(message, type) {
-        const $messageDiv = $('#wpd-gs-license-status-message');
-        
-        $messageDiv
-            .removeClass('success error')
-            .addClass(type)
-            .html(message)
-            .slideDown();
-        
-        // Auto-hide success messages after 5 seconds
-        if (type === 'success') {
-            setTimeout(function() {
-                $messageDiv.slideUp();
-            }, 5000);
         }
     }
 

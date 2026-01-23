@@ -74,7 +74,8 @@
 			eventTrackingEnabled: 1,
 			trackUser: 1,
 			currentPostId: 0,
-			currentPostType: ''
+			currentPostType: '',
+			eventTrackingToken: null
 		},
 
 		// State
@@ -123,6 +124,10 @@
 			this.config.currentPostType = (typeof this.config.initializedVariables.current_post_type !== 'undefined') 
 				? this.config.initializedVariables.current_post_type 
 				: '';
+
+			this.config.eventTrackingToken = (typeof this.config.initializedVariables.analytics_event_tracking_token !== 'undefined') 
+				? this.config.initializedVariables.analytics_event_tracking_token 
+				: null;
 
 			// Check if user tracking is disabled (highest priority check)
 			if (this.config.trackUser === 0) {
@@ -348,6 +353,18 @@
 				return false;
 			}
 
+			// Add event tracking token to payload for validation
+			// Token is required for API validation - log warning if missing
+			if (this.config.eventTrackingToken) {
+				payload['event-tracking-token'] = this.config.eventTrackingToken;
+			} else {
+				// Token is missing - this will cause validation to fail
+				// Log warning in development (only if console is available)
+				if (typeof console !== 'undefined' && console.warn) {
+					console.warn('Alpha Insights: Event tracking token is missing. Events may be rejected by the server.');
+				}
+			}
+
 			$.ajax({
 				url: this.config.apiEndpoint,
 				method: 'POST',
@@ -428,6 +445,12 @@
 					event_type: 'form_submit',
 					additional_data: additionalData
 				};
+
+				// If form class names include "cart", don't send off the request, this is likely handled elsewhere
+				var formClasses = $form.attr('class') || '';
+				if (formClasses.indexOf('cart') !== -1) {
+					return;
+				}
 
 				self.trackEvent(payload);
 			});

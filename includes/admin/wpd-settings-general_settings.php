@@ -27,6 +27,8 @@ $allowed_roles 								= wpdai_get_authorized_user_roles_settings();
 $refunded_order_costs 						= get_option( 'wpd_ai_refunded_order_costs' );
 $payment_gateway_cost_settings				= wpdai_get_payment_gateway_cost_settings();
 $available_payment_gateways					= wpdai_get_available_payment_gateways();
+$shipping_cost_settings						= wpdai_get_shipping_cost_settings();
+$available_shipping_methods					= wpdai_get_available_shipping_methods();
 
 ?>
 <div class="wpd-wrapper">
@@ -43,6 +45,33 @@ $available_payment_gateways					= wpdai_get_available_payment_gateways();
 			</tr>
 		</thead>
 		<tbody>
+			<tr>
+				<td>
+					<label><?php esc_html_e( 'Default Product Cost Price', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?> (%)</label>
+					<div class="wpd-meta"><?php esc_html_e( 'This will be a fallback setting for products in which you haven\'t entered a cost price. This is calculated as a percentage of the given product\'s retail price. Use the configure COGS Per Product to manage costs per product (recommended).', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<div class="wpd-meta">Our cost price hierarchy works as follows:</div>
+					<div class="wpd-meta">1. Value saved for a product in the Alpha Insights Cost of Goods Manager (recommended)</div>
+					<div class="wpd-meta">2. Fall back to WooCommerce Native COGS if set -> WooCommerce 10.0+</div>
+					<div class="wpd-meta">3. Fall back to Parent Variable Product meta if a variation and value found in parent product</div>
+					<div class="wpd-meta">4. Fall back to Default Cost Price (This Setting) e.g. 30% of RRP (if no other value is found)</div>
+				</td>
+				<td>
+					<table class="wpd-table fixed" width="100%">
+						<thead>
+							<tr>
+								<td>Percent Of RRP</td>
+								<td colspan="2">Actions</td>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><input class="wpd-input" type="number" name="wpd_ai_cost_defaults[default_product_cost_percent]" value="<?php echo esc_attr( $cost_defaults['default_product_cost_percent'] ); ?>" step="0.01" placeholder="Percent of RRP"></td>
+								<td colspan="2"><a href="<?php echo esc_url( wpdai_admin_page_url('cost-of-goods-manager') ); ?>" target="_blank" class="button btn wpd-input"><?php esc_html_e( 'Configure COGS Per Product', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a></td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
 			<tr>
 				<td>
 					<label for="wpd_ai_payment_gateway_costs"><?php esc_html_e( 'Payment Gateway Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
@@ -77,33 +106,6 @@ $available_payment_gateways					= wpdai_get_available_payment_gateways();
 			</tr>
 			<tr>
 				<td>
-					<label><?php esc_html_e( 'Default Product Cost Price', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?> (%)</label>
-					<div class="wpd-meta"><?php esc_html_e( 'This will be a fallback setting for products in which you haven\'t entered a cost price. This is calculated as a percentage of the given product\'s retail price. Use the configure COGS Per Product to manage costs per product (recommended).', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
-					<div class="wpd-meta">Our cost price hierarchy works as follows:</div>
-					<div class="wpd-meta">1. Value saved for a product in the Alpha Insights Cost of Goods Manager (recommended)</div>
-					<div class="wpd-meta">2. Fall back to WooCommerce Native COGS if set -> WooCommerce 10.0+</div>
-					<div class="wpd-meta">3. Fall back to Parent Variable Product meta if a variation and value found in parent product</div>
-					<div class="wpd-meta">4. Fall back to Default Cost Price (This Setting) e.g. 30% of RRP (if no other value is found)</div>
-				</td>
-				<td>
-					<table class="wpd-table fixed" width="100%">
-						<thead>
-							<tr>
-								<td>Percent Of RRP</td>
-								<td colspan="2">Actions</td>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td><input class="wpd-input" type="number" name="wpd_ai_cost_defaults[default_product_cost_percent]" value="<?php echo esc_attr( $cost_defaults['default_product_cost_percent'] ); ?>" step="0.01" placeholder="Percent of RRP"></td>
-								<td colspan="2"><a href="<?php echo esc_url( wpdai_admin_page_url('cost-of-goods-manager') ); ?>" target="_blank" class="button btn wpd-input"><?php esc_html_e( 'Configure COGS Per Product', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ?></a></td>
-							</tr>
-						</tbody>
-					</table>
-				</td>
-			</tr>
-			<tr>
-				<td>
 					<label for="wpd_ai_general_settings"><?php esc_html_e( 'Default Shipping Cost', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
 					<div class="wpd-meta"><?php esc_html_e( 'This will be a fallback setting for the shipping fees you pay to your carrier. Your orders will start with this cost, but you can override it as the fee is finalised.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
@@ -111,17 +113,23 @@ $available_payment_gateways					= wpdai_get_available_payment_gateways();
 					<table class="wpd-table fixed" width="100%">
 						<thead>
 							<tr>
+								<td>Shipping Method</td>
 								<td>Percent Of Order Value</td>
 								<td>Percent Of Shipping Charged</td>
 								<td>Static Fee</td>
 							</tr>
 						</thead>
 						<tbody>
-							<tr>
-								<td><input class="wpd-input" type="number" name="wpd_ai_cost_defaults[default_shipping_cost_percent]" value="<?php echo esc_attr( $cost_defaults['default_shipping_cost_percent'] ); ?>" step="0.01" placeholder="Percent Of Order Value"></td>
-								<td><input class="wpd-input" type="number" name="wpd_ai_cost_defaults[default_shipping_cost_percent_shipping_charged]" value="<?php echo esc_attr( $cost_defaults['default_shipping_cost_percent_shipping_charged'] ); ?>" step="0.01" placeholder="Percent Of Shipping Charged"></td>
-								<td><input class="wpd-input" type="number" name="wpd_ai_cost_defaults[default_shipping_cost_fee]" value="<?php echo esc_attr( $cost_defaults['default_shipping_cost_fee'] ); ?>" step="0.01" placeholder="Static Fee"></td>
-							</tr>
+							<?php if ( is_array($available_shipping_methods) && ! empty($available_shipping_methods) ) : ?>
+								<?php foreach( $available_shipping_methods as $shipping_method_instance_id => $shipping_method_data ) : ?>
+									<tr>
+										<td><?php echo esc_html( $shipping_method_data['title'] ); ?><div class="wpd-meta">Instance ID: <?php echo esc_attr( $shipping_method_data['instance_id'] ); ?></div></td>
+										<td><input class="wpd-input" type="number" name="wpd_ai_shipping_costs[<?php echo esc_attr( $shipping_method_instance_id ); ?>][percent_of_order_value]" value="<?php echo esc_attr( $shipping_cost_settings[$shipping_method_instance_id]['percent_of_order_value'] ); ?>" step="0.01" max="100" placeholder="Percent Of Order Value"></td>
+										<td><input class="wpd-input" type="number" name="wpd_ai_shipping_costs[<?php echo esc_attr( $shipping_method_instance_id ); ?>][percent_of_shipping_charged]" value="<?php echo esc_attr( $shipping_cost_settings[$shipping_method_instance_id]['percent_of_shipping_charged'] ); ?>" step="0.01" max="100" placeholder="Percent Of Shipping Charged"></td>
+										<td><input class="wpd-input" type="number" name="wpd_ai_shipping_costs[<?php echo esc_attr( $shipping_method_instance_id ); ?>][static_fee]" value="<?php echo esc_attr( $shipping_cost_settings[$shipping_method_instance_id]['static_fee'] ); ?>" step="0.01" placeholder="Static Fee"></td>
+									</tr>
+								<?php endforeach; ?>
+							<?php endif; ?>
 						</tbody>
 					</table>
 
@@ -372,8 +380,8 @@ $available_payment_gateways					= wpdai_get_available_payment_gateways();
 			</tr>
 			<tr>
 				<td>
-					<label><?php esc_html_e( 'Only Track Engaged Sessions In Website Traffic Reports', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php esc_html_e( 'This will only track engaged sessions in your website traffic reports. Page views will only be tracked if there\'s mouse movement or the session is greater than 0s in duration.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Only Track & Report On Engaged Sessions', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'This feature will only track & report on engaged sessions.<br>Page views will only be tracked if there\'s mouse movement or clicks & Alpha Insights will only report sessions that are marked as engaged or greater than 0 seconds in duration.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_analytics_only_track_engaged_sessionss">

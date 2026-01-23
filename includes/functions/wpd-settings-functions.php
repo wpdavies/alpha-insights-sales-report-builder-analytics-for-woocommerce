@@ -79,6 +79,79 @@ function wpdai_get_payment_gateway_cost_settings() {
 	return $settings;
 }
 
+
+/**
+ * 
+ *  Get shipping cost settings
+ * 
+ *  @return array
+ * 
+ **/
+function wpdai_get_shipping_cost_settings() {
+
+	// Default settings
+	$settings = array(
+		'default' => array(
+			'percent_of_order_value' => 0,
+			'percent_of_shipping_charged' => 0,
+			'static_fee' => 0,
+		)
+	);
+
+	// Check legacy settings
+	$legacy_setting = get_option( 'wpd_ai_cost_defaults' );
+	if ( is_array($legacy_setting) && ! empty($legacy_setting) ) {
+
+		// Process legacy settings
+		$settings['default']['percent_of_order_value'] = $legacy_setting['default_shipping_cost_percent'] ?? 0;
+		$settings['default']['percent_of_shipping_charged'] = $legacy_setting['default_shipping_cost_percent_shipping_charged'] ?? 0;
+		$settings['default']['static_fee'] = $legacy_setting['default_shipping_cost_fee'] ?? 0;
+
+	}
+
+	// Handle new settings
+	$new_settings = get_option( 'wpd_ai_shipping_costs', array() );
+	if ( is_array($new_settings) && ! empty($new_settings) ) {
+
+		// Loop through new settings
+		foreach( $new_settings as $shipping_method_instance_id => $shipping_method_data ) {
+			$settings[$shipping_method_instance_id] = array(
+				'percent_of_order_value' => $shipping_method_data['percent_of_order_value'] ?? 0,
+				'percent_of_shipping_charged' => $shipping_method_data['percent_of_shipping_charged'] ?? 0,
+				'static_fee' => $shipping_method_data['static_fee'] ?? 0,
+			);
+		}
+
+	}
+
+	// Make sure the settings array is complete with all available shipping methods
+	$available_shipping_methods = wpdai_get_available_shipping_methods();
+	if ( is_array($available_shipping_methods) && ! empty($available_shipping_methods) ) {
+
+		// Add default settings for each shipping method
+		foreach( $available_shipping_methods as $shipping_method_instance_id => $shipping_method_data ) {
+
+			// Check if the shipping method has settings
+			if ( isset($settings[$shipping_method_instance_id]) ) {
+				continue;
+			}
+
+			$settings[$shipping_method_instance_id] = array(
+				'percent_of_order_value' => $settings['default']['percent_of_order_value'] ?? 0,
+				'percent_of_shipping_charged' => $settings['default']['percent_of_shipping_charged'] ?? 0,
+				'static_fee' => $settings['default']['static_fee'] ?? 0,
+			);
+
+		}
+
+
+	}
+
+	// Return final payload
+	return $settings;
+
+}
+
 /**
  * 
  *  Get refunded order costs settings

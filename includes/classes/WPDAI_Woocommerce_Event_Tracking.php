@@ -42,6 +42,7 @@ class WPDAI_WooCommerce_Event_Tracking {
     public int      $track_user 			= 1;
 	private static 	$instance 				= null; // Singleton pattern so that we can call the insert_event without reinitializing the whole thing
 	public ?object 	$session_instance 		= null; // WPDAI_Session_Tracking instance
+	public bool 	$enable_logging 		= false;
 	
 	/**
 	 *
@@ -128,10 +129,31 @@ class WPDAI_WooCommerce_Event_Tracking {
 			array(
 				'methods' => 'POST',
 				'callback' => array( $this, 'process_events_api_data' ),
-				'permission_callback' => '__return_true' // This is a public endpoint, security checks are already done in the callback
+				'permission_callback' => array( $this, 'validate_event_tracking_token' )
 			)
 		);
 
+	}
+
+	/**
+	 * 
+	 * 	Validate the event tracking token
+	 *  Token is passed in the request as 'event-tracking-token' to prevent CSRF attacks
+	 *  This is a public endpoint, so we need to validate the token to prevent CSRF attacks
+	 * 
+	 * 	@param WP_REST_Request $request The request object
+	 * 	@return bool|WP_Error True if the token is valid, WP_Error if the token is invalid
+	 * 
+	 */
+	public function validate_event_tracking_token( $request ) {
+		$token = $request->get_param( 'event-tracking-token' );
+		$expected_token = wpdai_get_analytics_event_tracking_token();
+		
+		// Reject if token is not provided, is empty, or doesn't match
+		if ( empty( $token ) || empty( $expected_token ) || $token !== $expected_token ) {
+			return new \WP_Error( 'invalid_token', __( 'Invalid token.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), array( 'status' => 403 ) );
+		}
+		return true;
 	}
 
 	/**
@@ -145,32 +167,34 @@ class WPDAI_WooCommerce_Event_Tracking {
 		$payload 		= $request->get_params();
 		$referer 		= $request->get_header( 'referer' );
 
-		// No referer set
-		if ( ! $referer ) {
-			return new \WP_REST_Response(
-				array(
-					'success' => false,
-					'message' => __( 'Forbidden: Referer header is required.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
-					'code' => 'missing_referer',
-					'data' => array()
-				),
-				403
-			);
-		}
+		// Check for referer mismatch, users can optionally prevent bad referral requests
+		if ( $referer ) {
 
-		// Referer does not match domain
-		$referring_url 	= wp_parse_url( $referer, PHP_URL_HOST );
-		$site_url 		= wp_parse_url( get_site_url(), PHP_URL_HOST );
-		if ( $referring_url != $site_url  ) {
-			return new \WP_REST_Response(
-				array(
-					'success' => false,
-					'message' => __( 'Forbidden: Referer does not match site domain.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
-					'code' => 'invalid_referer',
-					'data' => array()
-				),
-				403
-			);
+			$referring_host = wp_parse_url( $referer, PHP_URL_HOST );
+			$site_host      = wp_parse_url( home_url(), PHP_URL_HOST );
+		
+			if ( $referring_host && $referring_host !== $site_host ) {
+		
+				$this->log(
+					sprintf(
+						'Event tracking referer mismatch: %s vs %s',
+						$referring_host,
+						$site_host
+					)
+				);
+		
+				if ( apply_filters( 'wpd_ai_event_tracking_prevent_foreign_referrals', false ) ) {
+					return new WP_REST_Response(
+						array(
+							'success' => false,
+							'message' => __( 'Forbidden request.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+							'code'    => 'invalid_referer',
+							'data'    => array(),
+						),
+						403
+					);
+				}
+			}
 		}
 
 		// Event Type Not Set
@@ -433,6 +457,7 @@ class WPDAI_WooCommerce_Event_Tracking {
 
 		// Remove nonce if set
 		if ( isset($data['nonce']) ) unset($data['nonce']);
+		if ( isset($data['event-tracking-token']) ) unset($data['event-tracking-token']);
 
 		// Check rate limiting (max 60 requests per minute)
 		if ( $this->is_rate_limit_exceeded() ) {
@@ -1185,6 +1210,7 @@ class WPDAI_WooCommerce_Event_Tracking {
 			'track_user' => $this->track_user(),
 			'track_engaged_sessions' => $this->only_track_engaged_sessions,
 			'event_tracking_enabled' => $this->event_tracking_enabled,
+			'analytics_event_tracking_token' => wpdai_get_analytics_event_tracking_token(), // This is used to protect the API from CSRF attacks
 			'ajax_url' => admin_url('admin-ajax.php'),
 		);
 
@@ -1307,6 +1333,33 @@ class WPDAI_WooCommerce_Event_Tracking {
         }
 
         return false;
+
+	}
+
+	/**
+	 * 
+	 * 	Log a message - if an error, always log & dont log to the normal route
+	 *  Verbose logging can be enabled via the filter 'wpd_ai_event_tracking_enable_logging'
+	 * 
+	 * 	@param string $message The message to log
+	 * 	@param bool $error Whether the log is an error
+	 *  
+	 * 	@return void
+	 * 
+	 */
+	private function log( $message, $error = false ) {
+
+		// If an error, always log & dont log to the normal route
+		if ( $error ) {
+			wpdai_write_log( $message, 'event-tracking-error' );
+			return;
+		}
+
+		$this->enable_logging = apply_filters( 'wpd_ai_event_tracking_enable_logging', $this->enable_logging );
+
+		if ( $this->enable_logging ) {
+			wpdai_write_log( $message, 'event-tracking' );
+		}
 
 	}
 

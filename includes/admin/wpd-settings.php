@@ -61,15 +61,30 @@ function wpdai_register_settings() {
 	 *
 	 */
     $cost_default_data = array(
-        'default_product_cost_percent' 						=> 0,
-        'default_shipping_cost_percent' 					=> 0,
-        'default_shipping_cost_percent_shipping_charged' 	=> 0,
-        'default_shipping_cost_fee' 						=> 0,
+        'default_product_cost_percent' => 0,
     );
 	add_option( 'wpd_ai_cost_defaults', $cost_default_data );
 
+	/**
+	 * 
+	 * 	Payment Gateway Costs
+	 * 
+	 * 	@return array
+	 * 
+	 */
 	$payment_gateway_cost_settings = wpdai_get_payment_gateway_cost_settings();
 	add_option( 'wpd_ai_payment_gateway_costs', $payment_gateway_cost_settings );
+
+
+	/**
+	 * 
+	 * 	Shipping Costs
+	 * 
+	 * 	@return array
+	 * 
+	 */
+	$shipping_cost_settings = wpdai_get_shipping_cost_settings();
+	add_option( 'wpd_ai_shipping_costs', $shipping_cost_settings );
 
 	/**
 	 *
@@ -222,6 +237,7 @@ function wpdai_register_settings() {
 function wpdai_save_settings() {
 
 	$saved = array();
+	$delete_cache = false;
 
 	// Save Payment Gateway Costs
 	if ( isset($_POST['wpd_ai_payment_gateway_costs']) ) {
@@ -232,7 +248,9 @@ function wpdai_save_settings() {
 
 			foreach($_POST['wpd_ai_payment_gateway_costs'] as $payment_gateway_id => $payment_gateway_cost_data ) {
 
-				$sanitized_array[$payment_gateway_id] = array(
+				$sanitized_id = sanitize_text_field( $payment_gateway_id );
+
+				$sanitized_array[$sanitized_id] = array(
 					'percent_of_sales' => (float) $payment_gateway_cost_data['percent_of_sales'] ?? 0,
 					'static_fee' => (float) $payment_gateway_cost_data['static_fee'] ?? 0,
 				);
@@ -256,7 +274,57 @@ function wpdai_save_settings() {
 		$saved['Payment Gateway Costs'] = update_option( 'wpd_ai_payment_gateway_costs', $sanitized_array );
 
 		// Delete cache if updated
-		if ($saved['Payment Gateway Costs']) $delete_cache = wpdai_delete_all_order_data_cache();
+		if ($saved['Payment Gateway Costs']) $delete_cache = true;
+
+	}
+
+	// Save Shipping Costs
+	if ( isset($_POST['wpd_ai_shipping_costs']) ) {
+
+		if ( is_array($_POST['wpd_ai_shipping_costs']) ) {
+
+			$sanitized_array = array();
+
+			foreach($_POST['wpd_ai_shipping_costs'] as $shipping_method_instance_id => $shipping_method_cost_data ) {
+
+				$sanitized_id = sanitize_text_field( $shipping_method_instance_id );
+				$sanitized_array[$sanitized_id] = array(
+					'percent_of_order_value' => (float) $shipping_method_cost_data['percent_of_order_value'] ?? 0,
+					'percent_of_shipping_charged' => (float) $shipping_method_cost_data['percent_of_shipping_charged'] ?? 0,
+					'static_fee' => (float) $shipping_method_cost_data['static_fee'] ?? 0,
+				);
+
+			}
+
+			// Make sure we have default settings
+			if ( ! isset($sanitized_array['default']) ) {
+				$sanitized_array['default'] = array(
+					'percent_of_order_value' => 0,
+					'percent_of_shipping_charged' => 0,
+					'static_fee' => 0,
+				);
+			}
+
+			// Merge with existing settings
+			$sanitized_array = array_merge( get_option( 'wpd_ai_shipping_costs', array() ), $sanitized_array );
+
+			// Make sure the sanitized ID is a valid shipping method instance ID
+			$shipping_methods = wpdai_get_available_shipping_methods();
+			foreach( $sanitized_array as $sanitized_id => $shipping_method_cost_data ) {
+				// Make sure the sanitized ID is a valid shipping method instance ID
+				if ( ! isset($shipping_methods[$sanitized_id]) ) {
+					unset($sanitized_array[$sanitized_id]);
+				}
+
+			}
+
+		}
+
+		// Save settings
+		$saved['Shipping Costs'] = update_option( 'wpd_ai_shipping_costs', $sanitized_array );
+
+		// Delete cache if updated
+		if ($saved['Shipping Costs']) $delete_cache = true;
 
 	}
 
@@ -305,7 +373,7 @@ function wpdai_save_settings() {
 		// Merge with existing values
 		$refunded_order_costs = array_merge( $refunded_order_costs, array_map( 'intval', $_POST['wpd-refunded-order-costs'] ) );
 		$saved['Refunded Order Costs'] = update_option( 'wpd_ai_refunded_order_costs', $refunded_order_costs );
-		if ( $saved['Refunded Order Costs'] ) $delete_cache = wpdai_delete_all_order_data_cache();
+		if ( $saved['Refunded Order Costs'] ) $delete_cache = true;
 
 	}
 
@@ -345,7 +413,7 @@ function wpdai_save_settings() {
 		// If weve got valid data, let's save
 		if ( is_array($custom_order_cost_settings) ) {
 			$saved['Custom Order Costs'] = update_option( 'wpd_ai_custom_order_costs',  $custom_order_cost_settings );
-			if ($saved['Custom Order Costs']) $delete_cache = wpdai_delete_all_order_data_cache();
+			if ($saved['Custom Order Costs']) $delete_cache = true;
 		}
 
 	}
@@ -386,7 +454,7 @@ function wpdai_save_settings() {
 		// If weve got valid data, let's save
 		if ( is_array($custom_product_cost_settings) ) {
 			$saved['Custom Product Costs'] = update_option( 'wpd_ai_custom_product_costs',  $custom_product_cost_settings );
-			if ($saved['Custom Product Costs']) $delete_cache = wpdai_delete_all_order_data_cache();
+			if ($saved['Custom Product Costs']) $delete_cache = true;
 		}
 
 	}
@@ -405,7 +473,7 @@ function wpdai_save_settings() {
 	// Ignore Unengaged Sessions Setting
 	if ( isset($_POST['wpd_ai_analytics_only_track_engaged_sessionss']) ) {
 		$ignore_unengaged_sessions = ( isset($_POST['wpd_ai_analytics_only_track_engaged_sessionss']) ) ? intval($_POST['wpd_ai_analytics_only_track_engaged_sessionss']) : 0;
-		$saved['Ignore Unengaged Sessions'] = update_option( 'wpd_ai_analytics_only_track_engaged_sessionss', $ignore_unengaged_sessions );
+		$saved['Track Engaged Sessions'] = update_option( 'wpd_ai_analytics_only_track_engaged_sessionss', $ignore_unengaged_sessions );
 	}
 
 	// Cache Build Batch Size
@@ -419,30 +487,13 @@ function wpdai_save_settings() {
 	// Cost Defaults
 	if ( isset( $_POST['wpd_ai_cost_defaults'] ) ) {
 		$cost_default_data = array(
-			'default_product_cost_percent' 						=> 0,
-			'default_shipping_cost_percent' 					=> 0,
-			'default_shipping_cost_percent_shipping_charged' 	=> 0,
-			'default_shipping_cost_fee' 						=> 0,
+			'default_product_cost_percent' => 0,
 		);
 		$cost_default_data = array_merge( $cost_default_data, array_map( 'floatval', wp_unslash( $_POST['wpd_ai_cost_defaults'] ) ) );
 		$saved['Product Cost Defaults'] = update_option( 'wpd_ai_cost_defaults',  $cost_default_data );
 
 		// Wipe cache if weve updated our calculations
-		if ( $saved['Product Cost Defaults'] ) {
-
-			$delete_cache = wpdai_delete_all_order_data_cache();
-
-			if ( $delete_cache === true ) {
-				wpdai_notice(
-					__( 'Your reports cache will be updated in the background to reflect your new calculation settings.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
-				);
-			} else {
-				wpdai_notice( 
-					 __( 'We could not refresh your cache, try using the cache refresh buttons at the bottom of this page to reflect your new calculation settings.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
-				);
-			}
-
-		}
+		if ( $saved['Product Cost Defaults'] ) $delete_cache = true;
 
 	}
 
@@ -543,6 +594,24 @@ function wpdai_save_settings() {
 
 		}
 
+	}
+
+	/**
+	 *
+	 *	Delete cache notice
+	 *
+	 */
+	if ( $delete_cache === true ) {
+		$cache_deleted = wpdai_delete_all_order_data_cache();
+		if ( $cache_deleted === true ) {
+			wpdai_notice(
+				__( 'We will rebuild your reports cache in the background to reflect your new settings.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
+			);
+		} else {
+			wpdai_notice(
+				__( 'We were unable to rebuild your reports cache, try using the cache refresh buttons at the bottom of this page to reflect your new settings.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
+			);
+		}
 	}
 
 	/**

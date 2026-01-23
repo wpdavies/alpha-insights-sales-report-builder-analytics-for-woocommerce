@@ -60,7 +60,7 @@ $email_styles = apply_filters( 'wpdai_email_template_styles', $email_styles );
 if ( ! empty( $email_styles ) ) {
 	?>
 	<style type="text/css">
-		<?php echo $email_styles; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped - CSS content is sanitized and filtered ?>
+		<?php echo esc_html( $email_styles ); ?>
 	</style>
 	<?php
 }

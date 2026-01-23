@@ -58,6 +58,15 @@ class WPDAI_Order_Calculator {
      * 
      **/
     private $payment_gateway_cost_settings = array();
+
+    /**
+     * 
+     *  Shipping Costs
+     * 
+     *  @var array
+     * 
+     **/
+    private $shipping_cost_settings = array();
     
     /**
      * 
@@ -276,6 +285,7 @@ class WPDAI_Order_Calculator {
         $this->multi_currency_order                 = ( $this->order_currency !== $this->store_currency ) ? 1 : 0;
         $this->cost_defaults                        = get_option( 'wpd_ai_cost_defaults' );
         $this->payment_gateway_cost_settings        = wpdai_get_payment_gateway_cost_settings();
+        $this->shipping_cost_settings               = wpdai_get_shipping_cost_settings();
         $this->exchange_rate 			            = wpdai_get_order_currency_conversion_rate( $this->order );
 
         // Basic Vars
@@ -340,6 +350,17 @@ class WPDAI_Order_Calculator {
             $full_refund            = 1;
             $partial_refund         = 0;
 
+        }
+
+        // Calculate shipping instance ID for this order, for now assume only one shipping instance, collect the first one grabbed
+        $shipping_items = $this->order->get_items('shipping');
+        $shipping_instance_ids = array();
+        if ( ! empty($shipping_items) && is_array($shipping_items) ) {
+            foreach( $shipping_items as $shipping_item ) {
+                if ( is_a($shipping_item, 'WC_Order_Item_Shipping') ) {
+                    $shipping_instance_ids[] = (int) $shipping_item->get_instance_id();
+                }
+            }
         }
 
         // Default Results
@@ -446,6 +467,9 @@ class WPDAI_Order_Calculator {
             'full_refund' 							        => $full_refund,
             'partial_refund' 						        => $partial_refund,
             'refund_data' 							        => array(),
+
+            // Shipping Data
+            'shipping_instance_ids' 					    => $shipping_instance_ids,
     
             // Tax Data
             'tax_data' 								        => array(),
@@ -465,9 +489,25 @@ class WPDAI_Order_Calculator {
     private function calculate_shipping_costs() {
 
         // Default Options
-        $shipping_cost_multiplier_order_revenue 	= (float) wpdai_divide( $this->cost_defaults['default_shipping_cost_percent'], 100 );
-        $shipping_cost_multiplier_shipping_charged 	= (float) wpdai_divide( $this->cost_defaults['default_shipping_cost_percent_shipping_charged'], 100 );
-        $shipping_cost_fee 							= (float) $this->cost_defaults['default_shipping_cost_fee'];
+        $shipping_cost_multiplier_order_revenue 	= (float) wpdai_divide( $this->shipping_cost_settings['default']['percent_of_order_value'], 100 );
+        $shipping_cost_multiplier_shipping_charged 	= (float) wpdai_divide( $this->shipping_cost_settings['default']['percent_of_shipping_charged'], 100 );
+        $shipping_cost_fee 							= (float) $this->shipping_cost_settings['default']['static_fee'];
+
+        $shipping_instance_ids = $this->results['shipping_instance_ids'];
+        if ( is_array($shipping_instance_ids) && ! empty($shipping_instance_ids) ) {
+            foreach( $shipping_instance_ids as $shipping_instance_id ) {
+                // Allow instance_id 0 (valid for "Rest of the world" zone) and positive integers
+                if ( is_numeric($shipping_instance_id) && $shipping_instance_id >= 0 ) {
+                    // Look for the correct settings if available
+                    $shipping_instance_key = 'instance_' . $shipping_instance_id;
+                    if ( isset($this->shipping_cost_settings[$shipping_instance_key]) && is_array($this->shipping_cost_settings[$shipping_instance_key]) ) {
+                        $shipping_cost_multiplier_order_revenue 	= (float) wpdai_divide( $this->shipping_cost_settings[$shipping_instance_key]['percent_of_order_value'] ?? 0, 100 );
+                        $shipping_cost_multiplier_shipping_charged 	= (float) wpdai_divide( $this->shipping_cost_settings[$shipping_instance_key]['percent_of_shipping_charged'] ?? 0, 100 );
+                        $shipping_cost_fee 							= (float) ( $this->shipping_cost_settings[$shipping_instance_key]['static_fee'] ?? 0 );
+                    }
+                }
+            }
+        }
 
         // Calculate Default Value
         $order_revenue_multiplier                   = $this->results['total_order_revenue_inc_tax_and_refunds'] * $shipping_cost_multiplier_order_revenue; // Include tax and refunds, so the default works for refunded orders
