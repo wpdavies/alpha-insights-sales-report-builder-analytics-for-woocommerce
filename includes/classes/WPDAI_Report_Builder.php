@@ -740,7 +740,14 @@ class WPDAI_Report_Builder {
     }
 
     /**
-     * Static AJAX handler for getting live dashboard data
+     * Static AJAX handler for getting live dashboard data.
+     *
+     * Security: (1) Nonce verification – accepts either standard AJAX nonce (WPD_AI_AJAX_NONCE_ACTION)
+     * or live-share nonce (wpd_live_share_nonce). (2) Authorization – logged-in requests require
+     * capability via wpdai_is_user_authorized_to_use_alpha_insights(); nopriv (live share) requests
+     * require valid live_share_auth token and config with live_share_links. Registered for nopriv
+     * to support public live-share report links; unauthenticated access is only permitted when
+     * live_share_nonce + live_share_auth + valid config are present.
      *
      * @since 4.7.0
      *
@@ -748,30 +755,56 @@ class WPDAI_Report_Builder {
      */
     public static function get_live_dashboard_data_ajax_handler() {
 
-        // Verify nonce - accept both regular AJAX nonce and live share nonce
-        if (!isset($_POST['nonce'])) {
-            self::log_error('WPDAI_Report_Builder: No nonce provided');
-            wp_send_json_error('No nonce provided');
-            return;
-        }
-        
-        $nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ) );
-        $regular_nonce_valid = wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION );
-        $live_share_nonce_valid = wp_verify_nonce( $nonce, 'wpd_live_share_nonce' );
-        
-        if (!$regular_nonce_valid && !$live_share_nonce_valid) {
-            self::log_error('WPDAI_Report_Builder: Nonce verification failed');
-            wp_send_json_error('Security check failed');
+        // 1. Nonce verification – require nonce and validate origin (standard or live share).
+        if ( ! isset( $_POST['nonce'] ) || ! is_string( $_POST['nonce'] ) ) {
+            self::log_error( 'WPDAI_Report_Builder: No nonce provided for live dashboard data.' );
+            wp_send_json_error( array( 'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
             return;
         }
 
+        $nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ) );
+        $live_share_nonce_valid = (bool) wp_verify_nonce( $nonce, 'wpd_live_share_nonce' );
+        $regular_nonce_valid     = (bool) wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION );
+
+        if ( ! $live_share_nonce_valid && ! $regular_nonce_valid ) {
+            self::log_error( 'WPDAI_Report_Builder: Nonce verification failed for live dashboard data.' );
+            wp_send_json_error( array( 'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
+            return;
+        }
+
+        // 2. Authorization: live-share path (nopriv) vs logged-in path.
+        if ( $live_share_nonce_valid ) {
+            // Live share: require token; no capability check (intended for public links).
+            if ( ! isset( $_POST['live_share_auth'] ) || ! is_string( $_POST['live_share_auth'] ) || trim( $_POST['live_share_auth'] ) === '' ) {
+                self::log_error( 'WPDAI_Report_Builder: Live share request missing live_share_auth.' );
+                wp_send_json_error( array( 'message' => __( 'Live share authentication required.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
+                return;
+            }
+            $live_share_auth = sanitize_text_field( wp_unslash( $_POST['live_share_auth'] ) );
+            if ( ! self::validate_live_share_auth( $live_share_auth ) ) {
+                self::log_error( 'WPDAI_Report_Builder: Invalid live_share_auth for live dashboard data.' );
+                wp_send_json_error( array( 'message' => __( 'Invalid live share authentication.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
+                return;
+            }
+        } else {
+            // Logged-in: validate referer via check_ajax_referer, then capability.
+            if ( ! check_ajax_referer( WPD_AI_AJAX_NONCE_ACTION, 'nonce', false ) ) {
+                self::log_error( 'WPDAI_Report_Builder: AJAX referer/nonce check failed for live dashboard data.' );
+                wp_send_json_error( array( 'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
+                return;
+            }
+            if ( ! is_user_logged_in() || ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
+                self::log_error( 'WPDAI_Report_Builder: User not authorized to access live dashboard data.' );
+                wp_send_json_error( array( 'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
+                return;
+            }
+        }
+
         try {
-            
-            // Parse report configuration from POST data
-            $config = array();
-            if (isset($_POST['config']) && !empty($_POST['config'])) {
-                // Sanitize and decode JSON config from POST data
-                $config_raw = $_POST['config'];
+            // 3. Parse and sanitize config from POST (after nonce + auth).
+            $config     = array();
+            $config_raw = isset( $_POST['config'] ) && is_string( $_POST['config'] ) ? wp_unslash( $_POST['config'] ) : '';
+            if ( $config_raw !== '' ) {
                 $config = wpdai_sanitize_and_decode_json_config( $config_raw, false );
                 
                 // Handle error case
@@ -793,6 +826,15 @@ class WPDAI_Report_Builder {
                     $config = array();
                 }
             }
+
+            // When using live share nonce, config must include valid live_share_links
+            if ( $live_share_nonce_valid && ! self::config_has_valid_live_share_structure( $config ) ) {
+                self::log_error( 'WPDAI_Report_Builder: Live share request missing required live_share_links config.' );
+                wp_send_json_error( array(
+                    'message' => __( 'Invalid live share configuration. The report must include live share links.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                ) );
+                return;
+            }
             
             $response = self::get_live_dashboard_data_from_config( $config );
             
@@ -807,7 +849,11 @@ class WPDAI_Report_Builder {
     }
 
     /**
-     * Static AJAX handler for getting realtime dashboard data
+     * Static AJAX handler for getting realtime dashboard data.
+     *
+     * Security: Same as get_live_dashboard_data_ajax_handler – nonce verification (standard or
+     * live-share), authorization (capability vs live_share_auth), config sanitization. Registered
+     * for nopriv to support live-share; unauthenticated access only with valid live-share token.
      *
      * @since 4.7.0
      *
@@ -815,24 +861,84 @@ class WPDAI_Report_Builder {
      */
     public static function get_realtime_dashboard_data_ajax_handler() {
 
-        // Verify nonce - accept both regular AJAX nonce and live share nonce
-        if (!isset($_POST['nonce'])) {
-            self::log_error('WPDAI_Report_Builder: No nonce provided for realtime data');
-            wp_send_json_error('No nonce provided');
-            return;
-        }
-        
-        $nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ) );
-        $regular_nonce_valid = wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION );
-        $live_share_nonce_valid = wp_verify_nonce( $nonce, 'wpd_live_share_nonce' );
-        
-        if (!$regular_nonce_valid && !$live_share_nonce_valid) {
-            self::log_error('WPDAI_Report_Builder: Nonce verification failed for realtime data');
-            wp_send_json_error('Security check failed');
+        // 1. Nonce verification.
+        if ( ! isset( $_POST['nonce'] ) || ! is_string( $_POST['nonce'] ) ) {
+            self::log_error( 'WPDAI_Report_Builder: No nonce provided for realtime dashboard data.' );
+            wp_send_json_error( array( 'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
             return;
         }
 
+        $nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ) );
+        $live_share_nonce_valid = (bool) wp_verify_nonce( $nonce, 'wpd_live_share_nonce' );
+        $regular_nonce_valid     = (bool) wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION );
+
+        if ( ! $live_share_nonce_valid && ! $regular_nonce_valid ) {
+            self::log_error( 'WPDAI_Report_Builder: Nonce verification failed for realtime dashboard data.' );
+            wp_send_json_error( array( 'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
+            return;
+        }
+
+        // 2. Authorization: live-share vs logged-in.
+        if ( $live_share_nonce_valid ) {
+            if ( ! isset( $_POST['live_share_auth'] ) || ! is_string( $_POST['live_share_auth'] ) || trim( $_POST['live_share_auth'] ) === '' ) {
+                self::log_error( 'WPDAI_Report_Builder: Live share realtime request missing live_share_auth.' );
+                wp_send_json_error( array( 'message' => __( 'Live share authentication required.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
+                return;
+            }
+            $live_share_auth = sanitize_text_field( wp_unslash( $_POST['live_share_auth'] ) );
+            if ( ! self::validate_live_share_auth( $live_share_auth ) ) {
+                self::log_error( 'WPDAI_Report_Builder: Invalid live_share_auth for realtime data.' );
+                wp_send_json_error( array( 'message' => __( 'Invalid live share authentication.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
+                return;
+            }
+        } else {
+            if ( ! check_ajax_referer( WPD_AI_AJAX_NONCE_ACTION, 'nonce', false ) ) {
+                self::log_error( 'WPDAI_Report_Builder: AJAX referer/nonce check failed for realtime data.' );
+                wp_send_json_error( array( 'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
+                return;
+            }
+            if ( ! is_user_logged_in() || ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
+                self::log_error( 'WPDAI_Report_Builder: User not authorized to access realtime dashboard data.' );
+                wp_send_json_error( array( 'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
+                return;
+            }
+        }
+
         try {
+            // 3. Parse and sanitize config (after nonce + auth).
+            $config     = array();
+            $config_raw = isset( $_POST['config'] ) && is_string( $_POST['config'] ) ? wp_unslash( $_POST['config'] ) : '';
+            if ( $live_share_nonce_valid && $config_raw !== '' ) {
+                $config = wpdai_sanitize_and_decode_json_config( $config_raw, false );
+                
+                // Handle error case
+                if ( is_wp_error( $config ) ) {
+                    self::log_error( 'WPDAI_Report_Builder: Invalid config format for realtime data.' );
+                    self::log_error( 'WPDAI_Report_Builder: JSON decode error: ' . $config->get_error_message() );
+                    wp_send_json_error( array(
+                        'message' => sprintf(
+                            /* translators: %s: JSON error message */
+                            __( 'Failed to parse dashboard configuration: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                            esc_html( $config->get_error_message() )
+                        ),
+                    ) );
+                    return;
+                }
+                
+                // Ensure we have an array
+                if ( ! is_array( $config ) ) {
+                    $config = array();
+                }
+            }
+
+            // When using live share nonce, config must include valid live_share_links (same as live dashboard)
+            if ( $live_share_nonce_valid && ! self::config_has_valid_live_share_structure( $config ) ) {
+                self::log_error( 'WPDAI_Report_Builder: Live share realtime request missing required live_share_links config.' );
+                wp_send_json_error( array(
+                    'message' => __( 'Invalid live share configuration. The report must include live share links.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                ) );
+                return;
+            }
             // Use the existing method to get realtime data
             $response = self::get_realtime_dashboard_data();
             
@@ -3515,6 +3621,26 @@ class WPDAI_Report_Builder {
         }
         
         return false; // Secret key not found
+    }
+
+    /**
+     * Check if config has the required live share structure.
+     * Used when processing requests authenticated via the live share nonce.
+     *
+     * @param array $config Report configuration.
+     * @return bool True if config has valid live_share_links structure.
+     */
+    public static function config_has_valid_live_share_structure( $config ) {
+        $live_share_links = isset( $config['live_share_links'] ) ? $config['live_share_links'] : null;
+        if ( ! is_array( $live_share_links ) || empty( $live_share_links ) ) {
+            return false;
+        }
+        foreach ( $live_share_links as $link ) {
+            if ( ! is_array( $link ) || empty( $link['id'] ) || empty( $link['secret_key'] ) ) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }
