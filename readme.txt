@@ -1,7 +1,7 @@
 === Alpha Insights - Sales Report Builder & Analytics For WooCommerce ===
 Contributors: wpdavies
 Tags: woocommerce, reports, cost-of-goods, profit, analytics
-Requires at least: 5.0.0
+Requires at least: 5.0
 Tested up to: 6.9
 Requires PHP: 7.4
 Stable tag: 1.0.0
