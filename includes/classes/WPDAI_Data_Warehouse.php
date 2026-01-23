@@ -5868,7 +5868,7 @@ class WPDAI_Data_Warehouse {
         $woo_events_table               = $wpd_db->events_table;
         $session_data_table             = $wpd_db->session_data_table;
         $filters                        = $this->get_filter();
-        $ignore_unengaged_sessions      = get_option( 'wpd_ai_analytics_only_track_engaged_sessionss', 0 );
+        $engaged_sessions_only          = get_option( 'wpd_ai_analytics_only_track_engaged_sessionss', 0 );
         $session_id_filter              = $this->get_data_filter('website_traffic', 'session_id');
         $event_type_filter              = $this->get_data_filter('website_traffic', 'event_type');
         $session_contains_event_filter  = $this->get_data_filter('website_traffic', 'session_contains_event');
@@ -6085,7 +6085,7 @@ class WPDAI_Data_Warehouse {
         }
 
         // Filter Out Unengaged Sessions
-        if ( $ignore_unengaged_sessions ) {
+        if ( $engaged_sessions_only ) {
             $where_clause .= " AND session_id IN (
                 SELECT DISTINCT session_id
                 FROM $session_data_table

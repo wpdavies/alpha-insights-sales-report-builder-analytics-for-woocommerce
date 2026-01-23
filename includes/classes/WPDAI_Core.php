@@ -1589,13 +1589,20 @@ class WPDAI_Core {
 
 			if ( is_array($_POST['_wpd_ai_custom_product_costs']) && ! empty($_POST['_wpd_ai_custom_product_costs']) ) {
 
+				// Get valid custom product cost slugs for validation
+				$custom_product_cost_settings = wpdai_get_custom_product_cost_options();
+				$valid_custom_product_cost_slugs = (is_array($custom_product_cost_settings) && ! empty($custom_product_cost_settings)) ? array_keys( $custom_product_cost_settings ) : array();
+
 				foreach( $_POST['_wpd_ai_custom_product_costs'] as $product_id => $custom_cost_data ) {
 
 					$product_id = absint( $product_id );
-
 					// Sanitize data
 					if ( is_array( $custom_cost_data ) ) {
 						foreach( $custom_cost_data as $slug => $cost_data ) {
+
+							// Sanitize and validate the slug
+							$sanitized_slug = sanitize_text_field( wp_unslash( $slug ) );
+							if ( ! in_array( $sanitized_slug, $valid_custom_product_cost_slugs ) ) continue;
 
 							if ( is_array( $cost_data ) ) {
 								$static_fee 			= wc_format_decimal( sanitize_text_field( $cost_data['static_fee'] ?? '' ) );
