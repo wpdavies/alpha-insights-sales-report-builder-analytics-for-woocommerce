@@ -12,6 +12,33 @@
  */
 defined( 'ABSPATH' ) || exit;
 
+/*
+ * 
+ *  Function for retrieving the data warehouse instance
+ * 
+ *  @param array $args The arguments to pass to the data warehouse constructor
+ *  @return WPDAI_Data_Warehouse $data_warehouse The data warehouse instance
+ * 
+ *  @since 5.0.0
+ * 
+ *  @author WPDavies
+ *  @link https://wpdavies.dev/
+ * 
+ */
+function wpdai_data_warehouse( $args = array() ) {
+
+    if ( class_exists('WPDAI_Data_Warehouse_Pro') ) {
+
+        return new WPDAI_Data_Warehouse_Pro( $args );
+
+    } else {
+
+        return new WPDAI_Data_Warehouse( $args );
+
+    }
+
+}
+
 /**
  * 
  *  Function for retrieving the IDs of all the default React Reports that come with Alpha Insights

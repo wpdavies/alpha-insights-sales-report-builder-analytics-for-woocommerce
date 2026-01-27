@@ -158,10 +158,27 @@ class WPDAI_WooCommerce_Event_Tracking {
 
 	/**
 	 *
+	 *	Manually authenticate user from cookies if not already authenticated
+	 *  REST API doesn't automatically load user sessions from cookies
+	 *
+	 */
+	public function rest_api_cookie_authentication() {
+		if ( ! is_user_logged_in() ) {
+			// Use wp_validate_auth_cookie with false to auto-read from $_COOKIE
+			$user_id = wp_validate_auth_cookie( false, 'logged_in' );
+			if ( $user_id ) {
+				wp_set_current_user( $user_id );
+			}
+		}
+	}
+
+	/**
+	 *
 	 *	Process data passed to us by the Rest API, this is used for JS event tracking
 	 *
 	 */
 	public function process_events_api_data( WP_REST_Request $request ) {
+
 
 		// Vars
 		$payload 		= $request->get_params();
@@ -209,6 +226,9 @@ class WPDAI_WooCommerce_Event_Tracking {
 				400
 			);
 		}
+
+		// At this stage, let's make sure the user object is available during our request as this is important for $this->track_user()
+		$this->rest_api_cookie_authentication();
 
 		// Succesful Call, insert into db
 		if ( isset($payload['event_type']) && ! empty($payload['event_type']) ) {
@@ -340,7 +360,7 @@ class WPDAI_WooCommerce_Event_Tracking {
 		// If we're not tracking, dont enter data
 		if ( ! $this->track_user() || ! $this->event_tracking_enabled ) {
 			return array(
-				'success' => false,
+				'success' => true,
 				'message' => __( 'Event tracking is disabled for this user.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 				'code' => 'tracking_disabled',
 				'rows_inserted' => 0
@@ -360,7 +380,7 @@ class WPDAI_WooCommerce_Event_Tracking {
 		// If it's a CRON event, shouldn't be added to DB
         if (defined('DOING_CRON') && DOING_CRON) {
             return array(
-				'success' => false,
+				'success' => true,
 				'message' => __( 'Event tracking skipped during CRON execution.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 				'code' => 'cron_skip',
 				'rows_inserted' => 0
@@ -380,7 +400,7 @@ class WPDAI_WooCommerce_Event_Tracking {
 		// Dont store any data from admin
 		if ( is_admin() ) {
 			return array(
-				'success' => false,
+				'success' => true,
 				'message' => __( 'Event tracking skipped in admin area.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 				'code' => 'admin_skip',
 				'rows_inserted' => 0
@@ -400,7 +420,7 @@ class WPDAI_WooCommerce_Event_Tracking {
 		// Bot
 		if ( $session_instance->is_bot ) {
 			return array(
-				'success' => false,
+				'success' => true,
 				'message' => __( 'Event tracking skipped: bot detected.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 				'code' => 'bot_detected',
 				'rows_inserted' => 0
@@ -410,7 +430,7 @@ class WPDAI_WooCommerce_Event_Tracking {
 		// Block form submissions that contain cart classes, we'll track these through other means
 		if ( $data['event_type'] == 'form_submit' && isset($data['additional_data']['form_element_class']) && strpos($data['additional_data']['form_element_class'], 'cart') !== false ) {
 			return array(
-				'success' => false,
+				'success' => true,
 				'message' => __( 'Event tracking skipped: cart form submission tracked via other means.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 				'code' => 'cart_form_skip',
 				'rows_inserted' => 0
@@ -1200,6 +1220,8 @@ class WPDAI_WooCommerce_Event_Tracking {
 	 **/
 	public function register_event_tracking_script() {
 
+		$this->enable_logging = apply_filters( 'wpd_ai_event_tracking_enable_logging', $this->enable_logging );
+
 		// Setup JS Tracking - see wpd-alpha-insights-event-tracking.js
 		wp_register_script( 'wpd-alpha-insights-event-tracking', WPD_AI_URL_PATH . 'assets/js/wpd-alpha-insights-event-tracking.js', array( 'jquery' ), WPD_AI_VER, true );
 
@@ -1207,10 +1229,10 @@ class WPDAI_WooCommerce_Event_Tracking {
 			'api_endpoint' => $this->api_url,
 			'current_post_type' => $this->object_type,
 			'current_post_id' => $this->object_id,
-			'track_user' => $this->track_user(),
 			'track_engaged_sessions' => $this->only_track_engaged_sessions,
 			'event_tracking_enabled' => $this->event_tracking_enabled,
 			'analytics_event_tracking_token' => wpdai_get_analytics_event_tracking_token(), // This is used to protect the API from CSRF attacks
+			'enbable_event_tracking_logging' => $this->enable_logging,
 			'ajax_url' => admin_url('admin-ajax.php'),
 		);
 

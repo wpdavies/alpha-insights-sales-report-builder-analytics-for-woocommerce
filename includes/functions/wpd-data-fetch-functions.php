@@ -466,7 +466,7 @@ function wpdai_fetch_session_data( $session_id ) {
 			)
 		)
 	);
-	$wpd_data = new WPDAI_Data_Warehouse( $filter );
+	$wpd_data = wpdai_data_warehouse( $filter );
 	$wpd_data->fetch_analytics_data();
 	$session_tables = $wpd_data->get_data('analytics', 'data_table');
 
@@ -500,7 +500,7 @@ function wpdai_get_session_count_by_user_id( $user_id ) {
 			)
 		)
 	);
-	$wpd_data = new WPDAI_Data_Warehouse( $filter );
+	$wpd_data = wpdai_data_warehouse( $filter );
 	$session_data = $wpd_data->get_analytics_session_count();
 
 	return $session_data;
@@ -528,7 +528,7 @@ function wpdai_get_session_count_by_ip_address( $ip_address ) {
 			)
 		)
 	);
-	$wpd_data = new WPDAI_Data_Warehouse( $filter );
+	$wpd_data = wpdai_data_warehouse( $filter );
 	$session_data = $wpd_data->get_analytics_session_count();
 
 	return $session_data;
@@ -559,7 +559,7 @@ function wpdai_get_product_statistic( $event_type, $product_id ) {
 			)
 		)
 	);
-	$wpd_data = new WPDAI_Data_Warehouse( $filter );
+	$wpd_data = wpdai_data_warehouse( $filter );
 	return $wpd_data->get_analytics_event_count();
 
 }
@@ -1343,7 +1343,8 @@ function wpdai_get_store_order_count() {
 
 /**
  * 
- * 	Will search DB for the oldest user registration date, this is assumed to be the site creation date
+ * 	Will search DB for the oldest user registration date and oldest order date, 
+ * 	compares them and uses whichever is older as the site creation date.
  * 	Returns this date in specified format (defaults to Y-m-d H:i:s) or false on failure
  * 	Will save this value in the wp_options table for quick use in the future.
  * 
@@ -1370,21 +1371,88 @@ function wpdai_get_site_creation_date( $date_format = null ) {
 	// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Using wpdb property for standard table name.
 	$first_user_registration_date = $wpdb->get_var( "SELECT user_registered FROM {$wpdb->users} ORDER BY user_registered ASC LIMIT 1" );
 
-	// DB Error
-	if ( $wpdb->last_error || $first_user_registration_date === null  ) {
-
+	// DB Error for user query
+	if ( $wpdb->last_error ) {
 		wpdai_write_log( 'Error finding earliest user from DB, dumping the error & query.', 'db_error' );
 		wpdai_write_log( $wpdb->last_error, 'db_error' );
 		wpdai_write_log( $wpdb->last_query, 'db_error' );
+		// Continue to check orders even if user query fails
+		$first_user_registration_date = null;
+	}
 
+	// Get the earliest order date using WooCommerce API (supports both posts table and HPOS)
+	$first_order_date = null;
+	
+	// Check if WooCommerce is active
+	if ( class_exists( 'WooCommerce' ) && function_exists( 'wc_get_orders' ) ) {
+		// Get the oldest order using WooCommerce API (works with both posts table and HPOS)
+		$oldest_orders = wc_get_orders( array(
+			'limit'   => 1,
+			'orderby' => 'date',
+			'order'   => 'ASC',
+			'status'  => 'any', // Include all order statuses including trashed
+			'type'    => array( 'shop_order' ), // Only get actual orders, not refunds
+		) );
+		
+		// Get the date from the order object if found
+		if ( ! empty( $oldest_orders ) && is_array( $oldest_orders ) ) {
+			$oldest_order = reset( $oldest_orders ); // Get first (and only) order
+			if ( is_a( $oldest_order, 'WC_Order' ) ) {
+				$order_date_created = $oldest_order->get_date_created();
+				if ( is_a( $order_date_created, 'WC_DateTime' ) ) {
+					// Get timestamp and convert to MySQL datetime format
+					if ( method_exists( $order_date_created, 'getOffsetTimestamp' ) ) {
+						$order_timestamp = $order_date_created->getOffsetTimestamp();
+					} elseif ( method_exists( $order_date_created, 'getTimestamp' ) ) {
+						$order_timestamp = $order_date_created->getTimestamp();
+					} else {
+						$order_timestamp = null;
+					}
+					
+					if ( $order_timestamp !== null && $order_timestamp > 0 ) {
+						// Convert to MySQL datetime format (GMT)
+						$first_order_date = gmdate( 'Y-m-d H:i:s', $order_timestamp );
+					}
+				}
+			}
+		}
+	}
+
+	// Convert dates to timestamps for comparison
+	$user_timestamp = null;
+	$order_timestamp = null;
+
+	// Process user registration date
+	if ( $first_user_registration_date !== null && is_string($first_user_registration_date) && ! empty($first_user_registration_date) ) {
+		$user_timestamp = strtotime( get_date_from_gmt( $first_user_registration_date ) );
+	}
+
+	// Process order date
+	if ( $first_order_date !== null && is_string($first_order_date) && ! empty($first_order_date) ) {
+		$order_timestamp = strtotime( get_date_from_gmt( $first_order_date ) );
+	}
+
+	// Determine which date is older (or use the only available one)
+	if ( $user_timestamp !== null && $order_timestamp !== null ) {
+		// Both dates available, use the older one
+		$site_creation_date = min( $user_timestamp, $order_timestamp );
+	} elseif ( $user_timestamp !== null ) {
+		// Only user date available
+		$site_creation_date = $user_timestamp;
+	} elseif ( $order_timestamp !== null ) {
+		// Only order date available
+		$site_creation_date = $order_timestamp;
+	} else {
+		// Neither date available
+		wpdai_write_log( 'Error: Could not find earliest user registration date or order date from DB.', 'db_error' );
 		return false;
 	}
 
-	// Make sure data is in correct format
-	if ( ! is_string($first_user_registration_date) || empty($first_user_registration_date) ) return false;
-
-	// Returns registration date in local timestamp so that we can format it
-	$site_creation_date = strtotime( get_date_from_gmt( $first_user_registration_date ) );
+	// Validate timestamp
+	if ( ! is_numeric($site_creation_date) || $site_creation_date <= 0 ) {
+		wpdai_write_log( 'Error: Invalid site creation date timestamp calculated.', 'db_error' );
+		return false;
+	}
 
 	// Stored in wp_options table in local timestamp
 	update_option( 'wpd_ai_site_creation_date', $site_creation_date );
