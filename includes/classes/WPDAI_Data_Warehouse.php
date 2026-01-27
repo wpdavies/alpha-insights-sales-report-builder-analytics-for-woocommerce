@@ -23,28 +23,28 @@ class WPDAI_Data_Warehouse {
      *  ['campaign_id] = Filters by Campaign ID for Google & Facebook Ads API
      *   
      */
-    private array $filter = array();
+    protected array $filter = array();
 
     /**
      *
      *  Data by date containers
      *
      */
-    private array $data_by_date_containers = array();
+    protected array $data_by_date_containers = array();
 
     /**
      * 
      *  Stores any errors in request, useful for debugging
      * 
      **/
-    private array $errors = array();
+    protected array $errors = array();
 
     /**
      * 
      *  This store's currency as set by WooCommerce
      * 
      **/
-    private string $store_currency = '';
+    protected string $store_currency = '';
 
     /**
      * 
@@ -53,7 +53,7 @@ class WPDAI_Data_Warehouse {
      *  Used in case we need to call the same data over and over again
      * 
      **/
-    private array $product_cache = array();
+    protected array $product_cache = array();
 
     /**
      * 
@@ -61,7 +61,7 @@ class WPDAI_Data_Warehouse {
      * Flag that states whether the memory has been exahusted for this report
      * 
      **/
-    private bool $memory_exhausted = false;
+    protected bool $memory_exhausted = false;
 
     /**
      * 
@@ -71,7 +71,7 @@ class WPDAI_Data_Warehouse {
      *  @var int
      * 
      **/
-    private int $default_data_table_limit = 500;
+    protected int $default_data_table_limit = 500;
 
     /**
      *
@@ -81,7 +81,7 @@ class WPDAI_Data_Warehouse {
      *  Only store what we need so that we don't overdo the memory
      * 
      */
-    private array $data = array(
+    protected array $data = array(
         // Will call orders & expenses
         'store_profit' => array(
             'totals' => array(),
@@ -139,6 +139,14 @@ class WPDAI_Data_Warehouse {
             'total_db_records' => 0,
             'execution_time' => 0,
         ),
+        'analytics' => array(
+            'totals' => array(),
+            'categorized_data' => array(),
+            'data_table' => array(),
+            'data_by_date' => array(),
+            'total_db_records' => 0,
+            'execution_time' => 0,
+        ),
         'subscriptions' => array(
             'totals' => array(),
             'categorized_data' => array(),
@@ -164,14 +172,6 @@ class WPDAI_Data_Warehouse {
             'execution_time' => 0,
         ),
         'google_campaigns' => array(
-            'totals' => array(),
-            'categorized_data' => array(),
-            'data_table' => array(),
-            'data_by_date' => array(),
-            'total_db_records' => 0,
-            'execution_time' => 0,
-        ),
-        'analytics' => array(
             'totals' => array(),
             'categorized_data' => array(),
             'data_table' => array(),
@@ -478,7 +478,7 @@ class WPDAI_Data_Warehouse {
      *  Sets an error in the class
      * 
      **/
-    private function set_error( $error ) {
+    protected function set_error( $error ) {
 
         // This method does most of the error handling
         $this->log( $error, true );
@@ -1020,676 +1020,245 @@ class WPDAI_Data_Warehouse {
 
     }
 
-    /**
-     * 
-     *  Retrieves the Order ID's with a stored Meta Campaign ID
-     * 
-     **/
-    public function get_order_ids_with_meta_campaign_ids() {
-
-        $date_from = $this->get_date_from();
-        $date_to = $this->get_date_to();
-        $order_campaign_data = array();
-
-        // Get main orders
-        $order_ids_with_meta_campaign = wc_get_orders(
-            array(
-                'limit' => -1,
-                'orderby' => 'date',
-                'order' => 'DESC',
-                'return' => 'ids',
-                'status' => wpdai_paid_order_statuses(),
-                'date_created' => $date_from . "..." . $date_to, //'2018-02-01...2018-02-28',
-                'meta_key' => '_wpd_ai_meta_campaign_id',
-                'meta_compare' => 'EXISTS'
-            )
-        );
-
-        // Get anonymous orders - have fbclid but don't have a meta campaign set
-        $order_ids_with_fbclid = wc_get_orders(
-            array(
-                'limit' => -1,
-                'orderby' => 'date',
-                'order' => 'DESC',
-                'return' => 'ids',
-                'status' => wpdai_paid_order_statuses(),
-                'date_created' => $date_from . "..." . $date_to, //'2018-02-01...2018-02-28',
-                'meta_key' => '_wpd_ai_landing_page',
-                'meta_value' => 'fbclid',
-                'meta_compare' => 'LIKE'
-            )
-        );
-
-        // For debugging
-        // $order_ids_with_fbclid = array();
-
-        // Combine the two
-        $order_ids = array_merge( $order_ids_with_meta_campaign, $order_ids_with_fbclid );
-
-        // Load the desired calculation cache
-        if ( is_array($order_ids) && ! empty($order_ids) ) {
-            wpdai_setup_order_calculations_in_object_cache( $order_ids );
-        }
-
-        // Loop through Order IDs to build useful array
-        foreach( $order_ids as $order_id ) {
-
-            // Collect data
-            $order_data = wpdai_calculate_cost_profit_by_order( $order_id );
-
-            // Only deal with paid orders - Little buggy with custom order statuses, rely on filter above
-            // if ( $order_data['is_paid'] != 1 ) continue; 
-
-            // Fetch Campaign ID
-            $campaign_id = wpdai_get_order_meta_by_order_id( $order_id, '_wpd_ai_meta_campaign_id' );
-
-            // Set a default value for non-found campaign ids
-            if ( ! is_numeric($campaign_id) ) $campaign_id = 'unknown';
-
-            // Build Array
-            if ( ! isset($order_campaign_data[$campaign_id]) ) $order_campaign_data[$campaign_id] = array();
-            $order_campaign_data[$campaign_id][$order_id] = $order_data;
-            $order_campaign_data[$campaign_id][$order_id]['campaign_id'] = $campaign_id;
-        }
-
-        // Return IDS
-        return $order_campaign_data;
-
-    }
-
-    /**
-     * 
-     *  Retrieves the Order ID's with a stored Google Campaign ID
-     * 
-     **/
-    public function get_order_ids_with_google_campaign_ids() {
-
-        $date_from = $this->get_date_from();
-        $date_to = $this->get_date_to();
-        $order_campaign_data = array();
-
-        // Get orders
-        $order_ids_with_google_campaign_id = wc_get_orders(
-            array(
-                'limit' => -1,
-                'orderby' => 'date',
-                'order' => 'DESC',
-                'return' => 'ids',
-                'status' => wpdai_paid_order_statuses(),
-                'date_created' => $date_from . "..." . $date_to, //'2018-02-01...2018-02-28',
-                'meta_key' => '_wpd_ai_google_campaign_id',
-                'meta_compare' => 'EXISTS'
-            )
-        );
-
-        // Get anonymous orders - have fbclid but don't have a meta campaign set
-        $order_ids_with_gclid = wc_get_orders(
-            array(
-                'limit' => -1,
-                'orderby' => 'date',
-                'order' => 'DESC',
-                'return' => 'ids',
-                'status' => wpdai_paid_order_statuses(),
-                'date_created' => $date_from . "..." . $date_to, //'2018-02-01...2018-02-28',
-                'meta_key' => '_wpd_ai_landing_page',
-                'meta_value' => 'gclid',
-                'meta_compare' => 'LIKE'
-            )
-        );
-
-        // Combine the two
-        $order_ids = array_merge( $order_ids_with_google_campaign_id, $order_ids_with_gclid );
-
-        // Load the desired calculation cache
-        if ( is_array($order_ids) && ! empty($order_ids) ) {
-            wpdai_setup_order_calculations_in_object_cache( $order_ids );
-        }
-
-        // Loop through Order IDs to build useful array
-        foreach( $order_ids as $order_id ) {
-
-            // Collect data
-            $order_data = wpdai_calculate_cost_profit_by_order( $order_id );
-
-            // Only deal with paid orders - Little buggy with custom order statuses, rely on filter above
-            // if ( $order_data['is_paid'] != 1 ) continue; 
-
-            // Fetch Campaign ID
-            $campaign_id = wpdai_get_order_meta_by_order_id( $order_id, '_wpd_ai_google_campaign_id' );
-
-            // Set a default value for non-found campaign ids
-            if ( ! is_numeric($campaign_id) ) $campaign_id = 'unknown';
-
-            // Build Array
-            if ( ! isset($order_campaign_data[$campaign_id]) ) $order_campaign_data[$campaign_id] = array();
-            $order_campaign_data[$campaign_id][$order_id] = $order_data;
-            $order_campaign_data[$campaign_id][$order_id]['campaign_id'] = $campaign_id;
-
-        }
-
-        // Return IDS
-        return $order_campaign_data;
-
-    }
-
-    /**
-     * 
-     *  Fetches Subscriptions Data and organises it for use by get_data('subscriptions')
-     *  Will also call fetch_orders with additional filters for orders, products & subscriptions
-     *  When fetching from the orders, it will skip over any order that is not a renewal order
-     * 
-     *  This function will not run if WC_Subscriptions is not available
-     * 
-     **/
-    public function fetch_subscriptions_data() {
-        // Start execution timer
-        $start_time = microtime(true);
-
-        // Dont bother if they dont have subscriptions
-        if ( ! wpdai_is_wc_subscriptions_active() ){
-            $this->set_error( 'WC_Subscriptions is not active.' );
-            return $this->get_data('subscriptions');
-        }
-
-        // Global vars
-        $data_table_limit       = $this->get_data_table_limit('subscriptions');
-        $memory_limit           = ini_get('memory_limit');
-        $date_from_timestamp   = strtotime( $this->get_date_from() );
-        $date_to_timestamp     = strtotime( $this->get_date_to() );
-        $date_format            = $this->get_filter( 'date_format_string' );
-
-        // Setup Totals Defaults
-        $totals = array(
-
-            'total_subscriptions' 				        => 0,       // All time
-            'total_renewals_in_period' 				    => 0,       // All time
-            'total_subscriptions_active_today' 	        => 0,       // Today
-            'average_active_subscription_days' 	        => 0,       // All time
-            'total_active_subscription_days'            => 0,       // All time
-            'total_subscriptions_created_in_period' 	=> 0,       // During Date Range
-            'total_subscriptions_cancelled_in_period' 	=> 0,       // During Date Range
-            'total_subscription_revenue_in_period'      => 0,       // During Date Range
-            'total_subscription_profit_in_period'       => 0,       // During Date Range
-            'average_subscription_revenue_in_period' 	=> 0,       // During Date Range
-            'average_subscription_profit_in_period'     => 0,       // During Date Range
-            'average_subscription_margin_in_period'     => 0,       // During Date Range
-            'cancellation_rate_in_period' 	            => 0,       // During Date Range
-
-        );
-
-        $categorized_data = array(
-            'subscription_status_count' 		        => array(),
-            'scheduled_payments' 			            => array(
-                'month'         => 0,
-                'quarter'       => 0,
-                'halfyear'      => 0,
-                'year'          => 0
-            ),
-            'subscriptions_created_forecast'            => array(
-                'this_period'   => 0,
-                'daily'         => 0,
-                '30_day'        => 0,
-                '90_day'        => 0,
-                '180_day'       => 0,
-                '365_day'       => 0
-            ),
-            'expected_income' 					        => array(),
-            'product_totals'	 				        => array(),
-        );
-
-        // Setup Subscription Array Defaults
-        $data_table = array();
-
-        // Setup default for total DB records reviewed
-        $total_db_records = 0;
-
-        // Setup Default Data By Date
-        $data_by_date = array(
-
-            'active_subscriptions_by_date' 					=> $this->get_data_by_date_range_container(),
-			'total_subscription_signups_by_date' 			=> $this->get_data_by_date_range_container(),
-			'total_subscription_cancellations_by_date' 		=> $this->get_data_by_date_range_container(),
-			'net_subscription_movement_by_date' 			=> $this->get_data_by_date_range_container(),
-			'subscription_growth_by_date' 					=> $this->get_data_by_date_range_container(),
-			'expected_income_by_date' 						=> array() // Will be a custom range of +1 year
-
-        );
-
-        // Calculate dates for expected income over the next year
-        $expected_income_array      = array();
-        $expected_income_min_date   = current_time( 'timestamp' ); // min($date_keys);
-        $expected_income_max_date   = strtotime( '+1 year', $expected_income_min_date ); // max($date_keys);
-
-        // Next year array of dates
-        $expected_income_date_range = $this->get_date_range_array( gmdate( 'Y-m-d', $expected_income_min_date ), gmdate( 'Y-m-d', $expected_income_max_date ), '+1 day', $date_format );
-        
-        // Create the shell array
-        foreach( $expected_income_date_range as $date_array_val ) {
-            $expected_income_array[$date_array_val] = 0;
-        }
-        
-        // Store array
-        $data_by_date['expected_income_by_date'] = $expected_income_array;
-
-        // Default Subscription Payload
-        $default_subscription_data = array(
-
-            'subscription_id' 					=> null,
-            'status' 							=> null,
-            'status_nice_name' 					=> null,
-            'date_created' 						=> null,
-            'date_end'	 						=> null,
-            'date_cancelled' 					=> null,
-            'date_last_payment' 				=> null,
-            'next_payment_date' 				=> null,
-            'subscription_active_today' 		=> 0,
-            'renewal_revenue'                   => 0,
-            'total_revenue' 				    => 0,
-            'total_cost'					    => 0,
-            'total_profit' 						=> 0,
-            'average_margin' 					=> 0,
-            'related_orders_in_period' 			=> array(),
-            'related_orders_in_period_count' 	=> 0,
-            'active_subscription_days'			=> 0,
-            'billing_period' 					=> null,
-            'billing_interval' 					=> null,
-            'scheduled_payments' 			    => array(
-                'month'     => 0,
-                'quarter'   => 0,
-                'halfyear'  => 0,
-                'year'      => 0
-            )
-
-        );
-
-        // Setup args for subscriptions query
-		$args = array(
-		    'limit' 					=> -1,
-		    'orderby' 					=> 'date',
-		    'order' 					=> 'ASC',
-		    'return' 					=> 'ids',
-		    'type'   					=> 'shop_subscription',
-		    'status' 					=>  array_keys( wcs_get_subscription_statuses() ),
-		);
-
-        // Filter by status
-        if ( is_array($this->get_filter('subscription_status')) && ! empty($this->get_filter('subscription_status')) ) $args['status'] = $this->get_filter('subscription_status');
-
-        // Call the subscriptions & store relevant values
-		$subscriptions = wc_get_orders( $args );
-        $total_db_records = count( $subscriptions );
-
-        // If we have subscriptions, lets call the order data -> we'll use that later & make sure correct filters are set
-        $currently_active_filter = $this->get_filter();
-        
-        // Create a new instance to fetch order data without affecting the current instance
-        $order_data_instance = new self($currently_active_filter);
-        $order_data_instance->update_filter('additional_order_data', array( 'orders' => true, 'subscriptions' => true, 'products' => true));
-        $order_data_instance->fetch_sales_data();
-        $order_data_tables = $order_data_instance->get_data( 'orders', 'data_table' );
-        $order_data_table = $order_data_tables['orders'];
-        $product_data_tables = $order_data_instance->get_data( 'products', 'data_table' );
-        $product_data = $product_data_tables['products'];
-
-        // Merge the calculated totals into our totals array
-        if ( is_array( $order_data_instance->get_data( 'orders', 'totals' ) ) ) $totals = array_merge( $totals, $order_data_instance->get_data( 'orders', 'totals' ) );
-
-        // Insert product totals data into our array
-        if ( is_array( $product_data ) ) $categorized_data['product_totals'] = $product_data;
-
         /**
-         * 
-         *  Fill in sales data for each subscriptions based on renewal orders in this period
-         * 
-         **/
-        if (! WPD_AI_PRO ) $order_data_table = array();
-        foreach( $order_data_table as $order_id => $order_data ) {
+     *
+     *  Creates an empty no data found array
+     *
+     *  @param array $data_by_date The data by date array containing all data_by_date keys
+     *  @return array The data by date array with the no data found array added
+     * 
+     * 
+     **/
+    public function maybe_create_no_data_found_date_array( $data_by_date ) {
 
-            // Memory Check
-			if ( wpdai_is_memory_usage_greater_than(90) ) {
-				$this->set_error(
-					sprintf(
-						/* translators: 1: Number of processed orders/subscriptions, 2: Total number of orders/subscriptions, 3: PHP memory limit */
-						__( 'You\'ve exhausted your memory usage after %1$s out of %2$s orders. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %3$s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
-						$subscription_id,
-						$total_db_records,
-						$memory_limit
-					)
-				);
-				break;
-			}
+        if ( is_array($data_by_date) && ! empty($data_by_date) ) {
 
-            $subscription_ids = $order_data['parent_subscription_ids'];
+            foreach( $data_by_date as $data_key => $date_data ) {
 
-            // Check if we have parent subscription IDs
-            if ( is_array($subscription_ids) && ! empty($subscription_ids) ) {
-
-                // Loop through the parent subscription IDs for each renewal order
-                foreach( $subscription_ids as $subscription_id ) {
-
-                    // Setup default array for this subscription
-                    if ( ! isset($data_table[$subscription_id]) ) $data_table[$subscription_id] = $default_subscription_data;
-
-                    // Add sales data to the subscription
-                    $data_table[$subscription_id]['total_revenue'] 				        += $order_data['total_order_revenue'];
-                    $data_table[$subscription_id]['total_cost']					        += $order_data['total_order_cost'];
-                    $data_table[$subscription_id]['total_profit'] 						+= $order_data['total_order_profit'];
-                    $data_table[$subscription_id]['related_orders_in_period'][] 		= $order_data['order_id'];
-
-                    // Add product data to our totals array
-                    if ( isset( $order_data['product_data'] ) && is_array( $order_data['product_data'] ) ) {
-
-                        // Loop through products in this order
-                        foreach( $order_data['product_data'] as $product_id => $product_data ) {
-
-                            // Check if this product is in our totals
-                            if ( isset($categorized_data['product_totals'][$product_id]) ) {
-
-                                // Setup defaults
-                                if ( ! isset($categorized_data['product_totals'][$product_id]['subscription_ids']) ) $categorized_data['product_totals'][$product_id]['subscription_ids'] = array();
-                                if ( ! isset($categorized_data['product_totals'][$product_id]['subscription_count']) ) $categorized_data['product_totals'][$product_id]['subscription_count'] = 0;
-                                if ( ! isset($categorized_data['product_totals'][$product_id]['renewal_order_ids']) ) $categorized_data['product_totals'][$product_id]['renewal_order_ids'] = array();
-                                if ( ! isset($categorized_data['product_totals'][$product_id]['renewal_order_count']) ) $categorized_data['product_totals'][$product_id]['renewal_order_count'] = 0;
-                                
-                                // Store Subscription IDs and count
-                                if ( ! in_array( $subscription_id, $categorized_data['product_totals'][$product_id]['subscription_ids'] ) ) {
-                                    $categorized_data['product_totals'][$product_id]['subscription_ids'][] = $subscription_id;
-                                    $categorized_data['product_totals'][$product_id]['subscription_count']++;
-                                }
-
-                                // Store Renewal IDs and count
-                                if ( ! in_array( $subscription_id, $categorized_data['product_totals'][$product_id]['renewal_order_ids'] ) ) {
-                                    $categorized_data['product_totals'][$product_id]['renewal_order_ids'][] = $order_id;
-                                    $categorized_data['product_totals'][$product_id]['renewal_order_count']++;
-                                }
-
-                            }
-
-                        }
-
-                    }
-
-                }
-
-                // Add renewal order to totals
-                $totals['total_renewals_in_period']++;
-
-            }
-            
-        }
-
-		/**
-		 *
-		 *	Loop through Subscriptions
-		 *
-		 */
-        if (! WPD_AI_PRO ) $subscriptions = array();
-		foreach ( $subscriptions as $subscription_id ) {
-
-            // Memory Check
-			if ( wpdai_is_memory_usage_greater_than(90) ) {
-				$this->set_error(
-					sprintf(
-						/* translators: 1: Number of processed orders/subscriptions, 2: Total number of orders/subscriptions, 3: PHP memory limit */
-						__( 'You\'ve exhausted your memory usage after %1$s out of %2$s orders. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %3$s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
-						$subscription_id,
-						$total_db_records,
-						$memory_limit
-					)
-				);
-				break;
-			}
-
-			// Get subscription object
-            // @todo this is very slow, need to fix.
-			$subscription = wcs_get_subscription( $subscription_id );
-
-            // Safety Check
-			if ( ! is_a( $subscription, 'WC_Subscription' ) ) continue;
-
-            // Setup default array for this subscription
-            if ( ! isset($data_table[$subscription_id]) ) $data_table[$subscription_id] = $default_subscription_data;
-
-            // Setup vars that we can setup now in the organised data
-            $data_table[$subscription_id]['subscription_id'] 			    = $subscription_id;
-            $data_table[$subscription_id]['status'] 					    = $subscription->get_status();
-            $data_table[$subscription_id]['status_nice_name'] 			    = '<span class="wpd-order-status wpd-status-' . $data_table[$subscription_id]['status'] . '">' . wcs_get_subscription_status_name( $data_table[$subscription_id]['status'] ) . '</span>';
-            $data_table[$subscription_id]['date_created'] 				    = ( $subscription->get_date( 'start', 'site' ) ) ? strtotime($subscription->get_date( 'start', 'site' )) : 0;
-            $data_table[$subscription_id]['date_end']	 				    = ( $subscription->get_date( 'end', 'site' ) ) ? strtotime($subscription->get_date( 'end', 'site' )) : 0;
-            $data_table[$subscription_id]['date_cancelled'] 			    = ( $subscription->get_date( 'cancelled', 'site' ) ) ? strtotime($subscription->get_date( 'cancelled', 'site' )) : 0;
-            $data_table[$subscription_id]['date_last_payment'] 				= ( $subscription->get_date( 'last_order_date_paid', 'site' ) ) ? strtotime($subscription->get_date( 'last_order_date_paid', 'site' )) : 0;
-            $data_table[$subscription_id]['next_payment_date'] 				= ( $subscription->get_date( 'next_payment', 'site' ) ) ? strtotime($subscription->get_date( 'next_payment', 'site' )) : 0;
-            $data_table[$subscription_id]['billing_interval'] 				= $subscription->get_billing_interval();
-            $data_table[$subscription_id]['billing_period'] 				= $subscription->get_billing_period();
-            $data_table[$subscription_id]['related_orders_in_period_count'] = count($data_table[$subscription_id]['related_orders_in_period']);
-            $data_table[$subscription_id]['average_margin']					= wpdai_calculate_margin( $data_table[$subscription_id]['total_profit'], $data_table[$subscription_id]['total_revenue'] );
-            $data_table[$subscription_id]['subscription_active_today'] 		= ( $data_table[$subscription_id]['status'] === 'active' ) ? 1 : 0;
-            $data_table[$subscription_id]['active_subscription_days']		= ( $data_table[$subscription_id]['date_end'] > 0 ) ? $this->days_between_dates( $data_table[$subscription_id]['date_created'], $data_table[$subscription_id]['date_end'] ) : $this->days_between_dates( $data_table[$subscription_id]['date_created'], current_time( 'timestamp' ) );
-            $data_table[$subscription_id]['renewal_revenue']                = (float) $recurring_subscription_revenue = (float) $subscription->get_total();
-            $data_table[$subscription_id]['billing_email']                  = $subscription->get_billing_email();
-
-            // Active subscriptions count
-            if ( $data_table[$subscription_id]['status'] === 'active' ) $totals['total_subscriptions_active_today']++;
-
-            // Sign Ups in Period
-            if ( $data_table[$subscription_id]['date_created'] > $date_from_timestamp && $data_table[$subscription_id]['date_created'] < $date_to_timestamp ) $totals['total_subscriptions_created_in_period']++;
-
-            // Cancellations in period
-			if ( $data_table[$subscription_id]['date_cancelled'] > $date_from_timestamp && $data_table[$subscription_id]['date_cancelled'] < $date_to_timestamp ) $totals['total_subscriptions_cancelled_in_period']++;
-            
-            // Total subscription active days
-            $totals['total_active_subscription_days'] += $data_table[$subscription_id]['active_subscription_days'];
-
-            // Total Revenue
-            $totals['total_subscription_revenue_in_period'] += $data_table[$subscription_id]['total_revenue'];
-
-            // Total Profit
-            $totals['total_subscription_profit_in_period'] += $data_table[$subscription_id]['total_profit'];
-
-            // Subscription Status Count
-            if ( ! isset( $categorized_data['subscription_status_count'][$data_table[$subscription_id]['status']] ) ) $categorized_data['subscription_status_count'][$data_table[$subscription_id]['status']] = 0;
-            $categorized_data['subscription_status_count'][$data_table[$subscription_id]['status']] ++;
-
-            /**
-			 *
-			 *	Calculate all renewal dates within given date range (365 days)
-			 * 	If there's a next payment date & this is expected to continue running
-			 *
-			 * 	Will setup the graph and a few key date milestones
-			 *
-			 */
-			if ( $data_table[$subscription_id]['next_payment_date'] && ! in_array( $data_table[$subscription_id]['status'], array('cancelled', 'pending', 'on-hold') ) ) {
-
-                // Setup a few key milestones for calculations
-                $one_year_from_today 		= strtotime( '+1 year' );
-				$thirty_days_from_today 	= strtotime( '+30 days' );
-				$ninety_days_from_today 	= strtotime( '+90 days' );
-				$half_year_from_today 		= strtotime( '+6 months' );
-
-                // Store next payment as timestamp in var
-				$next_payment_timestamp 	= $data_table[$subscription_id]['next_payment_date'];
-
-				// Loop while less than date
-				while ( $next_payment_timestamp < $one_year_from_today ) {
-
-					// Just in case
-					if ( $next_payment_timestamp > $one_year_from_today ) {
-						break;
-					}
-
-					// If there's an end date & if it's past the next payment timestamp
-					if ( $data_table[$subscription_id]['date_end'] > 0 && $next_payment_timestamp > $data_table[$subscription_id]['date_end']  ) {
-						break;
-					}
-
-					// Setup Y-m-d format
-					$next_payment_ymd = gmdate( 'Y-m-d', $next_payment_timestamp );
-                    
-                    // Add to the chart
-                    $formatted_date_key = $this->convert_date_string( $next_payment_ymd );
-                    if (isset($data_by_date['expected_income_by_date'][$formatted_date_key])) $data_by_date['expected_income_by_date'][$formatted_date_key] += $recurring_subscription_revenue;
-
-                    // Setup default for table of dates in Y-m-d
-					if ( ! isset($categorized_data['expected_income'][$next_payment_ymd]) ) $categorized_data['expected_income'][$next_payment_ymd] = 0;
-
-                    // Need to store this as a total
-					$categorized_data['expected_income'][$next_payment_ymd] += $recurring_subscription_revenue;
-
-					// Monthly Total
-					if ( $next_payment_timestamp < $thirty_days_from_today ) {
-						$data_table[$subscription_id]['scheduled_payments']['month'] += $recurring_subscription_revenue;
-                        $categorized_data['scheduled_payments']['month'] += $recurring_subscription_revenue;
-					}
-
-					// Quarterly Total
-					if ( $next_payment_timestamp < $ninety_days_from_today ) {
-						$data_table[$subscription_id]['scheduled_payments']['quarter'] += $recurring_subscription_revenue;
-                        $categorized_data['scheduled_payments']['quarter'] += $recurring_subscription_revenue;
-					}
-
-					// Half Yearly Total
-					if ( $next_payment_timestamp < $half_year_from_today ) {
-						$data_table[$subscription_id]['scheduled_payments']['halfyear'] += $recurring_subscription_revenue;
-                        $categorized_data['scheduled_payments']['halfyear'] += $recurring_subscription_revenue;
-					}
-
-					// Yearly Total
-					if ( $next_payment_timestamp < $one_year_from_today ) {
-						$data_table[$subscription_id]['scheduled_payments']['year'] += $recurring_subscription_revenue;
-                        $categorized_data['scheduled_payments']['year'] += $recurring_subscription_revenue;
-					}
-
-					// Calculate new date
-					$next_payment_timestamp = wcs_add_time( 
-						$data_table[$subscription_id]['billing_interval'], 
-						$data_table[$subscription_id]['billing_period'], 
-						$next_payment_timestamp 
-					);
-
-				}
-
-			}
-
-            /**
-             * 
-             *  Loop through all dates on every subscription to check if they're active on a given date
-             * 
-             *  @todo Very expensive, reconsider this.
-             *  
-             **/
-            if ( is_array($data_by_date['active_subscriptions_by_date']) ) {
-
-                foreach( $data_by_date['active_subscriptions_by_date'] as $date_key => $date_data ) {
-
-                    // Force by day so that it lines up properly with conversions of dates
-                    $date_created_day_timestamp = strtotime( $this->convert_date_string( gmdate( 'Y-m-d', $data_table[$subscription_id]['date_created'] ) ) );
-                    $date_cancelled_day_timestamp = ($data_table[$subscription_id]['date_cancelled']) ? strtotime( $this->convert_date_string( gmdate( 'Y-m-d', $data_table[$subscription_id]['date_cancelled'] ) ) ) : 0;
-
-                    // Active subscriptions by date
-                    if ( wpdai_is_subscription_active_on_date( $date_created_day_timestamp, $date_cancelled_day_timestamp, strtotime($date_key) ) ) {
-                        $data_by_date['active_subscriptions_by_date'][$date_key]++;
-                    }
-
-                    // Total subscription growth
-                    if ( strtotime($date_key) >= $date_created_day_timestamp ) {
-                        $data_by_date['subscription_growth_by_date'][$date_key]++;
-                    }
-
-                }
+                if ( ! is_array($date_data) || empty($date_data) ) $data_by_date[$data_key]['no_data_found'] = $this->get_data_by_date_range_container();
 
             }
 
-            // Date Data -> Subscriptions Created & Net Movement
-			if ( is_numeric($data_table[$subscription_id]['date_created']) && $data_table[$subscription_id]['date_created'] > 0 ) {
-
-                // Correct date key format
-				$date_created_date_key = gmdate( $date_format, $data_table[$subscription_id]['date_created'] );
-
-                if ( isset($data_by_date['total_subscription_signups_by_date'][$date_created_date_key]) ) {
-
-                    // Add to date created array
-                    $data_by_date['total_subscription_signups_by_date'][$date_created_date_key]++;
-
-                    // Sum the net movement array
-                    $data_by_date['net_subscription_movement_by_date'][$date_created_date_key]++;
-
-                }
-
-			}
-
-            // Date Data -> Subscriptions Cancelled & Net Movement
-			if ( is_numeric($data_table[$subscription_id]['date_cancelled']) && $data_table[$subscription_id]['date_cancelled'] > 0 ) {
-
-                // Correct date key format
-				$date_created_date_key = gmdate( $date_format, $data_table[$subscription_id]['date_cancelled'] );
-
-                if ( isset($data_by_date['total_subscription_cancellations_by_date'][$date_created_date_key]) ) {
-
-                    // Add to date created array
-                    $data_by_date['total_subscription_cancellations_by_date'][$date_created_date_key]--;
-
-                    // Sum the net movement array
-                    $data_by_date['net_subscription_movement_by_date'][$date_created_date_key]--;
-
-                }
-
-			}
-
         }
 
-        // Clean up categorized product totals
-        $cleaned_product_totals = array();
-        $product_data = $categorized_data['product_totals'];
-        foreach( $categorized_data['product_totals'] as $product_id => $product_info ) {
+        return $data_by_date;
 
-            // Use product_name as key if it's not empty, otherwise use product_id
-            $new_key = !empty($product_info['product_name']) ? $product_info['product_name'] : 'ID: ' . $product_id;
-            $cleaned_product_totals[$new_key] = $product_info;
-            
+    } 
+
+    /**
+     * 
+     *  Converts a date from one format of string to another
+     * 
+     **/
+    public function convert_date_string( $date, $format = 'date_format_string' ) {
+
+        // Need a string in this
+        if ( ! is_string($date) ) {
+            $this->set_error( 'Date passed into convert_date_string is not of type string.' );
+            return false;
         }
-        $categorized_data['product_totals'] = $cleaned_product_totals;
 
-        // Calculate totals
-        $totals['total_subscriptions']                                          = count( $subscriptions );
-        $totals['average_active_subscription_days']                             = wpdai_divide( $totals['total_active_subscription_days'], $totals['total_subscriptions'] );
-        $totals['average_subscription_revenue_in_period']                       = wpdai_divide( $totals['total_subscription_revenue_in_period'], $totals['total_subscriptions'] );
-        $totals['average_subscription_profit_in_period']                        = wpdai_divide( $totals['total_subscription_profit_in_period'], $totals['total_subscriptions'] );
-        $totals['average_subscription_margin_in_period']                        = wpdai_calculate_margin( $totals['total_subscription_profit_in_period'], $totals['total_subscription_revenue_in_period'] );
-        $categorized_data['subscriptions_created_forecast']['this_period']      = $totals['total_subscriptions_created_in_period'];
-        $categorized_data['subscriptions_created_forecast']['daily']            = wpdai_divide( $totals['total_subscriptions_created_in_period'], $this->get_n_days_range(), 2 );
-        $categorized_data['subscriptions_created_forecast']['30_day']           = round( $categorized_data['subscriptions_created_forecast']['daily'] * 30, 2);
-        $categorized_data['subscriptions_created_forecast']['90_day']           = round( $categorized_data['subscriptions_created_forecast']['daily'] * 90, 2);
-        $categorized_data['subscriptions_created_forecast']['180_day']          = round( $categorized_data['subscriptions_created_forecast']['daily'] * 180, 2);
-        $categorized_data['subscriptions_created_forecast']['365_day']          = round( $categorized_data['subscriptions_created_forecast']['daily'] * 365, 2);
-		$totals['cancellation_rate_in_period'] 	                                = wpdai_calculate_percentage( $totals['total_subscriptions_cancelled_in_period'], $totals['total_subscriptions_created_in_period'] );
+        // If we are using the date_format_string
+        if ( $format === 'date_format_string' ) {
+            $format = $this->get_filter('date_format_string');
+        }
 
-        // Create no data found array
-        $data_by_date = $this->maybe_create_no_data_found_date_array( $data_by_date );
+        // Convert to timestamp
+        $timestamp = strtotime( $date );
 
-        // Calculate execution time
-        $execution_time = microtime(true) - $start_time + $this->get_data('subscriptions', 'execution_time');
+        // Convert date
+        $converted_date = gmdate( $format, $timestamp );
 
-        // Configure return object
-        $subscriptions_data = array(
-            'totals'            => $totals,
-            'categorized_data'  => $categorized_data,
-            'data_table'        => array(
-                'subscriptions' => $data_table,
-                'subscription_products' => $product_data
-            ),
-            'data_by_date'      => $data_by_date,
-            'total_db_records'  => $total_db_records,
-            'execution_time'    => $execution_time
-        );
-
-        // Store the data into the prop
-        $this->set_data( 'subscriptions', $subscriptions_data );
-
-        // Return Results
-        return $subscriptions_data;
-
+        // Return result
+        return $converted_date;
 
     }
+
+    /**
+     *
+     *  Returns date in format for the date container
+     *  @param string $date The date to reformat
+     *  @return string The reformatted date
+     *
+     */
+    public function reformat_date_to_date_format( $date ) {
+        
+        if ( ! is_string($date) ) {
+            $this->set_error( 'Date passed into reformat_date_to_date_format is not of type string.' );
+            return false;
+        }
+
+        // If we are doing minutes, this is a special case
+        if ( $this->get_filter('date_format_display') == 'minute' ) {
+            $timestamp = strtotime($date);
+            $minutes_ago = floor((current_time('timestamp') - $timestamp) / 60);
+            return (int) $minutes_ago;
+        }
+
+        $date_container_date_format = $this->get_filter('date_format_string');
+        $formatted_date = gmdate( $date_container_date_format, strtotime($date) );
+
+        return $formatted_date;
+
+    }
+
+    /**
+     *
+     *  Calculates difference in seconds between two dates - used for session duration
+     *
+     */
+    public function calculate_difference_in_seconds( $recent_date, $old_date ) {
+
+        if ( is_null($recent_date) || is_null($old_date) ) {
+            return 0;
+        }
+
+        $recent_date_string = strtotime($recent_date);
+        $old_date_string    = strtotime($old_date);
+        (int) $difference_in_seconds = $recent_date_string - $old_date_string;
+
+        return $difference_in_seconds;
+
+    }
+
+    /**
+     *
+     *  Checks for Query Parameters and returns as associated array if found
+     *
+     */
+    public function get_url_components( $url ) {
+
+        $result = array(
+            'url' => $url,
+            'path' => null,
+            'query_parameters' => array()
+        );
+
+        if ( is_null($url) ) return $result;
+
+        // Prevents issues with 038;
+        $url = htmlspecialchars_decode( $url );
+        $result['url'] = $url;
+
+        $parsed_url = wp_parse_url( $url );
+
+        if ( isset($parsed_url['path']) && ! empty($parsed_url['path']) ) {
+            $result['path'] = $parsed_url['path'];
+        }
+
+        // Only collect query params
+        $query_parameters = wp_parse_url( $url, PHP_URL_QUERY );
+
+        if ( ! empty($query_parameters) ) {
+
+            $result['decoded_qp'] = $query_parameters;
+            parse_str( $query_parameters, $result['query_parameters'] );
+
+        }
+
+        return $result;
+
+    }
+
+    /**
+     *
+     *  Calculate traffic source type
+     *
+     */
+    public function determine_traffic_source( $referral_url, $query_parameters = null ) {
+
+        $traffic_type = new WPDAI_Traffic_Type_Detection( $referral_url, $query_parameters );
+        return $traffic_type->determine_traffic_source();
+
+    }
+
+    /**
+     * 
+     *  Logs general messages and optionally errors to:
+     *  WPDAI_Google_Ads_API_log.txt and WPDAI_Google_Ads_API_error_log.txt
+     * 
+     *  @param string|array|WP_Error $message the content to print to the log
+     *  @param bool $error Set to true if you want to log this to the error log in addition to the general api log
+     *  @return void
+     * 
+     **/
+    protected function log( $message, $error = false ) {
+
+        // Setup backtrace
+        $backtrace = debug_backtrace();
+        $last_call = $backtrace[1]['function'];
+        if ( $last_call == 'set_error' ) $last_call = $backtrace[2]['function'];
+
+        if ( $error ) {
+
+            // WP Error
+            if ( is_a( $message, 'WP_Error' ) ) {
+                $error_message = (string) $message->get_error_message();
+            }
+
+            // Array
+            if ( is_array($message) || is_object($message) ) {
+                $error_message = (string) json_encode( $message );
+            }
+
+            // Confirm string
+            if ( is_string($message) ) {
+                $error_message = (string) $message;
+            }
+
+            // Save the errors to instance
+            if ( $error_message ) {
+                $this->errors[] = $error_message;
+            }
+
+            // Log errors
+            wpdai_write_log( 'Backtrace function: ' . $last_call, 'data_warehouse_error' );
+            wpdai_write_log( $message, 'data_warehouse_error' );
+            
+        }
+
+        // Log the message
+        wpdai_write_log( $message, 'data_warehouse' );
+
+        return $message;
+
+    }
+
+    /**
+     * Fast replacement for get_date_from_gmt().
+     * Converts a GMT date string to site local time with caching.
+     *
+     * @param string $date_gmt Date string in GMT (Y-m-d H:i:s).
+     * @param string $format   Return format. Default 'Y-m-d H:i:s'.
+     *
+     * @return string Local time formatted string.
+     */
+    private function get_date_from_gmt( $date_gmt, $format = 'Y-m-d H:i:s' ) {
+
+        static $gmt_date_cache = [];
+        static $site_timezone = null;
+
+        if ( isset( $gmt_date_cache[ $date_gmt ][ $format ] ) ) {
+            return $gmt_date_cache[ $date_gmt ][ $format ];
+        }
+
+        if ( $site_timezone === null ) {
+            // wp_timezone() is cached internally after the first call
+            $site_timezone = wp_timezone();
+        }
+
+        $datetime = new DateTime( $date_gmt, new DateTimeZone( 'UTC' ) );
+        $datetime->setTimezone( $site_timezone );
+
+        $local = $datetime->format( $format );
+
+        // Cache the result
+        $gmt_date_cache[ $date_gmt ][ $format ] = $local;
+
+        return $local;
+
+    }
+
 
     /**
      * 
@@ -3727,6 +3296,738 @@ class WPDAI_Data_Warehouse {
 
     /**
      * 
+     *  Fetches all refund data by refund date (not order date) and organises it for use by get_data('refunds')
+     * 
+     *  This method queries WC_Order_Refund objects directly and attributes refunds to the date they were created,
+     *  rather than the date of the parent order. This ensures accurate refund attribution in sales reports.
+     * 
+     *  Available Filters: 
+     * 
+     *      date_from (will filter against the refund date_created)
+     *      date_to (will filter against the refund date_created)
+     *  
+     **/
+    public function fetch_refunds_data() {
+
+        // Start execution timer
+        $start_time = microtime(true);
+
+        // Setup default containers
+        $totals = array(
+            'total_refund_amount' 				        => 0,
+            'total_refund_amount_ex_tax'                  => 0,
+            'total_refund_tax'                           => 0,
+            'total_refund_shipping'                      => 0,
+            'total_refund_shipping_tax'                  => 0,
+            'total_order_count_with_refund' 	        => 0,
+            'total_order_count_with_full_refund' 	    => 0,
+            'total_order_count_with_partial_refund'     => 0,
+            'total_qty_refunded'                        => 0,
+            'total_skus_refunded'                       => 0,
+            'total_product_refund_amount'                => 0,
+            'total_line_items_refunded'                  => 0,
+            'total_customers_with_refund'               => 0,
+            'refund_percent_of_revenue'                 => 0,
+            'refund_rate_percentage'                    => 0,
+            'refunds_per_day'                           => 0,
+        );
+
+        $categorized_data = array(
+            'refunded_order_ids' => array(), // Refund IDs
+            'parent_order_ids' => array(), // Associated Order IDs (parent orders)
+            'product_refund_data' => array(), // Product-level refund data keyed by product_id
+            'customer_refund_data' => array(), // Customer-level refund data keyed by billing_email
+        );
+
+        $data_table = array();
+
+        $data_by_date = array(
+            'amount_refunded_by_date'       => $this->get_data_by_date_range_container(),
+            'quantity_refunded_by_date' 	=> $this->get_data_by_date_range_container(),
+            'orders_refunded_by_date' 	=> $this->get_data_by_date_range_container(),
+            'product_refund_amount_by_date' => $this->get_data_by_date_range_container(), // Product refund amounts by date
+            'product_refund_quantity_by_date' => $this->get_data_by_date_range_container(), // Product refund quantities by date
+        );
+
+        // Setup default vars
+        $date_from   = $this->get_date_from();
+        $date_to     = $this->get_date_to();
+        $date_format = $this->get_filter( 'date_format_string' );
+        // Fallback to default date format if not set
+        if ( empty( $date_format ) || ! is_string( $date_format ) ) {
+            $date_format = 'Y-m-d';
+        }
+        $n_days_period = $this->get_n_days_range();
+        $memory_limit = ini_get('memory_limit');
+        if ( empty( $memory_limit ) ) {
+            $memory_limit = 'Unknown';
+        }
+
+        // Initialize refund tracking variables
+        $total_refund_amount = 0;
+        $total_refund_amount_ex_tax = 0;
+        $total_refund_tax = 0;
+        $total_refund_shipping = 0;
+        $total_refund_shipping_tax = 0;
+        $refunded_product_ids = array();
+        $refunded_order_ids = array();
+
+        // Build query for refund orders
+        $args = array(
+            'limit'         => -1,
+            'orderby'      => 'date',
+            'order'        => 'DESC',
+            'date_created' => $date_from . '...' . $date_to,
+            'type'         => array( 'shop_order_refund' ),
+            'status'       => 'any', // Refunds don't have statuses, but include all
+            'return'       => 'ids',
+        );
+
+        // All time filter
+        if ( $this->get_filter('date_preset') === 'all_time' ) {
+            unset( $args['date_created'] );
+        }
+
+        // Query refund IDs
+        $refund_ids = (array) wc_get_orders( $args );
+        
+        if ( empty( $refund_ids ) ) {
+            // No refunds found, set empty data and return
+            $execution_time = microtime(true) - $start_time;
+            $this->set_data( 'refunds', array(
+                'totals'            => $totals,
+                'categorized_data'  => $categorized_data,
+                'data_by_date'      => $data_by_date,
+                'data_table'        => array(
+                    'refunds' => $data_table
+                ),
+                'total_db_records'  => 0,
+                'execution_time'    => $execution_time
+            ));
+            return $this->get_data('refunds');
+        }
+
+        $total_db_records = count( $refund_ids );
+
+        // Process refunds in batches to manage memory
+        $batch_size = 2500;
+        $total_batches = ( $batch_size > 0 ) ? ceil( wpdai_divide( $total_db_records, $batch_size ) ) : 1;
+
+        for ( $batch = 0; $batch < $total_batches; $batch++ ) {
+
+            // Get current batch of refund IDs
+            $current_refund_ids_batch = array_slice( $refund_ids, $batch * $batch_size, $batch_size );
+
+            if ( empty( $current_refund_ids_batch ) ) {
+                break; // No more refunds to process
+            }
+
+            // Process each refund in the batch
+            foreach ( $current_refund_ids_batch as $refund_id ) {
+
+                // Memory check
+                if ( wpdai_is_memory_usage_greater_than( 90 ) ) {
+                    $this->set_error(
+                        sprintf(
+                            /* translators: 1: Number of processed refunds, 2: Total number of refunds, 3: PHP memory limit */
+                            __( 'Memory exhausted after processing %1$s out of %2$s refunds. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %3$s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                            ( $batch * $batch_size ) + count( $current_refund_ids_batch ),
+                            $total_db_records,
+                            $memory_limit
+                        )
+                    );
+                    break 2; // Break out of both loops
+                }
+
+                // Get refund object
+                $refund = wc_get_order( $refund_id );
+
+                // Safety check
+                if ( ! is_a( $refund, 'WC_Order_Refund' ) ) {
+                    continue;
+                }
+
+                // Get parent order ID
+                $parent_order_id = $refund->get_parent_id();
+
+                // Get refund date (this is the date the refund was created, not the order date)
+                $refund_date_created = $refund->get_date_created();
+                
+                if ( ! is_a( $refund_date_created, 'WC_DateTime' ) ) {
+                    continue; // Skip if no valid date
+                }
+
+                // Safely get timestamp
+                $refund_date_unix = 0;
+                if ( method_exists( $refund_date_created, 'getOffsetTimestamp' ) ) {
+                    $refund_date_unix = $refund_date_created->getOffsetTimestamp();
+                } elseif ( method_exists( $refund_date_created, 'getTimestamp' ) ) {
+                    $refund_date_unix = $refund_date_created->getTimestamp();
+                }
+                
+                // Validate timestamp
+                if ( $refund_date_unix <= 0 ) {
+                    continue; // Skip if invalid timestamp
+                }
+                
+                $date_range_key = gmdate( $date_format, $refund_date_unix );
+                // Fallback if gmdate fails or returns invalid value
+                if ( $date_range_key === false || empty( $date_range_key ) || ! is_string( $date_range_key ) ) {
+                    $date_range_key = gmdate( 'Y-m-d', $refund_date_unix );
+                    // Final fallback
+                    if ( $date_range_key === false || empty( $date_range_key ) ) {
+                        continue; // Skip this refund if we can't get a valid date key
+                    }
+                }
+
+                // Get refund amount (negative value, we'll use absolute)
+                $refund_amount = 0;
+                if ( method_exists( $refund, 'get_amount' ) ) {
+                    $refund_amount = abs( (float) $refund->get_amount() );
+                }
+
+                // Get refund tax and shipping data (must be before we use these variables)
+                $refund_tax_total = 0;
+                $refund_shipping_total = 0;
+                $refund_shipping_tax = 0;
+                
+                if ( method_exists( $refund, 'get_total_tax' ) ) {
+                    $refund_tax_total = abs( (float) $refund->get_total_tax() );
+                }
+                if ( method_exists( $refund, 'get_shipping_total' ) ) {
+                    $refund_shipping_total = abs( (float) $refund->get_shipping_total() );
+                }
+                if ( method_exists( $refund, 'get_shipping_tax' ) ) {
+                    $refund_shipping_tax = abs( (float) $refund->get_shipping_tax() );
+                }
+
+                // Get refund reason and other metadata (with safe method calls)
+                $refund_reason = '';
+                $refunded_by_user_id = 0;
+                $refunded_payment = false;
+                $refund_currency = '';
+                
+                if ( method_exists( $refund, 'get_reason' ) ) {
+                    $refund_reason = $refund->get_reason();
+                }
+                if ( method_exists( $refund, 'get_refunded_by' ) ) {
+                    $refunded_by_user_id = (int) $refund->get_refunded_by();
+                }
+                if ( method_exists( $refund, 'get_refunded_payment' ) ) {
+                    $refunded_payment = $refund->get_refunded_payment();
+                }
+                if ( method_exists( $refund, 'get_currency' ) ) {
+                    $refund_currency = $refund->get_currency();
+                }
+
+                // Get parent order early (needed for fallback when refund items are empty)
+                $parent_order = null;
+                if ( $parent_order_id > 0 ) {
+                    $parent_order = wc_get_order( $parent_order_id );
+                    // Validate parent order
+                    if ( ! is_a( $parent_order, 'WC_Order' ) ) {
+                        $parent_order = null;
+                    }
+                }
+
+                // Get refund quantity and product IDs from refund items
+                $refund_quantity = 0;
+                $refund_item_product_ids = array();
+                // Get all items, then filter for product items only
+                $refund_items_all = array();
+                if ( method_exists( $refund, 'get_items' ) ) {
+                    $refund_items_all = $refund->get_items();
+                }
+                $refund_items = array();
+                if ( is_array( $refund_items_all ) && ! empty( $refund_items_all ) ) {
+                    foreach ( $refund_items_all as $item ) {
+                        if ( is_a( $item, 'WC_Order_Item_Product' ) ) {
+                            $refund_items[] = $item;
+                        }
+                    }
+                }
+                $refund_item_details = array(); // Store detailed refund item data
+
+                // Helper function to process a refund item (inline for better performance and clarity)
+                $process_refund_item = function( $item, $is_from_parent_order = false ) use ( &$refund_quantity, &$refund_item_product_ids, &$refunded_product_ids, &$refund_item_details, &$categorized_data, &$data_by_date, $date_range_key, $parent_order_id, $refund_id, $refund_amount, &$parent_order ) {
+                    if ( ! is_a( $item, 'WC_Order_Item_Product' ) ) {
+                        return;
+                    }
+
+                // Get item quantity (for refund items, quantity is negative, so use absolute)
+                $item_qty = 0;
+                if ( method_exists( $item, 'get_quantity' ) ) {
+                    $item_qty = abs( (float) $item->get_quantity() );
+                }
+                if ( $item_qty <= 0 ) {
+                    return; // Skip items with zero quantity
+                }
+                    
+                    // Get product ID (variation ID if exists, otherwise product ID)
+                    $product_id = 0;
+                    $variation_id = 0;
+                    if ( method_exists( $item, 'get_product_id' ) ) {
+                        $product_id = (int) $item->get_product_id();
+                    }
+                    if ( method_exists( $item, 'get_variation_id' ) ) {
+                        $variation_id = (int) $item->get_variation_id();
+                    }
+                    $active_product_id = ( $variation_id > 0 ) ? $variation_id : $product_id;
+                    
+                    // Get product name from line item (works even if product is deleted)
+                    $product_name = '';
+                    if ( method_exists( $item, 'get_name' ) ) {
+                        $product_name = $item->get_name();
+                    }
+                    if ( empty( $product_name ) || ! is_string( $product_name ) ) {
+                        $product_name = __( 'Unknown Product', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
+                    }
+                    
+                    // Get SKU from line item meta (fallback if product doesn't exist)
+                    $product_sku = '';
+                    $product_type = '';
+                    if ( $active_product_id > 0 ) {
+                        $product_object = wc_get_product( $active_product_id );
+                        if ( is_a( $product_object, 'WC_Product' ) ) {
+                            if ( method_exists( $product_object, 'get_sku' ) ) {
+                                $product_sku = $product_object->get_sku();
+                            }
+                            if ( method_exists( $product_object, 'get_type' ) ) {
+                                $product_type = $product_object->get_type();
+                            }
+                        }
+                    }
+                    
+                    // If SKU not found from product, try to get from item meta
+                    if ( empty( $product_sku ) && method_exists( $item, 'get_meta' ) ) {
+                        $item_sku = $item->get_meta( '_sku' );
+                        if ( ! empty( $item_sku ) && is_string( $item_sku ) ) {
+                            $product_sku = $item_sku;
+                        }
+                    }
+                    
+                    // Use active_product_id as key, or item_id if product_id is 0 (for deleted products)
+                    $item_id = 0;
+                    if ( method_exists( $item, 'get_id' ) ) {
+                        $item_id = (int) $item->get_id();
+                    }
+                    $product_refund_key = ( $active_product_id > 0 ) ? $active_product_id : 'item_' . $item_id;
+
+                    // Get detailed refund item data (with safe method calls)
+                    $item_total = 0;
+                    $item_tax = 0;
+                    $item_subtotal = 0;
+                    $item_subtotal_tax = 0;
+                    
+                    if ( method_exists( $item, 'get_total' ) ) {
+                        $item_total = abs( (float) $item->get_total() );
+                    }
+                    if ( method_exists( $item, 'get_total_tax' ) ) {
+                        $item_tax = abs( (float) $item->get_total_tax() );
+                    }
+                    $item_total_inc_tax = $item_total + $item_tax; // Line total including tax
+                    
+                    if ( method_exists( $item, 'get_subtotal' ) ) {
+                        $item_subtotal = abs( (float) $item->get_subtotal() );
+                    }
+                    if ( method_exists( $item, 'get_subtotal_tax' ) ) {
+                        $item_subtotal_tax = abs( (float) $item->get_subtotal_tax() );
+                    }
+                    $item_subtotal_inc_tax = $item_subtotal + $item_subtotal_tax; // Subtotal including tax
+
+                    // If this is from parent order (fallback), calculate proportional refund amounts
+                    if ( $is_from_parent_order && is_a( $parent_order, 'WC_Order' ) ) {
+                        $order_total = 0;
+                        if ( method_exists( $parent_order, 'get_total' ) ) {
+                            $order_total = (float) $parent_order->get_total();
+                        }
+                        // Only calculate if order total is valid and refund amount is valid
+                        if ( $order_total > 0 && $refund_amount > 0 ) {
+                            $refund_ratio = $refund_amount / $order_total;
+                            // Calculate proportional amounts
+                            $item_total_inc_tax_original = $item_total + $item_tax;
+                            $item_total_inc_tax = $item_total_inc_tax_original * $refund_ratio;
+                            $item_tax_original = $item_tax;
+                            $item_tax = $item_tax_original * $refund_ratio;
+                            $item_total = $item_total_inc_tax - $item_tax;
+                            $item_subtotal_original = $item_subtotal;
+                            $item_subtotal_tax_original = $item_subtotal_tax;
+                            $item_subtotal = $item_subtotal_original * $refund_ratio;
+                            $item_subtotal_tax = $item_subtotal_tax_original * $refund_ratio;
+                            $item_subtotal_inc_tax = $item_subtotal + $item_subtotal_tax;
+                        }
+                    }
+
+                    // Calculate per unit values
+                    $refund_amount_per_unit = ( $item_qty > 0 ) ? wpdai_divide( $item_total_inc_tax, $item_qty ) : 0;
+                    $refund_amount_per_unit_ex_tax = ( $item_qty > 0 ) ? wpdai_divide( $item_total, $item_qty ) : 0;
+                    $refund_tax_per_unit = ( $item_qty > 0 ) ? wpdai_divide( $item_tax, $item_qty ) : 0;
+
+                    // Track product IDs (only if valid)
+                    if ( $active_product_id > 0 ) {
+                        $refund_item_product_ids[] = $active_product_id;
+                        $refunded_product_ids[] = $active_product_id;
+                    }
+                    $refund_quantity += $item_qty;
+
+                    // Store refund item details
+                    $refund_item_details[] = array(
+                        'product_id' => $active_product_id,
+                        'parent_product_id' => $product_id,
+                        'variation_id' => $variation_id,
+                        'product_name' => $product_name,
+                        'product_sku' => $product_sku,
+                        'product_type' => $product_type,
+                        'quantity_refunded' => $item_qty,
+                        'refund_amount' => $item_total_inc_tax,
+                        'refund_amount_ex_tax' => $item_total,
+                        'refund_tax' => $item_tax,
+                        'refund_amount_per_unit' => $refund_amount_per_unit,
+                        'refund_amount_per_unit_ex_tax' => $refund_amount_per_unit_ex_tax,
+                        'refund_tax_per_unit' => $refund_tax_per_unit,
+                        'subtotal_refunded' => $item_subtotal_inc_tax,
+                        'subtotal_refunded_ex_tax' => $item_subtotal,
+                        'subtotal_tax_refunded' => $item_subtotal_tax,
+                        'item_id' => $item_id,
+                    );
+
+                    // Track product refund data in categorized_data (keyed by product_id or item_id)
+                    if ( ! isset( $categorized_data['product_refund_data'][$product_refund_key] ) ) {
+                        $categorized_data['product_refund_data'][$product_refund_key] = array(
+                            'product_id' => $product_id,
+                            'variation_id' => $variation_id,
+                            'active_product_id' => $active_product_id, // Variation ID if exists, otherwise product ID, or 0 if deleted
+                            'product_name' => $product_name,
+                            'product_sku' => $product_sku,
+                            'product_type' => $product_type,
+                            'total_quantity_refunded' => 0,
+                            'total_refund_amount' => 0,
+                            'total_refund_amount_ex_tax' => 0,
+                            'total_refund_tax' => 0,
+                            'total_subtotal_refunded' => 0,
+                            'total_subtotal_refunded_ex_tax' => 0,
+                            'total_subtotal_tax_refunded' => 0,
+                            'refund_count' => 0, // Number of times this product was refunded
+                            'order_ids' => array(), // Order IDs where this product was refunded
+                            'refund_ids' => array(), // Refund IDs for this product
+                        );
+                    }
+
+                    // Accumulate product refund totals
+                    $categorized_data['product_refund_data'][$product_refund_key]['total_quantity_refunded'] += $item_qty;
+                    $categorized_data['product_refund_data'][$product_refund_key]['total_refund_amount'] += $item_total_inc_tax;
+                    $categorized_data['product_refund_data'][$product_refund_key]['total_refund_amount_ex_tax'] += $item_total;
+                    $categorized_data['product_refund_data'][$product_refund_key]['total_refund_tax'] += $item_tax;
+                    $categorized_data['product_refund_data'][$product_refund_key]['total_subtotal_refunded'] += $item_subtotal_inc_tax;
+                    $categorized_data['product_refund_data'][$product_refund_key]['total_subtotal_refunded_ex_tax'] += $item_subtotal;
+                    $categorized_data['product_refund_data'][$product_refund_key]['total_subtotal_tax_refunded'] += $item_subtotal_tax;
+                    $categorized_data['product_refund_data'][$product_refund_key]['refund_count']++;
+                    
+                    // Track order and refund IDs
+                    if ( $parent_order_id > 0 && ! in_array( $parent_order_id, $categorized_data['product_refund_data'][$product_refund_key]['order_ids'] ) ) {
+                        $categorized_data['product_refund_data'][$product_refund_key]['order_ids'][] = $parent_order_id;
+                    }
+                    if ( ! in_array( $refund_id, $categorized_data['product_refund_data'][$product_refund_key]['refund_ids'] ) ) {
+                        $categorized_data['product_refund_data'][$product_refund_key]['refund_ids'][] = $refund_id;
+                    }
+
+                    // Populate product refund data by date
+                    if ( isset( $data_by_date['product_refund_amount_by_date'][$date_range_key] ) ) {
+                        $data_by_date['product_refund_amount_by_date'][$date_range_key] += $item_total_inc_tax;
+                    }
+                    if ( isset( $data_by_date['product_refund_quantity_by_date'][$date_range_key] ) ) {
+                        $data_by_date['product_refund_quantity_by_date'][$date_range_key] += $item_qty;
+                    }
+                };
+
+                // Process refund items if they exist
+                if ( is_array( $refund_items ) && ! empty( $refund_items ) ) {
+                    foreach ( $refund_items as $refund_item ) {
+                        $process_refund_item( $refund_item, false );
+                    }
+                } else {
+                    // If no refund items, fall back to parent order items (for full refunds without line items)
+                    if ( is_a( $parent_order, 'WC_Order' ) && method_exists( $parent_order, 'get_items' ) ) {
+                        $parent_order_items_all = $parent_order->get_items();
+                        if ( is_array( $parent_order_items_all ) && ! empty( $parent_order_items_all ) ) {
+                            foreach ( $parent_order_items_all as $order_item ) {
+                                if ( is_a( $order_item, 'WC_Order_Item_Product' ) ) {
+                                    $process_refund_item( $order_item, true );
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Check if this is a full or partial refund by comparing to parent order
+                $is_full_refund = false;
+                $is_partial_refund = false;
+                
+                if ( is_a( $parent_order, 'WC_Order' ) ) {
+                    $parent_total = 0;
+                    $parent_total_refunded = 0;
+                    
+                    if ( method_exists( $parent_order, 'get_total' ) ) {
+                        $parent_total = (float) $parent_order->get_total();
+                    }
+                    if ( method_exists( $parent_order, 'get_total_refunded' ) ) {
+                        $parent_total_refunded = (float) $parent_order->get_total_refunded();
+                    }
+                    
+                    // Check if this refund makes it a full refund (only if we have valid totals)
+                    if ( $parent_total > 0 && $parent_total_refunded >= $parent_total ) {
+                        $is_full_refund = true;
+                    } elseif ( $parent_total > 0 ) {
+                        $is_partial_refund = true;
+                    }
+                    
+                    // Track unique order IDs with refunds
+                    if ( ! in_array( $parent_order_id, $refunded_order_ids ) ) {
+                        $refunded_order_ids[] = $parent_order_id;
+                        $totals['total_order_count_with_refund']++;
+                        
+                        if ( $is_full_refund ) {
+                            $totals['total_order_count_with_full_refund']++;
+                        } else {
+                            $totals['total_order_count_with_partial_refund']++;
+                        }
+                    }
+                }
+
+                // Accumulate totals
+                $total_refund_amount += $refund_amount;
+                $total_refund_amount_ex_tax += ( $refund_amount - $refund_tax_total );
+                $total_refund_tax += $refund_tax_total;
+                $total_refund_shipping += $refund_shipping_total;
+                $total_refund_shipping_tax += $refund_shipping_tax;
+                $totals['total_qty_refunded'] += $refund_quantity;
+
+                // Store refund data in data_table
+                $refund_data_entry = array(
+                    'refund_id' => $refund_id,
+                    'parent_order_id' => $parent_order_id,
+                    'refund_amount' => $refund_amount,
+                    'refund_amount_ex_tax' => $refund_amount - $refund_tax_total,
+                    'refund_tax' => $refund_tax_total,
+                    'refund_quantity' => $refund_quantity,
+                    'refund_date' => $refund_date_unix,
+                    'refund_date_formatted' => ( $refund_date_unix > 0 ) ? ( gmdate( 'Y-m-d H:i:s', $refund_date_unix ) ?: '' ) : '',
+                    'is_full_refund' => $is_full_refund,
+                    'is_partial_refund' => $is_partial_refund,
+                    'refund_reason' => $refund_reason,
+                    'refunded_by_user_id' => $refunded_by_user_id,
+                    'refunded_payment' => $refunded_payment,
+                    'refund_currency' => $refund_currency,
+                    'refund_shipping_total' => $refund_shipping_total,
+                    'refund_shipping_tax' => $refund_shipping_tax,
+                    'refunded_product_ids' => is_array( $refund_item_product_ids ) ? array_unique( $refund_item_product_ids ) : array(),
+                    'refund_items' => $refund_item_details, // Detailed refund item data
+                );
+                
+                $data_table[] = $refund_data_entry;
+
+                // Store refund IDs and parent order IDs in categorized_data
+                if ( $refund_id > 0 && ! in_array( $refund_id, $categorized_data['refunded_order_ids'] ) ) {
+                    $categorized_data['refunded_order_ids'][] = $refund_id;
+                }
+                if ( $parent_order_id > 0 && ! in_array( $parent_order_id, $categorized_data['parent_order_ids'] ) ) {
+                    $categorized_data['parent_order_ids'][] = $parent_order_id;
+                }
+
+                // Track customer refund data (get customer info from parent order)
+                if ( is_a( $parent_order, 'WC_Order' ) && $refund_amount > 0 ) {
+                    $customer_billing_email = '';
+                    $customer_id = 0;
+                    $customer_user_id = 0;
+                    
+                    // Get customer billing email
+                    if ( method_exists( $parent_order, 'get_billing_email' ) ) {
+                        $customer_billing_email = $parent_order->get_billing_email();
+                    }
+                    
+                    // Get customer ID
+                    if ( method_exists( $parent_order, 'get_customer_id' ) ) {
+                        $customer_id = (int) $parent_order->get_customer_id();
+                    }
+                    
+                    // Get user ID
+                    if ( method_exists( $parent_order, 'get_user_id' ) ) {
+                        $customer_user_id = (int) $parent_order->get_user_id();
+                    }
+                    
+                    // Use billing email as key (fallback to customer_id if email is empty)
+                    $customer_key = ! empty( $customer_billing_email ) ? $customer_billing_email : ( $customer_id > 0 ? 'customer_' . $customer_id : 'unknown' );
+                    
+                    // Initialize customer refund data if not exists
+                    if ( ! isset( $categorized_data['customer_refund_data'][$customer_key] ) ) {
+                        $categorized_data['customer_refund_data'][$customer_key] = array(
+                            'billing_email' => $customer_billing_email,
+                            'customer_id' => $customer_id,
+                            'user_id' => $customer_user_id,
+                            'refund_count' => 0,
+                            'refund_value' => 0,
+                            'refund_value_ex_tax' => 0,
+                            'refund_tax' => 0,
+                            'refund_quantity' => 0,
+                            'refund_ids' => array(),
+                            'parent_order_ids' => array(),
+                        );
+                    }
+                    
+                    // Accumulate customer refund totals
+                    $categorized_data['customer_refund_data'][$customer_key]['refund_count']++;
+                    $categorized_data['customer_refund_data'][$customer_key]['refund_value'] += $refund_amount;
+                    $categorized_data['customer_refund_data'][$customer_key]['refund_value_ex_tax'] += ( $refund_amount - $refund_tax_total );
+                    $categorized_data['customer_refund_data'][$customer_key]['refund_tax'] += $refund_tax_total;
+                    $categorized_data['customer_refund_data'][$customer_key]['refund_quantity'] += $refund_quantity;
+                    
+                    // Track refund IDs and parent order IDs for this customer
+                    if ( $refund_id > 0 && ! in_array( $refund_id, $categorized_data['customer_refund_data'][$customer_key]['refund_ids'] ) ) {
+                        $categorized_data['customer_refund_data'][$customer_key]['refund_ids'][] = $refund_id;
+                    }
+                    if ( $parent_order_id > 0 && ! in_array( $parent_order_id, $categorized_data['customer_refund_data'][$customer_key]['parent_order_ids'] ) ) {
+                        $categorized_data['customer_refund_data'][$customer_key]['parent_order_ids'][] = $parent_order_id;
+                    }
+                }
+
+                // Populate data_by_date containers
+                // Only populate if the date key exists in the container (respects date range)
+                if ( isset( $data_by_date['amount_refunded_by_date'][$date_range_key] ) ) {
+                    $data_by_date['amount_refunded_by_date'][$date_range_key] += $refund_amount;
+                }
+
+                if ( isset( $data_by_date['quantity_refunded_by_date'][$date_range_key] ) ) {
+                    $data_by_date['quantity_refunded_by_date'][$date_range_key] += $refund_quantity;
+                }
+
+                if ( isset( $data_by_date['orders_refunded_by_date'][$date_range_key] ) ) {
+                    $data_by_date['orders_refunded_by_date'][$date_range_key]++;
+                }
+
+            }
+
+        }
+
+        // Calculate final refund metrics
+        $totals['total_refund_amount'] = $total_refund_amount;
+        $totals['total_refund_amount_ex_tax'] = $total_refund_amount_ex_tax;
+        $totals['total_refund_tax'] = $total_refund_tax;
+        $totals['total_refund_shipping'] = $total_refund_shipping;
+        $totals['total_refund_shipping_tax'] = $total_refund_shipping_tax;
+        $totals['total_skus_refunded'] = is_array( $refunded_product_ids ) ? count( array_unique( $refunded_product_ids ) ) : 0;
+        
+        // Calculate product refund totals from categorized_data
+        $total_product_refund_amount = 0;
+        $total_line_items_refunded = 0;
+        if ( isset( $categorized_data['product_refund_data'] ) && is_array( $categorized_data['product_refund_data'] ) && ! empty( $categorized_data['product_refund_data'] ) ) {
+            foreach ( $categorized_data['product_refund_data'] as $product_id => $product_refund_data ) {
+                // Safe array access
+                if ( ! is_array( $product_refund_data ) ) {
+                    continue;
+                }
+                
+                $product_total_refund = isset( $product_refund_data['total_refund_amount'] ) ? (float) $product_refund_data['total_refund_amount'] : 0;
+                $product_refund_count = isset( $product_refund_data['refund_count'] ) ? (int) $product_refund_data['refund_count'] : 0;
+                
+                $total_product_refund_amount += $product_total_refund;
+                $total_line_items_refunded += $product_refund_count;
+                
+                // Calculate averages and percentages for each product
+                $product_qty_refunded = isset( $product_refund_data['total_quantity_refunded'] ) ? (float) $product_refund_data['total_quantity_refunded'] : 0;
+                if ( $product_qty_refunded > 0 ) {
+                    $product_total_ex_tax = isset( $product_refund_data['total_refund_amount_ex_tax'] ) ? (float) $product_refund_data['total_refund_amount_ex_tax'] : 0;
+                    $categorized_data['product_refund_data'][$product_id]['average_refund_amount_per_unit'] = wpdai_divide( $product_total_refund, $product_qty_refunded, 2 );
+                    $categorized_data['product_refund_data'][$product_id]['average_refund_amount_per_unit_ex_tax'] = wpdai_divide( $product_total_ex_tax, $product_qty_refunded, 2 );
+                } else {
+                    $categorized_data['product_refund_data'][$product_id]['average_refund_amount_per_unit'] = 0;
+                    $categorized_data['product_refund_data'][$product_id]['average_refund_amount_per_unit_ex_tax'] = 0;
+                }
+                
+                // Calculate percentage of total refunds
+                if ( $total_refund_amount > 0 ) {
+                    $categorized_data['product_refund_data'][$product_id]['percent_of_total_refunds'] = wpdai_calculate_percentage( $product_total_refund, $total_refund_amount );
+                } else {
+                    $categorized_data['product_refund_data'][$product_id]['percent_of_total_refunds'] = 0;
+                }
+            }
+        }
+        
+        // Add product refund totals to main totals
+        $totals['total_product_refund_amount'] = $total_product_refund_amount;
+        $totals['total_line_items_refunded'] = $total_line_items_refunded;
+        
+        // Calculate customer refund totals and metrics from categorized_data
+        $total_customers_with_refund = 0;
+        if ( isset( $categorized_data['customer_refund_data'] ) && is_array( $categorized_data['customer_refund_data'] ) && ! empty( $categorized_data['customer_refund_data'] ) ) {
+            foreach ( $categorized_data['customer_refund_data'] as $customer_key => $customer_refund_data ) {
+                // Safe array access
+                if ( ! is_array( $customer_refund_data ) ) {
+                    continue;
+                }
+                
+                $customer_refund_value = isset( $customer_refund_data['refund_value'] ) ? (float) $customer_refund_data['refund_value'] : 0;
+                $customer_refund_count = isset( $customer_refund_data['refund_count'] ) ? (int) $customer_refund_data['refund_count'] : 0;
+                
+                // Count unique customers with refunds
+                if ( $customer_refund_count > 0 ) {
+                    $total_customers_with_refund++;
+                }
+                
+                // Calculate averages and percentages for each customer
+                if ( $customer_refund_count > 0 ) {
+                    $customer_refund_value_ex_tax = isset( $customer_refund_data['refund_value_ex_tax'] ) ? (float) $customer_refund_data['refund_value_ex_tax'] : 0;
+                    $categorized_data['customer_refund_data'][$customer_key]['average_refund_amount'] = wpdai_divide( $customer_refund_value, $customer_refund_count, 2 );
+                    $categorized_data['customer_refund_data'][$customer_key]['average_refund_amount_ex_tax'] = wpdai_divide( $customer_refund_value_ex_tax, $customer_refund_count, 2 );
+                } else {
+                    $categorized_data['customer_refund_data'][$customer_key]['average_refund_amount'] = 0;
+                    $categorized_data['customer_refund_data'][$customer_key]['average_refund_amount_ex_tax'] = 0;
+                }
+                
+                // Calculate percentage of total refunds
+                if ( $total_refund_amount > 0 ) {
+                    $categorized_data['customer_refund_data'][$customer_key]['percent_of_total_refunds'] = wpdai_calculate_percentage( $customer_refund_value, $total_refund_amount );
+                } else {
+                    $categorized_data['customer_refund_data'][$customer_key]['percent_of_total_refunds'] = 0;
+                }
+            }
+        }
+        
+        // Add customer refund totals to main totals
+        $totals['total_customers_with_refund'] = $total_customers_with_refund;
+        
+        // Calculate daily averages
+        if ( $n_days_period > 0 ) {
+            $totals['refunds_per_day'] = wpdai_divide( $totals['total_order_count_with_refund'], $n_days_period );
+        }
+
+        // Create no data found array for date containers
+        $data_by_date = $this->maybe_create_no_data_found_date_array( $data_by_date );
+
+        // Calculate execution time
+        $execution_time = microtime(true) - $start_time;
+
+        // Configure return object
+        $refunds_data = array(
+            'totals'            => $totals,
+            'categorized_data'  => $categorized_data,
+            'data_by_date'      => $data_by_date,
+            'data_table'        => array(
+                'refunds' => $data_table
+            ),
+            'total_db_records'  => $total_db_records,
+            'execution_time'    => $execution_time
+        );
+
+        // Store the data into the prop
+        $this->set_data( 'refunds', $refunds_data );
+
+        // Return Results
+        return $refunds_data;
+
+    }
+
+    /**
+     * 
      *  Fetches Store Revenue & Expenses and organises it for use by get_data('store_profit')
      * 
      *  Available Filters: 
@@ -3778,7 +4079,7 @@ class WPDAI_Data_Warehouse {
         $orders_data                    = $this->get_data('orders');
 
         // Call data if it hasn't been
-        if ( empty($expense_data['totals']) ) {
+        if ( empty($expense_data['totals']) && method_exists( $this, 'fetch_expense_data' ) ) {
             $this->fetch_expense_data();
             $expense_data = $this->get_data('expenses');
         }
@@ -3867,2001 +4168,11 @@ class WPDAI_Data_Warehouse {
     }
 
     /**
-     * 
-     *  Fetches Expense Data and organises it for use by get_data('expenses')
-     * 
-     *  Available Filters: 
-     * 
-     *      date_from (will filter against _wpd_date_paid)
-     *      date_to (will filter against _wpd_date_paid)
-     *      expense_type Expects an expense_type taxonomy slug
-     *  
-     **/
-    public function fetch_expense_data() {
-        // Start execution timer
-        $start_time = microtime(true);
-
-        // Setup default containers
-        $totals = array(			
-			'total_amount_paid'  		    => 0,
-			'total_amount_unpaid'  		    => 0,
-            'total_amount'                  => 0,
-            'total_expense_count'           => 0,
-            'total_unpaid_expense_count'    => 0,
-            'total_paid_expense_count'      => 0,
-            'total_standard_expense_count'  => 0,
-            'total_recurring_expense_count' => 0,
-            'total_unique_recurring_expense_count' => 0,
-			'average_expenses_per_day' 	    => 0,
-            'daily_average_expense_count'   => 0,
-            'daily_average_expense_amount'  => 0,
-
-        );
-        $categorized_data = array(
-            'supplier_expense_data'             => array(),
-            'parent_expense_type_categories'    => array(),
-            'child_expense_type_categories' 	=> array(),
-            'expense_post_ids'                  => array()
-        );
-        $data_table = array();
-        $total_db_records = 0;
-        $data_by_date = array(
-            'amount_paid_by_date' => $this->get_data_by_date_range_container(),
-            'amount_unpaid_by_date' => $this->get_data_by_date_range_container(),
-        );
-
-        // Setup default vars
-        $filter                         = $this->get_filter();
-        $date_from                     = $this->get_date_from();
-        $date_to                       = $this->get_date_to();
-        $store_currency                 = $this->get_store_currency();
-        $n_days_period                  = $this->get_n_days_range();
-        $date_format                    = $this->get_filter( 'date_format_string' );
-        $expense_post_ids               = array();
-        $total_amount_paid              = 0;
-        $total_amount_unpaid            = 0;
-        $total_amount                   = 0;
-        $total_expense_count            = 0;
-        $total_unpaid_expense_count     = 0;
-        $total_paid_expense_count       = 0;
-        $total_standard_expense_count   = 0;
-        $total_recurring_expense_count  = 0;
-        $total_unique_recurring_expense_count = 0;
-        $parent_expense_by_type         = array();
-        $child_expense_by_type          = array();
-
-        // Default array payload
-        $expense_data_array = array(
-            'parent_id'             => 0, // 0 If is a parent
-            'parent_expense_label'  => '',
-            'label'                 => '',
-            'slug'                  => '',
-            'id'                    => 0,
-            'total_amount'          => 0, // Unpaid or Paid
-            'total_amount_paid'     => 0,
-            'total_amount_unpaid'   => 0,
-            'total_expense_count'   => 0,
-            'unique_expenses'       => array() // For storing the related expenses
-        );
-
-        /**
-         *
-         *	Setup filter
-         *
-         */
-
-         if ( $this->get_data_filter( 'expenses', 'expense_category' ) && is_array( $this->get_data_filter( 'expenses', 'expense_category' ) ) ) {
-
-            $tax_args = array(
-                array (
-                    'taxonomy' 	=> 'expense_category',
-                    'field' 	=> 'term_id',
-                    'terms' 	=> $this->get_data_filter( 'expenses', 'expense_category' ),
-                    'operator' => 'IN',
-                )
-            );
-
-        } else {
-
-            $tax_args = array();
-
-        }
-
-		$standard_expense_args = array(
-
-			'fields' 			=> 'ids',
-		    'post_type' 		=> 'expense',
-		    'post_status' 		=> 'publish',
-		    'posts_per_page' 	=> -1,
-		    'meta_query' 		=> array(
-		        array(
-		            'key' 		=> '_wpd_date_paid',
-		            'value' 	=> array($date_from, $date_to),
-		            'compare' 	=> 'BETWEEN',
-		            'type' 		=> 'DATE'
-		        )
-		    ),
-		   	'tax_query' 		=> $tax_args,
-		    'orderby' 			=> 'meta_value',
-		    'meta_key' 			=> '_wpd_date_paid',
-		    'order' 			=> 'DESC',
-		);
-		$recurring_expense_args = array(
-
-			'fields' 			=> 'ids',
-		    'post_type' 		=> 'expense',
-		    'post_status' 		=> 'publish',
-		    'posts_per_page' 	=> -1,
-		    'meta_query' 		=> array(
-		        array(
-		            'key' 		=> '_wpd_recurring_expense_enabled',
-		            'value' 	=> array( 1 ),
-		            'compare' 	=> 'IN',
-		        )
-		    ),
-		   	'tax_query' 		=> $tax_args,
-		    'orderby' 			=> 'meta_value',
-		    'meta_key' 			=> '_wpd_recurring_expense_beginning_date',
-		    'order' 			=> 'DESC',
-		);
-
-		$standard_expense_ids 	= new WP_Query( $standard_expense_args );
-		$recurring_expense_ids 	= new WP_Query( $recurring_expense_args );
-		$expense_post_ids 		= array_unique( array_merge( $standard_expense_ids->posts, $recurring_expense_ids->posts ) );
-		if ( empty($expense_post_ids) ) $expense_post_ids = array( 0 );
-
-        if ( WPD_AI_PRO ) {
-            $expense_posts = new WP_Query( 
-                array(
-                    'post__in' => $expense_post_ids,
-                    'post_type' => 'expense',
-                    'posts_per_page' 	=> -1,
-                    'fields' => 'ids',
-                ) 
-            );
-            $expense_post_ids = (array) $expense_posts->posts;
-        } else {
-            $expense_post_ids = array();
-        }
-
-
-        /**
-         * 
-         *  Loop through the expense Post IDs
-         * 
-         **/
-    	foreach ( $expense_post_ids as $expense_post_id ) {
-
-    		/**
-			 *
-			 *	Check memory usage
-			 *	If memory use is higher than 90%, dont try and find anymore
-			 *
-			 */
-			if ( wpdai_is_memory_usage_greater_than(90) ) {
-
-				$memory_limit = ini_get('memory_limit');
-				$this->set_error(
-					sprintf(
-						/* translators: %s: PHP memory limit */
-						__( 'You\'ve exhausted your memory usage. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
-						$memory_limit
-					)
-				);
-
-				break; // Break the entire process if were hitting the memory limits
-
-			}
-
-            /**
-             * 
-             *  Collect Data
-             * 
-             **/
-	    	$post_id 					= $expense_post_id;
-            $is_expense_paid 			= ( get_post_meta( $post_id, '_wpd_paid', true ) === '' ) ? 1 : (int) get_post_meta( $post_id, '_wpd_paid', true ); // Default to true
-	    	$wpd_amount_paid 			= (float) get_post_meta( $post_id, '_wpd_amount_paid', true );
-			$wpd_amount_paid_currency 	= (string) get_post_meta( $post_id, '_wpd_amount_paid_currency', true );
-			$wpd_date_paid 				= (string) get_post_meta( $post_id, '_wpd_date_paid', true );
-			$wpd_expense_reference 		= (string) get_post_meta( $post_id, '_wpd_expense_reference', true );
-            $recurring_expense_enabled  = get_post_meta( $post_id, '_wpd_recurring_expense_enabled', true );
-			$expense_type 				= get_the_terms( $post_id, 'expense_category' );
-			$suppliers 					= get_the_terms( $post_id, 'suppliers' );
-			$converted_value 			= 0;
-            $expense_type_names_string  = array();
-            $expense_type_name          = ''; // Initialize to prevent undefined variable warnings
-
-            // Apply filters
-            if ( $this->get_data_filter( 'expenses', 'paid_unpaid' ) && is_array( $this->get_data_filter( 'expenses', 'paid_unpaid' ) ) ) {
-
-                $include_paid_expenses = in_array( 'paid', $this->get_data_filter( 'expenses', 'paid_unpaid' ) );
-                $include_unpaid_expenses = in_array( 'unpaid', $this->get_data_filter( 'expenses', 'paid_unpaid' ) );
-
-                // Skip this expense if it doesn't match the paid/unpaid filter
-                if ( $is_expense_paid && !$include_paid_expenses ) {
-                    continue;
-                }
-                if ( !$is_expense_paid && !$include_unpaid_expenses ) {
-                    continue;
-                }
-
-            }
-
-            // Apply filters
-            if ( $this->get_data_filter( 'expenses', 'recurring_one_time' ) && is_array( $this->get_data_filter( 'expenses', 'recurring_one_time' ) ) ) {
-
-                $include_recurring_expenses = in_array( 'recurring', $this->get_data_filter( 'expenses', 'recurring_one_time' ) );
-                $include_one_time_expenses = in_array( 'one_time', $this->get_data_filter( 'expenses', 'recurring_one_time' ) );
-
-                // Skip this expense if it doesn't match the recurring/one-time filter
-                if ( $recurring_expense_enabled && !$include_recurring_expenses ) {
-                    continue;
-                }
-                if ( !$recurring_expense_enabled && !$include_one_time_expenses ) {
-                    continue;
-                }
-
-            }
-
-            // All meta
-            // $wpd_paid 						= get_post_meta( $post->ID, '_wpd_paid', true );
-            // $wpd_amount_paid 				= get_post_meta( $post->ID, '_wpd_amount_paid', true );
-            // $wpd_tax_amount 				    = get_post_meta( $post->ID, '_wpd_tax_amount', true );
-            // $wpd_amount_paid_currency 		= get_post_meta( $post->ID, '_wpd_amount_paid_currency', true );
-            // $wpd_date_paid 					= get_post_meta( $post->ID, '_wpd_date_paid', true );
-            // $wpd_date_invoiced 				= get_post_meta( $post->ID, '_wpd_date_invoiced', true );
-            // $wpd_expense_reference 			= get_post_meta( $post->ID, '_wpd_expense_reference', true );
-            // $recurring_expense_enabled 		= get_post_meta( $post->ID, '_wpd_recurring_expense_enabled', true );
-            // $recurring_expense_frequency 	= get_post_meta( $post->ID, '_wpd_recurring_expense_frequency', true );
-            // $recurring_expense_date_started	= get_post_meta( $post->ID, '_wpd_recurring_expense_beginning_date', true );
-            // $recurring_expense_date_ended 	= get_post_meta( $post->ID, '_wpd_recurring_expense_end_date', true );
-            // $facebook_api_data 				= get_post_meta( $post->ID, '_wpd_fb_api_data', true );
-            // $google_api_data 				= get_post_meta( $post->ID, '_wpd_google_api_campaign_data', true );
-            // $google_api_account_data 		= get_post_meta( $post->ID, '_wpd_google_api_account_data', true );
-            // $wpd_expense_attachments 		= get_post_meta( $post->ID, '_wpd_expense_attachments', true );
-            
-			if ( $recurring_expense_enabled ) {
-
-				$recurring_expense_frequency 			= get_post_meta( $post_id, '_wpd_recurring_expense_frequency', true );
-				$recurring_expense_date_started			= get_post_meta( $post_id, '_wpd_recurring_expense_beginning_date', true );
-				$recurring_expense_date_end			    = get_post_meta( $post_id, '_wpd_recurring_expense_end_date', true );
-				$recurring_expense_date_started_string 	= strtotime( $recurring_expense_date_started );
-				$recurring_expense_date_end_string 	    = ( ! empty($recurring_expense_date_end) ) ? strtotime( $recurring_expense_date_end ) : null;
-				$report_from_date_string 				= strtotime( $date_from );
-				$report_to_date_string 					= strtotime( $date_to );
-
-                $total_unique_recurring_expense_count++;
-
-				// Start looping from recurring expense date, jumping by frequency on each loop
-				while ( $recurring_expense_date_started_string <= $report_to_date_string ) {
-
-				// Dont do calculations if its too old
-				if ( $recurring_expense_date_started_string < $report_from_date_string ) {
-
-					$new_timestamp = false;
-
-					if ( $recurring_expense_frequency === 'daily' ) {
-
-						$new_timestamp = strtotime( '+1 day', $recurring_expense_date_started_string );
-
-					} elseif ( $recurring_expense_frequency === 'weekly' ) {
-
-						$new_timestamp = strtotime( '+1 week', $recurring_expense_date_started_string );
-
-					} elseif ( $recurring_expense_frequency === 'fortnightly' ) {
-
-						$new_timestamp = strtotime( '+2 weeks', $recurring_expense_date_started_string );
-
-					} elseif ( $recurring_expense_frequency === 'monthly' ) {
-
-						$new_timestamp = strtotime( '+1 month', $recurring_expense_date_started_string );
-
-					} elseif ( $recurring_expense_frequency === 'quarterly' ) {
-
-						$new_timestamp = strtotime( '+3 months', $recurring_expense_date_started_string );
-
-					} elseif ( $recurring_expense_frequency === 'yearly' || $recurring_expense_frequency === 'annually' ) {
-
-						$new_timestamp = strtotime( '+1 year', $recurring_expense_date_started_string );
-
-					} else {
-
-						// Unknown frequency - default to monthly to prevent infinite loop
-						$new_timestamp = strtotime( '+1 month', $recurring_expense_date_started_string );
-
-					}
-
-					// Validate timestamp advancement to prevent infinite loops
-					if ( $new_timestamp === false || $new_timestamp <= $recurring_expense_date_started_string ) {
-						wpdai_write_log( "Recurring expense loop validation failed for expense ID: {$post_id}. Breaking loop to prevent infinite loop.", 'expense_error' );
-						break;
-					}
-
-					$recurring_expense_date_started_string = $new_timestamp;
-					continue;
-				}
-
-                    // Unique ID
-                    $unique_id = $post_id . '-' . $wpd_date_paid;
-                    $expense_type_names_string  = array();
-
-                    // If we have an end date for the recurring expense, kill this process if we're hitting that mark
-                    if ( ! is_null($recurring_expense_date_end_string) && $recurring_expense_date_started_string > $recurring_expense_date_end_string ) break;
-
-                    // If this recurring expense exceeds the current date, kill the process
-                    if ( $recurring_expense_date_started_string > current_time('timestamp') ) break;
-
-					// Set date paid to recurring date
-					$wpd_date_paid = gmdate( 'Y-m-d', $recurring_expense_date_started_string );
-
-                    // Currency Conversion
-					if ( $wpd_amount_paid_currency != $store_currency ) {
-						$converted_value = wpdai_convert_currency( $wpd_amount_paid_currency, $store_currency, $wpd_amount_paid );
-					} else {
-						$converted_value = $wpd_amount_paid; 
-					}
-
-                    // Amounts
-                    if ( $is_expense_paid ) {
-                        $total_amount_paid += $converted_value;
-                        $total_paid_expense_count++;
-                    } else {
-                        $total_amount_unpaid += $converted_value;
-                        $total_unpaid_expense_count++;
-                    }
-
-                    $total_amount += $converted_value;
-                    $total_expense_count ++;
-                    $total_recurring_expense_count++;
-
-                    if ( is_array($suppliers) && ! empty($suppliers) ) {
-
-                        foreach( $suppliers as $supplier ) {
-
-                            $supplier_id = $supplier->term_id;
-                            $supplier_name = $supplier->name;
-                            $supplier_slug = $supplier->slug;
-                            $supplier_parent_id = $supplier->parent;
-                            $supplier_names_string[] = $supplier_name;
-
-                            if ( ! isset( $categorized_data['supplier_expense_data'][$supplier_slug]) ) $categorized_data['supplier_expense_data'][$supplier_slug] = $expense_data_array;
-
-                            $categorized_data['supplier_expense_data'][$supplier_slug]['total_expense_count']++;
-                            $categorized_data['supplier_expense_data'][$supplier_slug]['total_amount']             += $converted_value;
-                            $categorized_data['supplier_expense_data'][$supplier_slug]['total_amount_paid']        += ( $is_expense_paid ) ? $converted_value : 0;
-                            $categorized_data['supplier_expense_data'][$supplier_slug]['total_amount_unpaid']      += ( ! $is_expense_paid ) ? $converted_value : 0;
-                            $categorized_data['supplier_expense_data'][$supplier_slug]['label']                    = $supplier_name;
-                            $categorized_data['supplier_expense_data'][$supplier_slug]['slug']                     = $supplier_slug;
-                            $categorized_data['supplier_expense_data'][$supplier_slug]['id']                       = $supplier_id;
-                            $categorized_data['supplier_expense_data'][$supplier_slug]['parent_id']                = $supplier_parent_id;
-                            $categorized_data['supplier_expense_data'][$supplier_slug]['unique_expenses'][]        = $unique_id;
-
-                        }
-                    }
-
-					// Expense Type Calculations
-					if ( is_array($expense_type) ) {
-
-                        // Tax expenses
-						foreach( $expense_type as $expense ) {
-
-                            $expense_type_id = $expense->term_id;
-                            $expense_type_name = $expense->name;
-                            $expense_type_slug = $expense->slug;
-                            $expense_type_parent_id = $expense->parent;
-                            $expense_type_names_string[] = $expense_type_name;
-
-                            // This is a parent expense
-							if ( $expense_type_parent_id === 0 ) {
-
-                                // Setup Default
-                                if ( ! isset( $parent_expense_by_type[$expense_type_slug]) ) $parent_expense_by_type[$expense_type_slug] = $expense_data_array;
-
-                                // Only build child expense data when its been set
-                                $parent_expense_by_type[$expense_type_slug]['total_expense_count']++;
-                                $parent_expense_by_type[$expense_type_slug]['total_amount']             += $converted_value;
-                                $parent_expense_by_type[$expense_type_slug]['total_amount_paid']        += ( $is_expense_paid ) ? $converted_value : 0;
-                                $parent_expense_by_type[$expense_type_slug]['total_amount_unpaid']      += ( ! $is_expense_paid ) ? $converted_value : 0;
-                                $parent_expense_by_type[$expense_type_slug]['label']                    = $expense_type_name;
-                                $parent_expense_by_type[$expense_type_slug]['slug']                     = $expense_type_slug;
-                                $parent_expense_by_type[$expense_type_slug]['id']                       = $expense_type_id;
-                                $parent_expense_by_type[$expense_type_slug]['parent_id']                = $expense_type_parent_id;
-                                $parent_expense_by_type[$expense_type_slug]['unique_expenses'][]        = $unique_id;
-
-							} else {
-
-                                // Setup Default
-                                if ( ! isset( $child_expense_by_type[$expense_type_slug]) ) $child_expense_by_type[$expense_type_slug] = $expense_data_array;
-
-                                // Parent cat details
-                                $parent_category 		    = get_term_by( 'id', $expense_type_parent_id, 'expense_category' );
-                                $parent_expense_type_name 	= ( is_a($parent_category, 'WP_Term') ) ? $parent_category->name : 'Unknown';
-                                $parent_expense_type_slug 	= ( is_a($parent_category, 'WP_Term') ) ? $parent_category->slug : null;
-                                $parent_expense_type_id 	= ( is_a($parent_category, 'WP_Term') ) ? $parent_category->id : null;
-
-                                // Only build child expense data when its been set
-                                $child_expense_by_type[$expense_type_slug]['total_expense_count']++;
-                                $child_expense_by_type[$expense_type_slug]['total_amount']             += $converted_value;
-                                $child_expense_by_type[$expense_type_slug]['total_amount_paid']        += ( $is_expense_paid ) ? $converted_value : 0;
-                                $child_expense_by_type[$expense_type_slug]['total_amount_unpaid']      += ( ! $is_expense_paid ) ? $converted_value : 0;
-                                $child_expense_by_type[$expense_type_slug]['label']                    = $expense_type_name;
-                                $child_expense_by_type[$expense_type_slug]['slug']                     = $expense_type_slug;
-                                $child_expense_by_type[$expense_type_slug]['id']                       = $expense_type_id;
-                                $child_expense_by_type[$expense_type_slug]['parent_id']                = $expense_type_parent_id;
-                                $child_expense_by_type[$expense_type_slug]['parent_expense_label']     = $parent_expense_type_name;
-                                $child_expense_by_type[$expense_type_slug]['unique_expenses'][]        = $unique_id;
-
-                                // Try add the data into the parent if it's not been set
-                                if ( ! is_null($parent_expense_type_slug) ) {
-
-                                    // Check if the array exists yet & setup if required
-                                    if ( ! isset($parent_expense_by_type[$parent_expense_type_slug]) ) $parent_expense_by_type[$parent_expense_type_slug] = $expense_data_array;
-
-                                    // Check if this unique expense exists, and add it to the parent if not set
-                                    if ( ! in_array( $unique_id, $parent_expense_by_type[$parent_expense_type_slug]['unique_expenses'] ) ) {
-
-                                        $parent_expense_by_type[$parent_expense_type_slug]['total_expense_count']++;
-                                        $parent_expense_by_type[$parent_expense_type_slug]['total_amount']             += $converted_value;
-                                        $parent_expense_by_type[$parent_expense_type_slug]['total_amount_paid']        += ( $is_expense_paid ) ? $converted_value : 0;
-                                        $parent_expense_by_type[$parent_expense_type_slug]['total_amount_unpaid']      += ( ! $is_expense_paid ) ? $converted_value : 0;
-                                        $parent_expense_by_type[$parent_expense_type_slug]['label']                    = $parent_expense_type_name;
-                                        $parent_expense_by_type[$parent_expense_type_slug]['slug']                     = $parent_expense_type_slug;
-                                        $parent_expense_by_type[$parent_expense_type_slug]['id']                       = $parent_expense_type_id;
-                                        $parent_expense_by_type[$parent_expense_type_slug]['parent_id']                = 0;
-                                        $parent_expense_by_type[$parent_expense_type_slug]['unique_expenses'][]        = $unique_id;
-
-                                    }
-
-                                }
-
-							}
-
-						}
-
-					}
-
-                    // Date Calculations
-                    $date_created_unix      = strtotime( $wpd_date_paid );
-                    $date_range_key         = gmdate( $date_format, $date_created_unix );
-
-                    // Clean up expense type string
-                    $expense_type_names_string = ( is_array($expense_type_names_string) && ! empty($expense_type_names_string) ) ? implode(', ', $expense_type_names_string ) : $expense_type_names_string = 'Unknown';
-
-                    if( isset($data_by_date['amount_paid_by_date'][$date_range_key]) ) {
-                        if ( $is_expense_paid ) {
-                            $data_by_date['amount_paid_by_date'][$date_range_key] += $converted_value;
-                        } else {
-                            $data_by_date['amount_unpaid_by_date'][$date_range_key] += $converted_value;
-                        }
-                    }
-
-                    // Store organised data
-                    $data_table[$unique_id] = array(
-                        'title' 				=> wp_strip_all_tags(html_entity_decode(get_the_title($post_id), ENT_QUOTES, 'UTF-8')),
-                        'date_created'          => get_the_date('Y-m-d'),
-                        'date_paid_unix' 		=> strtotime( $wpd_date_paid ),
-                        'date_paid' 			=> $wpd_date_paid,
-                        'reference' 			=> $wpd_expense_reference,
-                        'amount_paid'			=> $wpd_amount_paid,
-                        'amount_paid_currency' 	=> $wpd_amount_paid_currency,
-                        'amount_paid_converted' => $converted_value,
-                        'converted_to_currency' => $store_currency,
-                        'expense_type' 			=> $expense_type_name,
-                        'expense_type_string'   => $expense_type_names_string,
-                        'recurring_expense'     => 1,
-                        'recurring_frequency'   => $recurring_expense_frequency,
-                        'post_id'				=> $post_id,
-                        'reference_number'      => $wpd_expense_reference,
-                        'is_paid'               => $is_expense_paid
-                    );
-
-                    // Setup next date to check with validation to prevent infinite loops
-				$new_timestamp = false;
-
-				if ( $recurring_expense_frequency === 'daily' ) {
-
-					$new_timestamp = strtotime( '+1 day', $recurring_expense_date_started_string );
-
-				} elseif ( $recurring_expense_frequency === 'weekly' ) {
-
-					$new_timestamp = strtotime( '+1 week', $recurring_expense_date_started_string );
-
-				} elseif ( $recurring_expense_frequency === 'fortnightly' ) {
-
-					$new_timestamp = strtotime( '+2 weeks', $recurring_expense_date_started_string );
-
-				} elseif ( $recurring_expense_frequency === 'monthly' ) {
-
-					$new_timestamp = strtotime( '+1 month', $recurring_expense_date_started_string );
-
-				} elseif ( $recurring_expense_frequency === 'quarterly' ) {
-
-					$new_timestamp = strtotime( '+3 months', $recurring_expense_date_started_string );
-
-				} elseif ( $recurring_expense_frequency === 'yearly' || $recurring_expense_frequency === 'annually' ) {
-
-					$new_timestamp = strtotime( '+1 year', $recurring_expense_date_started_string );
-
-				} else {
-
-					// Unknown frequency - default to monthly to prevent infinite loop
-					$new_timestamp = strtotime( '+1 month', $recurring_expense_date_started_string );
-
-				}
-
-				// Validate timestamp advancement to prevent infinite loops
-				if ( $new_timestamp === false || $new_timestamp <= $recurring_expense_date_started_string ) {
-					wpdai_write_log( "Recurring expense loop validation failed for expense ID: {$post_id}. Breaking loop to prevent infinite loop.", 'expense_error' );
-					break;
-				}
-
-				$recurring_expense_date_started_string = $new_timestamp;
-
-			}
-
-			} else {
-
-				// Non recurring calculations
-                $unique_id = $post_id;
-
-                // Make conversions if required
-				if ( $wpd_amount_paid_currency != $store_currency ) {
-
-					$converted_value = wpdai_convert_currency( $wpd_amount_paid_currency, $store_currency, $wpd_amount_paid );
-
-				} else {
-
-					$converted_value = $wpd_amount_paid;
-
-				}
-
-                // Amounts
-                if ( $is_expense_paid ) {
-                    $total_amount_paid += $converted_value;
-                    $total_paid_expense_count++;
-                } else {
-                    $total_amount_unpaid += $converted_value;
-                    $total_unpaid_expense_count++;
-                }
-
-                // Update totals
-                $total_amount += $converted_value;
-                $total_expense_count ++;
-                $total_standard_expense_count++;
-
-                // Supplier Calculations
-                if ( is_array($suppliers) && ! empty($suppliers) ) {
-
-                    foreach( $suppliers as $supplier ) {
-
-                        $supplier_id = $supplier->term_id;
-                        $supplier_name = $supplier->name;
-                        $supplier_slug = $supplier->slug;
-                        $supplier_parent_id = $supplier->parent;
-                        $supplier_names_string[] = $supplier_name;
-
-                        if ( ! isset( $categorized_data['supplier_expense_data'][$supplier_slug]) ) $categorized_data['supplier_expense_data'][$supplier_slug] = $expense_data_array;
-
-                        $categorized_data['supplier_expense_data'][$supplier_slug]['total_expense_count']++;
-                        $categorized_data['supplier_expense_data'][$supplier_slug]['total_amount']             += $converted_value;
-                        $categorized_data['supplier_expense_data'][$supplier_slug]['total_amount_paid']        += ( $is_expense_paid ) ? $converted_value : 0;
-                        $categorized_data['supplier_expense_data'][$supplier_slug]['total_amount_unpaid']      += ( ! $is_expense_paid ) ? $converted_value : 0;
-                        $categorized_data['supplier_expense_data'][$supplier_slug]['label']                    = $supplier_name;
-                        $categorized_data['supplier_expense_data'][$supplier_slug]['slug']                     = $supplier_slug;
-                        $categorized_data['supplier_expense_data'][$supplier_slug]['id']                       = $supplier_id;
-                        $categorized_data['supplier_expense_data'][$supplier_slug]['parent_id']                = $supplier_parent_id;
-                        $categorized_data['supplier_expense_data'][$supplier_slug]['unique_expenses'][]        = $unique_id;
-
-                    }
-                }
-
-                // Expense Type Calculations
-                if ( is_array($expense_type) ) {
-
-                    // Tax expenses
-                    foreach( $expense_type as $expense ) {
-
-                        $expense_type_id = $expense->term_id;
-                        $expense_type_name = $expense->name;
-                        $expense_type_slug = $expense->slug;
-                        $expense_type_parent_id = $expense->parent;
-                        $expense_type_names_string[] = $expense_type_name;
-
-                        // This is a parent expense
-                        if ( $expense_type_parent_id == 0 ) {
-
-                            // Setup Default
-                            if ( ! isset( $parent_expense_by_type[$expense_type_slug]) ) $parent_expense_by_type[$expense_type_slug] = $expense_data_array;
-
-                            // Only build child expense data when its been set
-                            $parent_expense_by_type[$expense_type_slug]['total_expense_count']++;
-                            $parent_expense_by_type[$expense_type_slug]['total_amount']             += $converted_value;
-                            $parent_expense_by_type[$expense_type_slug]['total_amount_paid']        += ( $is_expense_paid ) ? $converted_value : 0;
-                            $parent_expense_by_type[$expense_type_slug]['total_amount_unpaid']      += ( ! $is_expense_paid ) ? $converted_value : 0;
-                            $parent_expense_by_type[$expense_type_slug]['label']                    = $expense_type_name;
-                            $parent_expense_by_type[$expense_type_slug]['slug']                     = $expense_type_slug;
-                            $parent_expense_by_type[$expense_type_slug]['id']                       = $expense_type_id;
-                            $parent_expense_by_type[$expense_type_slug]['parent_id']                = $expense_type_parent_id;
-                            $parent_expense_by_type[$expense_type_slug]['unique_expenses'][]        = $unique_id;
-
-                        } else {
-
-                            // Setup Default
-                            if ( ! isset( $child_expense_by_type[$expense_type_slug]) ) $child_expense_by_type[$expense_type_slug] = $expense_data_array;
-
-                            // Parent cat details
-                            $parent_category 		    = get_term_by( 'id', $expense_type_parent_id, 'expense_category' );
-                            $parent_expense_type_name 	= ( is_a($parent_category, 'WP_Term') ) ? $parent_category->name : 'Unknown';
-                            $parent_expense_type_slug 	= ( is_a($parent_category, 'WP_Term') ) ? $parent_category->slug : null;
-                            $parent_expense_type_id 	= ( is_a($parent_category, 'WP_Term') ) ? $parent_category->id : null;
-
-                            // Only build child expense data when its been set
-                            $child_expense_by_type[$expense_type_slug]['total_expense_count']++;
-                            $child_expense_by_type[$expense_type_slug]['total_amount']             += $converted_value;
-                            $child_expense_by_type[$expense_type_slug]['total_amount_paid']        += ( $is_expense_paid ) ? $converted_value : 0;
-                            $child_expense_by_type[$expense_type_slug]['total_amount_unpaid']      += ( ! $is_expense_paid ) ? $converted_value : 0;
-                            $child_expense_by_type[$expense_type_slug]['label']                    = $expense_type_name;
-                            $child_expense_by_type[$expense_type_slug]['slug']                     = $expense_type_slug;
-                            $child_expense_by_type[$expense_type_slug]['id']                       = $expense_type_id;
-                            $child_expense_by_type[$expense_type_slug]['parent_id']                = $expense_type_parent_id;
-                            $child_expense_by_type[$expense_type_slug]['parent_expense_label']     = $parent_expense_type_name;
-                            $child_expense_by_type[$expense_type_slug]['unique_expenses'][]        = $unique_id;
-
-                            // Try add the data into the parent if it's not been set
-                            if ( ! is_null($parent_expense_type_slug) ) {
-
-                                // Check if the array exists yet & setup if required
-                                if ( ! isset($parent_expense_by_type[$parent_expense_type_slug]) ) $parent_expense_by_type[$parent_expense_type_slug] = $expense_data_array;
-
-                                // Check if this unique expense exists, and add it to the parent if not set
-                                if ( ! in_array( $unique_id, $parent_expense_by_type[$parent_expense_type_slug]['unique_expenses'] ) ) {
-
-                                    $parent_expense_by_type[$parent_expense_type_slug]['total_expense_count']++;
-                                    $parent_expense_by_type[$parent_expense_type_slug]['total_amount']             += $converted_value;
-                                    $parent_expense_by_type[$parent_expense_type_slug]['total_amount_paid']        += ( $is_expense_paid ) ? $converted_value : 0;
-                                    $parent_expense_by_type[$parent_expense_type_slug]['total_amount_unpaid']      += ( ! $is_expense_paid ) ? $converted_value : 0;
-                                    $parent_expense_by_type[$parent_expense_type_slug]['label']                    = $parent_expense_type_name;
-                                    $parent_expense_by_type[$parent_expense_type_slug]['slug']                     = $parent_expense_type_slug;
-                                    $parent_expense_by_type[$parent_expense_type_slug]['id']                       = $parent_expense_type_id;
-                                    $parent_expense_by_type[$parent_expense_type_slug]['parent_id']                = 0;
-                                    $parent_expense_by_type[$parent_expense_type_slug]['unique_expenses'][]        = $unique_id;
-
-                                }
-
-                            }
-
-                        }
-
-                    }
-
-                }
-
-                // Date Calculations
-                $date_created_unix = strtotime( $wpd_date_paid );
-                $date_range_key = gmdate( $date_format, $date_created_unix );
-                if( isset($data_by_date['amount_paid_by_date'][$date_range_key]) || isset($data_by_date['amount_unpaid_by_date'][$date_range_key]) ) {
-                    if ( $is_expense_paid ) {
-                        $data_by_date['amount_paid_by_date'][$date_range_key] += $converted_value;
-                    } else {
-                        $data_by_date['amount_unpaid_by_date'][$date_range_key] += $converted_value;
-                    }
-                }
-
-                // Clean up expense type string
-                $expense_type_names_string = ( is_array($expense_type_names_string) && ! empty($expense_type_names_string) ) ? implode(', ', $expense_type_names_string ) : $expense_type_names_string = 'Unknown';
-
-                // Store organised data
-                $data_table[$post_id] = array(
-                    'title' 				=> wp_strip_all_tags(html_entity_decode(get_the_title($post_id), ENT_QUOTES, 'UTF-8')),
-                    'date_created'          => get_the_date('Y-m-d'),
-                    'date_paid_unix' 		=> strtotime( $wpd_date_paid ),
-                    'date_paid' 			=> $wpd_date_paid,
-                    'reference' 			=> $wpd_expense_reference,
-                    'amount_paid'			=> $wpd_amount_paid,
-                    'amount_paid_currency' 	=> $wpd_amount_paid_currency,
-                    'amount_paid_converted' => $converted_value,
-                    'converted_to_currency' => $store_currency,
-                    'expense_type' 			=> $expense_type_name,
-                    'expense_type_string'   => $expense_type_names_string,
-                    'recurring_expense'     => 0,
-                    'recurring_frequency'   => null,
-                    'post_id'				=> $post_id,
-                    'reference_number'      => $wpd_expense_reference,
-                    'is_paid'               => $is_expense_paid
-                );
-                
-			}
-
-		} // End foreach
-
-        // Sort arrays
-        // Parent Expense Taxonomy
-        if ( isset($parent_expense_by_type) && is_array($parent_expense_by_type) && ! empty($parent_expense_by_type) ) {
-            // $parent_expense_by_type = wpdai_sort_multi_level_array( $parent_expense_by_type, 'total' );
-            foreach( $parent_expense_by_type as $key => &$value ) {
-                unset($value['id']);
-                unset($value['label']);
-                unset($value['parent_expense_label']);
-                unset($value['parent_id']);
-                unset($value['slug']);
-                unset($value['unique_expenses']);
-                $parent_expense_by_type[$key]['percent_of_total_expenses'] = wpdai_calculate_percentage( $value['total_amount'], $total_amount );
-            }
-        } else {
-            $parent_expense_by_type = array();
-        }
-        // Child expense by taxonomy
-        if ( isset($child_expense_by_type) && is_array($child_expense_by_type) && ! empty($child_expense_by_type) ) {
-            // $child_expense_by_type = wpdai_sort_multi_level_array( $child_expense_by_type, 'total' );
-            foreach( $child_expense_by_type as $key => &$value ) {
-                unset($value['id']);
-                unset($value['label']);
-                unset($value['parent_expense_label']);
-                unset($value['parent_id']);
-                unset($value['slug']);
-                unset($value['unique_expenses']);
-                $child_expense_by_type[$key]['percent_of_total_expenses'] = wpdai_calculate_percentage( $value['total_amount'], $total_amount );
-            }
-        } else {
-            $child_expense_by_type = array();
-        }
-
-        // Clean suppliers
-        if ( is_array($categorized_data['supplier_expense_data']) && ! empty($categorized_data['supplier_expense_data']) ) {
-
-            foreach( $categorized_data['supplier_expense_data'] as $key => &$value ) {
-                unset($value['id']);
-                unset($value['label']);
-                unset($value['parent_id']);
-                unset($value['slug']);
-                unset($value['unique_expenses']);
-                $value['percent_of_total_expenses'] = wpdai_calculate_percentage( $value['total_amount'], $total_amount );
-            }
-
-        } else {
-            $categorized_data['supplier_expense_data'] = array();
-        }
-
-        // Store totals
-        $totals['total_amount_paid']  		            = $total_amount_paid;
-        $totals['total_amount_unpaid']  		        = $total_amount_unpaid;
-        $totals['total_amount']                         = $total_amount;
-        $totals['average_expenses_per_day'] 	        = wpdai_divide( $total_amount, $n_days_period );
-        $totals['total_expense_count']                  = $total_expense_count;
-        $totals['total_unpaid_expense_count']           = $total_unpaid_expense_count;
-        $totals['total_paid_expense_count']             = $total_paid_expense_count;
-        $totals['total_standard_expense_count']         = $total_standard_expense_count;
-        $totals['total_recurring_expense_count']        = $total_recurring_expense_count;
-        $totals['total_unique_recurring_expense_count'] = $total_unique_recurring_expense_count;
-        $totals['daily_average_expense_count']          = wpdai_divide( $total_expense_count, $n_days_period );
-        $totals['daily_average_expense_amount']         = $totals['average_expenses_per_day']; // New key
-        
-        // Store categorized data
-        $categorized_data['parent_expense_type_categories'] 			= $parent_expense_by_type;
-        $categorized_data['child_expense_type_categories'] 			    = $child_expense_by_type;
-        // $categorized_data['expense_post_ids']             = $expense_post_ids;
-        
-        $total_db_records                               = count( $expense_post_ids );
-
-        $data_by_date = $this->maybe_create_no_data_found_date_array( $data_by_date );
-        
-        // Calculate execution time
-        $execution_time = microtime(true) - $start_time + $this->get_data('expenses', 'execution_time');
-        
-        // Configure return object
-        $expense_data = array(
-            'totals' => $totals,
-            'categorized_data' => $categorized_data,
-            'data_by_date' => $data_by_date,
-            'data_table' => array(
-                'expenses' => $data_table
-            ),
-            'total_db_records' => $total_db_records,
-            'execution_time' => $execution_time
-        );
-
-        // Store the data into the prop
-        $this->set_data( 'expenses', $expense_data );
-
-        // Return Results
-        return $expense_data;
-
-    }
-
-    /**
-     * 
-     *  Fetches Facebook Campaign data and organises it for use
-     * 
-     *  Available Filters: 
-     * 
-     *      date_from (will filter against _wpd_campaign_start)
-     *      date_to (will filter against _wpd_campaign_start)
-     *      campaign_id
-     *      campaign_date_override This will return data from within the campaign_id's date (requires campaign_id)
-     *  
-     **/
-    public function fetch_facebook_campaign_data() {
-
-        // Start execution timer
-        $start_time = microtime(true);
-
-    	$start 	                    = $this->get_date_from(); 	// date in the past
-        $end 	                    = $this->get_date_to(); 	// current date
-        $date_format                = $this->get_filter( 'date_format_string' );
-        $unix_date_from             = strtotime( $start . ' 23:59:59' ); // Make sure it includes orders that day
-        $unix_date_to               = strtotime( $end . ' 23:59:59' ); // Make sure it includes orders that day
-        $store_currency             = wpdai_get_store_currency();
-
-        $default_product_sales_data = array(
-            'product_name' => '',
-            'product_sku' => '',
-            'product_id' => '',
-            'total_product_revenue' => 0,
-            'total_product_revenue_excluding_tax' => 0,
-            'total_product_cost' => 0,
-            'total_product_profit' => 0,
-            'total_qty_sold' => 0,
-            'total_times_sold' => 0,
-            'average_margin' => 0
-        );
-
-        // Variables to fill in and pass as data
-        $totals = array(
-            'campaigns_found' => 0,
-            'campaign_spend' => 0,
-            'campaign_spend_per_active_day' => 0,
-            'campaign_order_count' => 0,
-            'campaign_order_revenue' => 0,
-            'campaign_order_costs' => 0,
-            'campaign_order_profit' => 0,
-            'campaign_order_margin' => 0,
-            'campaign_order_conversion_rate' => 0,
-            'campaign_cost_per_order' => 0,
-            'campaign_total_profit' => 0,
-            'campaign_average_order_value' => 0,
-            'campaign_largest_order_value' => 0,
-            'campaign_total_profit_per_day' => 0,
-            'campaign_revenue_roas' => 0,
-            'campaign_adjusted_roas' => 0,
-            'campaign_adjusted_margin' => 0,
-            'campaign_orders_per_click' => 0,
-            'campaign_orders_per_active_campaign_day' => 0,
-            'campaign_api_revenue' => 0,
-            'campaign_api_profit' => 0,
-            'campaign_api_roas' => 0,
-            'campaign_api_conversions' => 0,
-            'campaign_api_transactions' => 0,
-            'campaign_api_conversion_rate' => 0,
-            'campaign_total_days_active' => 0,
-            'campaign_average_days_active' => 0,
-            'campaign_impressions' => 0,
-            'campaign_clicks' => 0,
-            'campaign_average_cpc' => 0,
-            'campaign_average_ctr' => 0,
-            'campaign_add_to_carts' => 0,
-            'ad_account_currency_converted' => 0,
-            'new_customer_count' => 0,
-            'cost_per_new_customer' => 0,
-            'total_customer_count' => 0,
-            'cost_per_customer' => 0,
-            'all_campaigns_count' => 0,
-        );
-        $categorized_data = array(
-            'customers_by_email_address' => array(),
-            'filtered_campaigns' => array(),
-            'all_campaigns' => array(),
-            'order_ids' => array(),
-            'order_data' => array(),
-            'product_data' => array()
-        );
-        $data_table = array();
-        $data_table_orders = array();
-        $total_db_records = 0;
-        $data_by_date = array(
-            'campaign_spend_by_date' => $this->get_data_by_date_range_container(),
-            'campaign_order_revenue_by_date' => $this->get_data_by_date_range_container(),
-            'campaign_api_revenue_by_date' => $this->get_data_by_date_range_container(),
-            'campaign_order_profit_by_date' => $this->get_data_by_date_range_container(),
-            'campaign_api_profit_by_date' => $this->get_data_by_date_range_container(),
-            'campaign_actual_profit_by_date' => $this->get_data_by_date_range_container(),
-            'campaign_clicks_by_date' => $this->get_data_by_date_range_container(),
-            'campaign_add_to_carts_by_date' => $this->get_data_by_date_range_container(),
-            'campaign_order_count_by_date' => $this->get_data_by_date_range_container(),
-            'campaign_new_customer_count_by_date' => $this->get_data_by_date_range_container(), // New
-            'campaign_cost_per_new_customer_by_date' => $this->get_data_by_date_range_container(), // New
-            'campaign_cost_per_order_placed_by_date' => $this->get_data_by_date_range_container(), // New
-            'campaign_conversion_rate_by_date' => $this->get_data_by_date_range_container(), // New
-            'campaign_api_transactions_by_date' => $this->get_data_by_date_range_container(),
-            'campaign_actual_roas_by_date' => $this->get_data_by_date_range_container(),
-            'campaign_api_roas_by_date' => $this->get_data_by_date_range_container(),
-            'campaign_comparison_actual_profit_by_date' => array( 'no_data_available' => $this->get_data_by_date_range_container() ),
-            'campaign_comparison_campaign_spend_by_date' => array( 'no_data_available' => $this->get_data_by_date_range_container() ),
-        );
-
-        $filtered_campaign_count        = 0;
-        $fb_ad_spend 					= 0;
-        $fb_ad_revenue 					= 0;
-        $fb_ad_profit 					= 0;
-        $fb_ad_transactions 			= 0;
-        $fb_ad_atc 						= 0; 	
-        $fb_ad_clicks 					= 0; 	
-        $fb_total_days_active 			= 0;
-
-        // It's a calculation
-        $categorized_data['all_campaigns']        = $this->fetch_all_meta_campaign_ids();
-        $totals['all_campaigns_count']            = ( is_array($categorized_data['all_campaigns']) ) ? count($categorized_data['all_campaigns']) : 0;
-        $categorized_data['order_data']           = $this->get_order_ids_with_meta_campaign_ids();
-
-        /**
-         *
-         *	Change this to just use the query above, filter by date found in meta
-         *
-         */
-        // Run main query
-		$facebook_campaign_args = array(
-
-			'fields' 			=> 'ids',
-		    'post_type' 		=> 'facebook_campaign',
-		    'post_status' 		=> 'publish',
-		    'posts_per_page' 	=> -1,
-		    'orderby' 			=> 'meta_value',
-		    'meta_key' 			=> '_wpd_campaign_start',
-		    'order' 			=> 'DESC',
-
-		);
-
-		/**
-         *
-         *	Setup filters
-         *
-         */
-        if ( $this->get_data_filter( 'facebook_campaigns', 'campaign' ) && is_array( $this->get_data_filter( 'facebook_campaigns', 'campaign' ) ) ) {
-
-        	$facebook_campaign_args['meta_query'][] = array(
-	            'key' 		=> '_wpd_campaign_id',
-	            'value' 	=> $this->get_data_filter( 'facebook_campaigns', 'campaign' ),
-	            'compare' => 'IN',
-	        );
-
-        }
-
-        if ( WPD_AI_PRO ) {
-            $facebook_query 		= new WP_Query( $facebook_campaign_args );
-            $campaign_post_ids 		= $facebook_query->posts;
-        } else {
-            $campaign_post_ids = array();
-        }
-
-        $total_db_records       = count( $campaign_post_ids );
-
-        // Insert 0 in case we have anonymous orders (forces a failure in our get_meta calls)
-        $campaign_post_ids[] = 0;
-
-        // Cycle through found campaigns
-        foreach( $campaign_post_ids as $post_id ) {
-
-        	// Store Variables
-        	$campaign_id 		                        = ( ! empty( get_post_meta( $post_id, '_wpd_campaign_id', true ) ) ) ? (int) get_post_meta( $post_id, '_wpd_campaign_id', true ) : 'unknown';
-        	$campaign_totals 	                        = get_post_meta( $post_id, '_wpd_totals_data', true );
-        	$campaign_daily 	                        = get_post_meta( $post_id, '_wpd_daily_data', true );
-        	$campaign_name 	                            = ( ! empty( get_post_meta( $post_id, '_wpd_campaign_name', true ) ) ) ? get_post_meta( $post_id, '_wpd_campaign_name', true ) : 'Unknown Campaign';
-            $totals['ad_account_currency_converted']    = (is_array($campaign_totals) && isset($campaign_totals['currency_converted']) && $campaign_totals['currency_converted']) ? 1 : 0;
-
-            /**
-             *  2. Organise the array
-             **/
-            $campaign_status                = null;
-            $campaign_start                 = $campaign_totals['campaign_start'] ?? null;
-            $campaign_stop                  = $campaign_totals['campaign_stop'] ?? null;
-            $campaign_currency              = $campaign_totals['account_currency'] ?? $store_currency;
-            $campaign_ad_account_name       = $campaign_totals['account_name'] ?? null;
-            $campaign_ad_account_id         = $campaign_totals['account_id'] ?? null;
-            $campaign_last_updated_unix     = $campaign_totals['last_updated_unix'] ?? null;
-            $is_campaign_spend_converted    = false;
-
-            // If we've converted currency
-            if ( $campaign_currency != $store_currency ) $is_campaign_spend_converted = true;
-
-            // These need to be calculated based on daily's
-            $campaign_days_active           = 0; // Iteration
-            $campaign_spend                 = 0; // Iteration
-            $campaign_spend_unconverted     = 0; // Iteration
-            $campaign_impressions           = 0; // Iteration
-            $campaign_clicks                = 0; // Iteration
-            $campaign_conversions           = 0; // Iteration
-            $campaign_conversion_value      = 0; // Iteration
-            $campaign_add_to_carts          = 0; // Iteration
-            $campaign_average_cpc           = 0; // Calculation
-            $campaign_average_ctr           = 0; // Calculation
-            $campaign_conversion_rate       = 0; // Calculation
-            $campaign_roas                  = 0; // Calculation
-
-            // Matching up with store data
-            $campaign_order_revenue         = 0;
-            $campaign_order_costs           = 0;
-            $campaign_order_profit          = 0;
-            $campaign_total_profit          = 0;
-            $campaign_order_count           = 0;
-            $campaign_new_customer_count    = 0;
-            
-            /**
-             *  1. Iterate through daily data
-             **/
-            if ( is_array($campaign_daily) && ! empty($campaign_daily) )  {
-
-                foreach( $campaign_daily as $fb_date => $fb_data ) {
-
-                    $date_key = $this->convert_date_string( $fb_date, $date_format );
-                    $campaign_daily_data_date_unix = strtotime( $date_key );
-
-                    // Skip order if it's not within the date range we are looking at
-                    if ( $campaign_daily_data_date_unix < $unix_date_from || $campaign_daily_data_date_unix > $unix_date_to ) {
-                        continue;
-                    }
-
-                    // Vars
-                    (float) $spend 									= $fb_data['spend'];
-                    (float) $purchase_value 						= $fb_data['purchase_value'];
-                    (float) $profit 								= $purchase_value - $spend;
-                    (int) $clicks 									= $fb_data['outbound_clicks'];
-                    (int) $add_to_carts 							= $fb_data['add_to_cart'];
-                    (int) $purchases 								= $fb_data['purchases'];
-
-                    // Remove the no data available container
-                    if ( isset($data_by_date['campaign_comparison_actual_profit_by_date']['no_data_available']) ) $data_by_date['campaign_comparison_actual_profit_by_date'] = array();
-                    if ( isset($data_by_date['campaign_comparison_campaign_spend_by_date']['no_data_available']) ) $data_by_date['campaign_comparison_campaign_spend_by_date'] = array();
-
-                    // Setup campaign specific performance
-                    if ( ! isset( $data_by_date['campaign_comparison_actual_profit_by_date'][$campaign_name]) ) $data_by_date['campaign_comparison_actual_profit_by_date'][$campaign_name] = $this->get_data_by_date_range_container();
-                    if ( ! isset( $data_by_date['campaign_comparison_campaign_spend_by_date'][$campaign_name]) ) $data_by_date['campaign_comparison_campaign_spend_by_date'][$campaign_name] = $this->get_data_by_date_range_container();
-
-                    // Cost
-                    if ( isset($data_by_date['campaign_spend_by_date'][$date_key]) ) $data_by_date['campaign_spend_by_date'][$date_key] += $fb_data['spend'];
-
-                    // Clicks
-                    if ( isset($data_by_date['campaign_clicks_by_date'][$date_key]) ) $data_by_date['campaign_clicks_by_date'][$date_key] += $fb_data['outbound_clicks'];
-   
-                    // API Revenue
-                    if ( isset($data_by_date['campaign_api_revenue_by_date'][$date_key]) ) $data_by_date['campaign_api_revenue_by_date'][$date_key] += $fb_data['purchase_value'];
-
-                    // API Profit
-                    if ( isset($data_by_date['campaign_api_profit_by_date'][$date_key]) ) $data_by_date['campaign_api_profit_by_date'][$date_key] += $profit;
-
-                    // Add To Carts
-                    if ( isset($data_by_date['campaign_add_to_carts_by_date'][$date_key]) ) $data_by_date['campaign_add_to_carts_by_date'][$date_key] += $fb_data['add_to_cart'];
-
-                    // API Order Count
-                    if ( isset($data_by_date['campaign_api_transactions_by_date'][$date_key]) ) $data_by_date['campaign_api_transactions_by_date'][$date_key] += $fb_data['purchases'];
-
-                    // API ROAS
-                    if ( isset($data_by_date['campaign_api_roas_by_date'][$date_key]) ) $data_by_date['campaign_api_roas_by_date'][$date_key] += $fb_data['roas'];
-
-                    // Campaign Specific Ad Spend
-                    if ( isset($data_by_date['campaign_comparison_campaign_spend_by_date'][$campaign_name][$date_key]) ) $data_by_date['campaign_comparison_campaign_spend_by_date'][$campaign_name][$date_key] += $fb_data['spend'];
-
-                    // Calculations Stored For Totals
-                    $fb_ad_spend 			+= $spend;
-                    $fb_ad_revenue 			+= $purchase_value;
-                    $fb_ad_profit 			+= $profit;
-                    $fb_ad_clicks 			+= $clicks;
-                    $fb_ad_atc 				+= $add_to_carts;
-                    $fb_ad_transactions		+= $purchases;
-                    $fb_total_days_active 	++;
-
-                    $campaign_days_active++; // Iteration
-                    $campaign_spend                 += $fb_data['spend']; // Iteration
-                    $campaign_impressions           += $fb_data['impressions']; // Iteration
-                    $campaign_clicks                += $fb_data['outbound_clicks']; // Iteration
-                    $campaign_conversions           += $fb_data['purchases']; // Iteration
-                    $campaign_conversion_value      += $fb_data['purchase_value']; // Iteration
-                    $campaign_add_to_carts          += $fb_data['add_to_cart']; // Iteration
-                    $campaign_spend_unconverted     += $fb_data['raw_spend'];
-
-                }
-
-            }
-        
-            /**
-             *  2. Iterate through order data
-             **/
-            if ( isset($categorized_data['order_data'][$campaign_id]) && is_array($categorized_data['order_data'][$campaign_id]) ) {
-
-                // Loop through order data from campaign
-                foreach( $categorized_data['order_data'][$campaign_id] as $order_id => $order_data ) {
-
-                    // Add our date key for the report
-                    $order_date_unix = $order_data['date_created'];
-                    $date_key = gmdate( $date_format, $order_date_unix );
-
-                    // Skip order if it's not within the date range we are looking at, should be all good we're looking at the right date range ?
-                    if ( $order_date_unix < $unix_date_from || $order_date_unix > $unix_date_to ) {
-                        continue;
-                    }
-
-                    // Add order ID to totals
-                    if ( ! in_array($order_id, $categorized_data['order_ids']) ) $categorized_data['order_ids'][] = $order_id;
-
-                    $campaign_order_count++;
-                    $data_table_orders[$order_id] = $order_data;
-
-                    // Build campaign specific totals
-                    $campaign_order_revenue += $order_data['total_order_revenue'];
-                    $campaign_order_costs += $order_data['total_order_cost'];
-                    $campaign_order_profit += $order_data['total_order_profit'];
-
-                    // New Customers Count
-                    if ( $order_data['new_returning_customer'] == 'new' ) {
-                        $campaign_new_customer_count++;
-                        if ( isset($data_by_date['campaign_new_customer_count_by_date'][$date_key]) ) $data_by_date['campaign_new_customer_count_by_date'][$date_key]++;
-                    } 
-
-                    // Log all Customers
-                    $categorized_data['customers_by_email_address'][] = $order_data['billing_email'];
-
-                    // Setup default container for campaign comparisons
-                    if (! isset($data_by_date['campaign_comparison_actual_profit_by_date'][$campaign_name]) ) {
-                        $data_by_date['campaign_comparison_actual_profit_by_date'][$campaign_name] = $this->get_data_by_date_range_container();
-                    }                     
-
-                    // Add data to daily's
-                    if ( isset($data_by_date['campaign_order_revenue_by_date'][$date_key]) ) $data_by_date['campaign_order_revenue_by_date'][$date_key] += $order_data['total_order_revenue'];
-                    if ( isset($data_by_date['campaign_order_profit_by_date'][$date_key]) ) $data_by_date['campaign_order_profit_by_date'][$date_key] += $order_data['total_order_profit'];
-                    if ( isset($data_by_date['campaign_order_count_by_date'][$date_key]) ) $data_by_date['campaign_order_count_by_date'][$date_key]++;
-                    if ( isset($data_by_date['campaign_comparison_actual_profit_by_date'][$campaign_name][$date_key]) ) $data_by_date['campaign_comparison_actual_profit_by_date'][$campaign_name][$date_key] += $order_data['total_order_profit'];
-                
-                    // Product Sales Data
-                    if (is_array($order_data['product_data']) && ! empty($order_data['product_data'])) {
-
-                        foreach($order_data['product_data'] as $product_id => $product_data) {
-                            
-                            // Use product name as key
-                            $product_name = ($product_data['product_name']) ? $product_data['product_name'] : 'Unknown Product';
-                            
-                            // Load Default Product Sales Data
-                            if ( ! isset($categorized_data['product_data'][$product_name]) ) $categorized_data['product_data'][$product_name] = $default_product_sales_data;
-
-                            // Add Product Data
-                            $categorized_data['product_data'][$product_name]['product_name'] = $product_data['product_name'];
-                            $categorized_data['product_data'][$product_name]['product_sku'] = $product_data['sku'];
-                            $categorized_data['product_data'][$product_name]['product_id'] = $product_data['product_id'];
-                            $categorized_data['product_data'][$product_name]['total_product_revenue'] += $product_data['product_revenue'];
-                            $categorized_data['product_data'][$product_name]['total_product_revenue_excluding_tax'] += $product_data['product_revenue_excluding_tax'];
-                            $categorized_data['product_data'][$product_name]['total_product_cost'] += $product_data['total_cost_of_goods'];
-                            $categorized_data['product_data'][$product_name]['total_product_profit'] += $product_data['total_profit'];
-                            $categorized_data['product_data'][$product_name]['total_qty_sold'] += $product_data['qty_sold'];
-                            $categorized_data['product_data'][$product_name]['total_times_sold']++;
-                            $categorized_data['product_data'][$product_name]['average_margin'] = wpdai_calculate_margin( $categorized_data['product_data'][$product_name]['total_product_profit'], $categorized_data['product_data'][$product_name]['total_product_revenue_excluding_tax'] );
-
-                        }
-
-                    }
-
-                }
-
-            }
-
-            // If we have no spend or revenue, assume it's not active
-            if ( $campaign_spend === 0 && $campaign_order_revenue === 0 ) {
-                continue;
-            }
-
-            // Campaign Totals - API Values
-            $campaign_average_cpc           = wpdai_divide( $campaign_spend, $campaign_clicks ); // Calculation
-            $campaign_average_ctr           = wpdai_calculate_percentage( $campaign_clicks, $campaign_impressions ); // Calculation
-            $campaign_conversion_rate       = wpdai_calculate_percentage( $campaign_conversions, $campaign_clicks ); // Calculation
-            $campaign_roas                  = wpdai_divide( $campaign_conversion_value, $campaign_spend ); // Calculation
-
-            // Campaign Totals - Store Calculated Values
-            $campaign_total_profit          = $campaign_order_profit - $campaign_spend;
-            $campaign_order_conversion_rate = wpdai_calculate_percentage( $campaign_order_count, $campaign_clicks );
-            $campaign_order_revenue_roas    = wpdai_divide( $campaign_order_revenue, $campaign_spend );
-            $campaign_adjusted_roas         = wpdai_divide( $campaign_total_profit, $campaign_spend );
-            $campaign_adjusted_margin       = wpdai_calculate_margin( $campaign_total_profit, $campaign_order_revenue );
-            $campaign_cost_per_order        = wpdai_divide( $campaign_order_count, $campaign_spend );
-            $campaign_cost_per_new_customer = wpdai_divide( $campaign_new_customer_count, $campaign_spend );
-
-            // Iterate active campaigns
-            $filtered_campaign_count++;
-
-            // Setup Organised Arrays
-            $data_table[$campaign_name] = array(
-                'post_id' => $post_id,
-                'campaign_last_updated_unix' => $campaign_last_updated_unix,
-                'campaign_name' => $campaign_name,
-                'campaign_id' => $campaign_id,
-                'campaign_ad_account_name' => $campaign_ad_account_name,
-                'campaign_ad_account_id' => $campaign_ad_account_id,
-                'campaign_start' => $campaign_start,
-                'campaign_stop' => $campaign_stop,
-                'campaign_status' => $campaign_status,
-                'campaign_days_active' => $campaign_days_active,
-                'campaign_currency' => $campaign_currency,
-                'campaign_converted' => $is_campaign_spend_converted,
-                'campaign_spend_unconverted' => $campaign_spend_unconverted,
-                'campaign_spend' => $campaign_spend,
-                'campaign_impressions' => $campaign_impressions,
-                'campaign_clicks' => $campaign_clicks,
-                'campaign_add_to_carts' => $campaign_add_to_carts,
-                'campaign_api_conversions' => $campaign_conversions,
-                'campaign_api_conversion_value' => $campaign_conversion_value,
-                'campaign_api_conversion_rate' => $campaign_conversion_rate,
-                'campaign_api_roas' => $campaign_roas,
-                'campaign_average_cpc' => $campaign_average_cpc,
-                'campaign_average_ctr' => $campaign_average_ctr,
-                'campaign_order_revenue' => $campaign_order_revenue,
-                'campaign_order_costs' => $campaign_order_costs,
-                'campaign_order_profit' => $campaign_order_profit,
-                'campaign_order_count' => $campaign_order_count,
-                'campaign_order_conversion_rate' => $campaign_order_conversion_rate,
-                'campaign_cost_per_order' => $campaign_cost_per_order,
-                'campaign_total_profit' => $campaign_total_profit,
-                'campaign_revenue_roas' => $campaign_order_revenue_roas,
-                'campaign_adjusted_roas' => $campaign_adjusted_roas,
-                'campaign_adjusted_margin' => $campaign_adjusted_margin,
-                'campaign_new_customer_count' => $campaign_new_customer_count,
-                'campaing_cost_per_new_customer' => $campaign_cost_per_new_customer
-            );
-
-            $categorized_data['filtered_campaigns'][$campaign_id] = $campaign_name;
-
-            /**
-             *  4. Setup the totals
-             **/
-            // Add filtered campaigns to data
-            $totals['campaign_spend'] += $campaign_spend;
-            $totals['campaign_api_revenue'] += $campaign_conversion_value;
-            $totals['campaign_api_profit'] += ( $campaign_conversion_value - $campaign_spend );
-            $totals['campaign_api_conversions'] += $campaign_conversions;
-            $totals['campaign_total_days_active'] += $campaign_days_active;
-            $totals['campaign_impressions'] += $campaign_impressions;
-            $totals['campaign_clicks'] += $campaign_clicks;
-            $totals['campaign_average_cpc'] += $campaign_average_cpc;
-            $totals['campaign_average_ctr'] += $campaign_clicks;
-            $totals['campaign_order_revenue'] += $campaign_order_revenue;
-            $totals['campaign_order_costs'] += $campaign_order_costs;
-            $totals['campaign_order_profit'] += $campaign_order_profit;
-            $totals['campaign_order_count'] += $campaign_order_count; // Happens earlier
-            $totals['campaign_total_profit'] += $campaign_total_profit;
-            $totals['new_customer_count'] += $campaign_new_customer_count;
-
-        }
-
-        // Do some calculated dailys
-        foreach( $this->get_data_by_date_range_container() as $date_key => $empty_data ) {
-
-            // Actual Profit By Date
-            $data_by_date['campaign_actual_profit_by_date'][$date_key] = $data_by_date['campaign_order_profit_by_date'][$date_key] - $data_by_date['campaign_spend_by_date'][$date_key];
-                       
-            // Actual ROAS by date
-            $data_by_date['campaign_actual_roas_by_date'][$date_key] = wpdai_divide( $data_by_date['campaign_order_profit_by_date'][$date_key], $data_by_date['campaign_spend_by_date'][$date_key], 2 );
-
-            // Cost Per New Customer
-            $data_by_date['campaign_cost_per_new_customer_by_date'][$date_key] = wpdai_divide( $data_by_date['campaign_spend_by_date'][$date_key], $data_by_date['campaign_new_customer_count_by_date'][$date_key], 2 );
-            
-            // Cost Per Order Placed
-            $data_by_date['campaign_cost_per_order_placed_by_date'][$date_key] = wpdai_divide( $data_by_date['campaign_spend_by_date'][$date_key], $data_by_date['campaign_order_count_by_date'][$date_key], 2 );
-
-            // Conversion Rate
-            $data_by_date['campaign_conversion_rate_by_date'][$date_key] = wpdai_calculate_percentage( $data_by_date['campaign_order_count_by_date'][$date_key], $data_by_date['campaign_clicks_by_date'][$date_key], 2 );
-
-            // Campaign Specific Array
-            foreach( $data_by_date['campaign_comparison_actual_profit_by_date'] as $campaign_name => $campaign_date_data ) {
-
-                if ( ! isset($data_by_date['campaign_comparison_campaign_spend_by_date'][$campaign_name]) ) continue;
-                if ( isset($data_by_date['campaign_comparison_campaign_spend_by_date'][$campaign_name][$date_key]) ) $data_by_date['campaign_comparison_actual_profit_by_date'][$campaign_name][$date_key] -= $data_by_date['campaign_comparison_campaign_spend_by_date'][$campaign_name][$date_key];
-
-            }
-
-        }
-
-        // Final calculations
-        $totals['campaigns_found'] = $filtered_campaign_count;
-        $totals['campaign_api_roas'] = wpdai_divide( $totals['campaign_api_revenue'], $totals['campaign_spend'] );
-        $totals['campaign_api_conversion_rate'] = wpdai_calculate_percentage( $totals['campaign_api_conversions'], $totals['campaign_clicks'] );
-        $totals['campaign_average_cpc'] = wpdai_divide( $totals['campaign_spend'], $totals['campaign_clicks'] );
-        $totals['campaign_average_ctr'] = wpdai_calculate_percentage( $totals['campaign_clicks'], $totals['campaign_impressions'] );
-        $totals['campaign_order_margin'] = wpdai_calculate_margin( $totals['campaign_order_profit'], $totals['campaign_order_revenue'] );
-        $totals['campaign_order_conversion_rate'] = wpdai_calculate_percentage( $totals['campaign_order_count'], $totals['campaign_clicks'] );
-        $totals['campaign_revenue_roas'] = wpdai_divide( $totals['campaign_order_revenue'], $totals['campaign_spend'] );
-        $totals['campaign_adjusted_roas'] = wpdai_divide( $totals['campaign_total_profit'], $totals['campaign_spend'] );
-        $totals['campaign_adjusted_margin'] = wpdai_calculate_margin( $totals['campaign_total_profit'], $totals['campaign_order_revenue'] );
-        $totals['campaign_cost_per_order'] = wpdai_divide( $totals['campaign_spend'], $totals['campaign_order_count'] );
-        $totals['campaign_average_days_active'] = wpdai_divide( $totals['campaign_total_days_active'], $totals['campaigns_found'] );
-        $totals['campaign_total_profit_per_day'] = wpdai_divide( $totals['campaign_total_profit'], $totals['campaign_total_days_active'] );
-        $totals['campaign_average_order_value'] = wpdai_divide( $totals['campaign_order_revenue'], $totals['campaign_order_count'] );
-        $totals['campaign_orders_per_active_campaign_day'] = wpdai_divide( $totals['campaign_order_count'], $totals['campaign_total_days_active'] );
-        $totals['campaign_orders_per_click'] = wpdai_divide( $totals['campaign_order_count'], $totals['campaign_clicks'] );
-        $totals['campaign_spend_per_active_day'] = wpdai_divide( $totals['campaign_spend'], $totals['campaign_total_days_active'] );
-        $categorized_data['customers_by_email_address'] = array_unique( $categorized_data['customers_by_email_address'] ); // New
-        $totals['total_customer_count'] = count( $categorized_data['customers_by_email_address'] ); // New
-        $totals['cost_per_new_customer'] = wpdai_divide( $totals['campaign_spend'], $totals['new_customer_count'] ); // New
-        $totals['cost_per_customer'] = wpdai_divide( $totals['campaign_spend'], $totals['total_customer_count'] ); // New
-
-        // Create no data found array
-        $data_by_date = $this->maybe_create_no_data_found_date_array( $data_by_date );
-
-        // Calculate execution time
-        $execution_time = microtime(true) - $start_time + $this->get_data('facebook_campaigns', 'execution_time');
-
-        // Configure return object
-        $facebook_campaign_data = array(
-            'totals'            => $totals,
-            'categorized_data'  => $categorized_data,
-            'data_by_date'      => $data_by_date,
-            'data_table'        => array(
-                'campaigns' => $data_table,
-                'orders' => $data_table_orders,
-                'products' => $categorized_data['product_data']
-            ),
-            'total_db_records'  => $total_db_records,
-            'execution_time' => $execution_time
-        );
-
-        // Store the data into the prop
-        $this->set_data( 'facebook_campaigns', $facebook_campaign_data );
-
-        // Return Results
-        return $facebook_campaign_data;
-
-    }
-
-    /**
-     * 
-     *  Fetches Google Campaign Data and organised it for use
-     * 
-     *  Available Filters: 
-     * 
-     *      date_from (will filter against _wpd_campaign_start)
-     *      date_to (will filter against _wpd_campaign_start)
-     *      campaign_id
-     *      campaign_date_override This will return data from within the campaign_id's date (requires campaign_id)
-     *  
-     **/
-    public function fetch_google_campaign_data() {
-
-        // Start execution timer
-        $start_time = microtime(true);
-
-        $default_product_sales_data = array(
-            'product_name' => '',
-            'product_sku' => '',
-            'product_id' => '',
-            'total_product_revenue' => 0,
-            'total_product_revenue_excluding_tax' => 0,
-            'total_product_cost' => 0,
-            'total_product_profit' => 0,
-            'total_qty_sold' => 0,
-            'total_times_sold' => 0,
-            'average_margin' => 0
-        );
-
-        // Variables to fill in and pass as data
-        $totals = array(
-            'campaigns_found' => 0,
-            'campaign_spend' => 0,
-            'campaign_spend_per_active_day' => 0,
-            'campaign_order_count' => 0,
-            'campaign_order_revenue' => 0,
-            'campaign_order_costs' => 0,
-            'campaign_order_profit' => 0,
-            'campaign_order_margin' => 0,
-            'campaign_order_conversion_rate' => 0,
-            'campaign_cost_per_order' => 0,
-            'campaign_total_profit' => 0,
-            'campaign_average_order_value' => 0,
-            'campaign_largest_order_value' => 0,
-            'campaign_total_profit_per_day' => 0,
-            'campaign_revenue_roas' => 0,
-            'campaign_adjusted_roas' => 0,
-            'campaign_adjusted_margin' => 0,
-            'campaign_orders_per_click' => 0,
-            'campaign_orders_per_active_campaign_day' => 0,
-            'campaign_api_revenue' => 0,
-            'campaign_api_profit' => 0,
-            'campaign_api_roas' => 0,
-            'campaign_api_conversions' => 0,
-            'campaign_api_conversion_rate' => 0,
-            'campaign_total_days_active' => 0,
-            'campaign_average_days_active' => 0,
-            'campaign_impressions' => 0,
-            'campaign_clicks' => 0,
-            'campaign_average_cpc' => 0,
-            'campaign_average_ctr' => 0,
-            'new_customer_count' => 0,
-            'cost_per_new_customer' => 0,
-            'total_customer_count' => 0,
-            'cost_per_customer' => 0,
-            'all_campaigns_count' => 0,
-        );
-        $categorized_data = array(
-            'customers_by_email_address' => array(),
-            'filtered_campaigns' => array(),
-            'all_campaigns' => array(),
-            'order_ids' => array(),
-            'order_data' => array(),
-            'product_data' => array()
-        );
-        $data_table = array();
-        $data_table_orders = array();
-        $total_db_records = 0;
-        $data_by_date = array(
-            'campaign_spend_by_date' => $this->get_data_by_date_range_container(),
-            'campaign_order_revenue_by_date' => $this->get_data_by_date_range_container(),
-            'campaign_order_profit_by_date' => $this->get_data_by_date_range_container(),
-            'campaign_order_count_by_date' => $this->get_data_by_date_range_container(),
-            'campaign_new_customer_count_by_date' => $this->get_data_by_date_range_container(), // New
-            'campaign_cost_per_new_customer_by_date' => $this->get_data_by_date_range_container(), // New
-            'campaign_cost_per_order_placed_by_date' => $this->get_data_by_date_range_container(), // New
-            'campaign_conversion_rate_by_date' => $this->get_data_by_date_range_container(), // New
-            'campaign_clicks_by_date' => $this->get_data_by_date_range_container(), // Unique Per Day
-            'campaign_actual_profit_by_date' => $this->get_data_by_date_range_container(), // Unique Per Day
-            'campaign_roas_by_date' => $this->get_data_by_date_range_container(),
-            'campaign_actual_roas_by_date' => $this->get_data_by_date_range_container(),
-            'campaign_comparison_campaign_spend_by_date' => array( 'no_data_available' => $this->get_data_by_date_range_container() ),
-            'campaign_comparison_actual_profit_by_date' => array( 'no_data_available' => $this->get_data_by_date_range_container() ),
-        );
-
-        // Variables we will use in calculations
-        $filter = $this->get_filter();
-        $date_from = $this->get_date_from();
-        $date_to = $this->get_date_to();
-        $unix_date_from = strtotime($date_from . ' 23:59:59' );
-        $unix_date_to = strtotime($date_to . ' 23:59:59' );
-        $search_by_campaign_id = false; // Null for now
-        $date_format = $this->get_filter( 'date_format_string' );
-        $store_currency = wpdai_get_store_currency();
-
-        // Let's get a list of all campaigns
-        if ( WPD_AI_PRO ) {
-            $all_campaigns = $this->fetch_all_google_campaign_ids();
-            $orders_with_campaign_ids = $this->get_order_ids_with_google_campaign_ids();
-        } else {
-            $orders_with_campaign_ids = array();
-            $all_campaigns = array();
-        }
-
-        // Store the campaigns in the categorized_data key
-        $categorized_data['all_campaigns'] = $all_campaigns;
-        $totals['all_campaigns_count'] = ( is_array($all_campaigns) ) ? count($all_campaigns) : 0;
-        $categorized_data['order_data'] = $orders_with_campaign_ids;
-
-        // Run main query
-		$campaign_args = array(
-			'fields' 			=> 'ids',
-		    'post_type' 		=> 'google_ad_campaign',
-		    'post_status' 		=> 'publish',
-		    'posts_per_page' 	=> -1,
-		    'orderby' 			=> 'meta_value',
-		    'meta_key' 			=> '_wpd_campaign_start',
-		    'order' 			=> 'DESC',
-		);
-
-		/**
-         *
-         *	Setup filter
-         *
-         */
-        if ( $this->get_data_filter( 'google_campaigns', 'campaign' ) && is_array( $this->get_data_filter( 'google_campaigns', 'campaign' ) ) ) {
-
-        	$campaign_args['meta_query'][] = array(
-	            'key' 		=> '_wpd_campaign_id',
-	            'value' 	=> $this->get_data_filter( 'google_campaigns', 'campaign' ),
-	            'compare' => 'IN',
-	        );
-
-        }
-
-        // Execute Query
-        if ( WPD_AI_PRO ) {
-            $query 		= new WP_Query( $campaign_args );
-            $campaign_post_ids 	= $query->posts;
-        } else {
-            $campaign_post_ids = array();
-        }
-
-        // Insert 0 in case we have anonymous orders (forces a failure in our get_meta calls)
-        $campaign_post_ids[] = 0;
-
-        // Safety check the results
-        if ( is_array($campaign_post_ids) && ! empty($campaign_post_ids) ) {
-
-            // Get post count
-            $total_db_records = count( $campaign_post_ids );
-            
-            // Gather Post ID meta
-            foreach( $campaign_post_ids as $post_id ) {
-
-                /**
-                 *  1. Capture additional Meta and store that as our Raw Data
-                 **/
-                // Get meta
-                $campaign_meta = array();
-                $post_meta = get_post_meta( $post_id, '', true );
-
-                // Clean the meta
-                if ( is_array($post_meta) && ! empty($post_meta) ) {
-
-                    foreach( $post_meta as $meta_key => $meta_value_array ) {
-
-                        // Unserialize Array
-                        if ( $meta_key === '_wpd_campaign_daily_data' ) {
-                            $meta_value_array[0] = unserialize( $meta_value_array[0] );
-                        }
-
-                        // Store the value in a clean array
-                        $campaign_meta[$meta_key] = $meta_value_array[0];
-
-                    }
-
-                }
-
-                /**
-                 *  2. Organise the array
-                 **/
-                $campaign_name                  = $campaign_meta['_wpd_campaign_name'] ?? 'Unknown Campaign';
-                $campaign_id                    = $campaign_meta['_wpd_campaign_id'] ?? 'unknown';
-                $campaign_status                = $campaign_meta['_wpd_campaign_status'] ?? null;
-                $campaign_start                 = $campaign_meta['_wpd_campaign_start'] ?? null;
-                $campaign_stop                  = $campaign_meta['_wpd_campaign_stop'] ?? null;
-                $campaign_currency              = $campaign_meta['_wpd_campaign_currency'] ?? $store_currency;
-                $campaign_ad_account_name       = $campaign_meta['_wpd_campaign_ad_account_name'] ?? null;
-                $campaign_ad_account_id         = $campaign_meta['_wpd_campaign_ad_account_id'] ?? null;
-                $campaign_last_updated_unix     = $campaign_meta['_wpd_campaign_last_updated_unix'] ?? null;
-                $campaign_daily_data            = $campaign_meta['_wpd_campaign_daily_data'] ?? null;
-
-                // These need to be calculated based on daily's
-                $campaign_days_active           = 0; // Iteration
-                $campaign_spend                 = 0; // Iteration
-                $campaign_impressions           = 0; // Iteration
-                $campaign_clicks                = 0; // Iteration
-                $campaign_conversions           = 0; // Iteration
-                $campaign_conversion_value      = 0; // Iteration
-                $campaign_average_cpc           = 0; // Calculation
-                $campaign_average_ctr           = 0; // Calculation
-                $campaign_conversion_rate       = 0; // Calculation
-                $campaign_roas                  = 0; // Calculation
-                $is_campaign_spend_converted    = false;
-                $campaign_spend_unconverted     = 0;
-
-                // If we've converted currency
-                if ( $campaign_currency != $store_currency ) $is_campaign_spend_converted = true; 
-
-                // Matching up with store data
-                $campaign_order_revenue = 0;
-                $campaign_order_costs = 0;
-                $campaign_order_profit = 0;
-                $campaign_total_profit = 0;
-                $campaign_order_count = 0;
-                $campaign_new_customer_count = 0;
-
-                /**
-                 *  1. Iterate through daily data
-                 **/
-                if ( is_array($campaign_daily_data) && ! empty($campaign_daily_data)) {
-
-                    foreach( $campaign_daily_data as $date_key => $data ) {
-
-                        $date_key = $this->convert_date_string( $date_key, $date_format );
-                        $campaign_daily_data_date_unix = strtotime( $date_key );
-
-                        // Skip order if it's not within the date range we are looking at
-                        if ( $campaign_daily_data_date_unix < $unix_date_from || $campaign_daily_data_date_unix > $unix_date_to ) {
-                            continue;
-                        }
-
-                        // Remove the no data available container
-                        if ( isset($data_by_date['campaign_comparison_actual_profit_by_date']['no_data_available']) ) $data_by_date['campaign_comparison_actual_profit_by_date'] = array();
-                        if ( isset($data_by_date['campaign_comparison_campaign_spend_by_date']['no_data_available']) ) $data_by_date['campaign_comparison_campaign_spend_by_date'] = array();
-
-                        // Setup campaign specific performance
-                        if ( ! isset( $data_by_date['campaign_comparison_actual_profit_by_date'][$campaign_name]) ) $data_by_date['campaign_comparison_actual_profit_by_date'][$campaign_name] = $this->get_data_by_date_range_container();
-                        if ( ! isset( $data_by_date['campaign_comparison_campaign_spend_by_date'][$campaign_name]) ) $data_by_date['campaign_comparison_campaign_spend_by_date'][$campaign_name] = $this->get_data_by_date_range_container();
-
-                        // Cost
-                        if ( isset($data_by_date['campaign_spend_by_date'][$date_key]) ) $data_by_date['campaign_spend_by_date'][$date_key] += $data['cost'];
-    
-                        // Clicks
-                        if ( isset($data_by_date['campaign_clicks_by_date'][$date_key]) ) $data_by_date['campaign_clicks_by_date'][$date_key] += $data['clicks'];
-        
-                        // Campaign Specific Ad Spend
-                        if ( isset($data_by_date['campaign_comparison_campaign_spend_by_date'][$campaign_name][$date_key]) ) $data_by_date['campaign_comparison_campaign_spend_by_date'][$campaign_name][$date_key] += $data['cost'];
-
-                        $campaign_days_active++; // Iteration
-                        $campaign_spend_unconverted     += $data['raw_cost'];
-                        $campaign_spend                 += $data['cost']; // Iteration
-                        $campaign_impressions           += $data['impressions']; // Iteration
-                        $campaign_clicks                += $data['clicks']; // Iteration
-                        $campaign_conversions           += $data['conversions']; // Iteration
-                        $campaign_conversion_value      += $data['conversion_value']; // Iteration
-
-                    }
-
-                }
-
-                /**
-                 *  2. Iterate through order data
-                 **/
-                if ( isset($categorized_data['order_data'][$campaign_id]) && is_array($categorized_data['order_data'][$campaign_id]) ) {
-
-                    // Loop through order data from campaign
-                    foreach( $categorized_data['order_data'][$campaign_id] as $order_id => $order_data ) {
-
-                        // Add our date key for the report
-                        $order_date_unix = $order_data['date_created'];
-                        $date_key = gmdate( $date_format, $order_date_unix );
-
-                        // Skip order if it's not within the date range we are looking at
-                        if ( $order_date_unix < $unix_date_from || $order_date_unix > $unix_date_to ) {
-                            continue;
-                        }
-
-                        // Add order ID to totals
-                        if ( ! in_array($order_id, $categorized_data['order_ids']) ) $categorized_data['order_ids'][] = $order_id;
-
-                        // Orders within period
-                        $campaign_order_count++;
-                        $data_table_orders[$order_id] = $order_data;
-
-                        // Build campaign specific totals
-                        $campaign_order_revenue += $order_data['total_order_revenue'];
-                        $campaign_order_costs += $order_data['total_order_cost'];
-                        $campaign_order_profit += $order_data['total_order_profit'];
-
-                        // New Customers Count
-                        if ( $order_data['new_returning_customer'] == 'new' ) {
-                            $campaign_new_customer_count++;
-                            if ( isset($data_by_date['campaign_new_customer_count_by_date'][$date_key]) ) $data_by_date['campaign_new_customer_count_by_date'][$date_key]++;
-                        } 
-
-                        // Log all Customers
-                        $categorized_data['customers_by_email_address'][] = $order_data['billing_email'];
-
-                        // Remove the no data available container
-                        if ( isset($data_by_date['campaign_comparison_campaign_spend_by_date']['no_data_available']) ) $data_by_date['campaign_comparison_campaign_spend_by_date'] = array();
-
-                        // Setup default container for campaign comparisons
-                        if (! isset($data_by_date['campaign_comparison_actual_profit_by_date'][$campaign_name]) ) $data_by_date['campaign_comparison_actual_profit_by_date'][$campaign_name] = $this->get_data_by_date_range_container();
-
-                        // Add data to daily's
-                        if ( isset($data_by_date['campaign_order_revenue_by_date'][$date_key]) ) $data_by_date['campaign_order_revenue_by_date'][$date_key] += $order_data['total_order_revenue'];
-                        if ( isset($data_by_date['campaign_order_profit_by_date'][$date_key]) ) $data_by_date['campaign_order_profit_by_date'][$date_key] += $order_data['total_order_profit'];
-                        if ( isset($data_by_date['campaign_order_count_by_date'][$date_key]) ) $data_by_date['campaign_order_count_by_date'][$date_key]++;
-                        if ( isset($data_by_date['campaign_comparison_actual_profit_by_date'][$campaign_name][$date_key]) ) $data_by_date['campaign_comparison_actual_profit_by_date'][$campaign_name][$date_key] += $order_data['total_order_profit'];
-                        
-                        // Product Sales Data
-                        if (is_array($order_data['product_data']) && ! empty($order_data['product_data'])) {
-
-                            foreach($order_data['product_data'] as $product_id => $product_data) {
-
-                                // Use product name as key
-                                $product_name = ($product_data['product_name']) ? $product_data['product_name'] : 'Unknown Product';
-                                
-                                // Load Default Product Sales Data
-                                if ( ! isset($categorized_data['product_data'][$product_name]) ) $categorized_data['product_data'][$product_name] = $default_product_sales_data;
-
-                                // Add Product Data
-                                $categorized_data['product_data'][$product_name]['product_name'] = $product_data['product_name'];
-                                $categorized_data['product_data'][$product_name]['product_sku'] = $product_data['sku'];
-                                $categorized_data['product_data'][$product_name]['product_id'] = $product_data['product_id'];
-                                $categorized_data['product_data'][$product_name]['total_product_revenue'] += $product_data['product_revenue'];
-                                $categorized_data['product_data'][$product_name]['total_product_revenue_excluding_tax'] += $product_data['product_revenue_excluding_tax'];
-                                $categorized_data['product_data'][$product_name]['total_product_cost'] += $product_data['total_cost_of_goods'];
-                                $categorized_data['product_data'][$product_name]['total_product_profit'] += $product_data['total_profit'];
-                                $categorized_data['product_data'][$product_name]['total_qty_sold'] += $product_data['qty_sold'];
-                                $categorized_data['product_data'][$product_name]['total_times_sold']++;
-                                $categorized_data['product_data'][$product_name]['average_margin'] = wpdai_calculate_margin( $categorized_data['product_data'][$product_name]['total_product_profit'], $categorized_data['product_data'][$product_name]['total_product_revenue_excluding_tax'] );
-
-                            }
-
-                        }
-
-                    }
-
-                }
-
-                // If we have no spend or revenue, assume it's not active
-                if ( $campaign_spend === 0 && $campaign_order_revenue === 0 ) {
-                    continue;
-                }
-
-                // Campaign Totals - API Values
-                $campaign_average_cpc           = wpdai_divide( $campaign_spend, $campaign_clicks ); // Calculation
-                $campaign_average_ctr           = wpdai_calculate_percentage( $campaign_clicks, $campaign_impressions ); // Calculation
-                $campaign_conversion_rate       = wpdai_calculate_percentage( $campaign_conversions, $campaign_clicks ); // Calculation
-                $campaign_roas                  = wpdai_divide( $campaign_conversion_value, $campaign_spend ); // Calculation
-
-                // Campaign Totals - Store Calculated Values
-                $campaign_total_profit          = $campaign_order_profit - $campaign_spend;
-                $campaign_order_conversion_rate = wpdai_calculate_percentage( $campaign_order_count, $campaign_clicks );
-                $campaign_order_revenue_roas    = wpdai_divide( $campaign_order_revenue, $campaign_spend );
-                $campaign_adjusted_roas         = wpdai_divide( $campaign_total_profit, $campaign_spend );
-                $campaign_adjusted_margin       = wpdai_calculate_margin( $campaign_total_profit, $campaign_order_revenue );
-                $campaign_cost_per_order        = wpdai_divide( $campaign_order_count, $campaign_spend );
-                $campaign_cost_per_new_customer = wpdai_divide( $campaign_new_customer_count, $campaign_spend );
-
-                // Setup Organised Arrays
-                $data_table[$campaign_name] = array(
-                    'post_id' => $post_id,
-                    'campaign_last_updated_unix' => $campaign_last_updated_unix,
-                    'campaign_name' => $campaign_name,
-                    'campaign_id' => $campaign_id,
-                    'campaign_ad_account_name' => $campaign_ad_account_name,
-                    'campaign_ad_account_id' => $campaign_ad_account_id,
-                    'campaign_start' => $campaign_start,
-                    'campaign_stop' => $campaign_stop,
-                    'campaign_status' => $campaign_status,
-                    'campaign_days_active' => $campaign_days_active,
-                    'campaign_currency' => $campaign_currency,
-                    'campaign_converted' => $is_campaign_spend_converted,
-                    'campaign_spend_unconverted' => $campaign_spend_unconverted,
-                    'campaign_spend' => $campaign_spend,
-                    'campaign_impressions' => $campaign_impressions,
-                    'campaign_clicks' => $campaign_clicks,
-                    'campaign_api_conversions' => $campaign_conversions,
-                    'campaign_api_conversion_value' => $campaign_conversion_value,
-                    'campaign_api_conversion_rate' => $campaign_conversion_rate,
-                    'campaign_api_roas' => $campaign_roas,
-                    'campaign_average_cpc' => $campaign_average_cpc,
-                    'campaign_average_ctr' => $campaign_average_ctr,
-                    'campaign_order_revenue' => $campaign_order_revenue,
-                    'campaign_order_costs' => $campaign_order_costs,
-                    'campaign_order_profit' => $campaign_order_profit,
-                    'campaign_order_count' => $campaign_order_count,
-                    'campaign_order_conversion_rate' => $campaign_order_conversion_rate,
-                    'campaign_cost_per_order' => $campaign_cost_per_order,
-                    'campaign_total_profit' => $campaign_total_profit,
-                    'campaign_revenue_roas' => $campaign_order_revenue_roas,
-                    'campaign_adjusted_roas' => $campaign_adjusted_roas,
-                    'campaign_adjusted_margin' => $campaign_adjusted_margin,
-                    'campaign_new_customer_count' => $campaign_new_customer_count,
-                    'campaing_cost_per_new_customer' => $campaign_cost_per_new_customer
-                );
-
-                /**
-                 *  4. Setup the totals
-                 **/
-                // Add filtered campaigns to data
-                $categorized_data['filtered_campaigns'][$campaign_id] = $campaign_name;
-                $totals['campaigns_found'] = count( $data_table );
-                $totals['campaign_spend'] += $campaign_spend;
-                $totals['campaign_api_revenue'] += $campaign_conversion_value;
-                $totals['campaign_api_profit'] += ( $campaign_conversion_value - $campaign_spend );
-                $totals['campaign_api_conversions'] += $campaign_conversions;
-                $totals['campaign_total_days_active'] += $campaign_days_active;
-                $totals['campaign_impressions'] += $campaign_impressions;
-                $totals['campaign_clicks'] += $campaign_clicks;
-                $totals['campaign_average_cpc'] += $campaign_average_cpc;
-                $totals['campaign_average_ctr'] += $campaign_clicks;
-                $totals['campaign_order_revenue'] += $campaign_order_revenue;
-                $totals['campaign_order_costs'] += $campaign_order_costs;
-                $totals['campaign_order_profit'] += $campaign_order_profit;
-                $totals['campaign_order_count'] += $campaign_order_count;
-                $totals['campaign_total_profit'] += $campaign_total_profit;
-                $totals['new_customer_count'] += $campaign_new_customer_count;
-
-            }
-
-        }
-
-        // Do some calculated dailys
-        foreach( $this->get_data_by_date_range_container() as $date_key => $empty_data ) {
-
-            // Actual Profit By Date
-            $data_by_date['campaign_actual_profit_by_date'][$date_key] = $data_by_date['campaign_order_profit_by_date'][$date_key] - $data_by_date['campaign_spend_by_date'][$date_key];
-           
-            // Campaign ROAS By Date
-            $data_by_date['campaign_roas_by_date'][$date_key] = wpdai_divide( $data_by_date['campaign_order_revenue_by_date'][$date_key], $data_by_date['campaign_spend_by_date'][$date_key], 2 );
-            
-            // Actual ROAS by date
-            $data_by_date['campaign_actual_roas_by_date'][$date_key] = wpdai_divide( $data_by_date['campaign_order_profit_by_date'][$date_key], $data_by_date['campaign_spend_by_date'][$date_key], 2 );
-
-            // Cost Per New Customer
-            $data_by_date['campaign_cost_per_new_customer_by_date'][$date_key] = wpdai_divide( $data_by_date['campaign_spend_by_date'][$date_key], $data_by_date['campaign_new_customer_count_by_date'][$date_key], 2 );
-
-            // Cost Per Order Placed
-            $data_by_date['campaign_cost_per_order_placed_by_date'][$date_key] = wpdai_divide( $data_by_date['campaign_spend_by_date'][$date_key], $data_by_date['campaign_order_count_by_date'][$date_key], 2 );
-
-            // Conversion Rate
-            $data_by_date['campaign_conversion_rate_by_date'][$date_key] = wpdai_calculate_percentage( $data_by_date['campaign_order_count_by_date'][$date_key], $data_by_date['campaign_clicks_by_date'][$date_key], 2 );
-
-            // Campaign Specific Array
-            foreach( $data_by_date['campaign_comparison_actual_profit_by_date'] as $campaign_name => $campaign_date_data ) {
-
-                if ( !isset($data_by_date['campaign_comparison_actual_profit_by_date'][$campaign_name][$date_key]) ) continue;
-                if ( isset($data_by_date['campaign_comparison_campaign_spend_by_date'][$campaign_name][$date_key]) ) $data_by_date['campaign_comparison_actual_profit_by_date'][$campaign_name][$date_key] -= $data_by_date['campaign_comparison_campaign_spend_by_date'][$campaign_name][$date_key];
-
-            }
-
-        }
-
-        // Final calculations
-        $totals['campaign_api_roas'] = wpdai_divide( $totals['campaign_api_revenue'], $totals['campaign_spend'] );
-        $totals['campaign_api_conversion_rate'] = wpdai_calculate_percentage( $totals['campaign_api_conversions'], $totals['campaign_clicks'] );
-        $totals['campaign_average_cpc'] = wpdai_divide( $totals['campaign_spend'], $totals['campaign_clicks'] );
-        $totals['campaign_average_ctr'] = wpdai_calculate_percentage( $totals['campaign_clicks'], $totals['campaign_impressions'] );
-        $totals['campaign_order_margin'] = wpdai_calculate_margin( $totals['campaign_order_profit'], $totals['campaign_order_revenue'] );
-        $totals['campaign_order_conversion_rate'] = wpdai_calculate_percentage( $totals['campaign_order_count'], $totals['campaign_clicks'] );
-        $totals['campaign_revenue_roas'] = wpdai_divide( $totals['campaign_order_revenue'], $totals['campaign_spend'] );
-        $totals['campaign_adjusted_roas'] = wpdai_divide( $totals['campaign_total_profit'], $totals['campaign_spend'] );
-        $totals['campaign_adjusted_margin'] = wpdai_calculate_margin( $totals['campaign_total_profit'], $totals['campaign_order_revenue'] );
-        $totals['campaign_cost_per_order'] = wpdai_divide( $totals['campaign_spend'], $totals['campaign_order_count'] );
-        $totals['campaign_average_days_active'] = wpdai_divide( $totals['campaign_total_days_active'], $totals['campaigns_found'] );
-        $totals['campaign_total_profit_per_day'] = wpdai_divide( $totals['campaign_total_profit'], $totals['campaign_total_days_active'] );
-        $totals['campaign_average_order_value'] = wpdai_divide( $totals['campaign_order_revenue'], $totals['campaign_order_count'] );
-        $totals['campaign_orders_per_active_campaign_day'] = wpdai_divide( $totals['campaign_order_count'], $totals['campaign_total_days_active'] );
-        $totals['campaign_orders_per_click'] = wpdai_divide( $totals['campaign_order_count'], $totals['campaign_clicks'] );
-        $totals['campaign_spend_per_active_day'] = wpdai_divide( $totals['campaign_spend'], $totals['campaign_total_days_active'] );
-        $categorized_data['customers_by_email_address'] = array_unique( $categorized_data['customers_by_email_address'] ); // New
-        $totals['total_customer_count'] = count( $categorized_data['customers_by_email_address'] ); // New
-        $totals['cost_per_new_customer'] = wpdai_divide( $totals['campaign_spend'], $totals['new_customer_count'] ); // New
-        $totals['cost_per_customer'] = wpdai_divide( $totals['campaign_spend'], $totals['total_customer_count'] ); // New
-
-        // Create no data found array
-        $data_by_date = $this->maybe_create_no_data_found_date_array( $data_by_date );
-
-        // Calculate execution time
-        $execution_time = microtime(true) - $start_time + $this->get_data('google_campaigns', 'execution_time');
-
-        // Configure return object
-        $google_campaign_data = array(
-            'totals' => $totals,
-            'categorized_data' => $categorized_data,
-            'data_by_date' => $data_by_date,
-            'data_table' => array(
-                'campaigns' => $data_table,
-                'orders' => $data_table_orders,
-                'products' => $categorized_data['product_data']
-            ),
-            'total_db_records' => $total_db_records,
-            'execution_time' => $execution_time
-        );
-
-        // Store the data into the prop
-        $this->set_data( 'google_campaigns', $google_campaign_data );
-
-        // Return Results
-        return $google_campaign_data;
-
-    }
-
-    /**
-     * 
-     *  Fetches all Google Campaign ID's and returns an associative array with id => name structure
-     * 
-     *  @return array Associative array with the Campaign ID as the key and the campaign name as the value
-     * 
-     **/
-    public function fetch_all_google_campaign_ids() {
-
-        // Return result
-        $all_campaigns = array();
-
-        // Query Args
-		$query_args = array(
-
-			'fields' 			=> 'ids',
-		    'post_type' 		=> 'google_ad_campaign',
-		    'post_status' 		=> 'publish',
-		    'posts_per_page' 	=> -1,
-		    'orderby' 			=> 'meta_value',
-		    'meta_key' 			=> '_wpd_campaign_start',
-		    'order' 			=> 'DESC',
-		);
-
-        // Execute Query
-		$query 		= new WP_Query( $query_args );
-        $post_ids 	= $query->posts;
-
-        // Loop through the found Post ID's
-        foreach( $post_ids as $post_id ) {
-
-            // Get the relevant meta data
-        	$campaign_id 		= get_post_meta( $post_id, '_wpd_campaign_id', true );
-        	$campaign_name 		= get_post_meta( $post_id, '_wpd_campaign_name', true );
-
-            // Store the results
-        	$all_campaigns[$campaign_id] = $campaign_name;
-
-        }
-
-        // Store this anon query
-        $this->set_data( 'anonymous_queries', array( 'all_google_campaigns' => $all_campaigns ) );
-
-        // Return results
-        return $all_campaigns;
-
-    }
-
-    /**
-     * 
-     *  Fetches all Meta Campaign ID's and returns an associative array with id => name structure
-     * 
-     *  @return array Associative array with the Campaign ID as the key and the campaign name as the value
-     * 
-     **/
-    public function fetch_all_meta_campaign_ids() {
-
-        // Return result
-        $all_campaigns = array();
-
-        // Query Args
-		$query_args = array(
-
-			'fields' 			=> 'ids',
-		    'post_type' 		=> 'facebook_campaign',
-		    'post_status' 		=> 'publish',
-		    'posts_per_page' 	=> -1,
-		    'orderby' 			=> 'meta_value',
-		    'meta_key' 			=> '_wpd_campaign_start',
-		    'order' 			=> 'DESC',
-		);
-
-        // Execute Query
-		$query 		= new WP_Query( $query_args );
-        $post_ids 	= $query->posts;
-
-        // Loop through the found Post ID's
-        foreach( $post_ids as $post_id ) {
-
-            // Get the relevant meta data
-        	$campaign_id 		= get_post_meta( $post_id, '_wpd_campaign_id', true );
-        	$campaign_name 		= get_post_meta( $post_id, '_wpd_campaign_name', true );
-
-            // Store the results
-        	$all_campaigns[$campaign_id] = $campaign_name;
-
-        }
-
-        // Store this anon query
-        $this->set_data( 'anonymous_queries', array( 'all_facebook_campaigns' => $all_campaigns ) );
-
-        // Return results
-        return $all_campaigns;
-
-    }
-
-    /**
-     * Fast replacement for get_date_from_gmt().
-     * Converts a GMT date string to site local time with caching.
-     *
-     * @param string $date_gmt Date string in GMT (Y-m-d H:i:s).
-     * @param string $format   Return format. Default 'Y-m-d H:i:s'.
-     *
-     * @return string Local time formatted string.
-     */
-    private function get_date_from_gmt( $date_gmt, $format = 'Y-m-d H:i:s' ) {
-
-        static $gmt_date_cache = [];
-        static $site_timezone = null;
-
-        if ( isset( $gmt_date_cache[ $date_gmt ][ $format ] ) ) {
-            return $gmt_date_cache[ $date_gmt ][ $format ];
-        }
-
-        if ( $site_timezone === null ) {
-            // wp_timezone() is cached internally after the first call
-            $site_timezone = wp_timezone();
-        }
-
-        $datetime = new DateTime( $date_gmt, new DateTimeZone( 'UTC' ) );
-        $datetime->setTimezone( $site_timezone );
-
-        $local = $datetime->format( $format );
-
-        // Cache the result
-        $gmt_date_cache[ $date_gmt ][ $format ] = $local;
-
-        return $local;
-
-    }
-
-
-    /**
      * Get the where clause for the analytics data query
      * 
      * @return string The where clause for the analytics data query
      */
-    private function get_analytics_where_clause() {
+    protected function get_analytics_where_clause() {
 
         global $wpdb;
         $wpd_db                         = new WPDAI_Database_Interactor();
@@ -6166,7 +4477,7 @@ class WPDAI_Data_Warehouse {
      * @param int $offset Starting offset
      * @return bool Success status
      */
-    private function query_analytics_data( &$raw_analytics_data, &$session_data_map, $limit, $offset ) {
+    protected function query_analytics_data( &$raw_analytics_data, &$session_data_map, $limit, $offset ) {
 
         global $wpdb;
         $wpd_db                         = new WPDAI_Database_Interactor();
@@ -7498,208 +5809,390 @@ class WPDAI_Data_Warehouse {
         return $this->get_data( 'analytics' );
 
     }
-    
+
     /**
-     *
-     *  Creates an empty no data found array
-     *
-     *  @param array $data_by_date The data by date array containing all data_by_date keys
-     *  @return array The data by date array with the no data found array added
      * 
+     *  Fetches Expense Data and organises it for use by get_data('expenses')
      * 
+     *  Available Filters: 
+     * 
+     *      date_from (will filter against _wpd_date_paid)
+     *      date_to (will filter against _wpd_date_paid)
+     *      expense_type Expects an expense_type taxonomy slug
+     *  
      **/
-    public function maybe_create_no_data_found_date_array( $data_by_date ) {
+    public function fetch_expense_data() {
 
-        if ( is_array($data_by_date) && ! empty($data_by_date) ) {
+        // Setup default containers
+        $totals = array(			
+			'total_amount_paid'  		    => 0,
+			'total_amount_unpaid'  		    => 0,
+            'total_amount'                  => 0,
+            'total_expense_count'           => 0,
+            'total_unpaid_expense_count'    => 0,
+            'total_paid_expense_count'      => 0,
+            'total_standard_expense_count'  => 0,
+            'total_recurring_expense_count' => 0,
+            'total_unique_recurring_expense_count' => 0,
+			'average_expenses_per_day' 	    => 0,
+            'daily_average_expense_count'   => 0,
+            'daily_average_expense_amount'  => 0,
 
-            foreach( $data_by_date as $data_key => $date_data ) {
-
-                if ( ! is_array($date_data) || empty($date_data) ) $data_by_date[$data_key]['no_data_found'] = $this->get_data_by_date_range_container();
-
-            }
-
-        }
-
-        return $data_by_date;
-
-    } 
-
-    /**
-     * 
-     *  Converts a date from one format of string to another
-     * 
-     **/
-    public function convert_date_string( $date, $format = 'date_format_string' ) {
-
-        // Need a string in this
-        if ( ! is_string($date) ) {
-            $this->set_error( 'Date passed into convert_date_string is not of type string.' );
-            return false;
-        }
-
-        // If we are using the date_format_string
-        if ( $format === 'date_format_string' ) {
-            $format = $this->get_filter('date_format_string');
-        }
-
-        // Convert to timestamp
-        $timestamp = strtotime( $date );
-
-        // Convert date
-        $converted_date = gmdate( $format, $timestamp );
-
-        // Return result
-        return $converted_date;
-
-    }
-
-    /**
-     *
-     *  Returns date in format for the date container
-     *  @param string $date The date to reformat
-     *  @return string The reformatted date
-     *
-     */
-    public function reformat_date_to_date_format( $date ) {
+        );
+        $categorized_data = array(
+            'supplier_expense_data'             => array(),
+            'parent_expense_type_categories'    => array(),
+            'child_expense_type_categories' 	=> array(),
+            'expense_post_ids'                  => array()
+        );
+        $data_table = array();
+        $total_db_records = 0;
+        $data_by_date = array(
+            'amount_paid_by_date' => $this->get_data_by_date_range_container(),
+            'amount_unpaid_by_date' => $this->get_data_by_date_range_container(),
+        );
         
-        if ( ! is_string($date) ) {
-            $this->set_error( 'Date passed into reformat_date_to_date_format is not of type string.' );
-            return false;
-        }
-
-        // If we are doing minutes, this is a special case
-        if ( $this->get_filter('date_format_display') == 'minute' ) {
-            $timestamp = strtotime($date);
-            $minutes_ago = floor((current_time('timestamp') - $timestamp) / 60);
-            return (int) $minutes_ago;
-        }
-
-        $date_container_date_format = $this->get_filter('date_format_string');
-        $formatted_date = gmdate( $date_container_date_format, strtotime($date) );
-
-        return $formatted_date;
-
-    }
-
-    /**
-     *
-     *  Calculates difference in seconds between two dates - used for session duration
-     *
-     */
-    public function calculate_difference_in_seconds( $recent_date, $old_date ) {
-
-        if ( is_null($recent_date) || is_null($old_date) ) {
-            return 0;
-        }
-
-        $recent_date_string = strtotime($recent_date);
-        $old_date_string    = strtotime($old_date);
-        (int) $difference_in_seconds = $recent_date_string - $old_date_string;
-
-        return $difference_in_seconds;
-
-    }
-
-    /**
-     *
-     *  Checks for Query Parameters and returns as associated array if found
-     *
-     */
-    public function get_url_components( $url ) {
-
-        $result = array(
-            'url' => $url,
-            'path' => null,
-            'query_parameters' => array()
+        // Configure return object
+        $expense_data = array(
+            'totals' => $totals,
+            'categorized_data' => $categorized_data,
+            'data_by_date' => $data_by_date,
+            'data_table' => array(
+                'expenses' => $data_table
+            ),
+            'total_db_records' => $total_db_records,
+            'execution_time' => 0
         );
 
-        if ( is_null($url) ) return $result;
+        // Store the data into the prop
+        $this->set_data( 'expenses', $expense_data );
 
-        // Prevents issues with 038;
-        $url = htmlspecialchars_decode( $url );
-        $result['url'] = $url;
-
-        $parsed_url = wp_parse_url( $url );
-
-        if ( isset($parsed_url['path']) && ! empty($parsed_url['path']) ) {
-            $result['path'] = $parsed_url['path'];
-        }
-
-        // Only collect query params
-        $query_parameters = wp_parse_url( $url, PHP_URL_QUERY );
-
-        if ( ! empty($query_parameters) ) {
-
-            $result['decoded_qp'] = $query_parameters;
-            parse_str( $query_parameters, $result['query_parameters'] );
-
-        }
-
-        return $result;
-
-    }
-
-    /**
-     *
-     *  Calculate traffic source type
-     *
-     */
-    public function determine_traffic_source( $referral_url, $query_parameters = null ) {
-
-        $traffic_type = new WPDAI_Traffic_Type_Detection( $referral_url, $query_parameters );
-        return $traffic_type->determine_traffic_source();
+        // Return Results
+        return $expense_data;
 
     }
 
     /**
      * 
-     *  Logs general messages and optionally errors to:
-     *  WPDAI_Google_Ads_API_log.txt and WPDAI_Google_Ads_API_error_log.txt
+     *  Fetches Facebook Campaign data and organises it for use
      * 
-     *  @param string|array|WP_Error $message the content to print to the log
-     *  @param bool $error Set to true if you want to log this to the error log in addition to the general api log
-     *  @return void
+     *  Available Filters: 
+     * 
+     *      date_from (will filter against _wpd_campaign_start)
+     *      date_to (will filter against _wpd_campaign_start)
+     *      campaign_id
+     *      campaign_date_override This will return data from within the campaign_id's date (requires campaign_id)
+     *  
+     **/
+    public function fetch_facebook_campaign_data() {
+
+        // Variables to fill in and pass as data
+        $totals = array(
+            'campaigns_found' => 0,
+            'campaign_spend' => 0,
+            'campaign_spend_per_active_day' => 0,
+            'campaign_order_count' => 0,
+            'campaign_order_revenue' => 0,
+            'campaign_order_costs' => 0,
+            'campaign_order_profit' => 0,
+            'campaign_order_margin' => 0,
+            'campaign_order_conversion_rate' => 0,
+            'campaign_cost_per_order' => 0,
+            'campaign_total_profit' => 0,
+            'campaign_average_order_value' => 0,
+            'campaign_largest_order_value' => 0,
+            'campaign_total_profit_per_day' => 0,
+            'campaign_revenue_roas' => 0,
+            'campaign_adjusted_roas' => 0,
+            'campaign_adjusted_margin' => 0,
+            'campaign_orders_per_click' => 0,
+            'campaign_orders_per_active_campaign_day' => 0,
+            'campaign_api_revenue' => 0,
+            'campaign_api_profit' => 0,
+            'campaign_api_roas' => 0,
+            'campaign_api_conversions' => 0,
+            'campaign_api_transactions' => 0,
+            'campaign_api_conversion_rate' => 0,
+            'campaign_total_days_active' => 0,
+            'campaign_average_days_active' => 0,
+            'campaign_impressions' => 0,
+            'campaign_clicks' => 0,
+            'campaign_average_cpc' => 0,
+            'campaign_average_ctr' => 0,
+            'campaign_add_to_carts' => 0,
+            'ad_account_currency_converted' => 0,
+            'new_customer_count' => 0,
+            'cost_per_new_customer' => 0,
+            'total_customer_count' => 0,
+            'cost_per_customer' => 0,
+            'all_campaigns_count' => 0,
+        );
+        $categorized_data = array(
+            'customers_by_email_address' => array(),
+            'filtered_campaigns' => array(),
+            'all_campaigns' => array(),
+            'order_ids' => array(),
+            'order_data' => array(),
+            'product_data' => array()
+        );
+        $data_table = array();
+        $data_table_orders = array();
+        $total_db_records = 0;
+        $data_by_date = array(
+            'campaign_spend_by_date' => $this->get_data_by_date_range_container(),
+            'campaign_order_revenue_by_date' => $this->get_data_by_date_range_container(),
+            'campaign_api_revenue_by_date' => $this->get_data_by_date_range_container(),
+            'campaign_order_profit_by_date' => $this->get_data_by_date_range_container(),
+            'campaign_api_profit_by_date' => $this->get_data_by_date_range_container(),
+            'campaign_actual_profit_by_date' => $this->get_data_by_date_range_container(),
+            'campaign_clicks_by_date' => $this->get_data_by_date_range_container(),
+            'campaign_add_to_carts_by_date' => $this->get_data_by_date_range_container(),
+            'campaign_order_count_by_date' => $this->get_data_by_date_range_container(),
+            'campaign_new_customer_count_by_date' => $this->get_data_by_date_range_container(), // New
+            'campaign_cost_per_new_customer_by_date' => $this->get_data_by_date_range_container(), // New
+            'campaign_cost_per_order_placed_by_date' => $this->get_data_by_date_range_container(), // New
+            'campaign_conversion_rate_by_date' => $this->get_data_by_date_range_container(), // New
+            'campaign_api_transactions_by_date' => $this->get_data_by_date_range_container(),
+            'campaign_actual_roas_by_date' => $this->get_data_by_date_range_container(),
+            'campaign_api_roas_by_date' => $this->get_data_by_date_range_container(),
+            'campaign_comparison_actual_profit_by_date' => array( 'no_data_available' => $this->get_data_by_date_range_container() ),
+            'campaign_comparison_campaign_spend_by_date' => array( 'no_data_available' => $this->get_data_by_date_range_container() ),
+        );
+
+        // Configure return object
+        $facebook_campaign_data = array(
+            'totals'            => $totals,
+            'categorized_data'  => $categorized_data,
+            'data_by_date'      => $data_by_date,
+            'data_table'        => array(
+                'campaigns' => $data_table,
+                'orders' => $data_table_orders,
+                'products' => $categorized_data['product_data']
+            ),
+            'total_db_records'  => $total_db_records,
+            'execution_time' => 0
+        );
+
+        // Store the data into the prop
+        $this->set_data( 'facebook_campaigns', $facebook_campaign_data );
+
+        // Return Results
+        return $facebook_campaign_data;
+
+    }
+
+    /**
+     * 
+     *  Fetches Google Campaign Data and organised it for use
+     * 
+     *  Available Filters: 
+     * 
+     *      date_from (will filter against _wpd_campaign_start)
+     *      date_to (will filter against _wpd_campaign_start)
+     *      campaign_id
+     *      campaign_date_override This will return data from within the campaign_id's date (requires campaign_id)
+     *  
+     **/
+    public function fetch_google_campaign_data() {
+
+        // Variables to fill in and pass as data
+        $totals = array(
+            'campaigns_found' => 0,
+            'campaign_spend' => 0,
+            'campaign_spend_per_active_day' => 0,
+            'campaign_order_count' => 0,
+            'campaign_order_revenue' => 0,
+            'campaign_order_costs' => 0,
+            'campaign_order_profit' => 0,
+            'campaign_order_margin' => 0,
+            'campaign_order_conversion_rate' => 0,
+            'campaign_cost_per_order' => 0,
+            'campaign_total_profit' => 0,
+            'campaign_average_order_value' => 0,
+            'campaign_largest_order_value' => 0,
+            'campaign_total_profit_per_day' => 0,
+            'campaign_revenue_roas' => 0,
+            'campaign_adjusted_roas' => 0,
+            'campaign_adjusted_margin' => 0,
+            'campaign_orders_per_click' => 0,
+            'campaign_orders_per_active_campaign_day' => 0,
+            'campaign_api_revenue' => 0,
+            'campaign_api_profit' => 0,
+            'campaign_api_roas' => 0,
+            'campaign_api_conversions' => 0,
+            'campaign_api_conversion_rate' => 0,
+            'campaign_total_days_active' => 0,
+            'campaign_average_days_active' => 0,
+            'campaign_impressions' => 0,
+            'campaign_clicks' => 0,
+            'campaign_average_cpc' => 0,
+            'campaign_average_ctr' => 0,
+            'new_customer_count' => 0,
+            'cost_per_new_customer' => 0,
+            'total_customer_count' => 0,
+            'cost_per_customer' => 0,
+            'all_campaigns_count' => 0,
+        );
+        $categorized_data = array(
+            'customers_by_email_address' => array(),
+            'filtered_campaigns' => array(),
+            'all_campaigns' => array(),
+            'order_ids' => array(),
+            'order_data' => array(),
+            'product_data' => array()
+        );
+        $data_table = array();
+        $data_table_orders = array();
+        $total_db_records = 0;
+        $data_by_date = array(
+            'campaign_spend_by_date' => $this->get_data_by_date_range_container(),
+            'campaign_order_revenue_by_date' => $this->get_data_by_date_range_container(),
+            'campaign_order_profit_by_date' => $this->get_data_by_date_range_container(),
+            'campaign_order_count_by_date' => $this->get_data_by_date_range_container(),
+            'campaign_new_customer_count_by_date' => $this->get_data_by_date_range_container(), // New
+            'campaign_cost_per_new_customer_by_date' => $this->get_data_by_date_range_container(), // New
+            'campaign_cost_per_order_placed_by_date' => $this->get_data_by_date_range_container(), // New
+            'campaign_conversion_rate_by_date' => $this->get_data_by_date_range_container(), // New
+            'campaign_clicks_by_date' => $this->get_data_by_date_range_container(), // Unique Per Day
+            'campaign_actual_profit_by_date' => $this->get_data_by_date_range_container(), // Unique Per Day
+            'campaign_roas_by_date' => $this->get_data_by_date_range_container(),
+            'campaign_actual_roas_by_date' => $this->get_data_by_date_range_container(),
+            'campaign_comparison_campaign_spend_by_date' => array( 'no_data_available' => $this->get_data_by_date_range_container() ),
+            'campaign_comparison_actual_profit_by_date' => array( 'no_data_available' => $this->get_data_by_date_range_container() ),
+        );
+
+        // Configure return object
+        $google_campaign_data = array(
+            'totals' => $totals,
+            'categorized_data' => $categorized_data,
+            'data_by_date' => $data_by_date,
+            'data_table' => array(
+                'campaigns' => $data_table,
+                'orders' => $data_table_orders,
+                'products' => $categorized_data['product_data']
+            ),
+            'total_db_records' => $total_db_records,
+            'execution_time' => 0
+        );
+
+        // Store the data into the prop
+        $this->set_data( 'google_campaigns', $google_campaign_data );
+
+        // Return Results
+        return $google_campaign_data;
+
+    }
+
+        
+    /**
+     * 
+     *  Fetches Subscriptions Data and organises it for use by get_data('subscriptions')
+     *  Will also call fetch_orders with additional filters for orders, products & subscriptions
+     *  When fetching from the orders, it will skip over any order that is not a renewal order
+     * 
+     *  This function will not run if WC_Subscriptions is not available
      * 
      **/
-    private function log( $message, $error = false ) {
+    public function fetch_subscriptions_data() {
 
-        // Setup backtrace
-        $backtrace = debug_backtrace();
-        $last_call = $backtrace[1]['function'];
-        if ( $last_call == 'set_error' ) $last_call = $backtrace[2]['function'];
-
-        if ( $error ) {
-
-            // WP Error
-            if ( is_a( $message, 'WP_Error' ) ) {
-                $error_message = (string) $message->get_error_message();
-            }
-
-            // Array
-            if ( is_array($message) || is_object($message) ) {
-                $error_message = (string) json_encode( $message );
-            }
-
-            // Confirm string
-            if ( is_string($message) ) {
-                $error_message = (string) $message;
-            }
-
-            // Save the errors to instance
-            if ( $error_message ) {
-                $this->errors[] = $error_message;
-            }
-
-            // Log errors
-            wpdai_write_log( 'Backtrace function: ' . $last_call, 'data_warehouse_error' );
-            wpdai_write_log( $message, 'data_warehouse_error' );
-            
+        // Dont bother if they dont have subscriptions
+        if ( ! wpdai_is_wc_subscriptions_active() ){
+            $this->set_error( 'WC_Subscriptions is not active.' );
+            return $this->get_data('subscriptions');
         }
 
-        // Log the message
-        wpdai_write_log( $message, 'data_warehouse' );
+        // Setup Totals Defaults
+        $totals = array(
 
-        return $message;
+            'total_subscriptions' 				        => 0,       // All time
+            'total_renewals_in_period' 				    => 0,       // All time
+            'total_subscriptions_active_today' 	        => 0,       // Today
+            'average_active_subscription_days' 	        => 0,       // All time
+            'total_active_subscription_days'            => 0,       // All time
+            'total_subscriptions_created_in_period' 	=> 0,       // During Date Range
+            'total_subscriptions_cancelled_in_period' 	=> 0,       // During Date Range
+            'total_subscription_revenue_in_period'      => 0,       // During Date Range
+            'total_subscription_profit_in_period'       => 0,       // During Date Range
+            'average_subscription_revenue_in_period' 	=> 0,       // During Date Range
+            'average_subscription_profit_in_period'     => 0,       // During Date Range
+            'average_subscription_margin_in_period'     => 0,       // During Date Range
+            'cancellation_rate_in_period' 	            => 0,       // During Date Range
+
+        );
+
+        $categorized_data = array(
+            'subscription_status_count' 		        => array(),
+            'scheduled_payments' 			            => array(
+                'month'         => 0,
+                'quarter'       => 0,
+                'halfyear'      => 0,
+                'year'          => 0
+            ),
+            'subscriptions_created_forecast'            => array(
+                'this_period'   => 0,
+                'daily'         => 0,
+                '30_day'        => 0,
+                '90_day'        => 0,
+                '180_day'       => 0,
+                '365_day'       => 0
+            ),
+            'expected_income' 					        => array(),
+            'product_totals'	 				        => array(),
+        );
+
+        // Setup Subscription Array Defaults
+        $data_table = array();
+        $product_data = array();
+        $date_format = $this->get_filter( 'date_format_string' );
+        $total_db_records = 0;
+
+        // Setup Default Data By Date
+        $data_by_date = array(
+
+            'active_subscriptions_by_date' 					=> $this->get_data_by_date_range_container(),
+			'total_subscription_signups_by_date' 			=> $this->get_data_by_date_range_container(),
+			'total_subscription_cancellations_by_date' 		=> $this->get_data_by_date_range_container(),
+			'net_subscription_movement_by_date' 			=> $this->get_data_by_date_range_container(),
+			'subscription_growth_by_date' 					=> $this->get_data_by_date_range_container(),
+			'expected_income_by_date' 						=> array() // Will be a custom range of +1 year
+
+        );
+
+        // Calculate dates for expected income over the next year
+        $expected_income_array      = array();
+        $expected_income_min_date   = current_time( 'timestamp' ); // min($date_keys);
+        $expected_income_max_date   = strtotime( '+1 year', $expected_income_min_date ); // max($date_keys);
+
+        // Next year array of dates
+        $expected_income_date_range = $this->get_date_range_array( gmdate( 'Y-m-d', $expected_income_min_date ), gmdate( 'Y-m-d', $expected_income_max_date ), '+1 day', $date_format );
+        
+        // Create the shell array
+        foreach( $expected_income_date_range as $date_array_val ) {
+            $expected_income_array[$date_array_val] = 0;
+        }
+        
+        // Store array
+        $data_by_date['expected_income_by_date'] = $expected_income_array;
+
+        // Configure return object
+        $subscriptions_data = array(
+            'totals'            => $totals,
+            'categorized_data'  => $categorized_data,
+            'data_table'        => array(
+                'subscriptions' => $data_table,
+                'subscription_products' => $product_data
+            ),
+            'data_by_date'      => $data_by_date,
+            'total_db_records'  => $total_db_records,
+            'execution_time'    => 0
+        );
+
+        // Store the data into the prop
+        $this->set_data( 'subscriptions', $subscriptions_data );
+
+        // Return Results
+        return $subscriptions_data;
+
 
     }
 

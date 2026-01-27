@@ -1727,7 +1727,7 @@ class WPDAI_Report_Builder {
             );
 
             // Init data warehouse
-            $data_warehouse = new WPDAI_Data_Warehouse( $filter );
+            $data_warehouse = wpdai_data_warehouse( $filter );
 
             // Fetch analytics data
             $data_warehouse->fetch_analytics_data();
@@ -1860,7 +1860,7 @@ class WPDAI_Report_Builder {
             $filters['additional_order_data'] = $additional_data_requirements;
 
             // Load the warehouse
-            $data_warehouse = new WPDAI_Data_Warehouse( $filters );
+            $data_warehouse = wpdai_data_warehouse( $filters );
 
             // Fetch the data we need
             if (in_array('orders', $required_data)) $data_warehouse->fetch_sales_data();
@@ -1908,7 +1908,7 @@ class WPDAI_Report_Builder {
                 if ( isset($comparison_filters['date_preset']) ) unset($comparison_filters['date_preset']);
                 
                 // Create new data warehouse instance for comparison period
-                $comparison_warehouse = new WPDAI_Data_Warehouse($comparison_filters);
+                $comparison_warehouse = wpdai_data_warehouse($comparison_filters);
                 
                 if (in_array('orders', $required_data)) $comparison_warehouse->fetch_sales_data();
                 if (in_array('expenses', $required_data)) $comparison_warehouse->fetch_expense_data();

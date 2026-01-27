@@ -642,7 +642,7 @@ class WPDAI_Core {
 			if ( is_string( $billing_email ) && ! empty( $billing_email ) ) {
 
 				// Call the data warehouse for this customer
-				$data_warehouse = new WPDAI_Data_Warehouse( 
+				$data_warehouse = wpdai_data_warehouse( 
 					array(
 						'date_preset' => 'all_time',
 						'data_filters' => array(
@@ -1608,7 +1608,7 @@ class WPDAI_Core {
 								$static_fee 			= wc_format_decimal( sanitize_text_field( $cost_data['static_fee'] ?? '' ) );
 								$percent_of_sell_price 	= wc_format_decimal( sanitize_text_field( $cost_data['percent_of_sell_price'] ?? '' ) );
 
-								$custom_cost_data[$slug] = array(
+								$custom_cost_data[$sanitized_slug] = array(
 									'static_fee' => $static_fee,
 									'percent_of_sell_price' => $percent_of_sell_price
 								);
