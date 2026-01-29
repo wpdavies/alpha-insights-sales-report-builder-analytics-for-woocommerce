@@ -210,8 +210,7 @@ class WPDAI_Report_Builder {
             true
         );
 
-        // Localize script with WordPress data
-        wp_localize_script('wpd-react-dashboard-integration', 'wpd_alpha_insights', array(
+        $localized_variables = array(
             'ajax_url'                      => admin_url('admin-ajax.php'),
             'rest_url'                      => rest_url('alpha-insights/v1/'),
             'nonce'                         => wp_create_nonce( WPD_AI_AJAX_NONCE_ACTION ),
@@ -227,8 +226,6 @@ class WPDAI_Report_Builder {
             'site_creation_date'           => $this->site_creation_date,
             'site_name'                    => get_bloginfo( 'name' ),
             'filters_data_map_values'      => $this->get_filters_data_map_values(),
-            'api_key'                      => get_option('wpd_ai_api_key', null),
-            'is_pro'                       => WPD_AI_PRO,
             'default_report_ids'           => wpdai_get_default_react_report_ids(),
             'logo_icon_url'                => esc_url( wpdai_get_logo_icon_url() ),
             'menu_slugs' => array(
@@ -243,7 +240,25 @@ class WPDAI_Report_Builder {
                 'about_help'            => WPDAI_Admin_Menu::$about_help_slug,
             ),
             'custom_data_source_mappings' => WPDAI_Custom_Data_Source_Registry::get_all_mappings(),
-        ));
+        );
+
+        /**
+         * 
+         * Filter: wpd_ai_localized_report_builder_variables
+         * 
+         * Description: Filters the localized variables for the React dashboard.
+         * 
+         * Parameters:
+         * - $localized_variables: The localized variables array.
+         * 
+         * Return: The filtered localized variables array.
+         * 
+         * 
+         */
+        $localized_variables = apply_filters( 'wpd_ai_localized_report_builder_variables', $localized_variables );
+
+        // Localize script with WordPress data
+        wp_localize_script('wpd-react-dashboard-integration', 'wpd_alpha_insights', $localized_variables);
     }
 
     /**
@@ -254,15 +269,9 @@ class WPDAI_Report_Builder {
      * @return void
      */
     public static function register_ajax_actions() {
-        // Live dashboard data - allows nopriv for live share functionality with alternative nonce
+
+        // AJAX handlers
         add_action('wp_ajax_wpd_get_live_dashboard_data', [__CLASS__, 'get_live_dashboard_data_ajax_handler']);
-        add_action('wp_ajax_nopriv_wpd_get_live_dashboard_data', [__CLASS__, 'get_live_dashboard_data_ajax_handler']);
-        
-        // Realtime dashboard data - allows nopriv for live share functionality with alternative nonce
-        add_action('wp_ajax_wpd_get_realtime_dashboard_data', [__CLASS__, 'get_realtime_dashboard_data_ajax_handler']);
-        add_action('wp_ajax_nopriv_wpd_get_realtime_dashboard_data', [__CLASS__, 'get_realtime_dashboard_data_ajax_handler']);
-        
-        // Admin-only functions - REMOVED wp_ajax_nopriv_ hooks for security
         add_action('wp_ajax_wpd_get_available_reports', [__CLASS__, 'get_available_reports_ajax_handler']);
         add_action('wp_ajax_wpd_create_report', [__CLASS__, 'create_report_ajax_handler']);
         add_action('wp_ajax_wpd_update_report', [__CLASS__, 'update_report_ajax_handler']);
@@ -276,242 +285,7 @@ class WPDAI_Report_Builder {
         add_action('wp_ajax_wpd_get_uncached_order_count', [__CLASS__, 'get_uncached_order_count_ajax_handler']);
         add_action('wp_ajax_wpd_build_order_cache_batch', [__CLASS__, 'build_order_cache_batch_ajax_handler']);
         add_action('wp_ajax_wpd_mark_cache_complete', [__CLASS__, 'mark_cache_complete_ajax_handler']);
-        
-        // CSV Export action - Admin only
-        add_action('wp_ajax_wpd_export_all_data_csv', [__CLASS__, 'ajax_export_all_data_csv']);
-        
-        // Live Share Link AJAX actions
-        add_action('wp_ajax_wpd_get_live_share_links', [__CLASS__, 'get_live_share_links_ajax_handler']);
-        add_action('wp_ajax_wpd_create_live_share_link', [__CLASS__, 'create_live_share_link_ajax_handler']);
-        add_action('wp_ajax_wpd_delete_live_share_link', [__CLASS__, 'delete_live_share_link_ajax_handler']);
 
-    }
-    
-    /**
-     * AJAX handler for exporting all data to CSV ZIP
-     *
-     * @since 4.8.9
-     * @return void
-     */
-    public static function ajax_export_all_data_csv() {
-        // Verify nonce
-        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), WPD_AI_AJAX_NONCE_ACTION ) ) {
-            wp_send_json_error( [
-                'message' => __( 'Security check failed', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
-            ] );
-            return;
-        }
-        
-        // Check user capabilities
-        if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
-            wp_send_json_error( [
-                'message' => __( 'You do not have permission to export data', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
-            ] );
-            return;
-        }
-        
-        // Get dashboard ID and config
-        $dashboard_id = isset( $_POST['dashboard_id'] ) ? sanitize_text_field( $_POST['dashboard_id'] ) : '';
-        
-        if ( empty( $dashboard_id ) ) {
-            wp_send_json_error( [
-                'message' => __( 'Dashboard ID is required', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
-            ] );
-            return;
-        }
-        
-        // Get dashboard configuration
-        $dashboard_config = get_option( 'wpd_dashboard_config_' . $dashboard_id );
-        
-        if ( empty( $dashboard_config ) ) {
-            wp_send_json_error( [
-                'message' => __( 'Dashboard configuration not found', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
-            ] );
-            return;
-        }
-        
-        // Get filters from request
-        $filters_json = isset( $_POST['filters'] ) ? wp_unslash( $_POST['filters'] ) : '{}';
-        $filters = json_decode( $filters_json, true );
-        
-        if ( json_last_error() !== JSON_ERROR_NONE ) {
-            $filters = [];
-        }
-
-        // Sanitize
-        $filters = wpdai_sanitize_json_decoded_array( $filters );
-        
-        // Merge filters into config
-        $dashboard_config['filters'] = array_merge(
-            isset( $dashboard_config['filters'] ) ? $dashboard_config['filters'] : [],
-            $filters
-        );
-        
-        // Fetch all the data using the internal method
-        $data_response = self::get_live_dashboard_data_from_config( $dashboard_config );
-        
-        // Check if data fetch was successful
-        if ( ! isset( $data_response['data'] ) || empty( $data_response['data'] ) ) {
-            wp_send_json_error( [
-                'message' => __( 'No data available to export', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
-            ] );
-            return;
-        }
-        
-        $all_data = $data_response['data'];
-        
-        // Create CSV exporter instance
-        $csv_exporter = new WPDAI_CSV_Exporter();
-        
-        // Get report name for filename
-        $report_name = isset( $dashboard_config['name'] ) ? $dashboard_config['name'] : $dashboard_id;
-        
-        // Export data to ZIP
-        $export_result = $csv_exporter->export_all_data_to_zip( $all_data, $report_name );
-        
-        // Clean up old ZIP files (24 hours+)
-        $csv_exporter->cleanup_old_zip_files();
-        
-        // Send response
-        if ( $export_result['success'] ) {
-            wp_send_json_success( $export_result );
-        } else {
-            wp_send_json_error( $export_result );
-        }
-    }
-
-    /**
-     * Static AJAX handler for getting live share links
-     *
-     * @since 4.7.0
-     *
-     * @return void
-     */
-    public static function get_live_share_links_ajax_handler() {
-        $response = array();
-
-        // Verify nonce - accept both regular AJAX nonce and live share nonce
-        $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-        $nonce_valid = wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) || 
-                       wp_verify_nonce( $nonce, 'wpd_live_share_nonce' );
-        
-        if (!$nonce_valid) {
-            wp_send_json_error( array(
-                'message' => __('Invalid nonce', 'alpha-insights-sales-report-builder-analytics-for-woocommerce')
-            ) );
-            return;
-        }
-
-        $report_slug = sanitize_text_field($_POST['report_slug'] ?? '');
-        
-        if (empty($report_slug)) {
-            wp_send_json_error( array(
-                'message' => __('Report slug is required', 'alpha-insights-sales-report-builder-analytics-for-woocommerce')
-            ) );
-            return;
-        }
-
-        // Check user capabilities
-        if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
-            wp_send_json_error( [
-                'message' => __( 'You do not have permission to get live share links', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
-            ] );
-            return;
-        }
-
-        $instance = new self();
-        $results = $instance->get_live_share_links($report_slug);
-        wp_send_json($results);
-    }
-
-    /**
-     * Static AJAX handler for creating live share links
-     *
-     * @since 4.7.0
-     *
-     * @return void
-     */
-    public static function create_live_share_link_ajax_handler() {
-        $response = array();
-
-        // Verify nonce - accept both regular AJAX nonce and live share nonce
-        $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-        $nonce_valid = wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) || 
-                       wp_verify_nonce( $nonce, 'wpd_live_share_nonce' );
-        
-        if (!$nonce_valid) {
-            wp_send_json_error( array(
-                'message' => __('Invalid nonce', 'alpha-insights-sales-report-builder-analytics-for-woocommerce')
-            ) );
-            return;
-        }
-
-        // Check user capabilities
-        if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
-            wp_send_json_error( array(
-                'message' => __('You do not have permission to create live share links', 'alpha-insights-sales-report-builder-analytics-for-woocommerce')
-            ) );
-            return;
-        }
-
-        $report_slug = sanitize_text_field($_POST['report_slug'] ?? '');
-        $name = sanitize_text_field($_POST['name'] ?? '');
-        $expiry_date = sanitize_text_field($_POST['expiry_date'] ?? '');
-        $password = sanitize_text_field($_POST['password'] ?? '');
-        $require_password = isset($_POST['require_password']) && $_POST['require_password'] === '1';
-
-        if (empty($report_slug) || empty($name)) {
-            wp_send_json_error( array(
-                'message' => __('Report slug and name are required', 'alpha-insights-sales-report-builder-analytics-for-woocommerce')
-            ) );
-            return;
-        }
-
-        $instance = new self();
-        $results = $instance->create_live_share_link($report_slug, $name, $expiry_date, $password, $require_password);
-        wp_send_json($results);
-    }
-
-    /**
-     * Static AJAX handler for deleting live share links
-     *
-     * @since 4.7.0
-     *
-     * @return void
-     */
-    public static function delete_live_share_link_ajax_handler() {
-        // Verify nonce - accept both regular AJAX nonce and live share nonce
-        $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-        $nonce_valid = wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) || 
-                       wp_verify_nonce( $nonce, 'wpd_live_share_nonce' );
-        
-        if (!$nonce_valid) {
-            wp_send_json_error( array(
-                'message' => __('Invalid nonce', 'alpha-insights-sales-report-builder-analytics-for-woocommerce')
-            ) );
-            return;
-        }
-
-        $link_id = sanitize_text_field($_POST['link_id'] ?? '');
-        
-        if (empty($link_id)) {
-            wp_send_json_error( array(
-                'message' => __('Link ID is required', 'alpha-insights-sales-report-builder-analytics-for-woocommerce')
-            ) );
-            return;
-        }
-
-        // Check user capabilities
-        if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
-            wp_send_json_error( array(
-                'message' => __('You do not have permission to delete live share links', 'alpha-insights-sales-report-builder-analytics-for-woocommerce')
-            ) );
-            return;
-        }
-
-        $instance = new self();
-        $results = $instance->delete_live_share_link($link_id);
-        wp_send_json($results);
     }
 
     /**
@@ -744,10 +518,7 @@ class WPDAI_Report_Builder {
      *
      * Security: (1) Nonce verification – accepts either standard AJAX nonce (WPD_AI_AJAX_NONCE_ACTION)
      * or live-share nonce (wpd_live_share_nonce). (2) Authorization – logged-in requests require
-     * capability via wpdai_is_user_authorized_to_use_alpha_insights(); nopriv (live share) requests
-     * require valid live_share_auth token and config with live_share_links. Registered for nopriv
-     * to support public live-share report links; unauthenticated access is only permitted when
-     * live_share_nonce + live_share_auth + valid config are present.
+     * capability via wpdai_is_user_authorized_to_use_alpha_insights();
      *
      * @since 4.7.0
      *
@@ -763,8 +534,9 @@ class WPDAI_Report_Builder {
         }
 
         $nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ) );
-        $live_share_nonce_valid = (bool) wp_verify_nonce( $nonce, 'wpd_live_share_nonce' );
         $regular_nonce_valid     = (bool) wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION );
+        
+        $live_share_nonce_valid = (bool) wp_verify_nonce( $nonce, 'wpd_live_share_nonce' );
 
         if ( ! $live_share_nonce_valid && ! $regular_nonce_valid ) {
             self::log_error( 'WPDAI_Report_Builder: Nonce verification failed for live dashboard data.' );
@@ -844,110 +616,6 @@ class WPDAI_Report_Builder {
             self::log_error('WPDAI_Report_Builder: Error fetching live data: ' . $e->getMessage());
             self::log_error('WPDAI_Report_Builder: Error stack trace: ' . $e->getTraceAsString());
             wp_send_json_error('Error fetching live data: ' . $e->getMessage());
-        }
-
-    }
-
-    /**
-     * Static AJAX handler for getting realtime dashboard data.
-     *
-     * Security: Same as get_live_dashboard_data_ajax_handler – nonce verification (standard or
-     * live-share), authorization (capability vs live_share_auth), config sanitization. Registered
-     * for nopriv to support live-share; unauthenticated access only with valid live-share token.
-     *
-     * @since 4.7.0
-     *
-     * @return void
-     */
-    public static function get_realtime_dashboard_data_ajax_handler() {
-
-        // 1. Nonce verification.
-        if ( ! isset( $_POST['nonce'] ) || ! is_string( $_POST['nonce'] ) ) {
-            self::log_error( 'WPDAI_Report_Builder: No nonce provided for realtime dashboard data.' );
-            wp_send_json_error( array( 'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
-            return;
-        }
-
-        $nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ) );
-        $live_share_nonce_valid = (bool) wp_verify_nonce( $nonce, 'wpd_live_share_nonce' );
-        $regular_nonce_valid     = (bool) wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION );
-
-        if ( ! $live_share_nonce_valid && ! $regular_nonce_valid ) {
-            self::log_error( 'WPDAI_Report_Builder: Nonce verification failed for realtime dashboard data.' );
-            wp_send_json_error( array( 'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
-            return;
-        }
-
-        // 2. Authorization: live-share vs logged-in.
-        if ( $live_share_nonce_valid ) {
-            if ( ! isset( $_POST['live_share_auth'] ) || ! is_string( $_POST['live_share_auth'] ) || trim( $_POST['live_share_auth'] ) === '' ) {
-                self::log_error( 'WPDAI_Report_Builder: Live share realtime request missing live_share_auth.' );
-                wp_send_json_error( array( 'message' => __( 'Live share authentication required.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
-                return;
-            }
-            $live_share_auth = sanitize_text_field( wp_unslash( $_POST['live_share_auth'] ) );
-            if ( ! self::validate_live_share_auth( $live_share_auth ) ) {
-                self::log_error( 'WPDAI_Report_Builder: Invalid live_share_auth for realtime data.' );
-                wp_send_json_error( array( 'message' => __( 'Invalid live share authentication.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
-                return;
-            }
-        } else {
-            if ( ! check_ajax_referer( WPD_AI_AJAX_NONCE_ACTION, 'nonce', false ) ) {
-                self::log_error( 'WPDAI_Report_Builder: AJAX referer/nonce check failed for realtime data.' );
-                wp_send_json_error( array( 'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
-                return;
-            }
-            if ( ! is_user_logged_in() || ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
-                self::log_error( 'WPDAI_Report_Builder: User not authorized to access realtime dashboard data.' );
-                wp_send_json_error( array( 'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ) );
-                return;
-            }
-        }
-
-        try {
-            // 3. Parse and sanitize config (after nonce + auth).
-            $config     = array();
-            $config_raw = isset( $_POST['config'] ) && is_string( $_POST['config'] ) ? wp_unslash( $_POST['config'] ) : '';
-            if ( $live_share_nonce_valid && $config_raw !== '' ) {
-                $config = wpdai_sanitize_and_decode_json_config( $config_raw, false );
-                
-                // Handle error case
-                if ( is_wp_error( $config ) ) {
-                    self::log_error( 'WPDAI_Report_Builder: Invalid config format for realtime data.' );
-                    self::log_error( 'WPDAI_Report_Builder: JSON decode error: ' . $config->get_error_message() );
-                    wp_send_json_error( array(
-                        'message' => sprintf(
-                            /* translators: %s: JSON error message */
-                            __( 'Failed to parse dashboard configuration: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
-                            esc_html( $config->get_error_message() )
-                        ),
-                    ) );
-                    return;
-                }
-                
-                // Ensure we have an array
-                if ( ! is_array( $config ) ) {
-                    $config = array();
-                }
-            }
-
-            // When using live share nonce, config must include valid live_share_links (same as live dashboard)
-            if ( $live_share_nonce_valid && ! self::config_has_valid_live_share_structure( $config ) ) {
-                self::log_error( 'WPDAI_Report_Builder: Live share realtime request missing required live_share_links config.' );
-                wp_send_json_error( array(
-                    'message' => __( 'Invalid live share configuration. The report must include live share links.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
-                ) );
-                return;
-            }
-            // Use the existing method to get realtime data
-            $response = self::get_realtime_dashboard_data();
-            
-            wp_send_json($response);
-            
-        } catch (Exception $e) {
-            self::log_error('WPDAI_Report_Builder: Error fetching realtime data: ' . $e->getMessage());
-            self::log_error('WPDAI_Report_Builder: Error stack trace: ' . $e->getTraceAsString());
-            wp_send_json_error('Error fetching realtime data: ' . $e->getMessage());
         }
 
     }
@@ -1698,73 +1366,6 @@ class WPDAI_Report_Builder {
         }
 
         return $response;
-    }
-
-    /**
-     * Get realtime dashboard data from config
-     * 
-     * Currently only supports analytics data and fetches data from the last 30 minutes.
-     * Does not support filtering or comparison data.
-     *
-     * @since 4.7.0
-     *
-     * @return array Response array with realtime analytics data
-     */
-    public static function get_realtime_dashboard_data() {
-        
-        try {
-
-            // Set filters
-            $minutes_ago 		= 30;
-            $to_date 			= current_time( 'mysql' );
-            $from_date 			= gmdate( 'Y-m-d H:i:s', (current_time('timestamp') - (60 * $minutes_ago)) );
-
-            $filter = array(
-                'date_from' => $from_date,
-                'date_to' => $to_date,
-                'date_format_display' => 'minute',
-                'minutes_ago' => $minutes_ago
-            );
-
-            // Init data warehouse
-            $data_warehouse = wpdai_data_warehouse( $filter );
-
-            // Fetch analytics data
-            $data_warehouse->fetch_analytics_data();
-
-            // Get data
-            $data = $data_warehouse->get_data();
-
-            // For now only supports analytics, so remove all other keys
-            foreach( $data as $key => $value ) {
-                if ( $key !== 'analytics' ) {
-                    unset($data[$key]);
-                }
-            }
-
-            // Return response
-            $response = array(
-                'success' => true,
-                'realtime_data' => $data,
-                'timestamp' => current_time('timestamp'),
-                'filters_applied' => $filter,
-                'errors' => $data_warehouse->get_errors(),
-            );
-
-            return $response;
-
-        } catch (Exception $e) {
-            // Log the error
-            self::log_error('WPDAI_Report_Builder: Error in get_live_dashboard_data_from_config: ' . $e->getMessage());
-            self::log_error('WPDAI_Report_Builder: Error stack trace: ' . $e->getTraceAsString());
-            
-            // Return error response
-            return array(
-                'success' => false,
-                'error' => 'Failed to fetch realtime dashboard data: ' . $e->getMessage(),
-                'timestamp' => current_time('timestamp'),
-            );
-        }
     }
 
     /**
@@ -3394,190 +2995,7 @@ class WPDAI_Report_Builder {
 
         return $response;
     }
-
-    /**
-     * Core method for getting live share links
-     *
-     * @since 4.7.0
-     *
-     * @param string $report_slug The slug of the report to get live share links for
-     * @return array Response array containing live share links
-     */
-    public function get_live_share_links($report_slug) {
-        $response = array();
-
-        // Get report configuration
-        $report_config = get_option('wpd_dashboard_config_' . $report_slug);
-        
-        if (!$report_config) {
-            $response['success'] = false;
-            /* translators: %s: Report slug */
-            $response['message'] = sprintf( __( 'Report not found for slug: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $report_slug ) );
-            return $response;
-        }
-
-        // Get live share links from report config
-        $live_share_links = isset($report_config['live_share_links']) ? $report_config['live_share_links'] : [];
-        
-        // Add full URLs to each link
-        $site_url = get_site_url();
-        foreach ($live_share_links as &$link) {
-            $link['url'] = $site_url . '/alpha-insights/reports/' . $report_slug . '/?secret_key=' . $link['secret_key'];
-        }
-
-        $response['success'] = true;
-        $response['data'] = ['links' => $live_share_links];
-        return $response;
-    }
-
-    /**
-     * Core method for creating live share links
-     *
-     * @since 4.7.0
-     *
-     * @param string $report_slug The slug of the report to create live share link for
-     * @param string $name Display name for the live share link
-     * @param string $expiry_date Expiry date for the link
-     * @param string $password Optional password for the link
-     * @param bool $require_password Whether password is required
-     * @return array Response array containing the created live share link
-     */
-    public function create_live_share_link($report_slug, $name, $expiry_date, $password, $require_password) {
-        $response = array();
-
-        // Process expiry date - convert to WordPress timezone datetime
-        $processed_expiry_date = null;
-        if (!empty($expiry_date)) {
-            // Convert the datetime-local input to WordPress timezone
-            $expiry_datetime = new DateTime($expiry_date, new DateTimeZone(wp_timezone_string()));
-            
-            // Store as MySQL datetime format
-            $processed_expiry_date = $expiry_datetime->format('Y-m-d H:i:s');
-        }
-
-        // Get report configuration
-        $report_config = get_option('wpd_dashboard_config_' . $report_slug);
-        
-        if (!$report_config) {
-            $response['success'] = false;
-            $response['message'] = __('Report not found', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
-            return $response;
-        }
-
-        // Initialize live share links array if it doesn't exist
-        if (!isset($report_config['live_share_links'])) {
-            $report_config['live_share_links'] = [];
-        }
-
-        // Generate secret key
-        $secret_key = wp_generate_password(32, false, false);
-
-        // Create new live share link
-        $new_link = [
-            'id' => uniqid(),
-            'name' => $name,
-            'secret_key' => $secret_key,
-            'expiry_date' => $processed_expiry_date,
-            'require_password' => $require_password,
-            'password' => $require_password ? wp_hash_password($password) : null,
-            'created_at' => current_time('mysql'),
-            'created_by' => get_current_user_id()
-        ];
-
-        // Add to report config
-        $report_config['live_share_links'][] = $new_link;
-
-        // Save updated report config
-        $saved = update_option('wpd_dashboard_config_' . $report_slug, $report_config);
-        
-        if (!$saved) {
-            $response['success'] = false;
-            $response['message'] = __('Failed to save live share link', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
-            return $response;
-        }
-
-        $response['success'] = true;
-        $response['message'] = __('Live share link created successfully', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
-        $response['data'] = ['link' => $new_link];
-        return $response;
-    }
-
-    /**
-     * Core method for deleting live share links
-     *
-     * @since 4.7.0
-     *
-     * @param string $link_id The ID of the live share link to delete
-     * @return array Response array indicating success or failure
-     */
-    public function delete_live_share_link($link_id) {
-        $response = array();
-
-        // Find the report that contains this link
-        $all_reports_response = $this->get_available_reports();
-        $found_report_slug = null;
-        
-        // Extract reports from the response structure
-        $all_reports = isset($all_reports_response['data']['reports']) ? $all_reports_response['data']['reports'] : array();
-        
-        if ($all_reports && is_array($all_reports)) {
-            foreach ($all_reports as $report) {
-                // Check both top-level and config-level for live_share_links
-                $live_share_links = $report['live_share_links'] ?? $report['config']['live_share_links'] ?? array();
-                
-                if (!empty($live_share_links)) {
-                    foreach ($live_share_links as $link) {
-                        if ($link['id'] === $link_id) {
-                            $found_report_slug = $report['dashboard_id'];
-                            break 2;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!$found_report_slug) {
-            $response['success'] = false;
-            $response['message'] = __('Live share link not found', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
-            return $response;
-        }
-
-        // Get report configuration
-        $report_config = get_option('wpd_dashboard_config_' . $found_report_slug);
-        
-        if (!$report_config) {
-            $response['success'] = false;
-            $response['message'] = __('Report not found', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
-            return $response;
-        }
-
-        // Remove the link from the array
-        if (isset($report_config['live_share_links'])) {
-            $report_config['live_share_links'] = array_filter(
-                $report_config['live_share_links'],
-                function($link) use ($link_id) {
-                    return $link['id'] !== $link_id;
-                }
-            );
-            
-            // Re-index array
-            $report_config['live_share_links'] = array_values($report_config['live_share_links']);
-        }
-
-        // Save updated report config
-        $saved = update_option('wpd_dashboard_config_' . $found_report_slug, $report_config);
-        
-        if (!$saved) {
-            $response['success'] = false;
-            $response['message'] = __('Failed to delete live share link', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
-            return $response;
-        }
-
-        $response['success'] = true;
-        $response['message'] = __('Live share link deleted successfully', 'alpha-insights-sales-report-builder-analytics-for-woocommerce');
-        return $response;
-    }
-
+    
     /**
      * Validate live share authentication
      */

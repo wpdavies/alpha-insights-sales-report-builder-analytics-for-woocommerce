@@ -59,7 +59,6 @@ class WPDAI_Free_Loader {
     private function __construct() {
 
         add_filter('wpd_alpha_insights_menu_items', array($this, 'filter_wpd_alpha_insights_menu_items'));
-        add_action( 'wpd_ai_before_render_dashboard', array($this, 'handle_custom_report_rendering'), 10, 2 );
 
     }
 
@@ -112,31 +111,6 @@ class WPDAI_Free_Loader {
         return $menu_items;
     }
 
-    /**
-     * Redirect back to the reports page if the report is not a default report
-     * 
-     * @param string $dashboard_id The ID of the dashboard being rendered.
-     * @param array $dashboard_config The configuration array for the dashboard.
-     * @return void
-     */
-    public function handle_custom_report_rendering($dashboard_id, $dashboard_config) {
-
-        // Look at which report we're on, if not on a report, no redirect needed
-        $report_page = isset($_GET['subpage']) ? sanitize_text_field(wp_unslash($_GET['subpage'])) : null;
-
-        // If not on a report, no redirect needed
-        if ( empty( $report_page ) ) return;
-
-        $default_react_report_ids = wpdai_get_default_react_report_ids();
-        if ( ! in_array($dashboard_id, $default_react_report_ids) ) {
-            
-            $safe_redirect = wpdai_admin_page_url('reports');
-            wp_safe_redirect($safe_redirect);
-            exit;
-
-        }
-
-    }
 }
 
 // Initialize the class

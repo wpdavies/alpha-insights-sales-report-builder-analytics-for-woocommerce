@@ -435,7 +435,6 @@ class WPDAI_Admin_Menu {
 
             // If it's a pro report, and this is not the pro version
             $pro_report = ( isset($report['pro_report']) && $report['pro_report'] ) ? true : false;
-            if ( ! in_array( $report['dashboard_id'], wpdai_get_default_react_report_ids() ) ) $pro_report = true;
             if ( $pro_report && ! WPD_AI_PRO ) continue;
 
 			// If it's the analytics category, add it to our analytics menu
