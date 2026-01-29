@@ -829,7 +829,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 		WPDAI_Data_Manager::register_ajax_actions();
 
 		// Load the appropriate loader based on the plugin version
-		if ( WPD_AI_PRO ) {
+		if ( file_exists( WPD_AI_PATH . 'includes/classes/pro/WPDAI_Pro_Loader.php' ) ) {
 			require_once( WPD_AI_PATH . 'includes/classes/pro/WPDAI_Pro_Loader.php');
 		} else {
 			require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Free_Loader.php');

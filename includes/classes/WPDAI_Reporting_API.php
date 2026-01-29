@@ -99,9 +99,18 @@ class WPDAI_Reporting_API {
      * Get realtime dashboard data via REST API
      */
     public static function get_realtime_data($request) {
+
+        if ( ! class_exists('WPDAI_Report_Builder_Pro') ) {
+            return new WP_Error(
+                'class_not_found',
+                'WPDAI_Report_Builder_Pro class not found, Realtime data is only available in the Pro version.',
+                array('status' => 500)
+            );
+        }
+
         try {
             // Use the existing method from WPDAI_Report_Builder to get realtime data
-            $response = WPDAI_Report_Builder::get_realtime_dashboard_data();
+            $response = WPDAI_Report_Builder_Pro::get_realtime_dashboard_data();
 
             // Return REST API response
             if ($response['success']) {
