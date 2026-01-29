@@ -23,25 +23,29 @@ Alpha Insights transforms your WooCommerce store data into real profit, sales an
 
 * **Drag & Drop Report Builder** - Build and modify reports to suit your needs with our intuitive drag & drop woocommerce report builder.
 
-* **Custom Reports (Pro)** - Create and manage infinite beautiful reports in seconds.
+* **Create Custom Reports** - Create and manage infinite beautiful reports in seconds.
 
 * **Profit & Loss Tracking** - See your true profitability beyond just revenue. Track gross profit, net profit, margins, and all costs associated with each order.
 
 * **Cost of Goods Management** - Easily add and manage product costs directly in WooCommerce. Track profit margins per product, variation, and order.
 
-* **Expense Management (PRO)** - Track store expenses like rent, utilities, software subscriptions, employee salaries, and more. Categorize expenses and see their impact on your net profit.
-
 * **Time Series Comparisons and Date Filtering** - Filter reports by custom date ranges, preset date ranges, and easily measure growth in year over year of previous period comparisons.
-
-* **Advanced Filtering (PRO)** - Filter reports by products, customers, orders, expenses, traffic sources, and more.
-
-* **Data Export (PRO)** - Export any report as PDF or CSV. Share reports with your team or accountant.
 
 * **Custom Order Costs** - Add custom costs per order like commissions, handling fees, or other order-specific expenses.
 
 * **Multi-Currency Support** - Track costs and revenues in different currencies with automatic conversion rates.
 
 * **Performance Optimized** - Built for high-performance stores. Efficient database queries and caching ensure fast report generation even with thousands of orders.
+
+* **Expense Management (PRO)** - Track store expenses like rent, utilities, software subscriptions, employee salaries, and more. Categorize expenses and see their impact on your net profit.
+
+* **Add Account Integrations (PRO)** - Integrate your Google Ads & Meta Advertising accounts to automatically sync ad spend, campaign performance & match Woo orders to campaigns for true profit calculations.
+
+* **Advanced Filtering (PRO)** - Filter reports by products, customers, orders, expenses, traffic sources, and more.
+
+* **Export to PDF & CSV (PRO)** - Export any report as PDF or CSV. Share reports with your team or accountant.
+
+* **Realtime Website Traffic (PRO)** - Get realtime analytics dashboards to watch what's actually happening on your store right now.
 
 **Upgrade to Alpha Insights Pro:**
 
