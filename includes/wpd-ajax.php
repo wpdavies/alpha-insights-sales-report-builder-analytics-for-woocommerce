@@ -277,24 +277,6 @@ function wpdai_send_email_ajax() {
 }
 
 /**
- *
- *	Manually send out data to webhook
- *
- */
-add_action('wp_ajax_wpd_webhook_export_manual', 'wpdai_webhook_export_manual' );
-function wpdai_webhook_export_manual() {
-
-	// Verify security
-	if ( ! wpdai_verify_ajax_request() ) {
-		return;
-	}
-
-	$response = wpdai_webhook_post_data();
-	wp_send_json( $response );
-
-}
-
-/**
  * 
  * Ajax Request to manually upgrade DB
  * 

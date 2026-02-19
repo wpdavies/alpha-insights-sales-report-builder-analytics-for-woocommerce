@@ -1,0 +1,52 @@
+<h2>Filter: wpd_ai_cookie_domain</h2>
+
+<p>Set the domain used for Alpha Insights cookies (e.g. session and attribution cookies).</p>
+
+<h3>Description</h3>
+
+<p>The plugin uses the current request host (from <code>home_url()</code>) as the cookie domain by default. This filter lets you override it so cookies are shared across subdomains (e.g. use <code>example.com</code> so both <code>www.example.com</code> and <code>shop.example.com</code> share the same cookie). No leading dot is used (RFC 6265 deprecates the leading dot).</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPDAI_Session_Tracking.php</code></p>
+<p><strong>Method:</strong> <code>WPDAI_Session_Tracking::get_cookie_domain()</code></p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$host</td>
+        <td>string</td>
+        <td>The host parsed from <code>home_url()</code> (e.g. <code>www.example.com</code>)</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> string</p>
+<p>The cookie domain to use (e.g. <code>example.com</code> for subdomain sharing). Empty string to use default behavior.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Share cookies across subdomains</h4>
+
+<pre><code>add_filter( 'wpd_ai_cookie_domain', 'wpd_ai_cookie_domain_root' );
+function wpd_ai_cookie_domain_root( $host ) {
+    // Use root domain so www and shop share the same session
+    if ( preg_match( '/^([a-z0-9\-]+\.)?([a-z0-9\-]+\.[a-z]+)$/i', $host, $m ) ) {
+        return $m[2];
+    }
+    return $host;
+}</code></pre>
+
+<h3>Related</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/21-wpd_session_timeout_seconds.html">wpd_session_timeout_seconds</a> – Session timeout</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/35-wpd_attribution_timeout_seconds.html">wpd_attribution_timeout_seconds</a> – Attribution window</li>
+</ul>

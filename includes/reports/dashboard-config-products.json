@@ -122,7 +122,7 @@
               "type": "metric_card",
               "config": {
                 "title": "Total Product Refunds",
-                "metric": "products.totals.total_product_refund_amount",
+                "metric": "refunds.totals.total_product_refund_amount",
                 "change_indicator": "previous_period",
                 "sub_value": "refunds.totals.refund_rate_percentage",
                 "width_desktop": 3,

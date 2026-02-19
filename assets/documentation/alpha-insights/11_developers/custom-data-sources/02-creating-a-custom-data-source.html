@@ -15,30 +15,34 @@
  */
 defined( 'ABSPATH' ) || exit;
 
-class My_Custom_Data_Source extends WPD_Alpha_Insights_Data_Source_Base {
+class My_Custom_Data_Source extends WPDAI_Custom_Data_Source_Base {
 
-    // Step 2: Set your entity name
-    protected $entity_name = 'my_custom_data';
+    // Step 2: Set your entity name(s) - array of strings
+    protected $entity_names = array( 'my_custom_data' );
 
-    // Step 3: Implement fetch_data()
-    public function fetch_data( $filters, $data_warehouse = null ) {
+    // Step 3: Implement fetch_data() - required
+    public function fetch_data( WPDAI_Data_Warehouse $data_warehouse ) {
         // Your implementation here
     }
 
-    // Step 4: Implement get_data_mapping()
+    // Step 4: Optionally override get_data_mapping() - base returns empty array
     public function get_data_mapping() {
-        // Your implementation here
+        // Your implementation here (optional)
     }
 }
 
 // Step 5: Instantiate to register
 new My_Custom_Data_Source();</code></pre>
 
-<h3>Step 2: Set the Entity Name</h3>
+<h3>Step 2: Set the Entity Name(s)</h3>
 
-<p>The entity name is the ONLY property you need to set. It serves as a unique identifier for your data source.</p>
+<p>The <code>$entity_names</code> property is the only property you need to set. It is an <strong>array</strong> of unique identifier(s) for your data source.</p>
 
-<pre><code>protected $entity_name = 'my_custom_data';</code></pre>
+<pre><code>// Single entity:
+protected $entity_names = array( 'my_custom_data' );
+
+// Multi-entity (one class serving multiple entities):
+protected $entity_names = array( 'orders', 'products', 'customers' );</code></pre>
 
 <p><strong>Requirements:</strong></p>
 <ul>
@@ -47,6 +51,8 @@ new My_Custom_Data_Source();</code></pre>
 <li>Use underscores instead of spaces</li>
 <li>Should be descriptive (e.g., 'inventory_tracking', 'third_party_analytics', 'custom_subscriptions')</li>
 </ul>
+
+<p>Do <strong>not</strong> override <code>get_entity_name()</code> or <code>get_entity_names()</code>; the base class implements these from <code>$entity_names</code>.</p>
 
 <p><strong>Built-in entity names to avoid:</strong></p>
 <ul>
@@ -57,51 +63,36 @@ new My_Custom_Data_Source();</code></pre>
 
 <h3>Step 3: Implement fetch_data()</h3>
 
-<p>The <code>fetch_data()</code> method is where you fetch and return your data. This method receives filters and the data warehouse instance.</p>
+<p>The <code>fetch_data()</code> method is where you fetch and return your data. It receives a single parameter: the <code>WPDAI_Data_Warehouse</code> instance. Get filters and dates from the warehouse (e.g. <code>$data_warehouse->get_filter( 'date_from' )</code>, <code>$data_warehouse->get_date_from()</code>, <code>$data_warehouse->get_date_to()</code>).</p>
 
-<pre><code>public function fetch_data( $filters, $data_warehouse = null ) {
-    $start_time = microtime( true );
-    
-    // Validate data warehouse is available
-    if ( ! $data_warehouse || ! method_exists( $data_warehouse, 'get_data_by_date_range_container' ) ) {
-        return array(
-            'totals' => array(),
-            'categorized_data' => array(),
-            'data_table' => array(),
-            'data_by_date' => array(),
-            'total_db_records' => 0,
-            'execution_time' => microtime( true ) - $start_time,
-        );
-    }
-    
+<pre><code>public function fetch_data( WPDAI_Data_Warehouse $data_warehouse ) {
     // Get date range container for proper date alignment
     $date_range_container = $data_warehouse->get_data_by_date_range_container();
     
-    // Extract date filters
-    $date_from = isset( $filters['date_from'] ) ? $filters['date_from'] : date( 'Y-m-d', strtotime( '-30 days' ) );
-    $date_to = isset( $filters['date_to'] ) ? $filters['date_to'] : date( 'Y-m-d' );
+    // Get date range from warehouse (not from a $filters parameter)
+    $date_from = $data_warehouse->get_date_from();
+    $date_to = $data_warehouse->get_date_to();
     
     // Fetch your data here (database queries, API calls, etc.)
     // ...
     
-    // Return data structure
+    // Return data structure (execution_time and memory_usage are added by the warehouse)
     return array(
         'totals' => array(
             'my_total_metric' => 1234.56,
         ),
         'data_by_date' => array(
-            'my_metric_by_date' => $date_range_container, // Initialize with container
+            'my_metric_by_date' => $date_range_container,
         ),
         'total_db_records' => 100,
-        'execution_time' => microtime( true ) - $start_time,
     );
 }</code></pre>
 
-<p>See <strong>The fetch_data() Method</strong> documentation for detailed information about parameters and return structure.</p>
+<p>See <strong>The fetch_data() Method</strong> documentation for detailed information about the return structure and best practices.</p>
 
-<h3>Step 4: Implement get_data_mapping()</h3>
+<h3>Step 4: Optionally Implement get_data_mapping()</h3>
 
-<p>The <code>get_data_mapping()</code> method defines how React displays and formats your data. This tells the frontend which metrics are available and how to display them.</p>
+<p>The <code>get_data_mapping()</code> method is <strong>optional</strong>. The base class returns an empty array. Override it only when you need to define how React displays and formats your data (metric labels, types, chart options, etc.).</p>
 
 <pre><code>public function get_data_mapping() {
     return array(
@@ -148,22 +139,11 @@ new My_Custom_Data_Source();</code></pre>
  */
 defined( 'ABSPATH' ) || exit;
 
-class Simple_Custom_Data_Source extends WPD_Alpha_Insights_Data_Source_Base {
+class Simple_Custom_Data_Source extends WPDAI_Custom_Data_Source_Base {
     
-    protected $entity_name = 'simple_custom';
+    protected $entity_names = array( 'simple_custom' );
     
-    public function fetch_data( $filters, $data_warehouse = null ) {
-        $start_time = microtime( true );
-        
-        if ( ! $data_warehouse ) {
-            return array(
-                'totals' => array(),
-                'data_by_date' => array(),
-                'total_db_records' => 0,
-                'execution_time' => microtime( true ) - $start_time,
-            );
-        }
-        
+    public function fetch_data( WPDAI_Data_Warehouse $data_warehouse ) {
         $date_range_container = $data_warehouse->get_data_by_date_range_container();
         
         return array(
@@ -174,7 +154,6 @@ class Simple_Custom_Data_Source extends WPD_Alpha_Insights_Data_Source_Base {
                 'simple_by_date' => $date_range_container,
             ),
             'total_db_records' => 1,
-            'execution_time' => microtime( true ) - $start_time,
         );
     }
     
@@ -235,8 +214,8 @@ add_action( 'plugins_loaded', function() {
 <li>Create or edit a report in Alpha Insights</li>
 <li>Add a widget (Metric Card, Chart, etc.)</li>
 <li>In the widget configuration, you should see your entity name in the data source selector</li>
-<li>Your metrics should appear in the metric selector dropdowns</li>
-</li>
+<li>Your metrics should appear in the metric selector dropdowns (if you implemented get_data_mapping())</li>
+</ol>
 
 <h3>Next Steps</h3>
 

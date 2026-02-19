@@ -1,0 +1,67 @@
+<h2>Filter: wpd_ai_event_tracking_block_request_by_data</h2>
+
+<p>Decide whether to block an event from being stored based on the prepared event payload.</p>
+
+<h3>Description</h3>
+
+<p>After normalizing the event data, the plugin may set <code>$block_request = true</code> when the request URL does not contain the site domain (e.g. to avoid storing events from other sites). This filter receives that decision and the full <code>$data</code> array so you can add your own rules (e.g. block by event_type, user_id, or custom fields). Return true to block the event (it will not be inserted).</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPDAI_Woocommerce_Event_Tracking.php</code></p>
+<p><strong>Method:</strong> Used when validating whether to block the request based on event data (e.g. <code>page_href</code> not containing site domain).</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$block_request</td>
+        <td>bool</td>
+        <td>Whether the request is currently marked to be blocked</td>
+    </tr>
+    <tr>
+        <td>$data</td>
+        <td>array</td>
+        <td>The prepared event payload (e.g. session_id, page_href, event_type, event_value, additional_data, etc.)</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> bool</p>
+<p>True to block the event; false to allow it to be stored.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Block events with zero value</h4>
+
+<pre><code>add_filter( 'wpd_ai_event_tracking_block_request_by_data', 'block_zero_value_events', 10, 2 );
+function block_zero_value_events( $block_request, $data ) {
+    if ( isset( $data['event_value'] ) && (float) $data['event_value'] <= 0 ) {
+        return true;
+    }
+    return $block_request;
+}</code></pre>
+
+<h4>Block specific event types</h4>
+
+<pre><code>add_filter( 'wpd_ai_event_tracking_block_request_by_data', 'block_internal_events', 10, 2 );
+function block_internal_events( $block_request, $data ) {
+    $blocked_types = array( 'internal_test', 'debug_click' );
+    if ( ! empty( $data['event_type'] ) && in_array( $data['event_type'], $blocked_types, true ) ) {
+        return true;
+    }
+    return $block_request;
+}</code></pre>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/17-wpd_ai_event_data_before_insertion.html">wpd_ai_event_data_before_insertion</a> – Modify event data before insert</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/38-wpd_ai_event_tracking_prevent_foreign_referrals.html">wpd_ai_event_tracking_prevent_foreign_referrals</a> – Block foreign referers</li>
+</ul>

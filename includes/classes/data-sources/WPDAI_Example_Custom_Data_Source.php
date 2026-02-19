@@ -6,11 +6,12 @@
  * It demonstrates how to create a custom data source with static data for testing.
  *
  * QUICK START:
- * 1. Extend WPD_Alpha_Insights_Data_Source_Base (handles registration automatically)
- * 2. Set the $entity_name property (the ONLY property you need to set)
+ * 1. Extend WPDAI_Custom_Data_Source_Base (handles registration automatically)
+ * 2. Set the $entity_names property (array: one entity or many)
  * 3. Implement fetch_data() method to return your data
- * 4. Implement get_data_mapping() method to define how React displays your data
- * 5. Instantiate the class (new Your_Class_Name()) to register it
+ * 4. Optionally override get_data_mapping() to define how React displays your data (default: empty)
+ * 5. Optionally override get_entity_names() for one-to-many sources (default: single entity)
+ * 6. Instantiate the class (new Your_Class_Name()) to register it
  *
  * The base class handles all registration boilerplate - you just focus on your data!
  *
@@ -33,9 +34,9 @@ defined( 'ABSPATH' ) || exit;
  *
  * IMPORTANT: This class extends WPDAI_Custom_Data_Source_Base, which handles
  * all registration boilerplate automatically. You only need to:
- * 1. Set the $entity_name property (below) - THIS IS THE ONLY REQUIRED PROPERTY
+ * 1. Set the $entity_names property (below) - array of entity name(s)
  * 2. Implement fetch_data() method
- * 3. Implement get_data_mapping() method
+ * 3. Optionally override get_data_mapping() (default returns empty; override to provide React mapping)
  *
  * The base class automatically handles:
  * - Constructor registration (no need to define __construct)
@@ -44,70 +45,41 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 5.0.0
  */
-class WPD_AI_Example_Custom_Data_Source extends WPDAI_Custom_Data_Source_Base {
+class WPDAI_Example_Custom_Data_Source extends WPDAI_Custom_Data_Source_Base {
 
     /**
-     * Entity name for this data source
+     * Entity names this data source provides
      *
-     * THIS IS THE ONLY PROPERTY YOU NEED TO SET!
-     *
-     * Set this to your unique entity identifier. This will be used as the key
-     * in data structures and must be unique across all data sources.
+     * Set to an array of entity identifier(s). Single entity: one entry.
+     * Multi-entity: multiple entries (e.g. array( 'orders', 'products', 'customers' )).
      *
      * Requirements:
      * - Must be unique (not used by built-in entities or other custom sources)
-     * - Should be lowercase
-     * - Use underscores instead of spaces
-     * - Should be descriptive (e.g., 'inventory_tracking', 'custom_analytics')
+     * - Should be lowercase, use underscores instead of spaces
      *
      * @since 5.0.0
      *
-     * @var string
+     * @var array<string>
      */
-    protected $entity_name = 'example_custom_data';
+    protected $entity_names = array( 'example_custom_data' );
 
     /**
      * Fetch data for this custom data source
-     * 
-     * Fetch data from your database, external API, or other data source.
-     * 
-     * This example uses static data for demonstration purposes.
-     * In a real implementation, you would fetch data from your database,
-     * external API, or other data source.
+     *
+     * Get filters via $data_warehouse->get_filter(). This example uses static data.
      *
      * @since 5.0.0
      *
-     * @param array $filters Array of filters
-     * @param WPDAI_Data_Warehouse|null $data_warehouse Optional. The data warehouse instance.
+     * @param WPDAI_Data_Warehouse $data_warehouse The data warehouse instance (required).
      * @return array Data structure
      */
-    public function fetch_data( $filters, $data_warehouse = null ) {
-        
-        // NOTE: Execution time and memory usage are automatically tracked by the data warehouse.
-        // You do NOT need to manually track these metrics. They will be automatically added
-        // to your data structure when it's stored.
-
-        // Extract date range from filters (for reference)
-        $date_from = isset( $filters['date_from'] ) ? $filters['date_from'] : date( 'Y-m-d', strtotime( '-30 days' ) );
-        $date_to = isset( $filters['date_to'] ) ? $filters['date_to'] : date( 'Y-m-d' );
-
-        // Get the date range container from the data warehouse
-        // This ensures dates match exactly with other data sources
-        if ( ! $data_warehouse || ! method_exists( $data_warehouse, 'get_data_by_date_range_container' ) ) {
-            // Data warehouse is required for proper date alignment
-            return array(
-                'totals' => array(),
-                'categorized_data' => array(),
-                'data_table' => array(),
-                'data_by_date' => array(),
-                'total_db_records' => 0,
-                // execution_time and memory_usage are automatically added - don't include them
-            );
-        }
+    public function fetch_data( WPDAI_Data_Warehouse $data_warehouse ) {
 
         $date_range_container = $data_warehouse->get_data_by_date_range_container();
         $date_range = array_keys( $date_range_container );
-        
+        $date_from = $data_warehouse->get_date_from( 'Y-m-d' );
+        $date_to   = $data_warehouse->get_date_to( 'Y-m-d' );
+
         // You can also access other data warehouse methods:
         // - $data_warehouse->get_data_by_date_containers() - All date containers
         // - $data_warehouse->get_filter() - Get current filters

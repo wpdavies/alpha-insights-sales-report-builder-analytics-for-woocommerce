@@ -467,7 +467,7 @@ function wpdai_fetch_session_data( $session_id ) {
 		)
 	);
 	$wpd_data = wpdai_data_warehouse( $filter );
-	$wpd_data->fetch_analytics_data();
+	$wpd_data->fetch_data( array( 'analytics' ) );
 	$session_tables = $wpd_data->get_data('analytics', 'data_table');
 
 	// Sanity check

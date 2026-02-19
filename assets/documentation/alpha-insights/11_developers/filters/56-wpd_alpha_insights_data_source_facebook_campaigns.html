@@ -1,0 +1,55 @@
+<h2>Filter: wpd_alpha_insights_data_source_facebook_campaigns</h2>
+
+<p>Filter the Facebook Ads (facebook_campaigns) entity data returned by the Facebook Campaigns data source before it is stored in the data warehouse.</p>
+
+<h3>Description</h3>
+
+<p>After the Facebook Campaigns data source builds its data (totals, data_by_date, categorized_data, etc.), this filter is applied. You can modify campaign metrics or add custom keys. The data warehouse then stores the returned value for the <code>facebook_campaigns</code> entity. Requires Facebook Ads integration setup.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/data-sources/pro/WPDAI_Facebook_Campaigns_Data_Source.php</code></p>
+<p><strong>Context:</strong> When returning Facebook campaigns data from the data source.</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$facebook_campaign_data</td>
+        <td>array</td>
+        <td>Facebook campaigns data structure (totals, data_by_date, categorized_data, total_db_records, etc.)</td>
+    </tr>
+    <tr>
+        <td>$data_warehouse</td>
+        <td>WPDAI_Data_Warehouse</td>
+        <td>The data warehouse instance</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> array</p>
+<p>The (possibly modified) facebook_campaigns data structure.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Add a custom total</h4>
+
+<pre><code>add_filter( 'wpd_alpha_insights_data_source_facebook_campaigns', 'add_facebook_campaign_metric', 10, 2 );
+function add_facebook_campaign_metric( $facebook_campaign_data, $data_warehouse ) {
+    if ( isset( $facebook_campaign_data['totals'] ) && is_array( $facebook_campaign_data['totals'] ) ) {
+        $facebook_campaign_data['totals']['effective_cpc'] = 0; // Compute from spend/clicks
+    }
+    return $facebook_campaign_data;
+}</code></pre>
+
+<h3>Related</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/55-wpd_alpha_insights_data_source_google_campaigns.html">wpd_alpha_insights_data_source_google_campaigns</a> – Google campaigns data</li>
+</ul>

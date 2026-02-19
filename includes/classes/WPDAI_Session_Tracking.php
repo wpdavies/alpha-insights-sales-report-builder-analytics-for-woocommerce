@@ -44,7 +44,45 @@ class WPDAI_Session_Tracking {
     public string   $object_type = '';
     private bool    $is_new_session = false; // Track if this is a newly created session (first page load)
     private bool    $enable_logging = false;
+
+    /** Default attribution window in days when settings unavailable; landing/referral expire after this from first set. */
+    private const DEFAULT_ATTRIBUTION_DAYS = 3;
+
+    /**
+     *
+     *  Get attribution timeout in seconds (landing page & referral URL expire after this from first set).
+     *  Reads days from analytics settings (wpdai_get_analytics_settings), defaults to 3 days on failure.
+     *  Static so it can be used without instantiating the class (e.g. for script localization).
+     *
+     *  @return int Timeout in seconds
+     *
+     */
+    public static function get_attribution_timeout_seconds() {
+        $days = self::DEFAULT_ATTRIBUTION_DAYS;
+        if ( function_exists( 'wpdai_get_analytics_settings' ) ) {
+            $settings = wpdai_get_analytics_settings();
+            $days     = isset( $settings['attribution_timeout_in_days'] ) ? absint( $settings['attribution_timeout_in_days'] ) : self::DEFAULT_ATTRIBUTION_DAYS;
+            $days     = $days >= 1 ? $days : self::DEFAULT_ATTRIBUTION_DAYS;
+        }
+        $seconds = $days * DAY_IN_SECONDS;
+        return (int) apply_filters( 'wpd_attribution_timeout_seconds', $seconds );
+    }
+
+    /**
+     * Get the main domain for cookie scope (available on subdomains).
+     * No leading dot; per RFC 6265 the leading dot is deprecated.
+     *
+     * @return string Main domain (e.g. example.com) or empty string on failure
+     */
+    public static function get_cookie_domain() {
+        $host = wp_parse_url( home_url(), PHP_URL_HOST );
     
+        if ( empty( $host ) ) {
+            return '';
+        }
+    
+        return (string) apply_filters( 'wpd_ai_cookie_domain', $host );
+    }
 
     /**
      *
@@ -55,84 +93,6 @@ class WPDAI_Session_Tracking {
 
         // Setup all props
         $this->setup_session_data();
-
-    }
-
-    /**
-     *
-     *  Log class initialization with context information
-     * 
-     *  @return void
-     *
-     */
-    private function log_initialization() {
-
-
-        // Get current hook/action
-        $current_hook = '';
-        if ( function_exists( 'current_filter' ) ) {
-            $current_hook = current_filter();
-        }
-        if ( empty( $current_hook ) && function_exists( 'current_action' ) ) {
-            $current_hook = current_action();
-        }
-        if ( empty( $current_hook ) ) {
-            $current_hook = 'unknown';
-        }
-
-        // Determine request context
-        $context = array();
-        
-        if ( is_admin() ) {
-            $context[] = 'admin';
-        }
-        if ( defined( 'DOING_AJAX' ) && constant( 'DOING_AJAX' ) ) {
-            $context[] = 'ajax';
-        }
-        if ( defined( 'REST_REQUEST' ) && constant( 'REST_REQUEST' ) ) {
-            $context[] = 'rest_api';
-        }
-        if ( defined( 'WP_CLI' ) && constant( 'WP_CLI' ) ) {
-            $context[] = 'wp_cli';
-        }
-        if ( defined( 'DOING_CRON' ) && constant( 'DOING_CRON' ) ) {
-            $context[] = 'cron';
-        }
-        if ( empty( $context ) ) {
-            $context[] = 'frontend';
-        }
-
-        // Get backtrace to see where it's being called from
-        $backtrace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 5 );
-        $caller_info = '';
-        
-        if ( ! empty( $backtrace ) && isset( $backtrace[1] ) ) {
-            $caller = $backtrace[1];
-            $caller_file = isset( $caller['file'] ) ? basename( $caller['file'] ) : 'unknown';
-            $caller_line = isset( $caller['line'] ) ? $caller['line'] : 'unknown';
-            $caller_function = isset( $caller['function'] ) ? $caller['function'] : 'unknown';
-            $caller_class = isset( $caller['class'] ) ? $caller['class'] : '';
-            
-            if ( ! empty( $caller_class ) ) {
-                $caller_info = sprintf( '%s::%s() in %s:%d', $caller_class, $caller_function, $caller_file, $caller_line );
-            } else {
-                $caller_info = sprintf( '%s() in %s:%d', $caller_function, $caller_file, $caller_line );
-            }
-        }
-
-        // Build log message
-        $log_message = sprintf(
-            __( 'WPDAI_Session_Tracking initialized. Hook: %s, Context: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
-            $current_hook,
-            implode( ', ', $context )
-        );
-
-        if ( ! empty( $caller_info ) ) {
-            $log_message .= sprintf( __( ', Called from: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $caller_info );
-        }
-
-        // Log the initialization
-        $this->log( $log_message );
 
     }
 
@@ -168,8 +128,6 @@ class WPDAI_Session_Tracking {
      *
      */
     public function setup_session_data() {
-
-        $this->log_initialization();
 
         // Collect User Agent Data
         $user_agent = new WPDAI_User_Agent_Classification();
@@ -445,11 +403,10 @@ class WPDAI_Session_Tracking {
             $time_since_activity = time() - $session_timestamp;
             
             if ( $time_since_activity > $session_timeout ) {
-                // Session expired, clear it and related data
+                // Session expired: clear only session ID and timestamp. Landing page and referral URL
+                // are de-coupled and expire by their own attribution_timeout (e.g. 48h), not session lifecycle.
                 unset($_SESSION['wpd_ai_session_id']);
                 unset($_SESSION['wpd_ai_session_timestamp']);
-                unset($_SESSION['wpd_ai_landing_page']);
-                unset($_SESSION['wpd_ai_referral_url']);
                 return false;
             }
 
@@ -528,11 +485,10 @@ class WPDAI_Session_Tracking {
         $time_since_activity = time() - (int) $session_timestamp;
         
         if ( $time_since_activity > $session_timeout ) {
-            // Session expired, clear it and related data
+            // Session expired: clear only session ID and timestamp. Landing page and referral URL
+            // are de-coupled and expire by their own attribution_timeout (e.g. 48h), not session lifecycle.
             $wc_session->set( 'wpd_ai_session_id', '' );
             $wc_session->set( 'wpd_ai_session_timestamp', '' );
-            $wc_session->set( 'wpd_ai_landing_page', '' );
-            $wc_session->set( 'wpd_ai_referral_url', '' );
             return false;
         }
 
@@ -586,9 +542,17 @@ class WPDAI_Session_Tracking {
             return false;
         }
 
-        // Get referral URL from $_SESSION
-        if ( session_status() === PHP_SESSION_ACTIVE && isset($_SESSION['wpd_ai_referral_url']) && ! empty($_SESSION['wpd_ai_referral_url']) ) {
-            return esc_url_raw( $_SESSION['wpd_ai_referral_url'] );
+        // Get referral URL from $_SESSION (expires after attribution_timeout from when set, not updated by activity).
+        // Returns '' when we have explicitly stored "direct" (empty), so we don't fall through to other sources.
+        if ( session_status() === PHP_SESSION_ACTIVE && isset( $_SESSION['wpd_ai_referral_url'] ) ) {
+            $set_at  = isset( $_SESSION['wpd_ai_referral_url_set_at'] ) ? (int) $_SESSION['wpd_ai_referral_url_set_at'] : time();
+            $timeout = self::get_attribution_timeout_seconds();
+            if ( ( time() - $set_at ) > $timeout ) {
+                unset( $_SESSION['wpd_ai_referral_url'] );
+                unset( $_SESSION['wpd_ai_referral_url_set_at'] );
+                return false;
+            }
+            return '' === $_SESSION['wpd_ai_referral_url'] ? '' : esc_url_raw( $_SESSION['wpd_ai_referral_url'] );
         }
 
         return false;
@@ -600,28 +564,35 @@ class WPDAI_Session_Tracking {
      * Store referral URL in PHP $_SESSION as backup
      * 
      * @param string $referral_url The referral URL to store
+     * @return bool True if value was stored (first set), false if already set or not stored
      * 
      */
     private function store_referral_url_in_php_session( $referral_url ) {
 
         // Only use PHP sessions if not in admin, not in CRON, and sessions are available
         if ( is_admin() || ( defined('DOING_CRON') && DOING_CRON ) ) {
-            return;
+            return false;
         }
 
         // Check if sessions are enabled and not disabled
         if ( session_status() === PHP_SESSION_DISABLED ) {
-            return;
+            return false;
         }
 
-        // Store referral URL in $_SESSION (only if not already set, to preserve original)
+        // Store referral URL in $_SESSION (only if not already set, to preserve original); expires after attribution_timeout.
+        // For empty string (direct): only set when key never set, so we don't extend expiry on every request.
         if ( session_status() === PHP_SESSION_ACTIVE ) {
-            // Only set if not already exists (preserve original on first load)
-            if ( ! isset($_SESSION['wpd_ai_referral_url']) || empty($_SESSION['wpd_ai_referral_url']) ) {
-                $_SESSION['wpd_ai_referral_url'] = esc_url_raw( $referral_url );
+            $is_empty = ( '' === $referral_url );
+            $not_set  = ! isset( $_SESSION['wpd_ai_referral_url'] );
+            $can_set  = $not_set || ( ! $is_empty && empty( $_SESSION['wpd_ai_referral_url'] ) );
+            if ( $can_set ) {
+                $_SESSION['wpd_ai_referral_url']        = '' === $referral_url ? '' : esc_url_raw( $referral_url );
+                $_SESSION['wpd_ai_referral_url_set_at'] = time();
+                return true;
             }
         }
 
+        return false;
     }
 
     /**
@@ -678,10 +649,18 @@ class WPDAI_Session_Tracking {
             return false;
         }
 
-        // Get referral URL from WooCommerce session (our own stored value)
-        $wc_referral = $wc_session->get( 'wpd_ai_referral_url' );
-        if ( ! empty($wc_referral) ) {
-            return esc_url_raw( $wc_referral );
+        // Get referral URL from WooCommerce session (our own stored value); expires after attribution_timeout.
+        // When set_at exists we have a stored value (URL or '' for direct); return it if not expired.
+        $set_at = $wc_session->get( 'wpd_ai_referral_url_set_at' );
+        if ( '' !== $set_at && null !== $set_at ) {
+            $set_at   = (int) $set_at;
+            $timeout  = self::get_attribution_timeout_seconds();
+            if ( ( time() - $set_at ) <= $timeout ) {
+                $wc_referral = $wc_session->get( 'wpd_ai_referral_url' );
+                return '' === $wc_referral ? '' : esc_url_raw( $wc_referral );
+            }
+            $wc_session->set( 'wpd_ai_referral_url', '' );
+            $wc_session->set( 'wpd_ai_referral_url_set_at', '' );
         }
 
         return false;
@@ -693,139 +672,35 @@ class WPDAI_Session_Tracking {
      * Store referral URL in WooCommerce session backup
      * 
      * @param string $referral_url The referral URL to store
+     * @return bool True if value was stored (first set), false if already set or not stored
      * 
      */
     private function store_referral_url_in_wc_session( $referral_url ) {
 
         // Check if WooCommerce is active and session handler is available
         if ( ! class_exists('WooCommerce') || ! function_exists('WC') ) {
-            return;
+            return false;
         }
 
         $wc_session = WC()->session;
         if ( ! $wc_session || ! is_a( $wc_session, 'WC_Session' ) ) {
-            return;
+            return false;
         }
 
-        // Store referral URL in WooCommerce session (only if not already set, to preserve original)
+        // Store referral URL in WooCommerce session (only if not already set); expires after attribution_timeout.
+        // For empty (direct): only set when we never stored before (set_at not set), so we don't extend expiry.
         $existing = $wc_session->get( 'wpd_ai_referral_url' );
-        if ( empty($existing) ) {
-            $wc_session->set( 'wpd_ai_referral_url', esc_url_raw( $referral_url ) );
-        }
-
-    }
-
-    /**
-     * 
-     * Get landing page from PHP $_SESSION backup
-     * 
-     * @return string|false Landing page URL if found, false otherwise
-     * 
-     */
-    private function get_landing_page_from_php_session() {
-
-        // Only use PHP sessions if not in admin, not in CRON, and sessions are available
-        if ( is_admin() || ( defined('DOING_CRON') && DOING_CRON ) ) {
-            return false;
-        }
-
-        // Check if sessions are enabled and not disabled
-        if ( session_status() === PHP_SESSION_DISABLED ) {
-            return false;
-        }
-
-        // Get landing page from $_SESSION
-        if ( session_status() === PHP_SESSION_ACTIVE && isset($_SESSION['wpd_ai_landing_page']) && ! empty($_SESSION['wpd_ai_landing_page']) ) {
-            return esc_url_raw( $_SESSION['wpd_ai_landing_page'] );
+        $set_at   = $wc_session->get( 'wpd_ai_referral_url_set_at' );
+        $is_empty = ( '' === $referral_url );
+        $not_set  = ( '' === $set_at || null === $set_at );
+        $can_set  = $not_set || ( ! $is_empty && empty( $existing ) );
+        if ( $can_set ) {
+            $wc_session->set( 'wpd_ai_referral_url', '' === $referral_url ? '' : esc_url_raw( $referral_url ) );
+            $wc_session->set( 'wpd_ai_referral_url_set_at', time() );
+            return true;
         }
 
         return false;
-
-    }
-
-    /**
-     * 
-     * Store landing page in PHP $_SESSION as backup
-     * 
-     * @param string $landing_page The landing page URL to store
-     * 
-     */
-    private function store_landing_page_in_php_session( $landing_page ) {
-
-        // Only use PHP sessions if not in admin, not in CRON, and sessions are available
-        if ( is_admin() || ( defined('DOING_CRON') && DOING_CRON ) ) {
-            return;
-        }
-
-        // Check if sessions are enabled and not disabled
-        if ( session_status() === PHP_SESSION_DISABLED ) {
-            return;
-        }
-
-        // Store landing page in $_SESSION (only if not already set, to preserve original)
-        if ( session_status() === PHP_SESSION_ACTIVE ) {
-            // Only set if not already exists (preserve original on first load)
-            if ( ! isset($_SESSION['wpd_ai_landing_page']) || empty($_SESSION['wpd_ai_landing_page']) ) {
-                $_SESSION['wpd_ai_landing_page'] = esc_url_raw( $landing_page );
-            }
-        }
-
-    }
-
-    /**
-     * 
-     * Get landing page from WooCommerce session backup
-     * 
-     * @return string|false Landing page URL if found, false otherwise
-     * 
-     */
-    private function get_landing_page_from_wc_session() {
-
-        // Check if WooCommerce is active and session handler is available
-        if ( ! class_exists('WooCommerce') || ! function_exists('WC') ) {
-            return false;
-        }
-
-        $wc_session = WC()->session;
-        if ( ! $wc_session || ! is_a( $wc_session, 'WC_Session' ) ) {
-            return false;
-        }
-
-        // Get landing page from WooCommerce session
-        $wc_landing = $wc_session->get( 'wpd_ai_landing_page' );
-        if ( ! empty($wc_landing) ) {
-            return esc_url_raw( $wc_landing );
-        }
-
-        return false;
-
-    }
-
-    /**
-     * 
-     * Store landing page in WooCommerce session backup
-     * 
-     * @param string $landing_page The landing page URL to store
-     * 
-     */
-    private function store_landing_page_in_wc_session( $landing_page ) {
-
-        // Check if WooCommerce is active and session handler is available
-        if ( ! class_exists('WooCommerce') || ! function_exists('WC') ) {
-            return;
-        }
-
-        $wc_session = WC()->session;
-        if ( ! $wc_session || ! is_a( $wc_session, 'WC_Session' ) ) {
-            return;
-        }
-
-        // Store landing page in WooCommerce session (only if not already set, to preserve original)
-        $existing = $wc_session->get( 'wpd_ai_landing_page' );
-        if ( empty($existing) ) {
-            $wc_session->set( 'wpd_ai_landing_page', esc_url_raw( $landing_page ) );
-        }
-
     }
 
     /**
@@ -838,20 +713,14 @@ class WPDAI_Session_Tracking {
      */
     private function set_session_cookie( $session_id, $expiry ) {
 
-        // Determine if we're on HTTPS
-        $https_value = isset($_SERVER['HTTPS']) ? sanitize_text_field($_SERVER['HTTPS']) : '';
-        $forwarded_proto = isset($_SERVER['HTTP_X_FORWARDED_PROTO']) ? sanitize_text_field($_SERVER['HTTP_X_FORWARDED_PROTO']) : '';
-        $cf_visitor = isset($_SERVER['HTTP_CF_VISITOR']) ? sanitize_text_field($_SERVER['HTTP_CF_VISITOR']) : '';
-        $is_https = ( ! empty($https_value) && $https_value !== 'off' ) || 
-                    ( ! empty($forwarded_proto) && $forwarded_proto === 'https' ) ||
-                    ( ! empty($cf_visitor) && strpos($cf_visitor, '"scheme":"https"') !== false );
+        $cookie_domain = self::get_cookie_domain();
 
-        // Cookie options for better Cloudflare/WP Engine compatibility
+        // Cookie options: domain for subdomains, secure=false
         $cookie_options = array(
             'expires' => $expiry,
-            'path' => '/',
-            'domain' => '', // Empty = current domain only (better for subdomains)
-            'secure' => $is_https, // Secure flag for HTTPS
+            'path'    => '/',
+            'domain'  => $cookie_domain,
+            'secure'  => false,
             'httponly' => false, // Allow JavaScript access (needed for AJAX)
             'samesite' => 'Lax' // Lax is more permissive than Strict, works better with Cloudflare
         );
@@ -894,35 +763,38 @@ class WPDAI_Session_Tracking {
 
         // Default
         $referral_url = '';
+        $from_own_storage = false; // True when value came from our cookie or session (do not reset cookie).
 
-        // Priority 1: Try to get from cookie (set by JavaScript on frontend)
-        if ( isset($_COOKIE['wpd_ai_referral_source']) && ! empty($_COOKIE['wpd_ai_referral_source']) ) {
+        // Priority 1: Try to get from cookie (set by JavaScript on frontend or by us for "direct")
+        if ( isset( $_COOKIE['wpd_ai_referral_source'] ) ) {
 
-            // Get raw cookie value and sanitize immediately
-            $referral_url = sanitize_text_field( wp_unslash( $_COOKIE['wpd_ai_referral_source'] ) );
-
+            $cookie_val = sanitize_text_field( wp_unslash( $_COOKIE['wpd_ai_referral_source'] ) );
             $this->log( '[Session ID: ' . $this->session_id . '] Priority 1: Checking cookie (wpd_ai_referral_source).' );
 
-            // Try decoding if it's URL-encoded (may be double-encoded)
-            $decoded = rawurldecode($referral_url);
-            
-            // If still encoded, decode again (handle double-encoding)
-            if ( $decoded !== $referral_url ) {
-                $referral_url = $decoded;
-                // Try one more decode in case of double-encoding
-                $double_decoded = rawurldecode($referral_url);
-                if ( $double_decoded !== $referral_url && filter_var($double_decoded, FILTER_VALIDATE_URL) ) {
-                    $referral_url = $double_decoded;
-                }
-            }
-
-            // Validate URL format and ensure it's external domain (combined validation)
-            $validated_url = $this->validate_external_referral_url( $referral_url );
-            if ( $validated_url ) {
-                $referral_url = $validated_url;
-                $this->log( '[Session ID: ' . $this->session_id . '] Priority 1: Cookie method SUCCESS - Referral URL: ' . $referral_url );
+            // Cookie set but empty = we previously locked in "direct"; don't fall through to other sources
+            if ( '' === $cookie_val ) {
+                $referral_url     = '';
+                $from_own_storage = true;
+                $this->log( '[Session ID: ' . $this->session_id . '] Priority 1: Cookie method SUCCESS - Referral URL: (direct)' );
             } else {
-                $referral_url = '';
+                $referral_url = $cookie_val;
+                // Try decoding if it's URL-encoded (may be double-encoded)
+                $decoded = rawurldecode( $referral_url );
+                if ( $decoded !== $referral_url ) {
+                    $referral_url = $decoded;
+                    $double_decoded = rawurldecode( $referral_url );
+                    if ( $double_decoded !== $referral_url && filter_var( $double_decoded, FILTER_VALIDATE_URL ) ) {
+                        $referral_url = $double_decoded;
+                    }
+                }
+                $validated_url = $this->validate_external_referral_url( $referral_url );
+                if ( $validated_url ) {
+                    $referral_url     = $validated_url;
+                    $from_own_storage = true;
+                    $this->log( '[Session ID: ' . $this->session_id . '] Priority 1: Cookie method SUCCESS - Referral URL: ' . $referral_url );
+                } else {
+                    $referral_url = '';
+                }
             }
         }
         // Priority 2: WooCommerce native order attribution (WC 8.5+) - most reliable server-side source
@@ -932,14 +804,16 @@ class WPDAI_Session_Tracking {
             $referral_url = $this->get_referral_url_from_wc_order_attribution();
         }
         // Priority 3: Fallback to PHP $_SESSION (for Cloudflare/WP Engine cookie issues)
-        elseif ( $this->get_referral_url_from_php_session() ) {
+        elseif ( false !== ( $php_ref = $this->get_referral_url_from_php_session() ) ) {
             $this->log( '[Session ID: ' . $this->session_id . '] Priority 3: PHP $_SESSION method SUCCESS' );
-            $referral_url = $this->get_referral_url_from_php_session();
+            $referral_url     = $php_ref; // May be '' for locked-in "direct"
+            $from_own_storage = true;
         }
         // Priority 4: Try WooCommerce session (our own stored value) if available
-        elseif ( $this->get_referral_url_from_wc_session() ) {
+        elseif ( false !== ( $wc_ref = $this->get_referral_url_from_wc_session() ) ) {
             $this->log( '[Session ID: ' . $this->session_id . '] Priority 4: WooCommerce session method SUCCESS' );
-            $referral_url = $this->get_referral_url_from_wc_session();
+            $referral_url     = $wc_ref; // May be '' for locked-in "direct"
+            $from_own_storage = true;
         }
         // Priority 5: Fallback to HTTP_REFERER if cookie/sessions don't exist (only external domains)
         // This captures referrers on first page load before JavaScript sets the cookie
@@ -964,25 +838,20 @@ class WPDAI_Session_Tracking {
             $referral_url = $this->get_referral_url_from_url_parameters();
         }
 
-        // Log if no referral URL was found
+        // Log if no referral URL was found (direct visit)
         if ( empty( $referral_url ) ) {
-            $this->log( '[Session ID: ' . $this->session_id . '] No referral URL found after checking all 7 priority methods' );
+            $this->log( '[Session ID: ' . $this->session_id . '] No referral URL found after checking all 7 priority methods (direct)' );
         }
 
-        // If we have a referral URL, store it in all available storage methods for future requests
-        if ( ! empty($referral_url) ) {
-            // Store in PHP session as backup (for Cloudflare/WP Engine compatibility)
-            $this->store_referral_url_in_php_session( $referral_url );
+        // Store in session (and optionally set cookie): non-empty when we have a referrer, empty to lock in "direct"
+        // so future requests don't pick up internal or other referrers. Only write when not already set to avoid resetting.
+        $stored_php = $this->store_referral_url_in_php_session( $referral_url );
+        $stored_wc  = $this->store_referral_url_in_wc_session( $referral_url );
 
-            // Store in WooCommerce session if available
-            $this->store_referral_url_in_wc_session( $referral_url );
-
-            // Always attempt to set/refresh cookie (primary storage method)
-            // This ensures cookie is set even if referral URL was retrieved from PHP/WC session
-            if ( ! headers_sent() ) {
-                // Use same cookie settings as session cookie for consistency
-                $this->set_referral_cookie( $referral_url );
-            }
+        // Set cookie only when we just stored (first time) and value did not come from our own cookie/session.
+        // Never overwrite when from_own_storage so expiry stays at first set + attribution_timeout (matches landing page).
+        if ( ( $stored_php || $stored_wc ) && ! $from_own_storage && ! headers_sent() ) {
+            $this->set_referral_cookie( $referral_url );
         }
 
         // Set the prop
@@ -994,29 +863,22 @@ class WPDAI_Session_Tracking {
 
     /**
      * 
-     * Set referral cookie with improved settings for Cloudflare/WP Engine compatibility
-     * Uses same cookie settings as session cookie for consistency
+     * Set referral cookie with improved settings for Cloudflare/WP Engine compatibility.
+     * Cookie expires after attribution_timeout seconds (e.g. 48 hours) from when set; not updated by activity.
      * 
      * @param string $referral_url The referral URL to set
      * 
      */
     private function set_referral_cookie( $referral_url ) {
 
-        // Determine if we're on HTTPS
-        $https_value = isset($_SERVER['HTTPS']) ? sanitize_text_field($_SERVER['HTTPS']) : '';
-        $forwarded_proto = isset($_SERVER['HTTP_X_FORWARDED_PROTO']) ? sanitize_text_field($_SERVER['HTTP_X_FORWARDED_PROTO']) : '';
-        $cf_visitor = isset($_SERVER['HTTP_CF_VISITOR']) ? sanitize_text_field($_SERVER['HTTP_CF_VISITOR']) : '';
-        $is_https = ( ! empty($https_value) && $https_value !== 'off' ) || 
-                    ( ! empty($forwarded_proto) && $forwarded_proto === 'https' ) ||
-                    ( ! empty($cf_visitor) && strpos($cf_visitor, '"scheme":"https"') !== false );
+        $cookie_domain = self::get_cookie_domain();
 
-        // Cookie options for better Cloudflare/WP Engine compatibility
-        // No expiry (session cookie) - will persist until browser closes
+        // Cookie options: domain for subdomains, secure=false, expires after attribution_timeout
         $cookie_options = array(
-            'expires' => 0,
-            'path' => '/',
-            'domain' => '', // Empty = current domain only (better for subdomains)
-            'secure' => $is_https, // Secure flag for HTTPS
+            'expires'  => time() + self::get_attribution_timeout_seconds(),
+            'path'     => '/',
+            'domain'   => $cookie_domain,
+            'secure'   => false,
             'httponly' => false, // Allow JavaScript access (needed for frontend updates)
             'samesite' => 'Lax' // Lax is more permissive than Strict, works better with Cloudflare
         );
@@ -1413,22 +1275,24 @@ class WPDAI_Session_Tracking {
 
         if ( $value_exists ) {
 
-            $update_user = false;
+            $update_user = '';
             if ( $data['user_id'] > 0 ) {
-                $update_user = 'user_id = ' . $data['user_id'] . ',';
+                $update_user = 'user_id = ' . (int) $data['user_id'] . ',';
             }
-            // Update date
+            // Update date and engaged_session
             $rows_updated = $wpdb->query(
-                $wpdb->prepare( 
+                $wpdb->prepare(
                     "UPDATE $table_name 
                     SET date_updated_gmt = %s,
                     landing_page = %s,
+                    engaged_session = %d,
                     $update_user
                     referral_url = %s 
                     WHERE session_id = %s",
-                    $data['date_updated_gmt'], 
-                    $data['landing_page'], 
-                    $data['referral_url'], 
+                    $data['date_updated_gmt'],
+                    $data['landing_page'],
+                    $data['engaged_session'],
+                    $data['referral_url'],
                     $data['session_id']
                 )
             );

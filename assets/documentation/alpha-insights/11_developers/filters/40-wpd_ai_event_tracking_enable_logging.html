@@ -1,0 +1,53 @@
+<h2>Filter: wpd_ai_event_tracking_enable_logging</h2>
+
+<p>Enable or disable debug logging for the WooCommerce event tracking (REST endpoint and event insertion).</p>
+
+<h3>Description</h3>
+
+<p>The event tracking class uses this filter to decide whether to write debug logs (e.g. request payloads, insert results). When true, logging is sent via <code>wpdai_write_log()</code>. The filter is applied when the class initializes its <code>$enable_logging</code> property and again when logging. Default is false.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPDAI_Woocommerce_Event_Tracking.php</code></p>
+<p><strong>Context:</strong> Property initialization and when writing log messages.</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$enable_logging</td>
+        <td>bool</td>
+        <td>Current value (default false). Return true to enable event tracking debug logs.</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> bool</p>
+<p>True to enable event tracking logging; false to disable.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Enable when WP_DEBUG is on</h4>
+
+<pre><code>add_filter( 'wpd_ai_event_tracking_enable_logging', function( $enable_logging ) {
+    return defined( 'WP_DEBUG' ) && WP_DEBUG;
+} );</code></pre>
+
+<h4>Enable in local environment only</h4>
+
+<pre><code>add_filter( 'wpd_ai_event_tracking_enable_logging', function( $enable_logging ) {
+    return wp_get_environment_type() === 'local';
+} );</code></pre>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/17-wpd_ai_event_data_before_insertion.html">wpd_ai_event_data_before_insertion</a> – Modify event data</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/37-wpd_ai_session_tracking_enable_logging.html">wpd_ai_session_tracking_enable_logging</a> – Session tracking logging</li>
+</ul>

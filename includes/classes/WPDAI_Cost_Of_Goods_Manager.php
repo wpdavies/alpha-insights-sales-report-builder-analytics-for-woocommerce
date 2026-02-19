@@ -133,11 +133,15 @@ class WPDAI_Cost_Of_Goods_Manager {
                         <div class="wpd-cogs-stat-value" id="wpd-cogs-avg-margin">-</div>
                     </div>
                     <div class="wpd-cogs-stat-card">
-                        <div class="wpd-cogs-stat-label">Stock Value (RRP)</div>
+                        <div class="wpd-cogs-stat-label"><?php esc_html_e( 'Stock Value (RRP)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
                         <div class="wpd-cogs-stat-value" id="wpd-cogs-total-stock-value-rrp">-</div>
                     </div>
                     <div class="wpd-cogs-stat-card">
-                        <div class="wpd-cogs-stat-label">Stock Value (Cost)</div>
+                        <div class="wpd-cogs-stat-label"><?php esc_html_e( 'Stock Value (Sell)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+                        <div class="wpd-cogs-stat-value" id="wpd-cogs-total-stock-value-sell">-</div>
+                    </div>
+                    <div class="wpd-cogs-stat-card">
+                        <div class="wpd-cogs-stat-label"><?php esc_html_e( 'Stock Value (Cost)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
                         <div class="wpd-cogs-stat-value" id="wpd-cogs-total-stock-value-cost">-</div>
                     </div>
                 </div>
@@ -250,7 +254,8 @@ class WPDAI_Cost_Of_Goods_Manager {
                                      </th>
                                      <th class="wpd-cogs-sortable" data-column="name">Product</th>
                                      <th class="wpd-cogs-sortable" data-column="rrp">RRP</th>
-                                     <th>Cost</th>
+                                     <th class="wpd-cogs-sortable" data-column="sell_price"><?php esc_html_e( 'Sell Price', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+                                     <th><?php esc_html_e( 'Cost of Goods', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
                                      <th class="wpd-cogs-sortable" data-column="margin">Margin %</th>
                                      <th class="wpd-cogs-sortable" data-column="profit">Profit</th>
                                      <th class="wpd-cogs-sortable" data-column="stock">Stock</th>
@@ -258,7 +263,7 @@ class WPDAI_Cost_Of_Goods_Manager {
                                  </tr>
                              </thead>
                              <tbody id="wpd-cogs-table-body">
-                                 <tr><td colspan="8" class="wpd-cogs-loading">Loading products...</td></tr>
+                                 <tr><td colspan="9" class="wpd-cogs-loading"><?php esc_html_e( 'Loading products...', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></td></tr>
                              </tbody>
                          </table>
                     </div>
@@ -366,6 +371,7 @@ class WPDAI_Cost_Of_Goods_Manager {
 				$args['order'] = strtoupper($sort_order);
 				break;
 			case 'rrp':
+			case 'sell_price':
 			case 'cost':
 			case 'margin':
 			case 'profit':
@@ -391,7 +397,8 @@ class WPDAI_Cost_Of_Goods_Manager {
 			$is_variable_product = ($product_type === 'variable');
 			
 			$rrp = (float) $product->get_regular_price();
-			
+			$sell_price = (float) $product->get_price();
+
 			// Get the actual meta value (if set by user) - using the correct meta key
 			$meta_cost_raw = get_post_meta($product_id, '_wpd_ai_product_cost', true);
 			
@@ -427,15 +434,17 @@ class WPDAI_Cost_Of_Goods_Manager {
 				}
 			}
 
-			// For variable products, set RRP, margin, and profit to null (N/A)
+			// For variable products, set RRP, sell price, margin, and profit to null (N/A)
 			// Cost can still be set, but calculations are not relevant for variable products
 			if ( $is_variable_product ) {
 				$rrp = null;
+				$sell_price = null;
 				$margin = null;
 				$profit = null;
 			} else {
-				$margin = $rrp > 0 ? (($rrp - $cost) / $rrp * 100) : 0;
-				$profit = $rrp - $cost;
+				// Use sell price for margin and profit calculations (actual selling price)
+				$margin = $sell_price > 0 ? ( ( $sell_price - $cost ) / $sell_price * 100 ) : 0;
+				$profit = $sell_price - $cost;
 			}
 
 			$product_data = [
@@ -444,6 +453,7 @@ class WPDAI_Cost_Of_Goods_Manager {
 				'sku' => $product->get_sku() ?: '',
 				'type' => $product_type,
 				'rrp' => $rrp,
+				'sell_price' => $sell_price,
 				'cost' => $cost,
 				'meta_cost' => $meta_cost, // null if not set, 0 if set to 0, value if set
 				'default_cost' => (float) $default_cost, // The default/fallback value
@@ -463,7 +473,7 @@ class WPDAI_Cost_Of_Goods_Manager {
 		$stats = self::calculate_global_stats($filters);
 
 		// Apply custom sorting if needed
-		if (in_array($sort_by, ['rrp', 'cost', 'margin', 'profit', 'stock'])) {
+		if (in_array($sort_by, ['rrp', 'sell_price', 'cost', 'margin', 'profit', 'stock'])) {
 			usort($products, function($a, $b) use ($sort_by, $sort_order) {
 				$val_a = $a[$sort_by];
 				$val_b = $b[$sort_by];
@@ -561,6 +571,7 @@ class WPDAI_Cost_Of_Goods_Manager {
 			'products_with_cost' => 0,
 			'products_without_cost' => 0,
 			'total_stock_value_rrp' => 0,
+			'total_stock_value_sell' => 0,
 			'total_stock_value_cost' => 0,
 			'total_margin' => 0,
 			'margin_count' => 0
@@ -583,6 +594,7 @@ class WPDAI_Cost_Of_Goods_Manager {
 			$stock_status = $product->get_stock_status();
 			$stock_quantity = (float) $product->get_stock_quantity();
 			$rrp = $is_variable_product ? null : (float) $product->get_regular_price();
+			$sell_price = $is_variable_product ? null : (float) $product->get_price();
 
 			// Apply post-query filters for stats
 			if (!empty($filters['stock_status']) && $stock_status !== $filters['stock_status']) {
@@ -603,17 +615,20 @@ class WPDAI_Cost_Of_Goods_Manager {
 				$stats['products_without_cost']++;
 			}
 
-			// Stock values - exclude variable products from RRP calculation
+			// Stock values - exclude variable products from RRP/sell calculation
 			if ($product->get_manage_stock() && $stock_quantity > 0) {
 				if (!$is_variable_product && $rrp !== null) {
 					$stats['total_stock_value_rrp'] += $rrp * $stock_quantity;
 				}
+				if (!$is_variable_product && $sell_price !== null) {
+					$stats['total_stock_value_sell'] += $sell_price * $stock_quantity;
+				}
 				$stats['total_stock_value_cost'] += $cost * $stock_quantity;
 			}
 
-			// Margin calculation - exclude variable products
-			if (!$is_variable_product && $rrp !== null && $rrp > 0) {
-				$margin = (($rrp - $cost) / $rrp * 100);
+			// Margin calculation based on sell price - exclude variable products
+			if (!$is_variable_product && $sell_price !== null && $sell_price > 0) {
+				$margin = ( ( $sell_price - $cost ) / $sell_price * 100 );
 				$stats['total_margin'] += $margin;
 				$stats['margin_count']++;
 			}
@@ -668,11 +683,11 @@ class WPDAI_Cost_Of_Goods_Manager {
 		// Get updated product data
 		$product = wc_get_product($product_id);
 		if ($product) {
-			$rrp = (float) $product->get_regular_price();
+			$sell_price = (float) $product->get_price();
 			// Convert cost to float for calculations (empty string becomes 0)
 			$cost_for_calc = $cost === '' ? 0 : (float) $cost;
-			$margin = $rrp > 0 ? (($rrp - $cost_for_calc) / $rrp * 100) : 0;
-			$profit = $rrp - $cost_for_calc;
+			$margin = $sell_price > 0 ? ( ( $sell_price - $cost_for_calc ) / $sell_price * 100 ) : 0;
+			$profit = $sell_price - $cost_for_calc;
 
 			wp_send_json_success([
 				'message' => 'Cost updated successfully',
@@ -725,7 +740,18 @@ class WPDAI_Cost_Of_Goods_Manager {
 		$output = fopen('php://output', 'w');
 		
 		// Headers
-		fputcsv($output, ['Product ID', 'Name', 'SKU', 'Type', 'RRP', 'Custom Cost', 'Default Cost', 'Margin %', 'Profit', 'Stock']);
+		fputcsv($output, [
+			__( 'Product ID', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			__( 'Name', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			__( 'SKU', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			__( 'Type', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			__( 'RRP', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			__( 'Sell Price', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			__( 'Cost of Goods', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			__( 'Margin %', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			__( 'Profit', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			__( 'Stock', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
+		]);
 
 		// Data rows
 		foreach ($product_ids as $product_id) {
@@ -733,19 +759,21 @@ class WPDAI_Cost_Of_Goods_Manager {
 			if (!$product) continue;
 
 			$rrp = (float) $product->get_regular_price();
-			
+			$sell_price = (float) $product->get_price();
+
 			// Get meta cost (only if explicitly set)
 			$meta_cost = get_post_meta($product_id, '_wpd_ai_product_cost', true);
 			$custom_cost = $meta_cost !== '' && $meta_cost !== false ? (float) $meta_cost : null;
-			
+
 			// Get default cost
 			$default_cost = (float) wpdai_get_default_cost_price_by_product_id($product_id);
-			
+
 			// Use custom if set, otherwise default for calculations
 			$effective_cost = $custom_cost !== null ? $custom_cost : $default_cost;
-			
-			$margin = $rrp > 0 ? (($rrp - $effective_cost) / $rrp * 100) : 0;
-			$profit = $rrp - $effective_cost;
+
+			// Margin and profit based on sell price
+			$margin = $sell_price > 0 ? ( ( $sell_price - $effective_cost ) / $sell_price * 100 ) : 0;
+			$profit = $sell_price - $effective_cost;
 
 			fputcsv($output, [
 				$product_id,
@@ -753,8 +781,8 @@ class WPDAI_Cost_Of_Goods_Manager {
 				$product->get_sku(),
 				$product->get_type(),
 				$rrp,
-				$custom_cost !== null ? $custom_cost : '', // Only export if set, otherwise blank
-				$default_cost, // Always export default cost
+				$sell_price,
+				$custom_cost !== null ? $custom_cost : '', // Cost of goods (blank if not set)
 				round($margin, 2),
 				round($profit, 2),
 				$product->get_stock_quantity() ?: 0

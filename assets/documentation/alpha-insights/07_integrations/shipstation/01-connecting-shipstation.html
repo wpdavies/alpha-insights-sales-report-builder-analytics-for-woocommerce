@@ -1,0 +1,87 @@
+<h2>Connecting ShipStation</h2>
+<p>Alpha Insights can sync shipping costs from ShipStation with your WooCommerce orders. Once configured and enabled, a daily sync runs automatically for the last 7 days of shipments, and you can run a one-time bulk sync to backfill historical data. Synced costs are saved to orders and as expenses for accurate profit reporting.</p>
+<h3>What the integration does</h3>
+<ul>
+<li>Syncs shipping costs from ShipStation to WooCommerce orders by matching ShipStation <strong>orderNumber</strong> to your WooCommerce order number</li>
+<li>Runs a <strong>daily sync</strong> that fetches shipments from the past 7 days (paginated, 500 per page) and processes each shipment</li>
+<li>Optionally runs a <strong>bulk sync</strong> (all shipments, paginated) when you click <strong>Run bulk sync</strong>; if the API rate limit is hit, the current page is rescheduled and retried later</li>
+<li>Saves <strong>shipment cost + insurance cost</strong> to order meta (<code>_wpd_ai_total_shipping_cost</code>, <code>_wpd_ai_shipstation_shipping_cost</code>, and optionally <code>_wpd_ai_shipstation_shipment_id</code>)</li>
+<li>Creates an expense for each synced order (reference: <strong>ShipStation - {order_id}</strong>), categorized as Shipping; expense date comes from ShipStation <code>createDate</code> (UTC converted to your site timezone) or the order date</li>
+<li>Recalculates order profit after each successful sync</li>
+</ul>
+<h3>Requirements</h3>
+<ul>
+<li>Alpha Insights Pro with ShipStation integration available</li>
+<li>WooCommerce with orders (order numbers can be default or custom, e.g. Sequential Order Numbers)</li>
+<li>ShipStation API Key and API Secret from your ShipStation account</li>
+<li>Action Scheduler (included with WooCommerce) for daily and bulk sync</li>
+</ul>
+<h3>Settings</h3>
+<p>Go to <strong>Alpha Insights → Settings</strong> and open the <strong>Integrations</strong> tab. Find the <strong>ShipStation</strong> section.</p>
+<h4>Enable Integration</h4>
+<p>Turn on ShipStation sync. The integration only runs when this is checked and both API key and API secret are set.</p>
+<h4>API Key</h4>
+<p>The API key for your ShipStation account. Required when the integration is enabled. ShipStation uses Basic Authentication (API key as username, API secret as password).</p>
+<h4>API Secret</h4>
+<p>The API secret for your ShipStation account. Required when the integration is enabled.</p>
+<h4>Enable Logging</h4>
+<p>When enabled, API requests and sync activity are written to the ShipStation log file. Errors are always logged to the ShipStation error log regardless of this setting.</p>
+<h4>ShipStation Sync Data section</h4>
+<ul>
+<li><strong>Next Scheduled Sync</strong> – When the next daily sync will run. The daily schedule fetches shipments for the past 7 days.</li>
+<li><strong>Sync stats</strong> – Number of orders with synced shipping cost and number of expenses created from ShipStation syncs.</li>
+<li><strong>Bulk Sync</strong> – Button to run a full sync of all shipments. Only shown when the integration is enabled. Runs in the background; if rate limited, pages are rescheduled automatically.</li>
+<li><strong>Delete sync data</strong> – Removes all ShipStation data: shipping cost meta from orders and all expenses with reference starting with <strong>ShipStation - </strong>. Use with care.</li>
+</ul>
+<h3>How to set up</h3>
+<ol>
+<li>Obtain your <strong>API Key</strong> and <strong>API Secret</strong> from ShipStation (Account → API Settings or similar).</li>
+<li>In WordPress, go to <strong>Alpha Insights → Settings → Integrations</strong>.</li>
+<li>Check <strong>Enable ShipStation integration</strong>.</li>
+<li>Enter the API Key and API Secret.</li>
+<li>Optionally enable <strong>Enable ShipStation logging</strong> for debugging.</li>
+<li>Click <strong>Save changes</strong>. The daily sync is scheduled on the next run of Alpha Insights’ event scheduler. Use <strong>Run bulk sync</strong> if you want to backfill past shipments.</li>
+</ol>
+<h3>How the sync works</h3>
+<h4>Daily sync</h4>
+<ul>
+<li>Runs once per day.</li>
+<li>Fetches shipments from ShipStation with <code>createDate</code> in the last 7 days, sorted by create date descending, 500 per page.</li>
+<li>For each shipment, matches <code>orderNumber</code> to a WooCommerce order (by order number or <code>_order_number</code> meta).</li>
+<li>Adds <code>shipmentCost</code> and <code>insuranceCost</code> and saves the total to the order and creates (or skips if already exists) the ShipStation expense.</li>
+</ul>
+<h4>Bulk sync</h4>
+<ul>
+<li>Triggered by the <strong>Run bulk sync</strong> button. Schedules page 1; each page run schedules the next page until no full page is returned.</li>
+<li>Fetches all shipments (no date filter), 500 per page. If the API returns 429 (rate limit), the same page is rescheduled in 90 seconds.</li>
+<li>Same matching and processing as daily sync: order number → order, then save cost and expense.</li>
+</ul>
+<h3>Order matching</h3>
+<p>ShipStation uses <strong>order number</strong>, not internal order ID. Alpha Insights finds the WooCommerce order by:</p>
+<ul>
+<li>If the order number is numeric, trying <code>wc_get_order( order_number )</code> and confirming the order’s <code>get_order_number()</code> matches.</li>
+<li>Otherwise searching for an order with <code>_order_number</code> meta equal to the ShipStation order number (supports custom order number plugins).</li>
+</ul>
+<h3>Order meta and expenses</h3>
+<p>When a shipment is processed successfully:</p>
+<ul>
+<li><strong>Order meta:</strong> <code>_wpd_ai_total_shipping_cost</code>, <code>_wpd_ai_shipstation_shipping_cost</code>, and <code>_wpd_ai_shipstation_shipment_id</code> (if present in the shipment).</li>
+<li><strong>Expense:</strong> One expense per order with reference <strong>ShipStation - {order_id}</strong>, category <strong>Shipping</strong>, and date from ShipStation <code>createDate</code> (UTC → site timezone) or the order’s date paid/created.</li>
+</ul>
+<h3>Troubleshooting</h3>
+<h4>Integration not running</h4>
+<ul>
+<li>Ensure <strong>Enable Integration</strong> is checked and both API Key and API Secret are saved and non-empty.</li>
+<li>Check WooCommerce → Status → Scheduled Actions for <code>wpd_ai_shipstation_sync_costs_with_orders</code> (daily) and <code>wpd_ai_shipstation_bulk_sync_page</code> (bulk).</li>
+<li>Enable logging and check the ShipStation log and ShipStation error log at the bottom of the Integrations settings.</li>
+</ul>
+<h4>Orders not getting a shipping cost</h4>
+<ul>
+<li>Confirm the order number in WooCommerce matches the <strong>orderNumber</strong> in ShipStation (check ShipStation order details).</li>
+<li>If you use a custom order number plugin, ensure the order number is stored in a way the integration can find (e.g. <code>_order_number</code> meta or that the numeric ID matches the displayed number).</li>
+<li>Ensure the shipment has <code>shipmentCost</code> and/or <code>insuranceCost</code>; the total must be greater than zero to be saved.</li>
+</ul>
+<h4>Rate limiting (429)</h4>
+<p>During bulk sync, if ShipStation returns 429, the current page is automatically rescheduled to run again in 90 seconds. No action needed; let the queue finish.</p>
+<h3>Removing ShipStation data</h3>
+<p>Use <strong>Delete sync data</strong> to remove all ShipStation shipping cost meta from orders and all expenses with reference <strong>ShipStation - </strong>. This does not remove the integration settings; you can run sync again after re-saving or re-enabling.</p>

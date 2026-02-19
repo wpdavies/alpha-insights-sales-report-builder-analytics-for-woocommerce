@@ -21,24 +21,29 @@ defined( 'ABSPATH' ) || exit;
  */
 function wpdai_webhook_data_request( $from_date = null, $to_date = null, $JSON = true ) {
 
-	// Collect data
+	$args = array();
 	if ( is_string( $from_date ) && is_string( $to_date ) ) {
-
-		$data_warehouse = wpdai_data_warehouse( array( 'date_from' => $from_date, 'date_to' => $to_date ) );
-		$data_warehouse->fetch_store_profit_data();
-
-	} else {
-
-		$data_warehouse = wpdai_data_warehouse();
-		$data_warehouse->fetch_store_profit_data();
-
+		$args['date_from'] = $from_date;
+		$args['date_to'] = $to_date;
 	}
+
+	$args['data_table_limit'] = array(
+		'orders' => -1,
+		'expenses' => -1,
+	);
+
+	$data_warehouse = wpdai_data_warehouse( $args );
+	$data_warehouse->fetch_data( array( 'orders', 'expenses', 'store_profit' ) );
 
 	// Default array
 	$webhook_data = array(
-		'order_data' => $data_warehouse->get_data('orders', 'totals'),
-		'expense_data' => $data_warehouse->get_data('expenses', 'totals'),
-		'store_profit_data' => $data_warehouse->get_data('store_profit', 'totals')
+		'date_from' => $data_warehouse->get_date_from(),
+		'date_to' => $data_warehouse->get_date_to(),
+		'sales_data_summary' => $data_warehouse->get_data('orders', 'totals'),
+		'expense_data_summary' => $data_warehouse->get_data('expenses', 'totals'),
+		'store_profit_summary' => $data_warehouse->get_data('store_profit', 'totals'),
+		'orders' => $data_warehouse->get_data('orders', 'data_table')['orders'],
+		'expenses' => $data_warehouse->get_data('expenses', 'data_table')['expenses'],
 	);
 
 	// Prety print JSON
@@ -121,8 +126,8 @@ function wpdai_webhook_post_data( $from_date = null, $to_date = null ) {
 	// Show data sent and response received
 	$response['data_sent'] = json_decode( $json_data );
 
-	wpdai_write_log( 'Webhook log report (' . $response['time_executed'] . '):', 'webhook' );
-	wpdai_write_log( $response, 'webhook' );
+	wpdai_write_log( 'Webhook log report (' . $response['time_executed'] . '):', WPDAI_Webhook_Provider::$log_file );
+	wpdai_write_log( $response, WPDAI_Webhook_Provider::$log_file );
 
 	return $response;
 

@@ -939,8 +939,11 @@
 		 * @param {string} value Cookie value
 		 */
 		setCookie: function(name, value) {
-			// Session cookie (expires when browser closes)
-			document.cookie = name + '=' + value + '; path=/; SameSite=Lax';
+			var cookieStr = name + '=' + value + '; path=/; SameSite=Lax';
+			if (typeof wpdAlphaInsightsEventTracking !== 'undefined' && wpdAlphaInsightsEventTracking.cookie_domain) {
+				cookieStr += '; domain=' + wpdAlphaInsightsEventTracking.cookie_domain;
+			}
+			document.cookie = cookieStr;
 		}
 	};
 

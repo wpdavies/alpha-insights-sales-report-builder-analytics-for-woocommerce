@@ -1,0 +1,54 @@
+<h2>Filter: wpd_alpha_insights_reserved_entity_names</h2>
+
+<p>Define entity names that custom data sources are not allowed to register. Reserved names are skipped when the registry processes sources from <code>wpd_alpha_insights_register_data_sources</code>.</p>
+
+<h3>Description</h3>
+
+<p>The registry protects built-in entity names by optionally maintaining a reserved list. If a custom source returns an entity name in this list, that mapping is not registered. The default is an empty array (no names reserved). You can add entity names (e.g. <code>orders</code>, <code>products</code>) to prevent third-party sources from overriding core entities.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPDAI_Custom_Data_Source_Registry.php</code></p>
+<p><strong>Method:</strong> <code>get_reserved_entity_names()</code></p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$default</td>
+        <td>array</td>
+        <td>Default reserved names (empty array by default)</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> array</p>
+<p>List of entity name strings that custom sources cannot register.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Reserve core entities</h4>
+
+<pre><code>add_filter( 'wpd_alpha_insights_reserved_entity_names', 'reserve_core_entities' );
+function reserve_core_entities( $default ) {
+    return array(
+        'orders',
+        'products',
+        'customers',
+        'expenses',
+        'store_profit',
+        'analytics',
+    );
+}</code></pre>
+
+<h3>Related</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/45-wpd_alpha_insights_register_data_sources.html">wpd_alpha_insights_register_data_sources</a> – Register data sources</li>
+</ul>

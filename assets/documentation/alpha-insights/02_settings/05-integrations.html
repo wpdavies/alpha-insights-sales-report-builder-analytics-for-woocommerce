@@ -1,0 +1,50 @@
+<h2>Integrations</h2>
+<p>The Integrations page is where you view and configure all Alpha Insights integrations in one place. From here you can connect advertising platforms, shipping providers, webhooks, and other services that feed data into your profit reports.</p>
+
+<h3>Accessing Integrations</h3>
+<ol>
+<li>Go to <strong>Alpha Insights → Settings</strong> in your WordPress dashboard</li>
+<li>Click <strong>Integrations</strong> in the settings submenu</li>
+<li>The URL is <strong>Settings → Integrations</strong> (<code>?page=...&amp;subpage=integrations</code>)</li>
+</ol>
+
+<h3>What You See</h3>
+<p>When you open Integrations, you see a single page with:</p>
+<ul>
+<li><strong>Header:</strong> “Integrations” at the top</li>
+<li><strong>Sidebar (left):</strong> A search box and category tabs (e.g. All, Marketing, Data Management, Shipping). Use search to filter by name; use tabs to filter by category.</li>
+<li><strong>Grid (main area):</strong> A card for each available integration. Each card shows the integration name, short description, and (for Pro integrations) a Pro badge. Integrations you have access to can be clicked to open their settings.</li>
+</ul>
+<p>When you click an integration card, the grid is replaced by that integration’s settings form. The header then shows <strong>Return To Integrations</strong> and <strong>Save Changes</strong>. Use “Return To Integrations” to go back to the grid without saving; use “Save Changes” to save and stay on that integration, or save and then return.</p>
+
+<h3>Available Integrations</h3>
+<p>Which integrations appear depends on your plan and setup. Typical options include:</p>
+<ul>
+<li><strong>Facebook Ads</strong> (Marketing) – Campaign conversion reporting and ad spend tracking</li>
+<li><strong>Google Ads</strong> (Marketing) – Campaign conversion reporting and ad spend tracking</li>
+<li><strong>Webhooks</strong> (Data Management) – Send data to an external URL (e.g. Zapier, Make, Slack) on a schedule</li>
+<li><strong>ShipStation</strong> (Shipping) – Sync shipping costs with orders via the ShipStation API</li>
+<li><strong>StarShipIt</strong> (Shipping) – Sync shipping costs with orders via the StarShipIt API</li>
+</ul>
+<p>Pro-only integrations show a Pro badge; their settings are available when you have Alpha Insights Pro and the integration is enabled.</p>
+
+<h3>Using the Page</h3>
+<ul>
+<li><strong>Open an integration:</strong> Click its card. The URL will include <code>?integrations=slug</code> (e.g. <code>integrations=webhooks</code>).</li>
+<li><strong>Save settings:</strong> Change any options, then click <strong>Save Changes</strong>. Some integrations may show a success message or refresh the form.</li>
+<li><strong>Go back to the list:</strong> Click <strong>Return To Integrations</strong> to see all cards again.</li>
+<li><strong>Search:</strong> Type in the sidebar search box to show only integrations whose name or description matches.</li>
+<li><strong>Filter by category:</strong> Click a category tab (e.g. Marketing, Shipping) to show only integrations in that category.</li>
+</ul>
+
+<h3>Webhooks and Other Integrations</h3>
+<p>Webhook configuration (URL, schedule, logging, test) is no longer on a separate “Webhook Settings” page. It lives under <strong>Settings → Integrations</strong>: click the <strong>Webhooks</strong> card to open the webhook settings. The same pattern applies to other integrations: each has its own form reached from the Integrations grid. For detailed webhook setup, see <a href="/documentation/alpha-insights/integrations/webhooks/webhook-setup.html">Webhook setup</a> in the Integrations documentation.</p>
+
+<h3>Related Documentation</h3>
+<ul>
+<li><a href="/documentation/alpha-insights/integrations/webhooks/webhook-setup.html">Webhook setup</a> – Configure URL, schedule, and test</li>
+<li><a href="/documentation/alpha-insights/integrations/facebook/connecting-facebook-ads.html">Connecting Facebook Ads</a></li>
+<li><a href="/documentation/alpha-insights/integrations/google-ads/connecting-google-ads.html">Connecting Google Ads</a></li>
+<li><a href="/documentation/alpha-insights/integrations/starshipit/connecting-starshipit.html">Connecting StarShipIt</a></li>
+<li><a href="/documentation/alpha-insights/integrations/shipstation/connecting-shipstation.html">Connecting ShipStation</a></li>
+</ul>

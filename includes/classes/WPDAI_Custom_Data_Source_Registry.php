@@ -53,31 +53,53 @@ class WPDAI_Custom_Data_Source_Registry {
          */
         $registered_sources = apply_filters( 'wpd_alpha_insights_register_data_sources', array() );
 
+        $reserved_entities = self::get_reserved_entity_names();
+
         foreach ( $registered_sources as $source ) {
             if ( $source instanceof WPDAI_Custom_Data_Source_Interface ) {
-                $entity_name = $source->get_entity_name();
-                
-                // Validate entity name
-                if ( empty( $entity_name ) || ! is_string( $entity_name ) ) {
+                $entity_names = $source->get_entity_names();
+
+                if ( ! is_array( $entity_names ) || empty( $entity_names ) ) {
                     continue;
                 }
 
-                // Check for conflicts with built-in entities
-                $built_in_entities = array(
-                    'orders', 'customers', 'products', 'coupons', 'taxes', 'refunds',
-                    'subscriptions', 'expenses', 'store_profit', 'facebook_campaigns',
-                    'google_campaigns', 'analytics', 'anonymous_queries'
-                );
+                foreach ( $entity_names as $entity_name ) {
+                    if ( empty( $entity_name ) || ! is_string( $entity_name ) ) {
+                        continue;
+                    }
 
-                if ( in_array( $entity_name, $built_in_entities, true ) ) {
-                    continue;
+                    if ( in_array( $entity_name, $reserved_entities, true ) ) {
+                        continue;
+                    }
+
+                    self::$data_sources[ $entity_name ] = $source;
                 }
-
-                self::$data_sources[ $entity_name ] = $source;
             }
         }
 
         self::$initialized = true;
+    }
+
+    /**
+     * Get reserved entity names that custom sources cannot register
+     *
+     * Protection is disabled for now (empty default). All data sources register
+     * the same way; reserve list can be reintroduced later if needed.
+     *
+     * @since 5.0.0
+     *
+     * @return array<string> Entity names that are reserved (not registerable by custom sources)
+     */
+    public static function get_reserved_entity_names() {
+        $default = array();
+
+        /**
+         * Filter reserved entity names for the data source registry
+         *
+         * @since 5.0.0
+         * @param array $default Default reserved entity names
+         */
+        return apply_filters( 'wpd_alpha_insights_reserved_entity_names', $default );
     }
 
     /**
@@ -133,8 +155,10 @@ class WPDAI_Custom_Data_Source_Registry {
     /**
      * Get all data mappings for React
      *
-     * Collects mappings from all registered data sources and formats
-     * them for passing to React via localized variables.
+     * Collects mappings from all registered data sources that provide
+     * non-empty get_data_mapping(). Sources returning empty array are skipped
+     * (e.g. built-in entities using core mappings). Supports single-entity
+     * and multi-entity mapping structures.
      *
      * @since 5.0.0
      *
@@ -143,15 +167,36 @@ class WPDAI_Custom_Data_Source_Registry {
     public static function get_all_mappings() {
         self::init();
         $mappings = array();
+        $seen_sources = array();
 
         foreach ( self::$data_sources as $entity_name => $source ) {
+            $source_id = spl_object_id( $source );
+            if ( isset( $seen_sources[ $source_id ] ) ) {
+                continue;
+            }
+            $seen_sources[ $source_id ] = true;
+
             try {
                 $mapping = $source->get_data_mapping();
-                if ( is_array( $mapping ) && ! empty( $mapping ) ) {
-                    $mappings[ $entity_name ] = $mapping;
+                if ( ! is_array( $mapping ) || empty( $mapping ) ) {
+                    continue;
+                }
+
+                // Single-entity mapping: has 'totals' (or similar) at top level.
+                if ( isset( $mapping['totals'] ) || isset( $mapping['data_by_date'] ) || isset( $mapping['data_table'] ) || isset( $mapping['categorized_data'] ) ) {
+                    foreach ( $source->get_entity_names() as $en ) {
+                        $mappings[ $en ] = $mapping;
+                    }
+                    continue;
+                }
+
+                // Multi-entity mapping: keyed by entity name.
+                foreach ( $mapping as $en => $map ) {
+                    if ( is_string( $en ) && is_array( $map ) ) {
+                        $mappings[ $en ] = $map;
+                    }
                 }
             } catch ( Exception $e ) {
-                // Log error but don't break the process
                 if ( function_exists( 'wpdai_write_log' ) ) {
                     wpdai_write_log( sprintf(
                         /* translators: %1$s: entity name, %2$s: error message */

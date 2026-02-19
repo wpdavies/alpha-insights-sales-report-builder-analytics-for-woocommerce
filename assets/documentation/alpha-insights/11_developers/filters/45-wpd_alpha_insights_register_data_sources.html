@@ -1,0 +1,51 @@
+<h2>Filter: wpd_alpha_insights_register_data_sources</h2>
+
+<p>Register custom data sources with the data source registry. Data sources provide entity data to the warehouse (e.g. orders, products, expenses).</p>
+
+<h3>Description</h3>
+
+<p>The registry collects data source instances that implement <code>WPDAI_Custom_Data_Source_Interface</code> (typically by extending <code>WPDAI_Custom_Data_Source_Base</code>). Each source returns one or more entity names via <code>get_entity_names()</code>; the registry maps each entity name to that source. The warehouse then calls <code>fetch_data( $data_warehouse )</code> on the source when data for that entity is requested. You do not usually add to this filter directly—instead you extend the base class and instantiate it; the base class hooks into this filter automatically.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPDAI_Custom_Data_Source_Registry.php</code></p>
+<p><strong>Context:</strong> During registry initialization.</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>(none)</td>
+        <td>—</td>
+        <td>First argument is the existing array of sources (default empty). You add instances to this array and return it.</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> array</p>
+<p>Array of objects implementing <code>WPDAI_Custom_Data_Source_Interface</code>. Each source must implement <code>get_entity_names()</code>, <code>get_entity_name()</code>, and <code>fetch_data( WPDAI_Data_Warehouse $data_warehouse )</code>.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Register a custom data source (usually via base class)</h4>
+
+<pre><code>// Typical approach: extend WPDAI_Custom_Data_Source_Base and instantiate.
+// The base class adds itself to this filter. Manual registration:
+add_filter( 'wpd_alpha_insights_register_data_sources', 'add_my_data_sources' );
+function add_my_data_sources( $sources ) {
+    $sources[] = new My_Custom_Data_Source();
+    return $sources;
+}</code></pre>
+
+<h3>Related</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/46-wpd_alpha_insights_reserved_entity_names.html">wpd_alpha_insights_reserved_entity_names</a> – Reserved entity names</li>
+    <li>Developers → Custom Data Sources – Creating custom data sources</li>
+</ul>

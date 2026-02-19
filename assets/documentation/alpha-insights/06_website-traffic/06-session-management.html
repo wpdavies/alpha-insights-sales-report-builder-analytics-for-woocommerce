@@ -424,15 +424,19 @@ add_filter('wpd_session_timeout_seconds', function($timeout) {
 
 <p><strong>Result:</strong> Order permanently attributed to traffic source, even if cookies expire or session ends.</p>
 
-<h4>Attribution Window</h4>
+<h4>Attribution window</h4>
 
 <p><strong>How long does attribution last?</strong></p>
 
+<p>Alpha Insights supports a configurable <strong>attribution window</strong> (1–30 days). Referral URL and landing page are stored when the visitor first arrives and expire after that many days from first set—they are not updated by later activity. So attribution can extend beyond a single session: if a visitor returns within the window, the original referrer and landing page are still used.</p>
+
 <ul>
-<li><strong>Within session (< 10 min idle):</strong> Direct attribution via active cookies</li>
-<li><strong>After session expires:</strong> Attribution lost (new visit = new attribution)</li>
-<li><strong>No extended attribution window:</strong> Unlike ad platforms, no 7-day or 30-day windows</li>
+<li><strong>Setting:</strong> <strong>Alpha Insights → Settings → General Settings</strong> → <strong>Attribution Window Timeout (days)</strong> (under Alpha Analytics &amp; Event Tracking)</li>
+<li><strong>Default:</strong> 3 days</li>
+<li><strong>Effect:</strong> Orders and sessions are attributed to the traffic source and landing page until the window expires; after that, a new visit gets a new attribution.</li>
 </ul>
+
+<p>For full details, see <a href="/documentation/alpha-insights/website-traffic/attribution-window.html">Attribution Window</a>.</p>
 
 <p><strong>Example scenarios:</strong></p>
 
@@ -510,6 +514,51 @@ Session 3 (Day 3):
 
 Attribution: Direct (last-click)
 Reality: Facebook awareness → Google consideration → Direct conversion</code></pre>
+
+<h3>Only track engaged sessions</h3>
+
+<p>When <strong>Only Track &amp; Report On Engaged Sessions</strong> is enabled (<strong>Alpha Insights → Settings → General Settings</strong> → Alpha Analytics &amp; Event Tracking), Alpha Insights treats a session as “engaged” only after the visitor has interacted with the page (e.g. click, touch, or scroll). This reduces noise from bots and accidental page loads.</p>
+
+<h4>What “engaged” means</h4>
+
+<p>Engagement is detected on the frontend by the event tracking script:</p>
+
+<ul>
+<li><strong>Click</strong> – Any mouse click on the page</li>
+<li><strong>Pointer/touch</strong> – Touch or pointer interaction (improves mobile detection)</li>
+<li><strong>Scroll</strong> – User scrolls the page (with a short delay to avoid false triggers)</li>
+</ul>
+
+<p>As soon as one of these occurs, the session is marked as engaged for the rest of that visit.</p>
+
+<h4>How it affects tracking</h4>
+
+<ul>
+<li><strong>Page views:</strong> The first <code>page_view</code> event is not sent until the user has engaged. Once they click, touch, or scroll, the page view is sent and the session is marked engaged.</li>
+<li><strong>Cookie:</strong> The cookie <code>wpd_ai_engaged_session</code> is set when engagement is detected (value <code>1</code>).</li>
+<li><strong>Database:</strong> The session record has an <code>engaged_session</code> flag (0 or 1). It is set when the first page view is stored (after engagement) and can be updated later if engagement is detected on a subsequent request.</li>
+<li><strong>Other events:</strong> Product clicks, add to cart, checkout, etc. are still sent as usual; only the initial page view is delayed until engagement.</li>
+</ul>
+
+<h4>How it affects reporting</h4>
+
+<p>When the setting is <strong>True</strong>:</p>
+
+<ul>
+<li><strong>Website Traffic / Analytics reports</strong> can filter or focus on engaged sessions only (sessions where <code>engaged_session = 1</code> or duration &gt; 0).</li>
+<li>Bounce rate and session counts may change because non-engaged single-page visits are excluded or not counted as full sessions.</li>
+<li>Use this when you want metrics that reflect real user interaction rather than all page loads (including bots and quick bounces).</li>
+</ul>
+
+<p>When the setting is <strong>False</strong>, every page load sends a page view immediately and all sessions are tracked regardless of interaction.</p>
+
+<h4>Summary</h4>
+
+<table>
+<tr><th>Setting</th><th>First page view</th><th>Reporting</th></tr>
+<tr><td>Only track engaged = <strong>False</strong></td><td>Sent on page load</td><td>All sessions included</td></tr>
+<tr><td>Only track engaged = <strong>True</strong></td><td>Sent after first click/scroll/touch</td><td>Only engaged sessions (or sessions with duration &gt; 0) included</td></tr>
+</table>
 
 <h3>Session Duration Calculation</h3>
 

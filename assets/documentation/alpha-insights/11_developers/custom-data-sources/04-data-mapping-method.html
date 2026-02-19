@@ -2,6 +2,8 @@
 
 <p>The <code>get_data_mapping()</code> method defines how React displays and formats your custom data. This method returns a PHP array that is JSON encoded and passed to React, where it's merged into the main mapping objects.</p>
 
+<p><strong>This method is optional.</strong> The base class <code>WPDAI_Custom_Data_Source_Base</code> provides a default implementation that returns an empty array. Override it only when you need to expose metrics, charts, or tables to the React UI (e.g. for metric cards, chart selectors, data table columns). If you do not override it, your entity will still be registered and <code>fetch_data()</code> will run, but the frontend will not have mapping metadata for your keys.</p>
+
 <h3>Method Signature</h3>
 
 <pre><code>public function get_data_mapping()</code></pre>
@@ -17,7 +19,7 @@
 <li><code>data_table</code> - Maps tables from <code>fetch_data()</code> 'data_table' array</li>
 </ul>
 
-<p><strong>Important:</strong> The registry automatically keys this by your entity name (from <code>get_entity_name()</code>), so you return the mapping data directly - NOT wrapped in another entity key.</p>
+<p><strong>Important:</strong> The registry automatically keys this by your entity name (from <code>get_entity_names()</code>), so you return the mapping data directly - NOT wrapped in another entity key.</p>
 
 <h3>totals Mapping</h3>
 

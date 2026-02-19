@@ -319,19 +319,19 @@
 
             let html = '';
             self.products.forEach(function(product) {
-                // For variable products, RRP, margin, and profit are null (N/A)
+                // For variable products, RRP, sell price, margin, and profit are null (N/A)
+                // Margin and profit come from server (calculated from sell price)
                 const isVariableProduct = product.type === 'variable';
-                const margin = isVariableProduct ? null : (product.rrp !== null && product.rrp > 0 
-                    ? ((product.rrp - product.cost) / product.rrp * 100).toFixed(1)
-                    : 0);
-                const profit = isVariableProduct ? null : (product.rrp !== null ? product.rrp - product.cost : 0);
-                
+                const margin = product.margin !== null && product.margin !== undefined ? Number(product.margin).toFixed(1) : null;
+                const profit = product.profit !== null && product.profit !== undefined ? product.profit : null;
+
                 const rowClass = product.cost > 0 ? 'has-cost' : 'no-cost';
                 const stockClass = product.stock_status === 'instock' ? 'in-stock' : 'out-of-stock';
                 const isSelected = self.selectedProducts.includes(product.id);
+                const sellPriceData = product.sell_price !== null && product.sell_price !== undefined ? product.sell_price : '';
 
                 html += `
-                    <tr class="wpd-cogs-row ${rowClass}" data-product-id="${product.id}">
+                    <tr class="wpd-cogs-row ${rowClass}" data-product-id="${product.id}" data-sell-price="${sellPriceData}">
                         <td class="wpd-cogs-checkbox-col">
                             <input type="checkbox" class="wpd-cogs-row-checkbox" data-product-id="${product.id}" ${isSelected ? 'checked' : ''}>
                         </td>
@@ -350,6 +350,7 @@
                             </div>
                         </td>
                         <td class="wpd-cogs-rrp">${product.rrp !== null && product.rrp !== undefined ? self.formatCurrency(product.rrp) : 'N/A'}</td>
+                        <td class="wpd-cogs-sell-price">${product.sell_price !== null && product.sell_price !== undefined ? self.formatCurrency(product.sell_price) : 'N/A'}</td>
                         <td class="wpd-cogs-cost-cell">
                             <div class="wpd-cogs-cost-wrapper">
                                 <div class="wpd-cogs-cost-input-wrapper">
@@ -746,7 +747,7 @@
                                                         <tr>
                                                             <th>Product ID</th>
                                                             <th>Product Name</th>
-                                                            <th>Cost</th>
+                                                            <th>Cost of Goods</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody id="wpd-cogs-migrate-samples-body"></tbody>
@@ -1185,10 +1186,10 @@
                                                     <li>SKU</li>
                                                     <li>Product Type</li>
                                                     <li>RRP (Regular Price)</li>
-                                                    <li>Custom Cost (if set)</li>
-                                                    <li>Default Cost (calculated fallback)</li>
-                                                    <li>Margin %</li>
-                                                    <li>Profit</li>
+                                                    <li>Sell Price (actual selling price)</li>
+                                                    <li>Cost of Goods (if set)</li>
+                                                    <li>Margin % (based on sell price)</li>
+                                                    <li>Profit (based on sell price)</li>
                                                     <li>Stock Quantity</li>
                                                 </ul>
                                             </li>
@@ -1341,26 +1342,26 @@
 
         updateRowCalculations: function(productId, newCost, row) {
             const self = this;
-            const rrpText = row.find('.wpd-cogs-rrp').text();
-            
-            // Check if this is a variable product (RRP is N/A)
-            const isVariableProduct = rrpText.trim() === 'N/A';
-            
+            const sellPriceRaw = row.data('sell-price');
+            const sellPrice = sellPriceRaw !== '' && sellPriceRaw !== undefined ? parseFloat(sellPriceRaw) : NaN;
+
+            // Check if this is a variable product (no sell price)
+            const isVariableProduct = (sellPriceRaw === '' || sellPriceRaw === undefined || isNaN(sellPrice));
+
             // For variable products, don't update calculations - keep as N/A
             if (isVariableProduct) {
                 row.find('.wpd-cogs-margin').text('N/A').removeClass('positive negative');
                 row.find('.wpd-cogs-profit').text('N/A').removeClass('positive negative');
                 return;
             }
-            
-            const rrp = parseFloat(rrpText.replace(/[^0-9.-]+/g, ''));
+
             const input = row.find('.wpd-cogs-cost-input');
             const costWrapper = row.find('.wpd-cogs-cost-wrapper');
-            
+
             // Determine which cost to use for calculations
             let cost;
             let isUsingDefault = false;
-            
+
             if (newCost === '' || newCost === null || newCost === undefined) {
                 // Use default cost if input is empty
                 const defaultCost = input.data('default-cost');
@@ -1373,10 +1374,10 @@
                 cost = parseFloat(costForParsing) || 0;
             }
 
-            // Calculate margin and profit
-            if (rrp > 0 && cost >= 0) {
-                const margin = ((rrp - cost) / rrp * 100).toFixed(1);
-                const profit = rrp - cost;
+            // Calculate margin and profit using sell price
+            if (sellPrice > 0 && cost >= 0) {
+                const margin = ((sellPrice - cost) / sellPrice * 100).toFixed(1);
+                const profit = sellPrice - cost;
 
                 row.find('.wpd-cogs-margin').text(margin + '%').removeClass('positive negative').addClass(margin > 0 ? 'positive' : '');
                 row.find('.wpd-cogs-profit').text(this.formatCurrency(profit)).removeClass('positive negative').addClass(profit > 0 ? 'positive' : profit < 0 ? 'negative' : '');
@@ -1425,6 +1426,7 @@
             $('#wpd-cogs-products-without-cost').text(stats.products_without_cost || 0);
             $('#wpd-cogs-avg-margin').text((stats.avg_margin || 0).toFixed(1) + '%');
             $('#wpd-cogs-total-stock-value-rrp').text(this.formatCurrency(stats.total_stock_value_rrp || 0));
+            $('#wpd-cogs-total-stock-value-sell').text(this.formatCurrency(stats.total_stock_value_sell || 0));
             $('#wpd-cogs-total-stock-value-cost').text(this.formatCurrency(stats.total_stock_value_cost || 0));
         },
 
@@ -1497,7 +1499,7 @@
         },
 
         showLoading: function() {
-            $('#wpd-cogs-table-body').html('<tr><td colspan="8" class="wpd-cogs-loading">Loading products...</td></tr>');
+            $('#wpd-cogs-table-body').html('<tr><td colspan="9" class="wpd-cogs-loading">Loading products...</td></tr>');
             $('.wpd-cogs-filter, #wpd-cogs-search, #wpd-cogs-per-page').prop('disabled', true);
         },
 
@@ -1711,8 +1713,8 @@
                 const row = $('tr[data-product-id="' + productId + '"]');
                 const input = row.find('.wpd-cogs-cost-input');
                 const currentCost = parseFloat(input.data('original')) || 0;
-                const rrpText = row.find('.wpd-cogs-rrp').text();
-                const rrp = parseFloat(rrpText.replace(/[^0-9.-]+/g, ''));
+                const sellPriceRaw = row.data('sell-price');
+                const sellPrice = sellPriceRaw !== '' && sellPriceRaw !== undefined ? parseFloat(sellPriceRaw) : 0;
 
                 // Check if we should skip (only empty filter)
                 if (onlyEmpty && currentCost > 0) {
@@ -1739,11 +1741,11 @@
                         newCost = currentCost * (1 - value / 100);
                         break;
                     case 'set_margin':
-                        // Calculate cost to achieve target margin
-                        // margin = (rrp - cost) / rrp * 100
-                        // cost = rrp * (1 - margin / 100)
-                        if (rrp > 0) {
-                            newCost = rrp * (1 - value / 100);
+                        // Calculate cost to achieve target margin using sell price
+                        // margin = (sell_price - cost) / sell_price * 100
+                        // cost = sell_price * (1 - margin / 100)
+                        if (sellPrice > 0) {
+                            newCost = sellPrice * (1 - value / 100);
                         } else {
                             skipped++;
                             return;

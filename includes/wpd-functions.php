@@ -221,10 +221,10 @@ function wpdai_setup_notice_hook() {
  * 	@return array|bool Wil return an associative array for of the calculation values saved for this order or false on failure
  *
  */
-function wpdai_calculate_cost_profit_by_order( $order_id_or_object = null, $update_values = false ) {
+function wpdai_calculate_cost_profit_by_order( $order_id_or_object = null, $update_values = false, $ignore_refunds = false ) {
 
 	// Prepare Object
-	$order_calculator = new WPDAI_Order_Calculator( $order_id_or_object, $update_values );
+	$order_calculator = new WPDAI_Order_Calculator( $order_id_or_object, $update_values, $ignore_refunds );
 
 	// Return Results
 	return $order_calculator->get_results();
@@ -255,7 +255,10 @@ function wpdai_calculate_cost_profit_by_order( $order_id_or_object = null, $upda
 function wpdai_get_cost_price_by_product_id( $product_id ) {
 
 	// Safety Check
-	if ( ! is_numeric($product_id) ) return false;
+	$product_id = absint( $product_id );
+	if ( ! $product_id ) {
+		return false;
+	}
 
 	/**
 	 *  Check the object cache for a value
@@ -269,6 +272,7 @@ function wpdai_get_cost_price_by_product_id( $product_id ) {
 	 *  This is our primary cost price
 	 */
 	$cost_price_per_unit = get_post_meta( $product_id, '_wpd_ai_product_cost', true );
+	$cost_price_per_unit = wc_format_decimal( $cost_price_per_unit );
 	if ( is_numeric( $cost_price_per_unit ) ) $cost_price_per_unit = wpdai_float( $cost_price_per_unit );
 
 	/**
@@ -507,6 +511,18 @@ function wpdai_admin_page_url( $target ) {
 	} elseif( $target === 'settings-emails' ) {
 
 		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$settings_slug . '&subpage=email';
+
+	} elseif( $target === 'settings-facebook' ) {
+
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$settings_slug . '&subpage=facebook';
+
+	} elseif( $target === 'settings-google-ads' ) {
+
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$settings_slug . '&subpage=google-ads';
+
+	} elseif( $target === 'settings-integrations' ) {
+
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$settings_slug . '&subpage=integrations';
 
 	} elseif( $target === 'settings-emails-preview-profit-report' ) {
 
@@ -867,7 +883,6 @@ function wpdai_paid_order_statuses() {
 	return $status;
 
 }
-
 
 /**
  *
@@ -1289,33 +1304,76 @@ function wpdai_get_attachment_data_by_id( $attachment_id ) {
 }
 
 /**
- * 
- * 	Sends an API call to the woocommerce API endpoint
- * 	@todo create a direct DB call, no need to run through API.
- * 
- *  @var $data['session_id']        PHP Session ID                      	Default  '' ##Session data - calculated automatically
- *  @var $data['ip_address']        IP Address                          	Default  0 	##Session data - calculated automatically
- *  @var $data['date_created_gmt']  Date Event Created In GMT Time      	Default: current_time('mysql') ##Only set if not current time
- *  @var $data['user_id']           User ID                             	Default  0
- *  @var $data['page_href']         Current Page Url                    	Default ''
- *  @var $data['object_type']       Custom Post Type Name               	Default ''
- *  @var $data['object_id']         Wordpress Object ID                 	Default 0
- *  @var $data['event_type']        category_page_click | product_page_view | add_to_cart | purchase | refund | add_to_wishlist | anything else...
- *  @var $data['event_quantity']    Event Quantity                      	Default 1
- *  @var $data['event_value']       Event Value                         	Default 0.00
- *  @var $data['product_id']        Product ID                          	Default  0
- *  @var $data['variation_id']      Product ID                          	Default  0
- *  @var $data['additional_data']   Array Any additional data, stored in JSON 	Default: NULL
- * 
- **/
-function wpdai_send_woocommerce_event( $data ) {
+ * Track a custom event from PHP (backend).
+ * Core params (session_id, ip_address, user_id, page_href) are set automatically from the current
+ * session when not provided; pass them in $args only when you need to override (e.g. server-side
+ * or headless context). Use in hooks, shortcodes, or templates to record custom events.
+ *
+ * @param string $event_type Required. The event type name (e.g. 'newsletter_signup', 'video_play', 'custom_conversion').
+ * @param array  $args       Optional. Event data. Omitted keys use session/defaults.
+ *                           - session_id (string): Override session ID (normally from current session).
+ *                           - ip_address (string): Override IP (normally from current request).
+ *                           - user_id (int): Override user ID (normally current user).
+ *                           - page_href (string): Override page URL (normally current page).
+ *                           - object_id (int): WordPress post/page/object ID.
+ *                           - object_type (string): Post type (e.g. 'post', 'page', 'product').
+ *                           - event_quantity (int): Quantity, default 1.
+ *                           - event_value (float): Monetary value, default 0.
+ *                           - product_id (int): Product ID for product-related events.
+ *                           - variation_id (int): Variation ID for variable products.
+ *                           - additional_data (array): Extra key-value data, stored as JSON.
+ * @return array Result from insert_event: 'success' (bool), 'message' (string), 'code' (string), 'rows_inserted' (int).
+ */
+function wpdai_track_custom_event( $event_type, $args = array() ) {
+	if ( empty( $event_type ) || ! is_string( $event_type ) ) {
+		return array(
+			'success'        => false,
+			'message'        => __( 'Event type is required and must be a non-empty string.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'code'           => 'invalid_event_type',
+			'rows_inserted'  => 0,
+		);
+	}
 
-	// Call event tracking class
-	$result = WPDAI_WooCommerce_Event_Tracking::get_instance()->insert_event( $data );
+	$data = array(
+		'event_type' => sanitize_text_field( $event_type ),
+	);
 
-	// return results
-	return $result;
+	// Core params: set automatically from session when not provided; allow override.
+	if ( isset( $args['session_id'] ) && is_string( $args['session_id'] ) ) {
+		$data['session_id'] = sanitize_text_field( $args['session_id'] );
+	}
+	if ( isset( $args['ip_address'] ) && is_string( $args['ip_address'] ) ) {
+		$data['ip_address'] = sanitize_text_field( $args['ip_address'] );
+	}
+	if ( isset( $args['user_id'] ) ) {
+		$data['user_id'] = (int) $args['user_id'];
+	}
+	if ( isset( $args['page_href'] ) && is_string( $args['page_href'] ) ) {
+		$data['page_href'] = esc_url_raw( $args['page_href'] );
+	}
+	if ( isset( $args['event_quantity'] ) ) {
+		$data['event_quantity'] = (int) $args['event_quantity'];
+	}
+	if ( isset( $args['event_value'] ) ) {
+		$data['event_value'] = (float) $args['event_value'];
+	}
+	if ( isset( $args['object_id'] ) ) {
+		$data['object_id'] = (int) $args['object_id'];
+	}
+	if ( isset( $args['object_type'] ) ) {
+		$data['object_type'] = sanitize_text_field( $args['object_type'] );
+	}
+	if ( isset( $args['product_id'] ) ) {
+		$data['product_id'] = (int) $args['product_id'];
+	}
+	if ( isset( $args['variation_id'] ) ) {
+		$data['variation_id'] = (int) $args['variation_id'];
+	}
+	if ( isset( $args['additional_data'] ) && is_array( $args['additional_data'] ) ) {
+		$data['additional_data'] = $args['additional_data'];
+	}
 
+	return WPDAI_WooCommerce_Event_Tracking::get_instance()->insert_event( $data );
 }
 
 
@@ -1483,5 +1541,32 @@ function wpdai_get_analytics_event_tracking_token() {
 	}
 
 	return $token;
+
+}
+
+/**
+ * 
+ *  Calculate the difference in gross profit after refunds have been applied, compared to before refunds have been applied
+ * 
+ *  @param int $order_id The order ID
+ *  @return float The difference in gross profit
+ * 
+ */
+function wpdai_calculate_gross_profit_difference_after_refunds( $order_id ) {
+
+	$order_data_post_refunds = wpdai_calculate_cost_profit_by_order( $order_id, false );
+	$order_data_pre_refunds = wpdai_calculate_cost_profit_by_order( $order_id, true, true );
+
+	// Must have valid data
+	if ( ! is_array($order_data_post_refunds) || ! is_array($order_data_pre_refunds) ) {
+		return 0;
+	}
+
+	// Calculate the difference in gross profit
+	$gp_before_refunds = $order_data_pre_refunds['total_order_profit'];
+	$gp_after_refunds = $order_data_post_refunds['total_order_profit'];
+	$gp_difference = $gp_after_refunds - $gp_before_refunds;
+
+	return $gp_difference;
 
 }

@@ -1,0 +1,57 @@
+<h2>Filter: wpd_ai_webhooks_enable_logging</h2>
+
+<p>Override whether webhook requests and responses are logged for debugging.</p>
+
+<h3>Description</h3>
+
+<p>The Webhooks integration can log outgoing requests and responses when "Enable Logging" is turned on in settings (stored in the webhook option). This filter receives that option-based value so you can force logging on or off regardless of the UI (e.g. always log in staging).</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/integrations/providers/wpdavies/webhooks/WPDAI_Webhook_Provider.php</code></p>
+<p><strong>Context:</strong> When determining whether to log webhook activity; the first parameter is the option value (enable_logging from settings).</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$enable_log</td>
+        <td>bool</td>
+        <td>Whether logging is enabled from settings (true when the option is set)</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> bool</p>
+<p>True to enable webhook logging; false to disable.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Always log in development</h4>
+
+<pre><code>add_filter( 'wpd_ai_webhooks_enable_logging', 'wpd_webhooks_log_in_dev' );
+function wpd_webhooks_log_in_dev( $enable_log ) {
+    if ( wp_get_environment_type() === 'development' ) {
+        return true;
+    }
+    return $enable_log;
+}</code></pre>
+
+<h4>Disable logging in production</h4>
+
+<pre><code>add_filter( 'wpd_ai_webhooks_enable_logging', function( $enable_log ) {
+    return wp_get_environment_type() !== 'production' && $enable_log;
+} );</code></pre>
+
+<h3>Related</h3>
+
+<ul>
+    <li>Integrations documentation – Webhooks integration settings</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/31-wpd_ai_starshipit_enable_logging.html">wpd_ai_starshipit_enable_logging</a> – StarShipIt logging</li>
+</ul>

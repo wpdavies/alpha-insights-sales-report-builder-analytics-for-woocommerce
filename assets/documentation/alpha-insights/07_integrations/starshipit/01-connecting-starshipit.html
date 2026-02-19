@@ -1,0 +1,67 @@
+<h2>Connecting StarShipIt</h2>
+<p>Alpha Insights can sync shipping costs from StarShipIt with your WooCommerce orders. Once configured, a daily scheduled sync runs automatically, fetching shipping costs from the StarShipIt API and saving them to the order and as expenses for accurate profit reporting.</p>
+<h3>What the integration does</h3>
+<ul>
+<li>Syncs shipping costs from StarShipIt to WooCommerce orders using the order number</li>
+<li>Runs a daily sync that processes up to 50 orders per run (orders that do not yet have a synced cost)</li>
+<li>Saves the shipping cost to order meta (<code>_wpd_ai_total_shipping_cost</code> and <code>_wpd_ai_starshipit_api_cost</code>)</li>
+<li>Creates an expense in Alpha Insights for each synced order (reference: <strong>StarShipIt - {order_id}</strong>), categorized as Shipping</li>
+<li>Recalculates order profit after each successful sync</li>
+<li>Uses the StarShipIt API endpoint <code>https://api.starshipit.com/api/orders</code> and reads <code>total_shipping_price</code> from the order response</li>
+</ul>
+<h3>Requirements</h3>
+<ul>
+<li>Alpha Insights Pro with StarShipIt integration available</li>
+<li>WooCommerce with orders in a paid status</li>
+<li>StarShipIt API Key and Subscription Key from your StarShipIt account</li>
+<li>Action Scheduler (included with WooCommerce) for the daily sync</li>
+</ul>
+<h3>Settings</h3>
+<p>Go to <strong>Alpha Insights → Settings</strong> and open the <strong>Integrations</strong> tab. Find the <strong>StarShipIt</strong> section.</p>
+<h4>API Key</h4>
+<p>The API key for your StarShipIt account. Required for the integration to run.</p>
+<h4>Subscription Key</h4>
+<p>The subscription key (Ocp-Apim-Subscription-Key) for your StarShipIt account. Required together with the API key.</p>
+<h4>Enable Logging</h4>
+<p>When enabled, API requests and sync activity are written to the StarShipIt log file. Useful for troubleshooting. Errors are always logged to the StarShipIt error log regardless of this setting.</p>
+<h4>Next Scheduled Sync</h4>
+<p>Displays the next time the daily shipping cost sync will run. The schedule is set when you save settings and runs once per day.</p>
+<h3>How to set up</h3>
+<ol>
+<li>Obtain your <strong>API Key</strong> and <strong>Subscription Key</strong> from your StarShipIt account.</li>
+<li>In WordPress, go to <strong>Alpha Insights → Settings → Integrations</strong>.</li>
+<li>Enter the API Key and Subscription Key in the StarShipIt section.</li>
+<li>Optionally enable <strong>Enable StarShipIt logging</strong> for debugging.</li>
+<li>Click <strong>Save changes</strong>. The integration activates when both keys are present; the recurring daily sync is scheduled on the next run of Alpha Insights’ event scheduler.</li>
+</ol>
+<h3>How the sync works</h3>
+<ul>
+<li>The sync only processes orders that are in a <strong>paid</strong> status and do <strong>not</strong> already have <code>_wpd_ai_starshipit_api_cost</code> set.</li>
+<li>Up to <strong>50 orders</strong> are processed per run, ordered by date (newest first).</li>
+<li>For each order, Alpha Insights calls the StarShipIt API with the WooCommerce <strong>order number</strong> (not the internal order ID).</li>
+<li>If the API returns a <code>total_shipping_price</code>, it is saved to the order and an expense is created. Order totals are recalculated.</li>
+<li>If the API call fails or no shipping cost is found, the order’s attempt count is incremented. After <strong>3 failed attempts</strong>, the order is skipped in future runs.</li>
+<li>There is a short delay (0.5 seconds) between API requests to reduce the risk of rate limiting.</li>
+</ul>
+<h3>Order meta and expenses</h3>
+<p>When a shipping cost is synced successfully:</p>
+<ul>
+<li><strong>Order meta:</strong> <code>_wpd_ai_starshipit_api_cost</code>, <code>_wpd_ai_total_shipping_cost</code>, and <code>_wpd_ai_starshipit_api_sync_attempt_count</code> (used for retries).</li>
+<li><strong>Expense:</strong> A single expense per order with reference <strong>StarShipIt - {order_id}</strong>, category <strong>Shipping</strong>, and date from the order (date paid or date created).</li>
+</ul>
+<h3>Troubleshooting</h3>
+<h4>Sync not running</h4>
+<ul>
+<li>Ensure both API Key and Subscription Key are saved and non-empty.</li>
+<li>Check that Action Scheduler is working (WooCommerce → Status → Scheduled Actions).</li>
+<li>Enable logging and review the StarShipIt log and StarShipIt error log at the bottom of the Integrations settings.</li>
+</ul>
+<h4>Orders not getting a shipping cost</h4>
+<ul>
+<li>Confirm the order has a paid status.</li>
+<li>In StarShipIt, ensure the order exists and has a <code>total_shipping_price</code> (or equivalent) that the API returns.</li>
+<li>WooCommerce order number must match what StarShipIt expects; custom order number plugins are supported as long as the order is findable by that number.</li>
+<li>After 3 failed attempts, the order is skipped; you would need to clear the attempt meta or the starshipit cost meta to retry (or rely on support/developer tools).</li>
+</ul>
+<h3>Developer note</h3>
+<p>Logging can be overridden with the filter <code>wpd_ai_starshipit_enable_logging</code>. See the <a href="/documentation/alpha-insights/developers/filters/wpd_ai_starshipit_enable_logging.html">filter documentation</a> for details.</p>

@@ -1,0 +1,54 @@
+<h2>Filter: wpd_attribution_timeout_seconds</h2>
+
+<p>Control how long (in seconds) attribution data (e.g. landing page, referral URL) is considered valid before expiring.</p>
+
+<h3>Description</h3>
+
+<p>Attribution timeout is separate from session timeout. It defines the window during which a stored landing page or referral URL is still used for attribution (e.g. first-touch). The plugin derives the default from settings (<code>attribution_timeout_in_days</code>). This filter overrides the resulting value in seconds.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPDAI_Session_Tracking.php</code></p>
+<p><strong>Method:</strong> <code>WPDAI_Session_Tracking::get_attribution_timeout_seconds()</code></p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$seconds</td>
+        <td>int</td>
+        <td>Attribution timeout in seconds (default: from settings days × DAY_IN_SECONDS)</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> int</p>
+<p>Attribution timeout in seconds (cast to int by the plugin).</p>
+
+<h3>Example Usage</h3>
+
+<h4>Fix attribution window to 48 hours</h4>
+
+<pre><code>add_filter( 'wpd_attribution_timeout_seconds', 'fix_attribution_48_hours' );
+function fix_attribution_48_hours( $seconds ) {
+    return 2 * DAY_IN_SECONDS; // 48 hours
+}</code></pre>
+
+<h4>Use 7 days for attribution</h4>
+
+<pre><code>add_filter( 'wpd_attribution_timeout_seconds', 'week_long_attribution' );
+function week_long_attribution( $seconds ) {
+    return 7 * DAY_IN_SECONDS;
+}</code></pre>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/21-wpd_session_timeout_seconds.html">wpd_session_timeout_seconds</a> – Session inactivity timeout</li>
+</ul>

@@ -59,8 +59,8 @@ class WPDAI_WooCommerce_Event_Tracking {
 		add_action( 'wp_enqueue_scripts', array($this, 'register_event_tracking_script') );
 
 		// Setup props
-		$this->settings = get_option( 'wpd_ai_analytics', array()); // Default return empty array
-		$this->only_track_engaged_sessions = get_option( 'wpd_ai_analytics_only_track_engaged_sessionss', 0 );
+		$this->settings = wpdai_get_analytics_settings(); // Default return empty array
+		$this->only_track_engaged_sessions = ( isset($this->settings['only_track_engaged_sessions']) ) ? intval($this->settings['only_track_engaged_sessions']) : 0;
 
 		// If we are going to track events, setup the hooks
 		if ( $this->event_tracking_enabled == 1 ) {
@@ -1234,6 +1234,8 @@ class WPDAI_WooCommerce_Event_Tracking {
 			'analytics_event_tracking_token' => wpdai_get_analytics_event_tracking_token(), // This is used to protect the API from CSRF attacks
 			'enbable_event_tracking_logging' => $this->enable_logging,
 			'ajax_url' => admin_url('admin-ajax.php'),
+			'attribution_timeout_seconds' => WPDAI_Session_Tracking::get_attribution_timeout_seconds(),
+			'cookie_domain' => WPDAI_Session_Tracking::get_cookie_domain(),
 		);
 
 		// Server vars to pass onto frontend

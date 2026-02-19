@@ -1,0 +1,66 @@
+<h2>Filter: wpd_ai_cost_price_per_unit</h2>
+
+<p>Filter the cost price per unit for a product before it is used in profit calculations.</p>
+
+<h3>Description</h3>
+
+<p>Alpha Insights calculates product cost from various sources (WooCommerce native COGS, product meta, default cost settings). This filter runs after that calculation so you can override or adjust the cost price per unit for a specific product. The value is cached per product for the request.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/wpd-functions.php</code></p>
+<p><strong>Function:</strong> <code>wpdai_get_cost_price_per_unit( $product_id )</code></p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$cost_price_per_unit</td>
+        <td>float</td>
+        <td>The calculated cost price per unit (before filter)</td>
+    </tr>
+    <tr>
+        <td>$product_id</td>
+        <td>int</td>
+        <td>WooCommerce product or variation ID</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> float</p>
+<p>The cost price per unit to use (cast to float by the plugin).</p>
+
+<h3>Example Usage</h3>
+
+<h4>Override cost from external system</h4>
+
+<pre><code>add_filter( 'wpd_ai_cost_price_per_unit', 'my_custom_cost_from_erp', 10, 2 );
+function my_custom_cost_from_erp( $cost_price_per_unit, $product_id ) {
+    $erp_cost = get_post_meta( $product_id, '_my_erp_cost', true );
+    if ( is_numeric( $erp_cost ) && $erp_cost >= 0 ) {
+        return (float) $erp_cost;
+    }
+    return $cost_price_per_unit;
+}</code></pre>
+
+<h4>Apply a global markup to cost</h4>
+
+<pre><code>add_filter( 'wpd_ai_cost_price_per_unit', 'add_safety_margin_to_cost', 10, 2 );
+function add_safety_margin_to_cost( $cost_price_per_unit, $product_id ) {
+    // Add 5% to cost for safety margin in profit reports
+    return round( $cost_price_per_unit * 1.05, 4 );
+}</code></pre>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/22-wpd_ai_cost_price_support_woocommerce_native_cogs.html">wpd_ai_cost_price_support_woocommerce_native_cogs</a> – Use WooCommerce native COGS</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/07-wpd_ai_custom_product_cost_default_value.html">wpd_ai_custom_product_cost_default_value</a> – Custom product cost default</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/02-wpd_ai_calculate_cost_profit_by_order.html">wpd_ai_calculate_cost_profit_by_order</a> – Full profit calculation</li>
+</ul>

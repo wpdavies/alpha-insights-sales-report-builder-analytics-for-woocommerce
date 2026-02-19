@@ -1,0 +1,73 @@
+<h2>Filter: wpd_ai_custom_product_cost_options</h2>
+
+<p>Register or modify the list of custom product cost types (e.g. packaging, fulfillment) that can be applied per product. Each option can have a static fee and/or a percentage of sell price.</p>
+
+<h3>Description</h3>
+
+<p>Alpha Insights supports custom cost types in addition to built-in cost and shipping. This filter receives the array of registered custom product cost options (keyed by slug). Each option is an array with keys such as <code>label</code>, <code>static_fee</code>, <code>percent_of_sell_price</code>. Product-specific values are stored in post meta <code>_wpd_ai_custom_product_costs</code>. Add new cost types here so they appear in the product edit screen and in profit calculations.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/functions/wpd-custom-cost-functions.php</code></p>
+<p><strong>Function:</strong> Used when retrieving custom product cost options (e.g. <code>wpdai_get_custom_product_cost_options()</code> or similar).</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$custom_product_costs</td>
+        <td>array</td>
+        <td>Associative array slug => array( 'label' => string, 'static_fee' => float, 'percent_of_sell_price' => float, ... ). Defaults from settings or empty.</td>
+    </tr>
+    <tr>
+        <td>$product_id</td>
+        <td>int</td>
+        <td>Product ID (may be 0 when building the global list)</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> array</p>
+<p>The (possibly modified) array of custom product cost options. Keys are slugs; values are arrays with at least <code>label</code> and optionally <code>static_fee</code>, <code>percent_of_sell_price</code>.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Register a new custom cost type</h4>
+
+<pre><code>add_filter( 'wpd_ai_custom_product_cost_options', 'register_packaging_cost', 10, 2 );
+function register_packaging_cost( $custom_product_costs, $product_id ) {
+    $custom_product_costs['packaging'] = array(
+        'label'                 => __( 'Packaging', 'alpha-insights-pro' ),
+        'static_fee'             => 0,
+        'percent_of_sell_price'  => 0,
+    );
+    return $custom_product_costs;
+}</code></pre>
+
+<h4>Add fulfillment fee option</h4>
+
+<pre><code>add_filter( 'wpd_ai_custom_product_cost_options', 'add_fulfillment_cost_option', 10, 2 );
+function add_fulfillment_cost_option( $custom_product_costs, $product_id ) {
+    if ( ! isset( $custom_product_costs['fulfillment'] ) ) {
+        $custom_product_costs['fulfillment'] = array(
+            'label'                 => __( 'Fulfillment', 'alpha-insights-pro' ),
+            'static_fee'             => 0,
+            'percent_of_sell_price'  => 0,
+        );
+    }
+    return $custom_product_costs;
+}</code></pre>
+
+<h3>Related</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/07-wpd_ai_custom_product_cost_default_value.html">wpd_ai_custom_product_cost_default_value</a> – Default value for a custom product cost</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/06-wpd_ai_custom_order_cost_default_value.html">wpd_ai_custom_order_cost_default_value</a> – Custom order-level costs</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/02-wpd_ai_calculate_cost_profit_by_order.html">wpd_ai_calculate_cost_profit_by_order</a> – Full profit calculation</li>
+</ul>

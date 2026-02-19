@@ -4,15 +4,12 @@
 
 <h3>Accessing the Data Warehouse</h3>
 
-<p>The data warehouse instance is available as the second parameter to <code>fetch_data()</code>:</p>
+<p>The data warehouse is the <strong>only</strong> parameter to <code>fetch_data()</code>. Filters (including date range) are not passed separately; use the warehouse methods to get them:</p>
 
-<pre><code>public function fetch_data( $filters, $data_warehouse = null ) {
-    // Always validate first
-    if ( ! $data_warehouse ) {
-        return array( /* empty structure */ );
-    }
-    
-    // Now you can use $data_warehouse methods
+<pre><code>public function fetch_data( WPDAI_Data_Warehouse $data_warehouse ) {
+    // Get dates and filters from the warehouse
+    $date_from = $data_warehouse->get_date_from();
+    $date_to = $data_warehouse->get_date_to();
     $date_container = $data_warehouse->get_data_by_date_range_container();
 }</code></pre>
 
@@ -282,31 +279,16 @@ if ( $orders_totals && isset( $orders_totals['total_order_revenue_ex_tax'] ) ) {
     $revenue = $orders_totals['total_order_revenue_ex_tax'];
 }</code></pre>
 
-<h4>4. Use Date Methods Instead of Extracting from Filters</h4>
+<h4>4. Use Date Methods for Date Range</h4>
 
 <pre><code>// Good: Use data warehouse methods
 $date_from = $data_warehouse->get_date_from();
 $date_to = $data_warehouse->get_date_to();
-
-// Avoid: Extracting from filters directly
-// $date_from = isset( $filters['date_from'] ) ? $filters['date_from'] : ...;
-</code></pre>
+$date_format = $data_warehouse->get_filter( 'date_format_display', 'day' );</code></pre>
 
 <h3>Complete Example</h3>
 
-<pre><code>public function fetch_data( $filters, $data_warehouse = null ) {
-    $start_time = microtime( true );
-    
-    // Validate data warehouse
-    if ( ! $data_warehouse || ! method_exists( $data_warehouse, 'get_data_by_date_range_container' ) ) {
-        return array(
-            'totals' => array(),
-            'data_by_date' => array(),
-            'total_db_records' => 0,
-            'execution_time' => microtime( true ) - $start_time,
-        );
-    }
-    
+<pre><code>public function fetch_data( WPDAI_Data_Warehouse $data_warehouse ) {
     // Get date range using data warehouse methods
     $date_from = $data_warehouse->get_date_from();
     $date_to = $data_warehouse->get_date_to();
@@ -336,7 +318,6 @@ $date_to = $data_warehouse->get_date_to();
         'totals' => array( /* ... */ ),
         'data_by_date' => $data_by_date,
         'total_db_records' => 100,
-        'execution_time' => microtime( true ) - $start_time,
     );
 }</code></pre>
 

@@ -330,3 +330,36 @@ function wpdai_get_authorized_user_roles_settings() {
 	return array_values( array_unique( $authorized_roles ) );
 
 }
+
+/**
+ * 
+ *  Get analytics settings
+ * 
+ *  @return array
+ * 
+ *  @since 5.4.3
+ *  @version 5.4.3
+ *  @author WPDavies
+ *  @link https://wpdavies.dev/
+ * 
+ */
+function wpdai_get_analytics_settings() {
+
+	$default_settings = array(
+		'enable_woocommerce_analytics' => 1,
+		'exclude_roles' => array(),
+		'only_track_engaged_sessions' => 0,
+		'attribution_timeout_in_days' => 3,
+	);
+
+	// Legacy Items
+	$legacy_settings = get_option( 'wpd_ai_analytics_only_track_engaged_sessionss', 0 );
+	if ( $legacy_settings == 1 ) {
+		$default_settings['only_track_engaged_sessions'] = 1;
+	}
+
+	$saved_analytics_settings = get_option( 'wpd_ai_analytics', array() );
+
+	return wp_parse_args( $saved_analytics_settings, $default_settings );
+
+}

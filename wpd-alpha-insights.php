@@ -13,7 +13,7 @@
  * Requires PHP: 			7.4
  * Requires Plugins: 		woocommerce
  * WC requires at least: 	3.0
- * WC tested up to: 		10.4
+ * WC tested up to: 		10.5
  *
  * License:             GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -146,8 +146,9 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		// Alpha Insights Meta
 		if ( ! defined('WPD_AI_VER') ) define( 'WPD_AI_VER', '1.0.0' );
-		if ( ! defined('WPD_AI_CACHE_UPDATE_REQUIRED_VER') ) define( 'WPD_AI_CACHE_UPDATE_REQUIRED_VER', '1.0.0' ); // version this up as cache deletes are required
-		if ( ! defined('WPD_AI_DB_VERSION') ) define( 'WPD_AI_DB_VERSION', '1.0.0' );
+		if ( ! defined('WPD_AI_CACHE_VERSION') ) define( 'WPD_AI_CACHE_VERSION', '5.4.9' ); // Follows along pro versioning
+		if ( ! defined('WPD_AI_CACHE_UPDATE_REQUIRED_VER') ) define( 'WPD_AI_CACHE_UPDATE_REQUIRED_VER', '4.7.10' ); // version this up as cache deletes are required
+		if ( ! defined('WPD_AI_DB_VERSION') ) define( 'WPD_AI_DB_VERSION', '5.2.1' );
 		if ( ! defined('WPD_AI_PRODUCT_ID') ) define( 'WPD_AI_PRODUCT_ID', 8330 );
 		
 		// Security Constants
@@ -187,8 +188,8 @@ class WPD_Alpha_Insights_Free_Plugin {
 	}
 
 	/**
-	 * Check for conflicting plugins (pro version)
-	 * Deactivates free version if pro is active
+	 * Check for conflicting plugins (free version)
+	 * Deactivates free version if it's active
 	 */
 	private function check_for_conflicting_plugins() {
 		
@@ -198,16 +199,16 @@ class WPD_Alpha_Insights_Free_Plugin {
 		}
 		
 		// Get free plugin file path
-		$pro_plugin_file = 'wp-davies-alpha-insights/wpd-alpha-insights.php';
+		$free_plugin_file = 'alpha-insights-sales-report-builder-analytics-for-woocommerce/wpd-alpha-insights.php';
 		
 		// Check if free version is active
-		if ( is_plugin_active( $pro_plugin_file ) || class_exists( 'WPD_Alpha_Insights_Plugin' ) ) {
+		if ( is_plugin_active( $free_plugin_file ) ) {
 			
 			// Deactivate free version
-			deactivate_plugins( plugin_basename( __FILE__ ) );
+			deactivate_plugins( $free_plugin_file );
 			
 			// Set transient for admin notice
-			set_transient( 'wpd_ai_free_deactivated_by_pro', true, 30 );
+			set_transient( 'wpd_ai_pro_deactivated_free', true, 30 );
 			
 		}
 		
@@ -415,17 +416,17 @@ class WPD_Alpha_Insights_Free_Plugin {
 		}
 		
 		// Check for and deactivate free version on activation
-		$pro_plugin_file = 'wp-davies-alpha-insights/wpd-alpha-insights.php';
-		if ( is_plugin_active( $pro_plugin_file ) || class_exists( 'WPD_Alpha_Insights_Plugin' ) ) {
-			deactivate_plugins( plugin_basename( __FILE__ ) );
-			set_transient( 'wpd_ai_free_deactivated_by_pro', true, 30 );
+		$free_plugin_file = 'alpha-insights-sales-report-builder-analytics-for-woocommerce/wpd-alpha-insights.php';
+		if ( is_plugin_active( $free_plugin_file ) ) {
+			deactivate_plugins( $free_plugin_file );
+			set_transient( 'wpd_ai_pro_deactivated_free', true, 30 );
 		}
 		
 		// Logging
 		$this->log( 'Alpha Insights installation method has been triggered.' );
 		
 		// Set latest version
-		update_option( 'wpd_ai_cache_version', WPD_AI_VER );
+		update_option( 'wpd_ai_cache_version', WPD_AI_CACHE_VERSION );
 		update_option( 'wpd_ai_plugin_update_version', WPD_AI_VER );
 		
 		// Schedule database creation for next admin load
@@ -822,6 +823,13 @@ class WPD_Alpha_Insights_Free_Plugin {
 		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Woocommerce_Event_Tracking.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Cost_Of_Goods_Manager.php');
 
+		// Integrations framework
+		require_once( WPD_AI_PATH . 'includes/integrations/WPDAI_Integration_Base.php' );
+		require_once( WPD_AI_PATH . 'includes/integrations/WPDAI_Integrations_Manager.php' );
+
+		// Integrations providers
+		require_once( WPD_AI_PATH . 'includes/integrations/providers/wpdavies/webhooks/WPDAI_Webhook_Provider.php');
+
 		// Register Relevant Actions
 		WPDAI_Report_Builder::register_ajax_actions();
 		WPDAI_Cost_Of_Goods_Manager::register_ajax_actions();
@@ -834,6 +842,12 @@ class WPD_Alpha_Insights_Free_Plugin {
 		} else {
 			require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Free_Loader.php');
 		}
+
+		// Data sources: load all and register (each file self-registers when required).
+		require_once( WPD_AI_PATH . 'includes/classes/data-sources/WPDAI_Sales_Data_Source.php' );
+		require_once( WPD_AI_PATH . 'includes/classes/data-sources/WPDAI_Store_Profit_Data_Source.php' );
+		require_once( WPD_AI_PATH . 'includes/classes/data-sources/WPDAI_Analytics_Data_Source.php' );
+		require_once( WPD_AI_PATH . 'includes/classes/data-sources/WPDAI_Refunds_Internal_Data_Source.php' );
 
 	}
 
@@ -889,11 +903,11 @@ class WPD_Alpha_Insights_Free_Plugin {
 		$this->output_plugin_activity_notices();
 		
 		// Show notice if free version was deactivated
-		if ( get_transient( 'wpd_ai_free_deactivated_by_pro' ) ) {
-			delete_transient( 'wpd_ai_free_deactivated_by_pro' );
+		if ( get_transient( 'wpd_ai_pro_deactivated_free' ) ) {
+			delete_transient( 'wpd_ai_pro_deactivated_free' );
 			?>
 			<div class="notice notice-warning is-dismissible">
-				<p><strong><?php esc_html_e( 'Alpha Insights:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></strong> <?php esc_html_e( 'The free version has been automatically deactivated because Alpha Insights Pro is active. Please deactivate the pro version first if you wish to use the free version.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></p>
+				<p><strong><?php esc_html_e( 'Alpha Insights Pro:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></strong> <?php esc_html_e( 'The free version of Alpha Insights has been automatically deactivated because Alpha Insights Pro is now active.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></p>
 			</div>
 			<?php
 		}
@@ -973,7 +987,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		// Set latest version since this has been cleared
 		$this->log( 'Storing your cache version in the DB.' );
-		update_option( 'wpd_ai_cache_version', WPD_AI_VER );
+		update_option( 'wpd_ai_cache_version', WPD_AI_CACHE_VERSION );
 
 	}
 

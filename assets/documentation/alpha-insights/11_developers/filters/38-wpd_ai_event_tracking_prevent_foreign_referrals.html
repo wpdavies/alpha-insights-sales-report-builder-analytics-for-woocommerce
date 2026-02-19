@@ -1,0 +1,53 @@
+<h2>Filter: wpd_ai_event_tracking_prevent_foreign_referrals</h2>
+
+<p>When true, the event tracking REST endpoint returns 403 Forbidden for requests whose referer is from a different domain.</p>
+
+<h3>Description</h3>
+
+<p>Alpha Insights validates that the request referer matches the site in some cases. If you want to block all events that come from a different host (e.g. to prevent cross-site event injection), return true from this filter. When the referer is considered "foreign," the API responds with a 403 and message "Forbidden request." (code <code>invalid_referer</code>). Default is false.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPDAI_Woocommerce_Event_Tracking.php</code></p>
+<p><strong>Context:</strong> REST request validation when the referer host does not match the site host.</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>(none)</td>
+        <td>—</td>
+        <td>No parameters passed. Return true to block foreign referers; false to allow.</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> bool</p>
+<p>True to block the request (403); false to allow it (default).</p>
+
+<h3>Example Usage</h3>
+
+<h4>Block events from other domains</h4>
+
+<pre><code>add_filter( 'wpd_ai_event_tracking_prevent_foreign_referrals', '__return_true' );</code></pre>
+
+<h4>Block only in production</h4>
+
+<pre><code>add_filter( 'wpd_ai_event_tracking_prevent_foreign_referrals', 'block_foreign_referers_in_production' );
+function block_foreign_referers_in_production() {
+    return wp_get_environment_type() === 'production';
+}</code></pre>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/17-wpd_ai_event_data_before_insertion.html">wpd_ai_event_data_before_insertion</a> – Modify event data before insert</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/39-wpd_ai_event_tracking_block_request_by_data.html">wpd_ai_event_tracking_block_request_by_data</a> – Block by payload data</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/40-wpd_ai_event_tracking_enable_logging.html">wpd_ai_event_tracking_enable_logging</a> – Event tracking logging</li>
+</ul>

@@ -1,0 +1,56 @@
+<h2>Filter: wpd_alpha_insights_data_source_refunds</h2>
+
+<p>Filter the refunds entity data returned by the Refunds data source before it is stored in the data warehouse.</p>
+
+<h3>Description</h3>
+
+<p>After the refunds data source builds its data (totals, data_by_date, data_table, etc.), this filter is applied. You can modify refund metrics or adjust the structure. The data warehouse then stores the returned value for the <code>refunds</code> entity. The filter is applied in multiple places where refunds data is returned.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/data-sources/WPDAI_Refunds_Internal_Data_Source.php</code></p>
+<p><strong>Context:</strong> When returning refunds data from the data source.</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$refunds_data</td>
+        <td>array</td>
+        <td>Refunds data structure (totals, data_by_date, data_table, total_db_records, etc.)</td>
+    </tr>
+    <tr>
+        <td>$data_warehouse</td>
+        <td>WPDAI_Data_Warehouse</td>
+        <td>The data warehouse instance</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> array</p>
+<p>The (possibly modified) refunds data structure.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Add a custom refund total</h4>
+
+<pre><code>add_filter( 'wpd_alpha_insights_data_source_refunds', 'add_refunds_custom_total', 10, 2 );
+function add_refunds_custom_total( $refunds_data, $data_warehouse ) {
+    if ( isset( $refunds_data['totals'] ) && is_array( $refunds_data['totals'] ) ) {
+        $refunds_data['totals']['refunds_excluding_shipping'] = $refunds_data['totals']['total_refunded_amount'] ?? 0;
+    }
+    return $refunds_data;
+}</code></pre>
+
+<h3>Related</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/52-wpd_alpha_insights_refund_ids_to_skip.html">wpd_alpha_insights_refund_ids_to_skip</a> – Exclude specific refund IDs</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/53-wpd_alpha_insights_skip_refunds_without_parent.html">wpd_alpha_insights_skip_refunds_without_parent</a> – Skip orphan refunds</li>
+</ul>
