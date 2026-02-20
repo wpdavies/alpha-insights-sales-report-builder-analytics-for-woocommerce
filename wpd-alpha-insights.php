@@ -3,11 +3,11 @@
  *
  * Plugin Name:         Alpha Insights - Sales Report Builder & Analytics For WooCommerce
  * Plugin URI:          https://wpdavies.dev/plugins/alpha-insights/
- * Description:         A powerful and intuitive drag-and-drop reporting plugin designed for WooCommerce stores.
+ * Description:         Track your store's profit & loss, cost of goods, expenses & website traffic. Build custom WooCommerce reports using our advanced drag & drop report builder. <a href="https://wpdavies.dev/plugins/alpha-insights/pricing/?utm_source=wordpress&utm_medium=plugin_description&utm_campaign=alpha_insights_free_upgrade&utm_content=upgrade_to_pro_link" target="_blank">Upgrade to Pro</a> for additional features.
  * Author:              WP Davies
  * Author URI:          https://wpdavies.dev/
  *
- * Version:             	1.0.0
+ * Version:             	1.1.0
  * Requires at least:   	5.0
  * Tested up to:        	6.9
  * Requires PHP: 			7.4
@@ -145,7 +145,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 		if ( ! defined('WPD_AI_PRO') ) define( 'WPD_AI_PRO', false );
 
 		// Alpha Insights Meta
-		if ( ! defined('WPD_AI_VER') ) define( 'WPD_AI_VER', '1.0.0' );
+		if ( ! defined('WPD_AI_VER') ) define( 'WPD_AI_VER', '1.1.0' );
 		if ( ! defined('WPD_AI_CACHE_VERSION') ) define( 'WPD_AI_CACHE_VERSION', '5.4.9' ); // Follows along pro versioning
 		if ( ! defined('WPD_AI_CACHE_UPDATE_REQUIRED_VER') ) define( 'WPD_AI_CACHE_UPDATE_REQUIRED_VER', '4.7.10' ); // version this up as cache deletes are required
 		if ( ! defined('WPD_AI_DB_VERSION') ) define( 'WPD_AI_DB_VERSION', '5.2.1' );
@@ -188,8 +188,8 @@ class WPD_Alpha_Insights_Free_Plugin {
 	}
 
 	/**
-	 * Check for conflicting plugins (free version)
-	 * Deactivates free version if it's active
+	 * Check for conflicting plugins (pro version)
+	 * Deactivates free version if pro is active
 	 */
 	private function check_for_conflicting_plugins() {
 		
@@ -199,16 +199,16 @@ class WPD_Alpha_Insights_Free_Plugin {
 		}
 		
 		// Get free plugin file path
-		$free_plugin_file = 'alpha-insights-sales-report-builder-analytics-for-woocommerce/wpd-alpha-insights.php';
+		$pro_plugin_file = 'wp-davies-alpha-insights/wpd-alpha-insights.php';
 		
 		// Check if free version is active
-		if ( is_plugin_active( $free_plugin_file ) ) {
+		if ( is_plugin_active( $pro_plugin_file ) || class_exists( 'WPD_Alpha_Insights_Plugin' ) ) {
 			
 			// Deactivate free version
-			deactivate_plugins( $free_plugin_file );
+			deactivate_plugins( plugin_basename( __FILE__ ) );
 			
 			// Set transient for admin notice
-			set_transient( 'wpd_ai_pro_deactivated_free', true, 30 );
+			set_transient( 'wpd_ai_free_deactivated_by_pro', true, 30 );
 			
 		}
 		
@@ -416,10 +416,10 @@ class WPD_Alpha_Insights_Free_Plugin {
 		}
 		
 		// Check for and deactivate free version on activation
-		$free_plugin_file = 'alpha-insights-sales-report-builder-analytics-for-woocommerce/wpd-alpha-insights.php';
-		if ( is_plugin_active( $free_plugin_file ) ) {
-			deactivate_plugins( $free_plugin_file );
-			set_transient( 'wpd_ai_pro_deactivated_free', true, 30 );
+		$pro_plugin_file = 'wp-davies-alpha-insights/wpd-alpha-insights.php';
+		if ( is_plugin_active( $pro_plugin_file ) || class_exists( 'WPD_Alpha_Insights_Plugin' ) ) {
+			deactivate_plugins( plugin_basename( __FILE__ ) );
+			set_transient( 'wpd_ai_free_deactivated_by_pro', true, 30 );
 		}
 		
 		// Logging
@@ -903,11 +903,11 @@ class WPD_Alpha_Insights_Free_Plugin {
 		$this->output_plugin_activity_notices();
 		
 		// Show notice if free version was deactivated
-		if ( get_transient( 'wpd_ai_pro_deactivated_free' ) ) {
-			delete_transient( 'wpd_ai_pro_deactivated_free' );
+		if ( get_transient( 'wpd_ai_free_deactivated_by_pro' ) ) {
+			delete_transient( 'wpd_ai_free_deactivated_by_pro' );
 			?>
 			<div class="notice notice-warning is-dismissible">
-				<p><strong><?php esc_html_e( 'Alpha Insights Pro:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></strong> <?php esc_html_e( 'The free version of Alpha Insights has been automatically deactivated because Alpha Insights Pro is now active.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></p>
+				<p><strong><?php esc_html_e( 'Alpha Insights:', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></strong> <?php esc_html_e( 'The free version has been automatically deactivated because Alpha Insights Pro is active. Please deactivate the pro version first if you wish to use the free version.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></p>
 			</div>
 			<?php
 		}
@@ -1082,7 +1082,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 					'utm_campaign' => 'alpha_insights_free_upgrade',
 					'utm_content' => 'upgrade_to_pro_link'
 				),
-				'https://wpdavies.dev/plugins/alpha-insights/'
+				'https://wpdavies.dev/plugins/alpha-insights/pricing/'
 			);
 			
 			// Add the "Upgrade to Pro" link at the beginning
