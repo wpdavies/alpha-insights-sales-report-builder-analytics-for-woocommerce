@@ -1,4 +1,4 @@
-=== Alpha Insights - Sales Report Builder & Analytics For WooCommerce ===
+=== Alpha Insights - Profit Intelligence & Analytics for WooCommerce ===
 Contributors: wpdavies
 Tags: woocommerce reporting, woocommerce analytics, woocommerce profit, woocommerce cost of goods, woocommerce sales reports
 Requires at least: 5.0
