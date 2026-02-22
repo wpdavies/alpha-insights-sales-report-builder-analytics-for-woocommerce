@@ -217,10 +217,15 @@ $available_shipping_methods					= wpdai_get_available_shipping_methods();
 				<td>
 					<label for="wpd_ai_custom_order_cost"><?php esc_html_e( 'Create Custom Order Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
 					<div class="wpd-meta">
-						<?php echo wp_kses_post( __( 
-							'You can use this setting to create additional order costs with default values for each order.
-							<br>Every new cost field you add here will show up on the order edit page in the admin area.<br>
-							You can override the default cost value for each order. <a href="https://wpdavies.dev/documentation/alpha-insights/additional-features/custom-order-costs/setting-up-custom-order-costs/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" target="_blank">Click Here</a> for documentation.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
+						<?php
+						$custom_order_cost_doc_url = wpdai_wpdavies_url( '/documentation/alpha-insights/additional-features/custom-order-costs/setting-up-custom-order-costs/', 'Alpha Insights Settings - Custom Order Costs Documentation');
+						echo wp_kses_post(
+							sprintf(
+								__( 'You can use this setting to create additional order costs with default values for each order.<br>Every new cost field you add here will show up on the order edit page in the admin area.<br>You can override the default cost value for each order. <a href="%1$s" target="_blank">Click Here</a> for documentation.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+								esc_url( $custom_order_cost_doc_url )
+							)
+						);
+						?></div>
 				</td>
 				<td>
 					<table class="wpd-table fixed" width="100%">
@@ -276,10 +281,15 @@ $available_shipping_methods					= wpdai_get_available_shipping_methods();
 				<td>
 					<label for="wpd_ai_custom_product_cost"><?php esc_html_e( 'Create Custom Product Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
 					<div class="wpd-meta">
-						<?php echo wp_kses_post( __( 
-							'You can use this setting to create additional product costs with default values for each product.
-							<br>Every new cost field you add here will show up on the product edit page and in the order admin area.<br>
-							You can override the default cost value for each product & each order. <a href="https://wpdavies.dev/documentation/alpha-insights/additional-features/custom-product-costs/setting-up-custom-product-costs/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" target="_blank">Click Here</a> for documentation.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
+						<?php
+						$custom_product_cost_doc_url = wpdai_wpdavies_url( '/documentation/alpha-insights/additional-features/custom-product-costs/setting-up-custom-product-costs/', 'Alpha Insights Settings - Custom Product Costs Documentation');
+						echo wp_kses_post(
+							sprintf(
+								__( 'You can use this setting to create additional product costs with default values for each product.<br>Every new cost field you add here will show up on the product edit page and in the order admin area.<br>You can override the default cost value for each product & each order. <a href="%1$s" target="_blank">Click Here</a> for documentation.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+								esc_url( $custom_product_cost_doc_url )
+							)
+						);
+						?></div>
 				</td>
 				<td>
 					<table class="wpd-table fixed" width="100%">

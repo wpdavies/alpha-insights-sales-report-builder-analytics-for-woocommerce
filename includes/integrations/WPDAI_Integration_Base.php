@@ -92,6 +92,16 @@ abstract class WPDAI_Integration_Base {
 	}
 
 	/**
+	 * Get the documentation URL for this integration (optional).
+	 * Override to return a non-empty string to show a Documentation button on the integration settings page.
+	 *
+	 * @return string Documentation URL, or empty string if none.
+	 */
+	public function get_docs_url() {
+		return '';
+	}
+
+	/**
 	 * Get the URL to view this integration's settings
 	 *
 	 * @return string

@@ -1,13 +1,13 @@
 <?php
 /**
  *
- * Plugin Name:         Alpha Insights - Sales Report Builder & Analytics For WooCommerce
+ * Plugin Name:         Alpha Insights - Profit Intelligence & Analytics for WooCommerce
  * Plugin URI:          https://wpdavies.dev/plugins/alpha-insights/
- * Description:         Track your store's profit & loss, cost of goods, expenses & website traffic. Build custom WooCommerce reports using our advanced drag & drop report builder. <a href="https://wpdavies.dev/plugins/alpha-insights/pricing/?utm_source=wordpress&utm_medium=plugin_description&utm_campaign=alpha_insights_free_upgrade&utm_content=upgrade_to_pro_link" target="_blank">Upgrade to Pro</a> for additional features.
+ * Description:         Track your store's profit & loss, cost of goods, expenses & website traffic. Build custom WooCommerce reports using our advanced drag & drop report builder. <a href="https://wpdavies.dev/plugins/alpha-insights/pricing/?utm_source=Alpha+Insights+Plugin&utm_campaign=Alpha+Insights+Plugin+Description+Upgrade+to+Pro+Link&utm_medium=plugin_description&utm_content=upgrade_to_pro_link" target="_blank">Upgrade to Pro</a> for additional features.
  * Author:              WP Davies
  * Author URI:          https://wpdavies.dev/
  *
- * Version:             	1.1.0
+ * Version:             	1.2.0
  * Requires at least:   	5.0
  * Tested up to:        	6.9
  * Requires PHP: 			7.4
@@ -109,9 +109,10 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		// If we are all good, load the plugin
 		if ( $this->is_plugin_compatible() ) {
+
 			// Load the plugin
 			add_action( 'plugins_loaded', array( $this, 'initialize_plugin' ), 20 );
-			// $this->initialize_plugin();
+
 		}
 
 		// Output plugin init admin notices (hook only fires in admin area)
@@ -145,7 +146,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 		if ( ! defined('WPD_AI_PRO') ) define( 'WPD_AI_PRO', false );
 
 		// Alpha Insights Meta
-		if ( ! defined('WPD_AI_VER') ) define( 'WPD_AI_VER', '1.1.0' );
+		if ( ! defined('WPD_AI_VER') ) define( 'WPD_AI_VER', '1.2.0' );
 		if ( ! defined('WPD_AI_CACHE_VERSION') ) define( 'WPD_AI_CACHE_VERSION', '5.4.9' ); // Follows along pro versioning
 		if ( ! defined('WPD_AI_CACHE_UPDATE_REQUIRED_VER') ) define( 'WPD_AI_CACHE_UPDATE_REQUIRED_VER', '4.7.10' ); // version this up as cache deletes are required
 		if ( ! defined('WPD_AI_DB_VERSION') ) define( 'WPD_AI_DB_VERSION', '5.2.1' );
@@ -812,6 +813,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Reporting_API.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Getting_Started.php');
 		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Data_Manager.php');
+		require_once( WPD_AI_PATH . 'includes/classes/WPDAI_Reviews.php');
 
 		// Additional Classes - With Dependencies
 		require_once( WPD_AI_PATH . 'includes/classes/interfaces/WPDAI_Custom_Data_Source_Interface.php');
@@ -1069,24 +1071,11 @@ class WPD_Alpha_Insights_Free_Plugin {
 		$new_links[] = '<a href="' . esc_url( $link ) . '">' . esc_html__( 'Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) . '</a>';
 		
 		// Docs
-		$new_links[] = '<a href="' . esc_url( 'https://wpdavies.dev/docs/alpha-insights/' ) . '" target="_blank">' . esc_html__( 'Docs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) . '</a>';	
+		$new_links[] = '<a href="' . esc_url( wpdai_wpdavies_url( '/docs/alpha-insights/', 'Plugin Row Links - Docs' ) ) . '" target="_blank">' . esc_html__( 'Docs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) . '</a>';	
 
 		// Upgrade to Pro
 		if ( ! WPD_AI_PRO ) {
-
-			// Build upgrade URL with query parameters for tracking
-			$upgrade_url = add_query_arg(
-				array(
-					'utm_source' => 'wordpress',
-					'utm_medium' => 'plugin_action_links',
-					'utm_campaign' => 'alpha_insights_free_upgrade',
-					'utm_content' => 'upgrade_to_pro_link'
-				),
-				'https://wpdavies.dev/plugins/alpha-insights/pricing/'
-			);
-			
-			// Add the "Upgrade to Pro" link at the beginning
-			$new_links[] = '<a href="' . esc_url($upgrade_url) . '" target="_blank" style="color: #2271b1; font-weight: 600;">' . esc_html__('Upgrade to Pro', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') . '</a>';
+			$new_links[] = '<a href="' . esc_url( wpdai_wpdavies_url( '/plugins/alpha-insights/pricing/', 'Plugin Row Links - Alpha Insights Upgrade to Pro' ) ) . '" target="_blank" style="color: #2271b1; font-weight: 600;">' . esc_html__('Upgrade to Pro', 'alpha-insights-sales-report-builder-analytics-for-woocommerce') . '</a>';
 			
 		}
 

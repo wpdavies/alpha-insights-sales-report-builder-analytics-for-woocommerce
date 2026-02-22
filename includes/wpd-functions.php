@@ -100,7 +100,7 @@ function wpdai_documentation_modal_html() {
 							</svg>
 						</div>
 						<div class="wpd-docs-support-content">
-							<a href="https://wpdavies.dev/my-account/my-tickets/" target="_blank" class="wpd-docs-support-link">
+							<a href="<?php echo esc_url( wpdai_wpdavies_url( '/my-account/my-tickets/', 'Alpha Insights Help Modal - Open A Support Ticket' ) ); ?>" target="_blank" class="wpd-docs-support-link">
 								<h4 class="wpd-docs-support-title"><?php esc_html_e('Open A Support Ticket', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></h4>
 								<p class="wpd-docs-support-text"><?php esc_html_e('Get personalized help from our support team', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
 							</a>
@@ -136,7 +136,7 @@ function wpdai_documentation_modal_html() {
 					<div class="wpd-docs-upgrade-content">
 						<h4 class="wpd-docs-upgrade-title"><?php esc_html_e('Upgrade to Pro', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></h4>
 						<p class="wpd-docs-upgrade-text"><?php esc_html_e('Unlock advanced features, priority support, and more', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?></p>
-						<a href="https://wpdavies.dev/plugins/alpha-insights/pricing/?utm_campaign=Alpha+Insights+Help+Modal&utm_source=Alpha+Insights+Plugin" target="_blank" class="wpd-docs-upgrade-button">
+						<a href="<?php echo esc_url( wpdai_wpdavies_url( '/plugins/alpha-insights/pricing/', 'Alpha Insights Help Modal - Upgrade to Pro' ) ); ?>" target="_blank" class="wpd-docs-upgrade-button">
 							<?php esc_html_e('Upgrade Now', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'); ?>
 							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 								<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
@@ -1568,5 +1568,55 @@ function wpdai_calculate_gross_profit_difference_after_refunds( $order_id ) {
 	$gp_difference = $gp_after_refunds - $gp_before_refunds;
 
 	return $gp_difference;
+
+}
+
+
+/**
+ * Generates a URL back to WP Davies with standardized UTM parameters.
+ *
+ * @param string $relative_url Optional. Path relative to wpdavies.dev, with leading slash (e.g. '/plugins/alpha-insights/pricing'). A missing leading slash is added automatically.
+ * @param string $campaign     Optional. UTM campaign name (e.g. 'Alpha Insights Help Modal').
+ * @param string $medium       Optional. UTM medium (e.g. 'plugin', 'documentation'). Default 'plugin'.
+ * @param string $content      Optional. UTM content for A/B or link differentiation.
+ * @return string Full URL with UTM query args, safe for use with esc_url().
+ */
+function wpdai_wpdavies_url( $relative_url = '', $campaign = '', $medium = 'plugin', $content = '' ) {
+
+	$base = 'https://wpdavies.dev';
+
+	if ( is_string( $relative_url ) && $relative_url !== '' ) {
+		$path = trim( sanitize_text_field( $relative_url ) );
+		$path = ltrim( $path, '/' );
+		$path = $path !== '' ? '/' . $path : '/';
+	} else {
+		$path = '/';
+	}
+
+	$base .= $path;
+
+	$utm = array(
+		'utm_source' => 'Alpha Insights Plugin',
+	);
+
+	if ( defined( 'WPD_AI_PRO' ) && WPD_AI_PRO ) {
+		$utm['utm_source'] = 'Alpha Insights Plugin Pro';
+	}
+
+	if ( is_string( $campaign ) && $campaign !== '' ) {
+		$utm['utm_campaign'] = sanitize_text_field( $campaign );
+	}
+
+	if ( is_string( $medium ) && $medium !== '' ) {
+		$utm['utm_medium'] = sanitize_text_field( $medium );
+	}
+
+	if ( is_string( $content ) && $content !== '' ) {
+		$utm['utm_content'] = sanitize_text_field( $content );
+	}
+
+	$url = add_query_arg( $utm, $base );
+
+	return esc_url_raw( $url );
 
 }

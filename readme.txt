@@ -4,7 +4,7 @@ Tags: woocommerce reporting, woocommerce analytics, woocommerce profit, woocomme
 Requires at least: 5.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 Requires Plugins: woocommerce
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -176,6 +176,11 @@ Default WooCommerce reports focus primarily on revenue. Alpha Insights adds cost
 ---
 
 == Changelog ==
+
+= 1.2.0 =
+* Fixed a few broken docs links
+* Added about us page
+* Implemented reviews system
 
 = 1.1.0 =
 * Rebuild the refund system to apply movements in net sales & GP according to the refund date, not the original order date

@@ -43,7 +43,7 @@ function wpdai_webhook_data_request( $from_date = null, $to_date = null, $JSON =
 		'expense_data_summary' => $data_warehouse->get_data('expenses', 'totals'),
 		'store_profit_summary' => $data_warehouse->get_data('store_profit', 'totals'),
 		'orders' => $data_warehouse->get_data('orders', 'data_table')['orders'],
-		'expenses' => $data_warehouse->get_data('expenses', 'data_table')['expenses'],
+		'expenses' => $data_warehouse->get_data('expenses', 'data_table')['expenses'] ?? array(),
 	);
 
 	// Prety print JSON

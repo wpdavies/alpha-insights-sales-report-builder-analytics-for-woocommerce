@@ -627,6 +627,10 @@ function wpdai_output_settings_page_content( $subpage, $wpd_action ) {
 
 		require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-general_settings.php');
 
+	} elseif ( $subpage == 'about-us' ) {
+
+		require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-about-us.php');
+
 	} elseif ( ! $subpage ) {
 
 		require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-general_settings.php');

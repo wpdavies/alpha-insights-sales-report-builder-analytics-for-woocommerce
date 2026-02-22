@@ -100,7 +100,7 @@ class WPDAI_Free_Loader {
         // Add new menu item for Upgrade to Pro
         $menu_items['wpd-upgrade-to-pro'] = array(
             'title' => __('Upgrade to Pro', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
-            'url' => 'https://wpdavies.dev/plugins/alpha-insights/pricing/?utm_campaign=Alpha+Insights+Upgrade+to+Pro+Menu+Item&utm_source=Alpha+Insights+Plugin',
+            'url' => wpdai_wpdavies_url( '/plugins/alpha-insights/pricing/', 'Alpha Insights Upgrade to Pro Menu Item' ),
             'target' => '_blank',
             'icon' => 'dashicons-star-filled',
             'position' => 100,

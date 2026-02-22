@@ -64,6 +64,13 @@ class WPDAI_Integration_Register_Webhooks extends WPDAI_Integration_Base {
 	/**
 	 * {@inheritdoc}
 	 */
+	public function get_docs_url() {
+		return wpdai_wpdavies_url( '/documentation/alpha-insights/integrations/webhooks/webhook-setup/', 'Alpha Insights Webhooks Documentation', 'documentation' );
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
 	public function render_settings() {
 		$webhook_data = get_option( $this->option_name, array() );
 		$next_webhook_sync = wpdai_next_scheduled_event_date_html( WPDAI_Webhook_Provider::$recurring_event_hook );
@@ -75,10 +82,7 @@ class WPDAI_Integration_Register_Webhooks extends WPDAI_Integration_Base {
 		<table class="wpd-table fixed widefat">
 			<thead>
 				<tr>
-					<th colspan="2">
-						<?php esc_html_e( 'Webhooks', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
-						<a href="https://wpdavies.dev/documentation/alpha-insights/integrations/webhooks/webhook-setup/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" class="wpd-input button button-secondary pull-right" target="_blank" style="margin-right: 5px;"><?php esc_html_e( 'Documentation', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></a>
-					</th>
+					<th colspan="2"><?php esc_html_e( 'Webhooks', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
