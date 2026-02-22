@@ -30,7 +30,6 @@ class WPDAI_Action_Scheduler {
 
         // Free actions
         add_action( 'wpd_schedule_emails',                              'wpdai_schedule_emails_function' );
-        add_action( 'wpd_schedule_webhook',                             'wpdai_schedule_webhook_post' );
         add_action( 'wpd_schedule_log_cleanup',                         'wpdai_schedule_log_cleanup_function' );
         add_action( 'wpd_schedule_analytics_db_cleanup',                'wpdai_schedule_analytics_db_cleanup_function' );
         add_action( 'wpd_schedule_database_upgrade',                    'wpdai_schedule_database_upgrade_function' );
@@ -99,15 +98,6 @@ class WPDAI_Action_Scheduler {
         // Customer Analytics
         if ( ! as_next_scheduled_action( 'wpd_schedule_customer_analytics_collector' ) ) {
             as_schedule_recurring_action( time() + 3000, HOUR_IN_SECONDS, 'wpd_schedule_customer_analytics_collector', array(), self::EVENT_GROUP_SLUG );
-        }
-
-        // Check for webhook post - Runs hourly, but actually executes according to scheduled settings (Condition)
-        if ( ! as_next_scheduled_action( 'wpd_schedule_webhook' ) ) {
-            $webhook_settings = get_option( 'wpd_ai_webhooks' );
-            $webhook_url = $webhook_settings['webhook_url'] ?? null;
-            if ( ! empty($webhook_url) ) {
-                as_schedule_recurring_action( time(), HOUR_IN_SECONDS, 'wpd_schedule_webhook', array(), self::EVENT_GROUP_SLUG );
-            }
         }
 
         // Check for pending migrations - Once a day

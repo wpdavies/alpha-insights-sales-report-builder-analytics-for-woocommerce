@@ -1,0 +1,235 @@
+<h2>Tracking Custom Events</h2>
+
+<p>Alpha Insights lets you record custom events from the frontend (JavaScript) or the backend (PHP). Custom events appear in your analytics alongside built-in events (page views, add to cart, purchase, etc.) so you can measure conversions, engagement, and business-specific actions.</p>
+
+<h3>Overview</h3>
+
+<p>You can track custom events in two ways:</p>
+
+<ul>
+<li><strong>JavaScript (frontend):</strong> Fire events from the browser when the user does something (e.g. click a CTA, play a video, submit a form). Uses the same REST API as the built-in event tracking script.</li>
+<li><strong>PHP (backend):</strong> Fire events from server-side code (hooks, shortcodes, templates) when something happens (e.g. form processed, lead captured, custom conversion). Uses a simple wrapper function that fills in session data automatically.</li>
+</ul>
+
+<p>Both methods write to the same events table (<code>wp_wpd_ai_woocommerce_events</code>) and respect the same settings (event tracking enabled, user exclusions, rate limiting). For a list of built-in event types, see <strong>Event Types Reference</strong>.</p>
+
+<h3>Tracking Custom Events from JavaScript (Frontend)</h3>
+
+<p>The event tracking script exposes a global function <code>WpdAiEventTracking()</code> that sends a single event to the Alpha Insights API. Use it anywhere in your theme or plugin JavaScript after the tracking script has loaded.</p>
+
+<h4>Basic usage</h4>
+
+<pre><code>WpdAiEventTracking({
+    event_type: 'your_custom_event_name',
+    event_quantity: 1,           // Optional, default 1
+    event_value: 0,              // Optional, default 0
+    object_id: 123,              // Optional, default current post ID
+    object_type: 'product',      // Optional, default current post type
+    product_id: 456,             // Optional, default 0
+    variation_id: 789,           // Optional, default 0
+    additional_data: {           // Optional, default {}
+        custom_field: 'value',
+        another_field: 'another_value'
+    }
+});</code></pre>
+
+<p><strong>Required:</strong> Only <code>event_type</code> is required. All other fields are optional and default to the current context (page, post type, etc.) when omitted.</p>
+
+<h4>Parameter reference (JavaScript)</h4>
+
+<table>
+<tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>event_type</code></td><td>string</td><td><strong>Required.</strong> Name of the event (e.g. <code>newsletter_signup</code>, <code>video_play</code>).</td></tr>
+<tr><td><code>event_quantity</code></td><td>number</td><td>Quantity associated with the event (default: 1).</td></tr>
+<tr><td><code>event_value</code></td><td>number</td><td>Monetary value if applicable (default: 0).</td></tr>
+<tr><td><code>object_id</code></td><td>number</td><td>WordPress post/page/object ID (default: current post ID).</td></tr>
+<tr><td><code>object_type</code></td><td>string</td><td>Post type (e.g. <code>post</code>, <code>page</code>, <code>product</code>).</td></tr>
+<tr><td><code>product_id</code></td><td>number</td><td>Product ID for product-related events (default: 0).</td></tr>
+<tr><td><code>variation_id</code></td><td>number</td><td>Variation ID for variable products (default: 0).</td></tr>
+<tr><td><code>additional_data</code></td><td>object</td><td>Extra key-value data sent as JSON with the event.</td></tr>
+</table>
+
+<h4>Example: Track a CTA click</h4>
+
+<pre><code>jQuery('.my-cta-button').on('click', function() {
+    WpdAiEventTracking({
+        event_type: 'cta_click',
+        additional_data: {
+            cta_id: jQuery(this).data('cta-id'),
+            cta_location: 'hero'
+        }
+    });
+});</code></pre>
+
+<h4>Example: Track a form submission (non-cart)</h4>
+
+<pre><code>jQuery('#my-lead-form').on('submit', function() {
+    WpdAiEventTracking({
+        event_type: 'lead_form_submit',
+        object_id: 0,
+        object_type: 'form',
+        additional_data: {
+            form_id: 'my-lead-form',
+            form_name: 'Contact'
+        }
+    });
+});</code></pre>
+
+<h4>Example: Track a video play</h4>
+
+<pre><code>document.querySelector('#promo-video').addEventListener('play', function() {
+    if (typeof WpdAiEventTracking === 'function') {
+        WpdAiEventTracking({
+            event_type: 'video_play',
+            additional_data: {
+                video_id: this.getAttribute('data-video-id'),
+                video_title: 'Product Demo'
+            }
+        });
+    }
+});</code></pre>
+
+<h4>Notes (JavaScript)</h4>
+
+<ul>
+<li>Events are only sent if event tracking is enabled in <strong>Alpha Insights → Settings</strong>.</li>
+<li>The tracking script must be loaded on the page (it is enqueued automatically when event tracking is enabled).</li>
+<li>Events are sent asynchronously (sendBeacon or AJAX). There is no need to wait for a response unless you are handling success/error.</li>
+<li>If engaged-session tracking is enabled, the first page view may wait for user interaction; custom events still send immediately when you call <code>WpdAiEventTracking()</code>.</li>
+</ul>
+
+<h3>Tracking Custom Events from PHP (Backend)</h3>
+
+<p>Use the single function <code>wpdai_track_custom_event( $event_type, $args )</code> to record custom events from server-side code (hooks, shortcodes, templates, form handlers). Core params—<code>session_id</code>, <code>ip_address</code>, <code>user_id</code>, and <code>page_href</code>—are <strong>set automatically from the current session</strong> when you don’t pass them. Pass them in <code>$args</code> only when you need to override (e.g. server-side or headless context where you have your own session/request context).</p>
+
+<h4>wpdai_track_custom_event()</h4>
+
+<pre><code>wpdai_track_custom_event( string $event_type, array $args = array() );</code></pre>
+
+<p><strong>Parameters:</strong></p>
+
+<ul>
+<li><code>$event_type</code> (string, required) — The event type name (e.g. <code>newsletter_signup</code>, <code>download_lead_magnet</code>, <code>custom_conversion</code>).</li>
+<li><code>$args</code> (array, optional) — Event data. Any key you omit is filled from the current session or defaults. Supported keys are listed below.</li>
+</ul>
+
+<p><strong>Returns:</strong> An array with <code>success</code> (bool), <code>message</code> (string), <code>code</code> (string), and <code>rows_inserted</code> (int). Use this to log or handle failures.</p>
+
+<h4>$args keys (PHP)</h4>
+
+<p><strong>Core params (set automatically from session when not provided; override only if needed):</strong></p>
+
+<table>
+<tr><th>Key</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>session_id</code></td><td>string</td><td>Override session ID. Normally from current Alpha Insights session.</td></tr>
+<tr><td><code>ip_address</code></td><td>string</td><td>Override IP address. Normally from current request.</td></tr>
+<tr><td><code>user_id</code></td><td>int</td><td>Override user ID. Normally current logged-in user (or 0).</td></tr>
+<tr><td><code>page_href</code></td><td>string</td><td>Override page URL. Normally current page (must be same domain for insertion).</td></tr>
+</table>
+
+<p><strong>Event params:</strong></p>
+
+<table>
+<tr><th>Key</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>event_quantity</code></td><td>int</td><td>Quantity (default: 1).</td></tr>
+<tr><td><code>event_value</code></td><td>float</td><td>Monetary value (default: 0).</td></tr>
+<tr><td><code>object_id</code></td><td>int</td><td>WordPress post/page/object ID.</td></tr>
+<tr><td><code>object_type</code></td><td>string</td><td>Post type (e.g. <code>post</code>, <code>page</code>, <code>product</code>).</td></tr>
+<tr><td><code>product_id</code></td><td>int</td><td>Product ID for product-related events.</td></tr>
+<tr><td><code>variation_id</code></td><td>int</td><td>Variation ID for variable products.</td></tr>
+<tr><td><code>additional_data</code></td><td>array</td><td>Extra key-value data (stored as JSON).</td></tr>
+</table>
+
+<h4>Example: Track after form processing (hook)</h4>
+
+<pre><code>add_action( 'my_plugin_lead_submitted', 'wpd_my_track_lead_event', 10, 2 );
+
+function wpd_my_track_lead_event( $lead_id, $form_data ) {
+    wpdai_track_custom_event( 'lead_submitted', array(
+        'object_id'       => 0,
+        'object_type'     => 'lead_form',
+        'additional_data' => array(
+            'lead_id'   => $lead_id,
+            'form_name' => isset( $form_data['form_name'] ) ? $form_data['form_name'] : '',
+        ),
+    ) );
+}</code></pre>
+
+<h4>Example: Track a custom conversion with value</h4>
+
+<pre><code>// After a quote request is saved
+wpdai_track_custom_event( 'quote_request', array(
+    'event_value'      => 0,
+    'object_id'        => get_the_ID(),
+    'object_type'      => get_post_type(),
+    'additional_data'  => array(
+        'quote_id' => $quote_id,
+        'source'   => 'contact_page',
+    ),
+) );</code></pre>
+
+<h4>Example: Track from a shortcode (e.g. download link page view)</h4>
+
+<pre><code>add_shortcode( 'wpd_track_download', 'wpd_shortcode_track_download' );
+
+function wpd_shortcode_track_download( $atts ) {
+    $atts = shortcode_atts( array(
+        'resource_id' => '',
+        'label'       => 'Download',
+    ), $atts, 'wpd_track_download' );
+
+    $url = get_permalink( $atts['resource_id'] );
+    if ( ! $url ) {
+        return '';
+    }
+
+    // Track that the user saw this download CTA (fires when shortcode is rendered)
+    wpdai_track_custom_event( 'resource_download_view', array(
+        'object_id'       => (int) $atts['resource_id'],
+        'object_type'     => 'resource',
+        'additional_data' => array(
+            'label' => sanitize_text_field( $atts['label'] ),
+        ),
+    ) );
+
+    return '&lt;a href="' . esc_url( $url ) . '" class="wpd-download-link"&gt;' . esc_html( $atts['label'] ) . '&lt;/a&gt;';
+}</code></pre>
+
+<p>To track the actual click or file download, use JavaScript <code>WpdAiEventTracking()</code> on the link click, or call <code>wpdai_track_custom_event()</code> from a redirect handler that runs when the user hits your download endpoint.</p>
+
+<h4>Example: Overriding core params (e.g. server-side context)</h4>
+
+<pre><code>// When you have your own session/request context (e.g. webhook or background job)
+wpdai_track_custom_event( 'server_side_conversion', array(
+    'session_id'      => $stored_session_id,
+    'ip_address'      => $customer_ip,
+    'user_id'         => $customer_user_id,
+    'page_href'       => home_url( '/thank-you/' ),
+    'event_value'     => 99.00,
+    'object_id'       => 456,
+    'object_type'     => 'product',
+    'product_id'      => 456,
+    'additional_data' => array( 'campaign' => 'summer_sale' ),
+) );</code></pre>
+
+<p>If you omit <code>session_id</code>, <code>ip_address</code>, <code>user_id</code>, or <code>page_href</code>, they are set automatically from the current Alpha Insights session and request.</p>
+
+<h4>Notes (PHP)</h4>
+
+<ul>
+<li>Events are not inserted in the admin area, during CRON, or when event tracking is disabled. The same user/role exclusions and rate limits as frontend tracking apply.</li>
+<li>Insertion can fail if there is no valid session/landing page (e.g. server-side-only or headless request). Check the returned <code>success</code> and <code>code</code> if you need to handle failures.</li>
+<li>Custom event types appear in reports and filters like built-in events; use a consistent naming convention (e.g. snake_case) for easier analysis.</li>
+</ul>
+
+<h3>Viewing Custom Events in Reports</h3>
+
+<p>Custom events are stored in the same table as built-in events. In Alpha Insights reports you can:</p>
+
+<ul>
+<li>Filter or group by <code>event_type</code> to see your custom event names.</li>
+<li>Use <strong>Website Traffic</strong> and event-based metrics to count custom events, events per session, and conversion rates.</li>
+<li>Use <code>additional_data</code> in exports or custom queries for deeper segmentation (e.g. by <code>form_name</code>, <code>video_id</code>).</li>
+</ul>
+
+<p>For a full list of built-in event types and their meanings, see <strong>Event Types Reference</strong>.</p>

@@ -31,6 +31,7 @@ function wpdai_admin_enqueue() {
 	wp_register_style( 'wpd-jquery-ui', plugins_url( 'assets/css/jquery-ui.css' , dirname(__FILE__)) );
 	wp_register_style( 'wpd-fonts', 'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 	wp_register_style( 'wpd-easy-select', WPD_AI_URL_PATH . 'assets/css/js-easy-select-style.css' );
+	wp_register_style( 'wpd-settings-about-us', WPD_AI_URL_PATH . 'assets/css/wpd-settings-about-us.css', array( 'wpd-alpha-insights-admin' ), WPD_AI_VER );
 
 	/**
 	 *
@@ -42,6 +43,7 @@ function wpdai_admin_enqueue() {
 	wp_register_script( 'wpd-submenu-scroll', WPD_AI_URL_PATH . 'assets/js/wpd-submenu-scroll.js', array( 'jquery' ), WPD_AI_VER, true );
 	wp_register_script( 'wpd-easy-select', WPD_AI_URL_PATH . 'assets/js/js-easy-select.js', array( 'jquery' ), false, true ); // 2.9.xx
 	wp_register_script( 'wpd-data-manager', WPD_AI_URL_PATH . 'assets/js/wpd-data-manager.js', array( 'jquery', 'wpd-alpha-insights-admin' ), WPD_AI_VER, true );
+	wp_register_script( 'wpd-integrations-filter', WPD_AI_URL_PATH . 'assets/js/wpd-integrations-filter.js', array( 'jquery' ), WPD_AI_VER, true );
 
 	/**
 	 *
@@ -99,6 +101,11 @@ function wpdai_admin_enqueue() {
 		wp_enqueue_style( 'wpd-core-style-override' );
 	}
 
+	// About Us settings subpage
+	if ( is_wpdai_page() && isset( $_GET['page'] ) && isset( $_GET['subpage'] ) && sanitize_text_field( wp_unslash( $_GET['page'] ) ) === WPDAI_Admin_Menu::$settings_slug && sanitize_text_field( wp_unslash( $_GET['subpage'] ) ) === 'about-us' ) {
+		wp_enqueue_style( 'wpd-settings-about-us' );
+	}
+
 	/**
 	 *
 	 *	Enqueue Scripts
@@ -113,6 +120,11 @@ function wpdai_admin_enqueue() {
 	if ( is_wpdai_page() ) {
 		wp_enqueue_script( 'wpd-alpha-insights-admin' );
 		wp_enqueue_script( 'wpd-submenu-scroll' );
+	}
+
+	// Integrations filter (category tabs + search) on integration settings page
+	if ( is_wpdai_page() && isset( $_GET['page'] ) && isset( $_GET['subpage'] ) && sanitize_text_field( wp_unslash( $_GET['page'] ) ) === WPDAI_Admin_Menu::$settings_slug && sanitize_text_field( wp_unslash( $_GET['subpage'] ) ) === 'integrations' ) {
+		wp_enqueue_script( 'wpd-integrations-filter' );
 	}
 	wp_enqueue_script( 'wpd-easy-select' );
 
@@ -246,10 +258,22 @@ function wpdai_alpha_insights_frontend_scripts_styles() {
 	$page_id	= get_the_ID();
 	$user_id 	= get_current_user_id();
 
+	$attribution_timeout_seconds = class_exists( 'WPDAI_Session_Tracking' ) ? WPDAI_Session_Tracking::get_attribution_timeout_seconds() : ( 3 * DAY_IN_SECONDS );
+	$cookie_domain = class_exists( 'WPDAI_Session_Tracking' ) ? WPDAI_Session_Tracking::get_cookie_domain() : '';
 	wp_localize_script( 'wpd-ai-sessions', 'wpd_ai_session_vars', 
 		array( 
 			'page_id' => $page_id,
-			'user_id' => $user_id
+			'user_id' => $user_id,
+			'attribution_timeout_seconds' => $attribution_timeout_seconds,
+			'cookie_domain' => $cookie_domain,
+		) 
+	);
+	wp_localize_script( 'wpd-alpha-insights-frontend', 'wpd_ai_session_vars', 
+		array( 
+			'page_id' => $page_id,
+			'user_id' => $user_id,
+			'attribution_timeout_seconds' => $attribution_timeout_seconds,
+			'cookie_domain' => $cookie_domain,
 		) 
 	);
 

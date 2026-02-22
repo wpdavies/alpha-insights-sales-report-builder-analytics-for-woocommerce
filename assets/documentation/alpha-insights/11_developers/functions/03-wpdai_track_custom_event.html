@@ -1,0 +1,126 @@
+<h2>Function: wpdai_track_custom_event</h2>
+<p>Record a custom analytics event from PHP (backend). Core params (session_id, ip_address, user_id, page_href) are set automatically from the current session when not provided; pass them in <code>$args</code> only when you need to override (e.g. server-side or headless context).</p>
+
+<h3>Description</h3>
+<p>Use this function when you want to track a custom event server-side—for example after form processing, in a hook, shortcode, or template. Only <code>$event_type</code> is required; all other fields are optional. Core params are filled from the current Alpha Insights session and request when omitted. Events are written to the same table as frontend and built-in events (<code>wp_wpd_ai_woocommerce_events</code>) and respect the same settings (event tracking enabled, user exclusions, rate limiting).</p>
+
+<h4>Location</h4>
+<p><strong>File:</strong> <code>includes/wpd-functions.php</code></p>
+<p><strong>Line:</strong> ~1350</p>
+
+<h3>Function Signature</h3>
+<pre><code>wpdai_track_custom_event( string $event_type, array $args = array() )</code></pre>
+
+<h4>Parameters</h4>
+<table>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>$event_type</td>
+<td>string</td>
+<td>Yes</td>
+<td>The event type name (e.g. <code>newsletter_signup</code>, <code>lead_submitted</code>, <code>video_play</code>, <code>custom_conversion</code>). Must be non-empty.</td>
+</tr>
+<tr>
+<td>$args</td>
+<td>array</td>
+<td>No</td>
+<td>Optional event data. See <strong>Optional $args keys</strong> below. Default: empty array.</td>
+</tr>
+</table>
+
+<h4>Optional $args keys</h4>
+<p>Core params are set automatically from the current session when not provided. Override them only when you have your own session/request context (e.g. webhook, background job).</p>
+<table>
+<tr><th>Key</th><th>Type</th><th>Description</th></tr>
+<tr><td>session_id</td><td>string</td><td>Override session ID. Normally from current session.</td></tr>
+<tr><td>ip_address</td><td>string</td><td>Override IP address. Normally from current request.</td></tr>
+<tr><td>user_id</td><td>int</td><td>Override user ID. Normally current user (or 0).</td></tr>
+<tr><td>page_href</td><td>string</td><td>Override page URL. Normally current page (same domain required).</td></tr>
+<tr><td>event_quantity</td><td>int</td><td>Quantity (default: 1).</td></tr>
+<tr><td>event_value</td><td>float</td><td>Monetary value (default: 0).</td></tr>
+<tr><td>object_id</td><td>int</td><td>WordPress post/page/object ID.</td></tr>
+<tr><td>object_type</td><td>string</td><td>Post type (e.g. <code>post</code>, <code>page</code>, <code>product</code>).</td></tr>
+<tr><td>product_id</td><td>int</td><td>Product ID for product-related events.</td></tr>
+<tr><td>variation_id</td><td>int</td><td>Variation ID for variable products.</td></tr>
+<tr><td>additional_data</td><td>array</td><td>Extra key-value data; stored as JSON with the event.</td></tr>
+</table>
+
+<h3>Return Value</h3>
+<p><strong>Type:</strong> array</p>
+<p><strong>Description:</strong> Result from the event insertion. Keys:</p>
+<ul>
+<li><strong>success</strong> (bool) — Whether the event was inserted.</li>
+<li><strong>message</strong> (string) — Human-readable message.</li>
+<li><strong>code</strong> (string) — Code for the outcome (e.g. <code>success</code>, <code>invalid_event_type</code>, <code>tracking_disabled</code>, <code>admin_skip</code>, <code>no_landing_page</code>, <code>rate_limit_exceeded</code>).</li>
+<li><strong>rows_inserted</strong> (int) — Number of rows inserted (0 or 1).</li>
+</ul>
+
+<h4>Example Usage</h4>
+
+<h3>Basic usage</h3>
+<pre><code>wpdai_track_custom_event( 'newsletter_signup' );</code></pre>
+
+<h3>With additional data</h3>
+<pre><code>wpdai_track_custom_event( 'lead_submitted', array(
+    'object_id'       => 0,
+    'object_type'     => 'lead_form',
+    'additional_data' => array(
+        'lead_id'   => $lead_id,
+        'form_name' => 'Contact',
+    ),
+) );</code></pre>
+
+<h3>In a hook (e.g. after form processing)</h3>
+<pre><code>add_action( 'my_plugin_lead_submitted', 'wpd_my_track_lead_event', 10, 2 );
+
+function wpd_my_track_lead_event( $lead_id, $form_data ) {
+    $result = wpdai_track_custom_event( 'lead_submitted', array(
+        'object_type'     => 'lead_form',
+        'additional_data' => array(
+            'lead_id'   => $lead_id,
+            'form_name' => isset( $form_data['form_name'] ) ? $form_data['form_name'] : '',
+        ),
+    ) );
+
+    if ( ! empty( $result['success'] ) ) {
+        // Event recorded
+    }
+}</code></pre>
+
+<h3>With value and object context</h3>
+<pre><code>wpdai_track_custom_event( 'quote_request', array(
+    'event_value'     => 0,
+    'object_id'       => get_the_ID(),
+    'object_type'     => get_post_type(),
+    'additional_data' => array(
+        'quote_id' => $quote_id,
+        'source'   => 'contact_page',
+    ),
+) );</code></pre>
+
+<h3>Checking the result</h3>
+<pre><code>$result = wpdai_track_custom_event( 'custom_conversion', array( 'additional_data' => array( 'campaign' => 'summer' ) ) );
+
+if ( ! empty( $result['success'] ) ) {
+    // Event was inserted
+} else {
+    // Log or handle: $result['code'], $result['message']
+}</code></pre>
+
+<h4>Notes</h4>
+<ul>
+<li>Events are not inserted in the admin area, during CRON, or when event tracking is disabled. The same user/role exclusions and rate limits as frontend tracking apply.</li>
+<li>Insertion can fail if there is no valid session/landing page (e.g. server-side-only or headless request). Check <code>success</code> and <code>code</code> to handle failures.</li>
+<li>Use a consistent naming convention for <code>$event_type</code> (e.g. snake_case) so custom events are easy to filter in reports.</li>
+</ul>
+
+<h3>Related</h3>
+<ul>
+<li><strong>Tracking Custom Events</strong> — Full guide for custom events (JavaScript and PHP) in Website Traffic documentation.</li>
+<li>For direct low-level access (full control over the event payload), use <code>WPDAI_WooCommerce_Event_Tracking::get_instance()-&gt;insert_event( $data )</code>.</li>
+</ul>

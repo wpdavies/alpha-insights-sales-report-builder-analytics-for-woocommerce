@@ -1,0 +1,57 @@
+<h2>Filter: wpd_alpha_insights_data_source_store_profit</h2>
+
+<p>Filter the store profit entity data returned by the Store Profit data source before it is stored in the data warehouse.</p>
+
+<h3>Description</h3>
+
+<p>Store profit is derived from orders and expenses (e.g. P&amp;L). After the Store Profit data source builds its structure (totals, data_by_date, etc.), this filter is applied. You can modify profit metrics or add custom keys. The data warehouse then stores the returned value for the <code>store_profit</code> entity.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/data-sources/WPDAI_Store_Profit_Data_Source.php</code></p>
+<p><strong>Context:</strong> When returning store profit data from the data source.</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$store_profit_data</td>
+        <td>array</td>
+        <td>Store profit data structure (totals, data_by_date, total_db_records, etc.)</td>
+    </tr>
+    <tr>
+        <td>$data_warehouse</td>
+        <td>WPDAI_Data_Warehouse</td>
+        <td>The data warehouse instance</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> array</p>
+<p>The (possibly modified) store profit data structure.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Add a custom profit metric</h4>
+
+<pre><code>add_filter( 'wpd_alpha_insights_data_source_store_profit', 'add_store_profit_custom_metric', 10, 2 );
+function add_store_profit_custom_metric( $store_profit_data, $data_warehouse ) {
+    if ( isset( $store_profit_data['totals'] ) && is_array( $store_profit_data['totals'] ) ) {
+        $profit = $store_profit_data['totals']['total_store_profit'] ?? 0;
+        $store_profit_data['totals']['profit_after_tax_estimate'] = $profit * 0.8;
+    }
+    return $store_profit_data;
+}</code></pre>
+
+<h3>Related</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/02-wpd_ai_calculate_cost_profit_by_order.html">wpd_ai_calculate_cost_profit_by_order</a> – Order-level profit</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/49-wpd_alpha_insights_data_source_sales.html">wpd_alpha_insights_data_source_sales</a> – Sales data</li>
+</ul>

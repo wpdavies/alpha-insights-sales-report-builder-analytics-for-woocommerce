@@ -653,8 +653,8 @@ class WPDAI_Core {
 					) 
 				);
 
-				// Fetch order data
-				$data_warehouse->fetch_sales_data();
+				// Fetch order data via warehouse's single entry point (Sales data source).
+				$data_warehouse->fetch_data( array( 'orders' ) );
 				$customer_order_data = $data_warehouse->get_data( 'orders', 'totals' );
 
 				// Safety check the data warehouse
@@ -861,7 +861,7 @@ class WPDAI_Core {
 				</div>
 			</div>
 			<div class="wpd-grid-footer wpd-grid-full-span">
-				<p style="float:left;">You can use the arrows in the top right corner to reposition this dashboard.<br>Don't want this dashboard? <a href="<?php echo esc_url( wpdai_admin_page_url( 'settings' ) ); ?>">Update your WordPress Admin Display Extensions settings</a> in Alpha Insights.</p>
+				<p style="float:left;">You can use the arrows in the top right corner to reposition this dashboard.<br>Don't want this dashboard? Open the screen options at the top of this page and uncheck Alpha Insights Dashboard.</p>
 				<p style="float:right;"><?php submit_button( __( 'Save & Recalculate', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'primary wpd-ai-submit', 'submit', false ); ?></p>
 			</div>
 		</div>

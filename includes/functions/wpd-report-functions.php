@@ -27,15 +27,25 @@ defined( 'ABSPATH' ) || exit;
  */
 function wpdai_data_warehouse( $args = array() ) {
 
-    if ( class_exists('WPDAI_Data_Warehouse_Pro') ) {
+    return new WPDAI_Data_Warehouse( $args );
 
-        return new WPDAI_Data_Warehouse_Pro( $args );
+}
 
-    } else {
+/**
+ * 
+ *  Returns an array of all the registered data sources
+ * 
+ *  @return array $data_sources An array of all the registered data sources
+ * 
+ *  @since 5.0.0
+ * 
+ *  @author WPDavies
+ *  @link https://wpdavies.dev/
+ * 
+ */
+function wpdai_get_registered_data_sources() {
 
-        return new WPDAI_Data_Warehouse( $args );
-
-    }
+    return WPDAI_Custom_Data_Source_Registry::get_entity_names();
 
 }
 

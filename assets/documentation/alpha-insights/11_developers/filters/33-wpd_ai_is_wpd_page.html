@@ -1,0 +1,61 @@
+<h2>Filter: wpd_ai_is_wpd_page</h2>
+
+<p>Control whether the current admin page is considered an Alpha Insights (WPD) page.</p>
+
+<h3>Description</h3>
+
+<p>Used to determine if the user is on an Alpha Insights admin screen (e.g. for loading assets or showing notices). By default, the plugin sets this to true when <code>page</code> matches the main menu slug, settings slug, about/help slug, or getting started slug. This filter lets you include or exclude additional pages.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/wpd-functions.php</code></p>
+<p><strong>Function:</strong> <code>wpdai_is_wpd_page()</code></p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$bool</td>
+        <td>bool</td>
+        <td>Whether the current page is considered an Alpha Insights page (default true when page matches built-in slugs)</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> bool</p>
+<p>True to treat the current admin page as an Alpha Insights page; false otherwise.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Exclude a custom subpage from WPD assets</h4>
+
+<pre><code>add_filter( 'wpd_ai_is_wpd_page', 'exclude_third_party_subpage_from_wpd' );
+function exclude_third_party_subpage_from_wpd( $bool ) {
+    if ( isset( $_GET['page'] ) && $_GET['page'] === 'alpha-insights-third-party' ) {
+        return false;
+    }
+    return $bool;
+}</code></pre>
+
+<h4>Include a custom admin page as WPD</h4>
+
+<pre><code>add_filter( 'wpd_ai_is_wpd_page', 'include_my_alpha_page' );
+function include_my_alpha_page( $bool ) {
+    if ( isset( $_GET['page'] ) && $_GET['page'] === 'my-alpha-extension' ) {
+        return true;
+    }
+    return $bool;
+}</code></pre>
+
+<h3>Related</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/11-wpd_alpha_insights_menu_items.html">wpd_alpha_insights_menu_items</a> – Add or modify menu items</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/10-wpd_alpha_insights_menu_html.html">wpd_alpha_insights_menu_html</a> – Modify menu HTML</li>
+</ul>

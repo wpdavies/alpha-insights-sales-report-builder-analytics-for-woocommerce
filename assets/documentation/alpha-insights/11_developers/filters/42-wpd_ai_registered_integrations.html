@@ -1,0 +1,50 @@
+<h2>Filter: wpd_ai_registered_integrations</h2>
+
+<p>Filter the list of registered integration instances (slug => WPDAI_Integration_Base) used by the Integrations Manager.</p>
+
+<h3>Description</h3>
+
+<p>The manager stores integration instances that extend <code>WPDAI_Integration_Base</code>. This filter runs when retrieving that list (e.g. for display or to resolve an integration by slug). You can add, remove, or replace instances. Built-in integrations are loaded from <code>includes/integrations/register/</code> and <code>register/pro/</code>; custom integrations register via <code>wpd_ai_register_integrations</code>.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/integrations/WPDAI_Integrations_Manager.php</code></p>
+<p><strong>Method:</strong> <code>get_registered_integrations()</code></p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$integrations</td>
+        <td>array</td>
+        <td>Associative array of slug => WPDAI_Integration_Base instance</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> array</p>
+<p>The (possibly modified) array of slug => integration instance.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Remove an integration from the list</h4>
+
+<pre><code>add_filter( 'wpd_ai_registered_integrations', 'hide_webhooks_integration' );
+function hide_webhooks_integration( $integrations ) {
+    unset( $integrations['webhooks'] );
+    return $integrations;
+}</code></pre>
+
+<h3>Related</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/43-wpd_ai_integration_metadata.html">wpd_ai_integration_metadata</a> – Integration metadata for display</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/44-wpd_ai_all_integrations_for_display.html">wpd_ai_all_integrations_for_display</a> – Merged list for UI</li>
+    <li>Developers → Integrations – Registration and custom integrations</li>
+</ul>

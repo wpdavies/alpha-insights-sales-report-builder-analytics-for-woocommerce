@@ -20,9 +20,7 @@ $admin_custom_column_settings 				= wpdai_get_admin_custom_column_settings();
 $wpd_ai_use_legacy_order_admin_metaboxes	= get_option( 'wpd_ai_use_legacy_order_admin_metaboxes', 0 );
 $custom_order_cost_options 					= wpdai_get_custom_order_cost_options();
 $custom_product_cost_options 				= wpdai_get_custom_product_cost_options();
-$analytics_settings							= get_option( 'wpd_ai_analytics');
-$enable_woocommerce_analytics 				= (isset($analytics_settings['enable_woocommerce_analytics'])) ? (int) $analytics_settings['enable_woocommerce_analytics'] : 1;
-$only_track_engaged_sessions 				= get_option( 'wpd_ai_analytics_only_track_engaged_sessionss', 0 );
+$analytics_settings							= wpdai_get_analytics_settings();
 $allowed_roles 								= wpdai_get_authorized_user_roles_settings();
 $refunded_order_costs 						= get_option( 'wpd_ai_refunded_order_costs' );
 $payment_gateway_cost_settings				= wpdai_get_payment_gateway_cost_settings();
@@ -219,10 +217,15 @@ $available_shipping_methods					= wpdai_get_available_shipping_methods();
 				<td>
 					<label for="wpd_ai_custom_order_cost"><?php esc_html_e( 'Create Custom Order Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
 					<div class="wpd-meta">
-						<?php echo wp_kses_post( __( 
-							'You can use this setting to create additional order costs with default values for each order.
-							<br>Every new cost field you add here will show up on the order edit page in the admin area.<br>
-							You can override the default cost value for each order. <a href="https://wpdavies.dev/documentation/alpha-insights/additional-features/custom-order-costs/setting-up-custom-order-costs/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" target="_blank">Click Here</a> for documentation.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
+						<?php
+						$custom_order_cost_doc_url = wpdai_wpdavies_url( '/documentation/alpha-insights/additional-features/custom-order-costs/setting-up-custom-order-costs/', 'Alpha Insights Settings - Custom Order Costs Documentation');
+						echo wp_kses_post(
+							sprintf(
+								__( 'You can use this setting to create additional order costs with default values for each order.<br>Every new cost field you add here will show up on the order edit page in the admin area.<br>You can override the default cost value for each order. <a href="%1$s" target="_blank">Click Here</a> for documentation.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+								esc_url( $custom_order_cost_doc_url )
+							)
+						);
+						?></div>
 				</td>
 				<td>
 					<table class="wpd-table fixed" width="100%">
@@ -278,10 +281,15 @@ $available_shipping_methods					= wpdai_get_available_shipping_methods();
 				<td>
 					<label for="wpd_ai_custom_product_cost"><?php esc_html_e( 'Create Custom Product Costs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
 					<div class="wpd-meta">
-						<?php echo wp_kses_post( __( 
-							'You can use this setting to create additional product costs with default values for each product.
-							<br>Every new cost field you add here will show up on the product edit page and in the order admin area.<br>
-							You can override the default cost value for each product & each order. <a href="https://wpdavies.dev/documentation/alpha-insights/additional-features/custom-product-costs/setting-up-custom-product-costs/?utm_campaign=Alpha+Insights+Documentation&utm_source=Alpha+Insights+Plugin" target="_blank">Click Here</a> for documentation.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
+						<?php
+						$custom_product_cost_doc_url = wpdai_wpdavies_url( '/documentation/alpha-insights/additional-features/custom-product-costs/setting-up-custom-product-costs/', 'Alpha Insights Settings - Custom Product Costs Documentation');
+						echo wp_kses_post(
+							sprintf(
+								__( 'You can use this setting to create additional product costs with default values for each product.<br>Every new cost field you add here will show up on the product edit page and in the order admin area.<br>You can override the default cost value for each product & each order. <a href="%1$s" target="_blank">Click Here</a> for documentation.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+								esc_url( $custom_product_cost_doc_url )
+							)
+						);
+						?></div>
 				</td>
 				<td>
 					<table class="wpd-table fixed" width="100%">
@@ -351,8 +359,8 @@ $available_shipping_methods					= wpdai_get_available_shipping_methods();
 				</td>
 				<td>
 					<select class="wpd-input" name="wpd_ai_analytics[enable_woocommerce_analytics]">
-						<option value="1" <?php echo esc_attr( wpdai_selected_option( '1', $enable_woocommerce_analytics ) ); ?> ><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="0" <?php echo esc_attr( wpdai_selected_option( '0', $enable_woocommerce_analytics ) ); ?> ><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="1" <?php echo esc_attr( wpdai_selected_option( '1', $analytics_settings['enable_woocommerce_analytics'] ) ); ?> ><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="0" <?php echo esc_attr( wpdai_selected_option( '0', $analytics_settings['enable_woocommerce_analytics'] ) ); ?> ><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
 					</select>
 				</td>
 			</tr>
@@ -364,7 +372,7 @@ $available_shipping_methods					= wpdai_get_available_shipping_methods();
 				<td>
 					<select class="wpd-input wpd-combo-select" name="wpd_ai_analytics[exclude_roles][]" value="" multiple="multiple" placeholder="Select Role Type(s) To Exclude">
 						<?php 
-							$analytics_excluded_roles 	= (isset($analytics_settings['exclude_roles']) && ! empty($analytics_settings['exclude_roles'])) ? $analytics_settings['exclude_roles'] : array();
+							$analytics_excluded_roles 	= ( ! empty($analytics_settings['exclude_roles']) ) ? $analytics_settings['exclude_roles'] : array();
 							$analytics_all_roles 		= wpdai_get_available_store_roles();
 							foreach( $analytics_all_roles as $analytics_role ) {
 								$analytics_selected = '';
@@ -384,9 +392,27 @@ $available_shipping_methods					= wpdai_get_available_shipping_methods();
 					<div class="wpd-meta"><?php esc_html_e( 'This feature will only track & report on engaged sessions.<br>Page views will only be tracked if there\'s mouse movement or clicks & Alpha Insights will only report sessions that are marked as engaged or greater than 0 seconds in duration.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
-					<select class="wpd-input" name="wpd_ai_analytics_only_track_engaged_sessionss">
-						<option value="1" <?php echo esc_attr( wpdai_selected_option( '1', $only_track_engaged_sessions ) ); ?>><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="0" <?php echo esc_attr( wpdai_selected_option( '0', $only_track_engaged_sessions ) ); ?>><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+					<select class="wpd-input" name="wpd_ai_analytics[only_track_engaged_sessions]">
+						<option value="1" <?php echo esc_attr( wpdai_selected_option( '1', $analytics_settings['only_track_engaged_sessions'] ) ); ?>><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="0" <?php echo esc_attr( wpdai_selected_option( '0', $analytics_settings['only_track_engaged_sessions'] ) ); ?>><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label><?php esc_html_e( 'Attribution Window Timeout (days)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'This is the amount of time in days that the attribution window will be open for. The attribution window will store the landing page and referral source for the session for this many days.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+				<td>	
+					<select class="wpd-input" name="wpd_ai_analytics[attribution_timeout_in_days]">
+						<option value="1" <?php echo esc_attr( wpdai_selected_option( '1', $analytics_settings['attribution_timeout_in_days'] ) ); ?>><?php esc_html_e( '1 Day', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="2" <?php echo esc_attr( wpdai_selected_option( '2', $analytics_settings['attribution_timeout_in_days'] ) ); ?>><?php esc_html_e( '2 Days', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="3" <?php echo esc_attr( wpdai_selected_option( '3', $analytics_settings['attribution_timeout_in_days'] ) ); ?>><?php esc_html_e( '3 Days', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="4" <?php echo esc_attr( wpdai_selected_option( '4', $analytics_settings['attribution_timeout_in_days'] ) ); ?>><?php esc_html_e( '4 Days', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="5" <?php echo esc_attr( wpdai_selected_option( '5', $analytics_settings['attribution_timeout_in_days'] ) ); ?>><?php esc_html_e( '5 Days', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="6" <?php echo esc_attr( wpdai_selected_option( '6', $analytics_settings['attribution_timeout_in_days'] ) ); ?>><?php esc_html_e( '6 Days', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="7" <?php echo esc_attr( wpdai_selected_option( '7', $analytics_settings['attribution_timeout_in_days'] ) ); ?>><?php esc_html_e( '7 Days', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="14" <?php echo esc_attr( wpdai_selected_option( '14', $analytics_settings['attribution_timeout_in_days'] ) ); ?>><?php esc_html_e( '14 Days', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="30" <?php echo esc_attr( wpdai_selected_option( '30', $analytics_settings['attribution_timeout_in_days'] ) ); ?>><?php esc_html_e( '30 Days', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
 					</select>
 				</td>
 			</tr>

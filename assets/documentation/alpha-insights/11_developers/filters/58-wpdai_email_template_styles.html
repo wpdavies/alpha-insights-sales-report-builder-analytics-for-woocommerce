@@ -1,0 +1,61 @@
+<h2>Filter: wpdai_email_template_styles</h2>
+
+<p>Filter the CSS styles used in Alpha Insights email templates before they are output in the <code>&lt;style&gt;</code> tag.</p>
+
+<h3>Description</h3>
+
+<p>Email templates include inline styles for compatibility with email clients. The plugin builds a string of CSS and outputs it inside a <code>&lt;style type="text/css"&gt;</code> block. This filter receives that CSS string so you can add or override styles (e.g. brand colors, fonts, or layout). The filtered value is escaped with <code>esc_html()</code> when output.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/emails/wpd-email-template_styles.php</code></p>
+<p><strong>Context:</strong> Before the style block is echoed into the email template.</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$email_styles</td>
+        <td>string</td>
+        <td>The CSS content for the email template (rules and declarations)</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> string</p>
+<p>The (possibly modified) CSS string. Keep valid CSS; the output is escaped for HTML context.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Add brand colors to emails</h4>
+
+<pre><code>add_filter( 'wpdai_email_template_styles', 'add_brand_email_styles' );
+function add_brand_email_styles( $email_styles ) {
+    $extra = '
+        .wpd-email-header { background-color: #1a1a2e !important; }
+        .wpd-email-button { background-color: #e94560 !important; }
+    ';
+    return $email_styles . $extra;
+}</code></pre>
+
+<h4>Override font family</h4>
+
+<pre><code>add_filter( 'wpdai_email_template_styles', 'override_email_font' );
+function override_email_font( $email_styles ) {
+    $email_styles = str_replace( 'font-family: sans-serif', 'font-family: "Helvetica Neue", Helvetica, Arial, sans-serif', $email_styles );
+    return $email_styles;
+}</code></pre>
+
+<h3>Best Practices</h3>
+
+<ul>
+    <li>Use inline-friendly CSS; many email clients strip or ignore external stylesheets.</li>
+    <li>Append or replace specific rules rather than stripping required layout styles.</li>
+    <li>Do not include user-controlled or unsanitized input in the CSS string.</li>
+</ul>

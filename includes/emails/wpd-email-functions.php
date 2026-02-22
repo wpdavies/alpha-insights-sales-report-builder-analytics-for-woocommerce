@@ -51,7 +51,7 @@ function wpdai_email( $email, $preview = false, $args = array() ) {
 		try {
 			$profit_report_settings 	= isset( $options['profit-report'] ) ? $options['profit-report'] : array();
 			$profit_reports 			= wpdai_data_warehouse($args);
-			$profit_reports->fetch_store_profit_data();
+			$profit_reports->fetch_data( array( 'store_profit' ) );
 
 			/**
 			 *
@@ -98,7 +98,7 @@ function wpdai_email( $email, $preview = false, $args = array() ) {
 		try {
 			$expense_report_settings 	= isset( $options['expense-report'] ) ? $options['expense-report'] : array();
 			$expense_reports 			= wpdai_data_warehouse( $args );
-			$expense_reports->fetch_expense_data();
+			$expense_reports->fetch_data( array( 'expenses' ) );
 			$expense_report_totals 		= $expense_reports->get_data('expenses', 'totals');
 			$expense_report_categorized = $expense_reports->get_data( 'expenses', 'categorized_data' );
 

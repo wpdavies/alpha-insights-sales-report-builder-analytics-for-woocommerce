@@ -1,4 +1,4 @@
-﻿<h2>Understanding Website Analytics</h2>
+<h2>Understanding Website Analytics</h2>
 
 <p>Alpha Insights includes a comprehensive built-in website analytics system that tracks visitor behavior and directly connects it to your profit data. Unlike Google Analytics, it shows which traffic sources actually generate profit, not just visits. This guide explains what's tracked, how it works, and how to use it effectively.</p>
 
@@ -319,6 +319,18 @@
 <li><strong>Highly recommended</strong> to exclude your own role to prevent skewing data with your own browsing</li>
 <li>Excluded users will not have their sessions or events tracked</li>
 <li>Orders from excluded users are still tracked for profit calculations</li>
+</ul>
+
+<p><strong>Only Track &amp; Report On Engaged Sessions:</strong></p>
+<ul>
+<li>When <strong>True</strong>, the first page view is only sent after the visitor interacts (click, scroll, or touch). Sessions without interaction are not counted as engaged. This reduces noise from bots and accidental page loads.</li>
+<li>When <strong>False</strong>, every page load is tracked immediately. See <a href='/documentation/alpha-insights/website-traffic/session-management.html'>Session Management</a> for details on engaged sessions.</li>
+</ul>
+
+<p><strong>Attribution Window Timeout (days):</strong></p>
+<ul>
+<li>How long the <strong>referral URL</strong> and <strong>landing page</strong> are stored for the visitor (1–30 days, default 3). After this period they expire; new visits get a new attribution. Affects traffic source and order attribution.</li>
+<li>See <a href='/documentation/alpha-insights/website-traffic/attribution-window.html'>Attribution Window</a> for full details.</li>
 </ul>
 
 <h4>Viewing Analytics Data</h4>
@@ -746,6 +758,6 @@ Insight: Organic search generates 2.3x more profit per session and higher conver
 <li>See <a href='/documentation/alpha-insights/website-traffic/event-types-reference.html'>Event Types Reference</a> for all tracked events</li>
 <li>Check <a href='/documentation/alpha-insights/website-traffic/troubleshooting-website-traffic.html'>Troubleshooting Guide</a> if you encounter issues</li>
 <li>Explore <a href='/documentation/alpha-insights/report-builder/creating-custom-reports.html'>Creating Custom Reports</a> to build traffic-based reports</li>
-<li>Set up <a href='/documentation/alpha-insights/advertising-integrations/facebook/facebook-campaign-tracking.html'>Facebook Campaign Tracking</a> for ad attribution</li>
-<li>Configure <a href='/documentation/alpha-insights/advertising-integrations/google-ads/google-ads-campaign-tracking.html'>Google Ads Tracking</a> for search campaign ROI</li>
+<li>Set up <a href='/documentation/alpha-insights/integrations/facebook/facebook-campaign-tracking.html'>Facebook Campaign Tracking</a> for ad attribution</li>
+<li>Configure <a href='/documentation/alpha-insights/integrations/google-ads/google-ads-campaign-tracking.html'>Google Ads Tracking</a> for search campaign ROI</li>
 </ul>

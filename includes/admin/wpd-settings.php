@@ -112,18 +112,6 @@ function wpdai_register_settings() {
 
 	/**
 	 *
-	 *	Analytics_settings
-	 *
-	 */
-    $analytics_settings = array(
-        'enable_woocommerce_analytics' 		=> 1,
-        'exclude_roles' 					=> array(),
-    );
-	add_option( 'wpd_ai_analytics', $analytics_settings );
-	add_option( 'wpd_ai_analytics_only_track_engaged_sessionss', 0 );
-
-	/**
-	 *
 	 *	Admin Style Settings
 	 *
 	 */
@@ -181,17 +169,7 @@ function wpdai_register_settings() {
 
 	add_option( 'wpd_ai_email_settings', $email_default_settings );
 
-	/**
-	 *
-	 *	Webhooks
-	 *
-	 */
-	$default_webhook_data = array(
-		'webhook_url' 				=> '',
-		'webhook_schedule' 			=> 'none',
-		'webhook_schedule_last_run' => false,
-	);
-	add_option( 'wpd_ai_webhooks', $default_webhook_data );
+
 
 	/**
 	 * 
@@ -461,19 +439,21 @@ function wpdai_save_settings() {
 
 	// Analytics Settings
 	if ( isset($_POST['wpd_ai_analytics']) ) {
-		$enable_woocommerce_analytics = ( isset($_POST['wpd_ai_analytics']['enable_woocommerce_analytics']) ) ? intval($_POST['wpd_ai_analytics']['enable_woocommerce_analytics']) : 0;
-		$exclude_roles = ( isset($_POST['wpd_ai_analytics']['exclude_roles']) ) ? array_map('sanitize_text_field', $_POST['wpd_ai_analytics']['exclude_roles']) : array();
+
+		$enable_woocommerce_analytics 	= ( isset($_POST['wpd_ai_analytics']['enable_woocommerce_analytics']) ) ? intval($_POST['wpd_ai_analytics']['enable_woocommerce_analytics']) : 0;
+		$exclude_roles 					= ( isset($_POST['wpd_ai_analytics']['exclude_roles']) ) ? array_map('sanitize_text_field', $_POST['wpd_ai_analytics']['exclude_roles']) : array();
+		$only_track_engaged_sessions 	= ( isset($_POST['wpd_ai_analytics']['only_track_engaged_sessions']) ) ? intval($_POST['wpd_ai_analytics']['only_track_engaged_sessions']) : 0;
+		$attribution_timeout_in_days 	= ( isset($_POST['wpd_ai_analytics']['attribution_timeout_in_days']) ) ? intval($_POST['wpd_ai_analytics']['attribution_timeout_in_days']) : 3;
+
 		$analytics_settings = array(
 			'enable_woocommerce_analytics' => $enable_woocommerce_analytics,
-			'exclude_roles' => $exclude_roles
+			'exclude_roles' => $exclude_roles,
+			'only_track_engaged_sessions' => $only_track_engaged_sessions,
+			'attribution_timeout_in_days' => $attribution_timeout_in_days,
 		);
-		$saved['Analytics Settings'] = update_option( 'wpd_ai_analytics',  $analytics_settings );
-	}
 
-	// Ignore Unengaged Sessions Setting
-	if ( isset($_POST['wpd_ai_analytics_only_track_engaged_sessionss']) ) {
-		$ignore_unengaged_sessions = ( isset($_POST['wpd_ai_analytics_only_track_engaged_sessionss']) ) ? intval($_POST['wpd_ai_analytics_only_track_engaged_sessionss']) : 0;
-		$saved['Track Engaged Sessions'] = update_option( 'wpd_ai_analytics_only_track_engaged_sessionss', $ignore_unengaged_sessions );
+		$saved['Analytics Settings'] = update_option( 'wpd_ai_analytics',  $analytics_settings );
+
 	}
 
 	// Cache Build Batch Size
@@ -560,18 +540,6 @@ function wpdai_save_settings() {
 
 	}
 
-	// Webhook data
-	if ( isset( $_POST['wpd_ai_webhook_settings'] ) ) {
-
-		$webhook_data = map_deep( $_POST['wpd_ai_webhook_settings'], 'sanitize_text_field' );
-		$saved['Webhook Settings'] = update_option( 'wpd_ai_webhook_settings', $webhook_data );
-
-		if ( $saved['Webhook Settings'] ) {
-			as_unschedule_all_actions('wpd_schedule_webhook');
-		}
-
-	}
-
 	// Allow for hooking into saves
 	$saved = apply_filters( 'wpd_ai_save_settings', $saved );
 
@@ -638,7 +606,7 @@ function wpdai_output_settings_page_content( $subpage, $wpd_action ) {
 	do_action( 'wpd_settings_page_content', $subpage, $wpd_action );
 
 	// See which page we're loading
-	if ( $subpage == 'integration' ) {
+	if ( $subpage == 'integrations' ) {
 
 		require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-integrations.php');
 
@@ -658,6 +626,10 @@ function wpdai_output_settings_page_content( $subpage, $wpd_action ) {
 	} elseif ( $subpage == 'general-settings' ) {
 
 		require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-general_settings.php');
+
+	} elseif ( $subpage == 'about-us' ) {
+
+		require_once( WPD_AI_PATH . 'includes/admin/wpd-settings-about-us.php');
 
 	} elseif ( ! $subpage ) {
 

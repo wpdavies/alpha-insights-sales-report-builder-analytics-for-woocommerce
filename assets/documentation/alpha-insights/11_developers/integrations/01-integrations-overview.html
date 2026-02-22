@@ -1,0 +1,63 @@
+<h2>Integrations System</h2>
+
+<p>Alpha Insights uses a modular integrations system so that third-party services (e.g. Facebook Ads, Google Ads, ShipStation, Webhooks) can be presented in a single settings UI and each integration can provide its own settings form and save logic. You can add custom integrations that appear alongside the built-in ones.</p>
+
+<h3>Overview</h3>
+
+<p>The system has two layers:</p>
+
+<ul>
+<li><strong>Integration metadata</strong> – Label, description, logo, category, and optional URL. Used to show a card in the integrations grid. Registered via <code>wpd_ai_register_integration_metadata</code> so that even integrations without a loaded class (e.g. Pro integrations on the free version) can be listed.</li>
+<li><strong>Integration instances</strong> – A class extending <code>WPDAI_Integration_Base</code> that provides settings UI and save handling. Registered via <code>wpd_ai_register_integrations</code>. When an instance is present, the user can open that integration and see <code>render_settings()</code> output; when they save the main settings form, <code>save_settings()</code> is called.</li>
+</ul>
+
+<p>The <strong>Integrations Manager</strong> (<code>WPDAI_Integrations_Manager</code>) is a singleton that:</p>
+
+<ul>
+<li>Fires <code>wpd_ai_register_integration_metadata</code> (init priority 4) so plugins/themes can register metadata</li>
+<li>Fires <code>wpd_ai_register_integrations</code> (init priority 5) so integration classes can register themselves</li>
+<li>Auto-loads built-in integrations from <code>includes/integrations/register/</code> (free) and <code>includes/integrations/register/pro/</code> (Pro), then merges metadata with instances for display</li>
+<li>Renders the integrations settings page: a grid of cards (from metadata) and, when one is selected (<code>?integrations=slug</code>), the integration's settings form (from the instance)</li>
+</ul>
+
+<h3>User Interface</h3>
+
+<p>The integrations page is under <strong>Alpha Insights → Settings → Integrations</strong>. The URL is the settings page with optional <code>integrations</code> query parameter:</p>
+
+<ul>
+<li><strong>No parameter</strong> – Grid of all integrations (cards with label, description, logo, category, Pro/Enabled/Disabled badges). Cards link to <code>?integrations=slug</code> or to a custom <code>url</code> if set in metadata.</li>
+<li><strong>?integrations=slug</strong> – Shows that integration's settings. If an instance exists, <code>render_settings()</code> is output inside the main settings form; if the slug has metadata but no instance (e.g. Pro on free), an upsell message is shown.</li>
+</ul>
+
+<p>Categories are derived from metadata (<code>category</code>). The UI includes search and category tabs; each card's <code>data-category</code> and <code>data-search</code> drive filtering.</p>
+
+<h3>Built-in Integrations</h3>
+
+<p>The plugin registers metadata (and, when the code is loaded, instances) for:</p>
+
+<ul>
+<li><strong>Facebook Ads</strong> (Pro) – Marketing; links to dedicated Facebook settings subpage via <code>url</code></li>
+<li><strong>Google Ads</strong> (Pro) – Marketing; links to dedicated Google Ads settings subpage</li>
+<li><strong>Webhooks</strong> (free) – Data Management; settings in integrations panel</li>
+<li><strong>ShipStation</strong> (Pro) – Shipping; settings in integrations panel</li>
+<li><strong>StarShipIt</strong> (Pro) – Shipping; settings in integrations panel</li>
+</ul>
+
+<p>Pro integrations in the free version appear as cards with a Pro badge and show an upsell when clicked; no class is loaded so there is no instance.</p>
+
+<h3>File Locations</h3>
+
+<ul>
+<li><strong>Manager:</strong> <code>includes/integrations/WPDAI_Integrations_Manager.php</code></li>
+<li><strong>Base class:</strong> <code>includes/integrations/WPDAI_Integration_Base.php</code></li>
+<li><strong>Built-in registration:</strong> <code>includes/integrations/register/*.php</code> (free), <code>includes/integrations/register/pro/*.php</code> (Pro)</li>
+<li><strong>Settings page:</strong> Rendered by <code>WPDAI_Integrations_Manager::output_integrations_page()</code>; the menu entry is wired in admin (e.g. subpage <code>integrations</code> under settings).</li>
+</ul>
+
+<h3>Related Documentation</h3>
+
+<ul>
+<li><strong>Creating a Custom Integration</strong> – Step-by-step guide to building and registering an integration</li>
+<li><strong>Integration Base Class Reference</strong> – <code>WPDAI_Integration_Base</code> methods and contract</li>
+<li><strong>Hooks and Registration</strong> – <code>wpd_ai_register_integration_metadata</code>, <code>wpd_ai_register_integrations</code>, and <code>wpd_ai_save_settings</code></li>
+</ul>

@@ -18,85 +18,86 @@
 
 <h4>How It Works</h4>
 
-<p>The custom data source system uses a WordPress filter-based registration pattern. You create a PHP class that extends <code>WPD_Alpha_Insights_Data_Source_Base</code>, implement two methods, and instantiate the class. The plugin automatically:</p>
+<p>The custom data source system uses a WordPress filter-based registration pattern. You create a PHP class that <strong>extends <code>WPDAI_Custom_Data_Source_Base</code></strong>, set the <code>$entity_names</code> property (array), implement <code>fetch_data()</code>, and instantiate the class. The base class automatically:</p>
 
 <ul>
-<li>Registers your data source with the system</li>
-<li>Makes your metrics available in widget selectors</li>
+<li>Registers your data source via the <code>wpd_alpha_insights_register_data_sources</code> filter</li>
+<li>Implements <code>get_entity_name()</code> and <code>get_entity_names()</code> from <code>$entity_names</code> (do not override)</li>
+<li>Provides a default <code>get_data_mapping()</code> that returns an empty array (override only if you need React mapping)</li>
+</ul>
+
+<p>The plugin then:</p>
+
+<ul>
+<li>Makes your entity name(s) available in widget selectors</li>
 <li>Fetches your data only when needed (lazy loading)</li>
-<li>Merges your data mappings into the React frontend</li>
-<li>Handles all date range alignment automatically</li>
+<li>Merges your data mappings into the React frontend when you provide them</li>
+<li>Handles date range alignment via the data warehouse</li>
 </ul>
 
 <h4>Quick Start</h4>
 
-<p>The simplest implementation requires only three steps:</p>
+<p>The minimal implementation requires:</p>
 
 <ol>
-<li>Set the <code>$entity_name</code> property (a unique identifier)</li>
-<li>Implement <code>fetch_data()</code> to return your data</li>
-<li>Implement <code>get_data_mapping()</code> to define how React displays your data</li>
-<li>Instantiate your class to register it</li>
+<li><strong>Extend <code>WPDAI_Custom_Data_Source_Base</code></strong> (not the interface directly)</li>
+<li><strong>Set the <code>$entity_names</code> property</strong> – an array of unique identifier(s). Single entity: <code>array( 'my_entity' )</code>. Multi-entity: <code>array( 'orders', 'products', 'customers' )</code>.</li>
+<li><strong>Implement <code>fetch_data( WPDAI_Data_Warehouse $data_warehouse )</code></strong> – single parameter; get filters via <code>$data_warehouse->get_filter()</code>, dates via <code>get_date_from()</code> / <code>get_date_to()</code>.</li>
+<li><strong>Instantiate your class</strong> – e.g. <code>new My_Custom_Data_Source();</code> – to register it.</li>
 </ol>
 
-<p>All registration boilerplate is handled automatically by the base class.</p>
+<p><strong>Optional:</strong> Override <code>get_data_mapping()</code> to define how React displays your data (default is empty array; built-in entities may use core mappings).</p>
+
+<p>Do <strong>not</strong> override <code>__construct()</code>, <code>register_data_source()</code>, <code>get_entity_name()</code>, or <code>get_entity_names()</code>. The base class handles registration and entity names from <code>$entity_names</code>.</p>
 
 <h3>File Location</h3>
 
-<p>Place your custom data source classes in one of these locations:</p>
+<p>Place your custom data source classes where they can be loaded:</p>
 
 <ul>
-<li><strong>Plugin extensions folder:</strong> <code>wp-content/plugins/wp-davies-alpha-insights/includes/reports/extensions/</code> (auto-loaded)</li>
-<li><strong>Theme folder:</strong> Your active theme's functions.php or a separate file included from functions.php</li>
-<li><strong>Custom plugin:</strong> Your own plugin's PHP files</li>
+<li><strong>Theme:</strong> Your active theme's functions.php or a file included from it</li>
+<li><strong>Custom plugin:</strong> Your own plugin's PHP files (e.g. loaded on <code>plugins_loaded</code>)</li>
 </ul>
 
-<p>Classes in the extensions folder are automatically loaded. For other locations, ensure your file is included (e.g., via <code>require_once</code> in functions.php).</p>
+<p>Ensure the Alpha Insights base class and interface are loaded before your class (they are loaded by the main plugin). If you use a very early hook, load your file after the plugin is loaded.</p>
 
 <h3>Data Structure</h3>
 
-<p>Your custom data source must return data in the same structure as the data warehouse. All keys are optional, but must match the format exactly if provided:</p>
+<p>Your <code>fetch_data()</code> return value must match the data warehouse structure. For a <strong>single-entity</strong> source, return one structure. For a <strong>multi-entity</strong> source, return an array keyed by entity name, each value a single-entity structure. All keys are optional but must match the format if provided:</p>
 
 <pre><code>array(
     'totals'              => array(
         'metric_key' => 123.45,
-        // Aggregated totals/metrics
     ),
     'categorized_data'    => array(
         'category_key' => array(
             'label' => 'Category Name',
             'metric_key' => 100,
-            // Additional metrics...
         ),
-        // Data grouped by categories for pie/bar charts
     ),
     'data_table'          => array(
         'table_key' => array(
-            array(
-                'column1' => 'value1',
-                'column2' => 'value2',
-                // Table rows...
-            ),
+            array( 'column1' => 'value1', 'column2' => 'value2' ),
         ),
-        // Tabular data for data table widgets
     ),
     'data_by_date'        => array(
         'metric_key' => array(
             '2024-01-01' => 50,
             '2024-01-02' => 75,
-            // Time-series data keyed by date
         ),
     ),
-    'total_db_records'    => 100,    // Number of records fetched
-    'execution_time'      => 0.25    // Execution time in seconds
-)</code></pre>
+    'total_db_records'    => 100,
+)
+// execution_time and memory_usage are added automatically by the warehouse</code></pre>
+
+<p>Use <code>$data_warehouse->get_data_by_date_range_container()</code> to initialize <code>data_by_date</code> keys for proper date alignment.</p>
 
 <h3>Related Documentation</h3>
 
 <ul>
-<li><strong>Creating a Custom Data Source</strong> - Step-by-step guide</li>
-<li><strong>The fetch_data() Method</strong> - Detailed reference</li>
-<li><strong>The get_data_mapping() Method</strong> - Detailed reference</li>
-<li><strong>Data Warehouse API Reference</strong> - Available helper methods</li>
-<li><strong>Examples</strong> - Real-world implementation examples</li>
+<li><strong>Creating a Custom Data Source</strong> – Step-by-step guide</li>
+<li><strong>The fetch_data() Method</strong> – Parameters, return structure, and best practices</li>
+<li><strong>The get_data_mapping() Method</strong> – Optional React mapping</li>
+<li><strong>Data Warehouse API Reference</strong> – Helper methods (get_filter, get_date_from, get_date_to, get_data, etc.)</li>
+<li><strong>Examples</strong> – Real-world implementation examples</li>
 </ul>

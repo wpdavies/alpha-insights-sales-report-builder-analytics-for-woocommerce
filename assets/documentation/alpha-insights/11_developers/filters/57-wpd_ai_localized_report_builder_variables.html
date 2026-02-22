@@ -1,0 +1,60 @@
+<h2>Filter: wpd_ai_localized_report_builder_variables</h2>
+
+<p>Filter the JavaScript variables passed to the React report builder (localized as <code>wpd_alpha_insights</code>).</p>
+
+<h3>Description</h3>
+
+<p>The report builder localizes a script with configuration and data for the React dashboard (e.g. report list, filters, nonces, API URLs). This filter receives the full array of localized variables so you can add or change keys that the frontend expects. Use it to inject custom config, feature flags, or overrides for the report builder UI.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPDAI_Report_Builder.php</code></p>
+<p><strong>Context:</strong> Before <code>wp_localize_script()</code> is called for the report builder script.</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$localized_variables</td>
+        <td>array</td>
+        <td>Associative array of keys and values passed to the React app (e.g. reports, filters, nonces, strings)</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> array</p>
+<p>The (possibly modified) array of localized variables. Only scalar and array values are safe for JSON encoding; avoid passing objects or closures.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Add a custom config flag</h4>
+
+<pre><code>add_filter( 'wpd_ai_localized_report_builder_variables', 'add_report_builder_custom_config' );
+function add_report_builder_custom_config( $localized_variables ) {
+    $localized_variables['customFeatureEnabled'] = true;
+    $localized_variables['myApiBase'] = rest_url( 'my-plugin/v1/' );
+    return $localized_variables;
+}</code></pre>
+
+<h4>Override report limit</h4>
+
+<pre><code>add_filter( 'wpd_ai_localized_report_builder_variables', 'override_report_limit' );
+function override_report_limit( $localized_variables ) {
+    if ( isset( $localized_variables['config'] ) && is_array( $localized_variables['config'] ) ) {
+        $localized_variables['config']['maxReports'] = 50;
+    }
+    return $localized_variables;
+}</code></pre>
+
+<h3>Related</h3>
+
+<ul>
+    <li>Developers → Classes → WPDAI_Data_Warehouse – Data fetching for reports</li>
+    <li>Developers → Custom Data Sources – Data available to reports</li>
+</ul>

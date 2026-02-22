@@ -1,0 +1,61 @@
+<h2>Filter: wpd_ai_integration_metadata</h2>
+
+<p>Filter the integration metadata array (slug => label, description, is_pro, logo_url, category, url) used to render integration cards.</p>
+
+<h3>Description</h3>
+
+<p>Metadata is used for the integrations grid (cards with label, description, logo, category). It is registered via <code>wpd_ai_register_integration_metadata</code> and merged with instances for display. This filter lets you change or add metadata for any slug (e.g. change label, set a custom URL, or add a new card that links elsewhere).</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/integrations/WPDAI_Integrations_Manager.php</code></p>
+<p><strong>Method:</strong> <code>get_all_integrations_for_display()</code></p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$integration_metadata</td>
+        <td>array</td>
+        <td>Associative array slug => array( 'label', 'description', 'is_pro', 'logo_url', 'category', 'url' )</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> array</p>
+<p>The (possibly modified) metadata array.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Change label for an integration</h4>
+
+<pre><code>add_filter( 'wpd_ai_integration_metadata', 'rename_webhooks_card' );
+function rename_webhooks_card( $integration_metadata ) {
+    if ( isset( $integration_metadata['webhooks'] ) ) {
+        $integration_metadata['webhooks']['label'] = __( 'Data Webhooks', 'alpha-insights-pro' );
+    }
+    return $integration_metadata;
+}</code></pre>
+
+<h4>Add a custom link for a slug</h4>
+
+<pre><code>add_filter( 'wpd_ai_integration_metadata', 'point_facebook_to_custom_url' );
+function point_facebook_to_custom_url( $integration_metadata ) {
+    if ( isset( $integration_metadata['facebook-ads'] ) ) {
+        $integration_metadata['facebook-ads']['url'] = admin_url( 'admin.php?page=my-facebook-page' );
+    }
+    return $integration_metadata;
+}</code></pre>
+
+<h3>Related</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/42-wpd_ai_registered_integrations.html">wpd_ai_registered_integrations</a> – Registered instances</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/44-wpd_ai_all_integrations_for_display.html">wpd_ai_all_integrations_for_display</a> – Merged data for display</li>
+</ul>

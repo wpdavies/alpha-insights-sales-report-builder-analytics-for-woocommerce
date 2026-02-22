@@ -393,9 +393,9 @@ class WPDAI_Admin_Menu {
                         'additional_classes' => array(),
                         'menu_order' => 20,
                     ),
-                    'integration_settings' => array(
-                        'title' => __( 'Integration Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
-                        'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=integration',
+                    'integrations' => array(
+                        'title' => __( 'Integrations', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                        'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=integrations',
                         'icon'  => null,
                         'additional_classes' => array(),
                         'menu_order' => 30,
@@ -406,6 +406,13 @@ class WPDAI_Admin_Menu {
                         'icon'  => null,
                         'additional_classes' => array(),
                         'menu_order' => 50,
+                    ),
+                    'about_us' => array(
+                        'title' => __( 'About Us', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                        'url'   => admin_url( 'admin.php') . '?page=' . self::$settings_slug . '&subpage=about-us',
+                        'icon'  => null,
+                        'additional_classes' => array(),
+                        'menu_order' => 999,
                     ),
                 )
             ),

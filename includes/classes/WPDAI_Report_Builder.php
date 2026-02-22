@@ -1389,13 +1389,11 @@ class WPDAI_Report_Builder {
 
             // Set up filters from config
             $filters = array();
-            $additional_data_requirements = array();
             $start_time = microtime(true);
             $memory_start = memory_get_usage(true);
             $memory_used = 0;
             $comparison_data = array();
             $total_db_records = 0;
-            $sales_data_array_keys = array( 'orders', 'customers', 'products', 'coupons', 'refunds', 'taxes' );
             $minimize_data = false;
 
             // Increase memory temporarily if low
@@ -1443,42 +1441,20 @@ class WPDAI_Report_Builder {
                 }
             }
 
-            // Load additional data
-            foreach( $required_data as $data_entity ) {
-                $additional_data_requirements[$data_entity] = true;
-            }
-
-            // Calculate what additional data we need that is calculated in the fetch_sales_data method
+            // Make sure we are fetching sales data, if any of the below keys are hit
+            $sales_data_array_keys = array( 'orders', 'customers', 'products', 'coupons', 'refunds', 'taxes' );
             foreach( $sales_data_array_keys as $sales_data_array_key ) {
                 if (in_array($sales_data_array_key, $required_data)) {
-                    $additional_data_requirements['orders'] = true; // force additional sales info in, just in case
                     if ( ! in_array('orders', $required_data) ) $required_data[] = 'orders';
                     break;
                 }
             }
 
-            // Include our additional data
-            $filters['additional_order_data'] = $additional_data_requirements;
-
             // Load the warehouse
             $data_warehouse = wpdai_data_warehouse( $filters );
 
-            // Fetch the data we need
-            if (in_array('orders', $required_data)) $data_warehouse->fetch_sales_data();
-            if (in_array('expenses', $required_data)) $data_warehouse->fetch_expense_data();
-            if (in_array('store_profit', $required_data) ) $data_warehouse->fetch_store_profit_data();
-            if (in_array('facebook_campaigns', $required_data)) $data_warehouse->fetch_facebook_campaign_data();
-            if (in_array('google_campaigns', $required_data)) $data_warehouse->fetch_google_campaign_data();
-            if (in_array('analytics', $required_data)) $data_warehouse->fetch_analytics_data();
-            if (in_array('subscriptions', $required_data)) $data_warehouse->fetch_subscriptions_data();
-
-            // Fetch custom data sources
-            $custom_data_sources = WPDAI_Custom_Data_Source_Registry::get_entity_names();
-            foreach ( $custom_data_sources as $custom_entity ) {
-                if ( in_array( $custom_entity, $required_data ) ) {
-                    $data_warehouse->fetch_custom_data_source( $custom_entity );
-                }
-            }
+            // Fetch all required entities via the warehouse's single entry point (delegates to registered data sources).
+            $data_warehouse->fetch_data( $required_data );
 
             // Return data
             $report_data = $data_warehouse->get_data();
@@ -1509,24 +1485,11 @@ class WPDAI_Report_Builder {
                 if ( isset($comparison_filters['date_preset']) ) unset($comparison_filters['date_preset']);
                 
                 // Create new data warehouse instance for comparison period
-                $comparison_warehouse = wpdai_data_warehouse($comparison_filters);
-                
-                if (in_array('orders', $required_data)) $comparison_warehouse->fetch_sales_data();
-                if (in_array('expenses', $required_data)) $comparison_warehouse->fetch_expense_data();
-                if (in_array('store_profit', $required_data) ) $comparison_warehouse->fetch_store_profit_data();
-                if (in_array('facebook_campaigns', $required_data)) $comparison_warehouse->fetch_facebook_campaign_data();
-                if (in_array('google_campaigns', $required_data)) $comparison_warehouse->fetch_google_campaign_data();
-                if (in_array('analytics', $required_data)) $comparison_warehouse->fetch_analytics_data();
-                if (in_array('subscriptions', $required_data)) $comparison_warehouse->fetch_subscriptions_data();
+                $comparison_warehouse = wpdai_data_warehouse( $comparison_filters );
 
-                // Fetch custom data sources for comparison
-                $custom_data_sources = WPDAI_Custom_Data_Source_Registry::get_entity_names();
-                foreach ( $custom_data_sources as $custom_entity ) {
-                    if ( in_array( $custom_entity, $required_data ) ) {
-                        $comparison_warehouse->fetch_custom_data_source( $custom_entity );
-                    }
-                }
-                
+                // Fetch all required entities via the warehouse's single entry point.
+                $comparison_warehouse->fetch_data( $required_data );
+
                 // Get comparison data
                 $comparison_data = $comparison_warehouse->get_data();
                 $comparison_date_range_container = $comparison_warehouse->get_data_by_date_range_container();
@@ -1534,12 +1497,11 @@ class WPDAI_Report_Builder {
                 $total_db_records += $comparison_warehouse->get_total_db_records();
                 $execution_time_comparison_report_entities = $comparison_warehouse->get_execution_time();
 
-                // Add comparison execution times if set
+                // Add comparison execution times if set (sum in full float; rounded to 2 dec in final response).
                 foreach( $execution_time_report_entities as $execution_time_report_entity => $execution_time_report_entity_value ) {
                     if ( isset($execution_time_comparison_report_entities[$execution_time_report_entity])) {
                         $execution_time_report_entities[$execution_time_report_entity] += $execution_time_comparison_report_entities[$execution_time_report_entity];
-                        $execution_time_report_entities[$execution_time_report_entity] = round( $execution_time_report_entities[$execution_time_report_entity], 4 );
-                    } 
+                    }
                 }
 
                 // Clear memory
@@ -1551,9 +1513,9 @@ class WPDAI_Report_Builder {
 
             }
 
-            // Calculate Performance
+            // Calculate Performance (execution times rounded to 2 dec in final response).
             $finish_time                = microtime(true);
-            $execution_time             = round( $finish_time - $start_time, 4 );
+            $execution_time             = $finish_time - $start_time;
             $memory_end                 = memory_get_usage(true);
             $memory_used                = $memory_end - $memory_start;
             $memory_peak                = memory_get_peak_usage(true);
@@ -1581,8 +1543,10 @@ class WPDAI_Report_Builder {
                 'required_entities' => $required_entities,
                 'errors' => $report_errors,
                 'performance' => array(
-                    'execution_time' => $execution_time,
-                    'execution_time_report_entities' => $execution_time_report_entities,
+                    'execution_time' => round( (float) $execution_time, 2 ),
+                    'execution_time_report_entities' => array_map( function ( $v ) {
+                        return is_numeric( $v ) ? round( (float) $v, 2 ) : $v;
+                    }, $execution_time_report_entities ),
                     'memory_start' => $memory_start_mb,
                     'memory_end' => $memory_end_mb,
                     'memory_used' => $memory_used_mb,

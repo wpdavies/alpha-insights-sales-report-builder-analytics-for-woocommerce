@@ -1,0 +1,138 @@
+<h2>Creating a Custom Integration</h2>
+
+<p>This guide walks through adding a custom integration that appears in Alpha Insights → Settings → Integrations and provides its own settings form and save logic.</p>
+
+<h3>Step 1: Extend the Base Class</h3>
+
+<p>Create a PHP class that <strong>extends <code>WPDAI_Integration_Base</code></strong>. You must implement every abstract method: <code>get_slug()</code>, <code>get_label()</code>, <code>get_description()</code>, <code>is_pro()</code>, <code>is_enabled()</code>, <code>render_settings()</code>, and <code>save_settings( $saved )</code>.</p>
+
+<pre><code>&lt;?php
+defined( 'ABSPATH' ) || exit;
+
+require_once WPD_AI_PATH . 'includes/integrations/WPDAI_Integration_Base.php';
+
+class My_Custom_Integration extends WPDAI_Integration_Base {
+
+    public function get_slug() {
+        return 'my-custom-integration';
+    }
+
+    public function get_label() {
+        return __( 'My Custom Integration', 'alpha-insights-pro' );
+    }
+
+    public function get_description() {
+        return __( 'Short description for the card.', 'alpha-insights-pro' );
+    }
+
+    public function is_pro() {
+        return false; // or true for Pro-only
+    }
+
+    public function is_enabled() {
+        $settings = get_option( 'my_custom_integration_settings', array() );
+        return ! empty( $settings['api_key'] );
+    }
+
+    public function render_settings() {
+        $settings = get_option( 'my_custom_integration_settings', array() );
+        ?&gt;
+        &lt;table class="wpd-table fixed widefat"&gt;
+            &lt;tbody&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;&lt;label&gt;API Key&lt;/label&gt;&lt;/td&gt;
+                    &lt;td&gt;
+                        &lt;input type="text" name="my_custom_integration_settings[api_key]"
+                            value="&lt;?php echo esc_attr( $settings['api_key'] ?? '' ); ?&gt;" class="wpd-input"&gt;
+                    &lt;/td&gt;
+                &lt;/tr&gt;
+            &lt;/tbody&gt;
+        &lt;/table&gt;
+        &lt;?php
+    }
+
+    public function save_settings( $saved ) {
+        if ( isset( $_POST['my_custom_integration_settings'] ) && is_array( $_POST['my_custom_integration_settings'] ) ) {
+            $data = map_deep( wp_unslash( $_POST['my_custom_integration_settings'] ), 'sanitize_text_field' );
+            $saved['My Custom Integration'] = update_option( 'my_custom_integration_settings', $data );
+        }
+        return $saved;
+    }
+}</code></pre>
+
+<h3>Step 2: Register Metadata (Optional but Recommended)</h3>
+
+<p>So that your integration appears in the grid with a label, description, logo, and category (and so free users can see it as Pro if you use <code>is_pro()</code>), register <strong>metadata</strong> on <code>wpd_ai_register_integration_metadata</code>. Pass the manager instance; it has <code>register_integration_metadata( $slug, $args )</code>.</p>
+
+<pre><code>add_action( 'wpd_ai_register_integration_metadata', function( $manager ) {
+    $manager->register_integration_metadata( 'my-custom-integration', array(
+        'label'       => __( 'My Custom Integration', 'alpha-insights-pro' ),
+        'description' => __( 'Short description for the card.', 'alpha-insights-pro' ),
+        'is_pro'      => false,
+        'logo_url'    => 'https://example.com/logo.png', // optional
+        'category'    => __( 'Custom', 'alpha-insights-pro' ), // optional
+        'url'         => '', // optional; override link when card is clicked
+    ) );
+}, 10, 1 );</code></pre>
+
+<p>If you only register an instance and not metadata, the manager will still show your integration (it can derive label from the instance), but registering metadata ensures the card shows the right category and logo and keeps behavior consistent with built-in integrations.</p>
+
+<h3>Step 3: Register the Instance</h3>
+
+<p>On <code>wpd_ai_register_integrations</code>, instantiate your class and pass it to the manager's <code>register_integration( $slug, $instance )</code>. The slug must match the one used in metadata (if any) and in <code>get_slug()</code>.</p>
+
+<pre><code>add_action( 'wpd_ai_register_integrations', function( $manager ) {
+    $manager->register_integration( 'my-custom-integration', new My_Custom_Integration() );
+}, 10, 1 );</code></pre>
+
+<p>Load your class file before this runs (e.g. in your plugin's bootstrap or on <code>plugins_loaded</code>). The base class constructor calls <code>setup_hooks()</code>, which adds your <code>save_settings</code> to the <code>wpd_ai_save_settings</code> filter, so saving the main settings form will call your <code>save_settings( $saved )</code>.</p>
+
+<h3>Step 4: Sanitize and Capability Checks</h3>
+
+<p>In <code>save_settings()</code>:</p>
+
+<ul>
+<li>Use <code>wp_unslash()</code> on <code>$_POST</code> data, then sanitize (e.g. <code>sanitize_text_field</code>, <code>map_deep( ..., 'sanitize_text_field' )</code>). Do not trust raw <code>$_POST</code>.</li>
+<li>The main settings form is already behind a capability check; if you add nonces, use <code>wp_verify_nonce()</code> and <code>current_user_can()</code> as appropriate for your flow.</li>
+</ul>
+
+<p>In <code>render_settings()</code>, escape all output (e.g. <code>esc_attr()</code>, <code>esc_html()</code>) for any value that comes from the database or user input.</p>
+
+<h3>Complete Example (Theme or Plugin)</h3>
+
+<p>In your theme or plugin, load the integration file and hook both metadata and instance registration:</p>
+
+<pre><code>// Load the integration class
+require_once get_template_directory() . '/includes/my-custom-integration.php';
+
+add_action( 'wpd_ai_register_integration_metadata', function( $manager ) {
+    $manager->register_integration_metadata( 'my-custom-integration', array(
+        'label'       => __( 'My Custom Integration', 'alpha-insights-pro' ),
+        'description' => __( 'Connect to my service.', 'alpha-insights-pro' ),
+        'is_pro'      => false,
+        'category'    => __( 'Custom', 'alpha-insights-pro' ),
+    ) );
+}, 10, 1 );
+
+add_action( 'wpd_ai_register_integrations', function( $manager ) {
+    $manager->register_integration( 'my-custom-integration', new My_Custom_Integration() );
+}, 10, 1 );</code></pre>
+
+<p>After this, open <strong>Alpha Insights → Settings → Integrations</strong>. Your integration appears as a card; clicking it shows your settings form, and saving the page runs your <code>save_settings()</code> and updates the option.</p>
+
+<h3>Optional: Override setup_hooks()</h3>
+
+<p>The base class <code>setup_hooks()</code> adds <code>save_settings</code> to <code>wpd_ai_save_settings</code>. You can override <code>setup_hooks()</code> to add more hooks (e.g. AJAX, admin scripts) but should still call <code>parent::setup_hooks()</code> so save continues to work.</p>
+
+<h3>Optional: Custom Settings URL</h3>
+
+<p><code>get_settings_url()</code> on the base class returns the URL to this integration's settings (<code>?page=...&amp;subpage=integrations&amp;integrations=slug</code>). You can override it if you need a different destination (e.g. a separate admin page). If you use a fully custom URL, set <code>url</code> in metadata so the card links there instead of <code>?integrations=slug</code>.</p>
+
+<h3>Related Documentation</h3>
+
+<ul>
+<li><strong>Integrations Overview</strong> – How the system works</li>
+<li><strong>Integration Base Class Reference</strong> – All methods and signatures</li>
+<li><strong>Hooks and Registration</strong> – Full hook and filter reference</li>
+<li><strong>Filter: wpd_ai_save_settings</strong> – How settings save is applied</li>
+</ul>

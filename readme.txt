@@ -1,147 +1,205 @@
 === Alpha Insights - Sales Report Builder & Analytics For WooCommerce ===
 Contributors: wpdavies
-Tags: woocommerce, reports, cost-of-goods, profit, analytics
+Tags: woocommerce reporting, woocommerce analytics, woocommerce profit, woocommerce cost of goods, woocommerce sales reports
 Requires at least: 5.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.2.0
 Requires Plugins: woocommerce
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Alpha Insights is a powerful WooCommerce reporting plugin that lets you track your store’s profit & loss, cost of goods, ad spend, ROI, expenses, and website traffic — all in one place. With its intuitive drag & drop report builder, you can create custom WooCommerce sales reports and analytics dashboards in seconds, giving you the insights you need to grow your business.
+WooCommerce reporting plugin for profit & loss, cost of goods (COGS), ad spend, ROI and custom sales reports.
 
 == Description ==
 
-Alpha Insights transforms your WooCommerce store data into real profit, sales and marketing intelligence – combining every cost, fee, and expense, and letting you slice it across thousands of metrics. Find your most profitable customers, products, and campaigns in seconds – ensuring every decision is backed by data that tells the full story, done your way with our drag & drop report builder.
+Alpha Insights is a powerful WooCommerce reporting plugin built for accurate profit tracking, cost of goods management, and advanced sales analytics.
 
-**Key Features:**
+Go beyond default WooCommerce reports and see your true profit & loss by combining product costs, payment gateway fees, shipping costs, ad spend, and business expenses — all in one place. Track revenue, margins, ROI, and performance across products, customers, campaigns, and traffic sources.
 
-* **Sales Reporting** - See your true profitability beyond just revenue. Track gross profit, net profit, margins, and all costs associated with each order.
+With our intuitive drag & drop WooCommerce report builder, you can create custom sales reports and analytics dashboards in seconds — without spreadsheets or complicated exports.
 
-* **Website Traffic Analytics** - Built-in website visitor tracking. See where your customers come from, landing pages, referral URLs, device types, and traffic sources.
+Built specifically for serious WooCommerce store owners who want real financial clarity — not just revenue numbers.
 
-* **Drag & Drop Report Builder** - Build and modify reports to suit your needs with our intuitive drag & drop woocommerce report builder.
+Alpha Insights helps you replace spreadsheets, manual exports, and disconnected analytics tools with a single WooCommerce profit reporting system designed for store owners who care about real margins, not vanity metrics.
 
-* **Custom Reports (Pro)** - Create and manage infinite beautiful reports in seconds.
+---
 
-* **Profit & Loss Tracking** - See your true profitability beyond just revenue. Track gross profit, net profit, margins, and all costs associated with each order.
+== Advanced WooCommerce Reporting Features ==
 
-* **Cost of Goods Management** - Easily add and manage product costs directly in WooCommerce. Track profit margins per product, variation, and order.
+**Advanced WooCommerce Sales Reporting**  
+Track revenue, gross profit, net profit, margins, refunds, and order-level profitability with powerful filtering and comparisons.
 
-* **Expense Management (PRO)** - Track store expenses like rent, utilities, software subscriptions, employee salaries, and more. Categorize expenses and see their impact on your net profit.
+**WooCommerce Cost of Goods (COGS) Tracking**  
+Easily add and manage product costs directly inside WooCommerce. Track profit margins per product, variation, and order. Fully compatible with the native WooCommerce Cost of Goods feature.
 
-* **Time Series Comparisons and Date Filtering** - Filter reports by custom date ranges, preset date ranges, and easily measure growth in year over year of previous period comparisons.
+**Profit & Loss Reporting for WooCommerce**  
+Understand your real profitability by combining revenue, cost of goods, payment fees, shipping, and custom order costs.
 
-* **Advanced Filtering (PRO)** - Filter reports by products, customers, orders, expenses, traffic sources, and more.
+**WooCommerce Website Traffic & Marketing Analytics**  
+Built-in visitor tracking shows traffic sources, landing pages, referral URLs, device types, and campaign performance.
 
-* **Data Export (PRO)** - Export any report as PDF or CSV. Share reports with your team or accountant.
+**Drag & Drop WooCommerce Report Builder**  
+Build and customize reports with an intuitive drag & drop interface. Create unlimited report layouts in seconds.
 
-* **Custom Order Costs** - Add custom costs per order like commissions, handling fees, or other order-specific expenses.
+**Custom Order Costs**  
+Add commissions, handling fees, transaction costs, or other order-specific expenses.
 
-* **Multi-Currency Support** - Track costs and revenues in different currencies with automatic conversion rates.
+**Time Series Comparisons & Date Filtering**  
+Filter by custom or preset date ranges. Compare year-over-year or previous periods to measure growth.
 
-* **Performance Optimized** - Built for high-performance stores. Efficient database queries and caching ensure fast report generation even with thousands of orders.
+**Multi-Currency Support**  
+Track revenue and costs across multiple currencies with automatic conversion handling.
 
-**Upgrade to Alpha Insights Pro:**
+**Performance Optimized for High-Volume Stores**  
+Built for speed with optimized queries and caching for stores with thousands of orders.
 
-Looking for more powerful features? [Upgrade to Alpha Insights Pro](https://wpdavies.dev/plugins/alpha-insights/?utm_source=wordpress&utm_medium=readme&utm_campaign=free_version_upgrade) and unlock:
+---
 
-* Unlimited custom reports with advanced widgets and metrics
-* Full expense management with categorization and recurring expenses
-* Facebook Ads and Google Ads integration
-* Advanced filtering options for deeper insights
-* PDF and CSV export capabilities
-* Live share links for reports
-* Priority support and updates
+== PRO Features ==
 
-[Get Alpha Insights Pro →](https://wpdavies.dev/plugins/alpha-insights/?utm_source=wordpress&utm_medium=readme&utm_campaign=free_version_upgrade)
+Upgrade to Alpha Insights Pro to unlock:
+
+**Full Expense Management**  
+Track rent, software subscriptions, salaries, utilities, and recurring expenses with categorization.
+
+**Google Ads & Meta Ads Integration**  
+Automatically sync ad spend and match WooCommerce orders to campaigns for accurate ROI and profit tracking.
+
+**Advanced Filtering & Segmentation**  
+Filter reports by products, customers, traffic sources, campaigns, expenses and more.
+
+**Export to PDF & CSV**  
+Export any WooCommerce report for sharing with your team or accountant.
+
+**Third-Party Integrations**
+Automatically sync shipping costs, payment gateway fees, and advertising spend for accurate WooCommerce profit and ROI tracking.
+
+**Realtime WooCommerce Analytics Dashboards**  
+Monitor live visitor activity and performance metrics as they happen.
+
+**Upgrade to Pro:**
+If you're running paid ads or managing serious revenue, Pro unlocks the true financial picture of your store.
+[Upgrade to Alpha Insights Pro](https://wpdavies.dev/plugins/alpha-insights/pricing/?utm_source=wordpress&utm_medium=readme&utm_campaign=free_version_upgrade)
+
+---
+
+== Perfect For Store Owners Who Want ==
+
+• Accurate WooCommerce profit tracking  
+• Built-in WooCommerce cost of goods management  
+• Advanced WooCommerce sales reports  
+• True WooCommerce profit and loss reporting  
+• Ad spend and ROI tracking (Pro)
+• Custom WooCommerce analytics dashboards  
+
+---
 
 == Installation ==
 
-**Automatic Installation:**
+**Automatic Installation**
 
-1. Log in to your WordPress admin panel
-2. Navigate to Plugins → Add New
-3. Search for "Alpha Insights"
-4. Click "Install Now"
-5. Click "Activate"
-6. Navigate to Alpha Insights → Settings to configure your plugin
+1. Log in to your WordPress admin panel  
+2. Navigate to Plugins → Add New  
+3. Search for "Alpha Insights"  
+4. Click Install Now  
+5. Click Activate  
+6. Navigate to Alpha Insights → Settings  
 
-**Manual Installation:**
+**Manual Installation**
 
-1. Download the plugin zip file
-2. Log in to your WordPress admin panel
-3. Navigate to Plugins → Add New
-4. Click "Upload Plugin"
-5. Choose the downloaded zip file
-6. Click "Install Now"
-7. Click "Activate"
-8. Navigate to Alpha Insights → Settings to configure your plugin
+1. Download the plugin zip file  
+2. Navigate to Plugins → Add New  
+3. Click Upload Plugin  
+4. Select the zip file  
+5. Click Install Now  
+6. Click Activate  
 
-**Post-Installation:**
+After installation:
 
-1. Configure your product costs or migrate from another plugin in our Cost of Goods Manager
-2. Set up payment gateway costs in Alpha Insights → Settings → General Settings
-3. Scan through the other settings that are available, most others are non-essential
-4. Start building reports!
+1. Configure your product costs in the Cost of Goods Manager  
+2. Set up payment gateway costs in Settings  
+3. Review optional settings  
+4. Start building reports  
+
+---
 
 == Frequently Asked Questions ==
 
 = Do I need to manually add costs for each product? =
 
-You can easily add costs per product in our cost of goods manager. You can also set default costs and override them per order if needed.
+You can add product costs individually or set default costs and override them per order if required.
 
 = Can I export my reports? =
 
-Yes! Any report can be exported as PDF or CSV format, however this is a Pro feature.
+Yes. Reports can be exported as PDF or CSV in the Pro version.
 
 = Does this work with High-Performance Order Storage (HPOS)? =
 
-Yes! Alpha Insights is fully compatible with WooCommerce's High-Performance Order Storage feature.
+Yes. Alpha Insights is fully compatible with WooCommerce High-Performance Order Storage (HPOS).
 
 = Can I create custom reports? =
 
-Yes, Pro users can create infinite reports. Free users can modify the pre-installed reports to suit.
+Yes. Pro users can create unlimited reports. Free users can modify the pre-installed reports.
 
-= What metrics can I track? =
+= What WooCommerce metrics can I track? =
 
-Alpha Insights tracks thousands of metrics including revenue, costs, profit, margins, expenses, customer data, product performance, and website traffic analytics.
+Revenue, cost of goods (COGS), gross profit, net profit, margins, expenses, ad spend, ROI, customer performance, product performance, refunds, and traffic analytics.
 
 = Is my data secure? =
 
-Yes! All data is stored in your WordPress database. Alpha Insights follows WordPress security best practices and coding standards.
+All data is stored in your WordPress database. Alpha Insights follows WordPress coding standards and security best practices.
 
-= Can I migrate from another COGS plugin? =
+= Can I migrate from another cost of goods plugin? =
 
-Yep, super easy. We've got a migration tool in our cost of goods manager, and import / export via CSV.
+Yes. A built-in migration and CSV import/export tool is available in the Cost of Goods Manager.
 
-= Does Alpha Insights integrate with the native WooCommerce Cost of Goods feature? =
+= Does Alpha Insights integrate with WooCommerce Cost of Goods? =
 
-Yep, if you don't set costs using Alpha Insights, we'll default back to the native Woo cogs feature.
+Yes. If you use the native WooCommerce Cost of Goods feature, Alpha Insights will automatically detect and use those values.
+
+= How is this different from default WooCommerce reports? =
+
+Default WooCommerce reports focus primarily on revenue. Alpha Insights adds cost of goods tracking, profit & loss reporting, expense management, ad spend attribution, and advanced filtering to show your true store profitability.
+
+---
 
 == Screenshots ==
 
-1. Sales Report Example
-2. Analytics Report Example
-3. Drag & Drop Builder
-4. Report Manager
-5. Building A Report
-6. Configuring A Widget
+1. WooCommerce Sales Report Example  
+2. Profit & Loss Analytics Dashboard  
+3. Drag & Drop Report Builder  
+4. Report Manager  
+5. Building a Custom Report  
+6. Widget Configuration  
+
+---
 
 == Changelog ==
 
+= 1.2.0 =
+* Fixed a few broken docs links
+* Cleaned up integrations page & got rid of undefined array error on webhooks page
+* Added about us page
+* Implemented reviews system
+
+= 1.1.0 =
+* Rebuild the refund system to apply movements in net sales & GP according to the refund date, not the original order date
+* Refunds report added
+* Order attribution (ref and landing page url) are decoupled from the session, with a customizable timeout setting added
+* COGS manager uses the actual sell price to calculate profit rather than RRP
+* Mobile optimizations added to dashboard on order page
+
 = 1.0.0 =
 * Initial release of Alpha Insights free version
-* Branched off the Pro version which has been maturing for 6 years
+
+---
 
 == Upgrade Notice ==
 
-= 1.0.0 =
-Initial release of Alpha Insights. Get started by configuring your product costs and creating your first report!
+---
 
 == Credits ==
 
-Developed by WP Davies
-
-For more information, visit: https://wpdavies.dev/
+Developed by WP Davies  
+https://wpdavies.dev/

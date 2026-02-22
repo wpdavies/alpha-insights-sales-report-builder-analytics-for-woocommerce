@@ -1,0 +1,54 @@
+<h2>Filter: wpd_ai_session_tracking_enable_logging</h2>
+
+<p>Enable or disable debug logging for session tracking.</p>
+
+<h3>Description</h3>
+
+<p>When enabled, session tracking writes log messages via <code>wpdai_write_log()</code> (e.g. session creation, expiry). Errors are always logged to the error log. This filter is checked each time a log is written, so you can turn logging on without a settings UI.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPDAI_Session_Tracking.php</code></p>
+<p><strong>Context:</strong> Inside the private <code>log()</code> method when deciding whether to write to the session_tracking log.</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$enable_logging</td>
+        <td>bool</td>
+        <td>Current value (default false). Return true to enable session tracking debug logs.</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> bool</p>
+<p>True to enable session tracking logging; false to disable.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Enable logging when WP_DEBUG is on</h4>
+
+<pre><code>add_filter( 'wpd_ai_session_tracking_enable_logging', 'wpd_ai_session_log_when_debug' );
+function wpd_ai_session_log_when_debug( $enable_logging ) {
+    return defined( 'WP_DEBUG' ) && WP_DEBUG;
+}</code></pre>
+
+<h4>Always enable in development</h4>
+
+<pre><code>add_filter( 'wpd_ai_session_tracking_enable_logging', function( $enable_logging ) {
+    return wp_get_environment_type() === 'development';
+} );</code></pre>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/21-wpd_session_timeout_seconds.html">wpd_session_timeout_seconds</a> – Session timeout</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/40-wpd_ai_event_tracking_enable_logging.html">wpd_ai_event_tracking_enable_logging</a> – Event tracking logging</li>
+</ul>

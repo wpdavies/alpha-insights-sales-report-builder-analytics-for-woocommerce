@@ -1,0 +1,65 @@
+<h2>Filter: wpd_alpha_insights_skip_refunds_without_parent</h2>
+
+<p>Control whether refunds without a valid parent order are excluded from the refunds data source.</p>
+
+<h3>Description</h3>
+
+<p>Orphaned or broken refund records (no parent order or invalid parent) can be skipped when building refunds data. By default the filter returns true, so refunds without a valid parent are skipped. Return false to include them (e.g. for debugging or if your data has valid refunds without a loadable parent).</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/data-sources/WPDAI_Refunds_Internal_Data_Source.php</code></p>
+<p><strong>Context:</strong> When processing each refund; if true and the parent order is missing, the refund is skipped.</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$skip_refunds_without_parent</td>
+        <td>bool</td>
+        <td>Whether to skip refunds that have no valid parent order (default true)</td>
+    </tr>
+    <tr>
+        <td>$refund</td>
+        <td>WC_Order_Refund</td>
+        <td>The current refund order object</td>
+    </tr>
+    <tr>
+        <td>$data_warehouse</td>
+        <td>WPDAI_Data_Warehouse</td>
+        <td>The data warehouse instance</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> bool</p>
+<p>True to skip refunds without a valid parent; false to include them.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Include orphan refunds for auditing</h4>
+
+<pre><code>add_filter( 'wpd_alpha_insights_skip_refunds_without_parent', '__return_false' );</code></pre>
+
+<h4>Skip only when not debugging</h4>
+
+<pre><code>add_filter( 'wpd_alpha_insights_skip_refunds_without_parent', 'skip_orphan_refunds_unless_debug', 10, 3 );
+function skip_orphan_refunds_unless_debug( $skip, $refund, $data_warehouse ) {
+    if ( defined( 'WP_DEBUG' ) && WP_DEBUG && current_user_can( 'manage_options' ) ) {
+        return false; // Include orphans when debugging
+    }
+    return $skip;
+}</code></pre>
+
+<h3>Related</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/51-wpd_alpha_insights_data_source_refunds.html">wpd_alpha_insights_data_source_refunds</a> – Filter refunds data</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/52-wpd_alpha_insights_refund_ids_to_skip.html">wpd_alpha_insights_refund_ids_to_skip</a> – Exclude specific refund IDs</li>
+</ul>

@@ -1,0 +1,420 @@
+{
+  "report_category": "sales_reports",
+  "version_number": "1.0",
+  "appear_in_menu": true,
+  "realtime_data": false,
+  "icon": "refresh",
+  "color": "red",
+  "name": "Refunds",
+  "menu_order": "18",
+  "dashboard_id": "refunds",
+  "filters": {
+    "date_from": null,
+    "date_to": null,
+    "date_preset": "last_30_days",
+    "comparison_date_selection": "previous_period",
+    "data_filters": []
+  },
+  "created_at": 1770126219,
+  "updated_at": 1770126219,
+  "rows": [
+    {
+      "id": "row-1770090054548",
+      "columns": [
+        {
+          "id": "column-1770090054548-0",
+          "width": {
+            "desktop": 3,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_1770090064703_fjxzohhzb",
+              "type": "metric_card",
+              "config": {
+                "title": "Total Refunds Applied",
+                "metric": "refunds.totals.total_refund_amount",
+                "change_indicator": "previous_period",
+                "sub_value": "previous_period",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "icon": "trending_up",
+                "color": "blue",
+                "realtime_data": false,
+                "selected_columns": [],
+                "column_order": [],
+                "default_sort_key": "",
+                "default_sort_direction": "asc",
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-1770090054548-1",
+          "width": {
+            "desktop": 3,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_1770090071470_3lx91l2q6",
+              "type": "metric_card",
+              "config": {
+                "title": "Order Count With Refunds",
+                "metric": "refunds.totals.total_order_count_with_refund",
+                "change_indicator": "previous_period",
+                "sub_value": "previous_period",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "icon": "trending_up",
+                "color": "blue",
+                "realtime_data": false,
+                "selected_columns": [],
+                "column_order": [],
+                "default_sort_key": "",
+                "default_sort_direction": "asc",
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-1770090054548-2",
+          "width": {
+            "desktop": 3,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_1770090081698_gpzs3zrwr",
+              "type": "metric_card",
+              "config": {
+                "title": "Refund Rate Percentage",
+                "metric": "refunds.totals.refund_rate_percentage",
+                "change_indicator": "previous_period",
+                "sub_value": "previous_period",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "icon": "trending_up",
+                "color": "blue",
+                "realtime_data": false,
+                "selected_columns": [],
+                "column_order": [],
+                "default_sort_key": "",
+                "default_sort_direction": "asc",
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-1770090054548-3",
+          "width": {
+            "desktop": 3,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_1770090099312_aqlfhj1ro",
+              "type": "metric_card",
+              "config": {
+                "title": "Refunds As A Percentage Of Revenue",
+                "metric": "refunds.totals.refund_percent_of_revenue",
+                "change_indicator": "previous_period",
+                "sub_value": "previous_period",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "icon": "trending_up",
+                "color": "blue",
+                "realtime_data": false,
+                "selected_columns": [],
+                "column_order": [],
+                "default_sort_key": "",
+                "default_sort_direction": "asc",
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-1770089365358",
+      "columns": [
+        {
+          "id": "column-1770089365358-0",
+          "width": {
+            "desktop": 6,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_1770089368780_yjf75oxvi",
+              "type": "line_chart",
+              "config": {
+                "title": "Refunds",
+                "data_type": "data_by_date",
+                "metrics": [
+                  {
+                    "metric": "refunds.data_by_date.amount_refunded_by_date",
+                    "label": "Refund Amount",
+                    "icon": "undo",
+                    "color": "red",
+                    "data_source": "refunds",
+                    "value_key": "amount_refunded_by_date"
+                  },
+                  {
+                    "metric": "refunds.data_by_date.orders_refunded_by_date",
+                    "label": "Refunded Orders Count",
+                    "icon": "undo",
+                    "color": "red",
+                    "data_source": "refunds",
+                    "value_key": "orders_refunded_by_date"
+                  },
+                  {
+                    "metric": "refunds.data_by_date.quantity_refunded_by_date",
+                    "label": "Product Quantity Refunded",
+                    "icon": "undo",
+                    "color": "red",
+                    "data_source": "refunds",
+                    "value_key": "quantity_refunded_by_date"
+                  }
+                ],
+                "metric": "",
+                "metric_field": "",
+                "metric_display": "number",
+                "date_format": "auto",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "color": "blue",
+                "show_legend": true,
+                "chart_height": 450,
+                "realtime_data": false,
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "empty-column-0-filler",
+          "width": {
+            "desktop": 6,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_1770089615977_t4ggp6chq",
+              "type": "bar_chart",
+              "config": {
+                "title": "Product Refund Data",
+                "data_type": "categorized_data",
+                "metrics": [],
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "color": "blue",
+                "show_legend": true,
+                "chart_height": 450,
+                "realtime_data": false,
+                "date_format": "auto",
+                "metric": "refunds.categorized_data.product_refund_data",
+                "selected_columns": [],
+                "column_order": [],
+                "default_sort_key": "",
+                "default_sort_direction": "asc",
+                "metric_field": "total_refund_amount",
+                "metric_display": "currency",
+                "format": "text"
+              }
+            }
+          ],
+          "isEmptyColumn": false
+        }
+      ]
+    },
+    {
+      "id": "row-1770087832582",
+      "columns": [
+        {
+          "id": "column-1770087832582-0",
+          "width": {
+            "desktop": 12,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_1770088032787_biasbu5hi",
+              "type": "data_table",
+              "config": {
+                "title": "Refunds Applied",
+                "metric": "refunds.data_table.refunds",
+                "selected_columns": [
+                  "refund_id",
+                  "parent_order_id",
+                  "original_amount_paid",
+                  "refund_amount",
+                  "refund_amount_ex_tax",
+                  "refund_tax",
+                  "refund_quantity",
+                  "refund_date",
+                  "is_full_refund",
+                  "is_partial_refund",
+                  "refund_reason",
+                  "refunded_by_user_id",
+                  "refunded_payment",
+                  "refund_currency",
+                  "refund_shipping_total",
+                  "refund_shipping_tax",
+                  "refunded_product_ids",
+                  "refund_items"
+                ],
+                "column_order": [],
+                "limit": 200,
+                "max_records": 500,
+                "sortable": true,
+                "searchable": true,
+                "default_sort_key": "",
+                "default_sort_direction": "asc",
+                "filters": [],
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "icon": "list",
+                "color": "blue",
+                "no_max_height": false,
+                "max_height": "500",
+                "realtime_data": false,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-1770088438284",
+      "columns": [
+        {
+          "id": "column-1770088438284-0",
+          "width": {
+            "desktop": 6,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_1770088440851_0vlpkf26c",
+              "type": "simple_table",
+              "config": {
+                "title": "Product Refund Data",
+                "data_type": "categorized_data",
+                "metric": "refunds.categorized_data.product_refund_data",
+                "metric_fields": [
+                  "product_id",
+                  "variation_id",
+                  "product_name",
+                  "total_refund_amount",
+                  "total_quantity_refunded",
+                  "refund_count",
+                  "percent_of_total_refunds"
+                ],
+                "selected_columns": [],
+                "metrics": [],
+                "time_format": "auto",
+                "color": "blue",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "rows_limit": 50,
+                "sort_config": {
+                  "key": "total_refund_amount",
+                  "direction": "desc"
+                },
+                "column_order": [
+                  "category",
+                  "product_name",
+                  "total_refund_amount",
+                  "total_quantity_refunded",
+                  "refund_count",
+                  "product_id",
+                  "variation_id",
+                  "percent_of_total_refunds"
+                ],
+                "no_max_height": false,
+                "max_height": 490,
+                "realtime_data": false,
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-1770088438284-1",
+          "width": {
+            "desktop": 6,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_1770088465020_c4mf5agte",
+              "type": "simple_table",
+              "config": {
+                "title": "Customer Refund Data",
+                "data_type": "categorized_data",
+                "metric": "refunds.categorized_data.customer_refund_data",
+                "metric_fields": [
+                  "user_id",
+                  "refund_count",
+                  "refund_value",
+                  "refund_quantity",
+                  "average_refund_amount",
+                  "average_refund_amount_ex_tax",
+                  "percent_of_total_refunds"
+                ],
+                "selected_columns": [],
+                "metrics": [],
+                "time_format": "auto",
+                "color": "blue",
+                "width_desktop": 3,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "rows_limit": 50,
+                "sort_config": {
+                  "key": "refund_value",
+                  "direction": "desc"
+                },
+                "column_order": [],
+                "no_max_height": false,
+                "max_height": 490,
+                "realtime_data": false,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

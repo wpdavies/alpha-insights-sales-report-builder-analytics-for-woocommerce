@@ -124,6 +124,15 @@ class WPDAI_Order_Calculator {
     private $refund_order_id = 0;
 
     /**
+     * 
+     *  Ignore Refunds
+     * 
+     *  @var bool
+     * 
+     **/
+    private $ignore_refunds = false;
+
+    /**
      *
      *	Calculate the profit of an order by order_id or order object.
      *
@@ -138,10 +147,10 @@ class WPDAI_Order_Calculator {
      * 	@return array|bool Wil return an associative array for of the calculation values saved for this order or false on failure
      *
      **/
-    public function __construct( $order_id_or_object = null, $force_recalculation = false) {
+    public function __construct( $order_id_or_object = null, $force_recalculation = false, $ignore_refunds = false ) {
         
         // Capture order id or object where stored
-        $this->initialize_parameters( $order_id_or_object, $force_recalculation );
+        $this->initialize_parameters( $order_id_or_object, $force_recalculation, $ignore_refunds );
 
         // Pefrm calculation method
         $this->calculate();
@@ -153,9 +162,13 @@ class WPDAI_Order_Calculator {
      *  Confirm order_id from passed in parameter
      * 
      */
-    private function initialize_parameters( $order_id_or_object, $force_recalculation ) {
+    private function initialize_parameters( $order_id_or_object, $force_recalculation, $ignore_refunds ) {
 
         $this->force_recalculation = $force_recalculation;
+        $this->ignore_refunds = $ignore_refunds;
+
+        // Force a recaculation if we're ignoring refunds, it also won't save the calculations to the database
+        if ( $this->ignore_refunds ) $this->force_recalculation = true;
 
         if (is_a($order_id_or_object, 'WC_Order')) {
 
@@ -296,6 +309,14 @@ class WPDAI_Order_Calculator {
         $total_shipping_charged         = (float) $this->order->get_shipping_total();
         $total_coupon_discounts         = (float) $this->order->get_discount_total() + (float) $this->order->get_discount_tax();
 
+        // Ignore refunds if set
+        if ( $this->ignore_refunds ) {
+
+            $total_order_refund_amount = 0;
+            $total_order_tax_refunded = 0;
+
+        }
+
         // Convert currencies if multi currency
         if ( $this->multi_currency_order ) {
 
@@ -308,7 +329,10 @@ class WPDAI_Order_Calculator {
 
         }
 
-        // Any requires calculations
+        // Store original amounts to use a pre-refund data
+        $original_total_order_revenue_excluding_tax = $total_order_revenue - $total_order_tax;
+        
+        // A few calculations
         $total_order_revenue            = $total_order_revenue - $total_order_refund_amount;
         $total_order_tax                = $total_order_tax - $total_order_tax_refunded;
         $date_paid 						= ( is_a($this->order->get_date_paid(), 'WC_DateTime') ) ? $this->order->get_date_paid()->getOffsetTimestamp() : null;
@@ -321,7 +345,7 @@ class WPDAI_Order_Calculator {
         // Landing page / referral data
         $landing_page                   = ( ! empty($this->order->get_meta( '_wpd_ai_landing_page' )) ) ? $this->order->get_meta( '_wpd_ai_landing_page' ) : $this->order->get_meta('_wc_order_attribution_session_entry');
         $referrer_url                   = ( ! empty($this->order->get_meta( '_wpd_ai_referral_source' )) ) ? $this->order->get_meta( '_wpd_ai_referral_source' ) : $this->order->get_meta('_wc_order_attribution_referrer');
-        $created_via                   = $this->order->get_created_via();
+        $created_via                    = $this->order->get_created_via();
         
         // User Agent Data
         $user_agent                     = $this->order->get_customer_user_agent();
@@ -346,10 +370,13 @@ class WPDAI_Order_Calculator {
 
         // If we have a fully refunded order
         if ( $total_order_refund_amount == ( $total_order_revenue + $total_order_refund_amount ) || $this->order->get_status() == 'refunded' ) {
-
             $full_refund            = 1;
             $partial_refund         = 0;
+        }
 
+        // Ensure refund calculation doesn't proceed if we're calculating non-refunded orders
+        if ( $this->ignore_refunds ) {
+            $full_refund = $partial_refund = 0;
         }
 
         // Calculate shipping instance ID for this order, for now assume only one shipping instance, collect the first one grabbed
@@ -371,6 +398,7 @@ class WPDAI_Order_Calculator {
     
             // Main Calculations
             'total_order_revenue_inc_tax_and_refunds'       => $total_order_revenue + $total_order_refund_amount, // Original amount including taxes & refunds
+            'total_order_revenue_ex_tax_before_refunds'     => $original_total_order_revenue_excluding_tax, // Original amount excluding taxes & refunds
             'total_order_revenue' 					        => $total_order_revenue, // Amount paid, including tax
             'total_order_revenue_excluding_tax' 	        => $total_order_revenue - $total_order_tax,
             'total_order_cost' 						        => 0, // Does not include tax
@@ -1376,6 +1404,9 @@ class WPDAI_Order_Calculator {
      * 
      */
     private function save_calculations() {
+
+        // If we're ignoring refunds, we don't need to save the calculations
+        if ( $this->ignore_refunds ) return;
 
         // Convert back to originally passed order id, if requested
         $order_id = ( $this->refund_order_id > 0 ) ? $this->refund_order_id : $this->order_id;

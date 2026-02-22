@@ -1,0 +1,55 @@
+<h2>Filter: wpd_alpha_insights_data_source_expenses</h2>
+
+<p>Filter the expenses entity data returned by the Expenses data source before it is stored in the data warehouse.</p>
+
+<h3>Description</h3>
+
+<p>After the expenses data source builds its data structure (totals, data_by_date, data_table, etc.), this filter is applied. You can modify or add metrics, adjust totals, or alter time-series data. The data warehouse then stores the returned value for the <code>expenses</code> entity.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/data-sources/pro/WPDAI_Expenses_Data_Source.php</code></p>
+<p><strong>Context:</strong> When returning expense data from the data source.</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$expense_data</td>
+        <td>array</td>
+        <td>Expenses data structure (totals, categorized_data, data_table, data_by_date, total_db_records, etc.)</td>
+    </tr>
+    <tr>
+        <td>$data_warehouse</td>
+        <td>WPDAI_Data_Warehouse</td>
+        <td>The data warehouse instance (for date range, filters, or other entity data)</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> array</p>
+<p>The (possibly modified) expenses data structure.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Add a custom total</h4>
+
+<pre><code>add_filter( 'wpd_alpha_insights_data_source_expenses', 'add_expense_custom_total', 10, 2 );
+function add_expense_custom_total( $expense_data, $data_warehouse ) {
+    if ( isset( $expense_data['totals'] ) && is_array( $expense_data['totals'] ) ) {
+        $expense_data['totals']['my_custom_total'] = 100.00;
+    }
+    return $expense_data;
+}</code></pre>
+
+<h3>Related</h3>
+
+<ul>
+    <li>Other data source filters: wpd_alpha_insights_data_source_sales, wpd_alpha_insights_data_source_store_profit, wpd_alpha_insights_data_source_analytics, wpd_alpha_insights_data_source_refunds, etc.</li>
+</ul>

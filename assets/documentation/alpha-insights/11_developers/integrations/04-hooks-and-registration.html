@@ -1,0 +1,93 @@
+<h2>Hooks and Registration</h2>
+
+<p>The integrations system uses two actions for registration and one filter for saving. All run in the WordPress admin context when the integrations page is available.</p>
+
+<h3>wpd_ai_register_integration_metadata</h3>
+
+<p><strong>Type:</strong> Action<br>
+<strong>Fired by:</strong> <code>WPDAI_Integrations_Manager::register_default_integration_metadata()</code> on <code>init</code> priority 4.<br>
+<strong>Arguments:</strong> <code>$manager</code> (WPDAI_Integrations_Manager) – The singleton manager instance.</p>
+
+<p>Use this to register <strong>metadata only</strong> (label, description, logo, category, optional URL). Metadata is used to display integration cards even when no class is loaded (e.g. Pro integrations on the free version).</p>
+
+<p>On the manager, call:</p>
+<p><code>$manager->register_integration_metadata( $slug, $args );</code></p>
+
+<p><strong>$slug</strong> (string): Unique key (e.g. <code>'my-integration'</code>). Sanitized with <code>sanitize_key()</code>.</p>
+
+<p><strong>$args</strong> (array):</p>
+<ul>
+<li><code>label</code> (string) – Display name for the card.</li>
+<li><code>description</code> (string) – Short description.</li>
+<li><code>is_pro</code> (bool) – Whether to show the Pro badge and upsell when no instance is loaded.</li>
+<li><code>logo_url</code> (string, optional) – Full URL to logo image. Escaped with <code>esc_url_raw()</code>.</li>
+<li><code>category</code> (string, optional) – Category for sidebar filter (e.g. "Marketing", "Shipping"). Sanitized with <code>sanitize_text_field()</code>.</li>
+<li><code>url</code> (string, optional) – Override destination when the card is clicked. If empty, the link is <code>?integrations=&lt;slug&gt;</code> on the integrations base URL. Escaped with <code>esc_url_raw()</code>.</li>
+</ul>
+
+<p><strong>Returns:</strong> <code>true</code> on success, <code>false</code> if slug is empty or invalid.</p>
+
+<p><strong>Example:</strong></p>
+<pre><code>add_action( 'wpd_ai_register_integration_metadata', function( $manager ) {
+    $manager->register_integration_metadata( 'my-service', array(
+        'label'       => __( 'My Service', 'alpha-insights-pro' ),
+        'description' => __( 'Connect to My Service for sync.', 'alpha-insights-pro' ),
+        'is_pro'      => false,
+        'logo_url'    => 'https://example.com/logo.png',
+        'category'    => __( 'Custom', 'alpha-insights-pro' ),
+    ) );
+}, 10, 1 );</code></pre>
+
+<h3>wpd_ai_register_integrations</h3>
+
+<p><strong>Type:</strong> Action<br>
+<strong>Fired by:</strong> <code>WPDAI_Integrations_Manager::register_default_integrations()</code> on <code>init</code> priority 5.<br>
+<strong>Arguments:</strong> <code>$manager</code> (WPDAI_Integrations_Manager) – The singleton manager instance.</p>
+
+<p>Use this to register an <strong>integration instance</strong> (a class extending <code>WPDAI_Integration_Base</code>). The manager will show that integration's settings when the user selects it. You can load your class file and instantiate it inside the callback.</p>
+
+<p>On the manager, call:</p>
+<p><code>$manager->register_integration( $slug, $instance );</code></p>
+
+<p><strong>$slug</strong> (string): Must match the slug used in metadata (if any) and the value returned by <code>$instance->get_slug()</code>. Sanitized with <code>sanitize_key()</code>.</p>
+
+<p><strong>$instance</strong> (WPDAI_Integration_Base): An instance of your integration class.</p>
+
+<p><strong>Returns:</strong> <code>true</code> on success, <code>false</code> if slug is empty or instance does not extend <code>WPDAI_Integration_Base</code>.</p>
+
+<p><strong>Example:</strong></p>
+<pre><code>add_action( 'wpd_ai_register_integrations', function( $manager ) {
+    require_once MY_PLUGIN_PATH . 'includes/class-my-integration.php';
+    $manager->register_integration( 'my-service', new My_Service_Integration() );
+}, 10, 1 );</code></pre>
+
+<p>The plugin itself uses this hook in <code>register_core_integrations()</code> to run <code>load_and_register_from_directory()</code> on <code>includes/integrations/register/</code> and <code>register/pro/</code>, which require PHP files and auto-register any class that extends <code>WPDAI_Integration_Base</code>.</p>
+
+<h3>wpd_ai_save_settings</h3>
+
+<p><strong>Type:</strong> Filter<br>
+<strong>Applied in:</strong> The main settings save handler (e.g. when the user clicks "Save Changes" on the settings page that includes the integrations form).<br>
+<strong>Arguments:</strong> <code>$saved</code> (array) – Associative array of "label" => success (bool).</p>
+
+<p>Integrations do not need to add this filter manually: <code>WPDAI_Integration_Base::setup_hooks()</code> adds <code>save_settings</code> to this filter. Your integration's <code>save_settings( $saved )</code> receives <code>$saved</code>, should add an entry (e.g. <code>$saved['My Integration'] = update_option( ... );</code>), and return the modified array.</p>
+
+<p>See the main filter doc <strong>wpd_ai_save_settings</strong> in the developers filters section for full details and examples from other parts of the plugin.</p>
+
+<h3>Other Filters (Display)</h3>
+
+<p>The manager also applies these when building the list for the UI (you can use them to change what is shown):</p>
+
+<ul>
+<li><strong>wpd_ai_integration_metadata</strong> – Filters the full metadata array (slug => args) before merging with instances.</li>
+<li><strong>wpd_ai_registered_integrations</strong> – Filters the registered instances array (slug => WPDAI_Integration_Base).</li>
+<li><strong>wpd_ai_all_integrations_for_display</strong> – Filters the merged list used for the grid (slug => array( 'metadata' => ..., 'instance' => ... )).</li>
+</ul>
+
+<h3>Related Documentation</h3>
+
+<ul>
+<li><strong>Integrations Overview</strong> – How metadata and instances are used together</li>
+<li><strong>Creating a Custom Integration</strong> – Where to hook registration</li>
+<li><strong>Integration Base Class Reference</strong> – <code>save_settings</code> contract</li>
+<li><strong>Filter: wpd_ai_save_settings</strong> – Full filter documentation</li>
+</ul>

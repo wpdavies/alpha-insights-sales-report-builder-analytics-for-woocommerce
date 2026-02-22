@@ -1,0 +1,57 @@
+<h2>Filter: wpd_alpha_insights_data_source_sales</h2>
+
+<p>Filter the sales (orders and related) entity data returned by the Sales data source before it is stored in the data warehouse.</p>
+
+<h3>Description</h3>
+
+<p>The Sales data source provides orders, products, customers, coupons, taxes, and refunds in one multi-entity response. After that data is built, this filter is applied with the full sales data structure. You can modify totals, data_by_date, or other keys. The data warehouse then stores the returned value (keyed by entity name) for each of those entities.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/data-sources/WPDAI_Sales_Data_Source.php</code></p>
+<p><strong>Context:</strong> When returning sales data from the data source.</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$sales_data</td>
+        <td>array</td>
+        <td>Multi-entity array: entity name => data structure (e.g. orders => array(...), products => array(...))</td>
+    </tr>
+    <tr>
+        <td>$data_warehouse</td>
+        <td>WPDAI_Data_Warehouse</td>
+        <td>The data warehouse instance</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> array</p>
+<p>The (possibly modified) sales data structure (same multi-entity shape).</p>
+
+<h3>Example Usage</h3>
+
+<h4>Adjust orders totals</h4>
+
+<pre><code>add_filter( 'wpd_alpha_insights_data_source_sales', 'adjust_sales_orders_totals', 10, 2 );
+function adjust_sales_orders_totals( $sales_data, $data_warehouse ) {
+    if ( isset( $sales_data['orders']['totals'] ) && is_array( $sales_data['orders']['totals'] ) ) {
+        // Example: add a custom key
+        $sales_data['orders']['totals']['my_adjusted_revenue'] = $sales_data['orders']['totals']['total_order_revenue_ex_tax'] ?? 0;
+    }
+    return $sales_data;
+}</code></pre>
+
+<h3>Related</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/02-wpd_ai_calculate_cost_profit_by_order.html">wpd_ai_calculate_cost_profit_by_order</a> – Order profit calculation</li>
+    <li>Other data source filters: wpd_alpha_insights_data_source_store_profit, wpd_alpha_insights_data_source_refunds</li>
+</ul>

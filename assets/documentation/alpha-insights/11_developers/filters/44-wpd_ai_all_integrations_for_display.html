@@ -1,0 +1,67 @@
+<h2>Filter: wpd_ai_all_integrations_for_display</h2>
+
+<p>Filter the merged list of integrations used to render the integrations grid (metadata + instance per slug).</p>
+
+<h3>Description</h3>
+
+<p>The manager builds a single list for the UI by merging metadata (label, description, logo, category, url) with the registered instance (if any) for each slug. This filter receives that merged array so you can reorder, add, or remove entries before they are output as cards. Each item is <code>array( 'metadata' => array(...), 'instance' => WPDAI_Integration_Base|null )</code>.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/integrations/WPDAI_Integrations_Manager.php</code></p>
+<p><strong>Method:</strong> <code>get_all_integrations_for_display()</code></p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$merged</td>
+        <td>array</td>
+        <td>Associative array slug => array( 'metadata' => array, 'instance' => WPDAI_Integration_Base|null )</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> array</p>
+<p>The (possibly modified) merged array.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Sort integrations by label</h4>
+
+<pre><code>add_filter( 'wpd_ai_all_integrations_for_display', 'sort_integrations_by_label' );
+function sort_integrations_by_label( $merged ) {
+    uasort( $merged, function( $a, $b ) {
+        $la = isset( $a['metadata']['label'] ) ? $a['metadata']['label'] : '';
+        $lb = isset( $b['metadata']['label'] ) ? $b['metadata']['label'] : '';
+        return strcasecmp( $la, $lb );
+    } );
+    return $merged;
+}</code></pre>
+
+<h4>Remove Pro integrations for a specific role</h4>
+
+<pre><code>add_filter( 'wpd_ai_all_integrations_for_display', 'hide_pro_integrations_for_editor' );
+function hide_pro_integrations_for_editor( $merged ) {
+    if ( current_user_can( 'editor' ) ) {
+        foreach ( $merged as $slug => $data ) {
+            if ( ! empty( $data['metadata']['is_pro'] ) ) {
+                unset( $merged[ $slug ] );
+            }
+        }
+    }
+    return $merged;
+}</code></pre>
+
+<h3>Related</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/42-wpd_ai_registered_integrations.html">wpd_ai_registered_integrations</a> – Registered instances</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/43-wpd_ai_integration_metadata.html">wpd_ai_integration_metadata</a> – Metadata for cards</li>
+</ul>

@@ -39,7 +39,6 @@ table.display_meta.wpd-line-item-summary td {
     font-size: 13px;
 }
 table.display_meta.wpd-line-item-summary {
-    width: 100% !important;
     margin: 0px !important;
 }
 table.display_meta.wpd-line-item-summary th {
@@ -288,6 +287,72 @@ div#wpd-ai-dashboard-summary .wpd-license-inactive-button,
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+}
+
+/* Alpha Insights order dashboard – mobile friendly */
+@media screen and (max-width: 1600px) {
+    .wpd-order-dashboard {
+        grid-template-columns: 1fr 1fr;
+    }
+    /* Row 1: heading+content (col1), heading+content (col2); Row 2: same */
+    .wpd-order-dashboard > .wpd-order-title:nth-child(1) { grid-row: 1; grid-column: 1; }
+    .wpd-order-dashboard > .wpd-order-stats { grid-row: 2; grid-column: 1; }
+    .wpd-order-dashboard > .wpd-order-title:nth-child(2) { grid-row: 1; grid-column: 2; }
+    .wpd-order-dashboard > .wpd-order-cost-inputs { grid-row: 2; grid-column: 2; }
+    .wpd-order-dashboard > .wpd-order-title:nth-child(3) { grid-row: 3; grid-column: 1; }
+    .wpd-order-dashboard > .wpd-order-attribution { grid-row: 4; grid-column: 1; }
+    .wpd-order-dashboard > .wpd-order-title:nth-child(4) { grid-row: 3; grid-column: 2; }
+    .wpd-order-dashboard > .wpd-order-customer-activity { grid-row: 4; grid-column: 2; }
+    .wpd-order-dashboard > .wpd-grid-footer { grid-row: 5; grid-column: 1 / -1; }
+}
+@media screen and (max-width: 1024px) {
+    .wpd-order-dashboard {
+        grid-template-columns: 1fr;
+    }
+    /* Reset explicit placement from 1600px so order controls single-column flow */
+    .wpd-order-dashboard > * {
+        grid-row: auto !important;
+        grid-column: auto !important;
+    }
+    /* Pair each heading with its content (title, content, title, content…) */
+    .wpd-order-dashboard > .wpd-order-title:nth-child(1) { order: 1; }
+    .wpd-order-dashboard > .wpd-order-title:nth-child(2) { order: 3; }
+    .wpd-order-dashboard > .wpd-order-title:nth-child(3) { order: 5; }
+    .wpd-order-dashboard > .wpd-order-title:nth-child(4) { order: 7; }
+    .wpd-order-dashboard > .wpd-order-stats { order: 2; }
+    .wpd-order-dashboard > .wpd-order-cost-inputs { order: 4; }
+    .wpd-order-dashboard > .wpd-order-attribution { order: 6; }
+    .wpd-order-dashboard > .wpd-order-customer-activity { order: 8; }
+    .wpd-order-dashboard > .wpd-grid-footer { order: 9; }
+    .wpd-order-dashboard .wpd-stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    .wpd-order-dashboard .wpd-order-stat {
+        min-width: 0;
+    }
+    .wpd-order-dashboard .wpd-grid-2 {
+        grid-template-columns: 1fr;
+        row-gap: 6px;
+    }
+    .wpd-order-dashboard .wpd-grid-2 span:nth-child(odd) {
+        font-weight: 600;
+    }
+    .wpd-order-dashboard .wpd-grid-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+    }
+    .wpd-order-dashboard .wpd-grid-footer p {
+        float: none;
+        margin: 0;
+        text-align: center;
+    }
+    .wpd-order-dashboard .wpd-grid-footer .button {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 /* Third-level submenu styling for WordPress admin menu */

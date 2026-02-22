@@ -111,9 +111,9 @@
               "type": "metric_card",
               "config": {
                 "title": "Customer Refund Rate",
-                "metric": "customers.totals.customer_refund_rate",
+                "metric": "refunds.totals.customer_refund_rate",
                 "change_indicator": "previous_period",
-                "sub_value": "customers.totals.customers_with_refund",
+                "sub_value": "refunds.totals.total_customers_with_refund",
                 "width_desktop": 3,
                 "width_tablet": 6,
                 "width_mobile": 12,

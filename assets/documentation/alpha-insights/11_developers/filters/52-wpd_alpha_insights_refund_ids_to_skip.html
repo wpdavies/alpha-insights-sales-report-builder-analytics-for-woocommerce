@@ -1,0 +1,75 @@
+<h2>Filter: wpd_alpha_insights_refund_ids_to_skip</h2>
+
+<p>Specify refund IDs to exclude from the refunds data source. Refunds whose ID is in the returned array are skipped during processing.</p>
+
+<h3>Description</h3>
+
+<p>When building refunds data, the source loops over refund orders. For each refund it calls this filter; if the current refund ID is in the returned array, that refund is skipped. Use this to exclude test refunds, system-generated refunds, or refunds that should not affect reporting.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/data-sources/WPDAI_Refunds_Internal_Data_Source.php</code></p>
+<p><strong>Context:</strong> Inside the refund processing loop, before the refund is included in the data.</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$refund_ids_to_skip</td>
+        <td>array</td>
+        <td>Array of refund IDs to skip (default empty). Add the current refund ID or others to exclude them.</td>
+    </tr>
+    <tr>
+        <td>$refund</td>
+        <td>WC_Order_Refund</td>
+        <td>The current refund order object</td>
+    </tr>
+    <tr>
+        <td>$data_warehouse</td>
+        <td>WPDAI_Data_Warehouse</td>
+        <td>The data warehouse instance</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> array</p>
+<p>Array of refund IDs (integers) to skip. If <code>$refund->get_id()</code> is in this array, the refund is skipped.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Skip refunds from a specific gateway</h4>
+
+<pre><code>add_filter( 'wpd_alpha_insights_refund_ids_to_skip', 'skip_test_gateway_refunds', 10, 3 );
+function skip_test_gateway_refunds( $refund_ids_to_skip, $refund, $data_warehouse ) {
+    if ( is_a( $refund, 'WC_Order_Refund' ) ) {
+        $payment_method = $refund->get_payment_method();
+        if ( $payment_method === 'test_gateway' ) {
+            $refund_ids_to_skip[] = $refund->get_id();
+        }
+    }
+    return $refund_ids_to_skip;
+}</code></pre>
+
+<h4>Skip specific refund IDs from options</h4>
+
+<pre><code>add_filter( 'wpd_alpha_insights_refund_ids_to_skip', 'skip_configured_refund_ids', 10, 3 );
+function skip_configured_refund_ids( $refund_ids_to_skip, $refund, $data_warehouse ) {
+    $ids = get_option( 'my_excluded_refund_ids', array() );
+    if ( is_array( $ids ) ) {
+        $refund_ids_to_skip = array_merge( $refund_ids_to_skip, array_map( 'absint', $ids ) );
+    }
+    return $refund_ids_to_skip;
+}</code></pre>
+
+<h3>Related</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/51-wpd_alpha_insights_data_source_refunds.html">wpd_alpha_insights_data_source_refunds</a> – Filter refunds data</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/53-wpd_alpha_insights_skip_refunds_without_parent.html">wpd_alpha_insights_skip_refunds_without_parent</a> – Skip refunds without parent order</li>
+</ul>

@@ -13,11 +13,11 @@
  */
 defined( 'ABSPATH' ) || exit;
 
-class Inventory_Data_Source extends WPD_Alpha_Insights_Data_Source_Base {
+class Inventory_Data_Source extends WPDAI_Custom_Data_Source_Base {
     
-    protected $entity_name = 'inventory_tracking';
+    protected $entity_names = array( 'inventory_tracking' );
     
-    public function fetch_data( $filters, $data_warehouse = null ) {
+    public function fetch_data( WPDAI_Data_Warehouse $data_warehouse ) {
         // NOTE: execution_time and memory_usage are automatically tracked
         
         if ( ! $data_warehouse || ! method_exists( $data_warehouse, 'get_data_by_date_range_container' ) ) {
@@ -139,9 +139,9 @@ new Inventory_Data_Source();</code></pre>
  */
 defined( 'ABSPATH' ) || exit;
 
-class Third_Party_Analytics_Data_Source extends WPD_Alpha_Insights_Data_Source_Base {
+class Third_Party_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
     
-    protected $entity_name = 'third_party_analytics';
+    protected $entity_names = array( 'third_party_analytics' );
     
     private function fetch_from_api( $date_from, $date_to ) {
         $api_key = get_option( 'my_analytics_api_key' );
@@ -170,15 +170,12 @@ class Third_Party_Analytics_Data_Source extends WPD_Alpha_Insights_Data_Source_B
         return $data ? $data : array();
     }
     
-    public function fetch_data( $filters, $data_warehouse = null ) {
-        // NOTE: execution_time and memory_usage are automatically tracked
-        
-        if ( ! $data_warehouse || ! method_exists( $data_warehouse, 'get_data_by_date_range_container' ) ) {
+    public function fetch_data( WPDAI_Data_Warehouse $data_warehouse ) {
+        if ( ! method_exists( $data_warehouse, 'get_data_by_date_range_container' ) ) {
             return array(
                 'totals' => array(),
                 'data_by_date' => array(),
                 'total_db_records' => 0,
-                // execution_time and memory_usage are automatically added
             );
         }
         
@@ -193,7 +190,6 @@ class Third_Party_Analytics_Data_Source extends WPD_Alpha_Insights_Data_Source_B
                 'totals' => array(),
                 'data_by_date' => array(),
                 'total_db_records' => 0,
-                'execution_time' => microtime( true ) - $start_time,
             );
         }
         
@@ -228,7 +224,6 @@ class Third_Party_Analytics_Data_Source extends WPD_Alpha_Insights_Data_Source_B
             'totals' => $totals,
             'data_by_date' => $data_by_date,
             'total_db_records' => count( $api_data['daily_data'] ?? array() ),
-            'execution_time' => microtime( true ) - $start_time,
         );
     }
     
@@ -281,21 +276,18 @@ new Third_Party_Analytics_Data_Source();</code></pre>
  */
 defined( 'ABSPATH' ) || exit;
 
-class Complete_Custom_Data_Source extends WPD_Alpha_Insights_Data_Source_Base {
+class Complete_Custom_Data_Source extends WPDAI_Custom_Data_Source_Base {
     
-    protected $entity_name = 'complete_example';
+    protected $entity_names = array( 'complete_example' );
     
-    public function fetch_data( $filters, $data_warehouse = null ) {
-        $start_time = microtime( true );
-        
-        if ( ! $data_warehouse || ! method_exists( $data_warehouse, 'get_data_by_date_range_container' ) ) {
+    public function fetch_data( WPDAI_Data_Warehouse $data_warehouse ) {
+        if ( ! method_exists( $data_warehouse, 'get_data_by_date_range_container' ) ) {
             return array(
                 'totals' => array(),
                 'categorized_data' => array(),
                 'data_table' => array(),
                 'data_by_date' => array(),
                 'total_db_records' => 0,
-                'execution_time' => microtime( true ) - $start_time,
             );
         }
         
@@ -378,7 +370,6 @@ class Complete_Custom_Data_Source extends WPD_Alpha_Insights_Data_Source_Base {
             'data_table' => $data_table,
             'data_by_date' => $data_by_date,
             'total_db_records' => count( $results ),
-            'execution_time' => microtime( true ) - $start_time,
         );
     }
     
@@ -474,13 +465,7 @@ new Complete_Custom_Data_Source();</code></pre>
 
 <p>This example shows how to access and use data from other entities (like orders):</p>
 
-<pre><code>public function fetch_data( $filters, $data_warehouse = null ) {
-    // NOTE: execution_time and memory_usage are automatically tracked
-    
-    if ( ! $data_warehouse ) {
-        return array( /* empty */ );
-    }
-    
+<pre><code>public function fetch_data( WPDAI_Data_Warehouse $data_warehouse ) {
     // Access orders data if available
     $orders_totals = $data_warehouse->get_data( 'orders', 'totals' );
     
@@ -495,12 +480,10 @@ new Complete_Custom_Data_Source();</code></pre>
         $totals['custom_metric'] = $revenue * 0.15; // Example: 15% of revenue
     }
     
-    // Return data structure
-    // NOTE: execution_time and memory_usage are automatically tracked and added
+    // Return data structure (execution_time and memory_usage are added by the warehouse)
     return array(
         'totals' => $totals,
         'total_db_records' => 1,
-        // execution_time and memory_usage are automatically added
     );
 }</code></pre>
 
@@ -508,7 +491,7 @@ new Complete_Custom_Data_Source();</code></pre>
 
 <p>For a complete reference implementation with extensive comments, see the example file in the plugin:</p>
 
-<p><code>wp-content/plugins/wp-davies-alpha-insights/includes/reports/extensions/Example_Custom_Data_Source.php</code></p>
+<p><code>wp-content/plugins/wp-davies-alpha-insights/includes/classes/data-sources/WPDAI_Example_Custom_Data_Source.php</code></p>
 
 <p>This file includes:</p>
 <ul>

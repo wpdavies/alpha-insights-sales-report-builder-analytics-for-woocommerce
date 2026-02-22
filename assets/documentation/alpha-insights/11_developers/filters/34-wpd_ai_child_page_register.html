@@ -1,0 +1,68 @@
+<h2>Filter: wpd_ai_child_page_register</h2>
+
+<p>Register or modify child (sub) pages under the Alpha Insights admin menu.</p>
+
+<h3>Description</h3>
+
+<p>The admin menu builder collects child pages (submenu items) and sorts them by <code>menu_position</code>. This filter receives the array of child page definitions so you can add new subpages or change existing ones. Each child page must have at least <code>page_title</code>, <code>menu_title</code>, <code>menu_slug</code>, and <code>page_callback</code>.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPDAI_Admin_Menu.php</code></p>
+<p><strong>Context:</strong> When building the admin menu (before sorting and loading child pages).</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$child_pages</td>
+        <td>array</td>
+        <td>Array of child page arrays. Each item typically has <code>page_title</code>, <code>menu_title</code>, <code>menu_slug</code>, <code>page_callback</code>, and optionally <code>menu_position</code> (numeric; lower first).</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> array</p>
+<p>The (possibly modified) array of child page definitions.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Add a custom subpage</h4>
+
+<pre><code>add_filter( 'wpd_ai_child_page_register', 'add_my_alpha_child_page' );
+function add_my_alpha_child_page( $child_pages ) {
+    $child_pages[] = array(
+        'page_title'    => __( 'My Extension', 'alpha-insights-pro' ),
+        'menu_title'    => __( 'My Extension', 'alpha-insights-pro' ),
+        'menu_slug'     => 'alpha-insights-my-extension',
+        'page_callback' => 'my_extension_render_page',
+        'menu_position' => 50,
+    );
+    return $child_pages;
+}
+
+function my_extension_render_page() {
+    echo '&lt;p&gt;' . esc_html__( 'My custom page content.', 'alpha-insights-pro' ) . '&lt;/p&gt;';
+}</code></pre>
+
+<h4>Remove a built-in subpage</h4>
+
+<pre><code>add_filter( 'wpd_ai_child_page_register', 'remove_alpha_child_page' );
+function remove_alpha_child_page( $child_pages ) {
+    return array_filter( $child_pages, function( $page ) {
+        return ( isset( $page['menu_slug'] ) && $page['menu_slug'] !== 'page-to-remove' );
+    } );
+}</code></pre>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/11-wpd_alpha_insights_menu_items.html">wpd_alpha_insights_menu_items</a> – Modify menu items structure</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/10-wpd_alpha_insights_menu_html.html">wpd_alpha_insights_menu_html</a> – Modify menu HTML output</li>
+</ul>

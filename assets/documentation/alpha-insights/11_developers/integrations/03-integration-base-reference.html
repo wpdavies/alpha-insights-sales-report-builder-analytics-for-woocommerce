@@ -1,0 +1,63 @@
+<h2>Integration Base Class Reference</h2>
+
+<p><code>WPDAI_Integration_Base</code> is the abstract base class for all integrations. Your integration must extend it and implement every abstract method. The class is in <code>includes/integrations/WPDAI_Integration_Base.php</code>.</p>
+
+<h3>Abstract Methods (Required)</h3>
+
+<h4>get_slug()</h4>
+<p><strong>Returns:</strong> <code>string</code></p>
+<p>Unique identifier for the integration (e.g. <code>'webhooks'</code>, <code>'my-custom-integration'</code>). Used in URLs (<code>?integrations=slug</code>) and when registering with the manager. Use lowercase and hyphens.</p>
+
+<h4>get_label()</h4>
+<p><strong>Returns:</strong> <code>string</code></p>
+<p>Display name shown on the integration card and in the settings header. Should be translatable (e.g. <code>__( 'Webhooks', 'alpha-insights-pro' )</code>).</p>
+
+<h4>get_description()</h4>
+<p><strong>Returns:</strong> <code>string</code></p>
+<p>Short description for the card. Translatable.</p>
+
+<h4>is_pro()</h4>
+<p><strong>Returns:</strong> <code>bool</code></p>
+<p>Whether this integration is Pro-only. When <code>true</code> and the Pro version is not active, the card shows a Pro badge and clicking it shows an upsell instead of settings.</p>
+
+<h4>is_enabled()</h4>
+<p><strong>Returns:</strong> <code>bool</code></p>
+<p>Whether the integration is configured/active. Used to show an "Enabled" or "Disabled" badge on the card. Typically based on options (e.g. API key set, toggle on).</p>
+
+<h4>render_settings()</h4>
+<p><strong>Returns:</strong> <code>void</code></p>
+<p>Output the settings HTML for this integration. Rendered inside the main settings form when the user has selected this integration (<code>?integrations=slug</code>). Use the same table/card styles as built-in integrations (e.g. <code>class="wpd-table fixed widefat"</code>) and escape all output. Form fields should use <code>name</code> attributes that your <code>save_settings()</code> reads from <code>$_POST</code>.</p>
+
+<h4>save_settings( $saved )</h4>
+<p><strong>Parameters:</strong> <code>$saved</code> (array) – Associative array of "label" => success (bool) for each saved group. You add an entry and return the modified array.</p>
+<p><strong>Returns:</strong> <code>array</code> – The modified <code>$saved</code> array.</p>
+<p>Called via the <code>wpd_ai_save_settings</code> filter when the user saves the main settings page. Check for your <code>$_POST</code> keys, sanitize input, update options, and set e.g. <code>$saved['My Integration Name'] = update_option( 'my_option', $data );</code>, then return <code>$saved</code>.</p>
+
+<h3>Inherited Methods</h3>
+
+<h4>__construct()</h4>
+<p>Calls <code>setup_hooks()</code>. Do not override unless you call <code>parent::__construct()</code> and still run <code>setup_hooks()</code>.</p>
+
+<h4>setup_hooks()</h4>
+<p><strong>Returns:</strong> <code>void</code></p>
+<p>Registers the default filter: <code>add_filter( 'wpd_ai_save_settings', array( $this, 'save_settings' ), 10 );</code>. Override to add more hooks but call <code>parent::setup_hooks()</code> so save continues to work.</p>
+
+<h4>get_settings_url()</h4>
+<p><strong>Returns:</strong> <code>string</code></p>
+<p>URL to this integration's settings: adds <code>page</code>, <code>subpage=integrations</code>, and <code>integrations=&lt;slug&gt;</code> to <code>admin_url( 'admin.php' )</code>. Override if you need a different link.</p>
+
+<h3>Usage Notes</h3>
+
+<ul>
+<li>Require the base class before your class if it is not autoloaded: <code>require_once WPD_AI_PATH . 'includes/integrations/WPDAI_Integration_Base.php';</code></li>
+<li>Use the text domain <code>alpha-insights-pro</code> for translatable strings so they are consistent with the plugin.</li>
+<li>Built-in integrations (e.g. Webhooks, ShipStation) live in <code>includes/integrations/register/</code> and <code>register/pro/</code> and are auto-discovered by <code>load_and_register_from_directory()</code>; third-party integrations register on <code>wpd_ai_register_integrations</code>.</li>
+</ul>
+
+<h3>Related Documentation</h3>
+
+<ul>
+<li><strong>Creating a Custom Integration</strong> – Step-by-step implementation</li>
+<li><strong>Hooks and Registration</strong> – Registration hooks and <code>wpd_ai_save_settings</code></li>
+<li><strong>Integrations Overview</strong> – How the manager uses the base class</li>
+</ul>

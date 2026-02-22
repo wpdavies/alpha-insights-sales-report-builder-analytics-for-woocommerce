@@ -1,0 +1,56 @@
+<h2>Filter: wpd_alpha_insights_data_source_analytics</h2>
+
+<p>Filter the analytics entity data returned by the Analytics data source before it is stored in the data warehouse.</p>
+
+<h3>Description</h3>
+
+<p>After the analytics data source builds its data (events, sessions, totals, data_by_date, etc.), this filter is applied. You can modify metrics, add derived fields, or alter the structure. The data warehouse then stores the returned value for the <code>analytics</code> entity.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/data-sources/WPDAI_Analytics_Data_Source.php</code></p>
+<p><strong>Context:</strong> When returning analytics data from the data source.</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$analytics_data</td>
+        <td>array</td>
+        <td>Analytics data structure (totals, data_by_date, data_table, total_db_records, etc.)</td>
+    </tr>
+    <tr>
+        <td>$data_warehouse</td>
+        <td>WPDAI_Data_Warehouse</td>
+        <td>The data warehouse instance</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> array</p>
+<p>The (possibly modified) analytics data structure.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Inject a custom metric</h4>
+
+<pre><code>add_filter( 'wpd_alpha_insights_data_source_analytics', 'add_analytics_custom_metric', 10, 2 );
+function add_analytics_custom_metric( $analytics_data, $data_warehouse ) {
+    if ( isset( $analytics_data['totals'] ) && is_array( $analytics_data['totals'] ) ) {
+        $analytics_data['totals']['custom_events_count'] = 0; // Compute from your logic
+    }
+    return $analytics_data;
+}</code></pre>
+
+<h3>Related</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/20-wpd_ai_analytics_data_fetch_batch_size.html">wpd_ai_analytics_data_fetch_batch_size</a> – Analytics batch size</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/18-wpd_ai_session_data_chunk_size.html">wpd_ai_session_data_chunk_size</a> – Session chunk size</li>
+</ul>
