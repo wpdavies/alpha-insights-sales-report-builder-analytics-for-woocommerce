@@ -179,6 +179,7 @@ Default WooCommerce reports focus primarily on revenue. Alpha Insights adds cost
 
 = 1.2.0 =
 * Fixed a few broken docs links
+* Cleaned up integrations page & got rid of undefined array error on webhooks page
 * Added about us page
 * Implemented reviews system
 
