@@ -3,11 +3,11 @@
  *
  * Plugin Name:         Alpha Insights - Profit Intelligence & Analytics for WooCommerce
  * Plugin URI:          https://wpdavies.dev/plugins/alpha-insights/
- * Description:         Track your store's profit & loss, cost of goods, expenses & website traffic. Build custom WooCommerce reports using our advanced drag & drop report builder. <a href="https://wpdavies.dev/plugins/alpha-insights/pricing/?utm_source=Alpha+Insights+Plugin&utm_campaign=Alpha+Insights+Plugin+Description+Upgrade+to+Pro+Link&utm_medium=plugin_description&utm_content=upgrade_to_pro_link" target="_blank">Upgrade to Pro</a> for additional features.
+ * Description:         Track your store's profit & loss, cost of goods, expenses & website traffic. Build custom WooCommerce reports using our advanced drag & drop report builder. <a href="https://wpdavies.dev/plugins/alpha-insights/pricing/?utm_source=Alpha+Insights+Plugin&utm_campaign=Alpha+Insights+Plugin+Description+Upgrade+to+Pro+Link&utm_medium=plugin_description&utm_content=upgrade_to_pro_link" target="_blank">Upgrade to Pro</a> to unlock advanced insights and integrations.
  * Author:              WP Davies
  * Author URI:          https://wpdavies.dev/
  *
- * Version:             	1.2.0
+ * Version:             	1.3.0
  * Requires at least:   	5.0
  * Tested up to:        	6.9
  * Requires PHP: 			7.4
@@ -146,7 +146,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 		if ( ! defined('WPD_AI_PRO') ) define( 'WPD_AI_PRO', false );
 
 		// Alpha Insights Meta
-		if ( ! defined('WPD_AI_VER') ) define( 'WPD_AI_VER', '1.2.0' );
+		if ( ! defined('WPD_AI_VER') ) define( 'WPD_AI_VER', '1.3.0' );
 		if ( ! defined('WPD_AI_CACHE_VERSION') ) define( 'WPD_AI_CACHE_VERSION', '5.4.9' ); // Follows along pro versioning
 		if ( ! defined('WPD_AI_CACHE_UPDATE_REQUIRED_VER') ) define( 'WPD_AI_CACHE_UPDATE_REQUIRED_VER', '4.7.10' ); // version this up as cache deletes are required
 		if ( ! defined('WPD_AI_DB_VERSION') ) define( 'WPD_AI_DB_VERSION', '5.2.1' );
@@ -789,6 +789,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-subscription-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/emails/wpd-email-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-custom-cost-functions.php' );
+		require_once( WPD_AI_PATH . 'includes/functions/wpd-pro-upsell-functions.php' );
 		
 		// Admin
 		require_once( WPD_AI_PATH . 'includes/admin/wpd-admin-page-content.php');

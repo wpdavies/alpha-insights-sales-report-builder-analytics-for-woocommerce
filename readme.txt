@@ -1,10 +1,10 @@
-=== Alpha Insights - Sales Report Builder & Analytics For WooCommerce ===
+=== Alpha Insights - Profit Intelligence & Analytics for WooCommerce ===
 Contributors: wpdavies
 Tags: woocommerce reporting, woocommerce analytics, woocommerce profit, woocommerce cost of goods, woocommerce sales reports
 Requires at least: 5.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 Requires Plugins: woocommerce
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -176,6 +176,10 @@ Default WooCommerce reports focus primarily on revenue. Alpha Insights adds cost
 ---
 
 == Changelog ==
+
+= 1.3.0 =
+* Cleanup a few more broken links
+* Implement pro menu items with pro feature list for visibility
 
 = 1.2.0 =
 * Fixed a few broken docs links
