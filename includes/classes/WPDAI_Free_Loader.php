@@ -59,6 +59,7 @@ class WPDAI_Free_Loader {
     private function __construct() {
 
         add_filter('wpd_alpha_insights_menu_items', array($this, 'filter_wpd_alpha_insights_menu_items'));
+        add_action('admin_footer', array($this, 'maybe_render_upgrade_modal_popup'), 25);
 
     }
 
@@ -104,11 +105,114 @@ class WPDAI_Free_Loader {
             'target' => '_blank',
             'icon' => 'dashicons-star-filled',
             'position' => 100,
-            'additional_classes' => array('wpd-trigger-upgrade-modal'),
+            'additional_classes' => array(),
+        );
+
+        // Add Pro Menu Items just for visibility
+        // Advertising
+        $menu_items[WPDAI_Admin_Menu::$advertising_slug] = array(
+            'title' => __( 'Advertising', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+            'url'   => '#na',
+            'icon'  => null,
+            'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
+            'menu_order' => 65,
+            'children' => array(
+                'facebook_report' => array(
+                    'title' => __( 'Facebook Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                    'url'   => '#pro-feature',
+                    'icon'  => null,
+                    'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
+                ),
+                'facebook_expenses' => array(
+                    'title' => __( 'Facebook Expenses', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                    'url'   => '#pro-feature',
+                    'icon'  => null,
+                    'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
+                ),
+                'facebook_settings' => array(
+                    'title' => __( 'Facebook Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                    'url'   => '#pro-feature',
+                    'icon'  => null,
+                    'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
+                ),
+                'google_ads_report' => array(
+                    'title' => __( 'Google Ads Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                    'url'   => '#pro-feature',
+                    'icon'  => null,
+                    'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
+                ),
+                'google_ads_expenses' => array(
+                    'title' => __( 'Google Ads Expenses', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                    'url'   => '#pro-feature',
+                    'icon'  => null,
+                    'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
+                ),
+                'google_ads_settings' => array(
+                    'title' => __( 'Google Ads Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                    'url'   => '#pro-feature',
+                    'icon'  => null,
+                    'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
+                ),
+            )
+        );
+
+        
+        // Manage Expenses
+        $menu_items[WPDAI_Admin_Menu::$manage_expenses_slug] = array(
+            'title' => __( 'Expense Manager', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+            'url'   => '#pro-feature',
+            'icon'  => null,
+            'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
+            'menu_order' => 66,
+            'children' => array(
+                'dashboard' => array(
+                    'title' => __( 'Dashboard', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                    'url'   => '#pro-feature',
+                    'icon'  => null,
+                    'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
+                ),
+                'report' => array(
+                    'title' => __( 'Expense Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                    'url'   => '#pro-feature',
+                    'icon'  => null,
+                    'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
+                ),
+                'manage_all_expenses' => array(
+                    'title' => __( 'Manage All Expenses', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                    'url'   => '#pro-feature',
+                    'icon'  => null,
+                    'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
+                ),
+                'manage_expense_taxonomies' => array(
+                    'title' => __( 'Categories & Suppliers', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                    'url'   => '#pro-feature',
+                    'icon'  => null,
+                    'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
+                ),
+                'bulk_import_expenses' => array(
+                    'title' => __( 'Bulk Create Expenses', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                    'url'   => '#pro-feature',
+                    'icon'  => null,
+                    'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
+                ),
+            )
         );
 
         // Return filtered results
         return $menu_items;
+    }
+
+    /**
+     * Output the pro upgrade modal as a popup in the footer (free version only).
+     * Modal is shown when user clicks any .wpd-trigger-upgrade-modal link (Advertising / Expense Manager menu items).
+     */
+    public function maybe_render_upgrade_modal_popup() {
+        if ( ! is_wpdai_page() ) {
+            return;
+        }
+        if ( function_exists( 'wpdai_render_pro_upsell_modal_popup' ) ) {
+            wpdai_render_pro_upsell_modal_popup();
+        }
     }
 
 }
