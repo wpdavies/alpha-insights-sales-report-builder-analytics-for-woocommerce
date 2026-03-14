@@ -1,196 +1,62 @@
-﻿<h2>Setting Up Webhooks</h2>
-<p>Webhooks allow Alpha Insights to send real-time profit data to other apps and services like Zapier, Make (Integromat), Slack, or custom applications. This guide covers webhook setup and configuration.</p>
-<h3>What Are Webhooks?</h3>
-<p>Webhooks are automated messages sent from Alpha Insights when events occur, like:</p>
+<h2>Setting Up Webhooks</h2>
+<p>Webhooks let Alpha Insights send your profit, sales, and expense data to an external URL on a schedule. You configure a single endpoint and choose how often to send: daily, weekly, or monthly. The payload is a JSON object containing date-bounded summaries and (optionally) full order and expense rows for the period.</p>
+
+<h3>How Alpha Insights Webhooks Work</h3>
+<p>Webhooks are <strong>scheduled exports</strong>, not real-time event notifications:</p>
 <ul>
-<li>New order with profit calculation complete</li>
-<li>Daily profit summary calculated</li>
-<li>Low profit alert triggered</li>
-<li>Campaign ROAS threshold reached</li>
-</ul>
-<p>These messages can trigger actions in other apps automatically.</p>
-<h4>Webhook Use Cases</h4>
-<h3>Slack Notifications</h3>
-<p>Get instant Slack messages when:</p>
+<li>You set one <strong>Webhook URL</strong> and one <strong>Schedule</strong> (Daily, Weekly, or Monthly).</li>
+<li>A recurring job runs at roughly <strong>1am in your site’s local time</strong> each day. Whether it actually sends depends on the schedule:</li>
 <ul>
-<li>Daily profit exceeds target</li>
-<li>Order with negative profit occurs</li>
-<li>Campaign ROAS drops below threshold</li>
+<li><strong>Daily</strong> – Every run sends data for <strong>yesterday</strong> (one day).</li>
+<li><strong>Weekly</strong> – Only on <strong>Mondays</strong>; sends data for <strong>last week</strong> (Monday–Sunday).</li>
+<li><strong>Monthly</strong> – Only on the <strong>1st of the month</strong>; sends data for <strong>last month</strong>.</li>
 </ul>
-<h4>Zapier Automation</h4>
-<ul>
-<li>Add high-value customers to CRM</li>
-<li>Create Google Sheets row for each order with profit data</li>
-<li>Send SMS for low-profit alerts</li>
-<li>Add to Airtable database</li>
+<li>Each run sends a single <strong>HTTP POST</strong> with a JSON body to your URL. The same payload structure is used every time; only the <code>date_from</code> and <code>date_to</code> (and the data inside) change for the selected period.</li>
 </ul>
-<h3>Make (Integromat) Workflows</h3>
-<ul>
-<li>Complex multi-step automations</li>
-<li>Data transformation and routing</li>
-<li>Conditional logic based on profit thresholds</li>
-</ul>
-<h4>Custom Applications</h4>
-<ul>
-<li>Send data to your own app or dashboard</li>
-<li>Integrate with internal tools</li>
-<li>Build custom reporting systems</li>
-</ul>
-<h3>Creating a Webhook</h3>
-<h4>Step 1: Access Webhook Settings</h4>
+<p>There are no per-order or per-event webhooks (e.g. no “order created” or “low profit alert” triggers). Everything is batch by date range.</p>
+
+<h3>Where to Configure</h3>
 <ol>
-<li>Go to <strong>Alpha Insights → Settings</strong>
-</li>
-<li>Click the <strong>Webhooks</strong> tab</li>
-<li>Click <strong>Add New Webhook</strong>
-</li>
+<li>Go to <strong>Alpha Insights → Settings</strong>.</li>
+<li>Open the <strong>Integrations</strong> tab and find the <strong>Webhooks</strong> section.</li>
+<li>Enter your <strong>Webhook URL</strong> (the endpoint that will receive the POST).</li>
+<li>Choose <strong>Schedule Webhook Export</strong>: Don’t Schedule Export, Daily, Weekly, or Monthly.</li>
+<li>Optionally enable <strong>Enable Logging</strong> to log webhook runs and responses for debugging.</li>
+<li>Click <strong>Save</strong>. If a schedule is selected, the next run will occur at the next 1am (and then only on the correct day for weekly/monthly).</li>
 </ol>
-<h4>Step 2: Configure Webhook</h4>
-<p>
-<strong>Webhook Name:</strong> Descriptive name (e.g., "Slack Daily Profit Alert")
-</p>
-<p>
-<strong>Webhook URL:</strong> The endpoint that will receive the data
-</p>
+
+<h3>Test Webhook</h3>
+<p>The <strong>Test Webhook</strong> button sends one immediate POST to your URL with the same JSON structure as the scheduled export. For the test, no date range is passed to the data warehouse, so the payload uses the warehouse’s default date range (typically a recent period up to “today”). The response from your endpoint is shown in the browser (e.g. success flag and response code). Use this to confirm the URL is reachable and that your endpoint accepts the payload.</p>
+
+<h3>Payload Structure</h3>
+<p>Every webhook request is:</p>
 <ul>
-<li>From Zapier: Copy the webhook URL from your Zapier trigger</li>
-<li>From Make: Copy webhook URL from HTTP module</li>
-<li>From Slack: Create incoming webhook in Slack settings</li>
-<li>Custom: Your API endpoint URL</li>
+<li><strong>Method:</strong> POST</li>
+<li><strong>Headers:</strong> <code>Content-Type: application/json; charset=utf-8</code></li>
+<li><strong>Body:</strong> A JSON object with the following top-level keys.</li>
 </ul>
-<p>
-<strong>Events to Trigger:</strong> Select when webhook fires
-</p>
+
+<h4>Top-level keys</h4>
 <ul>
-<li>Order Created (with profit data)</li>
-<li>Daily Summary Complete</li>
-<li>Weekly Summary Complete</li>
-<li>Low Profit Alert</li>
-<li>Goal Achievement</li>
-<li>Campaign ROAS Alert</li>
+<li><code>date_from</code> – Start of the period (Y-m-d).</li>
+<li><code>date_to</code> – End of the period (Y-m-d).</li>
+<li><code>sales_data_summary</code> – Order totals for the period (same structure as the “orders” totals from the data warehouse). Includes keys such as <code>total_order_count</code>, <code>total_order_revenue</code>, <code>total_order_revenue_ex_tax</code>, <code>total_order_cost</code>, <code>total_order_profit</code>, <code>average_order_value</code>, <code>average_order_margin</code>, <code>total_freight_recovery</code>, <code>total_freight_cost</code>, <code>total_payment_gateway_costs</code>, and other order metrics.</li>
+<li><code>expense_data_summary</code> – Expense totals for the period. Includes <code>total_amount</code>, <code>total_amount_paid</code>, <code>average_expenses_per_day</code>, and related expense metrics.</li>
+<li><code>store_profit_summary</code> – Store profit for the period (order profit minus expenses). Includes <code>total_store_profit</code>, <code>average_store_margin</code>, <code>daily_average_store_profit</code>, and related fields.</li>
+<li><code>orders</code> – An object keyed by order ID. Each value is one order’s data for the period: revenue, cost, profit, margin, date, status, payment gateway, shipping, product/cost breakdown, etc. The webhook uses <code>data_table_limit</code> with no limit for orders and expenses, so all orders in the range are included.</li>
+<li><code>expenses</code> – An array of expense rows for the period. Each row includes fields such as <code>title</code>, <code>date_created</code>, <code>date_paid</code>, <code>amount_paid</code>, <code>expense_type</code>, <code>recurring_expense</code>, <code>is_paid</code>, and related metadata.</li>
 </ul>
-<p>
-<strong>Data Format:</strong>
-</p>
+<p>Exact keys and nesting may vary with your data warehouse and report builder; the structure above matches what the webhook code sends. You can inspect the <strong>Webhook Test Data Output</strong> on the same settings page to see a live example for your site.</p>
+
+<h3>After Saving</h3>
 <ul>
-<li>JSON (recommended)</li>
-<li>Form Data</li>
-<li>XML</li>
+<li><strong>Next Scheduled Sync</strong> – Shown on the settings page when a schedule is set; indicates when the next webhook run is due.</li>
+<li><strong>Last successful webhook</strong> – Stored and displayed after a run returns a 200 response; useful to confirm the schedule is firing and the endpoint is responding.</li>
 </ul>
-<h4>Step 3: Authentication (Optional)</h4>
-<p>If your endpoint requires authentication:</p>
+
+<h3>Troubleshooting</h3>
 <ul>
-<li>
-<strong>Basic Auth:</strong> Username and password
-</li>
-<li>
-<strong>Bearer Token:</strong> API key or token
-</li>
-<li>
-<strong>Custom Headers:</strong> Add custom authentication headers
-</li>
+<li><strong>Webhook never runs</strong> – Ensure a schedule other than “Don’t Schedule Export” is saved. The job runs at ~1am site time; for Weekly only Mondays send; for Monthly only the 1st sends. Check that Action Scheduler (or your cron) is running.</li>
+<li><strong>URL not receiving data</strong> – Verify the URL is correct and reachable from the server (no typo, HTTPS if required). Use “Test Webhook” and check the response. Enable logging and review the webhook log for errors or non-200 responses.</li>
+<li><strong>Endpoint returns an error</strong> – Your endpoint should respond quickly (e.g. within a few seconds) and return HTTP 200 on success. Non-200 responses are logged; the last successful run time is only updated when the response is 200.</li>
 </ul>
-<h4>Step 4: Test Webhook</h4>
-<ol>
-<li>Click <strong>Test Webhook</strong>
-</li>
-<li>Sample payload is sent to your URL</li>
-<li>Check that data is received correctly</li>
-<li>View response code (200 = success)</li>
-</ol>
-<h4>Step 5: Save Webhook</h4>
-<ol>
-<li>Click <strong>Save Webhook</strong>
-</li>
-<li>Webhook is now active</li>
-</ol>
-<h3>Webhook Payload Structure</h3>
-<h3>Order Created Event</h3>
-<pre>
-	<code>{ "event": "order_created", "timestamp": "2024-01-15T14:30:00Z", "order": { "id": 12345, "date": "2024-01-15", "total": 125.00, "cost": 65.50, "profit": 59.50, "margin": 47.6, "customer": { "name": "John Smith", "email": "john@example.com" }, "items": [ { "name": "Blue T-Shirt", "quantity": 2, "price": 25.00, "cost": 12.00, "profit": 13.00 } ], "traffic_source": "facebook", "campaign": "spring_sale" } }</code>
-</pre>
-<h4>Daily Summary Event</h4>
-<pre>
-	<code>{ "event": "daily_summary", "date": "2024-01-15", "metrics": { "revenue": 2450.00, "profit": 892.00, "margin": 36.4, "orders": 23, "ad_spend": 350.00, "roas": 7.0 }, "comparison": { "revenue_change": 15.2, "profit_change": 12.8 } }</code>
-</pre>
-<h3>Popular Integrations</h3>
-<h3>Zapier Integration</h3>
-<p>
-<strong>Setup:</strong>
-</p>
-<ol>
-<li>In Zapier, create new Zap</li>
-<li>Choose "Webhooks by Zapier" as trigger</li>
-<li>Select "Catch Hook"</li>
-<li>Copy the webhook URL</li>
-<li>In Alpha Insights, create webhook with this URL</li>
-<li>Test to send sample data</li>
-<li>In Zapier, continue building your workflow</li>
-</ol>
-<p>
-<strong>Example Zaps:</strong>
-</p>
-<ul>
-<li>New Order → Add row to Google Sheets</li>
-<li>Low Profit Alert → Send email notification</li>
-<li>Daily Summary → Post to Slack channel</li>
-</ul>
-<h3>Make (Integromat)</h3>
-<ol>
-<li>Create new scenario in Make</li>
-<li>Add "Webhooks" module as trigger</li>
-<li>Select "Custom webhook"</li>
-<li>Copy webhook URL</li>
-<li>Add to Alpha Insights webhooks</li>
-<li>Build your automation workflow</li>
-</ol>
-<h3>Slack</h3>
-<ol>
-<li>Go to Slack → Apps → Incoming Webhooks</li>
-<li>Create new webhook, select channel</li>
-<li>Copy webhook URL</li>
-<li>In Alpha Insights, add webhook with Slack URL</li>
-<li>Format: Select "Slack" from templates</li>
-</ol>
-<h4>Webhook Security</h4>
-<h3>Verifying Webhook Source</h3>
-<p>Alpha Insights includes signature in headers:</p>
-<pre>
-	<code>X-AlphaInsights-Signature: sha256=abc123...</code>
-</pre>
-<p>Use this to verify webhook came from Alpha Insights, not malicious source</p>
-<h3>Best Practices</h3>
-<ul>
-<li>Use HTTPS URLs only (not HTTP)</li>
-<li>Enable authentication when possible</li>
-<li>Validate signature in your endpoint</li>
-<li>Rate limit your endpoint to prevent abuse</li>
-<li>Store webhook secrets securely</li>
-</ul>
-<h4>Troubleshooting</h4>
-<h3>Webhook Not Firing</h3>
-<p>
-<strong>Check:</strong>
-</p>
-<ul>
-<li>Webhook is enabled (not paused)</li>
-<li>Event has actually occurred</li>
-<li>View webhook logs for error messages</li>
-</ul>
-<h3>Data Not Received</h3>
-<p>
-<strong>Check:</strong>
-</p>
-<ul>
-<li>URL is correct (no typos)</li>
-<li>Your endpoint is publicly accessible</li>
-<li>No firewall blocking Alpha Insights' IP</li>
-<li>Endpoint returns 200 status code</li>
-</ul>
-<h4>Webhook Timing Out</h4>
-<p>
-<strong>Issue:</strong> Endpoint takes >30 seconds to respond
-</p>
-<p>
-<strong>Solution:</strong> Make endpoint respond quickly (within 5 seconds)
-</p>

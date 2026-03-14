@@ -4,7 +4,7 @@ Tags: woocommerce reporting, woocommerce analytics, woocommerce profit, woocomme
 Requires at least: 5.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.3.0
+Stable tag: 1.4.0
 Requires Plugins: woocommerce
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -176,6 +176,11 @@ Default WooCommerce reports focus primarily on revenue. Alpha Insights adds cost
 ---
 
 == Changelog ==
+
+= 1.4.0 =
+* Implement integration with PPOM For WooCommerce - add cost inputs to track costs for product add ons
+* Fix order calculator considering "free" orders as refunded, therefore implementing the refund cost rules where it shouldn't
+* Update various docs in the docs helper
 
 = 1.3.0 =
 * Cleanup a few more broken links

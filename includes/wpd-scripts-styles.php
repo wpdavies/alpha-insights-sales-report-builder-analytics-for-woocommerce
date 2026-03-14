@@ -126,6 +126,13 @@ function wpdai_admin_enqueue() {
 	if ( is_wpdai_page() && isset( $_GET['page'] ) && isset( $_GET['subpage'] ) && sanitize_text_field( wp_unslash( $_GET['page'] ) ) === WPDAI_Admin_Menu::$settings_slug && sanitize_text_field( wp_unslash( $_GET['subpage'] ) ) === 'integrations' ) {
 		wp_enqueue_script( 'wpd-integrations-filter' );
 	}
+
+	// Media library for Whitelabel Report Logo on general settings
+	$settings_page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+	$settings_sub  = isset( $_GET['subpage'] ) ? sanitize_text_field( wp_unslash( $_GET['subpage'] ) ) : '';
+	if ( is_wpdai_page() && $settings_page === WPDAI_Admin_Menu::$settings_slug && ( $settings_sub === 'general-settings' || $settings_sub === '' ) ) {
+		wp_enqueue_media();
+	}
 	wp_enqueue_script( 'wpd-easy-select' );
 
 	$prevent_notices = get_option( 'wpd_ai_prevent_wp_notices' );

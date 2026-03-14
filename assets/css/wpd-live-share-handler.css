@@ -167,6 +167,11 @@ body.live-share-report {
 .live-share-content {
 	width: 100%;
 	box-sizing: border-box;
+	overflow-y: unset !important;
+}
+
+.dashboard-column.empty-column {
+	display: none !important;
 }
 
 .live-share-header-brand-name {
@@ -198,6 +203,12 @@ body.live-share-report {
 .live-share-header-brand-logo {
 	width: 50px;
 	height: 50px;
+	object-fit: contain;
+}
+
+.live-share-header-brand-logo .live-share-logo-img,
+.live-share-header-brand-logo img {
+	border-radius: 6px;
 	object-fit: contain;
 }
 

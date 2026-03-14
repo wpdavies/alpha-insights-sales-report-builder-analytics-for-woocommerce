@@ -492,6 +492,7 @@ class WPDAI_Integrations_Manager {
 					</div>
 				</div>
 			</div>
+			<?php WPDAI_Native_Support_Plugins::output_section(); ?>
 			<?php endif; ?>
 
 			<?php if ( $current_slug === 'pro-integration' ) : ?>

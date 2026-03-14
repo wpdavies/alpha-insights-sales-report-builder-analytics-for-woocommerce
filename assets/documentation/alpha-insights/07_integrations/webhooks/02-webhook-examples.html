@@ -1,124 +1,105 @@
-﻿<h2>Webhook Integration Examples</h2>
-<p>Practical examples of webhook integrations with popular platforms. Copy these setups to automate your profit tracking workflows.</p>
-<h4>Example 1: Slack Daily Summary</h4>
-<p>
-<strong>Goal:</strong> Post daily profit summary to Slack channel every morning
-</p>
-<p>
-<strong>Setup:</strong>
-</p>
-<ol>
-<li>In Slack, create incoming webhook for #analytics channel</li>
-<li>
+<h2>Webhook Examples and Payload Reference</h2>
+<p>Alpha Insights webhooks send one JSON payload per run. The run is scheduled (daily, weekly, or monthly at ~1am) and always uses the same structure; only the date range and data change. Below is a simplified payload example and practical ways to use it with Zapier, Make, Slack, or your own endpoint.</p>
+
+<h3>Example Payload (structure)</h3>
+<p>The body is a single JSON object. This example shows the top-level shape and representative fields. Your actual payload will include more metrics and full order/expense rows.</p>
+<pre><code>{
+  "date_from": "2024-01-01",
+  "date_to": "2024-01-31",
+  "sales_data_summary": {
+    "total_order_count": 142,
+    "total_order_revenue": 28450.00,
+    "total_order_revenue_ex_tax": 25863.64,
+    "total_order_cost": 11200.00,
+    "total_order_profit": 14663.64,
+    "average_order_value": 200.35,
+    "average_order_margin": 56.67,
+    "total_freight_recovery": 1200.00,
+    "total_freight_cost": 800.00,
+    "total_payment_gateway_costs": 450.00
+  },
+  "expense_data_summary": {
+    "total_amount": 3200.00,
+    "total_amount_paid": 3000.00,
+    "average_expenses_per_day": 103.23
+  },
+  "store_profit_summary": {
+    "total_store_profit": 11463.64,
+    "average_store_margin": 44.28,
+    "daily_average_store_profit": 369.79
+  },
+  "orders": {
+    "12345": {
+      "order_id": 12345,
+      "date_created": 1704067200,
+      "total_order_revenue": 199.00,
+      "total_order_cost": 85.00,
+      "total_order_profit": 114.00,
+      "order_status": "wc-completed",
+      "payment_gateway": "stripe",
+      "billing_email": "customer@example.com"
+    }
+  },
+  "expenses": [
+    {
+      "title": "Office supplies",
+      "date_created": "2024-01-15",
+      "date_paid": "2024-01-20",
+      "amount_paid": 150.00,
+      "expense_type": "General",
+      "recurring_expense": 0,
+      "is_paid": 1
+    }
+  ]
+}</code></pre>
+<p><code>sales_data_summary</code>, <code>expense_data_summary</code>, and <code>store_profit_summary</code> are the same totals you see in Alpha Insights reports for that date range. <code>orders</code> is an object keyed by order ID; <code>expenses</code> is an array of expense records. Field names and nesting match the data warehouse; use the “Webhook Test Data Output” on the webhook settings page to see the exact structure for your store.</p>
+
+<h3>When the Webhook Fires</h3>
 <ul>
-<li>Event: Daily Summary Complete</li>
-<li>URL: Your Slack webhook URL</li>
-<li>Format: Slack</li>
+<li><strong>Daily</strong> – Every day at ~1am. <code>date_from</code> and <code>date_to</code> are both <strong>yesterday</strong>.</li>
+<li><strong>Weekly</strong> – Only on <strong>Mondays</strong> at ~1am. <code>date_from</code> is Monday of last week, <code>date_to</code> is Sunday of last week.</li>
+<li><strong>Monthly</strong> – Only on the <strong>1st</strong> at ~1am. <code>date_from</code> is the first day of last month, <code>date_to</code> is the last day of last month.</li>
 </ul>
-</li>
-<li>Save and enable</li>
-</ol>
-<p>
-<strong>Result:</strong> Message like "ðŸ“Š Yesterday's Performance: $2,450 revenue, $892 profit (36.4% margin), 23 orders"
-</p>
-<h4>Example 2: Google Sheets Order Log</h4>
-<p>
-<strong>Goal:</strong> Add row to spreadsheet for every order with profit data
-</p>
-<p>
-<strong>Via Zapier:</strong>
-</p>
+<p>There are no per-order or per-event webhooks; every run is a batch for the chosen period.</p>
+
+<h3>Example 1: Zapier – Weekly summary to Google Sheets</h3>
+<p><strong>Goal:</strong> Add one row per week with store profit and order totals.</p>
 <ol>
-<li>Trigger: Webhooks by Zapier → Catch Hook</li>
-<li>Action: Google Sheets → Create Spreadsheet Row</li>
-<li>
+<li>In Zapier, create a Zap. Trigger: <strong>Webhooks by Zapier</strong> → <strong>Catch Hook</strong>. Copy the webhook URL.</li>
+<li>In Alpha Insights, set that URL as the Webhook URL and choose <strong>Weekly</strong> schedule. Save.</li>
+<li>Each Monday, Zapier receives the JSON. In the Zap, add <strong>Google Sheets</strong> → <strong>Create Spreadsheet Row</strong>.</li>
+<li>Map fields from the payload, e.g. <code>date_from</code>, <code>date_to</code>, <code>store_profit_summary.total_store_profit</code>, <code>sales_data_summary.total_order_count</code>, <code>sales_data_summary.total_order_revenue</code>, <code>sales_data_summary.total_order_profit</code>.</li>
+</ol>
+
+<h3>Example 2: Make (Integromat) – Daily digest to Slack</h3>
+<p><strong>Goal:</strong> Post a short daily summary to a Slack channel.</p>
+<ol>
+<li>In Make, create a scenario. Add <strong>Webhooks</strong> → <strong>Custom webhook</strong>. Copy the URL.</li>
+<li>In Alpha Insights, set that URL and choose <strong>Daily</strong> schedule. Save.</li>
+<li>In Make, add <strong>Slack</strong> → <strong>Create a Message</strong>. Build the message from the webhook body, e.g. “Yesterday: {{sales_data_summary.total_order_count}} orders, {{sales_data_summary.total_order_revenue}} revenue, {{store_profit_summary.total_store_profit}} store profit.”</li>
+</ol>
+
+<h3>Example 3: Custom endpoint – Monthly archive</h3>
+<p><strong>Goal:</strong> Send last month’s full order and expense data to your own API for archiving or BI.</p>
+<ol>
+<li>Set your API URL in Alpha Insights and choose <strong>Monthly</strong> schedule. Save.</li>
+<li>On the 1st at ~1am, your endpoint receives the full JSON: <code>orders</code> (all orders in the range), <code>expenses</code>, and the three summaries.</li>
+<li>Your server responds with HTTP 200 after storing or processing the payload. Non-200 responses are logged; 200 updates “last successful webhook” in Alpha Insights.</li>
+</ol>
+
+<h3>Example 4: Zapier – Per-order rows (from batch payload)</h3>
+<p><strong>Goal:</strong> Add a row to a sheet (or CRM) for each order in the webhook payload.</p>
+<p>The webhook does not fire once per order; it fires once per schedule with an <code>orders</code> object. In Zapier, after the webhook trigger:</p>
+<ol>
+<li>Use a <strong>Formatter</strong> or <strong>Code</strong> step to convert <code>orders</code> into an array of order objects (e.g. iterate over the object keys and use each order as an item).</li>
+<li>Use <strong>Google Sheets</strong> (or another app) with “Create row” in a loop over that array, mapping <code>order_id</code>, <code>total_order_revenue</code>, <code>total_order_profit</code>, <code>billing_email</code>, etc.</li>
+</ol>
+<p>For a <strong>Daily</strong> webhook, that gives you one run per day with all of yesterday’s orders; you then loop and create one row per order.</p>
+
+<h3>Best practices</h3>
 <ul>
-<li>Order ID → A column</li>
-<li>Date → B column</li>
-<li>Revenue → C column</li>
-<li>Profit → D column</li>
-<li>Margin → E column</li>
-</ul>
-</li>
-</ol>
-<h4>Example 3: Low Profit Alert Email</h4>
-<p>
-<strong>Goal:</strong> Send email when order has negative or very low profit
-</p>
-<p>
-<strong>Via Make:</strong>
-</p>
-<ol>
-<li>Webhook trigger with filter: profit< $5</li>
-<li>Email module: Send to owner@store.com</li>
-<li>Subject: " ï¸ Low Profit Order #{{order_id}}"</li>
-<li>Body: Include order details and profit breakdown</li>
-</ol>
-<h4>Example 4: High-Value Customer to CRM</h4>
-<p>
-<strong>Goal:</strong> Add customers with LTV >$500 to CRM
-</p>
-<p>
-<strong>Via Zapier:</strong>
-</p>
-<ol>
-<li>Trigger: Webhook (Order Created)</li>
-<li>Filter: customer.lifetime_value >500</li>
-<li>Action: Add to HubSpot/Salesforce as VIP contact</li>
-</ol>
-<h4>Example 5: SMS for Daily Goals</h4>
-<p>
-<strong>Goal:</strong> Text message when daily profit exceeds goal
-</p>
-<p>
-<strong>Via Zapier:</strong>
-</p>
-<ol>
-<li>Trigger: Webhook (Goal Achievement)</li>
-<li>Action: SMS by Zapier → Send message</li>
-<li>Text: "ðŸŽ‰ Daily goal achieved! ${{profit}} profit today"</li>
-</ol>
-<h4>Example 6: Airtable Profit Database</h4>
-<p>
-<strong>Goal:</strong> Build Airtable database of all orders with profit
-</p>
-<p>
-<strong>Via Make:</strong>
-</p>
-<ol>
-<li>Webhook trigger (Order Created)</li>
-<li>Airtable: Create record</li>
-<li>Include: Order details, profit, margin, traffic source, campaign</li>
-</ol>
-<h4>Example 7: Facebook Conversions API</h4>
-<p>
-<strong>Goal:</strong> Send conversion data back to Facebook with profit value
-</p>
-<ol>
-<li>Webhook (Order Created with Facebook source)</li>
-<li>Make HTTP request to Facebook Conversions API</li>
-<li>Include profit as custom parameter</li>
-</ol>
-<h3>Common Webhook Patterns</h3>
-<h4>Filtering</h4>
-<p>Only trigger for specific conditions:</p>
-<ul>
-<li>profit >$100 (high-value orders)</li>
-<li>margin< 20% (low-margin orders)</li>
-<li>traffic_source = "facebook" (specific source)</li>
-</ul>
-<h3>Multi-Step Workflows</h3>
-<ol>
-<li>Receive webhook</li>
-<li>Check condition</li>
-<li>If true → Send to Slack AND add to Sheets</li>
-<li>If false → Do nothing</li>
-</ol>
-<h4>Data Transformation</h4>
-<p>Format webhook data before sending elsewhere:</p>
-<ul>
-<li>Convert currency</li>
-<li>Calculate additional metrics</li>
-<li>Format dates</li>
-<li>Truncate long text</li>
+<li>Use <strong>HTTPS</strong> for your webhook URL.</li>
+<li>Respond with <strong>HTTP 200</strong> as soon as you’ve accepted the payload so the request doesn’t time out; process or queue the data asynchronously if needed.</li>
+<li>Enable <strong>Enable Logging</strong> in Alpha Insights when debugging; check the log and error log for failed requests or non-200 responses.</li>
+<li>Use the <strong>Test Webhook</strong> button to confirm the URL and payload format before relying on the schedule.</li>
 </ul>

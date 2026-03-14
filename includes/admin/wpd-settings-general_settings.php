@@ -175,6 +175,32 @@ $available_shipping_methods					= wpdai_get_available_shipping_methods();
 					<input class="wpd-input" type="number" name="wpd_ai_cache_build_batch_size" value="<?php echo esc_attr( get_option( 'wpd_ai_cache_build_batch_size', 250 ) ); ?>" step="1" placeholder="Batch Size" min="1" max="10000">
 				</td>
 			</tr>
+			<tr>
+				<td>
+					<label for="wpd_ai_report_logo_attachment_id"><?php esc_html_e( 'Whitelabel Report Logo', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php echo wp_kses_post( __( 'This logo appears on public-facing report outputs only: exported PDFs and Live Share links. It will not appear in the WordPress admin.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></div>
+				</td>
+				<td>
+					<?php
+					$report_logo_attachment_id = get_option( 'wpd_ai_report_logo_attachment_id', '' );
+					$report_logo_url           = '';
+					if ( ! empty( $report_logo_attachment_id ) ) {
+						$report_logo_data = wp_get_attachment_image_src( (int) $report_logo_attachment_id, 'thumbnail' );
+						$report_logo_url  = is_array( $report_logo_data ) ? $report_logo_data[0] : '';
+					}
+					?>
+					<input type="hidden" name="wpd_ai_report_logo_attachment_id" id="wpd_ai_report_logo_attachment_id" value="<?php echo esc_attr( $report_logo_attachment_id ); ?>">
+					<div class="wpd-report-logo-preview-wrap" style="margin-bottom: 10px; min-height: 60px;">
+						<?php if ( $report_logo_url ) : ?>
+							<img class="wpd-report-logo-preview-img" src="<?php echo esc_url( $report_logo_url ); ?>" alt="" style="max-width: 200px; max-height: 60px; display: block;">
+						<?php else : ?>
+							<span class="wpd-report-logo-placeholder" style="display: block; color: #646970;"><?php esc_html_e( 'No logo selected', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></span>
+						<?php endif; ?>
+					</div>
+					<button type="button" class="button wpd-report-logo-upload-btn"><?php echo $report_logo_attachment_id ? esc_html__( 'Change Logo', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) : esc_html__( 'Select Logo', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></button>
+					<button type="button" class="button wpd-report-logo-remove" style="margin-left: 5px;<?php echo ! $report_logo_attachment_id ? ' display: none;' : ''; ?>"><?php esc_html_e( 'Remove Logo', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></button>
+				</td>
+			</tr>
 		</tbody>
 	</table>
 </div>
@@ -616,6 +642,42 @@ $available_shipping_methods					= wpdai_get_available_shipping_methods();
 		</tbody>
 	</table>
 </div>
+<script>
+jQuery( function( $ ) {
+	var $input = $( '#wpd_ai_report_logo_attachment_id' );
+	var $previewWrap = $( '.wpd-report-logo-preview-wrap' );
+	var $uploadBtn = $( '.wpd-report-logo-upload-btn' );
+	var $removeBtn = $( '.wpd-report-logo-remove' );
+	if ( ! $input.length || typeof wp === 'undefined' || ! wp.media ) return;
+	$uploadBtn.on( 'click', function() {
+		var frame = wp.media( {
+			title: '<?php echo esc_js( __( 'Select Report Logo', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>',
+			button: { text: '<?php echo esc_js( __( 'Use as logo', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>' },
+			library: { type: 'image' },
+			multiple: false
+		} );
+		frame.on( 'select', function() {
+			var attachment = frame.state().get( 'selection' ).first().toJSON();
+			$input.val( attachment.id );
+			$previewWrap.find( '.wpd-report-logo-preview-img' ).remove();
+			$previewWrap.find( '.wpd-report-logo-placeholder' ).remove();
+			var url = attachment.sizes && attachment.sizes.thumbnail ? attachment.sizes.thumbnail.url : attachment.url;
+			$previewWrap.prepend( '<img class="wpd-report-logo-preview-img" src="' + url + '" alt="" style="max-width: 200px; max-height: 60px; display: block;">' );
+			$uploadBtn.text( '<?php echo esc_js( __( 'Change Logo', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>' );
+			$removeBtn.show();
+		} );
+		frame.open();
+	} );
+	$removeBtn.on( 'click', function() {
+		$input.val( '' );
+		$previewWrap.find( '.wpd-report-logo-preview-img' ).remove();
+		$previewWrap.find( '.wpd-report-logo-placeholder' ).remove();
+		$previewWrap.append( '<span class="wpd-report-logo-placeholder" style="display: block; color: #646970;"><?php echo esc_js( __( 'No logo selected', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?></span>' );
+		$uploadBtn.text( '<?php echo esc_js( __( 'Select Logo', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>' );
+		$( this ).hide();
+	} );
+} );
+</script>
 <div class="wpd-inline">
 	<?php submit_button( __('Save Changes', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'), 'primary pull-right', 'submit', false); ?>
 </div>
