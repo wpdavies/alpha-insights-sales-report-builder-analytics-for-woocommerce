@@ -1,0 +1,124 @@
+/**
+ * Documentation Search Styles
+ *
+ * Styles for the documentation instant search shortcode
+ *
+ * @package Alpha Insights
+ * @version 1.0.0
+ */
+
+ .wpd-docs-search-wrapper {
+	position: relative !important;
+	margin: 1em 0;
+	/* Containing block for absolute dropdown */
+	z-index: 1;
+}
+
+.wpd-docs-search-label {
+	display: block;
+	margin-bottom: 0.35em;
+	font-weight: 600;
+}
+
+.wpd-docs-search-input {
+	width: 100%;
+	padding: 1em 2em;
+	font-size: 1em;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	box-sizing: border-box;
+}
+
+.wpd-docs-search-input:focus {
+	outline: 2px solid #2271b1;
+	outline-offset: 1px;
+}
+
+/* Dropdown: hidden until open, then absolutely positioned so it never pushes content */
+.wpd-docs-search-dropdown {
+	position: absolute !important;
+	top: 100%;
+	left: 0 !important;
+	right: 0 !important;
+	width: 100% !important;
+	margin: 0 !important;
+	margin-top: 2px;
+	z-index: 1000;
+	box-sizing: border-box;
+	/* Fully invisible when closed – no thin bar or flash */
+	visibility: hidden;
+	opacity: 0;
+	max-height: 0;
+	overflow: hidden;
+	border: none;
+	padding: 0;
+	background: transparent;
+	box-shadow: none;
+	pointer-events: none;
+}
+
+.wpd-docs-search-wrapper.wpd-docs-search-open .wpd-docs-search-dropdown {
+	visibility: visible;
+	opacity: 1;
+	max-height: 22em;
+	overflow: visible;
+	border: 1px solid #ddd;
+	background: #fff;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	pointer-events: auto;
+}
+
+.wpd-docs-search-results {
+	margin: 0;
+	max-height: 20em;
+	overflow-y: auto;
+}
+
+.wpd-docs-search-result-item {
+	display: block;
+	padding: 0.5em 0.75em;
+	border-bottom: 1px solid #eee;
+	color: inherit;
+	text-decoration: none;
+}
+
+.wpd-docs-search-result-item:last-child {
+	border-bottom: 0;
+}
+
+.wpd-docs-search-result-item:hover {
+	background: #f0f6fc;
+}
+
+.wpd-docs-search-result-path {
+	display: block;
+	font-size: 0.7em;
+	line-height: 1.3;
+	color: #646970;
+	margin-bottom: 0.15em;
+}
+
+.wpd-docs-search-result-title {
+	display: block;
+	font-weight: 600;
+	font-size: 0.95em;
+}
+
+.wpd-docs-search-result-excerpt {
+	display: block;
+	font-size: 0.75em;
+	line-height: 1.35;
+	color: #50575e;
+	margin-top: 0.2em;
+}
+
+.wpd-docs-search-loading,
+.wpd-docs-search-empty {
+	padding: 0.6em 0.75em;
+	font-size: 0.85em;
+	color: #50575e;
+}
+
+.wpd-docs-search-hidden {
+	display: none !important;
+}

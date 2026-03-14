@@ -464,6 +464,12 @@ function wpdai_save_settings() {
 		}
 	}
 
+	// Whitelabel Report Logo (attachment ID for PDFs and Live Share)
+	if ( isset( $_POST['wpd_ai_report_logo_attachment_id'] ) ) {
+		$report_logo_id = absint( wp_unslash( $_POST['wpd_ai_report_logo_attachment_id'] ) );
+		$saved['Whitelabel Report Logo'] = update_option( 'wpd_ai_report_logo_attachment_id', $report_logo_id );
+	}
+
 	// Cost Defaults
 	if ( isset( $_POST['wpd_ai_cost_defaults'] ) ) {
 		$cost_default_data = array(

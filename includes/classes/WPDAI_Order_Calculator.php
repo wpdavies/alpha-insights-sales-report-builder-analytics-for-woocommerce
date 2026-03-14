@@ -308,6 +308,7 @@ class WPDAI_Order_Calculator {
         $total_order_tax_refunded       = ( is_a($this->order, 'WC_Subscription') ) ? 0 : abs( (float) $this->order->get_total_tax_refunded() ); // Used for tax exemption
         $total_shipping_charged         = (float) $this->order->get_shipping_total();
         $total_coupon_discounts         = (float) $this->order->get_discount_total() + (float) $this->order->get_discount_tax();
+        $any_refund_has_been_applied    = ( $total_order_refund_amount > 0 || $total_order_tax_refunded > 0 ) ? true : false;
 
         // Ignore refunds if set
         if ( $this->ignore_refunds ) {
@@ -369,9 +370,11 @@ class WPDAI_Order_Calculator {
         }
 
         // If we have a fully refunded order
-        if ( $total_order_refund_amount == ( $total_order_revenue + $total_order_refund_amount ) || $this->order->get_status() == 'refunded' ) {
+        if ( ( $total_order_refund_amount == ( $total_order_revenue + $total_order_refund_amount ) && $any_refund_has_been_applied ) || $this->order->get_status() == 'refunded' ) {
+
             $full_refund            = 1;
             $partial_refund         = 0;
+
         }
 
         // Ensure refund calculation doesn't proceed if we're calculating non-refunded orders
