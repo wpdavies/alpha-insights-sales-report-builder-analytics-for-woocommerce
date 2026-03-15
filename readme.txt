@@ -1,4 +1,4 @@
-=== Alpha Insights - Profit Intelligence & Analytics for WooCommerce ===
+=== Alpha Insights - Advanced Analytics, Sales Reporting & COGS for WooCommerce ===
 Contributors: wpdavies
 Tags: woocommerce analytics, woocommerce reporting, woocommerce analytics plugin, woocommerce cost of goods, woocommerce profit
 Requires at least: 5.0
@@ -9,17 +9,17 @@ Requires Plugins: woocommerce
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-WooCommerce analytics plugin for profit reporting, traffic insights, cost of goods (COGS), and custom sales reports.
+Advanced WooCommerce analytics plugin for profit reporting, traffic insights, cost of goods (COGS), and custom sales reports.
 
 == Description ==
 
-Alpha Insights is an advanced WooCommerce analytics plugin built for accurate profit reporting, store traffic insights, cost of goods (COGS) management, and custom sales reports.
+Alpha Insights is an advanced WooCommerce analytics plugin built for accurate profit reporting, Google Analytics-style store traffic analysis, cost of goods (COGS) management, and custom sales reports.
 
-Go beyond default WooCommerce analytics and basic sales reports with a clearer view of your true store performance. Alpha Insights combines revenue, product costs, payment gateway fees, shipping costs, ad spend, and business expenses in one place — helping you track profit & loss, margins, ROI, customer performance, product performance, and marketing attribution with confidence.
+Go beyond default WooCommerce analytics and basic sales reports with a complete view of your store’s performance. Alpha Insights combines revenue, product costs, payment gateway fees, shipping costs, ad spend, and business expenses in one place — helping you track profit & loss, margins, ROI, customer behavior, product performance, and marketing attribution with confidence.
 
-With our intuitive drag & drop WooCommerce report builder, you can create custom sales reports and analytics dashboards in seconds — without spreadsheets, complicated exports, or disconnected tools.
+With our intuitive drag & drop WooCommerce report builder, you can create custom sales reports and fully interactive analytics dashboards in seconds — without spreadsheets, complicated exports, or disconnected tools.
 
-Built specifically for serious WooCommerce store owners who want real financial clarity, Alpha Insights helps you replace manual reporting with a single WooCommerce analytics and profit reporting system focused on true profitability — not just revenue numbers.
+Built specifically for serious WooCommerce store owners who want real financial and performance clarity, Alpha Insights replaces manual reporting with a single WooCommerce analytics and profit reporting system focused on true profitability — not just revenue numbers.
 
 ---
 
