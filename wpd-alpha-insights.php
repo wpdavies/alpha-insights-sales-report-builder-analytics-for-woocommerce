@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * Plugin Name:         Alpha Insights - Advanced Analytics, Reporting & COGS for WooCommerce
+ * Plugin Name:         Alpha Insights - Advanced Analytics, Sales Reporting & COGS for WooCommerce
  * Plugin URI:          https://wpdavies.dev/plugins/alpha-insights/
  * Description:         Track your store's profit & loss, cost of goods, expenses & website traffic. Build custom WooCommerce reports using our advanced drag & drop report builder. <a href="https://wpdavies.dev/plugins/alpha-insights/pricing/?utm_source=Alpha+Insights+Plugin&utm_campaign=Alpha+Insights+Plugin+Description+Upgrade+to+Pro+Link&utm_medium=plugin_description&utm_content=upgrade_to_pro_link" target="_blank">Upgrade to Pro</a> to unlock advanced insights and integrations.
  * Author:              WP Davies
