@@ -1,6 +1,6 @@
 === Alpha Insights - Profit Intelligence & Analytics for WooCommerce ===
 Contributors: wpdavies
-Tags: woocommerce reporting, woocommerce analytics, woocommerce profit, woocommerce cost of goods, woocommerce sales reports
+Tags: woocommerce analytics, woocommerce reporting, woocommerce analytics plugin, woocommerce cost of goods, woocommerce profit
 Requires at least: 5.0
 Tested up to: 6.9
 Requires PHP: 7.4
@@ -9,23 +9,21 @@ Requires Plugins: woocommerce
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-WooCommerce reporting plugin for profit & loss, cost of goods (COGS), ad spend, ROI and custom sales reports.
+WooCommerce analytics plugin for profit reporting, traffic insights, cost of goods (COGS), and custom sales reports.
 
 == Description ==
 
-Alpha Insights is a powerful WooCommerce reporting plugin built for accurate profit tracking, cost of goods management, and advanced sales analytics.
+Alpha Insights is an advanced WooCommerce analytics plugin built for accurate profit reporting, store traffic insights, cost of goods (COGS) management, and custom sales reports.
 
-Go beyond default WooCommerce reports and see your true profit & loss by combining product costs, payment gateway fees, shipping costs, ad spend, and business expenses — all in one place. Track revenue, margins, ROI, and performance across products, customers, campaigns, and traffic sources.
+Go beyond default WooCommerce analytics and basic sales reports with a clearer view of your true store performance. Alpha Insights combines revenue, product costs, payment gateway fees, shipping costs, ad spend, and business expenses in one place — helping you track profit & loss, margins, ROI, customer performance, product performance, and marketing attribution with confidence.
 
-With our intuitive drag & drop WooCommerce report builder, you can create custom sales reports and analytics dashboards in seconds — without spreadsheets or complicated exports.
+With our intuitive drag & drop WooCommerce report builder, you can create custom sales reports and analytics dashboards in seconds — without spreadsheets, complicated exports, or disconnected tools.
 
-Built specifically for serious WooCommerce store owners who want real financial clarity — not just revenue numbers.
-
-Alpha Insights helps you replace spreadsheets, manual exports, and disconnected analytics tools with a single WooCommerce profit reporting system designed for store owners who care about real margins, not vanity metrics.
+Built specifically for serious WooCommerce store owners who want real financial clarity, Alpha Insights helps you replace manual reporting with a single WooCommerce analytics and profit reporting system focused on true profitability — not just revenue numbers.
 
 ---
 
-== Advanced WooCommerce Reporting Features ==
+== Advanced WooCommerce Analytics & Reporting Features ==
 
 **Advanced WooCommerce Sales Reporting**  
 Track revenue, gross profit, net profit, margins, refunds, and order-level profitability with powerful filtering and comparisons.
@@ -36,11 +34,11 @@ Easily add and manage product costs directly inside WooCommerce. Track profit ma
 **Profit & Loss Reporting for WooCommerce**  
 Understand your real profitability by combining revenue, cost of goods, payment fees, shipping, and custom order costs.
 
-**WooCommerce Website Traffic & Marketing Analytics**  
-Built-in visitor tracking shows traffic sources, landing pages, referral URLs, device types, and campaign performance.
+**WooCommerce Analytics for Traffic & Marketing Performance**  
+Alpha Insights works like a Google Analytics style plugin for WooCommerce, showing traffic sources, landing pages, referral URLs, device types, and campaign performance directly inside your store dashboard.
 
-**Drag & Drop WooCommerce Report Builder**  
-Build and customize reports with an intuitive drag & drop interface. Create unlimited report layouts in seconds.
+**Drag & Drop WooCommerce Analytics Dashboards & Custom Sales Reports**  
+Build custom WooCommerce analytics dashboards and sales reports with an intuitive drag & drop builder. Create flexible reports in seconds without spreadsheets, exports, or disconnected analytics tools.
 
 **Custom Order Costs**  
 Add commissions, handling fees, transaction costs, or other order-specific expenses.
