@@ -69,6 +69,7 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
         $user_id_filter                 = $data_warehouse->get_data_filter('customers', 'user_id');
         $ip_address_filter              = $data_warehouse->get_data_filter('customers', 'ip_address');
         $customer_billing_email_filter  = $data_warehouse->get_data_filter('customers', 'billing_email');
+        $ignore_refunds_filter          = filter_var( $data_warehouse->get_data_filter( 'orders', 'ignore_refunds', false ), FILTER_VALIDATE_BOOLEAN );
 
         // Default container commonly used
         $default_order_summary = array(
@@ -488,9 +489,12 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
                 $order_data = wpdai_calculate_cost_profit_by_order( $order_id );
                 $order_data_with_refunds_calculated = $order_data;
 
-                // Convert to non-refunded order, for now
-                if ( isset($order_data['total_refund_amount']) && $order_data['total_refund_amount'] > 0 ) {
+                // When ignoring refunds, recalculate without refund adjustments (partial/full) for sales totals.
+                if ( isset( $order_data['total_refund_amount'] ) && (float) $order_data['total_refund_amount'] > 0 ) {
                     $order_data = wpdai_calculate_cost_profit_by_order( $order_id, true, true );
+                    if ( $ignore_refunds_filter ) {
+                        $order_data_with_refunds_calculated = $order_data; // Assign the order data with no refunds
+                    }
                 }
 
                 // Safety Check
@@ -2089,11 +2093,3 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
 
 // Self-register when file is loaded.
 new WPDAI_Sales_Data_Source();
-
-
-// add_action( 'admin_init', function() {
-//     $refund_id = 13265; // the refund ID you want gone
-//     if ( wc_get_order( $refund_id ) instanceof WC_Order_Refund ) {
-//         wp_delete_post( $refund_id, true ); // true = force delete, skip trash
-//     }
-// });

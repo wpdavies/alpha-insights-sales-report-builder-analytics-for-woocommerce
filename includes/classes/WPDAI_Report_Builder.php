@@ -36,6 +36,13 @@ class WPDAI_Report_Builder {
     private $dashboard_slug;
 
     /**
+     * Whether to enqueue dashboard scripts when rendering (disabled for Live Share, which prints scripts separately).
+     *
+     * @var bool
+     */
+    private $enqueue_scripts_on_render = true;
+
+    /**
      * 
      *  Mandatory report slugs, cannot be deleted
      * 
@@ -55,6 +62,16 @@ class WPDAI_Report_Builder {
         $this->cache_build_batch_size = get_option( 'wpd_ai_cache_build_batch_size', 50 );
         $this->dashboard_slug = $dashboard_slug;
 
+    }
+
+    /**
+     * Control script enqueuing when rendering the dashboard container (e.g. false for Live Share).
+     *
+     * @param bool $enqueue Whether to call enqueue_scripts from render_dashboard_from_config().
+     * @return void
+     */
+    public function set_enqueue_scripts_on_render( $enqueue ) {
+        $this->enqueue_scripts_on_render = (bool) $enqueue;
     }
 
     /**
@@ -152,8 +169,9 @@ class WPDAI_Report_Builder {
      */
     public function render_dashboard_from_config($config) {
 
-        // Ensure scripts are enqueued
-        $this->enqueue_scripts('wpd-react-dashboard');
+        if ( $this->enqueue_scripts_on_render ) {
+            $this->enqueue_scripts('wpd-react-dashboard');
+        }
 
         // Make sure we've done our first install of default dashboard configs
         self::first_install_default_dashboard_configs();
@@ -205,12 +223,15 @@ class WPDAI_Report_Builder {
         wp_enqueue_script(
             'wpd-react-dashboard-integration',
             WPD_AI_URL_PATH . 'assets/js/react-dashboard/dist/react-dashboard.js',
-            array('jquery'),
+            array( 'jquery', 'wp-i18n' ),
             WPD_AI_VER,
             true
         );
 
+        wp_set_script_translations( 'wpd-react-dashboard-integration', 'alpha-insights-sales-report-builder-analytics-for-woocommerce', WPD_AI_PATH . 'languages' );
+
         $localized_variables = array(
+            'locale'                        => get_user_locale(),
             'ajax_url'                      => admin_url('admin-ajax.php'),
             'rest_url'                      => rest_url('alpha-insights/v1/'),
             'nonce'                         => wp_create_nonce( WPD_AI_AJAX_NONCE_ACTION ),

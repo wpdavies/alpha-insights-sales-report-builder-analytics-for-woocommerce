@@ -530,3 +530,84 @@ function wpdai_get_dates_from_preset( $preset ) {
             return false;
     }
 }
+
+/**
+ * Delete all sessions and events for a given IP address.
+ *
+ * Removes rows from the session data and WooCommerce events tables where ip_address matches.
+ * Use for GDPR/privacy erasure or support (e.g. clearing test or abusive traffic).
+ *
+ * @param string $ip_address The IP address to delete data for.
+ * @return array{ success: bool, sessions_deleted: int, events_deleted: int, message: string } Result with counts and message.
+ *
+ * @since 5.0.0
+ */
+function wpdai_delete_sessions_and_events_by_ip_address( $ip_address ) {
+
+	$result = array(
+		'success'           => false,
+		'sessions_deleted'   => 0,
+		'events_deleted'     => 0,
+		'message'            => '',
+	);
+
+	if ( ! is_string( $ip_address ) || '' === trim( $ip_address ) ) {
+		$result['message'] = __( 'Invalid IP address: must be a non-empty string.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
+		return $result;
+	}
+
+	$ip_address = sanitize_text_field( trim( $ip_address ) );
+	if ( '' === $ip_address ) {
+		$result['message'] = __( 'Invalid IP address after sanitization.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
+		return $result;
+	}
+
+	$db_interactor = new WPDAI_Database_Interactor();
+	$events_table  = $db_interactor->events_table;
+	$session_table = $db_interactor->session_data_table;
+
+	global $wpdb;
+
+	// Delete events for this IP (table/column names from whitelisted Database_Interactor).
+	$events_deleted = $wpdb->delete(
+		$events_table,
+		array( 'ip_address' => $ip_address ),
+		array( '%s' )
+	);
+
+	if ( false === $events_deleted ) {
+		$result['message'] = __( 'Error deleting events for IP.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
+		if ( $wpdb->last_error ) {
+			wpdai_write_log( 'wpdai_delete_sessions_and_events_by_ip_address events delete: ' . $wpdb->last_error, 'db_error' );
+		}
+		return $result;
+	}
+
+	$result['events_deleted'] = (int) $events_deleted;
+
+	// Delete session data for this IP.
+	$sessions_deleted = $wpdb->delete(
+		$session_table,
+		array( 'ip_address' => $ip_address ),
+		array( '%s' )
+	);
+
+	if ( false === $sessions_deleted ) {
+		$result['message'] = __( 'Events deleted but error deleting sessions for IP.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
+		if ( $wpdb->last_error ) {
+			wpdai_write_log( 'wpdai_delete_sessions_and_events_by_ip_address session delete: ' . $wpdb->last_error, 'db_error' );
+		}
+		return $result;
+	}
+
+	$result['sessions_deleted'] = (int) $sessions_deleted;
+	$result['success']          = true;
+	$result['message']          = sprintf(
+		/* translators: 1: number of sessions, 2: number of events */
+		__( 'Deleted %1$d session(s) and %2$d event(s) for IP address.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		$result['sessions_deleted'],
+		$result['events_deleted']
+	);
+
+	return $result;
+}
