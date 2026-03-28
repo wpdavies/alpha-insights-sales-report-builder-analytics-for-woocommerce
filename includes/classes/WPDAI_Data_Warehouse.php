@@ -582,27 +582,44 @@ class WPDAI_Data_Warehouse {
     }
 
     /**
-     * 
-     *  Returns the applied data filter for the chosen entity and key
-     * 
-     *  @return array|string|int|bool Returns the applied data filter for the chosen entity and key or false if not found
-     * 
-     **/
-    public function get_data_filter( $entity, $key ) {
+     * Returns the applied data filter for the chosen entity and key.
+     *
+     * Booleans are returned as-is (so false is a valid value). Scalars use sanitize_text_field;
+     * arrays are sanitized recursively. Numbers are returned unchanged.
+     *
+     * @param string $entity  Entity key under data_filters.
+     * @param string $key     Filter key.
+     * @param mixed  $default Optional. When the key is absent (or stored value is null), return this. If the argument is omitted, missing keys return false (legacy behaviour).
+     * @return array|string|int|float|bool|mixed
+     */
+    public function get_data_filter( $entity, $key, $default = null ) {
 
-        $data_filter = $this->get_filter('data_filters', array());
+        $data_filters   = $this->get_filter( 'data_filters', array() );
+        $default_passed = func_num_args() >= 3;
 
-        if ( isset($data_filter[$entity]) && isset($data_filter[$entity][$key]) && ! empty($data_filter[$entity][$key]) ) {
+        if ( ! isset( $data_filters[ $entity ] ) || ! array_key_exists( $key, $data_filters[ $entity ] ) ) {
+            return $default_passed ? $default : false;
+        }
 
-            $value = $data_filter[$entity][$key];
+        $value = $data_filters[ $entity ][ $key ];
 
-            // Handles strings, int, arrays and multi-dimensional arrays
+        if ( is_bool( $value ) ) {
+            return $value;
+        }
+
+        if ( is_array( $value ) ) {
             return $this->sanitize_recursive( $value );
         }
 
-        // Return false
-        return false;
+        if ( is_int( $value ) || is_float( $value ) ) {
+            return $value;
+        }
 
+        if ( null === $value ) {
+            return $default_passed ? $default : false;
+        }
+
+        return $this->sanitize_recursive( $value );
     }
 
     /**

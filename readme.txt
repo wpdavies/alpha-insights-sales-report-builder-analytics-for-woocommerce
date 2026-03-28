@@ -4,7 +4,7 @@ Tags: woocommerce analytics, woocommerce reporting, woocommerce analytics plugin
 Requires at least: 5.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.4.0
+Stable tag: 1.5.0
 Requires Plugins: woocommerce
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -174,6 +174,10 @@ Default WooCommerce reports focus primarily on revenue. Alpha Insights adds cost
 ---
 
 == Changelog ==
+
+= 1.5.0 =
+* Include translation support for react report builder and expense management module
+* Update datawarehouse to support the exclusion of refunds in reporting
 
 = 1.4.0 =
 * Implement integration with PPOM For WooCommerce - add cost inputs to track costs for product add ons

@@ -7,7 +7,7 @@
  * Author:              WP Davies
  * Author URI:          https://wpdavies.dev/
  *
- * Version:             	1.4.0
+ * Version:             	1.5.0
  * Requires at least:   	5.0
  * Tested up to:        	6.9
  * Requires PHP: 			7.4
@@ -95,6 +95,12 @@ class WPD_Alpha_Insights_Free_Plugin {
 		// Add links to plugin page
 		add_action( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'alpha_insights_plugin_action_links' ) );
 
+		// Pro build only: explicitly load the text domain on init (priority 1) for bundled .mo / non–WordPress.org distribution.
+		// The free WordPress.org build must set WPD_AI_PRO to false before bootstrap; core then loads translations via just-in-time loading (no load_plugin_textdomain call).
+		if ( defined( 'WPD_AI_PRO' ) && WPD_AI_PRO ) {
+			add_action( 'init', array( $this, 'load_plugin_textdomain' ), 1 );
+		}
+
 		// Declare HPOS compatibility
 		add_action( 'before_woocommerce_init', array( $this, 'declare_wc_hpos_compatability' ) );
 
@@ -146,8 +152,8 @@ class WPD_Alpha_Insights_Free_Plugin {
 		if ( ! defined('WPD_AI_PRO') ) define( 'WPD_AI_PRO', false );
 
 		// Alpha Insights Meta
-		if ( ! defined('WPD_AI_VER') ) define( 'WPD_AI_VER', '5.4.13' );
-		if ( ! defined('WPD_AI_CACHE_VERSION') ) define( 'WPD_AI_CACHE_VERSION', '5.4.13' ); // Follows along pro versioning
+		if ( ! defined('WPD_AI_VER') ) define( 'WPD_AI_VER', '1.5.0' );
+		if ( ! defined('WPD_AI_CACHE_VERSION') ) define( 'WPD_AI_CACHE_VERSION', '5.5.0' ); // Follows along pro versioning
 		if ( ! defined('WPD_AI_CACHE_UPDATE_REQUIRED_VER') ) define( 'WPD_AI_CACHE_UPDATE_REQUIRED_VER', '4.7.10' ); // version this up as cache deletes are required
 		if ( ! defined('WPD_AI_DB_VERSION') ) define( 'WPD_AI_DB_VERSION', '5.2.1' );
 		if ( ! defined('WPD_AI_PRODUCT_ID') ) define( 'WPD_AI_PRODUCT_ID', 8330 );
@@ -755,11 +761,24 @@ class WPD_Alpha_Insights_Free_Plugin {
 	}
 
 	/**
+	 * Load the plugin text domain (alpha-insights-pro) — Pro builds only.
+	 *
+	 * Hooked on {@see 'init'} priority 1 so the active locale is available (WordPress 6.7+).
+	 * The free WordPress.org build does not register this callback: WordPress loads directory
+	 * language packs automatically when the text domain is used (see WP 6.7 dev notes).
+	 *
+	 * @return void
+	 */
+	public function load_plugin_textdomain() {
+		load_plugin_textdomain( 'alpha-insights-sales-report-builder-analytics-for-woocommerce', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+	}
+
+	/**
 	 * Loads up all the files
 	 */
 	public function initialize_plugin() {
 
-		$this->include_plugin_files();	
+		$this->include_plugin_files();
 		$this->create_uploads_folders();
 
 	}

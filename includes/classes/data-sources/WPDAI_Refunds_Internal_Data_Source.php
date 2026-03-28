@@ -224,6 +224,21 @@ class WPDAI_Refunds_Internal_Data_Source extends WPDAI_Custom_Data_Source_Base {
             unset( $args['billing_email'], $args['customer_id'], $args['billing_country'], $args['meta_query'] );
         }
 
+        // Ignore refunds: still run a valid query that returns no rows so response shape stays normalized.
+        if ( filter_var( $data_warehouse->get_data_filter( 'orders', 'ignore_refunds', false ), FILTER_VALIDATE_BOOLEAN ) ) {
+            
+            return array(
+                'totals'            => $totals,
+                'categorized_data'  => $categorized_data,
+                'data_by_date'      => $data_by_date,
+                'data_table'        => array(
+                    'refunds'       => $data_table
+                ),
+                'total_db_records'  => 0,
+            );
+            
+        }
+
         // Query refund IDs (unless we already set empty due to no matching orders)
         if ( ! isset( $refund_ids ) ) {
             $refund_ids = (array) wc_get_orders( $args );
