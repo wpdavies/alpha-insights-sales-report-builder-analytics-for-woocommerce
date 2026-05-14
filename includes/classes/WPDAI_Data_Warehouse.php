@@ -584,8 +584,11 @@ class WPDAI_Data_Warehouse {
     /**
      * Returns the applied data filter for the chosen entity and key.
      *
-     * Booleans are returned as-is (so false is a valid value). Scalars use sanitize_text_field;
-     * arrays are sanitized recursively. Numbers are returned unchanged.
+     * Booleans are returned as-is (so false is a valid value). Product-picker filters (`products.products`,
+     * `website_traffic.product_id`) accept arrays or scalars and resolve tokens to WooCommerce IDs. Tokens that resolve to nothing
+     * contribute a sentinel (-1) once alongside real IDs (-1 matches no real product in intersections / SQL IN). Other
+     * scalars use sanitize_text_field; other arrays are sanitized recursively. Numbers are returned unchanged unless they belong
+     * to those product-picker keys.
      *
      * @param string $entity  Entity key under data_filters.
      * @param string $key     Filter key.
@@ -607,25 +610,221 @@ class WPDAI_Data_Warehouse {
             return $value;
         }
 
-        if ( is_array( $value ) ) {
-            return $this->sanitize_recursive( $value );
+        if ( null === $value ) {
+            return $default_passed ? $default : false;
+        }
+
+        if ( $this->is_expandable_product_filter_entity_key( $entity, $key ) ) {
+            /** @var list<mixed> $normalized_tokens */
+            $normalized_tokens = array();
+
+            if ( is_array( $value ) ) {
+                $normalized_tokens = $this->sanitize_recursive( $value );
+            } elseif ( is_int( $value ) || is_float( $value ) ) {
+                $as_float = (float) $value;
+                // Whole-number scalars behave like typed product IDs before title/SKU substring resolution.
+                if ( floor( $as_float ) === $as_float ) {
+                    $normalized_tokens = array( (string) (int) $value );
+                } else {
+                    $normalized_tokens = array( sanitize_text_field( (string) $value ) );
+                }
+            } elseif ( is_string( $value ) ) {
+                $normalized_tokens = array( sanitize_text_field( $value ) );
+            }
+
+            return $this->expand_product_filter_values_to_product_ids( $normalized_tokens );
         }
 
         if ( is_int( $value ) || is_float( $value ) ) {
             return $value;
         }
 
-        if ( null === $value ) {
-            return $default_passed ? $default : false;
+        if ( is_array( $value ) ) {
+            return $this->sanitize_recursive( $value );
         }
 
         return $this->sanitize_recursive( $value );
     }
 
     /**
+     * Product-picker entity keys resolved to WooCommerce product/variation IDs in get_data_filter().
+     *
+     * @param string $entity Entity under data_filters.
+     * @param string $key    Filter field key.
+     * @return bool
+     */
+    private function is_expandable_product_filter_entity_key( $entity, $key ) {
+
+        foreach ( array( array( 'products', 'products' ), array( 'website_traffic', 'product_id' ) ) as $pair ) {
+            if ( $entity === $pair[0] && $key === $pair[1] ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Turn mixed filter entries into unique published product/variation IDs (as strings).
+     *
+     * If a token resolves to zero IDs, a single sentinel (-1 default) is appended after successful IDs; intersections and
+     * SQL IN lists still match real IDs, while -1 matches nothing.
+     *
+     * @param array<mixed> $values Sanitized tokens; associative rows may expose a scalar `value` key.
+     * @return list<string>
+     */
+    private function expand_product_filter_values_to_product_ids( array $values ) {
+
+        /** Default -1 matches no WooCommerce post ID when used in queries. Override via {@see 'wpd_ai_product_filter_unresolved_sentinel_id'}. */
+        $sentinel = (string) (int) apply_filters( 'wpd_ai_product_filter_unresolved_sentinel_id', -1 );
+
+        $result               = array();
+        $already_seen         = array();
+        $attempted_token      = false;
+        $append_sentinel_miss = false;
+
+        foreach ( $values as $raw ) {
+
+            if ( is_array( $raw ) ) {
+                if ( isset( $raw['value'] ) && ! is_array( $raw['value'] ) ) {
+                    $raw = $raw['value'];
+                } else {
+                    continue;
+                }
+            }
+
+            $token = sanitize_text_field( (string) $raw );
+            if ( '' === $token ) {
+                continue;
+            }
+
+            $attempted_token = true;
+
+            $resolved_ids = array();
+
+            if ( ctype_digit( $token ) ) {
+                $maybe_id = (int) $token;
+                if ( $maybe_id > 0 && $this->published_product_post_exists( $maybe_id ) ) {
+                    $resolved_ids[] = $maybe_id;
+                }
+            }
+
+            if ( empty( $resolved_ids ) ) {
+                $resolved_ids = $this->find_product_ids_by_string_search( $token );
+            }
+
+            if ( empty( $resolved_ids ) ) {
+                $append_sentinel_miss = true;
+                continue;
+            }
+
+            foreach ( $resolved_ids as $pid ) {
+                $pid = (int) $pid;
+                if ( $pid <= 0 || isset( $already_seen[ $pid ] ) ) {
+                    continue;
+                }
+                $already_seen[ $pid ] = true;
+                // String IDs align with array keys from order product_data and JS filter payloads.
+                $result[] = (string) $pid;
+            }
+        }
+
+        if ( ! $attempted_token ) {
+            return array();
+        }
+
+        if ( $append_sentinel_miss ) {
+            $result[] = $sentinel;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Whether a post is a published product or product variation.
+     *
+     * @param int $product_id Post ID.
+     * @return bool
+     */
+    private function published_product_post_exists( $product_id ) {
+
+        $post = get_post( (int) $product_id );
+        if ( ! $post || 'publish' !== $post->post_status ) {
+            return false;
+        }
+
+        return in_array( $post->post_type, array( 'product', 'product_variation' ), true );
+    }
+
+    /**
+     * Find product or variation IDs where the title or SKU contains the search string.
+     *
+     * @param string $search_value User input (already sanitized).
+     * @return int[] Unique post IDs, may be empty.
+     */
+    private function find_product_ids_by_string_search( $search_value ) {
+
+        $search_value = sanitize_text_field( $search_value );
+        if ( '' === $search_value ) {
+            return array();
+        }
+
+        global $wpdb;
+
+        $limit_per_leg = (int) apply_filters( 'wpd_ai_find_product_ids_by_string_search_per_query_limit', 100 );
+        if ( $limit_per_leg < 1 ) {
+            $limit_per_leg = 100;
+        }
+
+        $like = '%' . $wpdb->esc_like( $search_value ) . '%';
+
+        $title_sql = $wpdb->prepare(
+            "SELECT DISTINCT ID FROM {$wpdb->posts} WHERE post_type IN ('product', 'product_variation') AND post_status = %s AND post_title LIKE %s LIMIT %d",
+            'publish',
+            $like,
+            $limit_per_leg
+        );
+
+        $sku_sql = $wpdb->prepare(
+            "SELECT DISTINCT pm.post_id FROM {$wpdb->postmeta} AS pm INNER JOIN {$wpdb->posts} AS p ON p.ID = pm.post_id WHERE pm.meta_key = %s AND pm.meta_value LIKE %s AND p.post_type IN ('product', 'product_variation') AND p.post_status = %s LIMIT %d",
+            '_sku',
+            $like,
+            'publish',
+            $limit_per_leg
+        );
+
+        /** @var list<int|string|false>|null */
+        $from_title = $wpdb->get_col( $title_sql );
+        /** @var list<int|string|false>|null */
+        $from_sku   = $wpdb->get_col( $sku_sql );
+
+        /** @var int[] */
+        $ids = array();
+        foreach ( array_merge( (array) $from_title, (array) $from_sku ) as $maybe_id ) {
+            $maybe_id = (int) $maybe_id;
+            if ( $maybe_id > 0 ) {
+                $ids[] = $maybe_id;
+            }
+        }
+
+        $ids = array_values( array_unique( $ids ) );
+
+        /** @var int */
+        $max_total = (int) apply_filters( 'wpd_ai_find_product_ids_by_string_search_total_limit', 250 );
+        if ( count( $ids ) > $max_total ) {
+            $ids = array_slice( $ids, 0, $max_total );
+        }
+
+        return array_map(
+            'intval',
+            apply_filters( 'wpd_ai_find_product_ids_by_string_search_results', $ids, $search_value )
+        );
+    }
+
+    /**
      * Recursively sanitize a value or array of values.
      *
-     * @param mixed $value
+     * @param mixed $value Input.
      * @return mixed
      */
     private function sanitize_recursive( $value ) {
@@ -994,6 +1193,10 @@ class WPDAI_Data_Warehouse {
             return false;
         }
 
+        if ( '' === trim( $date ) ) {
+            return '';
+        }
+
         // If we are doing minutes, this is a special case
         if ( $this->get_filter('date_format_display') == 'minute' ) {
             $timestamp = strtotime($date);
@@ -1170,15 +1373,19 @@ class WPDAI_Data_Warehouse {
      * Fast replacement for get_date_from_gmt().
      * Converts a GMT date string to site local time with caching.
      *
-     * @param string $date_gmt Date string in GMT (Y-m-d H:i:s).
-     * @param string $format   Return format. Default 'Y-m-d H:i:s'.
+     * @param string|null $date_gmt Date string in GMT (Y-m-d H:i:s), or null/empty when unknown.
+     * @param string        $format   Return format. Default 'Y-m-d H:i:s'.
      *
-     * @return string Local time formatted string.
+     * @return string Local time formatted string, or empty string if input was not a non-empty string.
      */
     public function get_date_from_gmt( $date_gmt, $format = 'Y-m-d H:i:s' ) {
 
         static $gmt_date_cache = [];
         static $site_timezone = null;
+
+        if ( ! is_string( $date_gmt ) || '' === trim( $date_gmt ) ) {
+            return '';
+        }
 
         if ( isset( $gmt_date_cache[ $date_gmt ][ $format ] ) ) {
             return $gmt_date_cache[ $date_gmt ][ $format ];

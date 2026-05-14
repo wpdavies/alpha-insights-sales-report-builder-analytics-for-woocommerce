@@ -775,8 +775,12 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
                 if ( $product_id > 0 ) {
 
                     if ( ! isset($categorized_data['product_summary'][$product_id]) ) {
+                        $product_data_store = $data_warehouse->get_product_data_cache( $product_id );
                         $categorized_data['product_summary'][$product_id] = array(
                             'product_name'          => wp_strip_all_tags(html_entity_decode(get_the_title($product_id), ENT_QUOTES, 'UTF-8')),
+                            'product_display'       => $data_warehouse->get_product_html_display_badge( $product_id ), // Html representation of product
+                            'product_date_created'  => $product_data_store['product_date_created'] ?? null,
+                            'product_sku'           => $product_data_store['product_sku'],
                             'product_id'            => $product_id,
                             'variation_id'          => 0,
                             'user_count'            => array(),
@@ -806,8 +810,12 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
                     if ( $show_product_variations && $product_id > 0 && $variation_id > 0 ) {
 
                         if ( ! isset($categorized_data['product_summary'][$variation_id]) ) {
+                            $product_data_store = $data_warehouse->get_product_data_cache( $variation_id );
                             $categorized_data['product_summary'][$variation_id] = array(
                                 'product_name'          => wp_strip_all_tags(html_entity_decode(get_the_title($variation_id), ENT_QUOTES, 'UTF-8')),
+                                'product_display'       => $data_warehouse->get_product_html_display_badge( $variation_id ), // Html representation of product
+                                'product_date_created'  => $product_data_store['product_date_created'] ?? null,
+                                'product_sku'           => $product_data_store['product_sku'],
                                 'product_id'            => $product_id,
                                 'variation_id'          => $variation_id,
                                 'user_count'            => array(),
@@ -1069,7 +1077,7 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
         return apply_filters( 'wpd_alpha_insights_data_source_analytics', $analytics_data, $data_warehouse );
     }
 
-        /**
+    /**
      * Query analytics data with limit and offset for batching
      * 
      * @param array $raw_analytics_data Reference to store event data

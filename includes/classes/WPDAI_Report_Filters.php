@@ -90,15 +90,21 @@ class WPDAI_Report_Filters {
     }
 
     /**
-     * 
-     * 	List of available query parameter values for orders
+     *
+     *  List of available query parameter values for orders (capped for the filter picker; arbitrary key/values can be typed in the UI).
      *  Optimized for large stores using batched processing
      * 
      * 	@return array $array An associative array of all query parameter values.
      * 	Array structure is array[$query_parameter_value_raw] = $query_parameter_value.
+     *
+     *  Optional: `wpd_ai_report_filters_short_circuit_order_query_parameters` (default false) — when true, returns `array()` without reading cache or DB.
      * 
      **/
     public function get_filter_values_order_query_parameter_key_value_pairs() {
+
+        if ( apply_filters( 'wpd_ai_report_filters_short_circuit_order_query_parameters', false ) ) {
+            return array();
+        }
 
         // Check instance cache first
         if ( isset( $this->instance_cache['order_query_params'] ) ) {
@@ -173,23 +179,30 @@ class WPDAI_Report_Filters {
 
                 if ( empty( $params ) ) continue;
 
-                // Loop through params
+                // Loop through params (any key / value strings from landing URLs; picker list is capped later).
                 foreach ( $params as $key => $value ) {
-                    // Handle arrays (when query parameter appears multiple times)
+                    // Handle arrays (when query parameter appears multiple times).
                     $values_to_process = is_array( $value ) ? $value : array( $value );
-                    
+
                     foreach ( $values_to_process as $single_value ) {
-                        // Skip if not a string (nested arrays or other types)
                         if ( ! is_string( $single_value ) ) {
                             continue;
                         }
-                        
-                        $raw = $single_value;
-                        $clean = sanitize_text_field( $single_value );
-                        if ( wpdai_is_valid_reporting_utm_key_value_pair( $key, $single_value ) ) {
-                            if ( ! isset( $parsed_values[ $key ] ) ) $parsed_values[ $key ] = array();
-                            $parsed_values[ $key ][$clean] = true;
+
+                        $key_clean = sanitize_text_field( (string) $key );
+                        if ( '' === $key_clean ) {
+                            continue;
                         }
+
+                        $clean = sanitize_text_field( $single_value );
+                        if ( '' === $clean ) {
+                            continue;
+                        }
+
+                        if ( ! isset( $parsed_values[ $key_clean ] ) ) {
+                            $parsed_values[ $key_clean ] = array();
+                        }
+                        $parsed_values[ $key_clean ][ $clean ] = true;
                     }
                 }
             }
@@ -216,6 +229,8 @@ class WPDAI_Report_Filters {
     
         // Optionally sort alphabetically
         ksort( $parsed_values );
+
+        $parsed_values = $this->limit_query_parameter_picker_options( $parsed_values );
     
         // Store transient
         if ( ! empty($parsed_values) ) set_transient( 'wpd_ai_report_filters_order_query_parameter_values', $parsed_values, $this->transient_duration_in_seconds );
@@ -225,6 +240,48 @@ class WPDAI_Report_Filters {
 
         return $parsed_values;
 
+    }
+
+    /**
+     * Cap query-parameter key suggestion count and values per key for filter pickers (orders + website traffic).
+     *
+     * @since 5.0.0
+     *
+     * @param array<string, mixed> $parsed_values Key => list of distinct value strings.
+     * @return array<string, array<int, string>>
+     */
+    private function limit_query_parameter_picker_options( array $parsed_values ) {
+
+        /** @var int */
+        $max_keys = (int) apply_filters( 'wpd_ai_report_filters_query_parameter_picker_max_keys', 20 );
+        /** @var int */
+        $max_vals = (int) apply_filters( 'wpd_ai_report_filters_query_parameter_picker_max_values_per_key', 50 );
+        if ( $max_keys < 1 ) {
+            $max_keys = 20;
+        }
+        if ( $max_vals < 1 ) {
+            $max_vals = 50;
+        }
+
+        ksort( $parsed_values );
+        if ( count( $parsed_values ) > $max_keys ) {
+            $parsed_values = array_slice( $parsed_values, 0, $max_keys, true );
+        }
+
+        foreach ( $parsed_values as $key => $values ) {
+            if ( ! is_array( $values ) ) {
+                unset( $parsed_values[ $key ] );
+                continue;
+            }
+            $values = array_values( array_unique( array_map( 'strval', $values ) ) );
+            sort( $values, SORT_STRING );
+            if ( count( $values ) > $max_vals ) {
+                $values = array_slice( $values, 0, $max_vals );
+            }
+            $parsed_values[ $key ] = $values;
+        }
+
+        return $parsed_values;
     }
 
     /**
@@ -333,23 +390,33 @@ class WPDAI_Report_Filters {
     }
 
     /**
-     * 
-     * 	List of products, including variations, in an associative array
-     *  Optimized for large stores using batched processing
-     * 	
-     * 	@return array $array An associative array of all products within this database.
-     * 	Array structure is array[$product_id] = $product_label
-     * 
-     **/
+     * Product picker options for report/dashboard filters (not the full catalog).
+     *
+     * Returns up to N published products and variations, most recently modified first,
+     * so the React picker stays small on large catalogs. Users can still filter by any
+     * product ID typed in the UI. N defaults to 100; override with filter
+     * `wpd_ai_report_filters_products_picker_limit`.
+     *
+     * Array structure is array[ $product_id ] = $product_label.
+     *
+     * Optional: `wpd_ai_report_filters_short_circuit_products_picker` (default false) — when true, returns `array()` without reading cache or DB.
+     *
+     * @since 4.8.0
+     * @return array<int|string,string> Product ID => picker label (title + SKU).
+     */
     public function get_filter_values_products() {
 
-        // Check instance cache first
+        if ( apply_filters( 'wpd_ai_report_filters_short_circuit_products_picker', false ) ) {
+            return array();
+        }
+
+        // Check instance cache first.
         if ( isset( $this->instance_cache['products'] ) ) {
             return $this->instance_cache['products'];
         }
 
-        // Get results
-        $results = get_transient( 'wpd_ai_report_filters_products' );
+        // Transient key versioned so we do not serve old "full catalog" payloads.
+        $results = get_transient( 'wpd_ai_report_filters_products_picker' );
 
         if ( $results && $this->is_transient_enabled ) {
             $this->instance_cache['products'] = $results;
@@ -358,101 +425,76 @@ class WPDAI_Report_Filters {
 
         global $wpdb;
 
-        // Default response
-        $results = array();
-
-        // Safety limit
-        $max_batches = 1000; // 1000 batches × batch_size = large max
-        $batch_count = 0;
-        $offset = 0;
-        $has_more = true;
-
-        while ( $has_more && $batch_count < $max_batches ) {
-            
-            // Use direct SQL for better performance with large datasets
-            $query = $wpdb->prepare(
-                "SELECT ID, post_title 
-                 FROM {$wpdb->posts} 
-                 WHERE post_type IN ('product', 'product_variation')
-                 AND post_status = 'publish'
-                 ORDER BY ID ASC 
-                 LIMIT %d OFFSET %d",
-                $this->batch_size,
-                $offset
-            );
-
-            $products = $wpdb->get_results( $query, ARRAY_A );
-
-            if ( empty( $products ) || ! is_array( $products ) ) {
-                $has_more = false;
-                break;
-            }
-
-            // Get all product IDs for this batch to fetch SKUs efficiently
-            $product_ids = array_column( $products, 'ID' );
-            
-            // Fetch all SKUs for this batch in one query
-            if ( ! empty( $product_ids ) ) {
-                $placeholders = implode( ',', array_fill( 0, count( $product_ids ), '%d' ) );
-                $sku_query = $wpdb->prepare(
-                    "SELECT post_id, meta_value 
-                     FROM {$wpdb->postmeta} 
-                     WHERE meta_key = '_sku' 
-                     AND post_id IN ($placeholders)",
-                    ...$product_ids
-                );
-                
-                $skus_raw = $wpdb->get_results( $sku_query, ARRAY_A );
-                
-                // Create SKU lookup array
-                $skus = array();
-                foreach ( $skus_raw as $sku_row ) {
-                    $skus[ $sku_row['post_id'] ] = $sku_row['meta_value'];
-                }
-            }
-
-            // Process batch
-            foreach ( $products as $product ) {
-                $product_id = isset( $product['ID'] ) ? (int) $product['ID'] : 0;
-                
-                if ( empty( $product_id ) ) {
-                    continue;
-                }
-
-                // Get title
-                $product_title = isset( $product['post_title'] ) ? html_entity_decode( $product['post_title'] ) : 'Unknown';
-                if ( empty( $product_title ) ) {
-                    $product_title = 'Unknown';
-                }
-
-                // Get SKU from our batch lookup
-                $product_sku = isset( $skus[ $product_id ] ) ? $skus[ $product_id ] : 'N/A';
-                if ( empty( $product_sku ) ) {
-                    $product_sku = 'N/A';
-                }
-
-                // Load the resulting array
-                $results[ $product_id ] = $product_title . ' (' . $product_sku . ')';
-            }
-
-            // Check if we got fewer results than batch size (last batch)
-            if ( count( $products ) < $this->batch_size ) {
-                $has_more = false;
-            }
-
-            $offset += $this->batch_size;
-            $batch_count++;
+        $results      = array();
+        $picker_limit = (int) apply_filters( 'wpd_ai_report_filters_products_picker_limit', 100 );
+        if ( $picker_limit < 1 ) {
+            $picker_limit = 100;
         }
 
-        // Store transient
-        if ( ! empty($results) ) set_transient( 'wpd_ai_report_filters_products', $results, $this->transient_duration_in_seconds );
+        $query = $wpdb->prepare(
+            "SELECT ID, post_title 
+			FROM {$wpdb->posts} 
+			WHERE post_type IN ('product', 'product_variation')
+			AND post_status = 'publish'
+			ORDER BY post_modified DESC 
+			LIMIT %d",
+            $picker_limit
+        );
 
-        // Store in instance cache
+        $products = $wpdb->get_results( $query, ARRAY_A );
+
+        if ( empty( $products ) || ! is_array( $products ) ) {
+            $this->instance_cache['products'] = $results;
+            return $results;
+        }
+
+        $product_ids = array_column( $products, 'ID' );
+        $skus        = array();
+
+        if ( ! empty( $product_ids ) ) {
+            $placeholders = implode( ',', array_fill( 0, count( $product_ids ), '%d' ) );
+            $sku_query    = $wpdb->prepare(
+                "SELECT post_id, meta_value 
+				FROM {$wpdb->postmeta} 
+				WHERE meta_key = '_sku' 
+				AND post_id IN ($placeholders)",
+                ...$product_ids
+            );
+
+            $skus_raw = $wpdb->get_results( $sku_query, ARRAY_A );
+            foreach ( $skus_raw as $sku_row ) {
+                $skus[ (int) $sku_row['post_id'] ] = $sku_row['meta_value'];
+            }
+        }
+
+        foreach ( $products as $product ) {
+            $product_id = isset( $product['ID'] ) ? (int) $product['ID'] : 0;
+
+            if ( empty( $product_id ) ) {
+                continue;
+            }
+
+            $product_title = isset( $product['post_title'] ) ? html_entity_decode( $product['post_title'], ENT_QUOTES, 'UTF-8' ) : 'Unknown';
+            if ( empty( $product_title ) ) {
+                $product_title = 'Unknown';
+            }
+
+            $product_sku = isset( $skus[ $product_id ] ) ? $skus[ $product_id ] : null;
+            if ( ! empty( $product_sku ) ) {
+                $product_sku = sanitize_text_field( $product_sku );
+                $product_title = $product_title . ' (' . $product_sku . ')';
+            }
+
+            $results[ $product_id ] = $product_title;
+        }
+
+        if ( ! empty( $results ) && $this->is_transient_enabled ) {
+            set_transient( 'wpd_ai_report_filters_products_picker', $results, $this->transient_duration_in_seconds );
+        }
+
         $this->instance_cache['products'] = $results;
 
-        // Return Results
         return $results;
-
     }
 
     /**
@@ -651,15 +693,20 @@ class WPDAI_Report_Filters {
     }
 
     /**
-     * 
-     * 	List of available query parameter values from website traffic
+     *
+     *  List of available query parameter values from website traffic (capped for the filter picker; arbitrary key/values can be typed in the UI).
      *  Optimized for large stores using batched processing
      * 
-     * 	@return array $array An associative array of all query parameter values.
-     * 	Array structure is array[$query_parameter_value_slug] = $query_parameter_value_name.
+     * 	@return array<string, array<int, string>> Key => list of distinct value strings. Empty array if nothing found or on DB read errors (errors are logged).
+     *
+     * Optional: `wpd_ai_report_filters_short_circuit_website_traffic_query_parameters` (default false) — when true, returns `array()` without reading cache or DB.
      * 
      **/
     public function get_filter_values_website_traffic_query_parameter_key_value_pairs() {
+
+        if ( apply_filters( 'wpd_ai_report_filters_short_circuit_website_traffic_query_parameters', false ) ) {
+            return array();
+        }
 
         // Check instance cache first
         if ( isset( $this->instance_cache['traffic_query_params'] ) ) {
@@ -714,7 +761,8 @@ class WPDAI_Report_Filters {
                 wpdai_write_log( 'Error capturing session data from DB, dumping the error and query.', 'db_error' );
                 wpdai_write_log( $wpdb->last_error, 'db_error' );
                 wpdai_write_log( $wpdb->last_query, 'db_error' );
-                return false;
+
+                return array();
             }
 
             if ( empty( $results ) || ! is_array( $results ) ) {
@@ -730,23 +778,30 @@ class WPDAI_Report_Filters {
 
                 if ( empty( $params ) ) continue;
         
-                // Loop through params
+                // Loop through params (any key / value strings from landing URLs; picker list is capped later).
                 foreach ( $params as $key => $value ) {
-                    // Handle arrays (when query parameter appears multiple times)
+                    // Handle arrays (when query parameter appears multiple times).
                     $values_to_process = is_array( $value ) ? $value : array( $value );
-                    
+
                     foreach ( $values_to_process as $single_value ) {
-                        // Skip if not a string (nested arrays or other types)
                         if ( ! is_string( $single_value ) ) {
                             continue;
                         }
-                        
-                        $raw = $single_value;
-                        $clean = sanitize_text_field( $single_value );
-                        if ( wpdai_is_valid_reporting_utm_key_value_pair( $key, $single_value ) ) {
-                            if ( ! isset( $parsed_values[ $key ] ) ) $parsed_values[ $key ] = array();
-                            $parsed_values[ $key ][$clean] = true;
+
+                        $key_clean = sanitize_text_field( (string) $key );
+                        if ( '' === $key_clean ) {
+                            continue;
                         }
+
+                        $clean = sanitize_text_field( $single_value );
+                        if ( '' === $clean ) {
+                            continue;
+                        }
+
+                        if ( ! isset( $parsed_values[ $key_clean ] ) ) {
+                            $parsed_values[ $key_clean ] = array();
+                        }
+                        $parsed_values[ $key_clean ][ $clean ] = true;
                     }
                 }
             }
@@ -773,6 +828,8 @@ class WPDAI_Report_Filters {
     
         // Optionally sort alphabetically
         ksort( $parsed_values );
+
+        $parsed_values = $this->limit_query_parameter_picker_options( $parsed_values );
 
         // Store transient
         if ( ! empty($parsed_values) ) set_transient( 'wpd_ai_report_filters_website_traffic_query_parameter_values', $parsed_values, $this->transient_duration_in_seconds );

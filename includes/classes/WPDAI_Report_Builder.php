@@ -942,13 +942,17 @@ class WPDAI_Report_Builder {
         // Cache filter values to avoid duplicate queries
         // These filters are used in multiple places, so we fetch them once
         $traffic_sources = $report_filters->get_filter_values_traffic_sources();
+
+        // Potentially expensive queries that can be strings instead
         $products = $report_filters->get_filter_values_products();
+        $order_query_parameters = $report_filters->get_filter_values_order_query_parameter_key_value_pairs();
+        $website_traffic_query_parameters = $report_filters->get_filter_values_website_traffic_query_parameter_key_value_pairs();
 
         $filter_data_map = array(
             'orders' => array(
                 'order_statuses' => array_merge( array( 'any' => 'Any' ), wc_get_order_statuses() ),
                 'traffic_sources' => $traffic_sources,
-                'query_parameters' => $report_filters->get_filter_values_order_query_parameter_key_value_pairs()
+                'query_parameters' => $order_query_parameters
             ),
             'products' => array(
                 'products' => $products,
@@ -969,7 +973,7 @@ class WPDAI_Report_Builder {
             ),
             'website_traffic' => array(
                 'traffic_sources' => $traffic_sources,
-                'query_parameters' => $report_filters->get_filter_values_website_traffic_query_parameter_key_value_pairs(),
+                'query_parameters' => $website_traffic_query_parameters,
                 'session_contains_events' => $report_filters->get_filter_values_website_traffic_events(),
                 'products' => $products
             )

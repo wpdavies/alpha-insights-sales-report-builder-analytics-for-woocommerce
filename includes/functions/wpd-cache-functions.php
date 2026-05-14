@@ -415,6 +415,7 @@ function wpdai_product_data_collection( $active_product_id ) {
 
 			'product_name' 						=> 'Unknown',
 			'product_sku' 						=> 'N/A',
+			'product_date_created'				=> null, // local timestamp
 			'product_status' 					=> null,
 			'product_link' 						=> null,
 			'product_stock_qty' 				=> null,
@@ -437,6 +438,19 @@ function wpdai_product_data_collection( $active_product_id ) {
 	$product_name 							= $product->get_name();
 	$product_status 						= $product->get_status();
 	$product_sku 							= $product->get_sku();
+	// Convert time object into local timestamp
+	$product_date_created_obj 				= $product->get_date_created();
+	$product_date_created 					= null;
+	if ( is_a( $product_date_created_obj, 'WC_DateTime' ) ) {
+		if ( method_exists( $product_date_created_obj, 'getOffsetTimestamp' ) ) {
+			$product_date_created = $product_date_created_obj->getOffsetTimestamp();
+		} elseif ( method_exists( $product_date_created_obj, 'getTimestamp' ) ) {
+			$product_date_created = $product_date_created_obj->getTimestamp();
+		}
+		if ( null !== $product_date_created && $product_date_created <= 0 ) {
+			$product_date_created = null;
+		}
+	}
 	$product_link 							= get_permalink( $active_product_id );
 	$product_stock_qty 						= $product->get_stock_quantity();
 	$product_stock_status 					= $product->get_stock_status();
@@ -516,6 +530,7 @@ function wpdai_product_data_collection( $active_product_id ) {
 
 		'product_name' 						=> $product_name,
 		'product_status' 					=> $product_status,
+		'product_date_created'				=> $product_date_created,
 		'product_sku' 						=> $product_sku,
 		'product_link' 						=> $product_link,
 		'product_stock_qty' 				=> $product_stock_qty,

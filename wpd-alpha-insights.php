@@ -7,13 +7,13 @@
  * Author:              WP Davies
  * Author URI:          https://wpdavies.dev/
  *
- * Version:             	1.5.0
+ * Version:             	1.6.0
  * Requires at least:   	5.0
  * Tested up to:        	6.9
  * Requires PHP: 			7.4
  * Requires Plugins: 		woocommerce
  * WC requires at least: 	3.0
- * WC tested up to: 		10.6
+ * WC tested up to: 		10.7
  *
  * License:             GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -152,8 +152,8 @@ class WPD_Alpha_Insights_Free_Plugin {
 		if ( ! defined('WPD_AI_PRO') ) define( 'WPD_AI_PRO', false );
 
 		// Alpha Insights Meta
-		if ( ! defined('WPD_AI_VER') ) define( 'WPD_AI_VER', '1.5.0' );
-		if ( ! defined('WPD_AI_CACHE_VERSION') ) define( 'WPD_AI_CACHE_VERSION', '5.5.0' ); // Follows along pro versioning
+		if ( ! defined('WPD_AI_VER') ) define( 'WPD_AI_VER', '1.6.0' );
+		if ( ! defined('WPD_AI_CACHE_VERSION') ) define( 'WPD_AI_CACHE_VERSION', '5.5.5' ); // Follows along pro versioning
 		if ( ! defined('WPD_AI_CACHE_UPDATE_REQUIRED_VER') ) define( 'WPD_AI_CACHE_UPDATE_REQUIRED_VER', '4.7.10' ); // version this up as cache deletes are required
 		if ( ! defined('WPD_AI_DB_VERSION') ) define( 'WPD_AI_DB_VERSION', '5.2.1' );
 		if ( ! defined('WPD_AI_PRODUCT_ID') ) define( 'WPD_AI_PRODUCT_ID', 8330 );
