@@ -112,6 +112,7 @@ class WPDAI_Data_Manager {
             'wpd_ai_report_filters_order_query_parameter_values',
             'wpd_ai_report_filters_users',
             'wpd_ai_report_filters_products',
+            'wpd_ai_report_filters_products_picker',
             'wpd_ai_report_filters_product_categories',
             'wpd_ai_report_filters_product_tags',
             'wpd_ai_report_filters_billing_countries',

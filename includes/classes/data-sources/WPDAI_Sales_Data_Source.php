@@ -961,9 +961,20 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
                     // Loop through query param array
                     foreach( $query_params as $key => $value ) {
 
-                        // Transform as required
-                        $key = ( ! empty($key) ) ? $key : 'unset';
-                        $value = ( ! empty($value) ) ? $value : 'unset';
+                        // Non-scalar keys/values (e.g. repeated query params as arrays) must be stringified for use as array offsets.
+                        if ( is_array( $key ) || is_object( $key ) ) {
+                            $key = wp_json_encode( $key );
+                        } else {
+                            $key = (string) $key;
+                        }
+                        if ( is_array( $value ) || is_object( $value ) ) {
+                            $value = wp_json_encode( $value );
+                        } else {
+                            $value = (string) $value;
+                        }
+
+                        $key = ( ! empty( $key ) ) ? $key : 'unset';
+                        $value = ( ! empty( $value ) ) ? $value : 'unset';
 
                         // Defaults
                         if ( ! isset($categorized_data['order_metrics']['acquisition_query_parameter_keys'][$key]) ) $categorized_data['order_metrics']['acquisition_query_parameter_keys'][$key] = $default_order_summary;
@@ -1315,6 +1326,7 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
                                 'product_type'                          => $product_data_store['product_type'],
                                 'product_rrp'                           => $product_data_store['product_rrp'],
                                 'product_cost_price'                    => $product_data_store['product_cost_price'],
+                                'product_date_created'                  => $product_data_store['product_date_created'] ?? null,
                                 'total_product_revenue_value_rrp'       => 0,
                                 'total_product_revenue'                 => 0,
                                 'total_product_revenue_excluding_tax'   => 0,
