@@ -1,0 +1,104 @@
+<h2>Filter: _wpd_ai_override_total_product_cost</h2>
+
+<p>Override the total product cost of goods sold (COGS) for an order after line items have been calculated.</p>
+
+<h3>Description</h3>
+
+<p>Alpha Insights normally totals product COGS by summing each line item's per-unit cost multiplied by quantity. This filter runs near the end of product calculations and lets you replace that summed COGS value with a custom total—useful for ERP integrations, manual adjustments, or systems that store order-level product cost rather than per-line-item cost.</p>
+
+<p>The filtered value replaces <code>total_product_cogs</code> only. Custom product costs (packaging, fulfillment, etc.) are added separately to produce <code>total_product_cost</code>.</p>
+
+<h4>Calculation precedence</h4>
+
+<ol>
+    <li>Sum line item COGS (from <code>_wpd_ai_product_cogs</code>, fallback meta keys, or product cost settings)</li>
+    <li>Order meta <code>_wpd_ai_total_product_cost</code>, if numeric, overrides the summed value</li>
+    <li>This filter runs last and can override the value from steps 1–2</li>
+</ol>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPDAI_Order_Calculator.php</code></p>
+<p><strong>Method:</strong> <code>WPDAI_Order_Calculator::calculate_product_data()</code></p>
+<p><strong>Line:</strong> ~1150</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$total_product_cogs</td>
+        <td>float</td>
+        <td>The current total product COGS for the order (sum of line items, or overridden by order meta)</td>
+    </tr>
+    <tr>
+        <td>$order</td>
+        <td>WC_Order</td>
+        <td>The WooCommerce order being calculated</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> float</p>
+<p><strong>Description:</strong> The total product COGS to use for the order. Must be numeric to take effect.</p>
+
+<h3>Example Usage</h3>
+
+<h4>Override from an external ERP</h4>
+
+<pre><code>add_filter( '_wpd_ai_override_total_product_cost', 'wpd_ai_erp_product_cost_override', 10, 2 );
+function wpd_ai_erp_product_cost_override( $total_product_cogs, $order ) {
+    $erp_cost = get_post_meta( $order->get_id(), '_erp_total_product_cost', true );
+    if ( is_numeric( $erp_cost ) && $erp_cost >= 0 ) {
+        return (float) $erp_cost;
+    }
+    return $total_product_cogs;
+}</code></pre>
+
+<h4>Apply a fixed adjustment to calculated COGS</h4>
+
+<pre><code>add_filter( '_wpd_ai_override_total_product_cost', 'wpd_ai_add_handling_buffer_to_cogs', 10, 2 );
+function wpd_ai_add_handling_buffer_to_cogs( $total_product_cogs, $order ) {
+    // Add a flat $2 handling buffer to product COGS for all orders
+    return round( $total_product_cogs + 2.00, 2 );
+}</code></pre>
+
+<h4>Override only for specific order types</h4>
+
+<pre><code>add_filter( '_wpd_ai_override_total_product_cost', 'wpd_ai_wholesale_cogs_override', 10, 2 );
+function wpd_ai_wholesale_cogs_override( $total_product_cogs, $order ) {
+    if ( $order->get_meta( '_is_wholesale_order' ) !== 'yes' ) {
+        return $total_product_cogs;
+    }
+
+    $wholesale_cogs = $order->get_meta( '_wholesale_total_product_cost' );
+    if ( is_numeric( $wholesale_cogs ) ) {
+        return (float) $wholesale_cogs;
+    }
+
+    return $total_product_cogs;
+}</code></pre>
+
+<h3>Important Notes</h3>
+
+<ul>
+    <li>Only affects <strong>product COGS</strong>, not custom product costs or other order costs (shipping, payment fees, etc.)</li>
+    <li>When the returned value is numeric, <code>total_product_cost</code> is recalculated as <code>total_product_cogs + total_product_custom_costs</code></li>
+    <li>Non-numeric return values are ignored and the previous COGS total is kept</li>
+    <li>For per-line-item overrides, use <a href="/documentation/alpha-insights/developers/filters/60-_wpd_ai_line_item_cost_per_unit_meta_keys.html">_wpd_ai_line_item_cost_per_unit_meta_keys</a> or <a href="/documentation/alpha-insights/developers/filters/32-wpd_ai_cost_price_per_unit.html">wpd_ai_cost_price_per_unit</a> instead</li>
+    <li>For full control over all calculation fields, use <a href="/documentation/alpha-insights/developers/filters/02-wpd_ai_calculate_cost_profit_by_order.html">wpd_ai_calculate_cost_profit_by_order</a></li>
+</ul>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/60-_wpd_ai_line_item_cost_per_unit_meta_keys.html">_wpd_ai_line_item_cost_per_unit_meta_keys</a> – Line item meta keys for per-unit COGS</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/32-wpd_ai_cost_price_per_unit.html">wpd_ai_cost_price_per_unit</a> – Override per-unit cost at the product level</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/07-wpd_ai_custom_product_cost_default_value.html">wpd_ai_custom_product_cost_default_value</a> – Custom product cost defaults</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/02-wpd_ai_calculate_cost_profit_by_order.html">wpd_ai_calculate_cost_profit_by_order</a> – Full profit calculation</li>
+</ul>

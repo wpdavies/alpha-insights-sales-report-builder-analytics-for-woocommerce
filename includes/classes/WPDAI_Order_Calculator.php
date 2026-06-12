@@ -920,8 +920,35 @@ class WPDAI_Order_Calculator {
                 $total_line_item_custom_product_cost        = 0;
                 $line_item_custom_product_cost_data         = array();
 
-                // Item Object Vars
+                // Collect Line Item COGS
                 $order_item_cogs                            = $item->get_meta( '_wpd_ai_product_cogs' ); // Dont type case so we can check for empty
+
+                // Optionally grab COGS from COGS from other line item meta if available
+                if ( ! is_numeric($order_item_cogs) ) {
+
+                    /**
+                     *
+                     *  Filters the line item meta keys checked for per-unit COGS when _wpd_ai_product_cogs is not set.
+                     *
+                     *  @param array $meta_keys Line item meta keys to check (default: empty array). Last numeric value wins.
+                     *  @param WC_Order $order The order being calculated.
+                     *  @param WC_Order_Item_Product $item The current line item.
+                     *
+                     *  @return array Meta key strings to check on the line item.
+                     *
+                     **/
+                    $meta_keys_to_check = apply_filters( '_wpd_ai_line_item_cost_per_unit_meta_keys', array(), $this->order, $item );
+                    if ( is_array($meta_keys_to_check) && ! empty($meta_keys_to_check) ) {
+                        foreach( $meta_keys_to_check as $meta_key ) {
+                            $wc_line_item_cogs = $item->get_meta( $meta_key );
+                            if ( is_numeric($wc_line_item_cogs) ) {
+                                $order_item_cogs = $wc_line_item_cogs;
+                            }
+                        }
+                    }
+                }
+
+                // Collect Line Item Product Data
                 $product_id 								= (int) $item->get_product_id();
                 $variation_id 								= (int) $item->get_variation_id();
                 $quantity 									= (float) $item->get_quantity();
@@ -1128,6 +1155,23 @@ class WPDAI_Order_Calculator {
             $total_product_cogs = (float) $meta_total_product_cost;
             $total_product_cost = $total_product_cogs + $total_product_custom_costs;
             
+        }
+
+        /**
+         *
+         *  Overrides the total product COGS for the order after line items are summed.
+         *
+         *  Runs after order meta _wpd_ai_total_product_cost. Custom product costs are added separately.
+         *
+         *  @param float $total_product_cogs Current total product COGS for the order.
+         *  @param WC_Order $order The order being calculated.
+         *
+         *  @return float Total product COGS to use. Must be numeric to take effect.
+         *
+         **/
+        $total_product_cogs = apply_filters( '_wpd_ai_override_total_product_cost', $total_product_cogs, $this->order );
+        if ( is_numeric($total_product_cogs) ) {
+            $total_product_cost = $total_product_cogs + $total_product_custom_costs;
         }
 
         // If we've overriden at the order level
