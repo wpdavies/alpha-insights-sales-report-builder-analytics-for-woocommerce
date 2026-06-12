@@ -1,0 +1,95 @@
+<h2>Filter: _wpd_ai_line_item_cost_per_unit_meta_keys</h2>
+
+<p>Filter the list of order line item meta keys that Alpha Insights checks for per-unit cost of goods sold (COGS) when calculating order profit.</p>
+
+<h3>Description</h3>
+
+<p>During order profit calculation, Alpha Insights first looks for a saved per-unit COGS value on each line item in the <code>_wpd_ai_product_cogs</code> meta key. If that value is not numeric, this filter lets you supply additional line item meta keys to check—such as third-party COGS plugins or custom integrations.</p>
+
+<p>Each key in the returned array is read from the current line item. If a meta value is numeric, it is used as the per-unit COGS for that line item. When multiple keys return numeric values, the <strong>last</strong> numeric value in the array wins. If no numeric value is found, Alpha Insights falls back to the product's configured cost via <code>wpdai_get_cost_price_by_product_id()</code>.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/classes/WPDAI_Order_Calculator.php</code></p>
+<p><strong>Method:</strong> <code>WPDAI_Order_Calculator::calculate_product_data()</code></p>
+<p><strong>Line:</strong> ~929</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$meta_keys</td>
+        <td>array</td>
+        <td>Line item meta keys to check for per-unit COGS (default: empty array)</td>
+    </tr>
+    <tr>
+        <td>$order</td>
+        <td>WC_Order</td>
+        <td>The WooCommerce order being calculated</td>
+    </tr>
+    <tr>
+        <td>$item</td>
+        <td>WC_Order_Item_Product</td>
+        <td>The current order line item</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> array</p>
+<p><strong>Description:</strong> Array of line item meta key strings to check for per-unit COGS values</p>
+
+<h3>Example Usage</h3>
+
+<h4>Support WooCommerce native COGS line item meta</h4>
+
+<p>WooCommerce's native Cost of Goods Sold feature stores per-unit cost on line items as <code>_cogs_value</code>. Add it when Alpha Insights has not already saved <code>_wpd_ai_product_cogs</code> on the line item:</p>
+
+<pre><code>add_filter( '_wpd_ai_line_item_cost_per_unit_meta_keys', 'wpd_ai_add_wc_native_cogs_meta_key', 10, 3 );
+function wpd_ai_add_wc_native_cogs_meta_key( $meta_keys, $order, $item ) {
+    $meta_keys[] = '_cogs_value';
+    return $meta_keys;
+}</code></pre>
+
+<h4>Add a custom integration meta key</h4>
+
+<pre><code>add_filter( '_wpd_ai_line_item_cost_per_unit_meta_keys', 'wpd_ai_add_erp_line_item_cost_meta', 10, 3 );
+function wpd_ai_add_erp_line_item_cost_meta( $meta_keys, $order, $item ) {
+    $meta_keys[] = '_my_erp_unit_cost';
+    return $meta_keys;
+}</code></pre>
+
+<h4>Conditional meta keys per order or line item</h4>
+
+<pre><code>add_filter( '_wpd_ai_line_item_cost_per_unit_meta_keys', 'wpd_ai_conditional_line_item_cost_meta', 10, 3 );
+function wpd_ai_conditional_line_item_cost_meta( $meta_keys, $order, $item ) {
+    // Only check ERP cost meta for wholesale orders
+    if ( $order->get_meta( '_is_wholesale_order' ) === 'yes' ) {
+        $meta_keys[] = '_wholesale_unit_cost';
+    }
+    return $meta_keys;
+}</code></pre>
+
+<h3>Important Notes</h3>
+
+<ul>
+    <li>This filter only runs when <code>_wpd_ai_product_cogs</code> on the line item is not numeric</li>
+    <li>Values are treated as <strong>per-unit</strong> COGS, not line item totals</li>
+    <li>Meta keys are case-sensitive—use the exact key name stored on the line item</li>
+    <li>Order meta keys in the array are not supported; only line item meta is read via <code>$item->get_meta()</code></li>
+    <li>Use priority <code>10</code> and <code>3</code> accepted arguments when hooking this filter</li>
+</ul>
+
+<h3>Related Filters</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/32-wpd_ai_cost_price_per_unit.html">wpd_ai_cost_price_per_unit</a> – Override per-unit cost at the product level</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/22-wpd_ai_cost_price_support_woocommerce_native_cogs.html">wpd_ai_cost_price_support_woocommerce_native_cogs</a> – Use WooCommerce native COGS on products</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/61-_wpd_ai_override_total_product_cost.html">_wpd_ai_override_total_product_cost</a> – Override total order product COGS</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/02-wpd_ai_calculate_cost_profit_by_order.html">wpd_ai_calculate_cost_profit_by_order</a> – Full profit calculation</li>
+</ul>

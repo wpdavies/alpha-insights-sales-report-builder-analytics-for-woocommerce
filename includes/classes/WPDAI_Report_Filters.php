@@ -102,7 +102,7 @@ class WPDAI_Report_Filters {
      **/
     public function get_filter_values_order_query_parameter_key_value_pairs() {
 
-        if ( apply_filters( 'wpd_ai_report_filters_short_circuit_order_query_parameters', false ) ) {
+        if ( apply_filters( 'wpd_ai_report_filters_short_circuit_order_query_parameters', true ) ) {
             return array();
         }
 
@@ -406,7 +406,7 @@ class WPDAI_Report_Filters {
      */
     public function get_filter_values_products() {
 
-        if ( apply_filters( 'wpd_ai_report_filters_short_circuit_products_picker', false ) ) {
+        if ( apply_filters( 'wpd_ai_report_filters_short_circuit_products_picker', true ) ) {
             return array();
         }
 
@@ -704,7 +704,7 @@ class WPDAI_Report_Filters {
      **/
     public function get_filter_values_website_traffic_query_parameter_key_value_pairs() {
 
-        if ( apply_filters( 'wpd_ai_report_filters_short_circuit_website_traffic_query_parameters', false ) ) {
+        if ( apply_filters( 'wpd_ai_report_filters_short_circuit_website_traffic_query_parameters', true ) ) {
             return array();
         }
 
