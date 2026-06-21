@@ -161,7 +161,7 @@ if ( ! function_exists( 'wpdai_send_woocommerce_event' ) ) {
 
         _deprecated_function( 'wpdai_send_woocommerce_event', '5.0.0', 'wpdai_track_custom_event() or WPDAI_WooCommerce_Event_Tracking::get_instance()->insert_event()' );
 
-        return WPDAI_WooCommerce_Event_Tracking::get_instance()->insert_event( $data );
+        return wpdai_get_event_tracking_instance()->insert_event( $data );
 
     }
 

@@ -7,7 +7,7 @@
  * Author:              WP Davies
  * Author URI:          https://wpdavies.dev/
  *
- * Version:             	1.7.0
+ * Version:             	1.8.0
  * Requires at least:   	5.0
  * Tested up to:        	7.0
  * Requires PHP: 			7.4
@@ -152,8 +152,8 @@ class WPD_Alpha_Insights_Free_Plugin {
 		if ( ! defined('WPD_AI_PRO') ) define( 'WPD_AI_PRO', false );
 
 		// Alpha Insights Meta
-		if ( ! defined('WPD_AI_VER') ) define( 'WPD_AI_VER', '1.7.0' );
-		if ( ! defined('WPD_AI_CACHE_VERSION') ) define( 'WPD_AI_CACHE_VERSION', '5.6.0' ); // Follows along pro versioning
+		if ( ! defined('WPD_AI_VER') ) define( 'WPD_AI_VER', '1.8.0' );
+		if ( ! defined('WPD_AI_CACHE_VERSION') ) define( 'WPD_AI_CACHE_VERSION', '5.6.3' ); // Follows along pro versioning
 		if ( ! defined('WPD_AI_CACHE_UPDATE_REQUIRED_VER') ) define( 'WPD_AI_CACHE_UPDATE_REQUIRED_VER', '4.7.10' ); // version this up as cache deletes are required
 		if ( ! defined('WPD_AI_DB_VERSION') ) define( 'WPD_AI_DB_VERSION', '5.2.1' );
 		if ( ! defined('WPD_AI_PRODUCT_ID') ) define( 'WPD_AI_PRODUCT_ID', 8330 );
@@ -190,7 +190,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		// APIs
 		if ( ! defined('WPD_AI_FACEBOOK_API_VER') ) define( 'WPD_AI_FACEBOOK_API_VER', 'v24.0' );
-		if ( ! defined('WPD_AI_GOOGLE_ADS_API_VER') ) define( 'WPD_AI_GOOGLE_ADS_API_VER', 'v20' );
+		if ( ! defined('WPD_AI_GOOGLE_ADS_API_VER') ) define( 'WPD_AI_GOOGLE_ADS_API_VER', 'v24' );
 
 	}
 
@@ -805,6 +805,8 @@ class WPD_Alpha_Insights_Free_Plugin {
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-report-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-settings-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-deprecated.php');
+		require_once( WPD_AI_PATH . 'includes/analytics-v2/wpd-analytics-v2-functions.php' );
+		require_once( WPD_AI_PATH . 'includes/analytics-v2/WPDAI_Analytics_V2_Loader.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-subscription-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/emails/wpd-email-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-custom-cost-functions.php' );
