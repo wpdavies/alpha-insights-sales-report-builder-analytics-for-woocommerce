@@ -51,6 +51,10 @@ class WPDAI_WooCommerce_Event_Tracking {
 	 */
 	public function __construct() {
 
+		if ( function_exists( 'wpdai_is_cache_safe_tracking_enabled' ) && wpdai_is_cache_safe_tracking_enabled() ) {
+			return;
+		}
+
 		if ( ! wpdai_is_analytics_enabled() ) {
 			$this->event_tracking_enabled = 0;
 		}

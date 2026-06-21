@@ -350,6 +350,8 @@ function wpdai_get_analytics_settings() {
 		'exclude_roles' => array(),
 		'only_track_engaged_sessions' => 0,
 		'attribution_timeout_in_days' => 3,
+		'enable_cache_safe_tracking_beta' => 0,
+		'cookie_storage_mode' => 'checkout_only',
 	);
 
 	// Legacy Items

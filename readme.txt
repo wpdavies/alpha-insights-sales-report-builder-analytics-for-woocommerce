@@ -4,7 +4,7 @@ Tags: woocommerce analytics, woocommerce reporting, woocommerce analytics plugin
 Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.7.0
+Stable tag: 1.8.0
 Requires Plugins: woocommerce
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -174,6 +174,10 @@ Default WooCommerce reports focus primarily on revenue. Alpha Insights adds cost
 ---
 
 == Changelog ==
+
+= 1.8.0 =
+* Add - Beta version of cache safe analytics tracking - analytics v2.
+* Add - Include common cost of goods plugin's meta keys as fallback for cost of goods value - filterable
 
 = 1.7.0 =
 * Add - Filter added for overriding line item COGS _wpd_ai_line_item_cost_per_unit_meta_key.

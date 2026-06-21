@@ -322,13 +322,12 @@ function wpdai_get_cost_price_by_product_id( $product_id ) {
 
 }
 
-
 /**
  * 
  * 	Gets the usable default cost price by product / variation
  *  Will check the following hierarchy:
- * 	1. WC Native COGS meta: _cogs_total_value
- * 	2. Parent Variable Product meta: _wpd_ai_product_cost & _cogs_total_value
+ * 	1. Default product cost meta keys via wpd_ai_default_product_cost_price_meta_keys (Woo native, common plugins)
+ * 	2. Parent Variable Product meta (if a variation): _wpd_ai_product_cost & same default meta keys
  * 	3. Default Cost Price (General Settings) e.g. 30% of RRP
  *  
  *  @param int $product_id The product ID
@@ -340,16 +339,34 @@ function wpdai_get_cost_price_by_product_id( $product_id ) {
 function wpdai_get_default_cost_price_by_product_id( $product_id ) {
 
 	$cost_price_per_unit = 0;
-	$support_native_cogs = apply_filters( 'wpd_ai_cost_price_support_woocommerce_native_cogs', true );
 
 	/**
-	 *  Check the WC native cost of goods (WooCommerce Cost of Goods)
-	 *  This is the preferred method of getting the cost price
+	 * 
+	 * 	Allow setting a default custom cost price meta key
+	 * 
+	 * 	@since 5.0.0
+	 * 	@version 5.0.0
+	 * 	@return array The custom COGS meta keys
 	 */
-	$wc_native_cost_price_per_unit = get_post_meta( $product_id, '_cogs_total_value', true ); // WooCommerce 10.0+ (Native COGS)
-	if ( is_numeric($wc_native_cost_price_per_unit) && $support_native_cogs ) {
-		$cost_price_per_unit = wpdai_float( $wc_native_cost_price_per_unit );
-		return $cost_price_per_unit;
+	$custom_cogs_meta_keys = apply_filters( 
+		'wpd_ai_default_product_cost_price_meta_keys', 
+		array(
+			'_cogs_total_value', 	// Default Woo Native
+			'_wc_cog_cost', 		// Official WooCommerce Cost of Goods (WooCommerce Cost of Goods)
+			'_alg_wc_cog_cost', 	// WP Factory WooCommerce Cost of Goods (WooCommerce Cost of Goods)
+			'_purchase_price', 		// Atum Stock Central
+			'_cost_of_goods' 		// Generic check
+		) 
+	);
+	// Loop through custom meta key fallbacks 
+	if ( ! empty( $custom_cogs_meta_keys ) && is_array( $custom_cogs_meta_keys ) ) {
+		foreach ( $custom_cogs_meta_keys as $custom_cogs_meta_key ) {
+			$custom_cost_price_per_unit = get_post_meta( $product_id, $custom_cogs_meta_key, true );
+			if ( is_numeric( $custom_cost_price_per_unit ) ) {
+				$cost_price_per_unit = wpdai_float( $custom_cost_price_per_unit );
+				return $cost_price_per_unit;
+			}
+		}
 	}
 
 	/**
@@ -365,11 +382,15 @@ function wpdai_get_default_cost_price_by_product_id( $product_id ) {
 			$cost_price_per_unit = wpdai_float( $cost_price_per_unit );
 			return $cost_price_per_unit;
 		}
-		// Also check the WC native cost of goods (WooCommerce Cost of Goods)
-		$wc_native_cost_price_per_unit = get_post_meta( $parent_id, '_cogs_total_value', true ); // WooCommerce 10.0+ (Native COGS)
-		if ( is_numeric( $wc_native_cost_price_per_unit ) && $support_native_cogs ) {
-			$cost_price_per_unit = wpdai_float( $wc_native_cost_price_per_unit );
-			return $cost_price_per_unit;
+		// Check parent against the same default meta keys
+		if ( ! empty( $custom_cogs_meta_keys ) && is_array( $custom_cogs_meta_keys ) ) {
+			foreach ( $custom_cogs_meta_keys as $custom_cogs_meta_key ) {
+				$custom_cost_price_per_unit = get_post_meta( $parent_id, $custom_cogs_meta_key, true );
+				if ( is_numeric( $custom_cost_price_per_unit ) ) {
+					$cost_price_per_unit = wpdai_float( $custom_cost_price_per_unit );
+					return $cost_price_per_unit;
+				}
+			}
 		}
 	}
 
@@ -386,7 +407,6 @@ function wpdai_get_default_cost_price_by_product_id( $product_id ) {
 	return 0;
 
 }
-
 
 /**
  *
@@ -1373,7 +1393,7 @@ function wpdai_track_custom_event( $event_type, $args = array() ) {
 		$data['additional_data'] = $args['additional_data'];
 	}
 
-	return WPDAI_WooCommerce_Event_Tracking::get_instance()->insert_event( $data );
+	return wpdai_get_event_tracking_instance()->insert_event( $data );
 }
 
 

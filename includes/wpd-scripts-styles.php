@@ -254,6 +254,14 @@ function wpdai_admin_enqueue() {
 add_action( 'wp_enqueue_scripts', 'wpdai_alpha_insights_frontend_scripts_styles' ); 
 function wpdai_alpha_insights_frontend_scripts_styles() {
 
+	if ( function_exists( 'wpdai_is_cache_safe_tracking_enabled' ) && wpdai_is_cache_safe_tracking_enabled() ) {
+		return;
+	}
+
+	if ( ! wpdai_is_analytics_enabled() ) {
+		return;
+	}
+
 	// Register script
 	wp_register_script( 'wpd-alpha-insights-frontend', WPD_AI_URL_PATH . 'assets/js/wpd-alpha-insights-frontend.js', array('jquery'), WPD_AI_VER, true );
 

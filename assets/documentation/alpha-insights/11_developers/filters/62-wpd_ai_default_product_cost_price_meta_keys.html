@@ -1,0 +1,195 @@
+<h2>Filter: wpd_ai_default_product_cost_price_meta_keys</h2>
+
+<p>Configure the product post meta keys Alpha Insights checks when resolving a default per-unit cost price—after Alpha Insights' own <code>_wpd_ai_product_cost</code> field is empty.</p>
+
+<h3>Description</h3>
+
+<p>When a product or variation has no cost saved in Alpha Insights' <code>_wpd_ai_product_cost</code> meta field, Alpha Insights loops through the meta keys returned by this filter on that product/variation ID. The <strong>first</strong> numeric value found is used as the per-unit COGS.</p>
+
+<p>By default, Alpha Insights includes WooCommerce native COGS and several popular third-party COGS plugins so cost data is picked up automatically without extra configuration.</p>
+
+<h4>Location</h4>
+
+<p><strong>File:</strong> <code>includes/wpd-functions.php</code></p>
+<p><strong>Function:</strong> <code>wpdai_get_default_cost_price_by_product_id( $product_id )</code></p>
+<p><strong>Line:</strong> ~358</p>
+
+<h3>Parameters</h3>
+
+<table>
+    <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>$meta_keys</td>
+        <td>array</td>
+        <td>Product post meta keys to check for per-unit COGS</td>
+    </tr>
+</table>
+
+<h4>Return</h4>
+
+<p><strong>Type:</strong> array</p>
+<p>Array of product post meta key strings. Each key is read via <code>get_post_meta( $product_id, $key, true )</code> on the product or variation being resolved.</p>
+
+<h3>Default meta keys</h3>
+
+<p>Alpha Insights passes this array as the filter default (first match wins):</p>
+
+<table>
+    <tr>
+        <th>Meta key</th>
+        <th>Source</th>
+    </tr>
+    <tr>
+        <td><code>_cogs_total_value</code></td>
+        <td>WooCommerce native COGS (WooCommerce 10.0+)</td>
+    </tr>
+    <tr>
+        <td><code>_wc_cog_cost</code></td>
+        <td>WooCommerce Cost of Goods (official extension)</td>
+    </tr>
+    <tr>
+        <td><code>_alg_wc_cog_cost</code></td>
+        <td>Cost of Goods for WooCommerce by WP Factory</td>
+    </tr>
+    <tr>
+        <td><code>_purchase_price</code></td>
+        <td>ATUM Stock Management for WooCommerce (Stock Central)</td>
+    </tr>
+</table>
+
+<p>To disable a built-in source, remove its key from the array. To add your own integration, append additional keys—the earlier a key appears in the array, the higher its priority.</p>
+
+<h3>Cost price resolution hierarchy</h3>
+
+<p>Product cost is resolved at two levels: <strong>order line items</strong> (per order) and <strong>products</strong> (catalog fallback). This filter affects the product fallback path only.</p>
+
+<h4>Order line item COGS (per line item in an order)</h4>
+
+<ol>
+    <li><code>_wpd_ai_product_cogs</code> on the line item (saved when the order is calculated)</li>
+    <li>Line item meta keys from <a href="/documentation/alpha-insights/developers/filters/60-_wpd_ai_line_item_cost_per_unit_meta_keys.html">_wpd_ai_line_item_cost_per_unit_meta_keys</a> — <strong>last</strong> numeric value wins</li>
+    <li>Product cost via <code>wpdai_get_cost_price_by_product_id()</code> (see below)</li>
+</ol>
+
+<h4>Product cost (<code>wpdai_get_cost_price_by_product_id()</code>)</h4>
+
+<ol>
+    <li>Request object cache (<code>_wpd_ai_product_cost_price</code>) — skips all lookups if this function already ran for the product in the current request</li>
+    <li><code>_wpd_ai_product_cost</code> on the product or variation (Alpha Insights product cost field)</li>
+    <li>Default cost resolution via <code>wpdai_get_default_cost_price_by_product_id()</code> (see next section)</li>
+    <li>Bundle parent products (WPC Bundles / WooCommerce Product Bundles) — cost set to <code>0</code>; child items carry cost</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/32-wpd_ai_cost_price_per_unit.html">wpd_ai_cost_price_per_unit</a> — final override filter on the resolved value</li>
+</ol>
+
+<h4>Default product cost (<code>wpdai_get_default_cost_price_by_product_id()</code>) — where this filter runs</h4>
+
+<p>Only evaluated when <code>_wpd_ai_product_cost</code> is empty on the product or variation.</p>
+
+<ol>
+    <li><strong>This filter</strong> — <code>wpd_ai_default_product_cost_price_meta_keys</code> on the product/variation — <strong>first</strong> numeric value wins (defaults include Woo native and common plugin keys; see table above)</li>
+    <li>If the product is a <strong>variation</strong> and still no cost: parent <code>_wpd_ai_product_cost</code></li>
+    <li>If the product is a <strong>variation</strong> and still no cost: same default meta keys from this filter, checked on the parent variable product</li>
+    <li>General settings default — percentage of regular price (e.g. 30% of RRP) from <strong>Settings → Cost Defaults</strong></li>
+    <li><code>0</code> if nothing else applies</li>
+</ol>
+
+<h4>Precedence summary</h4>
+
+<table>
+    <tr>
+        <th>Source</th>
+        <th>Takes precedence over</th>
+        <th>Notes</th>
+    </tr>
+    <tr>
+        <td>Alpha Insights <code>_wpd_ai_product_cost</code></td>
+        <td>This filter, parent meta, general settings</td>
+        <td>Checked before <code>wpdai_get_default_cost_price_by_product_id()</code> runs</td>
+    </tr>
+    <tr>
+        <td>This filter (default meta keys)</td>
+        <td>Parent meta, general settings</td>
+        <td>First numeric key in the array wins; runs on the variation/product ID</td>
+    </tr>
+    <tr>
+        <td>Parent <code>_wpd_ai_product_cost</code> and default meta keys</td>
+        <td>General settings</td>
+        <td>Variation fallback only; parent is checked with the same meta key list from this filter</td>
+    </tr>
+    <tr>
+        <td><code>wpd_ai_cost_price_per_unit</code></td>
+        <td>All resolved product cost values</td>
+        <td>Runs after the full product resolution chain</td>
+    </tr>
+    <tr>
+        <td>Line item <code>_wpd_ai_product_cogs</code></td>
+        <td>Product cost for that line item</td>
+        <td>Order-level; does not use this filter directly</td>
+    </tr>
+</table>
+
+<h3>Example usage</h3>
+
+<h4>Add a custom ERP meta key</h4>
+
+<pre><code>add_filter( 'wpd_ai_default_product_cost_price_meta_keys', 'wpd_ai_add_erp_cost_meta_key' );
+function wpd_ai_add_erp_cost_meta_key( $meta_keys ) {
+    // Check ERP cost before built-in plugin keys
+    array_unshift( $meta_keys, '_my_erp_unit_cost' );
+    return $meta_keys;
+}</code></pre>
+
+<h4>Append a fallback key after built-in defaults</h4>
+
+<pre><code>add_filter( 'wpd_ai_default_product_cost_price_meta_keys', 'wpd_ai_append_supplier_cost_meta' );
+function wpd_ai_append_supplier_cost_meta( $meta_keys ) {
+    $meta_keys[] = '_supplier_unit_cost';
+    return $meta_keys;
+}</code></pre>
+
+<h4>Disable WooCommerce native COGS in the default list</h4>
+
+<pre><code>add_filter( 'wpd_ai_default_product_cost_price_meta_keys', 'wpd_ai_remove_native_cogs_meta_key' );
+function wpd_ai_remove_native_cogs_meta_key( $meta_keys ) {
+    return array_values( array_diff( $meta_keys, array( '_cogs_total_value' ) ) );
+}</code></pre>
+
+<h4>Replace the entire default list</h4>
+
+<pre><code>add_filter( 'wpd_ai_default_product_cost_price_meta_keys', 'wpd_ai_custom_only_cost_meta_keys' );
+function wpd_ai_custom_only_cost_meta_keys( $meta_keys ) {
+    return array( '_my_custom_unit_cost' );
+}</code></pre>
+
+<h3>Important notes</h3>
+
+<ul>
+    <li>Values must be numeric (or numeric strings). Non-numeric or empty meta is skipped</li>
+    <li>Values are treated as <strong>per-unit</strong> COGS, not line totals</li>
+    <li>Meta keys are case-sensitive — use the exact key stored on the product</li>
+    <li>Unlike <a href="/documentation/alpha-insights/developers/filters/60-_wpd_ai_line_item_cost_per_unit_meta_keys.html">_wpd_ai_line_item_cost_per_unit_meta_keys</a>, the <strong>first</strong> numeric match wins (not the last)</li>
+    <li>On variations, this filter checks the variation ID first; if no match, the parent variable product is checked for <code>_wpd_ai_product_cost</code> then the same default meta key list</li>
+    <li>For order-specific overrides, use line item meta via <code>_wpd_ai_line_item_cost_per_unit_meta_keys</code> or <code>wpd_ai_cost_price_per_unit</code></li>
+    <li>For overriding total product COGS on an entire order, see <a href="/documentation/alpha-insights/developers/filters/61-_wpd_ai_override_total_product_cost.html">_wpd_ai_override_total_product_cost</a></li>
+</ul>
+
+<h3>Related filters</h3>
+
+<ul>
+    <li><a href="/documentation/alpha-insights/developers/filters/32-wpd_ai_cost_price_per_unit.html">wpd_ai_cost_price_per_unit</a> – Final per-unit cost override at the product level</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/60-_wpd_ai_line_item_cost_per_unit_meta_keys.html">_wpd_ai_line_item_cost_per_unit_meta_keys</a> – Line item meta keys for per-unit COGS on orders</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/61-_wpd_ai_override_total_product_cost.html">_wpd_ai_override_total_product_cost</a> – Override total order product COGS</li>
+    <li><a href="/documentation/alpha-insights/developers/filters/02-wpd_ai_calculate_cost_profit_by_order.html">wpd_ai_calculate_cost_profit_by_order</a> – Full profit calculation</li>
+</ul>
+
+<h3>Related functions</h3>
+
+<ul>
+    <li><code>wpdai_get_cost_price_by_product_id( $product_id )</code> – Primary product cost resolver</li>
+    <li><code>wpdai_get_default_cost_price_by_product_id( $product_id )</code> – Default/fallback cost resolver (runs this filter)</li>
+    <li><code>wpdai_get_default_cost_price_from_general_settings( $product_id )</code> – Percent-of-RRP fallback from settings</li>
+</ul>
