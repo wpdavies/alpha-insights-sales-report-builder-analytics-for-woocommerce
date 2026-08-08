@@ -246,6 +246,7 @@ class WPDAI_Report_Builder {
             'cache_build_batch_size'       => $this->cache_build_batch_size,
             'site_creation_date'           => $this->site_creation_date,
             'site_name'                    => get_bloginfo( 'name' ),
+            'site_timezone'                => wp_timezone_string(),
             'filters_data_map_values'      => $this->get_filters_data_map_values(),
             'default_report_ids'           => wpdai_get_default_react_report_ids(),
             'logo_icon_url'                => esc_url( wpdai_get_logo_icon_url() ),
@@ -306,6 +307,7 @@ class WPDAI_Report_Builder {
         add_action('wp_ajax_wpd_get_uncached_order_count', [__CLASS__, 'get_uncached_order_count_ajax_handler']);
         add_action('wp_ajax_wpd_build_order_cache_batch', [__CLASS__, 'build_order_cache_batch_ajax_handler']);
         add_action('wp_ajax_wpd_mark_cache_complete', [__CLASS__, 'mark_cache_complete_ajax_handler']);
+        add_action('wp_ajax_wpd_search_report_query_parameters', [__CLASS__, 'search_report_query_parameters_ajax_handler']);
 
     }
 
@@ -340,6 +342,43 @@ class WPDAI_Report_Builder {
         $instance = new self();
         $results = $instance->import_all_default_reports( $override );
         wp_send_json($results);
+    }
+
+    /**
+     * AJAX handler: search query parameter keys/values for report filter autosuggest.
+     *
+     * @since 5.7.4
+     *
+     * @return void
+     */
+    public static function search_report_query_parameters_ajax_handler() {
+        $nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+        if ( ! wp_verify_nonce( $nonce, WPD_AI_AJAX_NONCE_ACTION ) ) {
+            wp_send_json_error(
+                array(
+                    'message' => __( 'Security check failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                )
+            );
+            return;
+        }
+
+        if ( ! wpdai_is_user_authorized_to_use_alpha_insights() ) {
+            wp_send_json_error(
+                array(
+                    'message' => __( 'You do not have permission to perform this action.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                )
+            );
+            return;
+        }
+
+        $source    = isset( $_POST['source'] ) ? sanitize_text_field( wp_unslash( $_POST['source'] ) ) : '';
+        $search    = isset( $_POST['search'] ) ? sanitize_text_field( wp_unslash( $_POST['search'] ) ) : '';
+        $param_key = isset( $_POST['param_key'] ) ? sanitize_text_field( wp_unslash( $_POST['param_key'] ) ) : '';
+
+        $report_filters = new WPDAI_Report_Filters();
+        $results        = $report_filters->search_query_parameter_suggestions( $source, $search, $param_key );
+
+        wp_send_json_success( $results );
     }
     
     /**
@@ -945,14 +984,12 @@ class WPDAI_Report_Builder {
 
         // Potentially expensive queries that can be strings instead
         $products = $report_filters->get_filter_values_products();
-        $order_query_parameters = $report_filters->get_filter_values_order_query_parameter_key_value_pairs();
-        $website_traffic_query_parameters = $report_filters->get_filter_values_website_traffic_query_parameter_key_value_pairs();
 
         $filter_data_map = array(
             'orders' => array(
                 'order_statuses' => array_merge( array( 'any' => 'Any' ), wc_get_order_statuses() ),
                 'traffic_sources' => $traffic_sources,
-                'query_parameters' => $order_query_parameters
+                'query_parameters' => array(),
             ),
             'products' => array(
                 'products' => $products,
@@ -973,7 +1010,7 @@ class WPDAI_Report_Builder {
             ),
             'website_traffic' => array(
                 'traffic_sources' => $traffic_sources,
-                'query_parameters' => $website_traffic_query_parameters,
+                'query_parameters' => array(),
                 'session_contains_events' => $report_filters->get_filter_values_website_traffic_events(),
                 'products' => $products
             )
@@ -1447,10 +1484,10 @@ class WPDAI_Report_Builder {
                 
             } else {
                 // No filters provided in config, use default date range
-                $wp_timestamp = current_time('timestamp');
+                $from = ( new DateTimeImmutable( 'now', wp_timezone() ) )->modify( '-29 days' );
                 $filters = array(
-                    'date_from' => gmdate('Y-m-d', strtotime('-30 days', $wp_timestamp)), // 30 days ago
-                    'date_to' => current_time('Y-m-d') // today
+                    'date_from' => $from->format( 'Y-m-d' ),
+                    'date_to' => wp_date( 'Y-m-d' ),
                 );
             }
 
@@ -1755,8 +1792,12 @@ class WPDAI_Report_Builder {
                     'orders.data_by_date.revenue_by_date',
                     'google_campaigns.data_by_date.campaign_spend_by_date'
                 ),
-                'campaign_actual_roas_by_date' => array(
+                'campaign_gross_roas_by_date' => array(
                     'google_campaigns.data_by_date.campaign_order_revenue_by_date',
+                    'google_campaigns.data_by_date.campaign_spend_by_date'
+                ),
+                'campaign_actual_roas_by_date' => array(
+                    'google_campaigns.data_by_date.campaign_actual_profit_by_date',
                     'google_campaigns.data_by_date.campaign_spend_by_date'
                 ),
                 'campaign_cost_per_conversion_by_date' => array(
@@ -1789,8 +1830,12 @@ class WPDAI_Report_Builder {
                     'orders.data_by_date.revenue_by_date',
                     'facebook_campaigns.data_by_date.campaign_spend_by_date'
                 ),
-                'campaign_actual_roas_by_date' => array(
+                'campaign_gross_roas_by_date' => array(
                     'facebook_campaigns.data_by_date.campaign_order_revenue_by_date',
+                    'facebook_campaigns.data_by_date.campaign_spend_by_date'
+                ),
+                'campaign_actual_roas_by_date' => array(
+                    'facebook_campaigns.data_by_date.campaign_actual_profit_by_date',
                     'facebook_campaigns.data_by_date.campaign_spend_by_date'
                 ),
                 'campaign_cost_per_new_customer_by_date' => array(

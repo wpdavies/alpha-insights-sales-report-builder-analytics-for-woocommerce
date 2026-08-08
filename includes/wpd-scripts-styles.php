@@ -32,6 +32,7 @@ function wpdai_admin_enqueue() {
 	wp_register_style( 'wpd-fonts', 'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 	wp_register_style( 'wpd-easy-select', WPD_AI_URL_PATH . 'assets/css/js-easy-select-style.css' );
 	wp_register_style( 'wpd-settings-about-us', WPD_AI_URL_PATH . 'assets/css/wpd-settings-about-us.css', array( 'wpd-alpha-insights-admin' ), WPD_AI_VER );
+	wp_register_style( 'wpd-settings-responsive', WPD_AI_URL_PATH . 'assets/css/wpd-settings-responsive.css', array( 'wpd-alpha-insights-admin' ), WPD_AI_VER );
 
 	/**
 	 *
@@ -41,6 +42,7 @@ function wpdai_admin_enqueue() {
 	wp_register_script( 'wpd-alpha-insights-admin', WPD_AI_URL_PATH . 'assets/js/wpd-alpha-insights-admin.js', array( 'jquery', 'jquery-ui-core', 'jquery-ui-datepicker', 'jquery-ui-dialog' ), WPD_AI_VER );
 	wp_register_script( 'wpd-alpha-insights-wordpress-admin', WPD_AI_URL_PATH . 'assets/js/wpd-alpha-insights-wordpress-admin.js', array( 'jquery' ), WPD_AI_VER, true );
 	wp_register_script( 'wpd-submenu-scroll', WPD_AI_URL_PATH . 'assets/js/wpd-submenu-scroll.js', array( 'jquery' ), WPD_AI_VER, true );
+	wp_register_script( 'wpd-mobile-nav', WPD_AI_URL_PATH . 'assets/js/wpd-mobile-nav.js', array( 'jquery' ), WPD_AI_VER, true );
 	wp_register_script( 'wpd-easy-select', WPD_AI_URL_PATH . 'assets/js/js-easy-select.js', array( 'jquery' ), false, true ); // 2.9.xx
 	wp_register_script( 'wpd-data-manager', WPD_AI_URL_PATH . 'assets/js/wpd-data-manager.js', array( 'jquery', 'wpd-alpha-insights-admin' ), WPD_AI_VER, true );
 	wp_register_script( 'wpd-integrations-filter', WPD_AI_URL_PATH . 'assets/js/wpd-integrations-filter.js', array( 'jquery' ), WPD_AI_VER, true );
@@ -106,6 +108,11 @@ function wpdai_admin_enqueue() {
 		wp_enqueue_style( 'wpd-settings-about-us' );
 	}
 
+	// Responsive layout for all settings subpages
+	if ( is_wpdai_page() && isset( $_GET['page'] ) && sanitize_text_field( wp_unslash( $_GET['page'] ) ) === WPDAI_Admin_Menu::$settings_slug ) {
+		wp_enqueue_style( 'wpd-settings-responsive' );
+	}
+
 	/**
 	 *
 	 *	Enqueue Scripts
@@ -120,6 +127,7 @@ function wpdai_admin_enqueue() {
 	if ( is_wpdai_page() ) {
 		wp_enqueue_script( 'wpd-alpha-insights-admin' );
 		wp_enqueue_script( 'wpd-submenu-scroll' );
+		wp_enqueue_script( 'wpd-mobile-nav' );
 	}
 
 	// Integrations filter (category tabs + search) on integration settings page
@@ -226,6 +234,11 @@ function wpdai_admin_enqueue() {
 			// Add inline style for WooCommerce dashboard widget
 			$dashboard_widget_css = sprintf(
 				"
+				#woocommerce_dashboard_status li.wpd-status-widget-item {
+					width: 50%% !important;
+					clear: none !important;
+					float: left !important;
+				}
 				#woocommerce_dashboard_status .wc_status_list li.gross-profit-this-month {
 					border-right: 1px solid #ececec;
 				}
@@ -274,22 +287,18 @@ function wpdai_alpha_insights_frontend_scripts_styles() {
 	$user_id 	= get_current_user_id();
 
 	$attribution_timeout_seconds = class_exists( 'WPDAI_Session_Tracking' ) ? WPDAI_Session_Tracking::get_attribution_timeout_seconds() : ( 3 * DAY_IN_SECONDS );
+	$attribution_session_only    = class_exists( 'WPDAI_Session_Tracking' ) && WPDAI_Session_Tracking::is_session_only_attribution();
+	$session_timeout_seconds     = (int) apply_filters( 'wpd_session_timeout_seconds', 30 * MINUTE_IN_SECONDS );
 	$cookie_domain = class_exists( 'WPDAI_Session_Tracking' ) ? WPDAI_Session_Tracking::get_cookie_domain() : '';
-	wp_localize_script( 'wpd-ai-sessions', 'wpd_ai_session_vars', 
-		array( 
-			'page_id' => $page_id,
-			'user_id' => $user_id,
-			'attribution_timeout_seconds' => $attribution_timeout_seconds,
-			'cookie_domain' => $cookie_domain,
-		) 
+	$session_localize_vars = array(
+		'page_id'                       => $page_id,
+		'user_id'                       => $user_id,
+		'attribution_timeout_seconds'   => $attribution_timeout_seconds,
+		'attribution_session_only'      => $attribution_session_only ? 1 : 0,
+		'session_timeout_seconds'       => $session_timeout_seconds,
+		'cookie_domain'                 => $cookie_domain,
 	);
-	wp_localize_script( 'wpd-alpha-insights-frontend', 'wpd_ai_session_vars', 
-		array( 
-			'page_id' => $page_id,
-			'user_id' => $user_id,
-			'attribution_timeout_seconds' => $attribution_timeout_seconds,
-			'cookie_domain' => $cookie_domain,
-		) 
-	);
+	wp_localize_script( 'wpd-ai-sessions', 'wpd_ai_session_vars', $session_localize_vars );
+	wp_localize_script( 'wpd-alpha-insights-frontend', 'wpd_ai_session_vars', $session_localize_vars );
 
 }

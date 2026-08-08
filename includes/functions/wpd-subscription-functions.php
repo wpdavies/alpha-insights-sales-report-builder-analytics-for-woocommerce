@@ -45,10 +45,17 @@ function wpdai_is_wc_subscriptions_active() {
  **/
 function wpdai_is_subscription_active_on_date( $date_created_timestamp, $date_cancelled_timestamp, $date_to_check_timestamp = null ) {
 
-	// Convert to Y-m-d so that it checks a date, then return back to timestamp or set as false if not in correct format
-	$date_created_timestamp = ( is_numeric($date_created_timestamp) && $date_created_timestamp > 0 ) ? strtotime( gmdate( 'Y-m-d', $date_created_timestamp ) ) : false;
-	$date_cancelled_timestamp = ( is_numeric($date_cancelled_timestamp) && $date_cancelled_timestamp > 0 ) ? strtotime( gmdate( 'Y-m-d', $date_cancelled_timestamp ) ) : false;
-	$date_to_check_timestamp = ( is_numeric($date_to_check_timestamp) && $date_to_check_timestamp > 0 ) ? strtotime( gmdate( 'Y-m-d', $date_to_check_timestamp ) ) : strtotime( current_time('Y-m-d') );
+	// Normalize all inputs to start-of-day in the site timezone.
+	$date_created_timestamp = wpdai_normalize_to_local_day_start_timestamp( $date_created_timestamp );
+	$date_cancelled_timestamp = ( is_numeric( $date_cancelled_timestamp ) && $date_cancelled_timestamp > 0 )
+		? wpdai_normalize_to_local_day_start_timestamp( $date_cancelled_timestamp )
+		: false;
+
+	if ( null === $date_to_check_timestamp ) {
+		$date_to_check_timestamp = wpdai_local_date_string_to_utc_timestamp( wp_date( 'Y-m-d' ), '00:00:00' );
+	} else {
+		$date_to_check_timestamp = wpdai_normalize_to_local_day_start_timestamp( $date_to_check_timestamp );
+	}
 
 	// Date created must be in a good format
 	if ( $date_created_timestamp === false ) return false;

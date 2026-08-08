@@ -443,9 +443,12 @@ function wpdai_save_settings() {
 		$enable_woocommerce_analytics 	= ( isset($_POST['wpd_ai_analytics']['enable_woocommerce_analytics']) ) ? intval($_POST['wpd_ai_analytics']['enable_woocommerce_analytics']) : 0;
 		$exclude_roles 					= ( isset($_POST['wpd_ai_analytics']['exclude_roles']) ) ? array_map('sanitize_text_field', $_POST['wpd_ai_analytics']['exclude_roles']) : array();
 		$only_track_engaged_sessions 	= ( isset($_POST['wpd_ai_analytics']['only_track_engaged_sessions']) ) ? intval($_POST['wpd_ai_analytics']['only_track_engaged_sessions']) : 0;
-		$attribution_timeout_in_days 	= ( isset($_POST['wpd_ai_analytics']['attribution_timeout_in_days']) ) ? intval($_POST['wpd_ai_analytics']['attribution_timeout_in_days']) : 3;
-		$enable_cache_safe_tracking_beta = ( isset( $_POST['wpd_ai_analytics']['enable_cache_safe_tracking_beta'] ) ) ? intval( $_POST['wpd_ai_analytics']['enable_cache_safe_tracking_beta'] ) : 0;
-		$cookie_storage_mode            = ( isset( $_POST['wpd_ai_analytics']['cookie_storage_mode'] ) ) ? sanitize_text_field( wp_unslash( $_POST['wpd_ai_analytics']['cookie_storage_mode'] ) ) : 'checkout_only';
+		$attribution_timeout_in_days 	= ( isset( $_POST['wpd_ai_analytics']['attribution_timeout_in_days'] ) ) ? intval( $_POST['wpd_ai_analytics']['attribution_timeout_in_days'] ) : 3;
+		if ( $attribution_timeout_in_days < 0 ) {
+			$attribution_timeout_in_days = 3;
+		}
+		$enable_legacy_event_tracking = ( isset( $_POST['wpd_ai_analytics']['enable_legacy_event_tracking'] ) ) ? intval( $_POST['wpd_ai_analytics']['enable_legacy_event_tracking'] ) : 0;
+		$cookie_storage_mode          = ( isset( $_POST['wpd_ai_analytics']['cookie_storage_mode'] ) ) ? sanitize_text_field( wp_unslash( $_POST['wpd_ai_analytics']['cookie_storage_mode'] ) ) : 'checkout_only';
 		if ( ! in_array( $cookie_storage_mode, array( 'checkout_only', 'immediate' ), true ) ) {
 			$cookie_storage_mode = 'checkout_only';
 		}
@@ -455,7 +458,7 @@ function wpdai_save_settings() {
 			'exclude_roles' => $exclude_roles,
 			'only_track_engaged_sessions' => $only_track_engaged_sessions,
 			'attribution_timeout_in_days' => $attribution_timeout_in_days,
-			'enable_cache_safe_tracking_beta' => $enable_cache_safe_tracking_beta,
+			'enable_legacy_event_tracking' => $enable_legacy_event_tracking,
 			'cookie_storage_mode' => $cookie_storage_mode,
 		);
 

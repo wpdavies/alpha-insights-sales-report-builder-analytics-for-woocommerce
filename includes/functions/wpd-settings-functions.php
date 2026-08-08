@@ -350,7 +350,7 @@ function wpdai_get_analytics_settings() {
 		'exclude_roles' => array(),
 		'only_track_engaged_sessions' => 0,
 		'attribution_timeout_in_days' => 3,
-		'enable_cache_safe_tracking_beta' => 0,
+		'enable_legacy_event_tracking' => 0,
 		'cookie_storage_mode' => 'checkout_only',
 	);
 
@@ -361,7 +361,136 @@ function wpdai_get_analytics_settings() {
 	}
 
 	$saved_analytics_settings = get_option( 'wpd_ai_analytics', array() );
+	if ( ! is_array( $saved_analytics_settings ) ) {
+		$saved_analytics_settings = array();
+	}
+
+	// Backward compatibility: map retired beta flag to legacy opt-out.
+	if ( ! array_key_exists( 'enable_legacy_event_tracking', $saved_analytics_settings ) && array_key_exists( 'enable_cache_safe_tracking_beta', $saved_analytics_settings ) ) {
+		$saved_analytics_settings['enable_legacy_event_tracking'] = empty( $saved_analytics_settings['enable_cache_safe_tracking_beta'] ) ? 1 : 0;
+	}
 
 	return wp_parse_args( $saved_analytics_settings, $default_settings );
 
+}
+
+/**
+ *
+ *  Default Facebook integration settings (used when the option is first created).
+ *
+ *  @return array
+ *
+ */
+function wpdai_get_default_facebook_integration_settings() {
+
+	return array(
+		'access_token'                  => null,
+		'access_token_validated'          => null,
+		'access_token_expiry_date_unix'   => null,
+		'ad_account_id'                   => null,
+		'last_api_test_unix'              => null,
+		'api_status'                      => 'Not Configured',
+		'api_status_message'              => null,
+		'api_ad_account_name'             => null,
+		'request_timeout'                 => 5,
+		'collect_daily_ad_spend'          => 'true',
+		'facebook_api_call_schedule'      => '1-hr',
+		'collect_campaign_insights'       => 'true',
+		'api_limit_per_page'              => 50,
+		'facebook_expense_category_id'    => '',
+	);
+}
+
+/**
+ *
+ *  Default Google Ads API settings (used when the option is first created).
+ *
+ *  @return array
+ *
+ */
+function wpdai_get_default_google_ads_api_settings() {
+
+	return array(
+		'refresh_token'           => null,
+		'ad_account_id'           => null,
+		'api_ad_account_name'     => null,
+		'last_api_test_unix'      => null,
+		'api_status'              => 'Not Configured',
+		'api_status_message'      => null,
+		'request_timeout'         => 5,
+		'collect_daily_ad_spend'  => 'true',
+		'api_call_schedule'       => '1-hr',
+		'collect_campaign_insights' => 'true',
+		'api_limit_per_page'      => 50,
+		'expense_category_id'     => null,
+		'account_age_years'       => 10,
+	);
+}
+
+/**
+ *
+ *  Get Facebook integration settings merged with defaults.
+ *
+ *  @return array
+ *
+ */
+function wpdai_get_facebook_integration_settings() {
+
+	$stored = get_option( 'wpd_ai_facebook_integration', array() );
+
+	return wp_parse_args( is_array( $stored ) ? $stored : array(), wpdai_get_default_facebook_integration_settings() );
+}
+
+/**
+ *
+ *  Get Google Ads API settings merged with defaults.
+ *
+ *  @return array
+ *
+ */
+function wpdai_get_google_ads_api_settings() {
+
+	$stored = get_option( 'wpd_ai_google_ads_api', array() );
+
+	return wp_parse_args( is_array( $stored ) ? $stored : array(), wpdai_get_default_google_ads_api_settings() );
+}
+
+/**
+ *
+ *  Convert an API call schedule slug to a recurring interval in seconds.
+ *
+ *  @param string|null $schedule Schedule slug. Uses the configured default when null.
+ *  @return int
+ *
+ */
+function wpdai_api_call_schedule_to_interval( $schedule = null ) {
+
+	if ( null === $schedule || '' === $schedule ) {
+		$defaults = wpdai_get_default_google_ads_api_settings();
+		$schedule = $defaults['api_call_schedule'];
+	}
+
+	if ( 'daily' === $schedule ) {
+		return DAY_IN_SECONDS;
+	}
+
+	if ( '12-hrs' === $schedule ) {
+		return 12 * HOUR_IN_SECONDS;
+	}
+
+	if ( '6-hrs' === $schedule ) {
+		return 6 * HOUR_IN_SECONDS;
+	}
+
+	if ( '3-hrs' === $schedule ) {
+		return 3 * HOUR_IN_SECONDS;
+	}
+
+	if ( '1-hr' === $schedule ) {
+		return HOUR_IN_SECONDS;
+	}
+
+	$defaults = wpdai_get_default_google_ads_api_settings();
+
+	return wpdai_api_call_schedule_to_interval( $defaults['api_call_schedule'] );
 }

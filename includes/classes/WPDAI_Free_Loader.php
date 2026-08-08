@@ -183,6 +183,12 @@ class WPDAI_Free_Loader {
                     'icon'  => null,
                     'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
                 ),
+                'add_expense' => array(
+                    'title' => __( 'Add New Expense', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                    'url'   => '#pro-feature',
+                    'icon'  => null,
+                    'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
+                ),
                 'manage_expense_taxonomies' => array(
                     'title' => __( 'Categories & Suppliers', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                     'url'   => '#pro-feature',

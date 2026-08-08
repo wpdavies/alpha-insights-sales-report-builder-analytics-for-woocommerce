@@ -1,34 +1,29 @@
-<h2>Cache-Safe Event Tracking (Beta)</h2>
+<h2>Cache-Safe Event Tracking</h2>
 
-<p>Alpha Insights includes an opt-in beta tracking module designed for full-page cache compatibility. Enable it under <strong>Alpha Insights → Settings → General Settings → Alpha Analytics &amp; Event Tracking → Cache-Safe Event Tracking (Beta)</strong>.</p>
+<p>Alpha Insights uses cache-safe event tracking by default. It stores session identity in the browser (localStorage) and does not send PHP <code>Set-Cookie</code> headers for analytics, which improves full-page cache compatibility.</p>
 
-<h3>How it works</h3>
-<ul>
-<li><strong>Default OFF:</strong> The existing tracking system runs unchanged (including PHP session cookies).</li>
-<li><strong>Beta ON:</strong> A separate v2 module stores session identity in the browser (localStorage) and never sends PHP <code>Set-Cookie</code> headers for analytics.</li>
-<li><strong>Checkout sync:</strong> In <code>checkout_only</code> mode (recommended), analytics cookies are written only on cart/checkout pages so order attribution continues to work.</li>
-</ul>
+<p>Configure cookie storage mode under <strong>Alpha Insights → Settings → General Settings → Alpha Analytics &amp; Event Tracking → Cookie Storage Mode</strong>.</p>
 
 <h3>Cookie storage modes</h3>
 <ul>
 <li><strong>Checkout Only (Recommended):</strong> Session and attribution data stay in localStorage until the visitor reaches cart or checkout. Best for page caching.</li>
-<li><strong>Immediate:</strong> Writes analytics cookies on first visit (similar to legacy behavior). May reduce cache hit rates.</li>
+<li><strong>Immediate:</strong> Writes analytics cookies on first visit. May reduce cache hit rates.</li>
 </ul>
 
+<h3>Legacy event tracking (deprecated)</h3>
+<p>The former PHP cookie-based tracking system is deprecated. If you need it temporarily while troubleshooting, enable <strong>Legacy Event Tracking (Deprecated)</strong> in General Settings. This option will be removed in a future release.</p>
+
 <h3>Cache plugin notes</h3>
-<p>When using checkout_only mode, Alpha Insights registers compatibility hooks for WP Rocket and LiteSpeed Cache to avoid treating <code>wpd_ai_*</code> cookies as cache-busting vary cookies. Configure Cloudflare or other CDNs to cache anonymous HTML separately from cart/checkout if needed.</p>
+<p>In checkout_only mode, Alpha Insights registers compatibility hooks for WP Rocket and LiteSpeed Cache to avoid treating <code>wpd_ai_*</code> cookies as cache-busting vary cookies. Configure Cloudflare or other CDNs to cache anonymous HTML separately from cart/checkout if needed.</p>
 
 <h3>Server-side events</h3>
 <p>In <code>checkout_only</code> mode, analytics cookies are written before add-to-cart requests and on cart/checkout pages. Session attribution is also loaded from the database when a matching <code>session_id</code> is available, so server-side hooks (add to cart, order completion) stay linked to the same visitor session.</p>
 
 <h3>Developer filters</h3>
 <ul>
-<li><code>wpd_ai_cache_safe_tracking_enabled</code> — Force enable/disable beta mode.</li>
+<li><code>wpd_ai_cache_safe_tracking_enabled</code> — Force enable/disable cache-safe tracking.</li>
 <li><code>wpd_ai_cookie_storage_mode</code> — Override storage mode (<code>checkout_only</code> or <code>immediate</code>).</li>
 <li><code>wpd_ai_v2_resolve_session_context</code> — Modify resolved session context before DB writes.</li>
 <li><code>wpd_ai_v2_cache_ignore_cookies</code> — Customize cookies ignored by cache compatibility hooks.</li>
-<li><code>wpd_ai_event_table_columns</code> — Customize allowed columns when preparing event rows for database insert (v2).</li>
+<li><code>wpd_ai_event_table_columns</code> — Customize allowed columns when preparing event rows for database insert.</li>
 </ul>
-
-<h3>Sunset path</h3>
-<p>To promote v2: enable by default, then remove the legacy tracking module. To abandon v2: delete <code>includes/analytics-v2/</code> and <code>assets/js/analytics-v2/</code>, remove the beta setting, and remove the legacy constructor guard.</p>

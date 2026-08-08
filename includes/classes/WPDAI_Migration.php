@@ -66,6 +66,7 @@ class WPDAI_Migration {
         
         // Hook into individual migration actions
         add_action( 'wpd_ai_migration_build_engaged_sessions', array( $this, 'build_engaged_sessions' ) );
+        add_action( 'wpd_ai_migration_promote_cache_safe_event_tracking', array( $this, 'promote_cache_safe_event_tracking' ) );
         
         // Register AJAX actions
         add_action( 'wp_ajax_wpd_run_migration', array( $this, 'run_migration_ajax_handler' ) );
@@ -83,6 +84,12 @@ class WPDAI_Migration {
                 'version' => '5.2.1',
                 'description' => __( 'Build engaged sessions flag for existing sessions', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
                 'name' => __( 'Build Engaged Sessions', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+            ),
+            'promote_cache_safe_event_tracking' => array(
+                'hook' => 'wpd_ai_migration_promote_cache_safe_event_tracking',
+                'version' => '5.6.6',
+                'description' => __( 'Promote cache-safe event tracking to default and migrate analytics settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'name' => __( 'Promote Cache-Safe Event Tracking', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
             ),
             // Add more migrations here as needed
         );
@@ -324,6 +331,49 @@ class WPDAI_Migration {
 
         // Mark this migration as completed
         $this->mark_migration_completed( 'build_engaged_sessions' );
+
+        return true;
+
+    }
+
+    /**
+     * Migration: Promote cache-safe event tracking to the default analytics system.
+     *
+     * Converts the retired beta opt-in flag to the legacy opt-out flag and enables
+     * cache-safe tracking for sites that had not explicitly opted into the beta.
+     *
+     * @return bool True on success, false on failure
+     */
+    public function promote_cache_safe_event_tracking() {
+
+        wpdai_write_log( 'Starting migration: promote_cache_safe_event_tracking', 'migration' );
+
+        $analytics_settings = get_option( 'wpd_ai_analytics', array() );
+        if ( ! is_array( $analytics_settings ) ) {
+            $analytics_settings = array();
+        }
+
+        if ( array_key_exists( 'enable_legacy_event_tracking', $analytics_settings ) ) {
+            wpdai_write_log( 'Analytics settings already migrated for cache-safe event tracking.', 'migration' );
+            $this->mark_migration_completed( 'promote_cache_safe_event_tracking' );
+            return true;
+        }
+
+        $analytics_settings['enable_legacy_event_tracking'] = 0;
+
+        if ( array_key_exists( 'enable_cache_safe_tracking_beta', $analytics_settings ) ) {
+            unset( $analytics_settings['enable_cache_safe_tracking_beta'] );
+        }
+
+        if ( empty( $analytics_settings['cookie_storage_mode'] ) ) {
+            $analytics_settings['cookie_storage_mode'] = 'checkout_only';
+        }
+
+        update_option( 'wpd_ai_analytics', $analytics_settings );
+
+        wpdai_write_log( 'Migration promote_cache_safe_event_tracking completed.', 'migration' );
+
+        $this->mark_migration_completed( 'promote_cache_safe_event_tracking' );
 
         return true;
 

@@ -394,8 +394,9 @@ class WPDAI_Session_Context {
 		parse_str( $query_params, $params );
 
 		$tracking_params = array(
-			'gclid', 'fbclid', 'msclkid', 'ttclid', 'li_fat_id',
+			'gclid', 'gbraid', 'wbraid', 'dclid', 'fbclid', 'msclkid', 'ttclid', 'li_fat_id', 'srsltid',
 			'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
+			'google_cid', 'meta_cid',
 			'ref', 'source', 'referrer', 'referer',
 		);
 

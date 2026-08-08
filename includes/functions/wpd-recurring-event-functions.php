@@ -254,6 +254,13 @@ function wpdai_collect_product_statistics_cron() {
  **/
 function wpdai_schedule_database_upgrade_function() {
 
+    if ( defined( 'WPD_AI_DB_VERSION' ) ) {
+        $installed_db_version = get_option( 'wpd_ai_db_version', '' );
+        if ( is_string( $installed_db_version ) && $installed_db_version !== '' && version_compare( $installed_db_version, WPD_AI_DB_VERSION, '>=' ) ) {
+            return;
+        }
+    }
+
     wpdai_write_log( 'Executing wpd_schedule_database_upgrade', 'cron' );
 
     if ( ! class_exists('WPDAI_Database_Interactor') ) {

@@ -12,7 +12,50 @@
     // Wait for DOM to be ready
     $(document).ready(function() {
         initHorizontalScrollMenu();
+        initSubmenuActiveState();
     });
+
+    /**
+     * Keep the horizontal submenu highlight in sync with the current admin URL.
+     * Supports client-side navigation used by the expense manager React app.
+     */
+    function initSubmenuActiveState() {
+        syncSubmenuActiveState();
+
+        window.addEventListener('popstate', syncSubmenuActiveState);
+        window.addEventListener('wpd:subpage-change', syncSubmenuActiveState);
+    }
+
+    function syncSubmenuActiveState() {
+        const params = new URLSearchParams(window.location.search);
+        const currentPage = params.get('page') || '';
+        let currentSubpage = params.get('subpage');
+        const items = document.querySelectorAll('.wpd-sub-menu-item');
+
+        if (!items.length) {
+            return;
+        }
+
+        if (!currentSubpage && currentPage) {
+            const firstSamePageItem = Array.from(items).find(function(item) {
+                return item.dataset.page === currentPage;
+            });
+
+            if (firstSamePageItem) {
+                currentSubpage = firstSamePageItem.dataset.subpage || '';
+            }
+        }
+
+        items.forEach(function(item) {
+            const itemPage = item.dataset.page || '';
+            const itemSubpage = item.dataset.subpage || '';
+            const isActive = itemPage === currentPage && itemSubpage === (currentSubpage || '');
+
+            item.classList.toggle('nav-tab-active', isActive);
+        });
+    }
+
+    window.wpdSyncSubmenuActiveState = syncSubmenuActiveState;
 
     /**
      * Horizontal Scrolling Menu with Drag, Scroll Controls, and Gradient Fades

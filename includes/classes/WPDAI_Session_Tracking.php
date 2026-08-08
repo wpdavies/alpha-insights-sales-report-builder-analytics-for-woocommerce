@@ -48,16 +48,41 @@ class WPDAI_Session_Tracking {
     /** Default attribution window in days when settings unavailable; landing/referral expire after this from first set. */
     private const DEFAULT_ATTRIBUTION_DAYS = 3;
 
+    /** Setting value: attribution persists for the current session only (see is_session_only_attribution()). */
+    private const ATTRIBUTION_SESSION_ONLY_DAYS = 0;
+
+    /**
+     * Whether landing page and referral attribution expire at session end (inactivity timeout).
+     *
+     * @return bool
+     */
+    public static function is_session_only_attribution() {
+        if ( ! function_exists( 'wpdai_get_analytics_settings' ) ) {
+            return false;
+        }
+
+        $settings = wpdai_get_analytics_settings();
+
+        return isset( $settings['attribution_timeout_in_days'] )
+            && self::ATTRIBUTION_SESSION_ONLY_DAYS === (int) $settings['attribution_timeout_in_days'];
+    }
+
     /**
      *
      *  Get attribution timeout in seconds (landing page & referral URL expire after this from first set).
      *  Reads days from analytics settings (wpdai_get_analytics_settings), defaults to 3 days on failure.
+     *  When "Session Only" is selected, returns the session inactivity timeout instead.
      *  Static so it can be used without instantiating the class (e.g. for script localization).
      *
      *  @return int Timeout in seconds
      *
      */
     public static function get_attribution_timeout_seconds() {
+        if ( self::is_session_only_attribution() ) {
+            $seconds = (int) apply_filters( 'wpd_session_timeout_seconds', 30 * MINUTE_IN_SECONDS );
+            return (int) apply_filters( 'wpd_attribution_timeout_seconds', $seconds );
+        }
+
         $days = self::DEFAULT_ATTRIBUTION_DAYS;
         if ( function_exists( 'wpdai_get_analytics_settings' ) ) {
             $settings = wpdai_get_analytics_settings();
@@ -970,20 +995,10 @@ class WPDAI_Session_Tracking {
 
         // Check for tracking parameters that indicate a referral source
         $tracking_params = array(
-            'gclid',           // Google Ads
-            'fbclid',          // Facebook
-            'msclkid',         // Microsoft Ads
-            'ttclid',          // TikTok
-            'li_fat_id',       // LinkedIn
-            'utm_source',      // UTM tracking
-            'utm_medium',      // UTM tracking
-            'utm_campaign',    // UTM tracking
-            'utm_term',        // UTM tracking
-            'utm_content',     // UTM tracking
-            'ref',             // Generic referral
-            'source',          // Generic source
-            'referrer',        // Generic referrer
-            'referer',         // Common misspelling
+            'gclid', 'gbraid', 'wbraid', 'dclid', 'fbclid', 'msclkid', 'ttclid', 'li_fat_id', 'srsltid',
+            'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
+            'google_cid', 'meta_cid',
+            'ref', 'source', 'referrer', 'referer',
         );
 
         $has_tracking_param = false;

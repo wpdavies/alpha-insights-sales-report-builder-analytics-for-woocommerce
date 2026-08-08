@@ -1,6 +1,6 @@
 <?php
 /**
- * Cache-safe WooCommerce event tracking (v2 beta).
+ * Cache-safe WooCommerce event tracking.
  *
  * @package Alpha Insights
  */

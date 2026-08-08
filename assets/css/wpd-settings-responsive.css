@@ -1,0 +1,311 @@
+/**
+ * Mobile-friendly layout for Alpha Insights settings pages (#wpd-ai-settings).
+ */
+
+@media (max-width: 782px) {
+	/* Page shell */
+	.wrap:has(#wpd-ai-settings) {
+		padding-left: 12px !important;
+		padding-right: 12px !important;
+	}
+
+	.wrap:has(#wpd-ai-settings) > h3 {
+		font-size: 20px;
+		margin-top: 24px;
+		margin-bottom: 16px;
+	}
+
+	.wpd-white-block:has(#wpd-ai-settings) {
+		padding: 16px;
+		margin-bottom: 24px;
+		border-radius: 8px;
+	}
+
+	#wpd-ai-settings .wpd-wrapper {
+		margin-bottom: 24px;
+	}
+
+	/* Section headings + action buttons */
+	#wpd-ai-settings .wpd-section-heading.wpd-inline {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: stretch;
+		gap: 10px;
+	}
+
+	#wpd-ai-settings .wpd-section-heading.wpd-inline .button,
+	#wpd-ai-settings .wpd-section-heading.wpd-inline input[type="submit"],
+	#wpd-ai-settings .wpd-section-heading.wpd-inline a.wpd-input {
+		float: none !important;
+		margin: 0 !important;
+		width: 100%;
+		max-width: 100%;
+		text-align: center;
+		box-sizing: border-box;
+	}
+
+	#wpd-ai-settings .wpd-section-heading:not(.wpd-inline) {
+		margin-bottom: 8px;
+	}
+
+	/* Top-level settings tables → stacked cards */
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table {
+		display: block;
+		width: 100% !important;
+		table-layout: auto !important;
+		border-radius: 8px;
+		overflow: hidden;
+	}
+
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table > thead,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table > tbody,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table > tfoot {
+		display: block;
+		width: 100%;
+	}
+
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table > thead > tr,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table > tbody > tr,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table > tfoot > tr {
+		display: block;
+		width: 100%;
+		border-bottom: 1px solid #eaeaea;
+	}
+
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table > tbody > tr:last-child {
+		border-bottom: none;
+	}
+
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table > thead > tr > th {
+		display: block;
+		width: 100% !important;
+		box-sizing: border-box;
+		padding: 14px 16px;
+		font-size: 14px;
+		border-bottom: 1px solid #eaeaea;
+	}
+
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table > tbody > tr > th,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table > tbody > tr > td,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table > tfoot > tr > th,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table > tfoot > tr > td {
+		display: block;
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box;
+		padding: 12px 16px;
+		border: none;
+		vertical-align: top;
+	}
+
+	/* Label / description column */
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table > tbody > tr > th,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table > tbody > tr > td:first-child:not([colspan]) {
+		padding-bottom: 8px;
+		background: #fafbfc;
+	}
+
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table > tbody > tr > td:first-child:not([colspan]) label {
+		font-weight: 600;
+	}
+
+	/* Control column */
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table > tbody > tr > td:last-child:not(:only-child) {
+		padding-top: 4px;
+		background: #fff;
+	}
+
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table > tbody > tr > td[colspan],
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table > tbody > tr > th[colspan] {
+		background: #fff;
+	}
+
+	/* Full-width inputs inside settings cells */
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table input[type="text"],
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table input[type="number"],
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table input[type="email"],
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table input[type="password"],
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table input[type="url"],
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table input[type="search"],
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table select,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table textarea,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table .wpd-input,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table .full-width {
+		width: 100% !important;
+		max-width: 100% !important;
+		box-sizing: border-box;
+	}
+
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table select[multiple] {
+		min-height: 120px;
+	}
+
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table .button,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table input[type="submit"] {
+		float: none !important;
+		width: 100%;
+		max-width: 100%;
+		margin-top: 8px;
+		text-align: center;
+		box-sizing: border-box;
+	}
+
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table span[style*="inline-block"] {
+		display: block !important;
+		width: 100%;
+	}
+
+	/* Nested config tables (payment gateways, shipping, etc.) */
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table td table.wpd-table,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table th table.wpd-table {
+		display: block;
+		width: 100%;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		border: 1px solid #eaeaea;
+		border-radius: 6px;
+		margin-top: 4px;
+	}
+
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table td table.wpd-table > thead,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table td table.wpd-table > tbody,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table td table.wpd-table > tfoot,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table th table.wpd-table > thead,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table th table.wpd-table > tbody,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table th table.wpd-table > tfoot {
+		display: table;
+		width: 100%;
+		min-width: 480px;
+	}
+
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table td table.wpd-table tr,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table th table.wpd-table tr {
+		display: table-row;
+	}
+
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table td table.wpd-table th,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table td table.wpd-table td,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table th table.wpd-table th,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table th table.wpd-table td {
+		display: table-cell;
+		width: auto !important;
+		background: #fff;
+		padding: 10px 12px;
+		white-space: nowrap;
+	}
+
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table td table.wpd-table .wpd-input,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table th table.wpd-table .wpd-input {
+		width: 100%;
+		min-width: 100px;
+	}
+
+	/* Debug / code output */
+	#wpd-ai-settings pre,
+	#wpd-ai-settings code,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table textarea {
+		max-width: 100%;
+		overflow-x: auto;
+		word-break: break-word;
+		white-space: pre-wrap;
+	}
+
+	/* Integrations browser */
+	#wpd-ai-settings .wpd-integrations-browser {
+		flex-direction: column;
+		border-radius: 8px;
+	}
+
+	#wpd-ai-settings .wpd-integrations-sidebar {
+		width: 100%;
+		min-width: 0;
+		border-right: none;
+		border-bottom: 1px solid #e8e8e8;
+		padding: 12px 0;
+	}
+
+	#wpd-ai-settings .wpd-integrations-tabs {
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: 6px;
+		padding: 0 12px;
+	}
+
+	#wpd-ai-settings .wpd-integrations-tab {
+		flex: 1 1 calc(50% - 6px);
+		min-width: 0;
+		border-radius: 8px;
+		box-shadow: none !important;
+		padding: 10px 12px;
+	}
+
+	#wpd-ai-settings .wpd-integrations-content {
+		padding: 16px;
+	}
+
+	#wpd-ai-settings .wpd-integrations-header-actions {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 8px;
+	}
+
+	#wpd-ai-settings .wpd-integrations-header-actions .button {
+		width: 100%;
+		text-align: center;
+	}
+
+	#wpd-ai-settings .wpd-integrations-grid {
+		grid-template-columns: 1fr;
+		gap: 12px;
+	}
+
+	#wpd-ai-settings .wpd-integration-card {
+		min-height: 0;
+	}
+
+	#wpd-ai-settings .wpd-integration-settings-wrapper table.wpd-table {
+		display: block;
+		width: 100% !important;
+	}
+
+	/* Pro upsell comparison tables on integrations */
+	#wpd-ai-settings .wpd-integration-pro-upsell-comparison {
+		margin-left: -4px;
+		margin-right: -4px;
+	}
+
+	/* About Us subpage */
+	#wpd-ai-settings .wpd-about-page .wpd-about-founder {
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+		padding: 16px;
+	}
+
+	#wpd-ai-settings .wpd-about-page .wpd-about-cta-wrap .button-primary {
+		width: 100%;
+		box-sizing: border-box;
+	}
+}
+
+@media (max-width: 480px) {
+	.wrap:has(#wpd-ai-settings) {
+		padding-left: 8px !important;
+		padding-right: 8px !important;
+	}
+
+	.wpd-white-block:has(#wpd-ai-settings) {
+		padding: 12px;
+	}
+
+	#wpd-ai-settings .wpd-integrations-tab {
+		flex: 1 1 100%;
+	}
+
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table > thead > tr > th,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table > tbody > tr > th,
+	#wpd-ai-settings .wpd-wrapper > table.wpd-table > tbody > tr > td {
+		padding-left: 12px;
+		padding-right: 12px;
+	}
+}

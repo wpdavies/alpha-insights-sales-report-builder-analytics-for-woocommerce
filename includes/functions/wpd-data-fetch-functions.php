@@ -1361,7 +1361,9 @@ function wpdai_get_site_creation_date( $date_format = null ) {
 	$site_creation_date = get_option( 'wpd_ai_site_creation_date', null );
 
 	// Return the stored value in the desired format if found
-	if ( $site_creation_date !== null && is_numeric($site_creation_date) ) return gmdate( $date_format, $site_creation_date );
+	if ( $site_creation_date !== null && is_numeric($site_creation_date) ) {
+		return wp_date( $date_format, (int) $site_creation_date );
+	}
 
 	// Load global var
 	global $wpdb;	
@@ -1400,18 +1402,10 @@ function wpdai_get_site_creation_date( $date_format = null ) {
 			if ( is_a( $oldest_order, 'WC_Order' ) ) {
 				$order_date_created = $oldest_order->get_date_created();
 				if ( is_a( $order_date_created, 'WC_DateTime' ) ) {
-					// Get timestamp and convert to MySQL datetime format
-					if ( method_exists( $order_date_created, 'getOffsetTimestamp' ) ) {
-						$order_timestamp = $order_date_created->getOffsetTimestamp();
-					} elseif ( method_exists( $order_date_created, 'getTimestamp' ) ) {
-						$order_timestamp = $order_date_created->getTimestamp();
-					} else {
-						$order_timestamp = null;
-					}
+					$order_timestamp = wpdai_wc_datetime_to_utc_timestamp( $order_date_created );
 					
-					if ( $order_timestamp !== null && $order_timestamp > 0 ) {
-						// Convert to MySQL datetime format (GMT)
-						$first_order_date = gmdate( 'Y-m-d H:i:s', $order_timestamp );
+					if ( null !== $order_timestamp && $order_timestamp > 0 ) {
+						$first_order_date = $order_timestamp;
 					}
 				}
 			}
@@ -1423,13 +1417,17 @@ function wpdai_get_site_creation_date( $date_format = null ) {
 	$order_timestamp = null;
 
 	// Process user registration date
-	if ( $first_user_registration_date !== null && is_string($first_user_registration_date) && ! empty($first_user_registration_date) ) {
-		$user_timestamp = strtotime( get_date_from_gmt( $first_user_registration_date ) );
+	if ( $first_user_registration_date !== null && is_string( $first_user_registration_date ) && ! empty( $first_user_registration_date ) ) {
+		$user_timestamp = wpdai_gmt_date_string_to_utc_timestamp( $first_user_registration_date );
 	}
 
 	// Process order date
-	if ( $first_order_date !== null && is_string($first_order_date) && ! empty($first_order_date) ) {
-		$order_timestamp = strtotime( get_date_from_gmt( $first_order_date ) );
+	if ( $first_order_date !== null ) {
+		if ( is_numeric( $first_order_date ) ) {
+			$order_timestamp = (int) $first_order_date;
+		} elseif ( is_string( $first_order_date ) && ! empty( $first_order_date ) ) {
+			$order_timestamp = wpdai_gmt_date_string_to_utc_timestamp( $first_order_date );
+		}
 	}
 
 	// Determine which date is older (or use the only available one)
@@ -1458,6 +1456,6 @@ function wpdai_get_site_creation_date( $date_format = null ) {
 	update_option( 'wpd_ai_site_creation_date', $site_creation_date );
 
 	// Returns registration date formatted to user's spec
-	return gmdate( $date_format, $site_creation_date );
+	return wp_date( $date_format, (int) $site_creation_date );
 
 }

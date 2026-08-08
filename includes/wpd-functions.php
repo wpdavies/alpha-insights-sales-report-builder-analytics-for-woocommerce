@@ -1640,3 +1640,46 @@ function wpdai_wpdavies_url( $relative_url = '', $campaign = '', $medium = 'plug
 	return esc_url_raw( $url );
 
 }
+
+/**
+ * Get hierarchical display name for an expense category term.
+ *
+ * Child categories are shown as "Parent › Child" so their hierarchy is clear.
+ *
+ * @since 5.0.0
+ *
+ * @param WP_Term|object|null $term Expense category term.
+ * @return string
+ */
+function wpdai_get_expense_category_display_name( $term ) {
+	if ( empty( $term ) || is_wp_error( $term ) ) {
+		return '';
+	}
+
+	$name = $term->name;
+
+	if ( ! empty( $term->parent ) ) {
+		$parent = get_term( (int) $term->parent, 'expense_category' );
+
+		if ( $parent && ! is_wp_error( $parent ) ) {
+			/* translators: %1$s: parent category name, %2$s: child category name */
+			return sprintf( __( '%1$s › %2$s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $parent->name, $name );
+		}
+	}
+
+	return $name;
+}
+
+/**
+ * Check whether an expense is marked as record keeping only.
+ *
+ * Record keeping expenses are stored for documentation but excluded from P&L calculations.
+ *
+ * @since 5.0.0
+ *
+ * @param int $post_id Expense post ID.
+ * @return bool
+ */
+function wpdai_is_expense_record_keeping_only( $post_id ) {
+	return get_post_meta( (int) $post_id, '_wpd_record_keeping_only', true ) === '1';
+}

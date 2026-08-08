@@ -1,6 +1,6 @@
 .wp-list-table .wpd-order-acquisition-channel.order-status,
 .wp-list-table .wpd-new-vs-returning-customer.order-status {
-    background: #03aaed;
+    background: #78909c;
     color: #ffffffe0;
     opacity: .9;
     transition: all .1s ease-in-out;
@@ -9,25 +9,42 @@
 .wp-list-table .wpd-new-vs-returning-customer.order-status {
     opacity: 1;
 }
-.wp-list-table .wpd-order-acquisition-channel.order-status.social,
-.wp-list-table .wpd-new-vs-returning-customer.order-status.customer-new {
-    background: #03aaed;
-}
 .wp-list-table .wpd-order-acquisition-channel.order-status.organic {
     background: #4dd72c;
 }
+.wp-list-table .wpd-order-acquisition-channel.order-status.google_ads {
+    background: #4285f4;
+}
+.wp-list-table .wpd-order-acquisition-channel.order-status.microsoft_ads {
+    background: #00a4ef;
+}
+.wp-list-table .wpd-order-acquisition-channel.order-status.email {
+    background: #ed0355;
+}
+.wp-list-table .wpd-order-acquisition-channel.order-status.social {
+    background: #e4405f;
+}
 .wp-list-table .wpd-order-acquisition-channel.order-status.direct {
     background: #ed4d03;
+}
+.wp-list-table .wpd-order-acquisition-channel.order-status.app {
+    background: #edc203;
 }
 .wp-list-table .wpd-order-acquisition-channel.order-status.referral,
 .wp-list-table .wpd-new-vs-returning-customer.order-status.customer-returning {
     background: rgb(132,103,214);
 }
-.wp-list-table .wpd-order-acquisition-channel.order-status.app {
-    background: #edc203;
+.wp-list-table .wpd-order-acquisition-channel.order-status.ai_chat {
+    background: #00acc1;
 }
-.wp-list-table .wpd-order-acquisition-channel.order-status.email {
-    background: #ed0355;
+.wp-list-table .wpd-order-acquisition-channel.order-status.admin {
+    background: #607d8b;
+}
+.wp-list-table .wpd-order-acquisition-channel.order-status.unknown {
+    background: #9e9e9e;
+}
+.wp-list-table .wpd-new-vs-returning-customer.order-status.customer-new {
+    background: #03aaed;
 }
 td.wpd_ai_utm_campaign mark.order-status {
     background: white;

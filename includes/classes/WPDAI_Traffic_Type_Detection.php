@@ -166,6 +166,7 @@ class WPDAI_Traffic_Type_Detection {
 
             'organic' 		=> 'Organic',
             'google_ads' 	=> 'Google Ads',
+            'microsoft_ads' => 'Microsoft Ads',
             'email' 		=> 'Email',
             'social' 		=> 'Social',
             'direct' 		=> 'Direct',
@@ -176,6 +177,30 @@ class WPDAI_Traffic_Type_Detection {
             
         );
 
+    }
+
+    /**
+     *
+     *  Map a traffic source display name to a CSS class slug.
+     *
+     *  @param string $traffic_source_name Traffic source label (e.g. "Google Ads").
+     *  @return string CSS-safe slug (e.g. "google_ads").
+     *
+     */
+    public static function traffic_source_css_class( $traffic_source_name ) {
+
+        static $lookup = null;
+
+        if ( null === $lookup ) {
+            $lookup = array_flip( self::available_traffic_types() );
+            $lookup['Admin'] = 'admin';
+        }
+
+        if ( is_string( $traffic_source_name ) && isset( $lookup[ $traffic_source_name ] ) ) {
+            return $lookup[ $traffic_source_name ];
+        }
+
+        return sanitize_title( is_string( $traffic_source_name ) ? $traffic_source_name : '' );
     }
 
     /**
@@ -243,67 +268,189 @@ class WPDAI_Traffic_Type_Detection {
     }
 
     /**
-     * 
-     * Last thing, lets check query params if theyve been set and try to determine
-     * 
+     * Normalize landing-page query params to lowercase string keys/values.
+     *
+     * @param array<string, mixed> $query_params Raw query params.
+     * @return array<string, string>
+     */
+    private function normalize_query_params( $query_params ) {
+
+        $normalized = array();
+
+        if ( ! is_array( $query_params ) || empty( $query_params ) ) {
+            return $normalized;
+        }
+
+        foreach ( $query_params as $key => $value ) {
+            if ( is_array( $value ) ) {
+                continue;
+            }
+
+            $key = strtolower( (string) $key );
+            $value = strtolower( trim( (string) $value ) );
+
+            if ( '' === $key || '' === $value ) {
+                continue;
+            }
+
+            $normalized[ $key ] = $value;
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * @param array<string, string> $query_params Normalized query params.
+     * @param string                $key          Param key.
+     * @return string
+     */
+    private function get_normalized_query_param( $query_params, $key ) {
+
+        $key = strtolower( $key );
+
+        return isset( $query_params[ $key ] ) ? $query_params[ $key ] : '';
+    }
+
+    /**
+     * Paid search / social / email UTM sources used when referrer is missing.
+     *
+     * @return array<string, array<int, string>>
+     */
+    private function get_query_param_source_lists() {
+
+        return array(
+            'google_ads_sources'    => array( 'google', 'googleads', 'google_ads', 'adwords' ),
+            'microsoft_ads_sources' => array( 'bing', 'microsoft', 'msft', 'msn' ),
+            'social_sources'        => array(
+                'fb', 'ig', 'facebook', 'instagram', 'meta',
+                'tiktok', 'tt',
+                'linkedin', 'li',
+                'pinterest', 'pin',
+                'twitter', 'x',
+                'snapchat', 'snap',
+                'youtube', 'yt',
+                'reddit',
+            ),
+            'email_sources'         => array(
+                'mailpoet', 'mailchimp', 'campaignmonitor', 'sendgrid',
+                'klaviyo', 'omnisend', 'brevo', 'sendinblue', 'hubspot',
+                'activecampaign', 'mailerlite', 'dotdigital', 'constantcontact',
+                'drip', 'convertkit', 'aweber', 'getresponse', 'mailjet',
+            ),
+            'paid_mediums'          => array( 'cpc', 'ppc', 'paid', 'paidsearch', 'paid_search' ),
+            'social_mediums'        => array( 'social', 'social_paid', 'paid_social' ),
+        );
+    }
+
+    /**
+     * Last pass: check landing-page query params to rescue attribution when referrer is empty.
+     *
+     * @return string|false Traffic source label or false when inconclusive.
      */
     public function check_query_parameters() {
 
-        $query_params = $this->query_params;
+        $query_params = $this->normalize_query_params( $this->query_params );
 
-        if (is_array($query_params) && !empty($query_params)) {
+        if ( empty( $query_params ) ) {
+            return false;
+        }
 
-            foreach ($query_params as $key => $value) {
-    
-                // Skip if value is an array (happens when same query param appears multiple times)
-                if (is_array($value)) {
-                    continue;
-                }
-    
-                $key   = strtolower($key);
-                $value = strtolower(trim($value));
-    
-                // --- FACEBOOK / INSTAGRAM ---
-                if (
-                    $key === 'fbclid' ||
-                    $key === 'fb_cid' ||
-                    strpos($value, 'facebook') !== false ||
-                    strpos($value, 'instagram') !== false ||
-                    ($key === 'utm_source' && in_array($value, ['fb', 'ig', 'facebook', 'instagram'], true)) ||
-                    ($key === 'utm_medium' && in_array($value, ['social', 'social_paid', 'paid_social'], true))
-                ) {
-                    return 'Social';
-                }
-    
-                // --- GOOGLE ADS ---
-                if (
-                    $key === 'gclid' ||        // Auto-tagging (main)
-                    $key === 'gbraid' ||       // iOS app-to-web
-                    $key === 'wbraid' ||       // Web-to-app
-                    $key === 'dclid' ||        // Display/Video 360
-                    $key === 'google_cid' ||   // Custom tracking param
-                    ($key === 'gclsrc' && strpos($value, 'aw.') === 0) || // Google click source (e.g. aw.ds)
-                    ($key === 'utm_source' && $value === 'google' && isset($query_params['utm_medium']) && 
-                        !is_array($query_params['utm_medium']) &&
-                        in_array(strtolower($query_params['utm_medium']), ['cpc', 'paid', 'ppc'], true))
-                ) {
-                    return 'Google Ads';
-                }
-    
-                // --- EMAIL MARKETING ---
-                if (
-                    $key === 'mc_cid' || // Mailchimp
-                    ($key === 'utm_medium' && $value === 'email') ||
-                    ($key === 'utm_source' && in_array($value, ['mailpoet', 'mailchimp', 'campaignmonitor', 'sendgrid'], true))
-                ) {
-                    return 'Email';
-                }
-    
+        $lists  = $this->get_query_param_source_lists();
+        $source = $this->get_normalized_query_param( $query_params, 'utm_source' );
+        $medium = $this->get_normalized_query_param( $query_params, 'utm_medium' );
+
+        // --- Click IDs (highest confidence) ---
+        if (
+            isset( $query_params['gclid'] )
+            || isset( $query_params['gbraid'] )
+            || isset( $query_params['wbraid'] )
+            || isset( $query_params['dclid'] )
+            || isset( $query_params['google_cid'] )
+            || ( isset( $query_params['gclsrc'] ) && 0 === strpos( $query_params['gclsrc'], 'aw.' ) )
+        ) {
+            return 'Google Ads';
+        }
+
+        if ( isset( $query_params['msclkid'] ) ) {
+            return 'Microsoft Ads';
+        }
+
+        if (
+            isset( $query_params['fbclid'] )
+            || isset( $query_params['fb_cid'] )
+            || isset( $query_params['meta_cid'] )
+            || isset( $query_params['ttclid'] )
+            || isset( $query_params['li_fat_id'] )
+        ) {
+            return 'Social';
+        }
+
+        if ( isset( $query_params['srsltid'] ) ) {
+            return 'Organic';
+        }
+
+        // --- Email platform click IDs ---
+        if (
+            isset( $query_params['mc_cid'] )
+            || isset( $query_params['mc_eid'] )
+            || isset( $query_params['_kx'] )
+        ) {
+            return 'Email';
+        }
+
+        // --- UTM medium ---
+        if ( 'email' === $medium ) {
+            return 'Email';
+        }
+
+        if ( in_array( $medium, $lists['social_mediums'], true ) ) {
+            return 'Social';
+        }
+
+        if ( in_array( $medium, $lists['paid_mediums'], true ) ) {
+            if ( in_array( $source, $lists['google_ads_sources'], true ) ) {
+                return 'Google Ads';
+            }
+            if ( in_array( $source, $lists['microsoft_ads_sources'], true ) ) {
+                return 'Microsoft Ads';
+            }
+            if ( in_array( $source, $lists['social_sources'], true ) ) {
+                return 'Social';
+            }
+        }
+
+        // --- UTM source ---
+        if ( in_array( $source, $lists['email_sources'], true ) ) {
+            return 'Email';
+        }
+
+        if ( in_array( $source, $lists['social_sources'], true ) ) {
+            return 'Social';
+        }
+
+        if ( in_array( $source, $lists['google_ads_sources'], true ) && in_array( $medium, $lists['paid_mediums'], true ) ) {
+            return 'Google Ads';
+        }
+
+        if ( in_array( $source, $lists['microsoft_ads_sources'], true ) && in_array( $medium, $lists['paid_mediums'], true ) ) {
+            return 'Microsoft Ads';
+        }
+
+        // --- Substring hints in any param value (legacy loop behaviour) ---
+        foreach ( $query_params as $key => $value ) {
+            if (
+                false !== strpos( $value, 'facebook' )
+                || false !== strpos( $value, 'instagram' )
+                || false !== strpos( $value, 'tiktok' )
+                || false !== strpos( $value, 'linkedin' )
+                || false !== strpos( $value, 'pinterest' )
+                || false !== strpos( $value, 'twitter' )
+            ) {
+                return 'Social';
             }
         }
 
         return false;
-
     }
 
     /*

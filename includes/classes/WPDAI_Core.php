@@ -1200,8 +1200,9 @@ class WPDAI_Core {
 			$referral_source_url 		= $order_data['referral_source_url'];
 			$landing_page_url_raw 		= $order_data['landing_page_url'];
 			$traffic_type 			 	= $order_data['traffic_source'];
+			$traffic_class              = WPDAI_Traffic_Type_Detection::traffic_source_css_class( $traffic_type );
 
-			echo '<mark class="wpd-order-acquisition-channel order-status tips ' . esc_attr( strtolower( $traffic_type ) ) . '" data-tip="' . esc_attr( $referral_source_url ) . '"><span>' . esc_html( $traffic_type ) . '</span></mark>';
+			echo '<mark class="wpd-order-acquisition-channel order-status tips ' . esc_attr( $traffic_class ) . '" data-tip="' . esc_attr( $referral_source_url ) . '"><span>' . esc_html( $traffic_type ) . '</span></mark>';
 
 	    } else if ( $column == 'wpd_ai_campaign' ) {
 

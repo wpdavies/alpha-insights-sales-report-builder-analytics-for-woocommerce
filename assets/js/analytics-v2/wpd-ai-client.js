@@ -1,5 +1,5 @@
 /**
- * Alpha Insights cache-safe analytics client (v2 beta).
+ * Alpha Insights cache-safe analytics client.
  * Stores session identity in localStorage; mirrors to cookies on cart/checkout only.
  */
 (function() {
@@ -15,6 +15,14 @@
 		referralSetAt: STORAGE_PREFIX + 'referral_set_at'
 	};
 
+	// Mirrors server-side tracking param detection (WPDAI_Session_Context / WPDAI_Session_Tracking).
+	var TRACKING_PARAMS = [
+		'gclid', 'gbraid', 'wbraid', 'dclid', 'fbclid', 'msclkid', 'ttclid', 'li_fat_id', 'srsltid',
+		'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
+		'google_cid', 'meta_cid',
+		'ref', 'source', 'referrer', 'referer'
+	];
+
 	function getConfig() {
 		return (typeof wpdAiClientConfig !== 'undefined') ? wpdAiClientConfig : {};
 	}
@@ -27,8 +35,16 @@
 
 	function getAttributionTimeoutMs() {
 		var cfg = getConfig();
+		if (isSessionOnlyAttribution()) {
+			return getSessionTimeoutMs();
+		}
 		var seconds = cfg.attribution_timeout_seconds ? parseInt(cfg.attribution_timeout_seconds, 10) : (3 * 86400);
 		return Math.max(86400, seconds) * 1000;
+	}
+
+	function isSessionOnlyAttribution() {
+		var cfg = getConfig();
+		return parseInt(cfg.attribution_session_only, 10) === 1;
 	}
 
 	function getCookieStorageMode() {
@@ -115,16 +131,57 @@
 		return ref;
 	}
 
-	function ensureAttribution() {
+	function hasTrackingParams(url) {
+		if (!url) {
+			return false;
+		}
+
+		try {
+			var params = new URL(url).searchParams;
+			for (var i = 0; i < TRACKING_PARAMS.length; i++) {
+				if (params.get(TRACKING_PARAMS[i])) {
+					return true;
+				}
+			}
+		} catch (e) {
+			return false;
+		}
+
+		return false;
+	}
+
+	function isNewSession() {
+		var now = Date.now();
+		var timeoutMs = getSessionTimeoutMs();
+		var sessionId = lsGet(KEYS.sessionId);
+		var lastActivity = parseInt(lsGet(KEYS.sessionActivity) || '0', 10);
+
+		return !sessionId || !lastActivity || (now - lastActivity) > timeoutMs;
+	}
+
+	function resetAttribution(now) {
+		var timestamp = now || Date.now();
+		lsSet(KEYS.landingPage, document.location.href);
+		lsSet(KEYS.landingSetAt, String(timestamp));
+		lsSet(KEYS.referralSource, getReferrerValue());
+		lsSet(KEYS.referralSetAt, String(timestamp));
+	}
+
+	function ensureAttribution(isNewSessionVisit) {
 		var now = Date.now();
 		var attributionMs = getAttributionTimeoutMs();
 		var landingSetAt = parseInt(lsGet(KEYS.landingSetAt) || '0', 10);
+		var newSession = (isNewSessionVisit === true) ? true : isNewSession();
+		var attributionExpired = landingSetAt && (now - landingSetAt) > attributionMs;
+		var hasTracking = hasTrackingParams(document.location.href);
 
-		if (!lsGet(KEYS.landingPage) || (landingSetAt && (now - landingSetAt) > attributionMs)) {
-			lsSet(KEYS.landingPage, document.location.href);
-			lsSet(KEYS.landingSetAt, String(now));
-			lsSet(KEYS.referralSource, getReferrerValue());
-			lsSet(KEYS.referralSetAt, String(now));
+		if (!lsGet(KEYS.landingPage) || attributionExpired) {
+			resetAttribution(now);
+		} else if (isSessionOnlyAttribution() && newSession) {
+			resetAttribution(now);
+		} else if (newSession && hasTracking) {
+			// Last-touch: a new session with UTM/tracking params overrides the attribution window.
+			resetAttribution(now);
 		} else if (!lsGet(KEYS.referralSetAt)) {
 			lsSet(KEYS.referralSource, getReferrerValue());
 			lsSet(KEYS.referralSetAt, String(now));
@@ -141,14 +198,13 @@
 
 	function getSessionId() {
 		migrateLegacyCookies();
-		ensureAttribution();
 
 		var now = Date.now();
-		var timeoutMs = getSessionTimeoutMs();
-		var sessionId = lsGet(KEYS.sessionId);
-		var lastActivity = parseInt(lsGet(KEYS.sessionActivity) || '0', 10);
+		var newSession = isNewSession();
+		ensureAttribution(newSession);
 
-		if (!sessionId || !lastActivity || (now - lastActivity) > timeoutMs) {
+		var sessionId = lsGet(KEYS.sessionId);
+		if (newSession) {
 			sessionId = generateSessionId();
 			lsSet(KEYS.sessionId, sessionId);
 		}
@@ -184,7 +240,9 @@
 
 	function syncCookiesForCheckout() {
 		var cfg = getConfig();
-		var attributionSeconds = cfg.attribution_timeout_seconds ? parseInt(cfg.attribution_timeout_seconds, 10) : (3 * 86400);
+		var attributionSeconds = isSessionOnlyAttribution()
+			? getSessionTimeoutMs() / 1000
+			: (cfg.attribution_timeout_seconds ? parseInt(cfg.attribution_timeout_seconds, 10) : (3 * 86400));
 		var sessionSeconds = cfg.session_timeout_seconds ? parseInt(cfg.session_timeout_seconds, 10) : (30 * 60);
 
 		writeCookie('wpd_ai_session_id', getSessionId(), sessionSeconds);
@@ -203,7 +261,7 @@
 
 	function init() {
 		migrateLegacyCookies();
-		ensureAttribution();
+		ensureAttribution(isNewSession());
 		bindServerSideCookieSync();
 
 		var cfg = getConfig();

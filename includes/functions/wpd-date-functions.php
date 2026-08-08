@@ -117,6 +117,214 @@ function wpdai_site_date_time( $format = 'Y-m-d H:i:s', $modify = false ) {
 }
 
 /**
+ * Get true UTC unix timestamp from a WooCommerce DateTime object.
+ *
+ * @param WC_DateTime|DateTimeInterface|null $datetime WooCommerce or DateTime object.
+ * @return int|null UTC unix timestamp, or null when invalid.
+ */
+function wpdai_wc_datetime_to_utc_timestamp( $datetime ) {
+
+	if ( ! is_object( $datetime ) || ! method_exists( $datetime, 'getTimestamp' ) ) {
+		return null;
+	}
+
+	$timestamp = (int) $datetime->getTimestamp();
+
+	return $timestamp > 0 ? $timestamp : null;
+}
+
+/**
+ * Convert a GMT/MySQL datetime string to a UTC unix timestamp.
+ *
+ * @param string|null $date_gmt Datetime string stored in GMT (Y-m-d H:i:s).
+ * @return int|null UTC unix timestamp, or null when invalid.
+ */
+function wpdai_gmt_date_string_to_utc_timestamp( $date_gmt ) {
+
+	if ( ! is_string( $date_gmt ) || '' === trim( $date_gmt ) ) {
+		return null;
+	}
+
+	try {
+		$datetime = new DateTime( trim( $date_gmt ), new DateTimeZone( 'UTC' ) );
+	} catch ( Exception $e ) {
+		return null;
+	}
+
+	$timestamp = (int) $datetime->getTimestamp();
+
+	return $timestamp > 0 ? $timestamp : null;
+}
+
+/**
+ * Convert a site-local date or datetime string to a UTC unix timestamp.
+ *
+ * @param string|null $local_date Local date or datetime string.
+ * @param string      $time       Optional time when only a date is supplied.
+ * @return int|null UTC unix timestamp, or null when invalid.
+ */
+function wpdai_local_date_string_to_utc_timestamp( $local_date, $time = '00:00:00' ) {
+
+	if ( ! is_string( $local_date ) || '' === trim( $local_date ) ) {
+		return null;
+	}
+
+	$value = trim( $local_date );
+	if ( ! preg_match( '/\d{1,2}:\d{2}/', $value ) ) {
+		$value .= ' ' . $time;
+	}
+
+	$datetime = date_create( $value, wp_timezone() );
+	if ( ! $datetime ) {
+		return null;
+	}
+
+	$timestamp = (int) $datetime->getTimestamp();
+
+	return $timestamp > 0 ? $timestamp : null;
+}
+
+/**
+ * Format a UTC unix timestamp using the WordPress site timezone.
+ *
+ * @param int|null $timestamp UTC unix timestamp.
+ * @param string   $format    PHP date format.
+ * @return string|null Local datetime string, or null when invalid.
+ */
+function wpdai_format_utc_timestamp_local( $timestamp, $format = null ) {
+
+	if ( ! is_numeric( $timestamp ) || (int) $timestamp <= 0 ) {
+		return null;
+	}
+
+	if ( null === $format ) {
+		$format = defined( 'WPD_AI_PHP_ISO_DATETIME' ) ? WPD_AI_PHP_ISO_DATETIME : 'Y-m-d H:i:s';
+	}
+
+	return wp_date( $format, (int) $timestamp );
+}
+
+/**
+ * Convert a UTC unix timestamp to a local date bucket key for charts and reports.
+ *
+ * @param int|null $timestamp UTC unix timestamp.
+ * @param string   $format    PHP date format used for the bucket key.
+ * @return string Local bucket key, or empty string when invalid.
+ */
+function wpdai_utc_timestamp_to_date_key( $timestamp, $format = 'Y-m-d' ) {
+
+	$local = wpdai_format_utc_timestamp_local( $timestamp, $format );
+
+	return is_string( $local ) ? $local : '';
+}
+
+function wpdai_normalize_to_local_day_start_timestamp( $timestamp ) {
+
+	if ( ! is_numeric( $timestamp ) || (int) $timestamp <= 0 ) {
+		return false;
+	}
+
+	$local_day = wpdai_format_utc_timestamp_local( (int) $timestamp, 'Y-m-d' );
+	$normalized = wpdai_local_date_string_to_utc_timestamp( $local_day, '00:00:00' );
+
+	return null !== $normalized ? $normalized : false;
+}
+
+/**
+ * Convert a local report date range to UTC unix bounds.
+ *
+ * @param string $date_from Local date (Y-m-d).
+ * @param string $date_to   Local date (Y-m-d).
+ * @return array{from: int|null, to: int|null}
+ */
+function wpdai_local_date_range_to_utc_bounds( $date_from, $date_to ) {
+
+	return array(
+		'from' => wpdai_local_date_string_to_utc_timestamp( $date_from, '00:00:00' ),
+		'to'   => wpdai_local_date_string_to_utc_timestamp( $date_to, '23:59:59' ),
+	);
+}
+
+/**
+ * Advance a UTC unix timestamp by a modifier in the site timezone.
+ *
+ * @param int    $timestamp UTC unix timestamp.
+ * @param string $modifier  PHP DateTime modify string (e.g. '+1 day').
+ * @return int|false Advanced UTC unix timestamp, or false on failure.
+ */
+function wpdai_advance_local_timestamp( $timestamp, $modifier ) {
+
+	if ( ! is_numeric( $timestamp ) || (int) $timestamp <= 0 ) {
+		return false;
+	}
+
+	try {
+		$dt       = ( new DateTimeImmutable( '@' . (int) $timestamp ) )->setTimezone( wp_timezone() );
+		$advanced = $dt->modify( $modifier );
+
+		return (int) $advanced->getTimestamp();
+	} catch ( Exception $e ) {
+		return false;
+	}
+}
+
+/**
+ * Get the DateTime modify string for a recurring expense frequency.
+ *
+ * @param string $frequency Recurring frequency slug.
+ * @return string PHP DateTime modify string.
+ */
+function wpdai_recurring_frequency_modifier( $frequency ) {
+
+	$modifiers = array(
+		'daily'       => '+1 day',
+		'weekly'      => '+1 week',
+		'fortnightly' => '+2 weeks',
+		'monthly'     => '+1 month',
+		'quarterly'   => '+3 months',
+		'yearly'      => '+1 year',
+		'annually'    => '+1 year',
+	);
+
+	return isset( $modifiers[ $frequency ] ) ? $modifiers[ $frequency ] : '+1 month';
+}
+
+/**
+ * Modify a local Y-m-d date string by a relative modifier in site timezone.
+ *
+ * @param string $date_ymd  Local date string (Y-m-d).
+ * @param string $modifier  PHP DateTime modify string.
+ * @return string|null Modified local date string, or null on failure.
+ */
+function wpdai_modify_local_date_string( $date_ymd, $modifier ) {
+
+	$timestamp = wpdai_local_date_string_to_utc_timestamp( $date_ymd, '00:00:00' );
+	if ( null === $timestamp ) {
+		return null;
+	}
+
+	$advanced = wpdai_advance_local_timestamp( $timestamp, $modifier );
+
+	return false !== $advanced ? wpdai_utc_timestamp_to_date_key( $advanced ) : null;
+}
+
+/**
+ * Build UTC and local datetime payload values from a WooCommerce DateTime object.
+ *
+ * @param WC_DateTime|DateTimeInterface|null $datetime WooCommerce or DateTime object.
+ * @return array{utc: int|null, local: string|null}
+ */
+function wpdai_datetime_payload_from_wc( $datetime ) {
+
+	$utc = wpdai_wc_datetime_to_utc_timestamp( $datetime );
+
+	return array(
+		'utc'   => $utc,
+		'local' => null !== $utc ? wpdai_format_utc_timestamp_local( $utc ) : null,
+	);
+}
+
+/**
  *
  *	Date picker
  *
