@@ -1,0 +1,47 @@
+name: Deploy to WordPress.org
+
+# Push a version tag on main to release, e.g. git tag 2.0.0 && git push origin 2.0.0
+# Requires GitHub secrets: SVN_USERNAME, SVN_PASSWORD (WordPress.org application password)
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  deploy:
+    name: Deploy tagged release to WordPress.org
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate version matches plugin files
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          HEADER="$(grep -E '^\s*\*\s*Version:' wpd-alpha-insights.php | head -1 | sed -E 's/.*Version:[[:space:]]*//')"
+          STABLE="$(grep -E '^Stable tag:' readme.txt | head -1 | sed -E 's/^Stable tag:[[:space:]]*//')"
+          echo "Tag: $TAG"
+          echo "Plugin header: $HEADER"
+          echo "readme Stable tag: $STABLE"
+          if [ "$TAG" != "$HEADER" ] || [ "$TAG" != "$STABLE" ]; then
+            echo "Version mismatch. Tag, plugin header, and readme Stable tag must match."
+            exit 1
+          fi
+
+      - name: WordPress.org plugin deploy
+        uses: 10up/action-wordpress-plugin-deploy@v2
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+        with:
+          slug: alpha-insights-sales-report-builder-analytics-for-woocommerce
+          generate-zip: true
+
+      - name: Upload release ZIP
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ github.workspace }}/alpha-insights-sales-report-builder-analytics-for-woocommerce.zip
