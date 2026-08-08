@@ -9,6 +9,9 @@ on:
       - '[0-9]+.[0-9]+.[0-9]+'
       - 'v[0-9]+.[0-9]+.[0-9]+'
 
+permissions:
+  contents: write
+
 jobs:
   deploy:
     name: Deploy tagged release to WordPress.org
@@ -33,7 +36,8 @@ jobs:
           fi
 
       - name: WordPress.org plugin deploy
-        uses: 10up/action-wordpress-plugin-deploy@v2
+        id: deploy
+        uses: 10up/action-wordpress-plugin-deploy@stable
         env:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
@@ -44,4 +48,4 @@ jobs:
       - name: Upload release ZIP
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ github.workspace }}/alpha-insights-sales-report-builder-analytics-for-woocommerce.zip
+          files: ${{ steps.deploy.outputs.zip-path }}
