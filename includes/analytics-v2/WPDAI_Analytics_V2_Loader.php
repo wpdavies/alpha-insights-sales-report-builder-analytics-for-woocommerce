@@ -1,6 +1,6 @@
 <?php
 /**
- * Bootstrap cache-safe analytics v2 when beta is enabled.
+ * Bootstrap cache-safe analytics when enabled (default since 5.6.6).
  *
  * @package Alpha Insights
  */
@@ -21,7 +21,7 @@ class WPDAI_Analytics_V2_Loader {
 	}
 
 	/**
-	 * Load v2 tracking when beta flag and analytics are enabled.
+	 * Load cache-safe tracking when analytics are enabled.
 	 *
 	 * @return void
 	 */

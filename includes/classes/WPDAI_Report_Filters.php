@@ -90,156 +90,11 @@ class WPDAI_Report_Filters {
     }
 
     /**
-     *
-     *  List of available query parameter values for orders (capped for the filter picker; arbitrary key/values can be typed in the UI).
-     *  Optimized for large stores using batched processing
-     * 
-     * 	@return array $array An associative array of all query parameter values.
-     * 	Array structure is array[$query_parameter_value_raw] = $query_parameter_value.
-     *
-     *  Optional: `wpd_ai_report_filters_short_circuit_order_query_parameters` (default false) — when true, returns `array()` without reading cache or DB.
-     * 
-     **/
+     * @deprecated 5.7.4 Query parameter suggestions load via AJAX (`search_query_parameter_suggestions`).
+     * @return array<string, array<int, string>>
+     */
     public function get_filter_values_order_query_parameter_key_value_pairs() {
-
-        if ( apply_filters( 'wpd_ai_report_filters_short_circuit_order_query_parameters', true ) ) {
-            return array();
-        }
-
-        // Check instance cache first
-        if ( isset( $this->instance_cache['order_query_params'] ) ) {
-            return $this->instance_cache['order_query_params'];
-        }
-
-        // Get results
-        $results = get_transient( 'wpd_ai_report_filters_order_query_parameter_values' );
-
-        if ( $results && $this->is_transient_enabled ) {
-            $this->instance_cache['order_query_params'] = $results;
-            return $results;
-        }
-
-        global $wpdb;
-
-        // Detect HPOS (custom order tables)
-        $is_hpos_enabled = wpdai_is_hpos_enabled();
-    
-        $meta_key = '_wpd_ai_landing_page';
-        $parsed_values = array();
-        
-        // Batch configuration
-        $max_batches = 1000; // Safety limit
-        $batch_count = 0;
-        $offset = 0;
-        $has_more = true;
-    
-        while ( $has_more && $batch_count < $max_batches ) {
-            
-            if ( $is_hpos_enabled ) {
-        
-                // HPOS mode — order meta table
-                $order_meta_table = $wpdb->prefix . 'wc_orders_meta';
-        
-                $query = $wpdb->prepare("
-                    SELECT meta_value
-                    FROM {$order_meta_table}
-                    WHERE meta_key = %s
-                    AND meta_value LIKE %s
-                    LIMIT %d OFFSET %d
-                ", $meta_key, '%' . $wpdb->esc_like( '?' ) . '%', $this->batch_size, $offset);
-        
-                $results = $wpdb->get_col( $query );
-        
-            } else {
-        
-                // Legacy posts/postmeta system
-                $query = $wpdb->prepare("
-                    SELECT pm.meta_value
-                    FROM {$wpdb->postmeta} pm
-                    INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-                    WHERE pm.meta_key = %s
-                    AND pm.meta_value LIKE %s
-                    AND p.post_type = 'shop_order'
-                    LIMIT %d OFFSET %d
-                ", $meta_key, '%' . $wpdb->esc_like( '?' ) . '%', $this->batch_size, $offset);
-        
-                $results = $wpdb->get_col( $query );
-            }
-            
-            if ( empty( $results ) || ! is_array( $results ) ) {
-                $has_more = false;
-                break;
-            }
-        
-            // Process this batch
-            foreach ( $results as $url ) {
-        
-                // Extract the query string
-                $params = wpdai_get_query_params( $url );
-
-                if ( empty( $params ) ) continue;
-
-                // Loop through params (any key / value strings from landing URLs; picker list is capped later).
-                foreach ( $params as $key => $value ) {
-                    // Handle arrays (when query parameter appears multiple times).
-                    $values_to_process = is_array( $value ) ? $value : array( $value );
-
-                    foreach ( $values_to_process as $single_value ) {
-                        if ( ! is_string( $single_value ) ) {
-                            continue;
-                        }
-
-                        $key_clean = sanitize_text_field( (string) $key );
-                        if ( '' === $key_clean ) {
-                            continue;
-                        }
-
-                        $clean = sanitize_text_field( $single_value );
-                        if ( '' === $clean ) {
-                            continue;
-                        }
-
-                        if ( ! isset( $parsed_values[ $key_clean ] ) ) {
-                            $parsed_values[ $key_clean ] = array();
-                        }
-                        $parsed_values[ $key_clean ][ $clean ] = true;
-                    }
-                }
-            }
-            
-            // Check if we got fewer results than batch size (last batch)
-            if ( count( $results ) < $this->batch_size ) {
-                $has_more = false;
-            }
-            
-            $offset += $this->batch_size;
-            $batch_count++;
-        }
-    
-        if ( empty( $parsed_values ) ) {
-            return array();
-        }
-
-        // Clean up the array
-        if ( is_array($parsed_values) && ! empty($parsed_values) ) {
-            foreach( $parsed_values as $key => $value ) {
-                $parsed_values[ $key ] = array_keys( $value );
-            }
-        }
-    
-        // Optionally sort alphabetically
-        ksort( $parsed_values );
-
-        $parsed_values = $this->limit_query_parameter_picker_options( $parsed_values );
-    
-        // Store transient
-        if ( ! empty($parsed_values) ) set_transient( 'wpd_ai_report_filters_order_query_parameter_values', $parsed_values, $this->transient_duration_in_seconds );
-
-        // Store in instance cache
-        $this->instance_cache['order_query_params'] = $parsed_values;
-
-        return $parsed_values;
-
+        return array();
     }
 
     /**
@@ -282,6 +137,274 @@ class WPDAI_Report_Filters {
         }
 
         return $parsed_values;
+    }
+
+    /**
+     * Search query parameter keys or values for report filter autosuggest (AJAX only).
+     *
+     * @since 5.7.4
+     *
+     * @param string $source    Data source: orders or website_traffic.
+     * @param string $search    Case-insensitive substring match.
+     * @param string $param_key When set, returns values for this key only.
+     * @return array{keys: string[], values: string[]}
+     */
+    public function search_query_parameter_suggestions( $source, $search = '', $param_key = '' ) {
+
+        $allowed_sources = array( 'orders', 'website_traffic' );
+        if ( ! in_array( $source, $allowed_sources, true ) ) {
+            return array(
+                'keys'   => array(),
+                'values' => array(),
+            );
+        }
+
+        $search     = sanitize_text_field( (string) $search );
+        $param_key  = sanitize_text_field( (string) $param_key );
+        $search_lc  = strtolower( $search );
+
+        $cache_key = 'wpd_ai_qp_search_' . md5( $source . '|' . $search . '|' . $param_key );
+        $cached    = get_transient( $cache_key );
+
+        if ( false !== $cached && $this->is_transient_enabled && is_array( $cached ) ) {
+            return $cached;
+        }
+
+        /** @var int */
+        $max_batches = (int) apply_filters( 'wpd_ai_report_filters_query_parameter_search_max_batches', 25 );
+        /** @var int */
+        $max_keys = (int) apply_filters( 'wpd_ai_report_filters_query_parameter_picker_max_keys', 20 );
+        /** @var int */
+        $max_vals = (int) apply_filters( 'wpd_ai_report_filters_query_parameter_picker_max_values_per_key', 50 );
+
+        if ( $max_batches < 1 ) {
+            $max_batches = 25;
+        }
+        if ( $max_keys < 1 ) {
+            $max_keys = 20;
+        }
+        if ( $max_vals < 1 ) {
+            $max_vals = 50;
+        }
+
+        $matched_keys   = array();
+        $matched_values = array();
+        $offset         = 0;
+        $batch_count    = 0;
+        $has_more       = true;
+        $url_like       = $this->build_query_param_search_url_like( $search, $param_key );
+        $value_mode     = ( '' !== $param_key );
+
+        while ( $has_more && $batch_count < $max_batches ) {
+            $urls = $this->fetch_landing_page_urls_batch( $source, $offset, $url_like );
+
+            if ( empty( $urls ) || ! is_array( $urls ) ) {
+                break;
+            }
+
+            foreach ( $urls as $url ) {
+                $params = wpdai_get_query_params( $url );
+
+                if ( empty( $params ) || ! is_array( $params ) ) {
+                    continue;
+                }
+
+                if ( $value_mode ) {
+                    if ( ! isset( $params[ $param_key ] ) ) {
+                        continue;
+                    }
+
+                    $raw_values = is_array( $params[ $param_key ] ) ? $params[ $param_key ] : array( $params[ $param_key ] );
+
+                    foreach ( $raw_values as $single_value ) {
+                        if ( ! is_string( $single_value ) ) {
+                            continue;
+                        }
+
+                        $clean = sanitize_text_field( $single_value );
+                        if ( '' === $clean ) {
+                            continue;
+                        }
+
+                        if ( '' !== $search_lc && false === stripos( $clean, $search ) ) {
+                            continue;
+                        }
+
+                        $matched_values[ $clean ] = true;
+
+                        if ( count( $matched_values ) >= $max_vals ) {
+                            break 3;
+                        }
+                    }
+                } else {
+                    foreach ( $params as $key => $value ) {
+                        $key_clean = sanitize_text_field( (string) $key );
+                        if ( '' === $key_clean ) {
+                            continue;
+                        }
+
+                        if ( '' !== $search_lc && false === stripos( $key_clean, $search ) ) {
+                            continue;
+                        }
+
+                        $matched_keys[ $key_clean ] = true;
+
+                        if ( count( $matched_keys ) >= $max_keys ) {
+                            break 3;
+                        }
+                    }
+                }
+            }
+
+            if ( count( $urls ) < $this->batch_size ) {
+                $has_more = false;
+            }
+
+            $offset += $this->batch_size;
+            $batch_count++;
+        }
+
+        $results = array(
+            'keys'   => array(),
+            'values' => array(),
+        );
+
+        if ( $value_mode ) {
+            $values = array_keys( $matched_values );
+            sort( $values, SORT_STRING );
+            $results['values'] = $values;
+        } else {
+            $keys = array_keys( $matched_keys );
+            sort( $keys, SORT_STRING );
+            $results['keys'] = $keys;
+        }
+
+        if ( $this->is_transient_enabled ) {
+            set_transient( $cache_key, $results, 900 );
+        }
+
+        return $results;
+    }
+
+    /**
+     * Build a SQL LIKE pattern to narrow landing-page URLs for query-param search.
+     *
+     * @param string $search    Search substring.
+     * @param string $param_key Parameter key when searching values.
+     * @return string
+     */
+    private function build_query_param_search_url_like( $search, $param_key ) {
+
+        global $wpdb;
+
+        $fragments = array( '?' );
+
+        if ( '' !== $param_key ) {
+            $fragments[] = $param_key . '=';
+        }
+
+        if ( '' !== $search ) {
+            $fragments[] = $search;
+        }
+
+        $escaped = array_map(
+            static function ( $fragment ) use ( $wpdb ) {
+                return $wpdb->esc_like( (string) $fragment );
+            },
+            $fragments
+        );
+
+        return '%' . implode( '%', $escaped ) . '%';
+    }
+
+    /**
+     * Fetch a batch of landing page URLs for query parameter scanning.
+     *
+     * @param string $source Data source: orders or website_traffic.
+     * @param int    $offset Batch offset.
+     * @param string $url_like SQL LIKE pattern.
+     * @return string[]
+     */
+    private function fetch_landing_page_urls_batch( $source, $offset, $url_like ) {
+
+        global $wpdb;
+
+        if ( 'orders' === $source ) {
+            $meta_key         = '_wpd_ai_landing_page';
+            $is_hpos_enabled  = wpdai_is_hpos_enabled();
+
+            if ( $is_hpos_enabled ) {
+                $order_meta_table = $wpdb->prefix . 'wc_orders_meta';
+
+                return $wpdb->get_col(
+                    $wpdb->prepare(
+                        "SELECT meta_value
+                        FROM {$order_meta_table}
+                        WHERE meta_key = %s
+                        AND meta_value LIKE %s
+                        LIMIT %d OFFSET %d",
+                        $meta_key,
+                        $url_like,
+                        $this->batch_size,
+                        $offset
+                    )
+                );
+            }
+
+            return $wpdb->get_col(
+                $wpdb->prepare(
+                    "SELECT pm.meta_value
+                    FROM {$wpdb->postmeta} pm
+                    INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+                    WHERE pm.meta_key = %s
+                    AND pm.meta_value LIKE %s
+                    AND p.post_type = 'shop_order'
+                    LIMIT %d OFFSET %d",
+                    $meta_key,
+                    $url_like,
+                    $this->batch_size,
+                    $offset
+                )
+            );
+        }
+
+        $wpd_db             = new WPDAI_Database_Interactor();
+        $session_data_table = $wpd_db->session_data_table;
+        $valid_tables       = $wpd_db->get_all_table_names();
+
+        if ( ! in_array( $session_data_table, $valid_tables, true ) ) {
+            wpdai_write_log(
+                sprintf(
+                    /* translators: %s: database table name */
+                    __( 'Invalid table name for query: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                    esc_html( $session_data_table )
+                ),
+                'db_error'
+            );
+            return array();
+        }
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is validated against whitelist.
+        $session_sql_query = $wpdb->prepare(
+            "SELECT DISTINCT landing_page
+             FROM `{$session_data_table}`
+             WHERE landing_page LIKE %s
+             LIMIT %d OFFSET %d",
+            $url_like,
+            absint( $this->batch_size ),
+            absint( $offset )
+        );
+
+        $results = $wpdb->get_col( $session_sql_query );
+
+        if ( $wpdb->last_error ) {
+            wpdai_write_log( 'Error capturing session data from DB for query parameter search.', 'db_error' );
+            wpdai_write_log( $wpdb->last_error, 'db_error' );
+            wpdai_write_log( $wpdb->last_query, 'db_error' );
+            return array();
+        }
+
+        return is_array( $results ) ? $results : array();
     }
 
     /**
@@ -693,153 +816,11 @@ class WPDAI_Report_Filters {
     }
 
     /**
-     *
-     *  List of available query parameter values from website traffic (capped for the filter picker; arbitrary key/values can be typed in the UI).
-     *  Optimized for large stores using batched processing
-     * 
-     * 	@return array<string, array<int, string>> Key => list of distinct value strings. Empty array if nothing found or on DB read errors (errors are logged).
-     *
-     * Optional: `wpd_ai_report_filters_short_circuit_website_traffic_query_parameters` (default false) — when true, returns `array()` without reading cache or DB.
-     * 
-     **/
+     * @deprecated 5.7.4 Query parameter suggestions load via AJAX (`search_query_parameter_suggestions`).
+     * @return array<string, array<int, string>>
+     */
     public function get_filter_values_website_traffic_query_parameter_key_value_pairs() {
-
-        if ( apply_filters( 'wpd_ai_report_filters_short_circuit_website_traffic_query_parameters', true ) ) {
-            return array();
-        }
-
-        // Check instance cache first
-        if ( isset( $this->instance_cache['traffic_query_params'] ) ) {
-            return $this->instance_cache['traffic_query_params'];
-        }
-
-        // Get results
-        $results = get_transient( 'wpd_ai_report_filters_website_traffic_query_parameter_values' );
-
-        if ( $results && $this->is_transient_enabled ) {
-            $this->instance_cache['traffic_query_params'] = $results;
-            return $results;
-        }
-
-        global $wpdb;
-
-        $wpd_db = new WPDAI_Database_Interactor();
-        $session_data_table = $wpd_db->session_data_table;
-
-        // Validate table name against whitelist (WordPress.org compliance - prefer validation over esc_sql)
-        $valid_tables = $wpd_db->get_all_table_names();
-        if ( ! in_array( $session_data_table, $valid_tables, true ) ) {
-            wpdai_write_log( sprintf( __( 'Invalid table name for query: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $session_data_table ) ), 'db_error' );
-            return array();
-        }
-        
-        $parsed_values = array();
-        
-        // Batch configuration
-        $max_batches = 1000; // Safety limit
-        $batch_count = 0;
-        $offset = 0;
-        $has_more = true;
-
-        while ( $has_more && $batch_count < $max_batches ) {
-            
-            // Fetch session data in batches
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is validated against whitelist.
-            $session_sql_query = $wpdb->prepare(
-                "SELECT DISTINCT landing_page
-                 FROM `{$session_data_table}`
-                 WHERE landing_page LIKE %s
-                 LIMIT %d OFFSET %d",
-                '%' . $wpdb->esc_like( '?' ) . '%',
-                absint( $this->batch_size ),
-                absint( $offset )
-            );
-
-            $results = $wpdb->get_col( $session_sql_query );
-
-            if ( $wpdb->last_error ) {
-                wpdai_write_log( 'Error capturing session data from DB, dumping the error and query.', 'db_error' );
-                wpdai_write_log( $wpdb->last_error, 'db_error' );
-                wpdai_write_log( $wpdb->last_query, 'db_error' );
-
-                return array();
-            }
-
-            if ( empty( $results ) || ! is_array( $results ) ) {
-                $has_more = false;
-                break;
-            }
-        
-            // Process this batch
-            foreach ( $results as $url ) {
-        
-                // Extract the query string
-                $params = wpdai_get_query_params( $url );
-
-                if ( empty( $params ) ) continue;
-        
-                // Loop through params (any key / value strings from landing URLs; picker list is capped later).
-                foreach ( $params as $key => $value ) {
-                    // Handle arrays (when query parameter appears multiple times).
-                    $values_to_process = is_array( $value ) ? $value : array( $value );
-
-                    foreach ( $values_to_process as $single_value ) {
-                        if ( ! is_string( $single_value ) ) {
-                            continue;
-                        }
-
-                        $key_clean = sanitize_text_field( (string) $key );
-                        if ( '' === $key_clean ) {
-                            continue;
-                        }
-
-                        $clean = sanitize_text_field( $single_value );
-                        if ( '' === $clean ) {
-                            continue;
-                        }
-
-                        if ( ! isset( $parsed_values[ $key_clean ] ) ) {
-                            $parsed_values[ $key_clean ] = array();
-                        }
-                        $parsed_values[ $key_clean ][ $clean ] = true;
-                    }
-                }
-            }
-            
-            // Check if we got fewer results than batch size (last batch)
-            if ( count( $results ) < $this->batch_size ) {
-                $has_more = false;
-            }
-            
-            $offset += $this->batch_size;
-            $batch_count++;
-        }
-    
-        if ( empty( $parsed_values ) ) {
-            return array();
-        }
-
-        // Clean up the array
-        if ( is_array($parsed_values) && ! empty($parsed_values) ) {
-            foreach( $parsed_values as $key => $value ) {
-                $parsed_values[ $key ] = array_keys( $value );
-            }
-        }
-    
-        // Optionally sort alphabetically
-        ksort( $parsed_values );
-
-        $parsed_values = $this->limit_query_parameter_picker_options( $parsed_values );
-
-        // Store transient
-        if ( ! empty($parsed_values) ) set_transient( 'wpd_ai_report_filters_website_traffic_query_parameter_values', $parsed_values, $this->transient_duration_in_seconds );
-
-        // Store in instance cache
-        $this->instance_cache['traffic_query_params'] = $parsed_values;
-
-        // Return Results
-        return $parsed_values;
-
+        return array();
     }
 
     /**

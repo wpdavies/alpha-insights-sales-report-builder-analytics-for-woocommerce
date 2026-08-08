@@ -219,23 +219,89 @@ class WPDAI_Admin_Menu {
         ob_start(); ?>
 
         <div class="wpd-nav-wrapper">
+            <div class="wpd-mobile-nav-backdrop" hidden aria-hidden="true"></div>
+            <div class="wpd-mobile-nav-drawer" id="wpd-ai-mobile-drawer" role="dialog" aria-modal="true" aria-hidden="true" aria-label="<?php esc_attr_e( 'Alpha Insights navigation', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>">
+                <div class="wpd-mobile-nav-drawer__header">
+                    <span class="wpd-mobile-nav-drawer__title"><?php esc_html_e( 'Main Menu', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></span>
+                    <button type="button" class="wpd-mobile-nav-close" aria-label="<?php esc_attr_e( 'Close navigation menu', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="wpd-mobile-nav-drawer__body" role="navigation">
+                    <ul class="wpd-mobile-nav-list">
+                        <?php foreach ( $alpha_insights_menu as $menu_key => $item ) : ?>
+                            <?php
+                            $menu_children         = ( isset( $item['children'] ) && is_array( $item['children'] ) ) ? $item['children'] : array();
+                            $has_multiple_children = count( $menu_children ) > 1;
+                            $is_active_parent      = ( $active_parent_menu_item === $menu_key );
+                            ?>
+                            <li class="wpd-mobile-nav-item<?php echo $is_active_parent ? ' is-active' : ''; ?><?php echo $has_multiple_children ? ' has-children' : ''; ?><?php echo ( $is_active_parent && $has_multiple_children ) ? ' is-expanded' : ''; ?>">
+                                <div class="wpd-mobile-nav-item-row">
+                                    <a
+                                        class="wpd-mobile-nav-link<?php echo $is_active_parent ? ' is-active' : ''; ?> <?php echo esc_attr( implode( ' ', $item['additional_classes'] ) ); ?>"
+                                        href="<?php echo esc_url( $item['url'] ); ?>"
+                                        <?php echo ( isset( $item['target'] ) ) ? ' target="' . esc_attr( $item['target'] ) . '"' : ''; ?>
+                                    ><?php echo esc_html( $item['title'] ); ?></a>
+                                    <?php if ( $has_multiple_children ) : ?>
+                                        <button
+                                            type="button"
+                                            class="wpd-mobile-nav-accordion-trigger"
+                                            aria-expanded="<?php echo $is_active_parent ? 'true' : 'false'; ?>"
+                                            aria-label="<?php echo esc_attr( sprintf( /* translators: %s: menu item title */ __( 'Toggle %s submenu', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $item['title'] ) ); ?>"
+                                        >
+                                            <span class="wpd-mobile-nav-chevron" aria-hidden="true"></span>
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
+                                <?php if ( $has_multiple_children ) : ?>
+                                    <ul class="wpd-mobile-nav-sublist" aria-hidden="<?php echo $is_active_parent ? 'false' : 'true'; ?>">
+                                        <?php foreach ( $menu_children as $child_key => $child ) : ?>
+                                            <?php $is_active_sub = ( $is_active_parent && $active_submenu_item === $child_key ); ?>
+                                            <li class="wpd-mobile-nav-subitem<?php echo $is_active_sub ? ' is-active' : ''; ?>">
+                                                <a
+                                                    class="wpd-mobile-nav-sublink<?php echo $is_active_sub ? ' is-active' : ''; ?> <?php echo esc_attr( implode( ' ', $child['additional_classes'] ) ); ?>"
+                                                    href="<?php echo esc_url( $child['url'] ); ?>"
+                                                ><?php echo esc_html( $child['title'] ); ?></a>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                <?php endif; ?>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            </div>
             <div class="wrap">
-                <!-- Branding container -->
-                <h3 class="nav-tab-wrapper wpd-nav-tab-wrapper" id="wpd-ai-menu">
+                <div class="wpd-nav-mobile-toolbar">
                     <span class="wpd-plugin-logo">
-                        <img height="50" src="<?php echo esc_url( wpdai_get_logo_icon_url() ); ?>" class="alpha-insights-menu-logo">
+                        <img height="50" src="<?php echo esc_url( wpdai_get_logo_icon_url() ); ?>" class="alpha-insights-menu-logo" alt="">
                         <span class="product-subtitle">Alpha Insights</span>
                     </span>
-                    <!-- Menu items container -->
-                    <?php foreach( $alpha_insights_menu as $key => $item ) : ?>
-                        <span class="wpd-ai-menu-item-container">
-                            <!-- Actual Menu Item -->
-                            <a class="wpd-nav-tab nav-tab <?php echo esc_attr( implode(' ', $item['additional_classes']) ); ?> <?php echo esc_attr( ( $active_parent_menu_item == $key ) ? 'nav-tab-active' : '' ); ?>" href="<?php echo esc_url( $item['url'] ); ?>"<?php echo ( isset($item['target']) ) ? ' target="' . esc_attr( $item['target'] ) . '"' : ''; ?>><?php echo esc_html( $item['title'] ); ?></a>
-                            <!-- Dropdown Menu -->
-                            <?php if ( isset($item['children']) && is_array($item['children']) && count($item['children']) > 1 ) : ?>
+                    <button type="button" class="wpd-mobile-nav-toggle" aria-expanded="false" aria-controls="wpd-ai-mobile-drawer" aria-label="<?php esc_attr_e( 'Open navigation menu', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>">
+                        <span class="wpd-mobile-nav-toggle-label"><?php esc_html_e( 'Main Menu', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></span>
+                        <span class="wpd-hamburger-box" aria-hidden="true">
+                            <span class="wpd-hamburger-line"></span>
+                            <span class="wpd-hamburger-line"></span>
+                            <span class="wpd-hamburger-line"></span>
+                        </span>
+                    </button>
+                </div>
+                <h3 class="nav-tab-wrapper wpd-nav-tab-wrapper wpd-desktop-nav" id="wpd-ai-menu">
+                    <span class="wpd-plugin-logo">
+                        <img height="50" src="<?php echo esc_url( wpdai_get_logo_icon_url() ); ?>" class="alpha-insights-menu-logo" alt="">
+                        <span class="product-subtitle">Alpha Insights</span>
+                    </span>
+                    <?php foreach ( $alpha_insights_menu as $menu_key => $item ) : ?>
+                        <?php
+                        $menu_children         = ( isset( $item['children'] ) && is_array( $item['children'] ) ) ? $item['children'] : array();
+                        $has_multiple_children = count( $menu_children ) > 1;
+                        ?>
+                        <span class="wpd-ai-menu-item-container<?php echo $has_multiple_children ? ' has-multiple-children' : ''; ?>">
+                            <a class="wpd-nav-tab nav-tab <?php echo esc_attr( implode( ' ', $item['additional_classes'] ) ); ?> <?php echo esc_attr( ( $active_parent_menu_item === $menu_key ) ? 'nav-tab-active' : '' ); ?>" href="<?php echo esc_url( $item['url'] ); ?>"<?php echo ( isset( $item['target'] ) ) ? ' target="' . esc_attr( $item['target'] ) . '"' : ''; ?>><?php echo esc_html( $item['title'] ); ?></a>
+                            <?php if ( $has_multiple_children ) : ?>
                                 <ul class="wpd-ai-dropdown-submenu">
-                                    <?php foreach( $item['children'] as $key => $child ) : ?>
-                                        <li class="wpd-drop-down-menu-item <?php echo esc_attr( implode(' ', $child['additional_classes']) ); ?>">
+                                    <?php foreach ( $menu_children as $child_key => $child ) : ?>
+                                        <li class="wpd-drop-down-menu-item <?php echo esc_attr( implode( ' ', $child['additional_classes'] ) ); ?>">
                                             <a href="<?php echo esc_url( $child['url'] ); ?>"><?php echo esc_html( $child['title'] ); ?></a>
                                         </li>
                                     <?php endforeach; ?>
@@ -263,8 +329,17 @@ class WPDAI_Admin_Menu {
                     <ul class="wpd-sub-menu">
                         <?php if ( $active_parent_menu_item && isset($alpha_insights_menu[$active_parent_menu_item]['children']) ) : ?>
                             <?php foreach( $alpha_insights_menu[$active_parent_menu_item]['children'] as $key => $item ) : ?>
+                                <?php
+                                $item_page    = $this->get_menu_item_page( $item );
+                                $item_subpage = $this->get_menu_item_subpage( $item );
+                                ?>
                                 <li class="wpd-sub-menu-li">
-                                    <a class="wpd-sub-menu-item <?php echo esc_attr( ( $active_submenu_item == $key ) ? 'nav-tab-active' : '' ); ?> <?php echo esc_attr( implode(' ', $item['additional_classes']) ); ?>" href="<?php echo esc_url( $item['url'] ); ?>"><?php echo esc_html( $item['title'] ); ?></a>
+                                    <a
+                                        class="wpd-sub-menu-item <?php echo esc_attr( ( $active_submenu_item == $key ) ? 'nav-tab-active' : '' ); ?> <?php echo esc_attr( implode(' ', $item['additional_classes']) ); ?>"
+                                        href="<?php echo esc_url( $item['url'] ); ?>"
+                                        data-page="<?php echo esc_attr( $item_page ); ?>"
+                                        data-subpage="<?php echo esc_attr( $item_subpage ); ?>"
+                                    ><?php echo esc_html( $item['title'] ); ?></a>
                                 </li>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -528,6 +603,60 @@ class WPDAI_Admin_Menu {
     }
 
     /**
+     * Parse the admin page slug from a menu item definition.
+     *
+     * @since 5.0.0
+     *
+     * @param array $item Menu item definition.
+     * @return string
+     */
+    private function get_menu_item_page( $item ) {
+        if ( isset( $item['page'] ) ) {
+            return $item['page'];
+        }
+
+        if ( empty( $item['url'] ) ) {
+            return '';
+        }
+
+        $query = wp_parse_url( $item['url'], PHP_URL_QUERY );
+        if ( ! $query ) {
+            return '';
+        }
+
+        parse_str( $query, $params );
+
+        return isset( $params['page'] ) ? $params['page'] : '';
+    }
+
+    /**
+     * Parse the subpage slug from a menu item definition.
+     *
+     * @since 5.0.0
+     *
+     * @param array $item Menu item definition.
+     * @return string
+     */
+    private function get_menu_item_subpage( $item ) {
+        if ( array_key_exists( 'subpage', $item ) ) {
+            return $item['subpage'];
+        }
+
+        if ( empty( $item['url'] ) ) {
+            return '';
+        }
+
+        $query = wp_parse_url( $item['url'], PHP_URL_QUERY );
+        if ( ! $query ) {
+            return '';
+        }
+
+        parse_str( $query, $params );
+
+        return isset( $params['subpage'] ) ? $params['subpage'] : '';
+    }
+
+    /**
      * Get the active submenu item
      * 
      * @since 4.8.0
@@ -554,23 +683,29 @@ class WPDAI_Admin_Menu {
         $current_page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : '';
         $current_subpage = isset($_GET['subpage']) ? sanitize_text_field($_GET['subpage']) : '';
 
-        // Method 1: Direct subpage parameter match (most common and reliable)
-        if ( ! empty($current_subpage) && isset($children[$current_subpage]) ) {
-            return $current_subpage;
-        }
-
-        // Method 2: Check if any child's key matches the subpage parameter
-        // This handles cases where the key might be different from expected
-        if ( ! empty($current_subpage) ) {
-            foreach ( $children as $key => $child ) {
-                if ( $key === $current_subpage ) {
-                    return $key;
-                }
+        // Default to the first child subpage when landing on a parent page without one.
+        if ( '' === $current_subpage && $current_page === $parent_menu_item_key ) {
+            $first_child = reset( $children );
+            if ( $first_child ) {
+                $current_subpage = $this->get_menu_item_subpage( $first_child );
             }
         }
 
-        // Method 3: Match current page URL against child URLs
-        // This handles cases like wpd-expense-reports that should map to the 'report' submenu
+        foreach ( $children as $key => $child ) {
+            $child_page    = $this->get_menu_item_page( $child );
+            $child_subpage = $this->get_menu_item_subpage( $child );
+
+            if ( $child_page === $current_page && $child_subpage === $current_subpage ) {
+                return $key;
+            }
+        }
+
+        // Direct subpage key match (legacy fallback).
+        if ( ! empty( $current_subpage ) && isset( $children[ $current_subpage ] ) ) {
+            return $current_subpage;
+        }
+
+        // Cross-page items (e.g. expense report on wpd-expense-reports).
         $current_url = admin_url('admin.php') . '?page=' . $current_page;
         if ( ! empty($current_subpage) ) {
             $current_url .= '&subpage=' . $current_subpage;
@@ -588,15 +723,15 @@ class WPDAI_Admin_Menu {
                     parse_str($current_url_parts['query'], $current_params);
 
                     // Check if page parameters match
-                    if ( isset($child_params['page']) && isset($current_params['page']) 
+                    if ( isset($child_params['page']) && isset($current_params['page'])
                          && $child_params['page'] === $current_params['page'] ) {
-                        
+
                         // If both have subpage and they match, we found it
-                        if ( isset($child_params['subpage']) && isset($current_params['subpage']) 
+                        if ( isset($child_params['subpage']) && isset($current_params['subpage'])
                              && $child_params['subpage'] === $current_params['subpage'] ) {
                             return $key;
                         }
-                        
+
                         // If child URL has no subpage but pages match exactly, we found it
                         if ( ! isset($child_params['subpage']) && ! isset($current_params['subpage']) ) {
                             return $key;
@@ -606,7 +741,7 @@ class WPDAI_Admin_Menu {
             }
         }
 
-        // Method 4: Default to first child if on parent page without subpage
+        // Default to first child if on parent page without subpage
         // This provides a sensible default when landing on the parent page
         if ( empty($current_subpage) && $current_page === $parent_menu_item_key ) {
             $first_child = array_key_first($children);

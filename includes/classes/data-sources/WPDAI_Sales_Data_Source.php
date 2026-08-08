@@ -794,7 +794,7 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
 
                 // Date Range Vars
                 $date_created_unix  = $order_data['date_created'];
-                $date_range_key     = gmdate( $date_format, $date_created_unix );
+                $date_range_key     = wpdai_utc_timestamp_to_date_key( $date_created_unix, $date_format );
 
                 // Tax Data
                 if ( $order_data['total_order_tax'] > 0 ) {
@@ -886,8 +886,8 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
                  * 
                  **/
                 // Date Keys
-                $day_of_week_key    = gmdate( 'D', $date_created_unix );
-                $hour_of_day_key    = gmdate( 'ga', $date_created_unix );
+                $day_of_week_key    = wpdai_format_utc_timestamp_local( $date_created_unix, 'D' ) ?: '';
+                $hour_of_day_key    = wpdai_format_utc_timestamp_local( $date_created_unix, 'ga' ) ?: '';
 
                 // Add Date Range Values
                 if( isset($data_by_date['order_metrics']['order_count_by_date'][$date_range_key]) ) $data_by_date['order_metrics']['order_count_by_date'][$date_range_key]++;
@@ -903,10 +903,10 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
                 if( isset($data_by_date['order_metrics']['average_order_margin_by_date'][$date_range_key]) ) $data_by_date['order_metrics']['average_order_margin_by_date'][$date_range_key] = wpdai_calculate_margin( $data_by_date['order_metrics']['profit_by_date'][$date_range_key], $data_by_date['order_metrics']['revenue_excluding_tax_by_date'][$date_range_key] );
 
                 // Daily Data
-                if( isset($categorized_data['order_metrics']['revenue_by_day_of_week'][$day_of_week_key]) ) $categorized_data['order_metrics']['revenue_by_day_of_week'][$day_of_week_key] += $order_revenue;
-                if( isset($categorized_data['order_metrics']['profit_by_day_of_week'][$day_of_week_key]) ) $categorized_data['order_metrics']['profit_by_day_of_week'][$day_of_week_key] += $order_profit;
-                if( isset($categorized_data['order_metrics']['revenue_by_hour_of_day'][$hour_of_day_key]) ) $categorized_data['order_metrics']['revenue_by_hour_of_day'][$hour_of_day_key] += $order_revenue;
-                if( isset($categorized_data['order_metrics']['profit_by_hour_of_day'][$hour_of_day_key]) ) $categorized_data['order_metrics']['profit_by_hour_of_day'][$hour_of_day_key] += $order_profit;
+                if ( $day_of_week_key && isset($categorized_data['order_metrics']['revenue_by_day_of_week'][$day_of_week_key]) ) $categorized_data['order_metrics']['revenue_by_day_of_week'][$day_of_week_key] += $order_revenue;
+                if ( $day_of_week_key && isset($categorized_data['order_metrics']['profit_by_day_of_week'][$day_of_week_key]) ) $categorized_data['order_metrics']['profit_by_day_of_week'][$day_of_week_key] += $order_profit;
+                if ( $hour_of_day_key && isset($categorized_data['order_metrics']['revenue_by_hour_of_day'][$hour_of_day_key]) ) $categorized_data['order_metrics']['revenue_by_hour_of_day'][$hour_of_day_key] += $order_revenue;
+                if ( $hour_of_day_key && isset($categorized_data['order_metrics']['profit_by_hour_of_day'][$hour_of_day_key]) ) $categorized_data['order_metrics']['profit_by_hour_of_day'][$hour_of_day_key] += $order_profit;
 
 
                 /**
@@ -1596,7 +1596,7 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
         $original_order_ids_with_refund_adjustments_already_calculated = array();
         foreach( $data_table['refund_metrics']['refunds'] as $refund_data ) {
 
-            $date_key = gmdate( $date_format, $refund_data['refund_date'] );
+            $date_key = wpdai_utc_timestamp_to_date_key( $refund_data['refund_date'], $date_format );
             $original_order_id = $refund_data['parent_order_id'];
 
             // Skip orders we've already looked at

@@ -7,23 +7,60 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Whether cache-safe tracking beta is enabled.
+ * Whether cache-safe event tracking is enabled (default since 5.6.6).
  *
  * @return bool
  */
 function wpdai_is_cache_safe_tracking_enabled() {
-	$enabled = false;
+	$enabled = true;
 
 	if ( function_exists( 'wpdai_get_analytics_settings' ) ) {
 		$settings = wpdai_get_analytics_settings();
-		$enabled  = ! empty( $settings['enable_cache_safe_tracking_beta'] );
+		$enabled  = empty( $settings['enable_legacy_event_tracking'] );
 	}
 
 	return (bool) apply_filters( 'wpd_ai_cache_safe_tracking_enabled', $enabled );
 }
 
 /**
- * Cookie storage mode for v2 analytics.
+ * Whether deprecated legacy PHP-cookie event tracking is active.
+ *
+ * @return bool
+ */
+function wpdai_is_legacy_event_tracking_enabled() {
+	return ! wpdai_is_cache_safe_tracking_enabled();
+}
+
+/**
+ * Admin notice when deprecated legacy event tracking is active.
+ *
+ * @return void
+ */
+function wpdai_legacy_tracking_deprecation_notice() {
+	if ( ! current_user_can( 'manage_options' ) || ! wpdai_is_legacy_event_tracking_enabled() ) {
+		return;
+	}
+
+	$settings_url = admin_url( 'admin.php?page=wpd-ai-settings&tab=general_settings' );
+	?>
+	<div class="notice notice-warning">
+		<p>
+			<?php
+			echo wp_kses_post(
+				sprintf(
+					/* translators: %s: Settings URL */
+					__( '<strong>Alpha Insights:</strong> Legacy event tracking is enabled and deprecated. Cache-safe tracking is now the default. Disable legacy tracking under <a href="%s">General Settings → Alpha Analytics &amp; Event Tracking</a>.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+					esc_url( $settings_url )
+				)
+			);
+			?>
+		</p>
+	</div>
+	<?php
+}
+
+/**
+ * Cookie storage mode for cache-safe analytics.
  *
  * @return string checkout_only|immediate
  */

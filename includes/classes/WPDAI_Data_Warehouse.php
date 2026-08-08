@@ -459,27 +459,29 @@ class WPDAI_Data_Warehouse {
     public function get_selected_date_range( $result = 'date_from', $format = 'Y-m-d' ) {
 
         $days_in_past   = (string) '-' . $this->get_n_days_range() . ' days';
-        $wp_timestamp   = current_time( 'timestamp' );
 
         if ( $result == 'date_from' ) {
 
-            $start = gmdate($format, strtotime( $days_in_past, $wp_timestamp ) ); // this needs to be based on wp time as below
-
-            if ( isset( $this->filter['date_from'] ) && ! empty($this->filter['date_from']) ) {
-                $start = gmdate( $format, strtotime($this->filter['date_from']) );
+            if ( isset( $this->filter['date_from'] ) && ! empty( $this->filter['date_from'] ) ) {
+                $timestamp = wpdai_local_date_string_to_utc_timestamp( $this->filter['date_from'] );
+                return null !== $timestamp ? wp_date( $format, $timestamp ) : $this->filter['date_from'];
             }
 
-            return $start;
+            try {
+                $start = ( new DateTimeImmutable( 'now', wp_timezone() ) )->modify( $days_in_past );
+                return $start->format( $format );
+            } catch ( Exception $e ) {
+                return wp_date( $format, strtotime( $days_in_past ) );
+            }
 
         } elseif ( $result == 'date_to' ) {
 
-            $end = current_time( $format ); 
-
-            if ( isset($this->filter['date_to']) && ! empty($this->filter['date_to']) ) {
-                $end = gmdate( $format, strtotime($this->filter['date_to']));
+            if ( isset( $this->filter['date_to'] ) && ! empty( $this->filter['date_to'] ) ) {
+                $timestamp = wpdai_local_date_string_to_utc_timestamp( $this->filter['date_to'] );
+                return null !== $timestamp ? wp_date( $format, $timestamp ) : $this->filter['date_to'];
             }
 
-            return $end;
+            return wp_date( $format );
 
         }
 
@@ -492,15 +494,18 @@ class WPDAI_Data_Warehouse {
      */
     public function get_date_range_array( $first, $last, $step = '+1 day', $output_format = 'Y-m-d' ) {
 
-        $dates              = array();
-        $current_date       = strtotime($first);
-        $date_to           = strtotime($last);
+        $dates = array();
 
-        while( $current_date <= $date_to ) {
+        try {
+            $current_date = new DateTime( $first, wp_timezone() );
+            $date_to      = new DateTime( $last, wp_timezone() );
+        } catch ( Exception $e ) {
+            return $dates;
+        }
 
-            $dates[] = gmdate($output_format, $current_date);
-            $current_date = strtotime($step, $current_date);
-
+        while ( $current_date <= $date_to ) {
+            $dates[] = wp_date( $output_format, $current_date->getTimestamp() );
+            $current_date->modify( $step );
         }
 
         return array_values( array_unique( $dates ) );
@@ -1168,11 +1173,18 @@ class WPDAI_Data_Warehouse {
             $format = $this->get_filter('date_format_string');
         }
 
-        // Convert to timestamp
-        $timestamp = strtotime( $date );
+        // Convert to timestamp in site timezone when possible.
+        $timestamp = wpdai_local_date_string_to_utc_timestamp( $date );
+        if ( null === $timestamp ) {
+            $timestamp = strtotime( $date );
+        }
+
+        if ( ! $timestamp ) {
+            return false;
+        }
 
         // Convert date
-        $converted_date = gmdate( $format, $timestamp );
+        $converted_date = wpdai_format_utc_timestamp_local( $timestamp, $format );
 
         // Return result
         return $converted_date;
@@ -1199,13 +1211,20 @@ class WPDAI_Data_Warehouse {
 
         // If we are doing minutes, this is a special case
         if ( $this->get_filter('date_format_display') == 'minute' ) {
-            $timestamp = strtotime($date);
-            $minutes_ago = floor((current_time('timestamp') - $timestamp) / 60);
+            $timestamp = wpdai_local_date_string_to_utc_timestamp( $date );
+            if ( null === $timestamp ) {
+                $timestamp = strtotime( $date );
+            }
+            $minutes_ago = floor( ( time() - $timestamp ) / 60 );
             return (int) $minutes_ago;
         }
 
         $date_container_date_format = $this->get_filter('date_format_string');
-        $formatted_date = gmdate( $date_container_date_format, strtotime($date) );
+        $timestamp = wpdai_local_date_string_to_utc_timestamp( $date );
+        if ( null === $timestamp ) {
+            $timestamp = strtotime( $date );
+        }
+        $formatted_date = $timestamp ? wpdai_format_utc_timestamp_local( $timestamp, $date_container_date_format ) : '';
 
         return $formatted_date;
 
@@ -1222,8 +1241,26 @@ class WPDAI_Data_Warehouse {
             return 0;
         }
 
-        $recent_date_string = strtotime($recent_date);
-        $old_date_string    = strtotime($old_date);
+        $recent_date_string = wpdai_local_date_string_to_utc_timestamp( $recent_date );
+        if ( null === $recent_date_string ) {
+            $recent_date_string = wpdai_gmt_date_string_to_utc_timestamp( $recent_date );
+        }
+        if ( null === $recent_date_string ) {
+            $recent_date_string = strtotime( $recent_date );
+        }
+
+        $old_date_string = wpdai_local_date_string_to_utc_timestamp( $old_date );
+        if ( null === $old_date_string ) {
+            $old_date_string = wpdai_gmt_date_string_to_utc_timestamp( $old_date );
+        }
+        if ( null === $old_date_string ) {
+            $old_date_string = strtotime( $old_date );
+        }
+
+        if ( ! $recent_date_string || ! $old_date_string ) {
+            return 0;
+        }
+
         (int) $difference_in_seconds = $recent_date_string - $old_date_string;
 
         return $difference_in_seconds;
@@ -1406,6 +1443,28 @@ class WPDAI_Data_Warehouse {
 
         return $local;
 
+    }
+
+    /**
+     * Format a UTC unix timestamp in the site timezone.
+     *
+     * @param int|null $timestamp UTC unix timestamp.
+     * @param string   $format    PHP date format.
+     * @return string|null Local datetime string, or null when invalid.
+     */
+    public function format_timestamp_local( $timestamp, $format = 'Y-m-d H:i:s' ) {
+        return wpdai_format_utc_timestamp_local( $timestamp, $format );
+    }
+
+    /**
+     * Convert a UTC unix timestamp to a local date bucket key.
+     *
+     * @param int|null $timestamp UTC unix timestamp.
+     * @param string   $format    PHP date format for the bucket key.
+     * @return string Local bucket key, or empty string when invalid.
+     */
+    public function utc_timestamp_to_date_key( $timestamp, $format = 'Y-m-d' ) {
+        return wpdai_utc_timestamp_to_date_key( $timestamp, $format );
     }
 
     /**

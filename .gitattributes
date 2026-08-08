@@ -1,0 +1,4 @@
+# Excluded from WordPress.org SVN deploy (used by deploy workflow on tag push).
+/.github export-ignore
+/.gitattributes export-ignore
+/.gitignore export-ignore

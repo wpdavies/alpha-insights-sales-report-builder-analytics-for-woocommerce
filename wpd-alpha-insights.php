@@ -7,13 +7,13 @@
  * Author:              WP Davies
  * Author URI:          https://wpdavies.dev/
  *
- * Version:             	1.8.0
+ * Version:             	2.0.0
  * Requires at least:   	5.0
  * Tested up to:        	7.0
  * Requires PHP: 			7.4
  * Requires Plugins: 		woocommerce
  * WC requires at least: 	3.0
- * WC tested up to: 		10.8
+ * WC tested up to: 		11.0
  *
  * License:             GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -107,6 +107,10 @@ class WPD_Alpha_Insights_Free_Plugin {
 		// Fires when plugin is installed (outside compatibility check - just schedules tasks)
 		register_activation_hook( __FILE__, array( $this, 'plugin_installed' ) );
 
+		// Fires when plugin is deactivated or deleted — clear Action Scheduler tasks
+		register_deactivation_hook( __FILE__, array( $this, 'plugin_deactivated' ) );
+		register_uninstall_hook( __FILE__, 'wpdai_plugin_uninstall' );
+
 		// Fires when plugin is updated (outside compatibility check - just schedules tasks)
 		add_action( 'upgrader_process_complete', array( $this, 'plugin_updated' ), 10, 2 );
 
@@ -146,16 +150,16 @@ class WPD_Alpha_Insights_Free_Plugin {
 	 */
 	public function define_constants() {
 
-		// Changing this in the free version will trigger a fatal error.
+		// Changing this in the free version will trigger a fatal error as it will reference files that do not exist.
 		// If you are trying to break the locks, just use discount code "WPDAVIESDEV30" when purchasing the pro version for 30% off.
 		// It's our gift to you from developer to developer.
 		if ( ! defined('WPD_AI_PRO') ) define( 'WPD_AI_PRO', false );
 
 		// Alpha Insights Meta
-		if ( ! defined('WPD_AI_VER') ) define( 'WPD_AI_VER', '1.8.0' );
-		if ( ! defined('WPD_AI_CACHE_VERSION') ) define( 'WPD_AI_CACHE_VERSION', '5.6.3' ); // Follows along pro versioning
-		if ( ! defined('WPD_AI_CACHE_UPDATE_REQUIRED_VER') ) define( 'WPD_AI_CACHE_UPDATE_REQUIRED_VER', '4.7.10' ); // version this up as cache deletes are required
-		if ( ! defined('WPD_AI_DB_VERSION') ) define( 'WPD_AI_DB_VERSION', '5.2.1' );
+		if ( ! defined('WPD_AI_VER') ) define( 'WPD_AI_VER', '2.0.0' );
+		if ( ! defined('WPD_AI_CACHE_VERSION') ) define( 'WPD_AI_CACHE_VERSION', '5.8.0' ); // Follows along pro versioning
+		if ( ! defined('WPD_AI_CACHE_UPDATE_REQUIRED_VER') ) define( 'WPD_AI_CACHE_UPDATE_REQUIRED_VER', '5.8.0' ); // version this up as cache deletes are required
+		if ( ! defined('WPD_AI_DB_VERSION') ) define( 'WPD_AI_DB_VERSION', '5.2.2' );
 		if ( ! defined('WPD_AI_PRODUCT_ID') ) define( 'WPD_AI_PRODUCT_ID', 8330 );
 		
 		// Security Constants
@@ -455,6 +459,26 @@ class WPD_Alpha_Insights_Free_Plugin {
 		}
 
 		$this->log( 'Plugin installation method has completed successfully.' );
+
+	}
+
+	/**
+	 * Fires when plugin is deactivated.
+	 *
+	 * Removes all Action Scheduler tasks registered by Alpha Insights.
+	 *
+	 * @return void
+	 */
+	public function plugin_deactivated() {
+
+		$deleted_count = wpdai_clear_all_scheduled_tasks();
+
+		$this->log(
+			sprintf(
+				'Alpha Insights deactivation: cleared %d scheduled Action Scheduler task(s).',
+				$deleted_count
+			)
+		);
 
 	}
 
@@ -1109,6 +1133,33 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 	}
 
+}
+
+/**
+ * Clear all Alpha Insights Action Scheduler tasks.
+ *
+ * Used on plugin deactivation and uninstall so scheduled actions do not run as ghosts.
+ *
+ * @return int Number of tasks unscheduled/deleted.
+ */
+function wpdai_clear_all_scheduled_tasks() {
+
+	if ( ! defined( 'WPD_AI_PATH' ) ) {
+		define( 'WPD_AI_PATH', plugin_dir_path( __FILE__ ) );
+	}
+
+	require_once WPD_AI_PATH . 'includes/classes/WPDAI_Data_Manager.php';
+
+	return WPDAI_Data_Manager::get_instance()->delete_all_scheduled_tasks();
+}
+
+/**
+ * Fires when the plugin is uninstalled (deleted).
+ *
+ * @return void
+ */
+function wpdai_plugin_uninstall() {
+	wpdai_clear_all_scheduled_tasks();
 }
 
 // Initialize the singleton instance

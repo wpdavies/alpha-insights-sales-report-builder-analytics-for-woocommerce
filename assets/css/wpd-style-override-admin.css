@@ -241,6 +241,11 @@ div#wpadminbar * {
     align-items: center;
     padding: 10px;
 }
+#woocommerce_dashboard_status li.wpd-status-widget-item {
+    width: 50% !important;
+    clear: none !important;
+    float: left !important;
+}
 #woocommerce_dashboard_status .wc_status_list li a {
     padding: 20px 12px;
 }

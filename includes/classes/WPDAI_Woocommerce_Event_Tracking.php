@@ -1,12 +1,12 @@
 <?php
 /**
- *
  * Track Product & Category Activity
  *
  * @package Alpha Insights
  * @version 2.0.0
  * @author WPDavies
  * @link https://wpdavies.dev/
+ * @deprecated 5.6.6 Use WPDAI_Event_Tracking_V2 (cache-safe tracking, enabled by default).
  *
  */
 defined( 'ABSPATH' ) || exit;
@@ -53,6 +53,10 @@ class WPDAI_WooCommerce_Event_Tracking {
 
 		if ( function_exists( 'wpdai_is_cache_safe_tracking_enabled' ) && wpdai_is_cache_safe_tracking_enabled() ) {
 			return;
+		}
+
+		if ( ! has_action( 'admin_notices', 'wpdai_legacy_tracking_deprecation_notice' ) ) {
+			add_action( 'admin_notices', 'wpdai_legacy_tracking_deprecation_notice' );
 		}
 
 		if ( ! wpdai_is_analytics_enabled() ) {

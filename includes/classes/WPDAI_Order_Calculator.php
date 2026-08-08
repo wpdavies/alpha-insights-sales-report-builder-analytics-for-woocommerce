@@ -336,8 +336,12 @@ class WPDAI_Order_Calculator {
         // A few calculations
         $total_order_revenue            = $total_order_revenue - $total_order_refund_amount;
         $total_order_tax                = $total_order_tax - $total_order_tax_refunded;
-        $date_paid 						= ( is_a($this->order->get_date_paid(), 'WC_DateTime') ) ? $this->order->get_date_paid()->getOffsetTimestamp() : null;
-        $date_created					= ( is_a($this->order->get_date_created(), 'WC_DateTime') ) ? $this->order->get_date_created()->getOffsetTimestamp() : null;
+        $date_paid_payload              = wpdai_datetime_payload_from_wc( $this->order->get_date_paid() );
+        $date_created_payload           = wpdai_datetime_payload_from_wc( $this->order->get_date_created() );
+        $date_paid                      = $date_paid_payload['utc'];
+        $date_paid_local                = $date_paid_payload['local'];
+        $date_created                   = $date_created_payload['utc'];
+        $date_created_local             = $date_created_payload['local'];
         $new_customer 					= ( wpdai_customers_first_order( $this->order ) ) ? 'new' : 'returning';
         $registered_user                = ( is_numeric($this->order->get_user_id()) && $this->order->get_user_id() > 0 ) ? 1 : 0;
         $partial_refund                 = ( $total_order_refund_amount > 0 ) ? 1 : 0;
@@ -385,13 +389,25 @@ class WPDAI_Order_Calculator {
         // Calculate shipping instance ID for this order, for now assume only one shipping instance, collect the first one grabbed
         $shipping_items = $this->order->get_items('shipping');
         $shipping_instance_ids = array();
+        $shipping_method_names = array();
         if ( ! empty($shipping_items) && is_array($shipping_items) ) {
             foreach( $shipping_items as $shipping_item ) {
                 if ( is_a($shipping_item, 'WC_Order_Item_Shipping') ) {
                     $shipping_instance_ids[] = (int) $shipping_item->get_instance_id();
+
+                    $shipping_method_name = $shipping_item->get_name();
+                    if ( ! is_string( $shipping_method_name ) || '' === trim( $shipping_method_name ) ) {
+                        $shipping_method_name = $shipping_item->get_method_title();
+                    }
+
+                    $shipping_method_name = trim( wp_strip_all_tags( html_entity_decode( (string) $shipping_method_name, ENT_QUOTES, 'UTF-8' ) ) );
+                    if ( '' !== $shipping_method_name ) {
+                        $shipping_method_names[] = $shipping_method_name;
+                    }
                 }
             }
         }
+        $shipping_method_name = implode( ', ', array_unique( $shipping_method_names ) );
 
         // Default Results
         $this->results = array(
@@ -452,7 +468,9 @@ class WPDAI_Order_Calculator {
             'order_type' 							        => $this->order->get_type(),
             'order_status' 							        => $this->order->get_status(),
             'date_paid' 							        => $date_paid,
+            'date_paid_local' 						        => $date_paid_local,
             'date_created' 							        => $date_created,
+            'date_created_local' 						        => $date_created_local,
             'is_paid' 								        => $this->order->is_paid(),
             'payment_gateway' 						        => $this->order->get_payment_method(),
             'landing_page_url' 						        => $landing_page,
@@ -501,6 +519,7 @@ class WPDAI_Order_Calculator {
 
             // Shipping Data
             'shipping_instance_ids' 					    => $shipping_instance_ids,
+            'shipping_method_name'                          => $shipping_method_name,
     
             // Tax Data
             'tax_data' 								        => array(),
@@ -591,7 +610,14 @@ class WPDAI_Order_Calculator {
         }
 
         // Calculate cost, check against the revenue including tax and refunds in case we want to keep the cost the same for refunded orders
-        $payment_gateway_cost = ( $this->results['total_order_revenue_inc_tax_and_refunds'] * $payment_gateway_cost_multiplier ) + $payment_gateway_cost_fee; // Include tax and refunds, so the default works for refunded orders
+        $revenue_base = (float) $this->results['total_order_revenue_inc_tax_and_refunds'];
+
+        if ( $revenue_base <= 0 ) {
+            // Zero-revenue orders should not incur default gateway fees (no static fee on free orders).
+            $payment_gateway_cost = 0;
+        } else {
+            $payment_gateway_cost = ( $revenue_base * $payment_gateway_cost_multiplier ) + $payment_gateway_cost_fee;
+        }
 
         // Check if we have pre-defined fee keys stored in meta
         foreach( $payment_gateway_fee_meta_keys as $meta_key ) {
@@ -608,9 +634,6 @@ class WPDAI_Order_Calculator {
 
         }
     
-        // Assume no gateway fees if there's no income
-        // if ( $this->results['total_order_revenue'] == 0 ) $payment_gateway_cost = 0;
-
         /**
          * 
          * 	Filters the default payment gateway cost of an order

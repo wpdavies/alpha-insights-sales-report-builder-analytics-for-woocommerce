@@ -58,6 +58,7 @@ class WPDAI_Analytics_V2_Scripts {
 		$client_config = array(
 			'session_timeout_seconds'     => wpdai_get_analytics_v2_session_timeout_seconds(),
 			'attribution_timeout_seconds' => WPDAI_Session_Tracking::get_attribution_timeout_seconds(),
+			'attribution_session_only'    => WPDAI_Session_Tracking::is_session_only_attribution() ? 1 : 0,
 			'cookie_domain'               => WPDAI_Session_Tracking::get_cookie_domain(),
 			'cookie_storage_mode'         => wpdai_get_analytics_v2_cookie_storage_mode(),
 			'is_cart'                     => $is_cart,

@@ -427,15 +427,14 @@ function wpdai_get_dates_from_preset( $preset ) {
     switch ($preset) {
         case 'today':
             return array(
-                'from' => current_time('Y-m-d'),
-                'to' => current_time('Y-m-d')
+                'from' => wp_date( 'Y-m-d' ),
+                'to' => wp_date( 'Y-m-d' )
             );
         case 'yesterday':
-            $wp_timestamp = current_time('timestamp');
-            $yesterday = gmdate('Y-m-d', strtotime('-1 day', $wp_timestamp));
+            $yesterday = ( new DateTimeImmutable( 'now', wp_timezone() ) )->modify( '-1 day' );
             return array(
-                'from' => $yesterday,
-                'to' => $yesterday
+                'from' => $yesterday->format( 'Y-m-d' ),
+                'to' => $yesterday->format( 'Y-m-d' )
             );
         case 'this_week':
             // Get start of week (Monday) and end of week (Sunday)
@@ -461,70 +460,67 @@ function wpdai_get_dates_from_preset( $preset ) {
             );
         case 'this_month':
             return array(
-                'from' => current_time('Y-m-01'),
-                'to' => current_time('Y-m-t')
+                'from' => wp_date( 'Y-m-01' ),
+                'to' => wp_date( 'Y-m-t' )
             );
         case 'last_month':
-            $wp_timestamp = current_time('timestamp');
-            $last_month_start = gmdate('Y-m-01', strtotime('-1 month', $wp_timestamp));
-            $last_month_end = gmdate('Y-m-t', strtotime('-1 month', $wp_timestamp));
+            $last_month = ( new DateTimeImmutable( 'first day of last month', wp_timezone() ) );
             return array(
-                'from' => $last_month_start,
-                'to' => $last_month_end
+                'from' => $last_month->format( 'Y-m-01' ),
+                'to' => $last_month->format( 'Y-m-t' )
             );
         case 'month_to_date':
             return array(
-                'from' => current_time('Y-m-01'),
-                'to' => current_time('Y-m-d')
+                'from' => wp_date( 'Y-m-01' ),
+                'to' => wp_date( 'Y-m-d' )
             );
         case 'this_year':
             return array(
-                'from' => current_time('Y-01-01'),
-                'to' => current_time('Y-12-31')
+                'from' => wp_date( 'Y-01-01' ),
+                'to' => wp_date( 'Y-12-31' )
             );
         case 'last_year':
-            $wp_timestamp = current_time('timestamp');
+            $last_year = ( new DateTimeImmutable( 'first day of january last year', wp_timezone() ) );
             return array(
-                'from' => gmdate('Y-01-01', strtotime('-1 year', $wp_timestamp)),
-                'to' => gmdate('Y-12-31', strtotime('-1 year', $wp_timestamp))
+                'from' => $last_year->format( 'Y-01-01' ),
+                'to' => $last_year->format( 'Y-12-31' )
             );
         case 'last_7_days':
-            $wp_timestamp = current_time('timestamp');
+            $from = ( new DateTimeImmutable( 'now', wp_timezone() ) )->modify( '-6 days' );
             return array(
-                'from' => gmdate('Y-m-d', strtotime('-6 days', $wp_timestamp)),
-                'to' => current_time('Y-m-d')
+                'from' => $from->format( 'Y-m-d' ),
+                'to' => wp_date( 'Y-m-d' )
             );
         case 'last_30_days':
-            $wp_timestamp = current_time('timestamp');
+            $from = ( new DateTimeImmutable( 'now', wp_timezone() ) )->modify( '-29 days' );
             return array(
-                'from' => gmdate('Y-m-d', strtotime('-29 days', $wp_timestamp)),
-                'to' => current_time('Y-m-d')
+                'from' => $from->format( 'Y-m-d' ),
+                'to' => wp_date( 'Y-m-d' )
             );
         case 'last_90_days':
-            $wp_timestamp = current_time('timestamp');
+            $from = ( new DateTimeImmutable( 'now', wp_timezone() ) )->modify( '-89 days' );
             return array(
-                'from' => gmdate('Y-m-d', strtotime('-89 days', $wp_timestamp)),
-                'to' => current_time('Y-m-d')
+                'from' => $from->format( 'Y-m-d' ),
+                'to' => wp_date( 'Y-m-d' )
             );
         case 'ytd':
             return array(
-                'from' => current_time('Y-01-01'),
-                'to' => current_time('Y-m-d')
+                'from' => wp_date( 'Y-01-01' ),
+                'to' => wp_date( 'Y-m-d' )
             );
         case 'all_time':
             // Use site creation date or fall back to 5 years ago
             $start_date = wpdai_get_site_creation_date( WPD_AI_PHP_ISO_DATE ); // Y-m-d format
             
             // Validate the date
-            if (empty($start_date) || !strtotime($start_date)) {
-                // Fall back to 5 years ago
-                $wp_timestamp = current_time('timestamp');
-                $start_date = gmdate('Y-m-d', strtotime('-5 years', $wp_timestamp));
+            if ( empty( $start_date ) || null === wpdai_local_date_string_to_utc_timestamp( $start_date, '00:00:00' ) ) {
+                // Fall back to 5 years ago in site timezone
+                $start_date = ( new DateTimeImmutable( 'now', wp_timezone() ) )->modify( '-5 years' )->format( 'Y-m-d' );
             }
             
             return array(
                 'from' => $start_date,
-                'to' => current_time('Y-m-d')
+                'to' => wp_date( 'Y-m-d' )
             );
         default:
             return false;

@@ -334,27 +334,18 @@ class WPDAI_Refunds_Internal_Data_Source extends WPDAI_Custom_Data_Source_Base {
                     continue; // Skip if no valid date
                 }
 
-                // Safely get timestamp
-                $refund_date_unix = 0;
-                if ( method_exists( $refund_date_created, 'getOffsetTimestamp' ) ) {
-                    $refund_date_unix = $refund_date_created->getOffsetTimestamp();
-                } elseif ( method_exists( $refund_date_created, 'getTimestamp' ) ) {
-                    $refund_date_unix = $refund_date_created->getTimestamp();
-                }
+                $refund_date_payload = wpdai_datetime_payload_from_wc( $refund_date_created );
+                $refund_date_unix = $refund_date_payload['utc'];
+                $refund_date_local = $refund_date_payload['local'];
                 
                 // Validate timestamp
-                if ( $refund_date_unix <= 0 ) {
+                if ( null === $refund_date_unix || $refund_date_unix <= 0 ) {
                     continue; // Skip if invalid timestamp
                 }
                 
-                $date_range_key = gmdate( $date_format, $refund_date_unix );
-                // Fallback if gmdate fails or returns invalid value
-                if ( $date_range_key === false || empty( $date_range_key ) || ! is_string( $date_range_key ) ) {
-                    $date_range_key = gmdate( 'Y-m-d', $refund_date_unix );
-                    // Final fallback
-                    if ( $date_range_key === false || empty( $date_range_key ) ) {
-                        continue; // Skip this refund if we can't get a valid date key
-                    }
+                $date_range_key = wpdai_utc_timestamp_to_date_key( $refund_date_unix, $date_format );
+                if ( empty( $date_range_key ) ) {
+                    continue; // Skip this refund if we can't get a valid date key
                 }
 
                 // Get refund amount (negative value, we'll use absolute)
@@ -772,7 +763,8 @@ class WPDAI_Refunds_Internal_Data_Source extends WPDAI_Custom_Data_Source_Base {
                     'refund_tax' => $refund_tax_total,
                     'refund_quantity' => $refund_quantity,
                     'refund_date' => $refund_date_unix,
-                    'refund_date_formatted' => ( $refund_date_unix > 0 ) ? ( gmdate( 'Y-m-d H:i:s', $refund_date_unix ) ?: '' ) : '',
+                    'refund_date_local' => $refund_date_local,
+                    'refund_date_formatted' => $refund_date_local,
                     'is_full_refund' => $is_full_refund,
                     'is_partial_refund' => $is_partial_refund,
                     'refund_reason' => $refund_reason,

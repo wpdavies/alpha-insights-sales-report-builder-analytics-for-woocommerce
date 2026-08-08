@@ -377,13 +377,11 @@ class WPDAI_Database_Interactor {
         // Settings
         $charset_collate            = $wpdb->get_charset_collate();
 
-        wpdai_write_log( 'Updating Alpha Insights Database to the latest version.', 'db_upgrade' );
+        if ( ! empty( $this->installed_db_version ) && version_compare( $this->installed_db_version, $this->plugin_db_version, '>=' ) ) {
+            return true;
+        }
 
-        // Only install if its the latest version
-        // if ( version_compare( $this->plugin_db_version, $this->installed_db_version, "<=" )  ) {
-        //     wpdai_write_log( 'You have currently got the latest version ('.$this->installed_db_version.') installed, no need to continue.', 'db_upgrade' );
-        //     return true;
-        // }
+        wpdai_write_log( 'Updating Alpha Insights Database to the latest version.', 'db_upgrade' );
 
         /**
          *
@@ -630,6 +628,49 @@ class WPDAI_Database_Interactor {
     }
 
     /**
+     *
+     *  Check whether a column already matches the expected SQL definition.
+     *
+     **/
+    private function column_matches_format( $table, $column, $format ) {
+
+        global $wpdb;
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is validated against whitelist.
+        $column_info = $wpdb->get_row(
+            $wpdb->prepare( "SHOW COLUMNS FROM `{$table}` LIKE %s", $column ),
+            ARRAY_A
+        );
+
+        if ( empty( $column_info ) || ! empty( $wpdb->last_error ) ) {
+            return false;
+        }
+
+        $format_normalized = strtoupper( preg_replace( '/\s+/', ' ', trim( $format ) ) );
+        $type_normalized   = strtoupper( $column_info['Type'] );
+        $expected_type     = strtok( $format_normalized, ' ' );
+
+        if ( $type_normalized !== $expected_type ) {
+            return false;
+        }
+
+        if ( false !== strpos( $format_normalized, 'NOT NULL' ) && 'NO' !== $column_info['Null'] ) {
+            return false;
+        }
+
+        if ( preg_match( "/DEFAULT\\s+'((?:''|[^'])*)'/", $format_normalized, $matches ) ) {
+            $expected_default = str_replace( "''", "'", $matches[1] );
+            $actual_default   = null === $column_info['Default'] ? '' : (string) $column_info['Default'];
+
+            if ( $actual_default !== $expected_default ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * 
      *  Changes a column type
      * 
@@ -658,6 +699,11 @@ class WPDAI_Database_Interactor {
         if ( empty( $format ) ) {
             wpdai_write_log( sprintf( __( 'Invalid format for column type change: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $format ) ), 'db_error' );
             return false;
+        }
+
+        if ( $this->column_matches_format( $table, $column, $format ) ) {
+            wpdai_write_log( sprintf( __( 'Column %s in table %s is already %s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $column ), esc_html( $table ), esc_html( $format ) ), 'db_upgrade' );
+            return true;
         }
 
         // Log beginning
@@ -747,9 +793,10 @@ class WPDAI_Database_Interactor {
         // Check if index_check is empty (no results) rather than checking count
         if ( empty( $index_check ) || ! is_array( $index_check ) ) {
 
-            // For DDL statements, table and column names are validated above
+            // For DDL statements, table and column names are validated above.
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement. Table and column names validated against whitelist.
-            $sql_query = $wpdb->prepare( "CREATE INDEX `%s` ON `{$table}` (`%s`)", $column, $column );
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Identifiers validated above; wpdb::prepare() must not be used for index names.
+            $sql_query = "CREATE INDEX `{$column}` ON `{$table}` (`{$column}`)";
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement passed to query.
             $index_update = $wpdb->query( $sql_query );
 

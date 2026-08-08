@@ -438,9 +438,7 @@ class WPDAI_CSV_Exporter {
                 foreach ( $all_keys as $key ) {
                     $value = isset( $record[ $key ] ) ? $record[ $key ] : '';
                     // Check if this is a date column with a timestamp (before JSON conversion)
-                    if ( stripos( $key, 'date' ) !== false && is_numeric( $value ) && $value > 0 ) {
-                        $value = gmdate( 'Y-m-d H:i:s', $value );
-                    }
+                    $value = $this->format_csv_date_value( $key, $value, $record );
                     $csv_row[] = $this->extract_value( $value );
                 }
                 $csv_rows[] = $csv_row;
@@ -476,9 +474,7 @@ class WPDAI_CSV_Exporter {
                 foreach ( $all_keys as $key ) {
                     $value = isset( $record[ $key ] ) ? $record[ $key ] : '';
                     // Check if this is a date column with a timestamp (before JSON conversion)
-                    if ( stripos( $key, 'date' ) !== false && is_numeric( $value ) && $value > 0 ) {
-                        $value = gmdate( 'Y-m-d H:i:s', $value );
-                    }
+                    $value = $this->format_csv_date_value( $key, $value, $record );
                     $csv_row[] = $this->extract_value( $value );
                 }
                 $csv_rows[] = $csv_row;
@@ -709,6 +705,34 @@ class WPDAI_CSV_Exporter {
      */
     private function is_date_key( $key ) {
         return preg_match( '/^\d{4}-\d{2}-\d{2}/', $key );
+    }
+
+    /**
+     * Format a CSV date column value using site-local datetime when possible.
+     *
+     * @param string $key    Column key.
+     * @param mixed  $value  Column value.
+     * @param array  $record Full record for sibling _local field lookup.
+     * @return mixed Formatted value.
+     */
+    private function format_csv_date_value( $key, $value, $record ) {
+
+        if ( stripos( $key, 'date' ) === false || ! is_numeric( $value ) || (int) $value <= 0 ) {
+            return $value;
+        }
+
+        if ( substr( $key, -6 ) === '_local' ) {
+            return $value;
+        }
+
+        $local_key = $key . '_local';
+        if ( is_array( $record ) && isset( $record[ $local_key ] ) && is_string( $record[ $local_key ] ) && '' !== $record[ $local_key ] ) {
+            return $record[ $local_key ];
+        }
+
+        $formatted = wpdai_format_utc_timestamp_local( (int) $value );
+
+        return null !== $formatted ? $formatted : $value;
     }
 
     /**

@@ -4,7 +4,7 @@ Tags: woocommerce analytics, woocommerce reporting, woocommerce analytics plugin
 Requires at least: 5.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.8.0
+Stable tag: 2.0.0
 Requires Plugins: woocommerce
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -175,6 +175,26 @@ Default WooCommerce reports focus primarily on revenue. Alpha Insights adds cost
 
 == Changelog ==
 
+= 2.0.0 =
+* Tweak - Cache-Safe Event Tracking promoted from beta to the default analytics system; enabled by default for new and upgraded installations
+* Tweak - Former PHP cookie-based event tracking deprecated; available temporarily via Legacy Event Tracking (Deprecated) in General Settings
+* Add - Upgrade migration to migrate analytics settings from the retired beta flag to the new default
+* Add - Report Builder query parameter filters now load suggestions via AJAX (lazy scan) instead of on page load; browse-all and type-to-search UX for parameter keys and values
+* Add - Expanded analytics traffic source detection: Microsoft Ads channel, improved classification for Bing/TikTok/LinkedIn click IDs, Meta custom tracking params, email platform params, and additional UTM patterns to reduce false Direct traffic
+* Add - Session Only option for the attribution window in General Settings (landing page and referral source reset each session)
+* Add - Shipping method name included in order reporting data payload and data table mapping
+* Tweak - Attribution model updated so that if a new session contains UTM tags it will override the attribution to the current session
+* Tweak - Mobile-optimized layout for all Alpha Insights settings pages (stacked table rows, full-width controls, integrations grid, scrollable nested config tables)
+* Tweak - Mobile optimized menu for Alpha Insights
+* Tweak - WooCommerce 11.0 admin styling compatibility updates
+* Tweak - Traffic source badge colours extended for Microsoft Ads on orders table and React report data tables
+* Fix - Date and time formatting across reporting and data sources; centralised date helpers in wpd-date-functions.php
+* Fix - Zero-dollar orders no longer incorrectly include a default payment gateway fee when no gateway cost applies
+* Fix - Noisy database upgrade routines reduced on plugin load
+* Fix - Horizontal scrollbar width issue on mobile report tables
+* Fix - Resolve issues with react report builder error with detail modals
+* Fix - All Alpha Insights Action Scheduler tasks are cleared on plugin deactivation and uninstall to prevent ghost scheduled jobs
+
 = 1.8.0 =
 * Add - Beta version of cache safe analytics tracking - analytics v2.
 * Add - Include common cost of goods plugin's meta keys as fallback for cost of goods value - filterable
@@ -224,6 +244,9 @@ Default WooCommerce reports focus primarily on revenue. Alpha Insights adds cost
 ---
 
 == Upgrade Notice ==
+
+= 2.0.0 =
+Cache-Safe Event Tracking is now the default analytics system. Existing installations are migrated automatically on upgrade.
 
 ---
 

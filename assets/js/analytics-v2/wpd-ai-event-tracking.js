@@ -1,5 +1,5 @@
 /**
- * Alpha Insights Event Tracking (cache-safe v2 beta)
+ * Alpha Insights Event Tracking (cache-safe)
  * 
  * Manages WooCommerce event tracking with support for engaged session tracking
  * 
