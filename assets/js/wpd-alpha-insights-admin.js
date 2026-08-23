@@ -283,14 +283,14 @@ jQuery(document).ready(function($) {
         e.preventDefault();
         wpdOpenDocsModal();
     });
-    $(".wpd-combo-select").easySelect({
+    $(".wpd-combo-select").not(":disabled").easySelect({
         // Options
         showEachItem: true,
         search: true,
         buttons: true,
         dropdownMaxHeight: '300px',
     });
-    $(".wpd-single-select").easySelect({
+    $(".wpd-single-select").not(":disabled").easySelect({
         // Options
         showEachItem: true,
         search: true,

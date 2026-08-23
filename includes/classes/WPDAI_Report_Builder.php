@@ -1013,7 +1013,10 @@ class WPDAI_Report_Builder {
                 'query_parameters' => array(),
                 'session_contains_events' => $report_filters->get_filter_values_website_traffic_events(),
                 'products' => $products
-            )
+            ),
+            'experiments' => array(
+                'experiments' => $report_filters->get_filter_values_experiments(),
+            ),
         );
 
         return $filter_data_map;

@@ -66,6 +66,16 @@ $allowed_icon_svg = array(
 						<td class="wpd-comparison-icon wpd-comparison-pro-icon"><?php echo wp_kses( $icon_tick, $allowed_icon_svg ); ?></td>
 					</tr>
 					<tr>
+						<td class="wpd-comparison-feature-name"><?php esc_html_e( 'A/B Testing (1 active test)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></td>
+						<td class="wpd-comparison-icon wpd-comparison-pro-icon"><?php echo wp_kses( $icon_tick, $allowed_icon_svg ); ?></td>
+						<td class="wpd-comparison-icon wpd-comparison-pro-icon"><?php echo wp_kses( $icon_tick, $allowed_icon_svg ); ?></td>
+					</tr>
+					<tr>
+						<td class="wpd-comparison-feature-name"><?php esc_html_e( 'Unlimited experiments, PHP snippets & profit stats', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></td>
+						<td class="wpd-comparison-icon"><?php echo wp_kses( $icon_cross, $allowed_icon_svg ); ?></td>
+						<td class="wpd-comparison-icon wpd-comparison-pro-icon"><?php echo wp_kses( $icon_tick, $allowed_icon_svg ); ?></td>
+					</tr>
+					<tr>
 						<td class="wpd-comparison-feature-name"><?php esc_html_e( 'Enhanced Profit Reporting', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></td>
 						<td class="wpd-comparison-icon"><?php echo wp_kses( $icon_cross, $allowed_icon_svg ); ?></td>
 						<td class="wpd-comparison-icon wpd-comparison-pro-icon"><?php echo wp_kses( $icon_tick, $allowed_icon_svg ); ?></td>

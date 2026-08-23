@@ -2,6 +2,10 @@
     visibility: hidden;
     padding-right: 10px;
 }
+.easySelect:has(select:disabled) {
+    pointer-events: none;
+    opacity: 0.6;
+}
 .easySelect {
     cursor: default;
     display: block;

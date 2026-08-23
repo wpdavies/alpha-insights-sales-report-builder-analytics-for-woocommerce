@@ -337,6 +337,24 @@ class WPDAI_Traffic_Type_Detection {
                 'activecampaign', 'mailerlite', 'dotdigital', 'constantcontact',
                 'drip', 'convertkit', 'aweber', 'getresponse', 'mailjet',
             ),
+            'ai_chat_sources'       => array_values(
+                array_unique(
+                    array_merge(
+                        array(
+                            'chatgpt',
+                            'openai',
+                            'perplexity',
+                            'claude',
+                            'gemini',
+                            'bard',
+                            'grok',
+                            'deepseek',
+                            'copilot',
+                        ),
+                        array_keys( $this->referral_url_ai_chat_sources )
+                    )
+                )
+            ),
             'paid_mediums'          => array( 'cpc', 'ppc', 'paid', 'paidsearch', 'paid_search' ),
             'social_mediums'        => array( 'social', 'social_paid', 'paid_social' ),
         );
@@ -428,6 +446,10 @@ class WPDAI_Traffic_Type_Detection {
             return 'Social';
         }
 
+        if ( $this->query_param_matches_source_list( $source, $lists['ai_chat_sources'] ) ) {
+            return 'AI Chat';
+        }
+
         if ( in_array( $source, $lists['google_ads_sources'], true ) && in_array( $medium, $lists['paid_mediums'], true ) ) {
             return 'Google Ads';
         }
@@ -438,6 +460,9 @@ class WPDAI_Traffic_Type_Detection {
 
         // --- Substring hints in any param value (legacy loop behaviour) ---
         foreach ( $query_params as $key => $value ) {
+            if ( $this->query_param_matches_source_list( $value, $lists['ai_chat_sources'] ) ) {
+                return 'AI Chat';
+            }
             if (
                 false !== strpos( $value, 'facebook' )
                 || false !== strpos( $value, 'instagram' )
@@ -447,6 +472,36 @@ class WPDAI_Traffic_Type_Detection {
                 || false !== strpos( $value, 'twitter' )
             ) {
                 return 'Social';
+            }
+        }
+
+        // Tagged traffic is never Direct. Unknown UTMs are Referral.
+        if ( '' !== $source || '' !== $medium || isset( $query_params['utm_campaign'] ) ) {
+            return 'Referral';
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether a UTM/source value matches a known source list (exact or domain substring).
+     *
+     * @param string             $value   Normalized source value.
+     * @param array<int, string> $needles Source names or hostnames.
+     * @return bool
+     */
+    private function query_param_matches_source_list( $value, $needles ) {
+        if ( '' === $value || ! is_array( $needles ) ) {
+            return false;
+        }
+
+        foreach ( $needles as $needle ) {
+            $needle = strtolower( (string) $needle );
+            if ( '' === $needle ) {
+                continue;
+            }
+            if ( $value === $needle || false !== strpos( $value, $needle ) ) {
+                return true;
             }
         }
 

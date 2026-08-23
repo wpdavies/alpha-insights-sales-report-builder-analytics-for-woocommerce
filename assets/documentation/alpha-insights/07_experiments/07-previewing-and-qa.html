@@ -1,0 +1,37 @@
+<h2>Previewing and QA</h2>
+
+<p>After you save an experiment, the editor lists a preview link per variant. Open those links while logged in as a user who is allowed to use Alpha Insights. Preview forces that variant for the request and <strong>does not record</strong> eligibility, assignment, or exposure events.</p>
+
+<h3>Preview URL</h3>
+<pre><code>?wpd_ai_preview_exp={experiment-slug}&amp;wpd_ai_preview_var={variant-key}</code></pre>
+
+<p>Example: <code>https://example.com/pricing/?wpd_ai_preview_exp=pricing-headline&amp;wpd_ai_preview_var=treatment</code></p>
+
+<p>The editor builds the link from the first specific path rule when it can. If targeting is site-wide, the link starts at the homepage — add the query args to any URL you care about.</p>
+
+<h3>Who can preview</h3>
+<p>Only authorized Alpha Insights users. Shoppers and logged-out visitors who hit the same query string are ignored (no forced variant, no special logging skip beyond the usual rules).</p>
+
+<h3>QA checklist</h3>
+<ol>
+<li>Preview control and confirm the live theme is unchanged.</li>
+<li>Preview treatment and confirm CSS/JS/PHP (or theme-branched markup) looks right on desktop and mobile.</li>
+<li>Click through cart and checkout if the change could affect them.</li>
+<li>Confirm you are not still in preview when you start the test (use a private window as a shopper).</li>
+<li>After start, load a targeted URL as a shopper and confirm an exposure appears on the Experiments list within a minute or two (refresh the list; it uses all-time warehouse data).</li>
+<li>Place a test order if the goal is Purchase, then confirm the conversion lands on the same arm.</li>
+</ol>
+
+<h3>Common QA issues</h3>
+<ul>
+<li><strong>Preview does nothing</strong> — you are not an authorized Alpha Insights user, or the slug / variant key is wrong.</li>
+<li><strong>Everyone sees control after start</strong> — page cache is still serving HTML. See <a href='/documentation/alpha-insights/experiments/page-cache-and-running-tests.html'>Page Cache and Running Tests</a>.</li>
+<li><strong>List shows zeros, report shows hits</strong> — the report is date-filtered. The list is all-time. If both are empty, analytics may be off or the visitor was holdout / excluded.</li>
+<li><strong>Your own admin visits inflated results</strong> — exclude your role from analytics, and use preview (not a normal visit) for visual checks.</li>
+</ul>
+
+<h3>Related</h3>
+<ul>
+<li><a href='/documentation/alpha-insights/experiments/variants-css-js-php.html'>Variants, CSS, JS, and PHP</a></li>
+<li><a href='/documentation/alpha-insights/experiments/reading-the-report.html'>Reading the Report</a></li>
+</ul>

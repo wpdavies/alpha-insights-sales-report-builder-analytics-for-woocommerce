@@ -13,6 +13,49 @@
  */
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Read a data-fetch cache value from object cache, then transient.
+ *
+ * @param string $cache_key   Cache key.
+ * @param string $cache_group Object cache group.
+ * @param int    $expiration  TTL used when promoting a transient into object cache.
+ * @return mixed|null Cached value, or null on miss.
+ */
+function wpdai_get_data_fetch_cache( $cache_key, $cache_group = 'wpd_ai_fetch', $expiration = 0 ) {
+	$found  = false;
+	$cached = wp_cache_get( $cache_key, $cache_group, false, $found );
+	if ( true === $found ) {
+		return $cached;
+	}
+
+	$cached = get_transient( $cache_key );
+	if ( false === $cached ) {
+		return null;
+	}
+
+	if ( $expiration > 0 ) {
+		wp_cache_set( $cache_key, $cached, $cache_group, $expiration );
+	} else {
+		wp_cache_set( $cache_key, $cached, $cache_group );
+	}
+
+	return $cached;
+}
+
+/**
+ * Store a data-fetch cache value in object cache and a transient.
+ *
+ * @param string $cache_key   Cache key.
+ * @param mixed  $value       Value to store.
+ * @param int    $expiration  TTL in seconds.
+ * @param string $cache_group Object cache group.
+ * @return void
+ */
+function wpdai_set_data_fetch_cache( $cache_key, $value, $expiration, $cache_group = 'wpd_ai_fetch' ) {
+	wp_cache_set( $cache_key, $value, $cache_group, $expiration );
+	set_transient( $cache_key, $value, $expiration );
+}
+
 
 /**
  * 
@@ -108,6 +151,19 @@ function wpdai_customer_order_ids_by_email_address( string $email_address ) {
 	// Safety check
 	if ( empty($email_address) || ! is_string($email_address) ) return 0;
 
+	$email_address = sanitize_email( $email_address );
+	if ( '' === $email_address ) {
+		return 0;
+	}
+
+	$expiration  = 15 * MINUTE_IN_SECONDS;
+	$cache_key   = '_wpd_ai_order_ids_email_' . md5( strtolower( $email_address ) );
+	$cache_group = 'wpd_ai_customers';
+	$cached      = wpdai_get_data_fetch_cache( $cache_key, $cache_group, $expiration );
+	if ( is_array( $cached ) ) {
+		return $cached;
+	}
+
 	$args = array(
 		'limit' 		=> -1,
 		'billing_email' => $email_address,
@@ -116,6 +172,11 @@ function wpdai_customer_order_ids_by_email_address( string $email_address ) {
 	);
 
 	$orders = wc_get_orders( $args );
+	if ( ! is_array( $orders ) ) {
+		$orders = array();
+	}
+
+	wpdai_set_data_fetch_cache( $cache_key, $orders, $expiration, $cache_group );
 
 	return $orders;
 
@@ -130,7 +191,6 @@ function wpdai_customer_order_ids_by_email_address( string $email_address ) {
  *  @return int Count of orders found from the email address
  *  @author WP Davies - Christopher Davies
  *  @since 2.0.50
- * 	@todo cache this with transients
  *
  **/
 function wpdai_customer_order_count_by_email_address( string $email_address ) {
@@ -492,6 +552,15 @@ function wpdai_get_session_count_by_user_id( $user_id ) {
 	// Safety check
 	if ( ! is_numeric($user_id) || empty($user_id) ) return false;
 
+	$user_id     = absint( $user_id );
+	$expiration  = 15 * MINUTE_IN_SECONDS;
+	$cache_key   = '_wpd_ai_session_count_user_' . $user_id;
+	$cache_group = 'wpd_ai_sessions';
+	$cached      = wpdai_get_data_fetch_cache( $cache_key, $cache_group, $expiration );
+	if ( is_numeric( $cached ) ) {
+		return (int) $cached;
+	}
+
 	$filter = array(
 		'date_preset' => 'all_time',
 		'data_filters' => array(
@@ -502,6 +571,11 @@ function wpdai_get_session_count_by_user_id( $user_id ) {
 	);
 	$wpd_data = wpdai_data_warehouse( $filter );
 	$session_data = $wpd_data->get_analytics_session_count();
+
+	if ( is_numeric( $session_data ) ) {
+		wpdai_set_data_fetch_cache( $cache_key, (int) $session_data, $expiration, $cache_group );
+		return (int) $session_data;
+	}
 
 	return $session_data;
 
@@ -520,6 +594,15 @@ function wpdai_get_session_count_by_ip_address( $ip_address ) {
 	// Safety check
 	if ( ! is_string($ip_address) || empty($ip_address) ) return false;
 
+	$ip_address  = sanitize_text_field( $ip_address );
+	$expiration  = 15 * MINUTE_IN_SECONDS;
+	$cache_key   = '_wpd_ai_session_count_ip_' . md5( $ip_address );
+	$cache_group = 'wpd_ai_sessions';
+	$cached      = wpdai_get_data_fetch_cache( $cache_key, $cache_group, $expiration );
+	if ( is_numeric( $cached ) ) {
+		return (int) $cached;
+	}
+
 	$filter = array(
 		'date_preset' => 'all_time',
 		'data_filters' => array(
@@ -531,8 +614,94 @@ function wpdai_get_session_count_by_ip_address( $ip_address ) {
 	$wpd_data = wpdai_data_warehouse( $filter );
 	$session_data = $wpd_data->get_analytics_session_count();
 
+	if ( is_numeric( $session_data ) ) {
+		wpdai_set_data_fetch_cache( $cache_key, (int) $session_data, $expiration, $cache_group );
+		return (int) $session_data;
+	}
+
 	return $session_data;
 
+}
+
+/**
+ * Fetch the visitor IP stored on an analytics session.
+ *
+ * @param string $session_id Analytics session ID.
+ * @return string
+ */
+function wpdai_get_session_ip_address_by_session_id( $session_id ) {
+	if ( ! is_string( $session_id ) || '' === trim( $session_id ) ) {
+		return '';
+	}
+
+	$session_id    = sanitize_text_field( $session_id );
+	$cache_key     = '_wpd_ai_session_ip_' . md5( $session_id );
+	$cache_group   = 'wpd_ai_sessions';
+	$cached_ip     = wp_cache_get( $cache_key, $cache_group );
+
+	if ( false === $cached_ip ) {
+		$cached_ip = get_transient( $cache_key );
+		if ( is_string( $cached_ip ) && '' !== $cached_ip ) {
+			wp_cache_set( $cache_key, $cached_ip, $cache_group, DAY_IN_SECONDS );
+		}
+	}
+
+	if ( is_string( $cached_ip ) && '' !== $cached_ip && '0' !== $cached_ip ) {
+		return sanitize_text_field( $cached_ip );
+	}
+
+	global $wpdb;
+
+	$db_interactor = new WPDAI_Database_Interactor();
+	$table_name    = $db_interactor->session_data_table;
+
+	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is validated via Database Interactor whitelist.
+	$ip_address = $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT ip_address FROM {$table_name} WHERE session_id = %s LIMIT 1",
+			$session_id
+		)
+	);
+
+	if ( ! is_string( $ip_address ) ) {
+		return '';
+	}
+
+	$ip_address = sanitize_text_field( $ip_address );
+	if ( '' === $ip_address || '0' === $ip_address ) {
+		return '';
+	}
+
+	wp_cache_set( $cache_key, $ip_address, $cache_group, DAY_IN_SECONDS );
+	set_transient( $cache_key, $ip_address, DAY_IN_SECONDS );
+
+	return $ip_address;
+}
+
+/**
+ * Resolve the analytics visitor IP for an order.
+ *
+ * Prefers the IP on the attributed analytics session. Falls back to WooCommerce's
+ * customer IP when no session is linked or the session has no IP.
+ *
+ * @param WC_Order $order Order object.
+ * @return string
+ */
+function wpdai_get_analytics_ip_address_from_order( $order ) {
+	$ip_address = '';
+
+	if ( is_a( $order, 'WC_Order' ) ) {
+		$session_id = $order->get_meta( '_wpd_ai_session_id' );
+		if ( is_string( $session_id ) && '' !== $session_id ) {
+			$ip_address = wpdai_get_session_ip_address_by_session_id( $session_id );
+		}
+
+		if ( '' === $ip_address ) {
+			$ip_address = (string) $order->get_customer_ip_address();
+		}
+	}
+
+	return sanitize_text_field( $ip_address );
 }
 
 /**

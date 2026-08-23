@@ -1,0 +1,38 @@
+<h2>Page Cache and Running Tests</h2>
+
+<p>While a test is <strong>running</strong>, targeted URLs miss full-page cache so WordPress can assign a variant and print its CSS, JS, or PHP on the first HTML response. Other URLs stay cached. Pause or complete the test to restore cache on those URLs.</p>
+
+<p>This is different from <a href='/documentation/alpha-insights/website-traffic/cache-safe-tracking-beta.html'>cache-safe analytics</a>. Analytics is designed not to bust HTML cache. Experiments <em>must</em> vary HTML, so only the URLs you target are excluded, and only while the test runs.</p>
+
+<h3>What gets bypassed</h3>
+<ul>
+<li>URLs that match the experiment’s effective page rules.</li>
+<li>The entire site if every URL rule is empty (treated as “all pages”).</li>
+<li>Broad rules such as all products, shop, a post type, or a wide regex — many URLs will miss cache. The editor warns you when targeting is broad.</li>
+</ul>
+
+<h3>Cache plugins</h3>
+<p>Alpha Insights registers exclusions for common stacks:</p>
+<ul>
+<li><strong>WP Rocket</strong> — targeted paths are added to cache reject URIs while tests run.</li>
+<li><strong>LiteSpeed</strong> — matching requests are marked no-cache.</li>
+<li><strong>DONOTCACHEPAGE</strong> is set on matching front-end requests.</li>
+<li>A <code>wpd_ai_experiment_bypass_cache</code> action fires so other cache layers can opt in.</li>
+</ul>
+
+<p>If you use Cloudflare, another CDN, or a host-level cache that ignores those hooks, add the same URL patterns as cache bypass rules for the duration of the test. Otherwise visitors may all see a cached control (or a cached treatment) and your results will be wrong.</p>
+
+<h3>Practical targeting</h3>
+<ul>
+<li>Prefer a specific path (<code>/pricing</code>, a landing page, cart, checkout) over “entire site”.</li>
+<li>Do not leave empty path rules “for later” on a running test — empty rules mean site-wide.</li>
+<li>Pause immediately if you started with broad targeting by mistake.</li>
+<li>After you complete a test, purge cache once if your host keeps stale HTML.</li>
+</ul>
+
+<h3>Related</h3>
+<ul>
+<li><a href='/documentation/alpha-insights/experiments/targeting-and-audience.html'>Targeting and Audience</a></li>
+<li><a href='/documentation/alpha-insights/experiments/creating-an-experiment.html'>Creating an Experiment</a></li>
+<li><a href='/documentation/alpha-insights/website-traffic/cache-safe-tracking-beta.html'>Cache-Safe Event Tracking</a></li>
+</ul>

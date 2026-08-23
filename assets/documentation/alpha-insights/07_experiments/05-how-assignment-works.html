@@ -1,0 +1,65 @@
+<h2>How Assignment Works</h2>
+
+<p>Assignment is sticky and deterministic. The same visitor sees the same variant for the life of the test. It happens on the HTML request, not in a later JavaScript paint, so CSS/JS/PHP can be in the first response.</p>
+
+<h3>Identity</h3>
+<ul>
+<li><code>wpd_ai_vid</code> — long-lived visitor ID (one year). Created on first eligible request if missing.</li>
+<li><code>wpd_ai_exps</code> — compact map of experiment ID → variant key for the current assignments.</li>
+<li>Analytics <code>wpd_ai_session_id</code> is joined when present so events and orders stay on the same session.</li>
+</ul>
+
+<p>These experiment cookies are separate from cache-safe analytics storage. Analytics can stay in localStorage; experiment assignment still needs a first-party cookie so PHP can choose the variant before HTML is sent.</p>
+
+<h3>The assignment flow</h3>
+<ol>
+<li>A running experiment’s page rules match the current URL.</li>
+<li>Audience rules (Pro) and analytics exclusions are applied.</li>
+<li>If the visitor already has an assignment row, that variant is reused (and exposure is stamped if it was missing).</li>
+<li>Otherwise a 0–9999 bucket is hashed from <code>visitor_id + experiment_id</code>.</li>
+<li>If the bucket falls outside “traffic in test”, the visitor is <strong>holdout</strong> (eligible, not assigned, no variant code).</li>
+<li>Otherwise the remaining bucket range is split by variant weights. The chosen arm is stored and marked exposed.</li>
+<li>Events are written: <code>experiment_eligible</code>, then <code>experiment_assignment</code> and <code>experiment_exposure</code> for assigned visitors.</li>
+<li>The session and (later) the WooCommerce order are stamped with visitor ID and experiment map so purchases still attribute if the session cookie was not written yet.</li>
+</ol>
+
+<h3>Eligible, assigned, exposed, holdout</h3>
+<table>
+<tr>
+<th>Metric</th>
+<th>Meaning</th>
+</tr>
+<tr>
+<td>Eligible</td>
+<td>Matched targeting (and was not excluded). Includes holdout.</td>
+</tr>
+<tr>
+<td>Assigned</td>
+<td>Eligible and placed on a variant. Excludes holdout.</td>
+</tr>
+<tr>
+<td>Exposed</td>
+<td>Assigned and actually shown the variant (<code>exposed_gmt</code> is set). Conversion rate uses this as the denominator.</td>
+</tr>
+<tr>
+<td>Holdout</td>
+<td>Eligible but withheld from the experiment. Useful as a “do nothing” baseline when traffic in test is below 100% (Pro).</td>
+</tr>
+</table>
+
+<h3>Mutual exclusivity</h3>
+<p>If two tests are running at once, a visitor is only assigned to one of them. That keeps results from mixing two treatments on the same person. Prefer one running test unless you have a clear reason to overlap audiences that never share URLs.</p>
+
+<h3>What is not counted</h3>
+<ul>
+<li>Preview traffic from authorized Alpha Insights users.</li>
+<li>Holdout visitors (they are eligible but not exposed).</li>
+<li>Visitors who never hit a targeted URL.</li>
+</ul>
+
+<h3>Related</h3>
+<ul>
+<li><a href='/documentation/alpha-insights/experiments/targeting-and-audience.html'>Targeting and Audience</a></li>
+<li><a href='/documentation/alpha-insights/experiments/reading-the-report.html'>Reading the Report</a></li>
+<li><a href='/documentation/alpha-insights/website-traffic/cache-safe-tracking-beta.html'>Cache-Safe Event Tracking</a></li>
+</ul>

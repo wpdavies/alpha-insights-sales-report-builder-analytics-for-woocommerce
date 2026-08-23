@@ -1,0 +1,64 @@
+<h2>Developer Helpers</h2>
+
+<p>Use these PHP helpers in a theme or plugin when the change is too large for the experiment snippet boxes. They read the current request’s assignment after Alpha Insights has run (assignment is hooked on <code>wp</code> at priority 0).</p>
+
+<h3>wpdai_in_experiment()</h3>
+<pre><code>wpdai_in_experiment( string $experiment_slug, string $variant_key ): bool</code></pre>
+
+<p>Returns true when the current visitor is assigned to that experiment slug and variant key. Returns false for holdout, unassigned visitors, and when the experiment is not applied on this request.</p>
+
+<pre><code>if ( wpdai_in_experiment( 'pricing-headline', 'treatment' ) ) {
+    echo 'New headline';
+} else {
+    echo 'Original headline';
+}</code></pre>
+
+<p>Full reference: <a href='/documentation/alpha-insights/developers/functions/wpdai_in_experiment.html'>Function: wpdai_in_experiment</a>.</p>
+
+<h3>wpdai_get_experiment_variant()</h3>
+<pre><code>wpdai_get_experiment_variant( string $experiment_slug ): string|null</code></pre>
+
+<p>Returns the assigned variant key (for example <code>control</code> or <code>treatment</code>), or <code>null</code> if the visitor is unassigned or holdout.</p>
+
+<pre><code>$variant = wpdai_get_experiment_variant( 'pricing-headline' );
+if ( 'treatment' === $variant ) {
+    add_filter( 'the_title', 'my_treatment_title' );
+}</code></pre>
+
+<p>Full reference: <a href='/documentation/alpha-insights/developers/functions/wpdai_get_experiment_variant.html'>Function: wpdai_get_experiment_variant</a>.</p>
+
+<h3>Preview in development</h3>
+<p>Authorized users can force a variant with <code>wpd_ai_preview_exp</code> and <code>wpd_ai_preview_var</code> query args. Helpers follow the preview. Preview does not write experiment events. See <a href='/documentation/alpha-insights/experiments/previewing-and-qa.html'>Previewing and QA</a>.</p>
+
+<h3>Hooks</h3>
+<table>
+<tr>
+<th>Hook</th>
+<th>Type</th>
+<th>When</th>
+</tr>
+<tr>
+<td><code>wpd_ai_experiment_run_php_snippet</code></td>
+<td>Action</td>
+<td>Pro runs the variant PHP snippet. Arguments: snippet, experiment, variant.</td>
+</tr>
+<tr>
+<td><code>wpd_ai_experiment_bypass_cache</code></td>
+<td>Action</td>
+<td>A matching front-end request is marked uncacheable. Use this for custom cache layers.</td>
+</tr>
+<tr>
+<td><code>wpd_ai_experiments_variant_stats</code></td>
+<td>Filter</td>
+<td>After variant rows are built for the warehouse. Pro adds significance and profit here. Arguments: rows, data warehouse.</td>
+</tr>
+</table>
+
+<h3>Custom conversion goals</h3>
+<p>For a Pro custom-event goal, record the same event type with <a href='/documentation/alpha-insights/developers/functions/wpdai_track_custom_event.html'>wpdai_track_custom_event</a> or the JavaScript tracker. The report counts exposed sessions that include that event type.</p>
+
+<h3>Related</h3>
+<ul>
+<li><a href='/documentation/alpha-insights/experiments/variants-css-js-php.html'>Variants, CSS, JS, and PHP</a></li>
+<li><a href='/documentation/alpha-insights/website-traffic/tracking-custom-events.html'>Tracking Custom Events</a></li>
+</ul>

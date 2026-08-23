@@ -28,8 +28,11 @@ class WPDAI_Database_Interactor {
     public $product_impressions_table  = '';
     public $session_data_table         = '';
     public $events_table               = '';
-    public $order_calculations_table   = '';
-    public $table_definitions          = array();
+    public $order_calculations_table     = '';
+    public $experiments_table            = '';
+    public $experiment_variants_table    = '';
+    public $experiment_assignments_table = '';
+    public $table_definitions            = array();
 
     /** 
      *
@@ -57,7 +60,28 @@ class WPDAI_Database_Interactor {
         $this->events_table                 = $wpdb->prefix . 'wpd_ai_woocommerce_events';
         $this->product_impressions_table    = $wpdb->prefix . 'wpd_ai_product_impressions'; // Deprecated
         $this->order_calculations_table     = $wpdb->prefix . 'wpd_ai_order_calculations';
+        $this->experiments_table            = $wpdb->prefix . 'wpd_ai_experiments';
+        $this->experiment_variants_table    = $wpdb->prefix . 'wpd_ai_experiment_variants';
+        $this->experiment_assignments_table = $wpdb->prefix . 'wpd_ai_experiment_assignments';
 
+    }
+
+    /**
+     * Table names managed by this interactor (whitelist).
+     *
+     * @return array
+     */
+    public function get_managed_tables() {
+        return array_filter(
+            array(
+                $this->events_table,
+                $this->session_data_table,
+                $this->order_calculations_table,
+                $this->experiments_table,
+                $this->experiment_variants_table,
+                $this->experiment_assignments_table,
+            )
+        );
     }
 
     /**
@@ -407,7 +431,7 @@ class WPDAI_Database_Interactor {
          *
          */
         // Validate table name against whitelist
-        if ( ! in_array( $events_table, array( $this->events_table, $this->session_data_table, $this->order_calculations_table ), true ) ) {
+        if ( ! in_array( $events_table, $this->get_managed_tables(), true ) ) {
             wpdai_write_log( sprintf( __( 'Invalid table name for table existence check: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $events_table ) ), 'db_error' );
             return false;
         }
@@ -480,7 +504,7 @@ class WPDAI_Database_Interactor {
          *
          */
         // Validate table name against whitelist
-        if ( ! in_array( $session_data_table, array( $this->events_table, $this->session_data_table, $this->order_calculations_table ), true ) ) {
+        if ( ! in_array( $session_data_table, $this->get_managed_tables(), true ) ) {
             wpdai_write_log( sprintf( __( 'Invalid table name for table existence check: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $session_data_table ) ), 'db_error' );
             return false;
         }
@@ -546,7 +570,7 @@ class WPDAI_Database_Interactor {
          *
          */
         // Validate table name against whitelist
-        if ( ! in_array( $order_calculations_table, array( $this->events_table, $this->session_data_table, $this->order_calculations_table ), true ) ) {
+        if ( ! in_array( $order_calculations_table, $this->get_managed_tables(), true ) ) {
             wpdai_write_log( sprintf( __( 'Invalid table name for table existence check: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), esc_html( $order_calculations_table ) ), 'db_error' );
             return false;
         }
@@ -586,6 +610,8 @@ class WPDAI_Database_Interactor {
 
         }
 
+        $this->create_experiments_tables( $charset_collate );
+
         // Setup indexes
         // Single-column indexes for common filters
         $this->add_new_index( $events_table, 'date_created_gmt' );
@@ -607,6 +633,11 @@ class WPDAI_Database_Interactor {
         $this->add_new_index( $session_data_table, 'device_category' ); // Used in WHERE device_category IN (...) subqueries
         
         $this->add_new_index( $order_calculations_table, 'order_id' );
+        $this->add_new_index( $this->experiments_table, 'status' );
+        $this->add_new_index( $this->experiments_table, 'slug' );
+        $this->add_new_index( $this->experiment_variants_table, 'experiment_id' );
+        $this->add_new_index( $this->experiment_assignments_table, 'session_id' );
+        $this->add_new_index( $this->experiment_assignments_table, 'assigned_gmt' );
 
         // Make any changes to column types
         $this->change_column_type( $session_data_table, 'landing_page', "TEXT" );
@@ -983,6 +1014,85 @@ class WPDAI_Database_Interactor {
     }
 
     /**
+     * Create experiment tables (A/B testing).
+     *
+     * @param string $charset_collate Charset collate.
+     * @return void
+     */
+    protected function create_experiments_tables( $charset_collate ) {
+        global $wpdb;
+
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+        $experiments_table  = $this->experiments_table;
+        $variants_table     = $this->experiment_variants_table;
+        $assignments_table  = $this->experiment_assignments_table;
+
+        $sql = "CREATE TABLE $experiments_table (
+            id BIGINT(20) NOT NULL AUTO_INCREMENT,
+            slug VARCHAR(191) NOT NULL,
+            name VARCHAR(255) NOT NULL,
+            status VARCHAR(20) NOT NULL DEFAULT 'draft',
+            hypothesis TEXT NULL,
+            traffic_percent INT(11) NOT NULL DEFAULT 100,
+            start_gmt DATETIME NULL,
+            end_gmt DATETIME NULL,
+            targeting LONGTEXT NULL,
+            goals LONGTEXT NULL,
+            settings LONGTEXT NULL,
+            winner_variant_key VARCHAR(191) NULL,
+            created_gmt DATETIME NOT NULL,
+            updated_gmt DATETIME NOT NULL,
+            PRIMARY KEY  (id),
+            UNIQUE KEY slug (slug),
+            KEY status (status)
+        ) $charset_collate;";
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement passed to dbDelta.
+        dbDelta( $sql );
+
+        $sql = "CREATE TABLE $variants_table (
+            id BIGINT(20) NOT NULL AUTO_INCREMENT,
+            experiment_id BIGINT(20) NOT NULL,
+            variant_key VARCHAR(191) NOT NULL,
+            name VARCHAR(255) NOT NULL,
+            weight INT(11) NOT NULL DEFAULT 50,
+            is_control TINYINT(1) NOT NULL DEFAULT 0,
+            css LONGTEXT NULL,
+            js LONGTEXT NULL,
+            php LONGTEXT NULL,
+            created_gmt DATETIME NOT NULL,
+            PRIMARY KEY  (id),
+            KEY experiment_id (experiment_id)
+        ) $charset_collate;";
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement passed to dbDelta.
+        dbDelta( $sql );
+
+        $sql = "CREATE TABLE $assignments_table (
+            id BIGINT(20) NOT NULL AUTO_INCREMENT,
+            experiment_id BIGINT(20) NOT NULL,
+            variant_key VARCHAR(191) NOT NULL DEFAULT '',
+            visitor_id VARCHAR(191) NOT NULL,
+            session_id VARCHAR(255) NOT NULL DEFAULT '',
+            eligible TINYINT(1) NOT NULL DEFAULT 1,
+            holdout TINYINT(1) NOT NULL DEFAULT 0,
+            assigned_gmt DATETIME NOT NULL,
+            exposed_gmt DATETIME NULL,
+            PRIMARY KEY  (id),
+            UNIQUE KEY experiment_visitor (experiment_id, visitor_id),
+            KEY session_id (session_id),
+            KEY assigned_gmt (assigned_gmt)
+        ) $charset_collate;";
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement passed to dbDelta.
+        dbDelta( $sql );
+
+        if ( $wpdb->last_error ) {
+            wpdai_write_log( 'Error creating experiment tables: ' . $wpdb->last_error, 'db_error' );
+        } else {
+            wpdai_write_log( 'Experiment tables verified.', 'db_upgrade' );
+        }
+    }
+
+    /**
      * 
      *  Get all table names set by Alpha Insights
      * 
@@ -990,7 +1100,15 @@ class WPDAI_Database_Interactor {
      * 
      **/
     public function get_all_table_names() {
-        return array( $this->session_data_table, $this->events_table, $this->product_impressions_table, $this->order_calculations_table );
+        return array(
+            $this->session_data_table,
+            $this->events_table,
+            $this->product_impressions_table,
+            $this->order_calculations_table,
+            $this->experiments_table,
+            $this->experiment_variants_table,
+            $this->experiment_assignments_table,
+        );
     }
 
 }

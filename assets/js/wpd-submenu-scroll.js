@@ -36,13 +36,26 @@
             return;
         }
 
+        // Legacy experiments editor URL used wpd-action=edit instead of subpage=edit.
+        if (!currentSubpage && params.get('wpd-action') === 'edit') {
+            currentSubpage = 'edit';
+        }
+
         if (!currentSubpage && currentPage) {
-            const firstSamePageItem = Array.from(items).find(function(item) {
-                return item.dataset.page === currentPage;
+            const emptySubpageSamePage = Array.from(items).find(function(item) {
+                return item.dataset.page === currentPage && !item.dataset.subpage;
             });
 
-            if (firstSamePageItem) {
-                currentSubpage = firstSamePageItem.dataset.subpage || '';
+            if (emptySubpageSamePage) {
+                currentSubpage = '';
+            } else {
+                const firstSamePageItem = Array.from(items).find(function(item) {
+                    return item.dataset.page === currentPage;
+                });
+
+                if (firstSamePageItem) {
+                    currentSubpage = firstSamePageItem.dataset.subpage || '';
+                }
             }
         }
 

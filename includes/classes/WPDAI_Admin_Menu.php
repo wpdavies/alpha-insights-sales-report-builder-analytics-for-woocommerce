@@ -20,6 +20,7 @@ class WPDAI_Admin_Menu {
     // Alpha Insights submenu items
     public static $sales_report_slug            = 'wpd-sales-reports';
     public static $website_traffic_slug         = 'wpd-website-traffic-reports';
+    public static $experiments_slug             = 'wpd-experiments';
     public static $profit_loss_statement_slug   = 'wpd-profit-loss-statement';
     public static $manage_expenses_slug         = 'wpd-expense-management';
     public static $expense_reports_slug         = 'wpd-expense-reports';

@@ -7,9 +7,9 @@
  * Author:              WP Davies
  * Author URI:          https://wpdavies.dev/
  *
- * Version:             	2.0.0
+ * Version:             	2.1.0
  * Requires at least:   	5.0
- * Tested up to:        	7.0
+ * Tested up to:        	7.1
  * Requires PHP: 			7.4
  * Requires Plugins: 		woocommerce
  * WC requires at least: 	3.0
@@ -36,6 +36,11 @@
  *
  */
 defined( 'ABSPATH' ) || exit;
+
+// Pro-owned version (not shared with Free). Used when Free has already claimed WPD_AI_VER this request.
+if ( ! defined( 'WPD_AI_PRO_PACKAGE_VERSION' ) ) {
+	define( 'WPD_AI_PRO_PACKAGE_VERSION', '5.9.0' );
+}
 
 class WPD_Alpha_Insights_Free_Plugin {
 
@@ -79,6 +84,18 @@ class WPD_Alpha_Insights_Free_Plugin {
 	 * Constructor (private for singleton)
 	 */
 	private function __construct() {
+
+		// Free loads alphabetically first and claims shared constants (WPD_AI_PATH, WPD_AI_PRO, etc.).
+		// If Free is already bootstrapped this request, deactivate it and skip Pro's full init —
+		// otherwise Pro would include Free paths / redeclare symbols. Next request Pro boots cleanly.
+		if ( $this->is_free_version_already_bootstrapped() ) {
+			$this->check_for_conflicting_plugins();
+			register_activation_hook( __FILE__, array( $this, 'plugin_installed' ) );
+			register_deactivation_hook( __FILE__, array( $this, 'plugin_deactivated' ) );
+			register_uninstall_hook( __FILE__, 'wpdai_plugin_uninstall' );
+			add_action( 'admin_notices', array( $this, 'output_alpha_insights_init_admin_notices' ) );
+			return;
+		}
 
 		// Setup Definitions -> Must be first
 		$this->define_constants();
@@ -156,10 +173,10 @@ class WPD_Alpha_Insights_Free_Plugin {
 		if ( ! defined('WPD_AI_PRO') ) define( 'WPD_AI_PRO', false );
 
 		// Alpha Insights Meta
-		if ( ! defined('WPD_AI_VER') ) define( 'WPD_AI_VER', '2.0.0' );
-		if ( ! defined('WPD_AI_CACHE_VERSION') ) define( 'WPD_AI_CACHE_VERSION', '5.8.0' ); // Follows along pro versioning
+		if ( ! defined('WPD_AI_VER') ) define( 'WPD_AI_VER', WPD_AI_PRO_PACKAGE_VERSION );
+		if ( ! defined('WPD_AI_CACHE_VERSION') ) define( 'WPD_AI_CACHE_VERSION', '5.9.0' ); // Follows along pro versioning
 		if ( ! defined('WPD_AI_CACHE_UPDATE_REQUIRED_VER') ) define( 'WPD_AI_CACHE_UPDATE_REQUIRED_VER', '5.8.0' ); // version this up as cache deletes are required
-		if ( ! defined('WPD_AI_DB_VERSION') ) define( 'WPD_AI_DB_VERSION', '5.2.2' );
+		if ( ! defined('WPD_AI_DB_VERSION') ) define( 'WPD_AI_DB_VERSION', '5.9.0' );
 		if ( ! defined('WPD_AI_PRODUCT_ID') ) define( 'WPD_AI_PRODUCT_ID', 8330 );
 		
 		// Security Constants
@@ -196,6 +213,29 @@ class WPD_Alpha_Insights_Free_Plugin {
 		if ( ! defined('WPD_AI_FACEBOOK_API_VER') ) define( 'WPD_AI_FACEBOOK_API_VER', 'v24.0' );
 		if ( ! defined('WPD_AI_GOOGLE_ADS_API_VER') ) define( 'WPD_AI_GOOGLE_ADS_API_VER', 'v24' );
 
+	}
+
+	/**
+	 * Whether the free plugin has already bootstrapped in this request.
+	 *
+	 * Free's slug sorts before Pro, so it defines shared constants first when both load.
+	 * The Free build is renamed to WPD_Alpha_Insights_Free_Plugin; that class existing
+	 * is only a "Free already loaded" signal when THIS instance is Pro.
+	 *
+	 * @return bool
+	 */
+	private function is_free_version_already_bootstrapped() {
+
+		// Free build must not treat itself as an already-loaded sibling.
+		if ( 'WPD_Alpha_Insights_Free_Plugin' === get_class( $this ) ) {
+			return false;
+		}
+
+		if ( class_exists( 'WPD_Alpha_Insights_Free_Plugin', false ) ) {
+			return true;
+		}
+
+		return defined( 'WPD_AI_PRO' ) && false === WPD_AI_PRO;
 	}
 
 	/**
@@ -432,13 +472,20 @@ class WPD_Alpha_Insights_Free_Plugin {
 			deactivate_plugins( plugin_basename( __FILE__ ) );
 			set_transient( 'wpd_ai_free_deactivated_by_pro', true, 30 );
 		}
+
+		// Ensure Pro constants exist even when Free claimed shared defines earlier this request.
+		$this->define_constants();
 		
 		// Logging
 		$this->log( 'Alpha Insights installation method has been triggered.' );
 		
-		// Set latest version
-		update_option( 'wpd_ai_cache_version', WPD_AI_CACHE_VERSION );
-		update_option( 'wpd_ai_plugin_update_version', WPD_AI_VER );
+		// Set latest version — use Pro package version when Free already claimed WPD_AI_VER this request.
+		$plugin_version = ( defined( 'WPD_AI_PRO' ) && WPD_AI_PRO && defined( 'WPD_AI_VER' ) )
+			? WPD_AI_VER
+			: WPD_AI_PRO_PACKAGE_VERSION;
+		$cache_version = defined( 'WPD_AI_CACHE_VERSION' ) ? WPD_AI_CACHE_VERSION : '5.8.0';
+		update_option( 'wpd_ai_cache_version', $cache_version );
+		update_option( 'wpd_ai_plugin_update_version', $plugin_version );
 		
 		// Schedule database creation for next admin load
 		update_option( 'wpd_ai_pending_db_update', true );
@@ -898,6 +945,10 @@ class WPD_Alpha_Insights_Free_Plugin {
 		require_once( WPD_AI_PATH . 'includes/classes/data-sources/WPDAI_Store_Profit_Data_Source.php' );
 		require_once( WPD_AI_PATH . 'includes/classes/data-sources/WPDAI_Analytics_Data_Source.php' );
 		require_once( WPD_AI_PATH . 'includes/classes/data-sources/WPDAI_Refunds_Internal_Data_Source.php' );
+		require_once( WPD_AI_PATH . 'includes/classes/data-sources/WPDAI_Experiments_Data_Source.php' );
+
+		require_once( WPD_AI_PATH . 'includes/experiments/WPDAI_Experiments_Loader.php' );
+		WPDAI_Experiments_Loader::init();
 
 	}
 
@@ -989,6 +1040,10 @@ class WPD_Alpha_Insights_Free_Plugin {
 	 */
 	private function clear_cache_if_required() {
 
+		if ( ! defined( 'WPD_AI_CACHE_UPDATE_REQUIRED_VER' ) ) {
+			return;
+		}
+
 		// Check if cache reset is required
 		$cache_reset_required = $this->check_if_plugin_needs_cache_cleared();
 		
@@ -1013,6 +1068,10 @@ class WPD_Alpha_Insights_Free_Plugin {
 	 * @return bool
 	 */
 	private function check_if_plugin_needs_cache_cleared() {
+
+		if ( ! defined( 'WPD_AI_CACHE_UPDATE_REQUIRED_VER' ) ) {
+			return false;
+		}
 
 		// Get latest cache version
 		$cache_version = (string) get_option( 'wpd_ai_cache_version', '' );
@@ -1139,18 +1198,21 @@ class WPD_Alpha_Insights_Free_Plugin {
  * Clear all Alpha Insights Action Scheduler tasks.
  *
  * Used on plugin deactivation and uninstall so scheduled actions do not run as ghosts.
+ * Guarded so activating Pro while Free is still loaded does not fatal on redeclaration.
  *
  * @return int Number of tasks unscheduled/deleted.
  */
-function wpdai_clear_all_scheduled_tasks() {
+if ( ! function_exists( 'wpdai_clear_all_scheduled_tasks' ) ) {
+	function wpdai_clear_all_scheduled_tasks() {
 
-	if ( ! defined( 'WPD_AI_PATH' ) ) {
-		define( 'WPD_AI_PATH', plugin_dir_path( __FILE__ ) );
+		if ( ! defined( 'WPD_AI_PATH' ) ) {
+			define( 'WPD_AI_PATH', plugin_dir_path( __FILE__ ) );
+		}
+
+		require_once WPD_AI_PATH . 'includes/classes/WPDAI_Data_Manager.php';
+
+		return WPDAI_Data_Manager::get_instance()->delete_all_scheduled_tasks();
 	}
-
-	require_once WPD_AI_PATH . 'includes/classes/WPDAI_Data_Manager.php';
-
-	return WPDAI_Data_Manager::get_instance()->delete_all_scheduled_tasks();
 }
 
 /**
@@ -1158,8 +1220,10 @@ function wpdai_clear_all_scheduled_tasks() {
  *
  * @return void
  */
-function wpdai_plugin_uninstall() {
-	wpdai_clear_all_scheduled_tasks();
+if ( ! function_exists( 'wpdai_plugin_uninstall' ) ) {
+	function wpdai_plugin_uninstall() {
+		wpdai_clear_all_scheduled_tasks();
+	}
 }
 
 // Initialize the singleton instance

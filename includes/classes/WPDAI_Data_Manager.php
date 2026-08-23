@@ -343,6 +343,8 @@ class WPDAI_Data_Manager {
             '_wpd_ai_landing_page',
             '_wpd_ai_referral_source',
             '_wpd_ai_session_id',
+            '_wpd_ai_visitor_id',
+            '_wpd_ai_experiments',
             '_wpd_ai_google_campaign_id',
             '_wpd_ai_meta_campaign_id',
             '_wpd_ai_google_api_campaign_id_check',

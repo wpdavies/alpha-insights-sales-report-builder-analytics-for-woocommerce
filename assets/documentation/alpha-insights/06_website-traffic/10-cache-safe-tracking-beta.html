@@ -16,6 +16,8 @@
 <h3>Cache plugin notes</h3>
 <p>In checkout_only mode, Alpha Insights registers compatibility hooks for WP Rocket and LiteSpeed Cache to avoid treating <code>wpd_ai_*</code> cookies as cache-busting vary cookies. Configure Cloudflare or other CDNs to cache anonymous HTML separately from cart/checkout if needed.</p>
 
+<p><strong>Experiments are different:</strong> a running A/B test must vary HTML, so targeted URLs miss page cache until you pause or complete the test. Analytics cookies stay cache-ignored. See <a href='/documentation/alpha-insights/experiments/page-cache-and-running-tests.html'>Page Cache and Running Tests</a>.</p>
+
 <h3>Server-side events</h3>
 <p>In <code>checkout_only</code> mode, analytics cookies are written before add-to-cart requests and on cart/checkout pages. Session attribution is also loaded from the database when a matching <code>session_id</code> is available, so server-side hooks (add to cart, order completion) stay linked to the same visitor session.</p>
 

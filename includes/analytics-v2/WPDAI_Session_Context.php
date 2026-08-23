@@ -186,38 +186,7 @@ class WPDAI_Session_Context {
 	 * @return string
 	 */
 	public function resolve_ip_address() {
-		if ( class_exists( 'WC_Geolocation' ) ) {
-			$ip               = WC_Geolocation::get_ip_address();
-			$this->ip_address = (string) $ip;
-			return $this->ip_address;
-		}
-
-		$ip = '';
-
-		if ( ! empty( $_SERVER['HTTP_CF_CONNECTING_IP'] ) ) {
-			$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CF_CONNECTING_IP'] ) );
-		} elseif ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-			$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
-		} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-			$forwarded_ips = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
-			$ip_list       = explode( ',', $forwarded_ips );
-			$ip            = trim( $ip_list[0] );
-		} elseif ( ! empty( $_SERVER['HTTP_X_REAL_IP'] ) ) {
-			$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_REAL_IP'] ) );
-		} elseif ( isset( $_SERVER['REMOTE_ADDR'] ) && ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
-			$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
-		}
-
-		if ( ! empty( $ip ) ) {
-			$filtered_ip = filter_var( $ip, FILTER_VALIDATE_IP );
-			if ( false !== $filtered_ip ) {
-				$ip = $filtered_ip;
-			} else {
-				$ip = filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : '';
-			}
-		}
-
-		$this->ip_address = (string) $ip;
+		$this->ip_address = WPDAI_Client_IP::resolve();
 		return $this->ip_address;
 	}
 

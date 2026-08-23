@@ -1016,6 +1016,7 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
                 $billing_first_name     = ( ! empty( $order_data['billing_first_name'] ) ) ? $order_data['billing_first_name'] : 'Unknown';
                 $billing_last_name      = ( ! empty( $order_data['billing_last_name'] ) ) ? $order_data['billing_last_name'] : 'Unknown';
                 $billing_email          = ( ! empty( $order_data['billing_email'] ) ) ?  $order_data['billing_email'] : 'Unknown';
+                $billing_email_key      = strtolower( $billing_email );
                 $billing_phone          = ( ! empty( $order_data['billing_phone'] ) ) ?  $order_data['billing_phone'] : 'Unknown';
                 
                 // Store unique billing email addresses
@@ -1075,16 +1076,15 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
                 $categorized_data['customer_metrics']['state_location_data'][$billing_state]['total_profit'] += $order_profit;
                 $categorized_data['customer_metrics']['state_location_data'][$billing_state]['total_order_count']++;
 
-                // Customer count
-                if ( ! in_array($billing_email, $categorized_data['customer_metrics']['country_location_data'][$billing_country]['customers']) ) {
-                    $categorized_data['customer_metrics']['country_location_data'][$billing_country]['customers'][] = $billing_email;
-                    $categorized_data['customer_metrics']['country_location_data'][$billing_country]['customer_count']++;
+                // Customer count (keyed map so the same email is counted once)
+                if ( ! isset( $categorized_data['customer_metrics']['country_location_data'][ $billing_country ]['customers'][ $billing_email_key ] ) ) {
+                    $categorized_data['customer_metrics']['country_location_data'][ $billing_country ]['customers'][ $billing_email_key ] = true;
+                    $categorized_data['customer_metrics']['country_location_data'][ $billing_country ]['customer_count']++;
                 }
 
-                // Customer count
-                if ( ! in_array($billing_email, $categorized_data['customer_metrics']['state_location_data'][$billing_state]['customers']) ) {
-                    $categorized_data['customer_metrics']['state_location_data'][$billing_state]['customers'][] = $billing_email;
-                    $categorized_data['customer_metrics']['state_location_data'][$billing_state]['customer_count']++;
+                if ( ! isset( $categorized_data['customer_metrics']['state_location_data'][ $billing_state ]['customers'][ $billing_email_key ] ) ) {
+                    $categorized_data['customer_metrics']['state_location_data'][ $billing_state ]['customers'][ $billing_email_key ] = true;
+                    $categorized_data['customer_metrics']['state_location_data'][ $billing_state ]['customer_count']++;
                 }
 
                 // Device Data -> Browser
@@ -1750,28 +1750,32 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
         }
 
         // Location Data
-        foreach( $categorized_data['customer_metrics']['country_location_data'] as $country_code => &$data ) {
+        foreach ( $categorized_data['customer_metrics']['country_location_data'] as $country_code => $data ) {
 
-            // Country name
             $customer_country_count++;
 
-            // Country level data
-            $data['margin_percentage'] = wpdai_calculate_margin( $data['total_profit'], $data['total_revenue'] );
-            $data['average_order_value'] = wpdai_divide( $data['total_revenue'], $data['total_order_count'], 2 );
-            $data['percent_of_revenue'] = wpdai_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
-            
-            // Cleaning
-            if ( isset($data['distinct_count']) ) unset( $data['distinct_count'] );
+            $data['margin_percentage']    = wpdai_calculate_margin( $data['total_profit'], $data['total_revenue'] );
+            $data['average_order_value']  = wpdai_divide( $data['total_revenue'], $data['total_order_count'], 2 );
+            $data['percent_of_revenue']   = wpdai_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
+            $data['customer_count']       = ( isset( $data['customers'] ) && is_array( $data['customers'] ) ) ? count( $data['customers'] ) : (int) ( $data['customer_count'] ?? 0 );
+
+            unset( $data['distinct_count'], $data['customers'] );
+            $categorized_data['customer_metrics']['country_location_data'][ $country_code ] = $data;
 
         }
 
         // Location Data - State
-        foreach( $categorized_data['customer_metrics']['state_location_data'] as $state_code => &$data ) {
+        foreach ( $categorized_data['customer_metrics']['state_location_data'] as $state_code => $data ) {
 
-            $data['margin_percentage'] = wpdai_calculate_margin( $data['total_profit'], $data['total_revenue'] );
-            $data['average_order_value'] = wpdai_divide( $data['total_revenue'], $data['total_order_count'], 2 );
-            $data['percent_of_revenue'] = wpdai_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
-            if ( isset($data['distinct_count']) ) unset( $data['distinct_count'] );
+            $customer_state_count++;
+
+            $data['margin_percentage']    = wpdai_calculate_margin( $data['total_profit'], $data['total_revenue'] );
+            $data['average_order_value']  = wpdai_divide( $data['total_revenue'], $data['total_order_count'], 2 );
+            $data['percent_of_revenue']   = wpdai_calculate_percentage( $data['total_revenue'], $total_revenue, 2 );
+            $data['customer_count']       = ( isset( $data['customers'] ) && is_array( $data['customers'] ) ) ? count( $data['customers'] ) : (int) ( $data['customer_count'] ?? 0 );
+
+            unset( $data['distinct_count'], $data['customers'] );
+            $categorized_data['customer_metrics']['state_location_data'][ $state_code ] = $data;
 
         }
 
@@ -1907,6 +1911,7 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
                 $data['average_order_value'] = wpdai_divide($data['revenue'], $data['order_count']);
                 unset($data['distinct_count']);
             }
+            unset( $data );
         }
 
         // After the order loop, calculate percentages chris
@@ -1918,6 +1923,7 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
                 $data['margin_percentage'] = wpdai_calculate_margin( $data['total_profit'], $data['total_revenue'] );
                 unset($data['distinct_count']);
             }
+            unset( $data );
         }
 
         // Calculate order costs (custom product costs are included in this)
@@ -2035,6 +2041,7 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
                     $totals['order_metrics']['total_tax_collected']
                 );
             }
+            unset( $summary );
             foreach($categorized_data['tax_metrics']['tax_rate_summaries'] as $rate_id => &$summary) {
                 $summary['average_per_order'] = wpdai_divide($summary['total_amount'], $summary['order_count']);
                 $summary['percent_of_total_tax'] = wpdai_calculate_percentage(
@@ -2042,6 +2049,7 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
                     $totals['order_metrics']['total_tax_collected']
                 );
             }
+            unset( $summary );
             // Override our other calculation
             $totals['tax_metrics']['tax_as_percentage_of_revenue'] = wpdai_calculate_percentage( $totals['order_metrics']['total_tax_collected'], $totals['tax_metrics']['total_revenue_where_tax_was_collected'] );
 

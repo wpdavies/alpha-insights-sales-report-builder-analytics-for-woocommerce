@@ -333,7 +333,11 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
                 (isset($landing_page_query_parameters['utm_campaign'])) ? $utm_campaign = $landing_page_query_parameters['utm_campaign'] : $utm_campaign = null;
 
                 // Data Filtering
-                $session_data_table_count = is_array($session_data_table) ? count($session_data_table) : 0;
+                $session_already_in_table = isset( $session_data_table[ $session_id ] );
+                $session_data_table_count = is_array( $session_data_table ) ? count( $session_data_table ) : 0;
+                // Prefer newest sessions when truncated: events are fetched DESC, so the first
+                // N unique sessions are the most recent. Keep updating rows already included.
+                $can_write_session_row = $session_already_in_table || ( $session_data_table_count < $data_table_limit );
     
                 /**
                  *  Apply Traffic type filtering to sessions
@@ -342,7 +346,7 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
                 if ( $traffic_type_filter && ! in_array($session_traffic_source, $traffic_type_filter) ) continue;
                 
                 // Setup session container
-                if ( $session_data_table_count < $data_table_limit ) {
+                if ( $can_write_session_row ) {
 
                     if ( ! isset($session_data_table[$session_id]) ) $session_data_table[$session_id] = $session_container;
 
@@ -520,7 +524,7 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
                 // Page Views
                 if ($event_type == 'page_view') {
 
-                    if ( $session_data_table_count < $data_table_limit ) $session_data_table[$session_id]['page_views']++;
+                    if ( isset( $session_data_table[ $session_id ] ) ) $session_data_table[$session_id]['page_views']++;
                     $totals['page_views']++;
 
                     if ( ! isset($data_by_date['page_views_by_date'][$event_formatted_date]) ) $data_by_date['page_views_by_date'][$event_formatted_date] = 0;
@@ -550,7 +554,7 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
 
                 // Non Page View Events
                 if ($event_type != 'page_view') {
-                    if ( $session_data_table_count < $data_table_limit ) $session_data_table[$session_id]['non_page_view_events']++;
+                    if ( isset( $session_data_table[ $session_id ] ) ) $session_data_table[$session_id]['non_page_view_events']++;
                     $totals['non_page_view_events']++;
                     if ( ! isset($data_by_date['events_by_date'][$event_formatted_date]) ) $data_by_date['events_by_date'][$event_formatted_date] = 0;
                     $data_by_date['events_by_date'][$event_formatted_date]++;
@@ -558,14 +562,14 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
 
                 // Product Click
                 if ($event_type == 'product_click') {
-                    if ( $session_data_table_count < $data_table_limit ) $session_data_table[$session_id]['product_clicks']++;
+                    if ( isset( $session_data_table[ $session_id ] ) ) $session_data_table[$session_id]['product_clicks']++;
                     $totals['product_clicks']++;
                     $data_by_date['product_clicks_by_date'][$event_formatted_date]++;
                 }
 
                 // Product Category Page Views
                 if ($event_type == 'page_view' && $object_type == 'product_cat') {
-                    if ( $session_data_table_count < $data_table_limit ) $session_data_table[$session_id]['category_page_views']++;
+                    if ( isset( $session_data_table[ $session_id ] ) ) $session_data_table[$session_id]['category_page_views']++;
                     $totals['category_page_views']++;
                     $data_by_date['category_page_views_by_date'][$event_formatted_date]++;
                     if ( ! isset($session_unique_array['sessions_with_category_page_view'][$session_id]) ) {
@@ -576,7 +580,7 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
 
                 // Product Page Views
                 if ($event_type == 'page_view' && $object_type == 'product') {
-                    if ( $session_data_table_count < $data_table_limit ) $session_data_table[$session_id]['product_page_views']++;
+                    if ( isset( $session_data_table[ $session_id ] ) ) $session_data_table[$session_id]['product_page_views']++;
                     $totals['product_page_views']++;
                     if ( ! isset($data_by_date['product_page_views_by_date'][$event_formatted_date]) ) $data_by_date['product_page_views_by_date'][$event_formatted_date] = 0;
                     $data_by_date['product_page_views_by_date'][$event_formatted_date]++;
@@ -588,8 +592,8 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
 
                 // Add to cart
                 if ($event_type == 'add_to_cart') {
-                    if ( $session_data_table_count < $data_table_limit ) $session_data_table[$session_id]['add_to_carts']++;
-                    if ( $session_data_table_count < $data_table_limit ) $session_data_table[$session_id]['add_to_cart_value'] += $event_value;
+                    if ( isset( $session_data_table[ $session_id ] ) ) $session_data_table[$session_id]['add_to_carts']++;
+                    if ( isset( $session_data_table[ $session_id ] ) ) $session_data_table[$session_id]['add_to_cart_value'] += $event_value;
                     $totals['add_to_carts']++;
                     $totals['add_to_cart_value'] += $event_value;
                     if ( ! isset($data_by_date['add_to_carts_by_date'][$event_formatted_date]) ) $data_by_date['add_to_carts_by_date'][$event_formatted_date] = 0;
@@ -614,7 +618,7 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
 
                 // Initiate Checkout
                 if ($event_type == 'init_checkout') {
-                    if ( $session_data_table_count < $data_table_limit ) $session_data_table[$session_id]['initiate_checkouts']++;
+                    if ( isset( $session_data_table[ $session_id ] ) ) $session_data_table[$session_id]['initiate_checkouts']++;
                     $totals['initiate_checkouts']++;
                     if ( ! isset($session_unique_array['sessions_with_initiate_checkout'][$session_id]) ) {
                         $session_unique_array['sessions_with_initiate_checkout'][$session_id] = true;
@@ -630,16 +634,16 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
 
                 // Purchase - Product Line Items
                 if ($event_type == 'product_purchase') {
-                    if ( $session_data_table_count < $data_table_limit ) $session_data_table[$session_id]['unique_products_purchased']++;
-                    if ( $session_data_table_count < $data_table_limit ) $session_data_table[$session_id]['total_products_purchased'] += $event_quantity;
+                    if ( isset( $session_data_table[ $session_id ] ) ) $session_data_table[$session_id]['unique_products_purchased']++;
+                    if ( isset( $session_data_table[ $session_id ] ) ) $session_data_table[$session_id]['total_products_purchased'] += $event_quantity;
                     $totals['unique_products_purchased']++;
                     $totals['total_products_purchased'] += $event_quantity;
                 }
 
                 // Transaction
                 if ($event_type == 'transaction') {
-                    if ( $session_data_table_count < $data_table_limit ) $session_data_table[$session_id]['transactions']++;
-                    if ( $session_data_table_count < $data_table_limit ) $session_data_table[$session_id]['transaction_value'] += $event_value;
+                    if ( isset( $session_data_table[ $session_id ] ) ) $session_data_table[$session_id]['transactions']++;
+                    if ( isset( $session_data_table[ $session_id ] ) ) $session_data_table[$session_id]['transaction_value'] += $event_value;
                     $totals['transactions']++;
                     $totals['transaction_value'] += $event_value;
                     if ( ! isset($data_by_date['transactions_by_date'][$event_formatted_date]) ) $data_by_date['transactions_by_date'][$event_formatted_date] = 0;
@@ -677,7 +681,7 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
 
                 // Checkout Erors
                 if ( $event_type == 'checkout_error' ) {
-                    if ( $session_data_table_count < $data_table_limit ) $session_data_table[$session_id]['checkout_error_count']++;
+                    if ( isset( $session_data_table[ $session_id ] ) ) $session_data_table[$session_id]['checkout_error_count']++;
                     $totals['checkout_error_count']++;
                     if ( ! isset($data_by_date['checkout_errors_by_date'][$event_formatted_date]) ) $data_by_date['checkout_errors_by_date'][$event_formatted_date] = 0;
                     if ( isset($data_by_date['checkout_errors_by_date'][$event_formatted_date]) ) $data_by_date['checkout_errors_by_date'][$event_formatted_date]++;
@@ -701,7 +705,7 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
                     if ( is_array($additional_data) && isset($additional_data['form_id']) && ! empty($additional_data['form_id']) ) $form_id = sanitize_text_field( $additional_data['form_id'] );
 
                     // Add to datatable, if not at max
-                    if ( $session_data_table_count < $data_table_limit ) $session_data_table[$session_id]['form_submits']++;
+                    if ( isset( $session_data_table[ $session_id ] ) ) $session_data_table[$session_id]['form_submits']++;
 
                     // Increment Totals
                     $totals['form_submits']++;
@@ -736,7 +740,7 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
 
                 // Account created
                 if ( $event_type == 'account_created' ) {
-                    if ( $session_data_table_count < $data_table_limit ) $session_data_table[$session_id]['account_created']++;
+                    if ( isset( $session_data_table[ $session_id ] ) ) $session_data_table[$session_id]['account_created']++;
                     $totals['account_created']++;
                     if ( ! isset($data_by_date['account_created_by_date'][$event_formatted_date]) ) $data_by_date['account_created_by_date'][$event_formatted_date] = 0;
                     $data_by_date['account_created_by_date'][$event_formatted_date]++;
@@ -1062,6 +1066,18 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
         $categorized_data['conversion_funnel_summary']['transactions_complete']['count'] = $totals['sessions_with_transaction'];
         $categorized_data['conversion_funnel_summary']['transactions_complete']['percent'] = $totals['conversion_rate'];
 
+        // Keep truncated session rows newest-first for data table consumers.
+        if ( is_array( $session_data_table ) && ! empty( $session_data_table ) ) {
+            uasort(
+                $session_data_table,
+                static function( $a, $b ) {
+                    $a_date = isset( $a['session_start_in_local'] ) ? (string) $a['session_start_in_local'] : '';
+                    $b_date = isset( $b['session_start_in_local'] ) ? (string) $b['session_start_in_local'] : '';
+                    return strcmp( $b_date, $a_date );
+                }
+            );
+        }
+
         // Return single-entity structure for the warehouse to store (do not call set_data here).
         $analytics_data = array(
             'totals'            => $totals,
@@ -1098,7 +1114,8 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
         $limit = absint( $limit );
         $offset = absint( $offset );
 
-        // Fetch Events With Limit, Offset & Filters
+        // Fetch Events With Limit, Offset & Filters.
+        // Newest-first so data_table truncation (e.g. 500 sessions) keeps the most recent sessions.
         // Note: Table names are trusted (from WPDAI_Database_Interactor), where_clause uses $wpdb->prepare() internally
         $events_sql_query = 
             "SELECT 
@@ -1115,7 +1132,7 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
             FROM $woo_events_table
             WHERE 1=1
             $where_clause
-            ORDER BY date_created_gmt ASC
+            ORDER BY date_created_gmt DESC, ID DESC
             LIMIT %d OFFSET %d";
 
         $events_sql_query = $wpdb->prepare( $events_sql_query, $limit, $offset );

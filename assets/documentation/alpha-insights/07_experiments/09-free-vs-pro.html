@@ -1,0 +1,76 @@
+<h2>Experiments: Free vs Pro</h2>
+
+<p>Experiments ship in Alpha Insights Free with a focused A/B workflow. Pro unlocks more arms, tighter targeting, PHP, and statistical / commercial metrics on the report.</p>
+
+<table>
+<tr>
+<th>Capability</th>
+<th>Free</th>
+<th>Pro</th>
+</tr>
+<tr>
+<td>Running tests at once</td>
+<td>1</td>
+<td>Multiple (a visitor is still only in one running test at a time)</td>
+</tr>
+<tr>
+<td>Variants</td>
+<td>Control + one treatment</td>
+<td>A/B/n with per-arm weights</td>
+</tr>
+<tr>
+<td>Traffic in test</td>
+<td>100% of eligible visitors</td>
+<td>Holdout % (withhold some eligible visitors)</td>
+</tr>
+<tr>
+<td>Snippets</td>
+<td>CSS and JavaScript</td>
+<td>CSS, JavaScript, and PHP</td>
+</tr>
+<tr>
+<td>Page targeting</td>
+<td>Path equals, path contains, cart, checkout, product</td>
+<td>Plus path starts with, shop, post type, URL regex</td>
+</tr>
+<tr>
+<td>Audience</td>
+<td>All eligible page traffic minus analytics-excluded roles</td>
+<td>Traffic source, device, logged in, new vs returning</td>
+</tr>
+<tr>
+<td>Primary goal</td>
+<td>Purchase</td>
+<td>Purchase, add to cart, page view, or custom event</td>
+</tr>
+<tr>
+<td>Schedule</td>
+<td>Manual start / pause / complete</td>
+<td>Optional start and end datetimes</td>
+</tr>
+<tr>
+<td>Report</td>
+<td>Exposures, conversions, rates, lift, funnel</td>
+<td>Plus revenue, AOV, profit, significance vs that test’s control</td>
+</tr>
+<tr>
+<td>Report filters</td>
+<td>Default date range</td>
+<td>Custom filters, including one or more experiments</td>
+</tr>
+</table>
+
+<h3>What stays the same</h3>
+<ul>
+<li>Sticky visitor assignment and first-paint CSS/JS.</li>
+<li>Targeted URLs miss page cache while a test is running.</li>
+<li>Preview links for authorized users (no experiment events).</li>
+<li>Purchase attribution via session, with visitor-ID fallback on the order.</li>
+<li>The Experiments list and report share the same data warehouse.</li>
+</ul>
+
+<h3>Related</h3>
+<ul>
+<li><a href='/documentation/alpha-insights/experiments/what-are-experiments.html'>What Are Experiments?</a></li>
+<li><a href='/documentation/alpha-insights/getting-started/activate-your-license.html'>Activate Your License</a></li>
+</ul>
