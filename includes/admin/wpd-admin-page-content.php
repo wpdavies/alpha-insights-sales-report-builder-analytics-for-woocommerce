@@ -173,3 +173,12 @@ function wpdai_getting_started_page() {
 	}
 	
 }
+
+/**
+ * Experiments admin page.
+ *
+ * @return void
+ */
+function wpdai_experiments_page() {
+	WPDAI_Experiments_Admin::render();
+}

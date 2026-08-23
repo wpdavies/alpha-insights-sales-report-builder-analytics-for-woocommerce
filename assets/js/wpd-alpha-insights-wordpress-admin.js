@@ -200,6 +200,10 @@
                 
                 // Decode HTML entities in URL
                 const decodedUrl = decodeHtmlEntities(item.url);
+                const getQueryParam = function(url, name) {
+                    const match = url.match(new RegExp('[?&]' + name + '=([^&]+)'));
+                    return match ? match[1] : '';
+                };
                 
                 // Hide this item from the second-level menu if it exists there
                 if (parentSubmenu) {
@@ -212,11 +216,9 @@
                         
                         // Decode existing href for comparison
                         const decodedExistingHref = decodeHtmlEntities(existingHref);
-                        
-                        // Compare decoded URLs
-                        const urlsMatch = decodedExistingHref === decodedUrl || 
-                                         decodedExistingHref.includes(decodedUrl) || 
-                                         decodedUrl.includes(decodedExistingHref);
+                        const samePage = getQueryParam(decodedExistingHref, 'page') === getQueryParam(decodedUrl, 'page');
+                        const sameSubpage = getQueryParam(decodedExistingHref, 'subpage') === getQueryParam(decodedUrl, 'subpage');
+                        const urlsMatch = samePage && sameSubpage;
                         
                         const parentLi = existingLink.closest('li');
                         if (urlsMatch && parentLi && parentLi !== menuItem) {

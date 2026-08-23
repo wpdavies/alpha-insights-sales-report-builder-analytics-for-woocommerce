@@ -1,0 +1,87 @@
+<h2>Targeting and Audience</h2>
+
+<p>Only matching visitors enter a test. Leave a filter empty to include everyone for that rule. Empty URL values are ignored. If every URL rule is empty, the test includes the <strong>entire site</strong> and those pages miss cache until you pause or complete it.</p>
+
+<h3>Page rules</h3>
+<p>Rules are OR’d: a visitor is eligible if any rule matches the current request. Cart, checkout, shop, and product matches do not need a value.</p>
+
+<table>
+<tr>
+<th>Match</th>
+<th>Free</th>
+<th>Notes</th>
+</tr>
+<tr>
+<td>Path equals</td>
+<td>Yes</td>
+<td>Exact path, for example <code>/pricing</code>. Leading slash recommended. Trailing slashes are normalised.</td>
+</tr>
+<tr>
+<td>Path contains</td>
+<td>Yes</td>
+<td>Substring match, for example <code>summer-sale</code>.</td>
+</tr>
+<tr>
+<td>Path starts with</td>
+<td>Pro</td>
+<td>Prefix match, for example <code>/product-category/shoes</code>.</td>
+</tr>
+<tr>
+<td>WooCommerce cart</td>
+<td>Yes</td>
+<td>The cart page. No value required.</td>
+</tr>
+<tr>
+<td>WooCommerce checkout</td>
+<td>Yes</td>
+<td>The checkout page. No value required.</td>
+</tr>
+<tr>
+<td>WooCommerce product</td>
+<td>Yes</td>
+<td>Any single product. Broad — many URLs will miss cache.</td>
+</tr>
+<tr>
+<td>WooCommerce shop</td>
+<td>Pro</td>
+<td>The shop archive. Broad.</td>
+</tr>
+<tr>
+<td>Post type</td>
+<td>Pro</td>
+<td>Value is the post type slug (for example <code>product</code> or <code>page</code>). Broad.</td>
+</tr>
+<tr>
+<td>URL regex</td>
+<td>Pro</td>
+<td>Regular expression against the path. Broad if the pattern is loose.</td>
+</tr>
+</table>
+
+<p>Broad targeting (entire site, all products, shop, a whole post type, or a wide regex) is allowed, but the editor warns you: a large part of the store will bypass page cache for the life of the test.</p>
+
+<h3>Audience filters (Pro)</h3>
+<p>Free tests include all eligible page traffic except roles excluded from Alpha Insights analytics. Pro can further limit who is assigned:</p>
+<ul>
+<li><strong>Traffic sources</strong> — Organic, Google Ads, Microsoft Ads, Email, Social, Direct, App, Referral, AI Chat, Unknown. Empty means any source.</li>
+<li><strong>Devices</strong> — Desktop, Mobile, Tablet. Empty means any device.</li>
+<li><strong>Logged in</strong> — Any, logged-in users, or guests.</li>
+<li><strong>Visitor type</strong> — Any, new, or returning.</li>
+</ul>
+
+<p>Selecting every option in a multi-select is stored as “any” (same as leaving it empty).</p>
+
+<h3>Who never enters a test</h3>
+<ul>
+<li>Roles excluded from Alpha Insights analytics (same setting as website traffic tracking).</li>
+<li>Holdout visitors when traffic in test is below 100% (Pro).</li>
+<li>Visitors already assigned to a different <em>running</em> experiment. Concurrent tests are mutually exclusive so one person is only in one running test at a time.</li>
+<li>Preview requests from authorized users (they see the variant but do not write experiment events).</li>
+</ul>
+
+<h3>Related</h3>
+<ul>
+<li><a href='/documentation/alpha-insights/experiments/how-assignment-works.html'>How Assignment Works</a></li>
+<li><a href='/documentation/alpha-insights/experiments/page-cache-and-running-tests.html'>Page Cache and Running Tests</a></li>
+<li><a href='/documentation/alpha-insights/website-traffic/understanding-website-analytics.html'>Understanding Website Analytics</a></li>
+</ul>

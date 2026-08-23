@@ -496,6 +496,7 @@ function is_wpdai_page() {
 			|| $taxonomy == 'suppliers'
 			|| $page == WPDAI_Admin_Menu::$sales_report_slug
 			|| $page == WPDAI_Admin_Menu::$website_traffic_slug
+			|| $page == WPDAI_Admin_Menu::$experiments_slug
 			|| $page == WPDAI_Admin_Menu::$profit_loss_statement_slug
 			|| $page == WPDAI_Admin_Menu::$manage_expenses_slug
 			|| $page == WPDAI_Admin_Menu::$advertising_slug

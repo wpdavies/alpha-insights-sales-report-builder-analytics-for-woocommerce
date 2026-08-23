@@ -778,6 +778,43 @@ class WPDAI_Report_Filters {
     }
 
     /**
+     * List of experiments for the report filter picker.
+     *
+     * @return array Experiment ID => label.
+     */
+    public function get_filter_values_experiments() {
+        if ( ! class_exists( 'WPDAI_Experiment_Store' ) || ! WPDAI_Experiment_Store::tables_exist() ) {
+            return array();
+        }
+
+        $experiments = WPDAI_Experiment_Store::get_all();
+        $results     = array();
+        if ( ! is_array( $experiments ) ) {
+            return $results;
+        }
+
+        foreach ( $experiments as $experiment ) {
+            $id = isset( $experiment['id'] ) ? (int) $experiment['id'] : 0;
+            if ( $id < 1 ) {
+                continue;
+            }
+            $name   = ! empty( $experiment['name'] ) ? $experiment['name'] : ( ! empty( $experiment['slug'] ) ? $experiment['slug'] : (string) $id );
+            $status = ! empty( $experiment['status'] ) ? $experiment['status'] : '';
+            if ( '' !== $status ) {
+                $name = sprintf(
+                    /* translators: 1: experiment name, 2: status */
+                    __( '%1$s (%2$s)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                    $name,
+                    $status
+                );
+            }
+            $results[ $id ] = $name;
+        }
+
+        return $results;
+    }
+
+    /**
      * 
      * 	List of available expense categories
      * 

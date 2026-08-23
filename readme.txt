@@ -2,14 +2,14 @@
 Contributors: wpdavies
 Tags: woocommerce analytics, woocommerce reporting, woocommerce analytics plugin, woocommerce cost of goods, woocommerce profit
 Requires at least: 5.0
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.0.0
+Stable tag: 2.1.0
 Requires Plugins: woocommerce
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Advanced WooCommerce analytics plugin for profit reporting, traffic insights, cost of goods (COGS), and custom sales reports.
+Advanced WooCommerce analytics for profit reporting, traffic insights, COGS, custom sales reports, and A/B experiments.
 
 == Description ==
 
@@ -18,6 +18,8 @@ Alpha Insights is an advanced WooCommerce analytics plugin built for accurate pr
 Go beyond default WooCommerce analytics and basic sales reports with a complete view of your store’s performance. Alpha Insights combines revenue, product costs, payment gateway fees, shipping costs, ad spend, and business expenses in one place — helping you track profit & loss, margins, ROI, customer behavior, product performance, and marketing attribution with confidence.
 
 With our intuitive drag & drop WooCommerce report builder, you can create custom sales reports and fully interactive analytics dashboards in seconds — without spreadsheets, complicated exports, or disconnected tools.
+
+Test storefront changes with built-in A/B experiments (Beta). Split visitors between a control and a treatment using CSS or JavaScript, keep each person on the same variant, and measure conversion lift against your Alpha Insights analytics and WooCommerce orders — not just clicks.
 
 Built specifically for serious WooCommerce store owners who want real financial and performance clarity, Alpha Insights replaces manual reporting with a single WooCommerce analytics and profit reporting system focused on true profitability — not just revenue numbers.
 
@@ -39,6 +41,9 @@ Alpha Insights works like a Google Analytics style plugin for WooCommerce, showi
 
 **Drag & Drop WooCommerce Analytics Dashboards & Custom Sales Reports**  
 Build custom WooCommerce analytics dashboards and sales reports with an intuitive drag & drop builder. Create flexible reports in seconds without spreadsheets, exports, or disconnected analytics tools.
+
+**WooCommerce A/B Experiments (Beta)**  
+Run A/B tests on your storefront and measure which version converts. Apply CSS or JavaScript per variant, assign visitors on the first matching page view, and keep them on the same version until you pause or complete the test. Results show exposures, funnel steps, conversions, conversion rate, and lift versus control — tied to Alpha Insights analytics and orders. The free version includes one running A/B test, 100% of eligible traffic, and a Purchase goal.
 
 **Custom Order Costs**  
 Add commissions, handling fees, transaction costs, or other order-specific expenses.
@@ -76,6 +81,9 @@ Automatically sync shipping costs, payment gateway fees, and advertising spend f
 **Realtime WooCommerce Analytics Dashboards**  
 Monitor live visitor activity and performance metrics as they happen.
 
+**Unlimited Experiments, PHP Variants & Profit Stats**  
+Run more than one test at a time, add PHP snippets, extra variants, holdout traffic, audience filters (traffic source, device, visitor type), custom goals, and scheduled start/end dates. The Pro report adds revenue and statistical significance.
+
 **Upgrade to Pro:**
 If you're running paid ads or managing serious revenue, Pro unlocks the true financial picture of your store.
 [Upgrade to Alpha Insights Pro](https://wpdavies.dev/plugins/alpha-insights/pricing/?utm_source=wordpress&utm_medium=readme&utm_campaign=free_version_upgrade)
@@ -88,6 +96,7 @@ If you're running paid ads or managing serious revenue, Pro unlocks the true fin
 • Built-in WooCommerce cost of goods management  
 • Advanced WooCommerce sales reports  
 • True WooCommerce profit and loss reporting  
+• A/B testing storefront changes against real WooCommerce conversions  
 • Ad spend and ROI tracking (Pro)
 • Custom WooCommerce analytics dashboards  
 
@@ -140,6 +149,10 @@ Yes. Alpha Insights is fully compatible with WooCommerce High-Performance Order 
 
 Yes. Pro users can create unlimited reports. Free users can modify the pre-installed reports.
 
+= Can I run A/B tests on my store? =
+
+Yes. Experiments (Beta) splits visitors between a control and a treatment using CSS or JavaScript. Each visitor keeps the same variant, and results are measured against Alpha Insights analytics and WooCommerce orders (exposures, conversions, and lift). The free version allows one running test with a Purchase goal. Pro adds PHP snippets, extra variants, audience targeting, holdout traffic, custom goals, and revenue / significance on the report.
+
 = What WooCommerce metrics can I track? =
 
 Revenue, cost of goods (COGS), gross profit, net profit, margins, expenses, ad spend, ROI, customer performance, product performance, refunds, and traffic analytics.
@@ -174,6 +187,24 @@ Default WooCommerce reports focus primarily on revenue. Alpha Insights adds cost
 ---
 
 == Changelog ==
+
+= 2.1.0 =
+* Add - Experiments (Beta): A/B test storefront changes with CSS and JavaScript variants, sticky visitor assignment, cache-safe page targeting, and a results report (exposures, conversions, lift)
+* Add - Developer helpers wpdai_in_experiment() and wpdai_get_experiment_variant() for theme and plugin branching
+* Tweak - Free plan limits: one running experiment, 100% of eligible traffic, and Purchase as the primary goal (audience filters, holdout, PHP snippets, extra variants, and custom goals remain Pro)
+* Fix - Landing-page utm_source values such as chatgpt.com are classified as AI Chat instead of Direct when no referrer is present
+* Fix - Sales by billing state/country no longer corrupts the last region’s order and customer counts
+* Fix - Report charts now use the selected metric field’s format (order count no longer displays as currency)
+* Tweak - Report chart tooltips show the selected metric field name instead of a generic Value label
+* Fix - Categorical bar/line tooltips keep the real category label when values are numeric (e.g. query parameter values)
+* Fix - Cache-safe analytics now records the visitor origin IP behind Cloudflare instead of collapsing sessions onto a proxy hop IP
+* Tweak - Cloudflare visitor header is kept for WARP clients; IPv6 proxy matching uses the published 2a06:98c0::/29 prefix
+* Fix - Order overview session count now uses the analytics session IP, falling back to the WooCommerce customer IP when no session is linked
+* Tweak - Analytics session IP lookups and session counts are cached to reduce repeat lookups
+* Fix - Analytics sessions data table now prefers the most recent sessions when results are truncated
+* Fix - Fatal error on Free bootstrap when cache version constants were skipped
+* Fix - Experiment save and start errors now show an in-plugin notice, including the one running experiment Free limit
+* Tweak - Traffic source and device filters are locked on Free so they cannot be changed after the combo-select UI update
 
 = 2.0.0 =
 * Tweak - Cache-Safe Event Tracking promoted from beta to the default analytics system; enabled by default for new and upgraded installations
@@ -244,6 +275,9 @@ Default WooCommerce reports focus primarily on revenue. Alpha Insights adds cost
 ---
 
 == Upgrade Notice ==
+
+= 2.1.0 =
+Adds Experiments (Beta) for A/B testing storefront CSS and JavaScript, plus analytics and reporting fixes since 2.0.
 
 = 2.0.0 =
 Cache-Safe Event Tracking is now the default analytics system. Existing installations are migrated automatically on upgrade.

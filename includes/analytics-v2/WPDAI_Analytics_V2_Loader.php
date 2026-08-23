@@ -30,6 +30,7 @@ class WPDAI_Analytics_V2_Loader {
 			return;
 		}
 
+		require_once WPD_AI_PATH . 'includes/analytics-v2/WPDAI_Client_IP.php';
 		require_once WPD_AI_PATH . 'includes/analytics-v2/WPDAI_Session_Context.php';
 		require_once WPD_AI_PATH . 'includes/analytics-v2/WPDAI_Event_Tracking_V2.php';
 		require_once WPD_AI_PATH . 'includes/analytics-v2/WPDAI_Analytics_V2_Scripts.php';

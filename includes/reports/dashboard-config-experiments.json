@@ -1,0 +1,331 @@
+{
+  "dashboard_id": "experiments",
+  "name": "A/B Experiments",
+  "description": "Exposures, conversions, lift, and funnel rates for Alpha Insights experiments.",
+  "filters": {
+    "date_from": null,
+    "date_to": null,
+    "date_preset": "last_30_days",
+    "comparison_date_selection": "previous_period",
+    "data_filters": []
+  },
+  "created_at": 1787400453,
+  "updated_at": 1787400453,
+  "menu_order": "55",
+  "report_category": "website_traffic",
+  "version_number": "1.4",
+  "appear_in_menu": true,
+  "realtime_data": false,
+  "rows": [
+    {
+      "id": "row-experiments-metrics",
+      "columns": [
+        {
+          "id": "column-exp-exposed",
+          "width": {
+            "desktop": 3,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_exp_exposed",
+              "type": "metric_card",
+              "config": {
+                "title": "Exposures",
+                "metric": "experiments.totals.exposed",
+                "change_indicator": "previous_period",
+                "sub_value": "experiments.totals.sessions",
+                "icon": "activity",
+                "color": "blue"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-exp-conversions",
+          "width": {
+            "desktop": 3,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_exp_conversions",
+              "type": "metric_card",
+              "config": {
+                "title": "Conversions",
+                "metric": "experiments.totals.conversions",
+                "change_indicator": "previous_period",
+                "sub_value": "experiments.totals.add_to_carts",
+                "icon": "shopping_cart",
+                "color": "green"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-exp-cr",
+          "width": {
+            "desktop": 3,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_exp_cr",
+              "type": "metric_card",
+              "config": {
+                "title": "Conversion rate",
+                "metric": "experiments.totals.conversion_rate",
+                "change_indicator": "previous_period",
+                "sub_value": "experiments.totals.add_to_cart_rate",
+                "icon": "percent",
+                "color": "green"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-exp-atc",
+          "width": {
+            "desktop": 3,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_exp_atc",
+              "type": "metric_card",
+              "config": {
+                "title": "Add to carts",
+                "metric": "experiments.totals.add_to_carts",
+                "change_indicator": "previous_period",
+                "sub_value": "experiments.totals.initiate_checkouts",
+                "icon": "shopping_cart",
+                "color": "blue"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-experiments-table",
+      "columns": [
+        {
+          "id": "column-exp-table",
+          "width": {
+            "desktop": 12,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_exp_table",
+              "type": "data_table",
+              "config": {
+                "title": "Results by variant",
+                "metric": "experiments.data_table.variants",
+                "selected_columns": [
+                  "experiment_name",
+                  "variant_name",
+                  "exposures",
+                  "conversions",
+                  "conversion_rate",
+                  "lift",
+                  "add_to_carts",
+                  "initiate_checkouts",
+                  "transactions",
+                  "average_session_duration",
+                  "revenue",
+                  "aov",
+                  "significant"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-experiments-chart",
+      "columns": [
+        {
+          "id": "column-2-0",
+          "width": {
+            "desktop": 6,
+            "tablet": 6,
+            "mobile": 12
+          },
+          "widgets": [
+            {
+              "id": "widget_exp_hits_by_experiment",
+              "type": "line_chart",
+              "config": {
+                "title": "Hits by experiment",
+                "data_type": "data_by_date",
+                "metrics": [
+                  {
+                    "metric": "experiments.data_by_date.exposures_by_experiment_by_date",
+                    "label": "Hits by experiment",
+                    "icon": "analytics",
+                    "color": "blue",
+                    "data_source": "experiments",
+                    "value_key": "exposures_by_experiment_by_date"
+                  }
+                ],
+                "date_format": "auto",
+                "color": "blue",
+                "show_legend": true
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-exp-chart",
+          "width": {
+            "desktop": 6,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_exp_chart",
+              "type": "line_chart",
+              "config": {
+                "title": "Exposures and conversions",
+                "data_type": "data_by_date",
+                "metrics": [
+                  {
+                    "metric": "experiments.data_by_date.exposures_by_date",
+                    "label": "Exposures",
+                    "icon": "activity",
+                    "color": "blue",
+                    "data_source": "experiments",
+                    "value_key": "exposures_by_date"
+                  },
+                  {
+                    "metric": "experiments.data_by_date.conversions_by_date",
+                    "label": "Conversions",
+                    "icon": "shopping_cart",
+                    "color": "green",
+                    "data_source": "experiments",
+                    "value_key": "conversions_by_date"
+                  }
+                ],
+                "date_format": "auto",
+                "color": "blue",
+                "show_legend": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-experiments-cr-lift",
+      "columns": [
+        {
+          "id": "column-exp-cr-by-variant",
+          "width": {
+            "desktop": 6,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_exp_cr_by_variant",
+              "type": "line_chart",
+              "config": {
+                "title": "Conversion rate by variant",
+                "data_type": "data_by_date",
+                "metrics": [
+                  {
+                    "metric": "experiments.data_by_date.conversion_rate_by_variant_by_date",
+                    "label": "Conversion rate by variant",
+                    "icon": "percent",
+                    "color": "blue",
+                    "data_source": "experiments",
+                    "value_key": "conversion_rate_by_variant_by_date"
+                  }
+                ],
+                "date_format": "auto",
+                "color": "blue",
+                "show_legend": true
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-exp-lift-chart",
+          "width": {
+            "desktop": 6,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_exp_lift_chart",
+              "type": "line_chart",
+              "config": {
+                "title": "Daily lift vs control",
+                "data_type": "data_by_date",
+                "metrics": [
+                  {
+                    "metric": "experiments.data_by_date.lift_by_variant_by_date",
+                    "label": "Daily lift vs control",
+                    "icon": "trending_up",
+                    "color": "green",
+                    "data_source": "experiments",
+                    "value_key": "lift_by_variant_by_date"
+                  }
+                ],
+                "date_format": "auto",
+                "color": "green",
+                "show_legend": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-experiments-variant-share",
+      "columns": [
+        {
+          "id": "column-exp-variant-share",
+          "width": {
+            "desktop": 12,
+            "tablet": 12,
+            "mobile": 12
+          },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_exp_variant_share",
+              "type": "doughnut_chart",
+              "config": {
+                "title": "Exposures by variant",
+                "data_type": "categorized_data",
+                "metric": "experiments.categorized_data.variants",
+                "metric_field": "exposures",
+                "metric_display": "number",
+                "color": "blue",
+                "show_legend": true
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

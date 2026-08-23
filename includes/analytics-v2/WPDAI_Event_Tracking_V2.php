@@ -84,22 +84,7 @@ class WPDAI_Event_Tracking_V2 extends WPDAI_WooCommerce_Event_Tracking {
 	 * @return string
 	 */
 	protected function get_client_ip_for_rate_limit() {
-		if ( class_exists( 'WC_Geolocation' ) ) {
-			return (string) WC_Geolocation::get_ip_address();
-		}
-
-		if ( ! empty( $_SERVER['HTTP_CF_CONNECTING_IP'] ) ) {
-			return sanitize_text_field( wp_unslash( $_SERVER['HTTP_CF_CONNECTING_IP'] ) );
-		}
-		if ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-			$parts = explode( ',', sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) );
-			return trim( $parts[0] );
-		}
-		if ( isset( $_SERVER['REMOTE_ADDR'] ) ) {
-			return sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
-		}
-
-		return '';
+		return WPDAI_Client_IP::resolve();
 	}
 
 	/**

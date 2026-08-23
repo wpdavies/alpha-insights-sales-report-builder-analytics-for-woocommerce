@@ -633,10 +633,9 @@ class WPDAI_Core {
 
 		} else {
 
-			// Force by billing email for now
-			$ip_address 			= $order->get_customer_ip_address();
-			$billing_email 			= $order->get_billing_email();
-			$session_count 			= wpdai_get_session_count_by_ip_address( $ip_address );
+			$ip_address    = wpdai_get_analytics_ip_address_from_order( $order );
+			$billing_email = $order->get_billing_email();
+			$session_count = wpdai_get_session_count_by_ip_address( $ip_address );
 
 			// Customer Details
 			if ( is_string( $billing_email ) && ! empty( $billing_email ) ) {
@@ -1285,6 +1284,22 @@ class WPDAI_Core {
 				$session_id = $order->get_meta( '_wpd_ai_session_id' );
 				if ( empty($session_id) ) $order->update_meta_data( '_wpd_ai_session_id', sanitize_text_field( $_COOKIE['wpd_ai_session_id'] ) );
 				$updated = true;
+			}
+
+			if ( ! empty( $_COOKIE['wpd_ai_vid'] ) ) {
+				$visitor_id = $order->get_meta( '_wpd_ai_visitor_id' );
+				if ( empty( $visitor_id ) ) {
+					$order->update_meta_data( '_wpd_ai_visitor_id', sanitize_text_field( wp_unslash( $_COOKIE['wpd_ai_vid'] ) ) );
+					$updated = true;
+				}
+			}
+
+			if ( ! empty( $_COOKIE['wpd_ai_exps'] ) ) {
+				$experiments = $order->get_meta( '_wpd_ai_experiments' );
+				if ( empty( $experiments ) ) {
+					$order->update_meta_data( '_wpd_ai_experiments', sanitize_text_field( wp_unslash( $_COOKIE['wpd_ai_exps'] ) ) );
+					$updated = true;
+				}
 			}
 
 		}

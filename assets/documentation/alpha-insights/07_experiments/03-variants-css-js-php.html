@@ -1,0 +1,46 @@
+<h2>Variants, CSS, JS, and PHP</h2>
+
+<p>Every experiment has at least a <strong>Control</strong> and a <strong>Treatment</strong>. Control is the current experience. Treatments are the changes you want to measure. Free is limited to those two arms. Pro can add more variants (A/B/n) and set each arm’s traffic weight.</p>
+
+<h3>What belongs on each arm</h3>
+<ul>
+<li><strong>Control</strong> usually has empty snippets so the visitor sees the live theme unchanged.</li>
+<li><strong>Treatment</strong> holds the CSS, JS, and/or PHP you are testing. The list badges show which languages a test (and each arm) actually uses.</li>
+<li>Weights (Pro) control how assigned traffic is split among arms after holdout is removed. Equal weights (for example 50 / 50) are the usual starting point.</li>
+</ul>
+
+<h3>When snippets run</h3>
+<p>Assignment happens on the HTML request (<code>wp</code>, priority 0), before the page is painted:</p>
+<ul>
+<li><strong>CSS</strong> is printed in <code>wp_head</code> for the assigned variant.</li>
+<li><strong>JS</strong> is printed in <code>wp_footer</code>.</li>
+<li><strong>PHP (Pro)</strong> is evaluated on the same request after a syntax check. Invalid snippets are skipped and logged; they are not executed.</li>
+</ul>
+
+<p>That server-side timing is why targeted URLs cannot be fully page-cached while a test is running — the first HTML response has to include the correct variant. See <a href='/documentation/alpha-insights/experiments/page-cache-and-running-tests.html'>Page Cache and Running Tests</a>.</p>
+
+<h3>Writing CSS and JS</h3>
+<ul>
+<li>Scope selectors tightly (a specific class or page wrapper) so you do not restyle the whole store by accident.</li>
+<li>JS runs in the footer. Wait for DOM ready if you query elements.</li>
+<li>Do not put secrets, API keys, or unsanitized user input in snippets.</li>
+<li>Prefer small, reversible changes. Large theme rewrites are better as a staging deploy plus a feature flag.</li>
+</ul>
+
+<h3>PHP snippets (Pro)</h3>
+<p>PHP is for changes that must exist in the first HTML: filters, template tweaks, or enqueueing assets. The snippet is admin-owned code, same trust model as a Code Snippets plugin. Do not include opening <code>&lt;?php</code> tags. Runtime errors are caught and written to the experiments log; they do not fatally break the storefront.</p>
+
+<p>For anything more than a few lines, put the logic in your theme or a small plugin and gate it:</p>
+<pre><code>if ( function_exists( 'wpdai_in_experiment' ) &amp;&amp; wpdai_in_experiment( 'pricing-headline', 'treatment' ) ) {
+    // Treatment-only markup or filters.
+}</code></pre>
+
+<h3>Theme and plugin branching</h3>
+<p>Helpers work on the storefront after assignment. They return false / null for holdout visitors and for anyone not in that experiment. Full reference: <a href='/documentation/alpha-insights/experiments/developer-helpers.html'>Developer Helpers</a>.</p>
+
+<h3>Related</h3>
+<ul>
+<li><a href='/documentation/alpha-insights/experiments/creating-an-experiment.html'>Creating an Experiment</a></li>
+<li><a href='/documentation/alpha-insights/experiments/previewing-and-qa.html'>Previewing and QA</a></li>
+<li><a href='/documentation/alpha-insights/experiments/free-vs-pro.html'>Free vs Pro</a></li>
+</ul>
