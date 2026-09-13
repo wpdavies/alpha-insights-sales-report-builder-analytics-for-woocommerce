@@ -175,7 +175,7 @@ function wpdai_getting_started_page() {
 }
 
 /**
- * Experiments admin page.
+ * A/B Test admin page.
  *
  * @return void
  */

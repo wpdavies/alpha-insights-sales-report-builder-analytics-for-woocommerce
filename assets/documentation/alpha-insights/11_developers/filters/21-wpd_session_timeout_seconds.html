@@ -8,9 +8,8 @@
 
 <h4>Location</h4>
 
-<p><strong>File:</strong> <code>includes/classes/WPDAI_Session_Tracking.php</code></p>
-<p><strong>Methods:</strong> <code>WPDAI_Session_Tracking::get_or_create_session()</code> and <code>WPDAI_Session_Tracking::is_session_expired()</code></p>
-<p><strong>Lines:</strong> ~317 and ~405</p>
+<p><strong>Files:</strong> <code>includes/analytics/wpd-analytics-functions.php</code> (<code>wpdai_get_analytics_session_timeout_seconds()</code>), <code>includes/classes/WPDAI_Session_Tracking.php</code></p>
+<p>The analytics client receives this value as <code>wpdAiClientConfig.session_timeout_seconds</code>.</p>
 
 <h3>Parameters</h3>
 
@@ -170,8 +169,9 @@ function debug_session_timeout( $timeout_seconds ) {
 <h3>Related Classes</h3>
 
 <ul>
-    <li><code>WPDAI_Session_Tracking</code> - Session tracking and management</li>
-    <li><code>WPDAI_WooCommerce_Event_Tracking</code> - Event tracking</li>
+    <li><code>WPDAI_Session_Context</code> — Resolves live session identity</li>
+    <li><code>WPDAI_Event_Tracking</code> — Live event tracking</li>
+    <li><code>WPDAI_Session_Tracking</code> — Shared helpers (attribution window, cookie domain)</li>
 </ul>
 
 

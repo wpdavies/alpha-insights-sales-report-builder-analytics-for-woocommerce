@@ -2450,6 +2450,10 @@ span.wpd-colour-box {
     border-bottom-right-radius: 0px !important;
     border-bottom-left-radius: 0px !important;
 }
+.wpd-debug-tab-nav {
+    margin: 12px 0 4px;
+    padding: 0 !important;
+}
 .wpd-debug-container {
     background:white; 
     padding: 10px; 
@@ -3608,6 +3612,205 @@ a.wpd-pro-menu-item::after,
 .wpd-pro-menu-item {
     position: relative;
 }
+.wpd-debug-logs-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.wpd-debug-logs-header .wpd-delete-all-logs {
+    flex-shrink: 0;
+}
+.wpd-debug-logs-empty {
+    padding: 20px 15px;
+    margin: 0;
+}
+.wpd-debug-sessions-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+    margin-top: 16px;
+}
+.wpd-debug-sessions-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 160px;
+}
+.wpd-debug-sessions-filter span {
+    font-size: 12px;
+    font-weight: 500;
+    color: #555;
+}
+.wpd-debug-sessions-filter-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.wpd-debug-sessions-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+    color: #555;
+}
+body.wpd-debug-sessions-modal-open {
+    overflow: hidden;
+}
+.wpd-debug-sessions-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100100;
+    display: none;
+}
+.wpd-debug-sessions-modal.is-open {
+    display: block;
+}
+.wpd-debug-sessions-modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+}
+.wpd-debug-sessions-modal-dialog {
+    position: relative;
+    z-index: 1;
+    width: min(520px, calc(100% - 32px));
+    margin: 12vh auto 0;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    padding: 24px 24px 20px;
+}
+.wpd-debug-sessions-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    border: 0;
+    background: transparent;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    color: #666;
+}
+.wpd-debug-sessions-modal-dialog h2 {
+    margin: 0 32px 10px 0;
+}
+.wpd-debug-sessions-export-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+}
+.wpd-debug-sessions-table-wrap {
+    overflow-x: auto;
+}
+.wpd-debug-sessions-table .wpd-debug-sessions-col-toggle {
+    width: 36px;
+}
+.wpd-debug-session-toggle {
+    text-decoration: none !important;
+    color: #555;
+    padding: 0;
+}
+.wpd-debug-session-row {
+    cursor: pointer;
+}
+.wpd-debug-session-row.is-open {
+    background: #f7fbfe;
+}
+.wpd-debug-session-id {
+    font-size: 12px;
+}
+.wpd-debug-session-landing {
+    word-break: break-word;
+}
+.wpd-debug-session-params {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0 0;
+}
+.wpd-debug-session-params > div {
+    display: flex;
+    gap: 4px;
+    background: #f4f4f4;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 11px;
+    line-height: 1.4;
+}
+.wpd-debug-session-params dt {
+    font-weight: 600;
+    margin: 0;
+}
+.wpd-debug-session-params dd {
+    margin: 0;
+    color: #444;
+}
+.wpd-debug-session-events-row[hidden] {
+    display: none;
+}
+.wpd-debug-session-events-row td {
+    background: #fafafa;
+    padding: 16px;
+}
+.wpd-debug-session-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 10px 16px;
+    margin-bottom: 16px;
+}
+.wpd-debug-session-meta strong {
+    display: block;
+    margin-bottom: 2px;
+}
+.wpd-debug-session-meta span,
+.wpd-debug-session-meta code {
+    word-break: break-word;
+}
+.wpd-debug-session-event-json {
+    margin: 0;
+    max-height: 160px;
+    overflow: auto;
+    font-size: 11px;
+    background: #fff;
+    padding: 8px;
+    border: 1px solid #eaeaea;
+    border-radius: 4px;
+}
+.wpd-debug-sessions-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 16px;
+}
+.wpd-debug-sessions-page-ellipsis {
+    padding: 6px 4px;
+    color: #777;
+}
+.wpd-debug-sessions .wpd-order-acquisition-channel.order-status {
+    display: inline-block;
+    background: #78909c;
+    color: #fff;
+    border-radius: 4px;
+    padding: 3px 8px;
+    line-height: 1.3;
+    font-size: 12px;
+    font-weight: 500;
+}
+.wpd-debug-sessions .wpd-order-acquisition-channel.order-status.organic { background: #4dd72c; }
+.wpd-debug-sessions .wpd-order-acquisition-channel.order-status.google_ads { background: #4285f4; }
+.wpd-debug-sessions .wpd-order-acquisition-channel.order-status.microsoft_ads { background: #00a4ef; }
+.wpd-debug-sessions .wpd-order-acquisition-channel.order-status.email { background: #ed0355; }
+.wpd-debug-sessions .wpd-order-acquisition-channel.order-status.social { background: #e4405f; }
+.wpd-debug-sessions .wpd-order-acquisition-channel.order-status.direct { background: #ed4d03; }
+.wpd-debug-sessions .wpd-order-acquisition-channel.order-status.app { background: #edc203; color: #333; }
+.wpd-debug-sessions .wpd-order-acquisition-channel.order-status.referral { background: rgb(132, 103, 214); }
+.wpd-debug-sessions .wpd-order-acquisition-channel.order-status.ai_chat { background: #00acc1; }
+.wpd-debug-sessions .wpd-order-acquisition-channel.order-status.unknown { background: #9e9e9e; }
 .wpd-debug-output td {
     padding: 0px;
 }

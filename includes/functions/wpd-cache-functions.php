@@ -817,19 +817,46 @@ function wpdai_get_order_calculation_cache( $order_id ) {
  **/
 function wpdai_get_order_ids_without_calculation_cache( $limit = -1 ) {
 
-	// Get all Order IDS
-	$all_order_ids = (array) wpdai_get_all_order_ids();
+	global $wpdb;
 
-	// Get Order IDS that have a cache set
-	$order_ids_with_cache = (array) wpdai_get_order_ids_with_calculation_cache();
+	$db_interactor            = new WPDAI_Database_Interactor();
+	$order_calculations_table = $db_interactor->order_calculations_table;
+	$limit                    = is_numeric( $limit ) ? (int) $limit : -1;
 
-	// Get the difference between the two (uncached)
-	$without_cache = array_diff( $all_order_ids, $order_ids_with_cache );
+	if ( ! in_array( $order_calculations_table, $db_interactor->get_managed_tables(), true ) ) {
+		return array();
+	}
 
-	if ( is_numeric($limit) && $limit > 0 ) $without_cache = array_slice( $without_cache, 0, $limit );
+	$limit_sql = ( $limit > 0 ) ? $wpdb->prepare( ' LIMIT %d', $limit ) : '';
 
-	// Return results
-	return $without_cache;
+	if ( function_exists( 'wpdai_is_hpos_enabled' ) && wpdai_is_hpos_enabled() ) {
+		$orders_table = $wpdb->prefix . 'wc_orders';
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are trusted; limit is prepared.
+		$sql = "SELECT o.id
+			FROM {$orders_table} o
+			LEFT JOIN {$order_calculations_table} c ON c.order_id = o.id
+			WHERE c.order_id IS NULL
+			AND o.type = 'shop_order'
+			ORDER BY o.date_created_gmt DESC{$limit_sql}";
+	} else {
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are trusted; limit is prepared.
+		$sql = "SELECT p.ID
+			FROM {$wpdb->posts} p
+			LEFT JOIN {$order_calculations_table} c ON c.order_id = p.ID
+			WHERE c.order_id IS NULL
+			AND p.post_type = 'shop_order'
+			ORDER BY p.post_date_gmt DESC{$limit_sql}";
+	}
+
+	$order_ids = $wpdb->get_col( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQL assembled above with prepared limit.
+
+	if ( $wpdb->last_error ) {
+		wpdai_write_log( 'Error finding orders without calculation cache.', 'db_error' );
+		wpdai_write_log( $wpdb->last_error, 'db_error' );
+		return array();
+	}
+
+	return array_map( 'absint', array_filter( (array) $order_ids ) );
 
 }
 

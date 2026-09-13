@@ -169,31 +169,33 @@
 
 <p><strong>Note:</strong> This data is attached to WooCommerce orders, which already contain personal data (name, email, address).</p>
 
-<h4>Cookies (First-Party, Browser-Stored)</h4>
+<h4>Browser Storage (localStorage and First-Party Cookies)</h4>
+
+<p>Session identity is stored in <code>localStorage</code> first (keys prefixed with <code>wpd_ai_v2_</code>). Cookies below are written on cart/checkout in Checkout Only mode, or on first visit in Immediate mode.</p>
 
 <table>
 <tr>
-<th>Cookie Name</th>
+<th>Name</th>
 <th>What's Stored</th>
 <th>Duration</th>
 <th>Personal Data?</th>
 </tr>
 <tr>
-<td>wpd_ai_session_id</td>
-<td>Random hash (session identifier)</td>
-<td>10 minutes</td>
+<td>wpd_ai_v2_session_id / wpd_ai_session_id</td>
+<td>Random session identifier</td>
+<td>30 minutes of inactivity</td>
 <td>No</td>
 </tr>
 <tr>
-<td>wpd_ai_landing_page</td>
+<td>wpd_ai_v2_landing_page / wpd_ai_landing_page</td>
 <td>Landing URL</td>
-<td>10 minutes</td>
+<td>Attribution window (default 3 days)</td>
 <td>No (unless URL contains PII)</td>
 </tr>
 <tr>
-<td>wpd_ai_referral_source</td>
+<td>wpd_ai_v2_referral_source / wpd_ai_referral_source</td>
 <td>Referrer URL</td>
-<td>10 minutes</td>
+<td>Attribution window (default 3 days)</td>
 <td>No</td>
 </tr>
 </table>
@@ -364,7 +366,7 @@ var formData = $form.serializeArray().filter(function(field) {
 
 <p>All data is stored on our own servers and is never shared with third parties. We use this information solely to improve our website and understand which marketing channels are most effective.</p>
 
-<p>We use first-party cookies with a 10-minute expiration to track your session. These cookies do not contain personal information and are used only for analytics purposes.</p>
+<p>We use first-party browser storage (localStorage and cookies) to track your session. Session identity expires after 30 minutes of inactivity. Landing page and referral data follow the store’s attribution window. These values do not contain personal information and are used only for analytics purposes.</p>
 
 <p>If you wish to opt-out of tracking, please contact us at [email] and we can exclude your user account from analytics.</p>
 

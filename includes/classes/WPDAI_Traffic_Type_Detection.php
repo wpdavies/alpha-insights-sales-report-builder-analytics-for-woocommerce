@@ -141,15 +141,26 @@ class WPDAI_Traffic_Type_Detection {
     public $query_params = array();
 
     /**
+     * Visitor user agent used for in-app social fallback.
+     *
+     * @var string
+     */
+    public $user_agent = '';
+
+    /**
      *
      *  Contructor
      *
+     * @param string               $referrer     Referral URL.
+     * @param array<string, mixed> $query_params Landing-page query params.
+     * @param string               $user_agent   Optional visitor user agent.
      */
-    public function __construct( $referrer, $query_params = array() ) {
+    public function __construct( $referrer, $query_params = array(), $user_agent = '' ) {
 
         // Setup our referral URL
         $this->referrer = $referrer;
         $this->query_params = $query_params;
+        $this->user_agent = is_string( $user_agent ) ? sanitize_text_field( $user_agent ) : '';
 
     }
 
@@ -214,13 +225,13 @@ class WPDAI_Traffic_Type_Detection {
         $result = 'Unknown'; // Default
 
 
-        if ( $this->is_traffic_organic( $referral_url ) ) {
-
-            $result = 'Organic';
-
-        } elseif ( $this->is_traffic_paid_google( $referral_url ) ) {
+        if ( $this->is_traffic_paid_google( $referral_url ) ) {
 
             $result = 'Google Ads';
+
+        } elseif ( $this->is_traffic_organic( $referral_url ) ) {
+
+            $result = 'Organic';
 
         } elseif ( $this->is_traffic_mail( $referral_url ) ) {
 
@@ -263,7 +274,74 @@ class WPDAI_Traffic_Type_Detection {
             return $query_param_check;
         }
 
+        // Facebook / Instagram in-app browsers often strip the referrer. Only
+        // recode a session that would otherwise be Direct; click IDs and UTMs win.
+        if ( 'Direct' === $result && $this->is_in_app_social_user_agent() ) {
+            return 'Social';
+        }
+
         return $result;
+
+    }
+
+    /**
+     * Facebook / Instagram in-app browser tokens.
+     *
+     * @return array<int, string>
+     */
+    protected function get_in_app_social_user_agent_tokens() {
+
+        return array(
+            'FBAN',
+            'FB_IAB',
+            'FBIOS',
+            'FB4A',
+            'Instagram',
+        );
+
+    }
+
+    /**
+     * Whether the visitor user agent is a Facebook or Instagram in-app browser.
+     *
+     * @return bool
+     */
+    public function is_in_app_social_user_agent() {
+
+        if ( '' === $this->user_agent ) {
+            return false;
+        }
+
+        foreach ( $this->get_in_app_social_user_agent_tokens() as $token ) {
+            if ( false !== stripos( $this->user_agent, $token ) ) {
+                return true;
+            }
+        }
+
+        return false;
+
+    }
+
+    /**
+     * Pull the stored visitor user agent from session additional_data.
+     *
+     * @param mixed $additional_data JSON string or array.
+     * @return string
+     */
+    public static function user_agent_from_additional_data( $additional_data ) {
+
+        if ( is_string( $additional_data ) && '' !== $additional_data ) {
+            $decoded = json_decode( $additional_data, true );
+            if ( is_array( $decoded ) ) {
+                $additional_data = $decoded;
+            }
+        }
+
+        if ( is_array( $additional_data ) && ! empty( $additional_data['raw_user_agent_data'] ) ) {
+            return (string) $additional_data['raw_user_agent_data'];
+        }
+
+        return '';
 
     }
 
@@ -384,6 +462,8 @@ class WPDAI_Traffic_Type_Detection {
             || isset( $query_params['wbraid'] )
             || isset( $query_params['dclid'] )
             || isset( $query_params['google_cid'] )
+            || isset( $query_params['gad_source'] )
+            || isset( $query_params['gad_campaignid'] )
             || ( isset( $query_params['gclsrc'] ) && 0 === strpos( $query_params['gclsrc'], 'aw.' ) )
         ) {
             return 'Google Ads';
@@ -519,6 +599,10 @@ class WPDAI_Traffic_Type_Detection {
 
         if ( is_string($referrer) && ! empty($referrer) ) {
 
+            if ( $this->is_traffic_paid_google( $referrer ) ) {
+                return false;
+            }
+
             //Go through the organic sources
             foreach( $this->organic_sources as $searchEngine => $queries ) {
 
@@ -565,6 +649,24 @@ class WPDAI_Traffic_Type_Detection {
      * @return true if organic, false if not
      */
     public function is_traffic_paid_google( $referrer ) {
+
+        if ( ! is_string( $referrer ) || '' === $referrer ) {
+            return false;
+        }
+
+        $paid_needles = array(
+            'googleadservices.com',
+            'google.com/aclk',
+            'google.com.au/aclk',
+            'doubleclick.net',
+            'googlesyndication.com',
+        );
+
+        foreach ( $paid_needles as $needle ) {
+            if ( false !== strpos( $referrer, $needle ) ) {
+                return true;
+            }
+        }
 
         return false;
 

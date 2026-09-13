@@ -11,10 +11,10 @@
 <ul>
 <li>Starts when visitor lands on any page of your site</li>
 <li>Continues as long as visitor is active</li>
-<li>Expires after 10 minutes of inactivity</li>
+<li>Expires after 30 minutes of inactivity</li>
 <li>Each session has a unique ID</li>
 <li>Multiple sessions can belong to same visitor (returning visits)</li>
-<li>Sessions tracked via first-party cookies</li>
+<li>Sessions tracked in <code>localStorage</code>, with first-party cookies written at cart/checkout (or immediately)</li>
 </ul>
 
 <p><strong>Example session:</strong></p>
@@ -25,9 +25,9 @@
 10:06 AM - Views product page
 10:08 AM - Adds to cart
 10:10 AM - Leaves site
-10:25 AM - Session expires (15 minutes after last activity)
+10:40 AM - Session expires (30 minutes after last activity)
 
-If visitor returns at 10:30 AM, a NEW session starts.</code></pre>
+If visitor returns at 10:45 AM, a NEW session starts.</code></pre>
 
 <h3>Session Lifecycle</h3>
 
@@ -37,14 +37,14 @@ If visitor returns at 10:30 AM, a NEW session starts.</code></pre>
 
 <ol>
 <li>Visitor lands on your site</li>
-<li>Alpha Insights checks for existing session cookie</li>
-<li>No cookie found → New session created</li>
-<li>Unique session ID generated</li>
-<li>Three cookies set (10-minute expiry):
+<li>Alpha Insights checks <code>localStorage</code> for an existing session ID and last-activity timestamp</li>
+<li>None found (or older than 30 minutes) → New session created</li>
+<li>Unique session ID generated in the browser</li>
+<li>Values stored in <code>localStorage</code> (<code>wpd_ai_v2_*</code> keys). Cookies are written on cart/checkout in Checkout Only mode:
    <ul>
-   <li><code>wpd_ai_session_id</code> - Session identifier</li>
-   <li><code>wpd_ai_landing_page</code> - Landing URL with query params</li>
-   <li><code>wpd_ai_referral_source</code> - HTTP referrer</li>
+   <li><code>wpd_ai_session_id</code> - Session identifier (30-minute inactivity expiry)</li>
+   <li><code>wpd_ai_landing_page</code> - Landing URL with query params (attribution window)</li>
+   <li><code>wpd_ai_referral_source</code> - Document referrer (attribution window)</li>
    </ul>
 </li>
 <li>Session data written to database (<code>wp_wpd_ai_session_data</code> table)</li>
@@ -75,10 +75,10 @@ If visitor returns at 10:30 AM, a NEW session starts.</code></pre>
 
 <ol>
 <li>Visitor navigates to another page</li>
-<li>Alpha Insights checks for session cookie</li>
-<li>Cookie found → Continue existing session</li>
-<li>Session ID read from cookie</li>
-<li>Cookie expiry refreshed (+10 minutes from now)</li>
+<li>Alpha Insights checks <code>localStorage</code> for a session ID</li>
+<li>Recent activity found → Continue existing session</li>
+<li>Session ID read from <code>localStorage</code></li>
+<li>Last-activity timestamp refreshed</li>
 <li>Database record updated:
    <ul>
    <li><code>date_updated_gmt</code> set to current time</li>
@@ -88,7 +88,7 @@ If visitor returns at 10:30 AM, a NEW session starts.</code></pre>
 <li>New event (page view) recorded with same session_id</li>
 </ol>
 
-<p><strong>Important:</strong> Landing page and referral URL do NOT change during a session. They're set once at session start.</p>
+<p><strong>Important:</strong> Landing page and referral URL do NOT change during a session. They are set once at the start of the attribution period. A later session can reset them if you use Session Only, the window expires, or Override Attribution on New UTM Visit is on and the URL has campaign parameters. See <a href="/documentation/alpha-insights/website-traffic/attribution-window.html">Attribution Window</a>.</p>
 
 <h4>3. Session Activity</h4>
 
@@ -121,17 +121,16 @@ session_id: wpd5f4dcc3b5aa765a...
 <p><strong>Session expires when:</strong></p>
 
 <ul>
-<li>10 minutes pass with no page loads or activity</li>
-<li>Cookies expire (automatic browser behavior)</li>
-<li>User clears cookies manually</li>
-<li>Browser is closed (depends on browser settings)</li>
+<li>30 minutes pass with no page loads or activity</li>
+<li>User clears site data (<code>localStorage</code> / cookies) manually</li>
+<li>Browser is closed (cookies may persist; <code>localStorage</code> typically persists)</li>
 </ul>
 
 <p><strong>What happens at expiration:</strong></p>
 
 <ul>
-<li>Cookies deleted by browser automatically</li>
-<li>No server action needed (passive expiration)</li>
+<li>Last-activity timestamp is older than the session timeout (passive expiration)</li>
+<li>No server action needed</li>
 <li>Session record remains in database with last <code>date_updated_gmt</code></li>
 <li>Session duration calculated as: <code>date_updated_gmt - date_created_gmt</code></li>
 </ul>
@@ -144,34 +143,35 @@ session_id: wpd5f4dcc3b5aa765a...
 <li>Both sessions link to same IP (but different session IDs)</li>
 </ul>
 
-<h3>Session Timeout: Why 10 Minutes?</h3>
+<h3>Session Timeout: Why 30 Minutes?</h3>
 
-<p><strong>Reasons for 10-minute timeout:</strong></p>
+<p><strong>Reasons for 30-minute timeout:</strong></p>
 
 <ol>
-<li><strong>Industry standard:</strong> Google Analytics uses 30 minutes, but 10 is common for eCommerce</li>
-<li><strong>Balance accuracy and privacy:</strong> Long enough to capture shopping journey, short enough to respect privacy</li>
-<li><strong>Prevents abandoned session inflation:</strong> User who leaves for lunch doesn't show 2-hour session</li>
+<li><strong>Industry standard:</strong> Matches the Google Analytics default session timeout</li>
+<li><strong>Balance accuracy and privacy:</strong> Long enough to capture a shopping journey, short enough to separate distinct visits</li>
+<li><strong>Prevents abandoned session inflation:</strong> A user who leaves for lunch does not show a 2-hour session</li>
 <li><strong>Accurate conversion tracking:</strong> Clear separation between visits</li>
-<li><strong>Performance:</strong> Shorter sessions = less cookie renewal overhead</li>
 </ol>
 
-<p><strong>What 10 minutes means:</strong></p>
+<p><strong>What 30 minutes means:</strong></p>
 
 <ul>
-<li>Active browsing: Session continues indefinitely (cookies refresh each page)</li>
-<li>Idle for 10 minutes: Session expires automatically</li>
-<li>Example: Browse for 30 minutes = 1 session (as long as no 10-minute gaps)</li>
+<li>Active browsing: Session continues (last-activity timestamp refreshes each page)</li>
+<li>Idle for 30 minutes: Session expires automatically</li>
+<li>Example: Browse for 45 minutes = 1 session (as long as no 30-minute gaps)</li>
 </ul>
 
 <p><strong>Developer note:</strong> Timeout can be customized via filter:</p>
 
-<pre><code>// Change to 30 minutes
+<pre><code>// Change to 60 minutes
 add_filter('wpd_session_timeout_seconds', function($timeout) {
-  return 30 * 60; // 30 minutes
+  return 60 * 60; // 60 minutes
 });</code></pre>
 
-<h3>Cookie Management</h3>
+<h3>Browser Storage &amp; Cookie Management</h3>
+
+<p>Session identity lives in <code>localStorage</code> first (keys prefixed with <code>wpd_ai_v2_</code>). Cookies below are written on cart/checkout in Checkout Only mode, or on first visit in Immediate mode. See <a href="/documentation/alpha-insights/website-traffic/cache-safe-tracking-beta.html">Cache-Safe Event Tracking</a>.</p>
 
 <h4>Cookie Details</h4>
 
@@ -188,15 +188,15 @@ add_filter('wpd_session_timeout_seconds', function($timeout) {
 </tr>
 <tr>
 <td>Format</td>
-<td>wpd + MD5 hash + timestamp</td>
+<td>wpd + timestamp + random string (generated in JavaScript)</td>
 </tr>
 <tr>
 <td>Example</td>
-<td>wpd5f4dcc3b5aa765a1234567890</td>
+<td>wpd1712345678901abcxyz</td>
 </tr>
 <tr>
 <td>Expiry</td>
-<td>10 minutes from last activity</td>
+<td>30 minutes from last activity</td>
 </tr>
 <tr>
 <td>Domain</td>
@@ -220,10 +220,9 @@ add_filter('wpd_session_timeout_seconds', function($timeout) {
 </tr>
 </table>
 
-<p><strong>Generation algorithm:</strong></p>
-<pre><code>function generate_unique_session_id() {
-  $random_token = md5($_SERVER['HTTP_USER_AGENT'] . time());
-  return 'wpd' . $random_token . time();
+<p><strong>Generation (JavaScript):</strong></p>
+<pre><code>function generateSessionId() {
+  return 'wpd' + Date.now() + Math.random().toString(36).substring(2, 12);
 }</code></pre>
 
 <p><strong>2. wpd_ai_landing_page</strong></p>
@@ -247,11 +246,11 @@ add_filter('wpd_session_timeout_seconds', function($timeout) {
 </tr>
 <tr>
 <td>Expiry</td>
-<td>10 minutes from last activity</td>
+<td>Attribution window (Session Only, or 1–30 days)</td>
 </tr>
 <tr>
 <td>Set once</td>
-<td>Yes (only on first page, value doesn't change)</td>
+<td>Yes, until the window expires or a reset rule applies</td>
 </tr>
 <tr>
 <td>Used for</td>
@@ -288,11 +287,11 @@ add_filter('wpd_session_timeout_seconds', function($timeout) {
 </tr>
 <tr>
 <td>Expiry</td>
-<td>10 minutes from last activity</td>
+<td>Attribution window (Session Only, or 1–30 days)</td>
 </tr>
 <tr>
 <td>Set once</td>
-<td>Yes (only on first page)</td>
+<td>Yes, until the window expires or a reset rule applies</td>
 </tr>
 <tr>
 <td>Used for</td>
@@ -304,7 +303,7 @@ add_filter('wpd_session_timeout_seconds', function($timeout) {
 <ul>
 <li>Own domain referrers ignored (set to empty)</li>
 <li>Empty referrer = Direct traffic</li>
-<li>Captures HTTP_REFERER header from browser</li>
+<li>Captured from <code>document.referrer</code> in the browser</li>
 <li>Social platforms often strip referrers (use UTMs instead)</li>
 </ul>
 
@@ -428,12 +427,13 @@ add_filter('wpd_session_timeout_seconds', function($timeout) {
 
 <p><strong>How long does attribution last?</strong></p>
 
-<p>Alpha Insights supports a configurable <strong>attribution window</strong> (1–30 days). Referral URL and landing page are stored when the visitor first arrives and expire after that many days from first set—they are not updated by later activity. So attribution can extend beyond a single session: if a visitor returns within the window, the original referrer and landing page are still used.</p>
+<p>Alpha Insights supports a configurable <strong>attribution window</strong> (Session Only, or 1–30 days). Referral URL and landing page are stored when the visitor first arrives and expire after that period from first set. Multi-day options can extend beyond a single session. Session Only resets them whenever a new session starts.</p>
 
 <ul>
-<li><strong>Setting:</strong> <strong>Alpha Insights → Settings → General Settings</strong> → <strong>Attribution Window Timeout (days)</strong> (under Alpha Analytics &amp; Event Tracking)</li>
+<li><strong>Setting:</strong> <strong>Alpha Insights → Settings → General Settings</strong> → <strong>Attribution Window</strong> (under Alpha Analytics &amp; Event Tracking)</li>
 <li><strong>Default:</strong> 3 days</li>
-<li><strong>Effect:</strong> Orders and sessions are attributed to the traffic source and landing page until the window expires; after that, a new visit gets a new attribution.</li>
+<li><strong>Override Attribution on New UTM Visit:</strong> True by default. A new session with UTM tags or click IDs replaces stored landing page and referral even if the window has not expired.</li>
+<li><strong>Effect:</strong> Orders and sessions are attributed to the stored traffic source and landing page until the window expires or a reset rule applies.</li>
 </ul>
 
 <p>For full details, see <a href="/documentation/alpha-insights/website-traffic/attribution-window.html">Attribution Window</a>.</p>
@@ -445,40 +445,40 @@ add_filter('wpd_session_timeout_seconds', function($timeout) {
 Day 1, 10:05 AM - Add to cart → Checkout → Complete purchase
 Result: Order attributed to Facebook (original landing page)</code></pre>
 
-<p><strong>Scenario 2: Later purchase (session expired)</strong></p>
+<p><strong>Scenario 2: Later purchase inside a 3-day window</strong></p>
 <pre><code>Day 1, 10:00 AM - Click Facebook ad → Browse → Leave
 Day 3, 2:00 PM - Direct visit (type URL) → Complete purchase
-Result: Order attributed to Direct (new session, new attribution)</code></pre>
+Result: Order attributed to Facebook (first-touch still inside the window)</code></pre>
 
-<p><strong>Scenario 3: Multiple sessions</strong></p>
+<p><strong>Scenario 3: New session with campaign parameters (Override on)</strong></p>
 <pre><code>Day 1, 10:00 AM - Facebook ad → Browse → Leave (session expires)
-Day 1, 3:00 PM - Google search → Browse → Leave (new session, session expires)
-Day 2, 9:00 AM - Direct visit → Purchase (new session)
-Result: Order attributed to Direct (last session wins - last-click attribution)</code></pre>
+Day 2, 9:00 AM - Google ad with gclid → Purchase
+Result: Order attributed to Google (new session + tracking params replaced first-touch)</code></pre>
 
-<h4>Attribution Model: Last-Click</h4>
+<h4>Attribution Model</h4>
 
-<p><strong>Alpha Insights uses last-click attribution:</strong></p>
+<p><strong>Alpha Insights uses first-touch within the Attribution Window:</strong></p>
 
 <ul>
-<li>Order attributed to most recent session's landing page</li>
-<li>Session that contained the purchase gets credit</li>
-<li>Previous sessions and touchpoints not credited</li>
+<li>Landing page and referral are stored at first visit and reused until the window expires</li>
+<li>Session Only resets them on every new session</li>
+<li>Override Attribution on New UTM Visit (default True) replaces stored values when a new session arrives with UTM tags or click IDs</li>
+<li>The order copies whatever landing page and referral are stored at checkout</li>
 </ul>
 
-<p><strong>Why last-click?</strong></p>
+<p><strong>Why this model?</strong></p>
 <ul>
-<li>Simple and deterministic</li>
-<li>Based on actual cookies at time of purchase</li>
-<li>No complex multi-touch modeling needed</li>
-<li>Matches most analytics platforms' default</li>
+<li>Deterministic and easy to explain</li>
+<li>Based on stored landing page at time of purchase</li>
+<li>Keeps paid-click credit across return visits inside the window</li>
+<li>Optional last-touch when a later campaign URL starts a new session</li>
 </ul>
 
-<p><strong>Limitations of last-click:</strong></p>
+<p><strong>Limitations:</strong></p>
 <ul>
-<li>Doesn't credit awareness channels (Facebook ads that led to later Google search)</li>
-<li>Overvalues direct and branded search (often last touchpoint)</li>
-<li>Undervalues top-of-funnel marketing</li>
+<li>Does not split credit across multiple assisting channels</li>
+<li>Direct return visits can keep an earlier campaign’s credit until the window expires</li>
+<li>A later UTM visit can overwrite first-touch when Override is on</li>
 </ul>
 
 <p><strong>Workaround: Multi-session analysis</strong></p>
@@ -512,7 +512,7 @@ Session 3 (Day 3):
 - Events: viewed_cart, init_checkout, transaction
 - Order: Yes (Order #789)
 
-Attribution: Direct (last-click)
+Attribution with a 3-day first-touch window: Facebook (unless a later UTM session overrode it)
 Reality: Facebook awareness → Google consideration → Direct conversion</code></pre>
 
 <h3>Only track engaged sessions</h3>
@@ -576,7 +576,7 @@ session_duration: 510 seconds (8 minutes 30 seconds)</code></pre>
 
 <ul>
 <li><strong>Minimum duration:</strong> 0 seconds (single page view, immediate exit)</li>
-<li><strong>Maximum practical duration:</strong> Limited by 10-minute inactivity timeout</li>
+<li><strong>Maximum practical duration:</strong> Limited by the 30-minute inactivity timeout</li>
 <li><strong>Last page time unknown:</strong> Duration ends at last page load, not when user actually leaves</li>
 <li><strong>Example:</strong> User spends 5 minutes on last page → not counted in duration</li>
 </ul>
@@ -604,7 +604,7 @@ WHERE date_created_gmt >= DATE_SUB(NOW(), INTERVAL 30 DAY);</code></pre>
 <li>Counted by unique session IDs</li>
 <li>Precise and accurate</li>
 <li>One visitor can have multiple sessions</li>
-<li>Each visit after 10-minute gap = new session</li>
+<li>Each visit after a 30-minute gap = new session</li>
 </ul>
 
 <p><strong>Relationship:</strong></p>
@@ -751,7 +751,7 @@ JOIN events to sessions via session_id</code></pre>
 
 <pre><code>// Modify session timeout
 add_filter('wpd_session_timeout_seconds', function($timeout) {
-  return 30 * 60; // 30 minutes
+  return 60 * 60; // 60 minutes
 });
 
 // Modify session data before storage
@@ -768,7 +768,7 @@ add_action('wpd_session_updated', function($session_data) {
 <h3>Best Practices</h3>
 
 <ul>
-<li><strong>Respect 10-minute timeout:</strong> Don't encourage users to stay idle</li>
+<li><strong>Respect the 30-minute timeout:</strong> Long idle gaps start a new session</li>
 <li><strong>Use UTM parameters:</strong> Ensure accurate attribution across sessions</li>
 <li><strong>Monitor session duration:</strong> Very short = possible UX issues</li>
 <li><strong>Analyze multi-session journeys:</strong> Understand full customer path</li>
@@ -784,7 +784,7 @@ add_action('wpd_session_updated', function($session_data) {
 <p><strong>Sessions not being created:</strong></p>
 <ul>
 <li>Check if analytics is enabled</li>
-<li>Verify cookies are enabled in browser</li>
+<li>Verify cookies and <code>localStorage</code> are enabled in the browser</li>
 <li>Check if user role is excluded from tracking</li>
 <li>Verify bot detection isn't filtering legitimate users</li>
 </ul>
@@ -793,21 +793,21 @@ add_action('wpd_session_updated', function($session_data) {
 <ul>
 <li>Check site speed (slow pages = users leave)</li>
 <li>Review bounce rate (1 page view = short session)</li>
-<li>Check if timeout is too short (10 minutes default)</li>
+<li>Check if timeout is too short (30 minutes default)</li>
 </ul>
 
 <p><strong>Sessions not linking to orders:</strong></p>
 <ul>
-<li>Check if landing page cookie is set</li>
-<li>Verify cookies aren't being cleared prematurely</li>
-<li>Check if purchase happens outside 10-minute window</li>
+<li>Check Application → Local Storage for <code>wpd_ai_v2_landing_page</code> (cookies may be absent until cart/checkout)</li>
+<li>Verify site data is not being cleared prematurely</li>
+<li>Check if purchase happens after the attribution window expired</li>
 <li>Review order meta fields for attribution data</li>
 </ul>
 
 <p><strong>Multiple sessions for same user:</strong></p>
 <ul>
-<li>Expected behavior if 10+ minutes between visits</li>
-<li>Check if user is clearing cookies</li>
+<li>Expected behavior if 30+ minutes between visits</li>
+<li>Check if the user is clearing site data</li>
 <li>Verify timeout setting</li>
 <li>Consider if browser/device switching</li>
 </ul>

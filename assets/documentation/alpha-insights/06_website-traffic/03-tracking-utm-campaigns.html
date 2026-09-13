@@ -688,7 +688,7 @@ Action: Scale campaign budget gradually, monitor ROAS decline at higher spend.</
    <code>utm_source=newsletter&utm_medium=email&utm_campaign=nurture_series</code></li>
 <li>Finally searches brand and clicks Google ad:
    <code>utm_source=google&utm_medium=cpc&utm_campaign=brand_keywords</code></li>
-<li>Alpha Insights attributes order to the last session's UTMs (last-click attribution)</li>
+<li>With Override Attribution on New UTM Visit on (default), each new session that arrives with UTMs replaces stored attribution. The order uses the landing page stored at checkout.</li>
 </ol>
 
 <p><strong>To see full journey:</strong></p>
@@ -906,9 +906,9 @@ utm_campaign=spring_sale&utm_content=email_subscribers</code></pre>
 
 <p><strong>Possible causes:</strong></p>
 <ul>
-<li>Customer clicked multiple campaigns - last one gets credit (last-click attribution)</li>
-<li>Landing page cookie expired (10 minutes) - customer returned later via different source</li>
-<li>Customer cleared cookies</li>
+<li>Customer clicked multiple campaigns — a later UTM visit can replace stored attribution when Override Attribution on New UTM Visit is True</li>
+<li>Attribution window expired — customer returned later via a different source</li>
+<li>Customer cleared site data</li>
 <li>Order placed from different device</li>
 <li>UTMs not used on the link that converted</li>
 </ul>

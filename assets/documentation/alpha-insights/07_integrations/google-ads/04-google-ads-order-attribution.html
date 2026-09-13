@@ -287,15 +287,14 @@ Backup attribution: GCLID can be looked up via API if google_cid fails
 
 <h4>Cookie Lifetime and Session Tracking</h4>
 
-<p><strong>Cookie Duration:</strong> 10 minutes by default (refreshes with activity)</p>
+<p><strong>Session timeout:</strong> 30 minutes of inactivity by default. Landing page and GCLID follow the <a href='/documentation/alpha-insights/website-traffic/attribution-window.html'>Attribution Window</a> (default 3 days), not the session timeout.</p>
 
 <p><strong>What this means:</strong></p>
 <ul>
-<li>Customer clicks ad → cookie created with landing page (including GCLID)</li>
-<li>Cookie refreshes every 10 minutes while browsing</li>
-<li>If customer leaves site and returns within 10 minutes (inactive), cookie persists</li>
-<li>If inactive >10 minutes, cookie expires</li>
-<li><strong>Important:</strong> Once order is created, attribution is saved permanently to order meta</li>
+<li>Customer clicks ad → landing page (including GCLID) is stored in <code>localStorage</code> and mirrored to the <code>wpd_ai_landing_page</code> cookie at cart/checkout</li>
+<li>Session identity refreshes with activity for 30 minutes</li>
+<li>If the customer leaves and returns within the attribution window, first-touch landing page is kept unless Override Attribution on New UTM Visit resets it</li>
+<li><strong>Important:</strong> Once an order is created, attribution is saved permanently to order meta</li>
 </ul>
 
 <p><strong>Example scenario:</strong></p>
@@ -311,21 +310,20 @@ Backup attribution: GCLID can be looked up via API if google_cid fails
 
 <h4>Attribution Window</h4>
 
-<p><strong>No Fixed Attribution Window:</strong> Unlike Google's conversion tracking (which uses 30-day or 90-day windows), Alpha Insights doesn't use time-based attribution windows.</p>
+<p>Alpha Insights uses a configurable <strong>Attribution Window</strong> (Session Only, or 1–30 days; default 3 days) for how long the landing page (and GCLID) is remembered. That is separate from Google’s 30-day or 90-day conversion windows.</p>
 
-<p><strong>How it works instead:</strong></p>
+<p><strong>How it works:</strong></p>
 <ul>
-<li>Attribution based on GCLID or <code>google_cid</code> in landing page</li>
-<li>If customer's landing page contains GCLID, order is attributed to that campaign (if within 90-day API lookup window)</li>
-<li>There's no time limit between click and purchase from a tracking perspective</li>
-<li>Attribution is "last-click" based on stored landing page cookie</li>
+<li>Attribution is based on GCLID or <code>google_cid</code> in the stored landing page</li>
+<li>If the customer’s landing page contains GCLID, the order is attributed to that campaign (API lookup still has a 90-day limit)</li>
+<li>First-touch is kept for the window unless Override Attribution on New UTM Visit is True and a later session arrives with new tracking parameters</li>
 </ul>
 
 <p><strong>Practical limitation:</strong></p>
 <ul>
-<li>Cookie lifetime limits how long attribution persists (customer must order while cookie is active or soon after)</li>
+<li>Browser storage / cookies must still be present (or the session record must match) at checkout</li>
 <li>GCLID API lookup only works for orders within 90 days of the original click</li>
-<li>Most orders are attributed within hours or days of initial click</li>
+<li>Most orders are attributed within hours or days of the initial click</li>
 </ul>
 
 <h4>Retroactive Attribution</h4>
@@ -786,12 +784,12 @@ Note: Orders with GCLID but no campaign ID are marked as "unknown"
 
 <h4>JavaScript Tracking</h4>
 
-<p><strong>File:</strong> <code>wpd-alpha-insights-event-tracking.js</code></p>
+<p><strong>Files:</strong> <code>wpd-ai-client.js</code> and <code>wpd-ai-event-tracking.js</code></p>
 
 <p><strong>Key Functions:</strong></p>
 <ul>
 <li>Captures landing page URL on first page load (including GCLID)</li>
-<li>Stores in first-party cookie: <code>wpd_ai_landing_page</code></li>
+<li>Stores in <code>localStorage</code> (<code>wpd_ai_v2_landing_page</code>) and mirrors to cookie <code>wpd_ai_landing_page</code> at cart/checkout</li>
 <li>Cookie refreshes on subsequent page views</li>
 <li>Available at checkout for order attribution</li>
 <li>No modification of GCLID—preserved exactly as provided by Google</li>

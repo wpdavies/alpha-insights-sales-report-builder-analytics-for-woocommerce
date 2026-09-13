@@ -113,6 +113,7 @@ class WPDAI_Experiments_Data_Source extends WPDAI_Custom_Data_Source_Base {
 				'conversions'            => 0,
 				'conversion_rate'        => 0,
 				'revenue'                => 0,
+				'revenue_per_exposure'   => 0,
 				'aov'                    => 0,
 				'profit'                 => 0,
 				'average_profit'         => 0,
@@ -121,8 +122,9 @@ class WPDAI_Experiments_Data_Source extends WPDAI_Custom_Data_Source_Base {
 			$analytics_zero
 		);
 
-		$variant_rows     = array();
-		$daily_arms       = array();
+		$variant_rows            = array();
+		$daily_arms              = array();
+		$seen_purchase_visitors  = array();
 		$data_by_date     = array(
 			'exposures_by_date'                   => $container,
 			'conversions_by_date'                 => $container,
@@ -153,6 +155,7 @@ class WPDAI_Experiments_Data_Source extends WPDAI_Custom_Data_Source_Base {
 						'conversions'             => 0,
 						'conversion_rate'         => 0,
 						'revenue'                 => 0,
+						'revenue_per_exposure'    => 0,
 						'aov'                     => 0,
 						'profit'                  => 0,
 						'lift'                    => 0,
@@ -185,6 +188,10 @@ class WPDAI_Experiments_Data_Source extends WPDAI_Custom_Data_Source_Base {
 				$goal_type = $goals['primary']['type'];
 			}
 			if ( ! wpdai_experiments_is_pro() ) {
+				$goal_type = 'transaction';
+			}
+			// Value goals still convert on a purchase; lift is calculated from revenue / AOV.
+			if ( in_array( $goal_type, array( 'purchase_value', 'revenue_per_exposure', 'aov' ), true ) ) {
 				$goal_type = 'transaction';
 			}
 
@@ -235,6 +242,25 @@ class WPDAI_Experiments_Data_Source extends WPDAI_Custom_Data_Source_Base {
 					$variant_rows[ $key ]['_seen_sessions'][ $sid ] = 1;
 					++$totals['sessions'];
 					$metrics = isset( $session_analytics[ $sid ] ) ? $session_analytics[ $sid ] : $this->empty_analytics_counters();
+					if ( $local_date ) {
+						$daily_metrics = $metrics;
+						$visitor_id    = ! empty( $row['visitor_id'] ) ? $row['visitor_id'] : '';
+						$purchase_key  = $key . ':' . $visitor_id;
+						if (
+							(int) $daily_metrics['transactions'] < 1
+							&& '' !== $visitor_id
+							&& isset( $purchase_by_visitor[ $visitor_id ] )
+							&& empty( $seen_purchase_visitors[ $purchase_key ] )
+						) {
+							$seen_purchase_visitors[ $purchase_key ] = 1;
+							$daily_metrics['transactions']           = 1;
+							$daily_metrics['transaction_value']     += (float) $purchase_by_visitor[ $visitor_id ]['revenue'];
+						}
+						$this->increment_daily_arm_metric( $daily_arms, $row, $container, $local_date, 'add_to_carts', (int) $daily_metrics['add_to_carts'] );
+						$this->increment_daily_arm_metric( $daily_arms, $row, $container, $local_date, 'initiate_checkouts', (int) $daily_metrics['initiate_checkouts'] );
+						$this->increment_daily_arm_metric( $daily_arms, $row, $container, $local_date, 'transactions', (int) $daily_metrics['transactions'] );
+						$this->increment_daily_arm_metric( $daily_arms, $row, $container, $local_date, 'revenue', (float) $daily_metrics['transaction_value'] );
+					}
 					foreach ( $this->session_metric_sum_keys() as $metric_key ) {
 						$val = isset( $metrics[ $metric_key ] ) ? $metrics[ $metric_key ] : 0;
 						$variant_rows[ $key ][ $metric_key ] += $val;
@@ -267,9 +293,13 @@ class WPDAI_Experiments_Data_Source extends WPDAI_Custom_Data_Source_Base {
 
 		$data_by_date['lift_by_variant_by_date']            = $this->build_daily_lift_series( $daily_arms, $container );
 		$data_by_date['conversion_rate_by_variant_by_date'] = $this->build_daily_conversion_rate_series( $daily_arms, $container );
+		$progress = $data_warehouse->get_filter( 'experiments_progress' )
+			? $this->build_progress_payload( $daily_arms, $container )
+			: array();
 
 		$totals['conversion_rate']          = wpdai_calculate_percentage( $totals['conversions'], $totals['exposed'] );
 		$totals['aov']                      = $totals['conversions'] > 0 ? round( $totals['revenue'] / $totals['conversions'], 2 ) : 0;
+		$totals['revenue_per_exposure']     = wpdai_divide( $totals['revenue'], $totals['exposed'], 2 );
 		$totals['average_profit']           = $totals['conversions'] > 0 ? round( $totals['profit'] / $totals['conversions'], 2 ) : 0;
 		$totals['page_views_per_session']   = wpdai_divide( $totals['page_views'], $totals['sessions'], 2 );
 		$totals['average_session_duration'] = wpdai_divide( $totals['total_session_duration'], $totals['sessions_with_duration'], 2 );
@@ -289,6 +319,7 @@ class WPDAI_Experiments_Data_Source extends WPDAI_Custom_Data_Source_Base {
 			$variant_rows[ $key ]['sessions']                 = $session_count;
 			$variant_rows[ $key ]['conversion_rate']          = $cr;
 			$variant_rows[ $key ]['aov']                      = $row['conversions'] > 0 ? round( $row['revenue'] / $row['conversions'], 2 ) : 0;
+			$variant_rows[ $key ]['revenue_per_exposure']     = wpdai_divide( $row['revenue'], $row['exposures'], 2 );
 			$variant_rows[ $key ]['page_views_per_session']   = wpdai_divide( $row['page_views'], $session_count, 2 );
 			$variant_rows[ $key ]['average_session_duration'] = wpdai_divide( $row['total_session_duration'], $duration_n, 2 );
 			$this->apply_funnel_rates( $variant_rows[ $key ], $row['exposures'] );
@@ -310,24 +341,34 @@ class WPDAI_Experiments_Data_Source extends WPDAI_Custom_Data_Source_Base {
 
 		$is_pro = wpdai_experiments_is_pro();
 		if ( ! $is_pro ) {
-			unset( $totals['revenue'], $totals['aov'], $totals['profit'], $totals['average_profit'] );
+			unset( $totals['revenue'], $totals['revenue_per_exposure'], $totals['aov'], $totals['profit'], $totals['average_profit'] );
 			foreach ( $variant_rows as $i => $row ) {
-				unset( $variant_rows[ $i ]['revenue'], $variant_rows[ $i ]['aov'], $variant_rows[ $i ]['profit'] );
+				unset( $variant_rows[ $i ]['revenue'], $variant_rows[ $i ]['revenue_per_exposure'], $variant_rows[ $i ]['aov'], $variant_rows[ $i ]['profit'] );
 			}
 		}
 		unset( $totals['sessions_with_duration'], $totals['page_views'] );
 
-		return array(
+		$data_table = array(
+			'variants' => $variant_rows,
+		);
+		if ( ! empty( $progress ) ) {
+			$data_table['progress'] = $progress;
+		}
+
+		$payload = array(
 			'totals'           => $totals,
 			'categorized_data' => array(
 				'variants' => $categorized,
 			),
 			'data_by_date'     => $data_by_date,
-			'data_table'       => array(
-				'variants' => $variant_rows,
-			),
+			'data_table'       => $data_table,
 			'total_db_records' => count( $assignments ),
 		);
+		if ( ! empty( $progress ) ) {
+			$payload['progress'] = $progress;
+		}
+
+		return $payload;
 	}
 
 	/**
@@ -421,14 +462,20 @@ class WPDAI_Experiments_Data_Source extends WPDAI_Custom_Data_Source_Base {
 	 * @param string $metric     exposures or conversions.
 	 * @return void
 	 */
-	protected function increment_daily_arm_metric( &$daily_arms, $row, $container, $date, $metric ) {
-		if ( '' === $date || ( 'exposures' !== $metric && 'conversions' !== $metric ) ) {
+	protected function increment_daily_arm_metric( &$daily_arms, $row, $container, $date, $metric, $amount = 1 ) {
+		$allowed = array( 'exposures', 'conversions', 'add_to_carts', 'initiate_checkouts', 'transactions', 'revenue' );
+		if ( '' === $date || ! in_array( $metric, $allowed, true ) ) {
+			return;
+		}
+
+		$amount = (float) $amount;
+		if ( $amount <= 0 ) {
 			return;
 		}
 
 		$eid  = isset( $row['experiment_id'] ) ? (int) $row['experiment_id'] : 0;
 		$vkey = ! empty( $row['variant_key'] ) ? $row['variant_key'] : 'holdout';
-		if ( $eid < 1 ) {
+		if ( $eid < 1 || 'holdout' === $vkey ) {
 			return;
 		}
 
@@ -436,17 +483,117 @@ class WPDAI_Experiments_Data_Source extends WPDAI_Custom_Data_Source_Base {
 			$exp_name = ! empty( $row['experiment_name'] ) ? $row['experiment_name'] : __( 'Untitled experiment', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 			$var_name = ! empty( $row['variant_name'] ) ? $row['variant_name'] : __( 'Holdout', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 			$daily_arms[ $eid ][ $vkey ] = array(
-				'experiment_name' => $exp_name,
-				'variant_name'    => $var_name,
-				'is_control'      => ! empty( $row['is_control'] ),
-				'exposures'       => $container,
-				'conversions'     => $container,
+				'experiment_name'    => $exp_name,
+				'variant_name'       => $var_name,
+				'is_control'         => ! empty( $row['is_control'] ),
+				'exposures'          => $container,
+				'conversions'        => $container,
+				'add_to_carts'       => $container,
+				'initiate_checkouts' => $container,
+				'transactions'       => $container,
+				'revenue'            => $container,
 			);
 		}
 
 		if ( isset( $daily_arms[ $eid ][ $vkey ][ $metric ][ $date ] ) ) {
-			++$daily_arms[ $eid ][ $vkey ][ $metric ][ $date ];
+			$daily_arms[ $eid ][ $vkey ][ $metric ][ $date ] += $amount;
 		}
+	}
+
+	/**
+	 * Compact daily funnel series for the A/B test list progress chart.
+	 *
+	 * @param array $daily_arms Per-experiment arm date buckets.
+	 * @param array $container  Empty date container.
+	 * @return array
+	 */
+	protected function build_progress_payload( $daily_arms, $container ) {
+		$progress = array();
+		if ( ! is_array( $daily_arms ) || ! is_array( $container ) || empty( $container ) ) {
+			return $progress;
+		}
+
+		$dates = array_keys( $container );
+		foreach ( $daily_arms as $eid => $arms ) {
+			$eid = (int) $eid;
+			if ( $eid < 1 || ! is_array( $arms ) ) {
+				continue;
+			}
+
+			$first = null;
+			$last  = null;
+			foreach ( $dates as $date ) {
+				$has_traffic = false;
+				foreach ( $arms as $arm ) {
+					if ( ! empty( $arm['exposures'][ $date ] ) ) {
+						$has_traffic = true;
+						break;
+					}
+				}
+				if ( ! $has_traffic ) {
+					continue;
+				}
+				if ( null === $first ) {
+					$first = $date;
+				}
+				$last = $date;
+			}
+			if ( null === $first || null === $last ) {
+				continue;
+			}
+
+			$slice    = array();
+			$in_range = false;
+			foreach ( $dates as $date ) {
+				if ( $date === $first ) {
+					$in_range = true;
+				}
+				if ( $in_range ) {
+					$slice[] = $date;
+				}
+				if ( $date === $last ) {
+					break;
+				}
+			}
+			if ( empty( $slice ) ) {
+				continue;
+			}
+
+			$progress[ $eid ] = array(
+				'dates' => $slice,
+				'arms'  => array(),
+			);
+
+			foreach ( $arms as $vkey => $arm ) {
+				if ( ! is_array( $arm ) || 'holdout' === $vkey ) {
+					continue;
+				}
+				$point = array(
+					'key'                => (string) $vkey,
+					'name'               => ! empty( $arm['variant_name'] ) ? $arm['variant_name'] : (string) $vkey,
+					'is_control'         => ! empty( $arm['is_control'] ),
+					'exposures'          => array(),
+					'add_to_carts'       => array(),
+					'initiate_checkouts' => array(),
+					'transactions'       => array(),
+					'revenue'            => array(),
+				);
+				foreach ( $slice as $date ) {
+					$point['exposures'][]          = isset( $arm['exposures'][ $date ] ) ? (int) $arm['exposures'][ $date ] : 0;
+					$point['add_to_carts'][]       = isset( $arm['add_to_carts'][ $date ] ) ? (int) $arm['add_to_carts'][ $date ] : 0;
+					$point['initiate_checkouts'][] = isset( $arm['initiate_checkouts'][ $date ] ) ? (int) $arm['initiate_checkouts'][ $date ] : 0;
+					$point['transactions'][]       = isset( $arm['transactions'][ $date ] ) ? (int) $arm['transactions'][ $date ] : 0;
+					$point['revenue'][]            = isset( $arm['revenue'][ $date ] ) ? round( (float) $arm['revenue'][ $date ], 2 ) : 0;
+				}
+				$progress[ $eid ]['arms'][] = $point;
+			}
+
+			if ( empty( $progress[ $eid ]['arms'] ) ) {
+				unset( $progress[ $eid ] );
+			}
+		}
+
+		return $progress;
 	}
 
 	/**
@@ -904,7 +1051,7 @@ class WPDAI_Experiments_Data_Source extends WPDAI_Custom_Data_Source_Base {
 		$is_pro = wpdai_experiments_is_pro();
 
 		$totals = array(
-			'label'  => __( 'Experiments', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'label'  => __( 'A/B Tests', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 			'icon'   => 'analytics',
 			'totals' => array(
 				'eligible'        => array(
@@ -1026,6 +1173,13 @@ class WPDAI_Experiments_Data_Source extends WPDAI_Custom_Data_Source_Base {
 				'description' => __( 'Attributed order revenue from exposed converting visitors.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 				'pro'         => true,
 			);
+			$totals['totals']['revenue_per_exposure'] = array(
+				'label'       => __( 'Experiment - Revenue per exposure', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+				'type'        => 'currency',
+				'format'      => 'currency',
+				'description' => __( 'Attributed revenue divided by exposures, so variants with more traffic are not favoured.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+				'pro'         => true,
+			);
 			$totals['totals']['aov'] = array(
 				'label'       => __( 'Experiment - AOV', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 				'type'        => 'currency',
@@ -1044,7 +1198,7 @@ class WPDAI_Experiments_Data_Source extends WPDAI_Custom_Data_Source_Base {
 
 		$columns = array(
 			'experiment_name' => array(
-				'label' => __( 'Experiment', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+				'label' => __( 'A/B Test', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 				'type'  => 'text',
 			),
 			'variant_name'    => array(
@@ -1144,6 +1298,13 @@ class WPDAI_Experiments_Data_Source extends WPDAI_Custom_Data_Source_Base {
 				'type'   => 'currency',
 				'format' => 'currency',
 				'pro'    => true,
+			);
+			$columns['revenue_per_exposure'] = array(
+				'label'       => __( 'Experiment - Revenue per exposure', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+				'type'        => 'currency',
+				'format'      => 'currency',
+				'description' => __( 'Attributed revenue divided by exposures, so variants with more traffic are not favoured.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+				'pro'         => true,
 			);
 			$columns['aov'] = array(
 				'label'  => __( 'Experiment - AOV', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),

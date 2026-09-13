@@ -447,7 +447,8 @@ function wpdai_save_settings() {
 		if ( $attribution_timeout_in_days < 0 ) {
 			$attribution_timeout_in_days = 3;
 		}
-		$enable_legacy_event_tracking = ( isset( $_POST['wpd_ai_analytics']['enable_legacy_event_tracking'] ) ) ? intval( $_POST['wpd_ai_analytics']['enable_legacy_event_tracking'] ) : 0;
+		$override_attribution_on_new_utm = ( isset( $_POST['wpd_ai_analytics']['override_attribution_on_new_utm'] ) ) ? intval( $_POST['wpd_ai_analytics']['override_attribution_on_new_utm'] ) : 0;
+		$override_attribution_on_new_utm = ( 1 === $override_attribution_on_new_utm ) ? 1 : 0;
 		$cookie_storage_mode          = ( isset( $_POST['wpd_ai_analytics']['cookie_storage_mode'] ) ) ? sanitize_text_field( wp_unslash( $_POST['wpd_ai_analytics']['cookie_storage_mode'] ) ) : 'checkout_only';
 		if ( ! in_array( $cookie_storage_mode, array( 'checkout_only', 'immediate' ), true ) ) {
 			$cookie_storage_mode = 'checkout_only';
@@ -458,7 +459,7 @@ function wpdai_save_settings() {
 			'exclude_roles' => $exclude_roles,
 			'only_track_engaged_sessions' => $only_track_engaged_sessions,
 			'attribution_timeout_in_days' => $attribution_timeout_in_days,
-			'enable_legacy_event_tracking' => $enable_legacy_event_tracking,
+			'override_attribution_on_new_utm' => $override_attribution_on_new_utm,
 			'cookie_storage_mode' => $cookie_storage_mode,
 		);
 

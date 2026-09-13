@@ -223,11 +223,32 @@ function wpdai_setup_notice_hook() {
  */
 function wpdai_calculate_cost_profit_by_order( $order_id_or_object = null, $update_values = false, $ignore_refunds = false ) {
 
-	// Prepare Object
-	$order_calculator = new WPDAI_Order_Calculator( $order_id_or_object, $update_values, $ignore_refunds );
+	static $request_cache = array();
 
-	// Return Results
-	return $order_calculator->get_results();
+	$order_id = 0;
+	if ( is_a( $order_id_or_object, 'WC_Order' ) ) {
+		$order_id = (int) $order_id_or_object->get_id();
+	} elseif ( is_numeric( $order_id_or_object ) && $order_id_or_object > 0 ) {
+		$order_id = (int) $order_id_or_object;
+	}
+
+	$cache_key = $order_id . ':' . ( $update_values ? '1' : '0' ) . ':' . ( $ignore_refunds ? '1' : '0' );
+
+	if ( $order_id > 0 && ! $update_values && isset( $request_cache[ $cache_key ] ) ) {
+		return $request_cache[ $cache_key ];
+	}
+
+	$order_calculator = new WPDAI_Order_Calculator( $order_id_or_object, $update_values, $ignore_refunds );
+	$result           = $order_calculator->get_results();
+
+	if ( $order_id > 0 && false !== $result ) {
+		$request_cache[ $cache_key ] = $result;
+		if ( $update_values && ! $ignore_refunds ) {
+			$request_cache[ $order_id . ':0:0' ] = $result;
+		}
+	}
+
+	return $result;
 
 }
 
@@ -593,6 +614,14 @@ function wpdai_admin_page_url( $target ) {
 
 		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$expense_reports_slug;
 
+	} elseif( $target === 'purchasing' ) {
+
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$manage_expenses_slug . '&subpage=purchasing';
+
+	} elseif( $target === 'stock-planner' ) {
+
+		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$manage_expenses_slug . '&subpage=stock-planner';
+
 	} elseif( $target === 'pl-statement' ) {
 
 		return admin_url( 'admin.php') . '?page=' . WPDAI_Admin_Menu::$profit_loss_statement_slug;
@@ -629,10 +658,14 @@ function wpdai_admin_page_url( $target ) {
  *
  *	Get traffic source type
  *
+ *	@param string               $url          Referral URL.
+ *	@param array<string, mixed> $query_params Landing-page query params.
+ *	@param string               $user_agent   Optional visitor user agent.
+ *	@return string Traffic source label.
  */
-function wpdai_get_traffic_type( $url, $query_params = array() ) {
+function wpdai_get_traffic_type( $url, $query_params = array(), $user_agent = '' ) {
 
-	$traffic_class = new WPDAI_Traffic_Type_Detection( $url, $query_params );
+	$traffic_class = new WPDAI_Traffic_Type_Detection( $url, $query_params, $user_agent );
 	$traffic_source_type = $traffic_class->determine_traffic_source();
 
 	return $traffic_source_type;
@@ -1683,4 +1716,18 @@ function wpdai_get_expense_category_display_name( $term ) {
  */
 function wpdai_is_expense_record_keeping_only( $post_id ) {
 	return get_post_meta( (int) $post_id, '_wpd_record_keeping_only', true ) === '1';
+}
+
+/**
+ * Check whether an expense should appear on the Purchasing reorder list.
+ *
+ * Missing meta is treated as visible so existing repurchase URLs stay on the list.
+ *
+ * @since 5.9.2
+ *
+ * @param int $post_id Expense post ID.
+ * @return bool
+ */
+function wpdai_is_expense_on_purchasing_list( $post_id ) {
+	return get_post_meta( (int) $post_id, '_wpd_on_purchasing_list', true ) !== '0';
 }

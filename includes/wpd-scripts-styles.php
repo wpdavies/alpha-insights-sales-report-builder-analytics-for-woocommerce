@@ -71,6 +71,9 @@ function wpdai_admin_enqueue() {
 			'emailSuccess' 		=> __( 'Your email has been successfully sent.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 			'emailError' 		=> __( 'Your email was not sent.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 			'emailFailed' 		=> __( 'Email Failed', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'confirmDeleteAllLogs' => __( 'Delete all log files? This cannot be undone.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'logsDeletedEmpty' 	=> __( 'All log files have been deleted.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'logsHeaderEmpty' 	=> __( 'WP Davies Logs (0)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 		)
 	);
 	wp_localize_script( 'wpd-alpha-insights-admin', 'wpdAlphaInsights', $wpd_ai_vars );
@@ -196,6 +199,39 @@ function wpdai_admin_enqueue() {
 		if ( $is_order_edit_screen ) {
 			// Ensure the stylesheet is enqueued
 			wp_enqueue_style( 'wpd-alpha-insights-wordpress-admin' );
+
+			wp_register_script(
+				'wpd-order-browsing-history',
+				WPD_AI_URL_PATH . 'assets/js/wpd-order-browsing-history.js',
+				array( 'jquery' ),
+				WPD_AI_VER,
+				true
+			);
+			wp_localize_script(
+				'wpd-order-browsing-history',
+				'wpdAiBrowsingHistory',
+				array(
+					'ajax_url' => admin_url( 'admin-ajax.php' ),
+					'nonce'    => wp_create_nonce( WPD_AI_AJAX_NONCE_ACTION ),
+					'i18n'     => array(
+						'title'            => __( 'Browsing History', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						'loading'          => __( 'Loading customer journey…', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						'empty'            => __( 'No browsing history was found for this customer.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						'error'            => __( 'Unable to load browsing history. Please try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						'orderPlaced'      => __( 'Order Placed', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						'landingPage'      => __( 'Landing page', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						'referral'         => __( 'Referral', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						'direct'           => __( 'Direct', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						'pageViews'        => __( 'page views', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						'noPageViews'      => __( 'No page views recorded for this session.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						'close'            => __( 'Close', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						'sessionCount'     => __( 'sessions', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						'sessionStart'     => __( 'Session start', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						'sessionEnd'       => __( 'Session end', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+					),
+				)
+			);
+			wp_enqueue_script( 'wpd-order-browsing-history' );
 			
 			// Logo URL
 			$wpd_ai_logo = wpdai_get_logo_icon_url();
@@ -256,49 +292,5 @@ function wpdai_admin_enqueue() {
 			wp_add_inline_style( 'wpd-alpha-insights-wordpress-admin', $dashboard_widget_css );
 		}
 	}
-
-}
-
-/**
- *
- *	Front end enqueue
- *
- */
-add_action( 'wp_enqueue_scripts', 'wpdai_alpha_insights_frontend_scripts_styles' ); 
-function wpdai_alpha_insights_frontend_scripts_styles() {
-
-	if ( function_exists( 'wpdai_is_cache_safe_tracking_enabled' ) && wpdai_is_cache_safe_tracking_enabled() ) {
-		return;
-	}
-
-	if ( ! wpdai_is_analytics_enabled() ) {
-		return;
-	}
-
-	// Register script
-	wp_register_script( 'wpd-alpha-insights-frontend', WPD_AI_URL_PATH . 'assets/js/wpd-alpha-insights-frontend.js', array('jquery'), WPD_AI_VER, true );
-
-	// Frontend
- 	wp_enqueue_script( 'wpd-alpha-insights-frontend' );
-	wp_enqueue_script( 'wpd-ai-sessions' );
-
-	// Pass PHP vars
-	$page_id	= get_the_ID();
-	$user_id 	= get_current_user_id();
-
-	$attribution_timeout_seconds = class_exists( 'WPDAI_Session_Tracking' ) ? WPDAI_Session_Tracking::get_attribution_timeout_seconds() : ( 3 * DAY_IN_SECONDS );
-	$attribution_session_only    = class_exists( 'WPDAI_Session_Tracking' ) && WPDAI_Session_Tracking::is_session_only_attribution();
-	$session_timeout_seconds     = (int) apply_filters( 'wpd_session_timeout_seconds', 30 * MINUTE_IN_SECONDS );
-	$cookie_domain = class_exists( 'WPDAI_Session_Tracking' ) ? WPDAI_Session_Tracking::get_cookie_domain() : '';
-	$session_localize_vars = array(
-		'page_id'                       => $page_id,
-		'user_id'                       => $user_id,
-		'attribution_timeout_seconds'   => $attribution_timeout_seconds,
-		'attribution_session_only'      => $attribution_session_only ? 1 : 0,
-		'session_timeout_seconds'       => $session_timeout_seconds,
-		'cookie_domain'                 => $cookie_domain,
-	);
-	wp_localize_script( 'wpd-ai-sessions', 'wpd_ai_session_vars', $session_localize_vars );
-	wp_localize_script( 'wpd-alpha-insights-frontend', 'wpd_ai_session_vars', $session_localize_vars );
 
 }

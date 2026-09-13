@@ -1009,18 +1009,8 @@ class WPDAI_Session_Tracking {
             }
         }
 
-        // If we have tracking parameters, use the current URL as referral URL
-        // This preserves attribution even when referrer header is missing
-        if ( $has_tracking_param ) {
-            // Remove tracking parameters to get a cleaner referral URL
-            $clean_url = remove_query_arg( array_keys( $tracking_params ), $current_url );
-            
-            // Validate it's a proper URL
-            if ( filter_var( $clean_url, FILTER_VALIDATE_URL ) ) {
-                return esc_url_raw( $clean_url );
-            }
-        }
-
+        // Do not store the site's own URL as a referrer. Landing-page
+        // query params are the source of truth for tagged traffic.
         return false;
 
     }
@@ -1153,7 +1143,9 @@ class WPDAI_Session_Tracking {
         if ( isset($_COOKIE['wpd_ai_landing_page']) && ! empty($_COOKIE['wpd_ai_landing_page']) ) {
 
             // Get raw cookie value and sanitize immediately
-            $landing_page = sanitize_text_field( $_COOKIE['wpd_ai_landing_page'] );
+            $landing_page = function_exists( 'wpdai_sanitize_attribution_url' )
+                ? wpdai_sanitize_attribution_url( wp_unslash( $_COOKIE['wpd_ai_landing_page'] ) )
+                : sanitize_text_field( wp_unslash( $_COOKIE['wpd_ai_landing_page'] ) );
 
             // Try decoding if URL-encoded (may be double-encoded)
             $decoded = rawurldecode($landing_page);
@@ -1231,8 +1223,8 @@ class WPDAI_Session_Tracking {
      *
      *  Stores session in DB, shouldnt be called if we are inheriting this method.
      * 
-     *  Always update the first landing page, this can be updated later ???
-     *  Always update the dated_updated_gmt, this can be updated later
+     *  Landing page and referral are first-touch: set once, then only
+     *  upgraded from an untagged URL to a tagged campaign URL.
      * 
      *  @todo need to do more checks to prevent this running when it shouldnt
      *  @todo need to sanitize all variables that are going into the DB
@@ -1290,11 +1282,38 @@ class WPDAI_Session_Tracking {
 
         if ( $value_exists ) {
 
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is validated via Database Interactor whitelist.
+			$existing_row = $wpdb->get_row(
+				$wpdb->prepare(
+					"SELECT landing_page, referral_url FROM {$table_name} WHERE session_id = %s LIMIT 1",
+					$data['session_id']
+				),
+				ARRAY_A
+			);
+
+			$existing_landing  = ( is_array( $existing_row ) && ! empty( $existing_row['landing_page'] ) ) ? (string) $existing_row['landing_page'] : '';
+			$existing_referral = ( is_array( $existing_row ) && ! empty( $existing_row['referral_url'] ) ) ? (string) $existing_row['referral_url'] : '';
+
+			if ( function_exists( 'wpdai_choose_first_touch_landing_page' ) ) {
+				$data['landing_page'] = wpdai_choose_first_touch_landing_page( $existing_landing, $data['landing_page'] );
+			} elseif ( '' !== $existing_landing ) {
+				$data['landing_page'] = sanitize_url( $existing_landing );
+			}
+
+			if ( function_exists( 'wpdai_choose_first_touch_referral_url' ) ) {
+				$data['referral_url'] = wpdai_choose_first_touch_referral_url( $existing_referral, $data['referral_url'] );
+			} elseif ( '' !== $existing_referral ) {
+				$data['referral_url'] = sanitize_url( $existing_referral );
+			}
+
+			$this->landing_page = $data['landing_page'];
+			$this->referral_url = $data['referral_url'];
+
             $update_user = '';
             if ( $data['user_id'] > 0 ) {
                 $update_user = 'user_id = ' . (int) $data['user_id'] . ',';
             }
-            // Update date and engaged_session
+            // Update date and engaged_session; first-touch landing/referral already resolved above.
             $rows_updated = $wpdb->query(
                 $wpdb->prepare(
                     "UPDATE $table_name 

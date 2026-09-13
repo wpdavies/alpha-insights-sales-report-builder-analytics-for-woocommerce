@@ -72,7 +72,7 @@ class WPDAI_Experiments_Loader {
 	}
 
 	/**
-	 * Register the Experiments admin page.
+	 * Register the A/B Test admin page.
 	 *
 	 * @param array $child_pages Pages.
 	 * @return array
@@ -80,8 +80,8 @@ class WPDAI_Experiments_Loader {
 	public static function register_child_pages( $child_pages ) {
 		$child_pages[] = array(
 			'parent_slug'   => WPDAI_Admin_Menu::$top_level_menu_slug,
-			'page_title'    => __( 'Experiment (Beta)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
-			'menu_title'    => __( 'Experiments', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'page_title'    => __( 'A/B Test (Beta)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'menu_title'    => __( 'A/B Test', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 			'menu_slug'     => WPDAI_Admin_Menu::$experiments_slug,
 			'page_callback' => 'wpdai_experiments_page',
 			'menu_position' => 25,
@@ -90,7 +90,7 @@ class WPDAI_Experiments_Loader {
 	}
 
 	/**
-	 * Third-level Experiments menu.
+	 * Third-level A/B Test menu.
 	 *
 	 * @param array $menu_items Menu items.
 	 * @return array
@@ -99,14 +99,14 @@ class WPDAI_Experiments_Loader {
 		$base = admin_url( 'admin.php' ) . '?page=' . WPDAI_Admin_Menu::$experiments_slug;
 
 		$menu_items[ WPDAI_Admin_Menu::$experiments_slug ] = array(
-			'title'              => __( 'Experiments', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'title'              => __( 'A/B Test', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 			'url'                => $base,
 			'icon'               => null,
 			'additional_classes' => array(),
 			'menu_order'         => 25,
 			'children'           => array(
 				'all_experiments'  => array(
-					'title'              => __( 'All Experiments', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+					'title'              => __( 'All A/B Tests', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 					'url'                => $base,
 					'page'               => WPDAI_Admin_Menu::$experiments_slug,
 					'subpage'            => '',

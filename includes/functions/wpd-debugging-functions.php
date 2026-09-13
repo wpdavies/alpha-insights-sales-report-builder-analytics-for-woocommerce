@@ -366,3 +366,37 @@ function wpdai_delete_large_logs( $max_size_in_mb = 10 ) {
 	return $delete_count;
 
 }
+
+/**
+ * Delete every Alpha Insights debug log file.
+ *
+ * @return int Number of log files deleted.
+ */
+function wpdai_delete_all_debug_logs() {
+
+	$log_files    = wpdai_get_debug_log_data( false, false );
+	$deleted      = 0;
+	$real_log_dir = realpath( wpdai_debug_log_directory() );
+
+	if ( ! $real_log_dir || ! is_array( $log_files ) ) {
+		return 0;
+	}
+
+	foreach ( $log_files as $log_file ) {
+
+		if ( empty( $log_file['file_location'] ) ) {
+			continue;
+		}
+
+		$real_file_path = realpath( $log_file['file_location'] );
+
+		if ( $real_file_path && strpos( $real_file_path, $real_log_dir ) === 0 && file_exists( $real_file_path ) ) {
+			wp_delete_file( $real_file_path );
+			$deleted++;
+		}
+
+	}
+
+	return $deleted;
+
+}

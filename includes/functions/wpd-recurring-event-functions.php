@@ -339,6 +339,10 @@ function wpdai_cleanup_analytics_data( $days_ago = 30 ) {
 	$woo_events_table = $wpd_db->events_table;
 	$session_data_table = $wpd_db->session_data_table;
 
+	if ( ! in_array( $woo_events_table, $wpd_db->get_managed_tables(), true ) || ! in_array( $session_data_table, $wpd_db->get_managed_tables(), true ) ) {
+		return false;
+	}
+
 	if ( ! $days_ago ) $days_ago = 30;
 
 	$days_ago_string = '-' . strval($days_ago) . ' days';
@@ -348,89 +352,69 @@ function wpdai_cleanup_analytics_data( $days_ago = 30 ) {
 	// Number of days to check
 	$start_date = gmdate("Y-m-d H:i:s", strtotime($days_ago_string));
 
-	// Prepare query using wpdb->prepare() for security
-	$sql_query = $wpdb->prepare(
-		"SELECT * FROM $session_data_table AS session_data WHERE date_created_gmt >= %s",
-		$start_date
+	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is validated via Database Interactor whitelist.
+	$session_count = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$session_data_table} WHERE date_created_gmt >= %s",
+			$start_date
+		)
 	);
 
-	// Fetch Results
-	$results = $wpdb->get_results( $sql_query, 'ARRAY_A' );
-
-	// Sessions deleted
-	$sessions_deleted = 0;
-
-	if ( $wpdb->last_error  ) {
-
+	if ( $wpdb->last_error ) {
 		wpdai_write_log( 'Error capturing analytics data from DB, dumping the error and query.', 'db_error' );
 		wpdai_write_log( $wpdb->last_error, 'db_error' );
 		wpdai_write_log( $wpdb->last_query, 'db_error' );
-
 		return $wpdb->last_error;
-
 	}
 
-	// Do some manual cleaning on bots, crawlers, and incomplete sessions
-	if ( is_array($results) && ! empty($results) ) {
-
-		wpdai_write_log( 'Found ' . count( $results ) . ' sessions that we will check for bots, crawlers and incomplete data. ', 'db_cleanup' );
-
-		foreach( $results as $row ) {
-
-			$session_id = $row['session_id']; // Unique ID for deleting rows
-
-			// Make sure we've got a session ID
-			if ( empty($session_id) || ! is_string($session_id) ) {
-				continue;
-			}
-
-			// Remove Bots & Crawlers if they got through
-			if ( isset( $row['additional_data'] ) ) {
-
-				// If the additional data we are checking contains the user agent data
-				$additional_data = json_decode( $row['additional_data'], true );
-				if ( isset($additional_data['raw_user_agent_data']) && ! empty($additional_data['raw_user_agent_data']) ) {
-
-					$user_agent = strtolower( $additional_data['raw_user_agent_data'] );
-
-					// Remove bots
-					if ( strpos( $user_agent, 'bot') !== false ) {
-
-						// Delete the results
-						$wpdb->delete( $woo_events_table, array( 'session_id' => $session_id ) );
-						$wpdb->delete( $session_data_table, array( 'session_id' => $session_id ) );
-						$sessions_deleted++;
-						continue;
-
-					}
-
-					// Remove crawlers
-					if ( strpos( $user_agent, 'crawler') !== false ) {
-
-						// Delete the results
-						$wpdb->delete( $woo_events_table, array( 'session_id' => $session_id ) );
-						$wpdb->delete( $session_data_table, array( 'session_id' => $session_id ) );
-						$sessions_deleted++;
-						continue;
-
-					}
-
-				}
-			}
-
-			// Remove all events without landing pages
-			if ( array_key_exists('landing_page', $row) && empty($row['landing_page']) ) {
-				$wpdb->delete( $woo_events_table, array( 'session_id' => $session_id ) );
-				$wpdb->delete( $session_data_table, array( 'session_id' => $session_id ) );	
-				$sessions_deleted++;
-				continue;		
-			}
-		}
-	} else {
-
+	if ( $session_count < 1 ) {
 		wpdai_write_log( 'Didnt find any data to cleanup, check the db_error log to see if there was an issue capturing data. ', 'db_cleanup' );
-
+	} else {
+		wpdai_write_log( 'Found ' . $session_count . ' sessions that we will check for bots, crawlers and incomplete data. ', 'db_cleanup' );
 	}
+
+	$junk_where = 's.date_created_gmt >= %s AND ( s.landing_page IS NULL OR s.landing_page = %s OR s.additional_data LIKE %s OR s.additional_data LIKE %s )';
+
+	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are validated via Database Interactor whitelist.
+	$wpdb->query(
+		$wpdb->prepare(
+			"DELETE e FROM {$woo_events_table} e
+			INNER JOIN {$session_data_table} s ON s.session_id = e.session_id
+			WHERE {$junk_where}",
+			$start_date,
+			'',
+			'%bot%',
+			'%crawler%'
+		)
+	);
+
+	if ( $wpdb->last_error ) {
+		wpdai_write_log( 'Error capturing analytics data from DB, dumping the error and query.', 'db_error' );
+		wpdai_write_log( $wpdb->last_error, 'db_error' );
+		wpdai_write_log( $wpdb->last_query, 'db_error' );
+		return $wpdb->last_error;
+	}
+
+	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are validated via Database Interactor whitelist.
+	$wpdb->query(
+		$wpdb->prepare(
+			"DELETE s FROM {$session_data_table} s
+			WHERE {$junk_where}",
+			$start_date,
+			'',
+			'%bot%',
+			'%crawler%'
+		)
+	);
+
+	if ( $wpdb->last_error ) {
+		wpdai_write_log( 'Error capturing analytics data from DB, dumping the error and query.', 'db_error' );
+		wpdai_write_log( $wpdb->last_error, 'db_error' );
+		wpdai_write_log( $wpdb->last_query, 'db_error' );
+		return $wpdb->last_error;
+	}
+
+	$sessions_deleted = (int) $wpdb->rows_affected;
 
 	// Logging sessions deleted
 	if ( $sessions_deleted > 0 ) {
@@ -441,62 +425,40 @@ function wpdai_cleanup_analytics_data( $days_ago = 30 ) {
 
 	wpdai_write_log( 'Now we\'ll just remove any sessions or events that don\'t have corresponding data in the other table.', 'db_cleanup' );
 
-	// Events stored that have no session data
-	$sql_query = "SELECT session_id
-	FROM $woo_events_table
-	WHERE session_id NOT IN
-		(SELECT session_id 
-		FROM $session_data_table)
-	AND date_created_gmt >= '$start_date' GROUP BY session_id";
+	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are validated via Database Interactor whitelist.
+	$wpdb->query(
+		$wpdb->prepare(
+			"DELETE e FROM {$woo_events_table} e
+			LEFT JOIN {$session_data_table} s ON s.session_id = e.session_id
+			WHERE s.session_id IS NULL
+			AND e.date_created_gmt >= %s",
+			$start_date
+		)
+	);
 
-	// Execute Query
-	$results = $wpdb->get_results( $sql_query, 'ARRAY_A' );
-	if ( $wpdb->last_error  ) {
-
+	if ( $wpdb->last_error ) {
 		wpdai_write_log( 'Error capturing analytics data from DB, dumping the error and query.', 'db_error' );
 		wpdai_write_log( $wpdb->last_error, 'db_error' );
 		wpdai_write_log( $wpdb->last_query, 'db_error' );
-
 		return $wpdb->last_error;
-
-	}
-	if ( is_array($results) && ! empty($results) ) {
-		foreach( $results as $array_key => $row ) {
-			$session_id = $row['session_id']; // Unique ID for deleting rows
-			if ( ! empty($session_id) && is_string($session_id) ) {
-				$wpdb->delete( $woo_events_table, array( 'session_id' => $session_id ) );
-				$wpdb->delete( $session_data_table, array( 'session_id' => $session_id ) );	
-			}
-		}
 	}
 
-	// Session stored that has no event data
-	$sql_query = "SELECT session_id
-	FROM $session_data_table
-	WHERE session_id NOT IN
-		(SELECT session_id 
-		FROM $woo_events_table)
-	AND date_created_gmt >= '$start_date' GROUP BY session_id";
+	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are validated via Database Interactor whitelist.
+	$wpdb->query(
+		$wpdb->prepare(
+			"DELETE s FROM {$session_data_table} s
+			LEFT JOIN {$woo_events_table} e ON e.session_id = s.session_id
+			WHERE e.session_id IS NULL
+			AND s.date_created_gmt >= %s",
+			$start_date
+		)
+	);
 
-	// Execute Query
-	$results = $wpdb->get_results( $sql_query, 'ARRAY_A' );
-	if ( $wpdb->last_error  ) {
-
+	if ( $wpdb->last_error ) {
 		wpdai_write_log( 'Error capturing analytics data from DB, dumping the error and query.', 'db_error' );
 		wpdai_write_log( $wpdb->last_error, 'db_error' );
 		wpdai_write_log( $wpdb->last_query, 'db_error' );
-
 		return $wpdb->last_error;
-
-	}
-	if ( is_array($results) && ! empty($results) ) {
-		foreach( $results as $array_key => $row ) {
-			$session_id = $row['session_id']; // Unique ID for deleting rows
-			if ( ! empty($session_id) && is_string($session_id) ) {
-				$wpdb->delete( $woo_events_table, array( 'session_id' => $session_id ) );
-				$wpdb->delete( $session_data_table, array( 'session_id' => $session_id ) );	
-			}
-		}
 	}
 
 	wpdai_write_log( 'Cleanup complete, your analytics database has now been cleaned.', 'db_cleanup' );

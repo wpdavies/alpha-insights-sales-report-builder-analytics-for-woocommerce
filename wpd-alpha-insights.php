@@ -7,13 +7,13 @@
  * Author:              WP Davies
  * Author URI:          https://wpdavies.dev/
  *
- * Version:             	2.1.0
+ * Version:             	2.2.0
  * Requires at least:   	5.0
  * Tested up to:        	7.1
  * Requires PHP: 			7.4
  * Requires Plugins: 		woocommerce
  * WC requires at least: 	3.0
- * WC tested up to: 		11.0
+ * WC tested up to: 		11.1
  *
  * License:             GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -39,7 +39,7 @@ defined( 'ABSPATH' ) || exit;
 
 // Pro-owned version (not shared with Free). Used when Free has already claimed WPD_AI_VER this request.
 if ( ! defined( 'WPD_AI_PRO_PACKAGE_VERSION' ) ) {
-	define( 'WPD_AI_PRO_PACKAGE_VERSION', '5.9.0' );
+	define( 'WPD_AI_PRO_PACKAGE_VERSION', '5.10.7' );
 }
 
 class WPD_Alpha_Insights_Free_Plugin {
@@ -174,9 +174,9 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		// Alpha Insights Meta
 		if ( ! defined('WPD_AI_VER') ) define( 'WPD_AI_VER', WPD_AI_PRO_PACKAGE_VERSION );
-		if ( ! defined('WPD_AI_CACHE_VERSION') ) define( 'WPD_AI_CACHE_VERSION', '5.9.0' ); // Follows along pro versioning
+		if ( ! defined('WPD_AI_CACHE_VERSION') ) define( 'WPD_AI_CACHE_VERSION', '5.10.4' ); // Follows along pro versioning
 		if ( ! defined('WPD_AI_CACHE_UPDATE_REQUIRED_VER') ) define( 'WPD_AI_CACHE_UPDATE_REQUIRED_VER', '5.8.0' ); // version this up as cache deletes are required
-		if ( ! defined('WPD_AI_DB_VERSION') ) define( 'WPD_AI_DB_VERSION', '5.9.0' );
+		if ( ! defined('WPD_AI_DB_VERSION') ) define( 'WPD_AI_DB_VERSION', '5.10.7' );
 		if ( ! defined('WPD_AI_PRODUCT_ID') ) define( 'WPD_AI_PRODUCT_ID', 8330 );
 		
 		// Security Constants
@@ -870,14 +870,15 @@ class WPD_Alpha_Insights_Free_Plugin {
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-data-fetch-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-date-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-debugging-functions.php' );
+		require_once( WPD_AI_PATH . 'includes/functions/wpd-debug-session-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-webhook-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-one-off-events-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-recurring-event-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-report-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-settings-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-deprecated.php');
-		require_once( WPD_AI_PATH . 'includes/analytics-v2/wpd-analytics-v2-functions.php' );
-		require_once( WPD_AI_PATH . 'includes/analytics-v2/WPDAI_Analytics_V2_Loader.php' );
+		require_once( WPD_AI_PATH . 'includes/analytics/wpd-analytics-functions.php' );
+		require_once( WPD_AI_PATH . 'includes/analytics/WPDAI_Analytics_Loader.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-subscription-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/emails/wpd-email-functions.php' );
 		require_once( WPD_AI_PATH . 'includes/functions/wpd-custom-cost-functions.php' );

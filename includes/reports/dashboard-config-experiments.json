@@ -1,7 +1,7 @@
 {
   "dashboard_id": "experiments",
-  "name": "A/B Experiments",
-  "description": "Exposures, conversions, lift, and funnel rates for Alpha Insights experiments.",
+  "name": "A/B Tests",
+  "description": "Exposures, conversions, lift, and funnel rates for Alpha Insights A/B tests.",
   "filters": {
     "date_from": null,
     "date_to": null,
@@ -13,7 +13,7 @@
   "updated_at": 1787400453,
   "menu_order": "55",
   "report_category": "website_traffic",
-  "version_number": "1.4",
+  "version_number": "1.6",
   "appear_in_menu": true,
   "realtime_data": false,
   "rows": [
@@ -144,6 +144,7 @@
                   "transactions",
                   "average_session_duration",
                   "revenue",
+                  "revenue_per_exposure",
                   "aov",
                   "significant"
                 ]

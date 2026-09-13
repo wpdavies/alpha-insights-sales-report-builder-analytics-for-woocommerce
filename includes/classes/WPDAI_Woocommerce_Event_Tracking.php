@@ -6,7 +6,9 @@
  * @version 2.0.0
  * @author WPDavies
  * @link https://wpdavies.dev/
- * @deprecated 5.6.6 Use WPDAI_Event_Tracking_V2 (cache-safe tracking, enabled by default).
+ *
+ * Shared server-side event helpers used by WPDAI_Event_Tracking.
+ * Frontend tracking is always loaded by the analytics loader.
  *
  */
 defined( 'ABSPATH' ) || exit;
@@ -50,62 +52,7 @@ class WPDAI_WooCommerce_Event_Tracking {
 	 *
 	 */
 	public function __construct() {
-
-		if ( function_exists( 'wpdai_is_cache_safe_tracking_enabled' ) && wpdai_is_cache_safe_tracking_enabled() ) {
-			return;
-		}
-
-		if ( ! has_action( 'admin_notices', 'wpdai_legacy_tracking_deprecation_notice' ) ) {
-			add_action( 'admin_notices', 'wpdai_legacy_tracking_deprecation_notice' );
-		}
-
-		if ( ! wpdai_is_analytics_enabled() ) {
-			$this->event_tracking_enabled = 0;
-		}
-
-		// Load script -> always add tracking script to get around cache issues
-		add_action( 'wp_enqueue_scripts', array($this, 'register_event_tracking_script') );
-
-		// Setup props
-		$this->settings = wpdai_get_analytics_settings(); // Default return empty array
-		$this->only_track_engaged_sessions = ( isset($this->settings['only_track_engaged_sessions']) ) ? intval($this->settings['only_track_engaged_sessions']) : 0;
-
-		// If we are going to track events, setup the hooks
-		if ( $this->event_tracking_enabled == 1 ) {
-
-			// Set API URL for calls
-			$this->api_url = '/wp-json/' . $this->api_namespace . '/' . $this->api_endpoint;
-
-			// Setup object info, after things are setup though
-			add_action( 'template_redirect', array( $this, 'setup_object_type_id' ), 1 );
-
-			// Track add to cart via server
-			add_action( 'woocommerce_add_to_cart', array( $this, 'db_track_product_add_to_cart' ), 10, 6 );
-
-			// Track products purchased via server - using payment complete hook for reliability
-			add_action( 'woocommerce_thankyou', array($this, 'db_track_products_purchased_thankyou_page'), 10, 1 ); // Track orders using two methods, in case one fails
-			add_action( 'woocommerce_order_status_changed', array( $this, 'db_track_products_purchased_on_order_status_change' ), 20, 4 ); // Track orders using order status change hook for reliability
-			add_action( 'woocommerce_order_status_changed', array( $this, 'db_track_failed_orders' ), 30, 4 );
-
-			// Track logins via server -> Wordpress API Only
-			add_action( 'wp_login', array($this, 'db_track_logins'), 100 ); // wp api
-			add_action( 'woocommerce_customer_login', 'db_track_logins', 100 ); // wc api
-			add_action( 'wp_logout', array($this, 'db_track_logouts'), 100, 1 ); // both api
-
-			// Track account creation via server
-			add_action( 'woocommerce_created_customer', array($this, 'db_track_account_created'), 100, 3 ); // wc api
-
-			// Used for tracking clicks
-			add_action( 'woocommerce_before_shop_loop_item', array($this, 'add_product_id_to_product_loop_item'), 10 );
-
-			// Used for tracking clicks -> not used for now but may be helpful
-			add_filter( 'woocommerce_post_class', array($this, 'add_class_to_loop_item'), 10, 2 );
-
-			// WooCommerce Events API
-			add_action( 'rest_api_init', array( $this, 'register_wpd_ai_events_api' ) );
-
-		}
-
+		// Frontend hooks are registered by WPDAI_Event_Tracking.
 	}
 
 	/**
@@ -115,6 +62,10 @@ class WPDAI_WooCommerce_Event_Tracking {
 	 * 
 	 **/
 	public static function get_instance() {
+
+		if ( class_exists( 'WPDAI_Event_Tracking' ) ) {
+			return WPDAI_Event_Tracking::get_instance();
+		}
 
         if ( self::$instance === null ) {
             self::$instance = new self();
@@ -250,12 +201,22 @@ class WPDAI_WooCommerce_Event_Tracking {
 				$response['success'] = $insert_result['success'];
 				$response['message'] = $insert_result['message'];
 				$response['code'] = $insert_result['code'];
-				$response['data'] = $payload;
+				$response['data'] = array(
+					'event_type' => isset( $payload['event_type'] ) ? sanitize_text_field( $payload['event_type'] ) : '',
+					'session_id' => isset( $payload['session_id'] ) ? sanitize_text_field( $payload['session_id'] ) : '',
+				);
+
+				static $checkout_page_id = null;
+				static $cart_page_id     = null;
+				if ( null === $checkout_page_id ) {
+					$checkout_page_id = function_exists( 'wc_get_page_id' ) ? (int) wc_get_page_id( 'checkout' ) : 0;
+					$cart_page_id     = function_exists( 'wc_get_page_id' ) ? (int) wc_get_page_id( 'cart' ) : 0;
+				}
 				
 				// Track additional events for page_view
 				if ( $payload['event_type'] == 'page_view' && is_numeric($payload['object_id']) && $insert_result['success'] ) {
 
-					if ( intval($payload['object_id']) == wc_get_page_id('checkout') ) {
+					if ( intval($payload['object_id']) == $checkout_page_id && ! wpdai_is_order_received_url( isset( $payload['page_href'] ) ? $payload['page_href'] : '' ) ) {
 
 						$payload['event_type'] = 'init_checkout';
 						$checkout_result = $this->insert_event( $payload );
@@ -266,9 +227,9 @@ class WPDAI_WooCommerce_Event_Tracking {
 						} else {
 							$response['message'] = __( 'Page view tracked, but checkout initiation failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 						}
-						$response['data'] = $payload;
+						$response['data']['event_type'] = 'init_checkout';
 
-					} else if ( intval($payload['object_id']) == wc_get_page_id('cart') ) {
+					} else if ( intval($payload['object_id']) == $cart_page_id ) {
 
 						$payload['event_type'] = 'viewed_cart_page';
 						$cart_result = $this->insert_event( $payload );
@@ -279,7 +240,7 @@ class WPDAI_WooCommerce_Event_Tracking {
 						} else {
 							$response['message'] = __( 'Page view tracked, but cart page view failed.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 						}
-						$response['data'] = $payload;
+						$response['data']['event_type'] = 'viewed_cart_page';
 
 					}
 				}
@@ -293,7 +254,7 @@ class WPDAI_WooCommerce_Event_Tracking {
 					'success' => false,
 					'message' => __( 'Unexpected response format from event insertion.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 					'code' => 'unexpected_response',
-					'data' => $payload
+					'data' => array()
 				);
 				$status_code = 500;
 			}
@@ -445,7 +406,7 @@ class WPDAI_WooCommerce_Event_Tracking {
 			);
 		}
 
-		$db_interactor 			= new WPDAI_Database_Interactor();
+		$db_interactor 			= WPDAI_Database_Interactor::instance();
 		$table_name 			= $db_interactor->events_table;
 
 		// Cant be overriden
@@ -1227,37 +1188,13 @@ class WPDAI_WooCommerce_Event_Tracking {
 	 * 
 	 **/
 	public function register_event_tracking_script() {
-
-		$this->enable_logging = apply_filters( 'wpd_ai_event_tracking_enable_logging', $this->enable_logging );
-
-		// Setup JS Tracking - see wpd-alpha-insights-event-tracking.js
-		wp_register_script( 'wpd-alpha-insights-event-tracking', WPD_AI_URL_PATH . 'assets/js/wpd-alpha-insights-event-tracking.js', array( 'jquery' ), WPD_AI_VER, true );
-
-		$wpd_ai_event_tracking_params = array(
-			'api_endpoint' => $this->api_url,
-			'current_post_type' => $this->object_type,
-			'current_post_id' => $this->object_id,
-			'track_engaged_sessions' => $this->only_track_engaged_sessions,
-			'event_tracking_enabled' => $this->event_tracking_enabled,
-			'analytics_event_tracking_token' => wpdai_get_analytics_event_tracking_token(), // This is used to protect the API from CSRF attacks
-			'enbable_event_tracking_logging' => $this->enable_logging,
-			'ajax_url' => admin_url('admin-ajax.php'),
-			'attribution_timeout_seconds' => WPDAI_Session_Tracking::get_attribution_timeout_seconds(),
-			'cookie_domain' => WPDAI_Session_Tracking::get_cookie_domain(),
-		);
-
-		// Server vars to pass onto frontend
-		wp_localize_script( 'wpd-alpha-insights-event-tracking', 'wpdAlphaInsightsEventTracking', $wpd_ai_event_tracking_params );
-		wp_enqueue_script( 'wpd-alpha-insights-event-tracking' );
-
-		return $wpd_ai_event_tracking_params;
-
+		return array();
 	}
 
 	/**
 	 *
 	 *	Add class to product loop item to track clicks
-	 *  @see wpd-alpha-insights-event-tracking.js	 
+	 *  @see assets/js/analytics/wpd-ai-event-tracking.js
 	 * 
 	 */
 	public function add_class_to_loop_item( $classes, $product ) {
@@ -1276,7 +1213,7 @@ class WPDAI_WooCommerce_Event_Tracking {
 	/**
 	 *
 	 *	Add an element to product loop item so that we can detect product ID on click
-	 *  @see wpd-alpha-insights-event-tracking.js
+	 *  @see assets/js/analytics/wpd-ai-event-tracking.js
 	 *
 	 */
 	public function add_product_id_to_product_loop_item() {
@@ -1299,10 +1236,11 @@ class WPDAI_WooCommerce_Event_Tracking {
 		// Defaults
 		$data = array();
 
-		// Preference the referer in case we are using an AJAX call or it's been triggered from somewhere else
-		$referral_url = wpdai_get_referral_url_raw();
-		if ( isset($referral_url) && ! empty($referral_url) ) {
-			$data['page_href'] = $referral_url;
+		$origin_url = function_exists( 'wpdai_get_event_origin_url' )
+			? wpdai_get_event_origin_url( '', (int) $product_id )
+			: '';
+		if ( '' !== $origin_url ) {
+			$data['page_href'] = $origin_url;
 		}
 
 		$data['object_type'] 		= 'product';
@@ -1345,6 +1283,60 @@ class WPDAI_WooCommerce_Event_Tracking {
 		$insert = $this->insert_event($data);
 		return $insert;
 		
+	}
+
+	/**
+	 * Track a product removed from the cart.
+	 *
+	 * @param string   $cart_item_key Cart item key.
+	 * @param WC_Cart  $cart          Cart object.
+	 * @return array<string, mixed>|false
+	 */
+	public function db_track_product_remove_from_cart( $cart_item_key, $cart ) {
+		if ( ! is_object( $cart ) || '' === (string) $cart_item_key ) {
+			return false;
+		}
+
+		$item = array();
+		if ( isset( $cart->cart_contents[ $cart_item_key ] ) && is_array( $cart->cart_contents[ $cart_item_key ] ) ) {
+			$item = $cart->cart_contents[ $cart_item_key ];
+		} elseif ( isset( $cart->removed_cart_contents[ $cart_item_key ] ) && is_array( $cart->removed_cart_contents[ $cart_item_key ] ) ) {
+			$item = $cart->removed_cart_contents[ $cart_item_key ];
+		}
+
+		$product_id   = isset( $item['product_id'] ) ? (int) $item['product_id'] : 0;
+		$variation_id = isset( $item['variation_id'] ) ? (int) $item['variation_id'] : 0;
+		$quantity     = isset( $item['quantity'] ) ? (int) $item['quantity'] : 1;
+
+		if ( ! $product_id && ! $variation_id ) {
+			return false;
+		}
+
+		$data = array(
+			'object_type'     => 'product',
+			'event_type'      => 'remove_from_cart',
+			'event_quantity'  => max( 1, $quantity ),
+			'product_id'      => $product_id,
+			'object_id'       => $product_id ? $product_id : $variation_id,
+			'variation_id'    => $variation_id,
+			'additional_data' => array(
+				'cart_id' => $cart_item_key,
+			),
+		);
+
+		$origin_url = function_exists( 'wpdai_get_event_origin_url' )
+			? wpdai_get_event_origin_url( '', $product_id )
+			: '';
+		if ( '' !== $origin_url ) {
+			$data['page_href'] = $origin_url;
+		}
+
+		$product = wc_get_product( $variation_id ? $variation_id : $product_id );
+		if ( $product ) {
+			$data['event_value'] = (float) $product->get_price() * max( 1, $quantity );
+		}
+
+		return $this->insert_event( $data );
 	}
 
 	/**
@@ -1396,6 +1388,3 @@ class WPDAI_WooCommerce_Event_Tracking {
 	}
 
 }
-
-// Init
-$WPDAI_WooCommerce_Event_Tracking = new WPDAI_WooCommerce_Event_Tracking();

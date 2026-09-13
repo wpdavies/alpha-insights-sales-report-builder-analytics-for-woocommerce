@@ -360,6 +360,98 @@ jQuery(document).ready(function($) {
 
     });
 
+    // Delete all log files
+    $('.wpd-delete-all-logs').click(function(e) {
+
+        e.preventDefault();
+
+        var confirmMessage = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.confirmDeleteAllLogs)
+            ? wpdAlphaInsights.strings.confirmDeleteAllLogs
+            : 'Delete all log files? This cannot be undone.';
+
+        if ( ! confirm( confirmMessage ) ) {
+            return;
+        }
+
+        var $button = $(this);
+        var $table = $button.closest('.wpd-debug-output');
+        var ajaxUrl = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.ajax_url)
+            ? wpdAlphaInsights.ajax_url
+            : '';
+
+        if ( $button.prop('disabled') || ! ajaxUrl ) {
+            return;
+        }
+
+        $button.prop('disabled', true);
+
+        wpdPopNotification( 'loading', 'Processing...', 'We are working on it!' );
+
+        var data = {
+            'action': 'wpd_delete_all_logs',
+            'url'   : window.location.href,
+            'nonce' : (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.nonce) ? wpdAlphaInsights.nonce : ''
+        };
+
+        $.post(ajaxUrl, data, function( response ) {
+
+            if (typeof response === 'string') {
+                try {
+                    response = JSON.parse( response );
+                } catch(e) {
+                    $button.prop('disabled', false);
+                    wpdPopNotification( 'fail', 'Hm, Something Is Not Quite Right', 'Invalid response from server.' );
+                    return;
+                }
+            }
+
+            if ( response.success ) {
+
+                var message = response.message || (response.data && response.data.message) || 'Your request has been succesfully completed.';
+                var emptyText = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.logsDeletedEmpty)
+                    ? wpdAlphaInsights.strings.logsDeletedEmpty
+                    : 'All log files have been deleted.';
+                var emptyHeader = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.logsHeaderEmpty)
+                    ? wpdAlphaInsights.strings.logsHeaderEmpty
+                    : 'WP Davies Logs (0)';
+
+                $table.find('.wpd-debug-logs-title').text( emptyHeader );
+                $table.find('.wpd-debug-log-wrapper').empty().append(
+                    $('<p class="wpd-meta wpd-debug-logs-empty"></p>').text( emptyText )
+                );
+
+                wpdPopNotification( 'success', 'Success!', message );
+
+            } else {
+
+                $button.prop('disabled', false);
+                var errorMessage = (response.data && response.data.message) ? response.data.message : (response.message || 'Your action could not be complete.');
+                wpdPopNotification( 'fail', 'Hm, Something Is Not Quite Right', errorMessage );
+
+            }
+
+        }).fail(function( jqXHR ) {
+
+            $button.prop('disabled', false);
+            var errorMessage = 'Your action could not be complete.';
+            if (jqXHR.responseText) {
+                try {
+                    var errorResponse = JSON.parse(jqXHR.responseText);
+                    if (errorResponse.data && errorResponse.data.message) {
+                        errorMessage = errorResponse.data.message;
+                    } else if (errorResponse.message) {
+                        errorMessage = errorResponse.message;
+                    }
+                } catch(e) {
+                    // Keep default message.
+                }
+            }
+            wpdPopNotification( 'fail', 'Hm, Something Is Not Quite Right', errorMessage );
+
+        });
+
+    });
+
     // Delete Log Files
     $('.wpd-delete-log').click(function(e) {
 
@@ -1408,5 +1500,89 @@ jQuery(document).ready(function($) {
             }
             wpdPopNotification( 'fail', emailFailedText, errorMessage );
         });
+    });
+});
+jQuery(document).ready(function($) {
+    var $sessions = $('.wpd-debug-sessions');
+    if ( ! $sessions.length ) {
+        return;
+    }
+
+    function applySessionFilters() {
+        var url = new URL( window.location.href );
+        url.searchParams.set( 'tab', 'sessions' );
+        url.searchParams.set( 'session_from', $('#wpd-debug-session-from').val() || '' );
+        url.searchParams.set( 'session_to', $('#wpd-debug-session-to').val() || '' );
+
+        var source = $('#wpd-debug-session-source').val() || '';
+        if ( source ) {
+            url.searchParams.set( 'session_source', source );
+        } else {
+            url.searchParams.delete( 'session_source' );
+        }
+
+        url.searchParams.delete( 'paged' );
+        window.location.href = url.toString();
+    }
+
+    $sessions.on('click', '.wpd-debug-sessions-apply', function(e) {
+        e.preventDefault();
+        applySessionFilters();
+    });
+
+    $sessions.on('keydown', '#wpd-debug-session-from, #wpd-debug-session-to, #wpd-debug-session-source', function(e) {
+        if ( e.key === 'Enter' ) {
+            e.preventDefault();
+            applySessionFilters();
+        }
+    });
+
+    $sessions.on('click', '.wpd-debug-session-row', function(e) {
+        if ( $(e.target).closest('a').length ) {
+            return;
+        }
+
+        var $row = $(this);
+        var targetId = $row.data('session-row');
+        var $panel = targetId ? $('#' + targetId) : $();
+        var $toggle = $row.find('.wpd-debug-session-toggle');
+
+        if ( ! $panel.length ) {
+            return;
+        }
+
+        var isOpen = ! $panel.prop('hidden');
+        $panel.prop('hidden', isOpen);
+        $row.toggleClass('is-open', ! isOpen);
+        $toggle.attr('aria-expanded', isOpen ? 'false' : 'true');
+        $toggle.find('.dashicons').toggleClass('dashicons-arrow-right-alt2', isOpen).toggleClass('dashicons-arrow-down-alt2', ! isOpen);
+    });
+
+    var $exportModal = $('#wpd-debug-sessions-export-modal');
+
+    function openSessionsExportModal() {
+        $exportModal.removeAttr('hidden').addClass('is-open');
+        $('body').addClass('wpd-debug-sessions-modal-open');
+    }
+
+    function closeSessionsExportModal() {
+        $exportModal.attr('hidden', 'hidden').removeClass('is-open');
+        $('body').removeClass('wpd-debug-sessions-modal-open');
+    }
+
+    $sessions.on('click', '.wpd-debug-sessions-export', function(e) {
+        e.preventDefault();
+        openSessionsExportModal();
+    });
+
+    $sessions.on('click', '[data-wpd-sessions-export-close]', function(e) {
+        e.preventDefault();
+        closeSessionsExportModal();
+    });
+
+    $(document).on('keydown.wpdDebugSessionsExport', function(e) {
+        if ( e.key === 'Escape' && $exportModal.hasClass('is-open') ) {
+            closeSessionsExportModal();
+        }
     });
 });

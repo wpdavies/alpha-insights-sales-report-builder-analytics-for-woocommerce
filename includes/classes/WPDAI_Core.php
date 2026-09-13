@@ -620,7 +620,7 @@ class WPDAI_Core {
 
 		// Other Calculations
 		$query_params 				= wpdai_get_query_params( $landing_page );
-		$traffic_source 			= wpdai_get_traffic_type( $referral, $query_params );
+		$traffic_source 			= wpdai_get_traffic_type( $referral, $query_params, $order->get_customer_user_agent() );
 
 		// Haven't really loaded anything in yet
 		if ( $order->get_status() == 'auto-draft'  ) {
@@ -640,36 +640,9 @@ class WPDAI_Core {
 			// Customer Details
 			if ( is_string( $billing_email ) && ! empty( $billing_email ) ) {
 
-				// Call the data warehouse for this customer
-				$data_warehouse = wpdai_data_warehouse( 
-					array(
-						'date_preset' => 'all_time',
-						'data_filters' => array(
-							'orders' => array(
-								'billing_email' => array( $billing_email )
-							)
-						)
-					) 
-				);
-
-				// Fetch order data via warehouse's single entry point (Sales data source).
-				$data_warehouse->fetch_data( array( 'orders' ) );
-				$customer_order_data = $data_warehouse->get_data( 'orders', 'totals' );
-
-				// Safety check the data warehouse
-				if ( is_array( $customer_order_data ) && ! empty( $customer_order_data ) ) {
-
-					$order_count = $customer_order_data['total_order_count'];
-					$lifetime_value = $customer_order_data['total_order_revenue'];
-					$average_order_value = $customer_order_data['average_order_revenue'];
-
-				} else {
-
-					$order_count 			= wpdai_customer_order_count_by_email_address($billing_email); // Review this
-					$lifetime_value			= wpdai_customer_lifetime_value_by_email_address($billing_email);
-					$average_order_value 	= wpdai_customer_average_order_value_by_email_address($billing_email);
-
-				}
+				$order_count         = wpdai_customer_order_count_by_email_address( $billing_email );
+				$lifetime_value      = wpdai_customer_lifetime_value_by_email_address( $billing_email );
+				$average_order_value = wpdai_customer_average_order_value_by_email_address( $billing_email );
 
 			}
 
@@ -833,7 +806,8 @@ class WPDAI_Core {
 					</tbody>
 				</table>
 			</div>
-			<div class="wpd-order-customer-activity wpd-stats-grid">
+			<div class="wpd-order-customer-activity">
+			<div class="wpd-stats-grid">
 			<div class="wpd-order-stat">
 					<div class="wpd-order-stat-data wpd-statistic"><?php echo esc_html( ucfirst($new_returning_customer) ); ?></div>
 					<div class="wpd-order-stat-label wpd-meta">New vs Returning</div>
@@ -858,6 +832,10 @@ class WPDAI_Core {
 					<div class="wpd-order-stat-data wpd-statistic"><?php echo esc_html( $conversion_rate ); ?></div>
 					<div class="wpd-order-stat-label wpd-meta">Conversion Rate</div>
 				</div>
+			</div>
+			<button type="button" class="button wpd-browsing-history-btn" data-order-id="<?php echo esc_attr( (string) $order_id ); ?>">
+				<?php esc_html_e( 'Browsing History', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
+			</button>
 			</div>
 			<div class="wpd-grid-footer wpd-grid-full-span">
 				<p style="float:left;">You can use the arrows in the top right corner to reposition this dashboard.<br>Don't want this dashboard? Open the screen options at the top of this page and uncheck Alpha Insights Dashboard.</p>
@@ -1253,7 +1231,9 @@ class WPDAI_Core {
 			if ( ! empty( $_COOKIE['wpd_ai_landing_page'] ) ) {
 
 				// Collect landing page
-				$landing_page = sanitize_text_field( $_COOKIE['wpd_ai_landing_page'] );
+				$landing_page = function_exists( 'wpdai_sanitize_attribution_url' )
+					? wpdai_sanitize_attribution_url( wp_unslash( $_COOKIE['wpd_ai_landing_page'] ) )
+					: sanitize_text_field( wp_unslash( $_COOKIE['wpd_ai_landing_page'] ) );
 
 				// Normal data
 				$order->update_meta_data( '_wpd_ai_landing_page', $landing_page );
@@ -1276,7 +1256,7 @@ class WPDAI_Core {
 
 			if ( ! empty( $_COOKIE['wpd_ai_referral_source'] ) ) {
 				$referral_source = $order->get_meta( '_wpd_ai_referral_source' );
-				if ( empty($referral_source) ) $order->update_meta_data( '_wpd_ai_referral_source', sanitize_text_field( $_COOKIE['wpd_ai_referral_source'] ) );
+				if ( empty($referral_source) ) $order->update_meta_data( '_wpd_ai_referral_source', function_exists( 'wpdai_sanitize_attribution_url' ) ? wpdai_sanitize_attribution_url( wp_unslash( $_COOKIE['wpd_ai_referral_source'] ) ) : sanitize_text_field( wp_unslash( $_COOKIE['wpd_ai_referral_source'] ) ) );
 				$updated = true;
 			}
 

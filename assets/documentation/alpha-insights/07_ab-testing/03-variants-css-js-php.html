@@ -1,6 +1,6 @@
 <h2>Variants, CSS, JS, and PHP</h2>
 
-<p>Every experiment has at least a <strong>Control</strong> and a <strong>Treatment</strong>. Control is the current experience. Treatments are the changes you want to measure. Free is limited to those two arms. Pro can add more variants (A/B/n) and set each arm’s traffic weight.</p>
+<p>Every A/B test has at least a <strong>Control</strong> and a <strong>Treatment</strong>. Control is the current experience. Treatments are the changes you want to measure. Free is limited to those two arms. Pro can add more variants (A/B/n) and set each arm’s traffic weight.</p>
 
 <h3>What belongs on each arm</h3>
 <ul>
@@ -17,7 +17,7 @@
 <li><strong>PHP (Pro)</strong> is evaluated on the same request after a syntax check. Invalid snippets are skipped and logged; they are not executed.</li>
 </ul>
 
-<p>That server-side timing is why targeted URLs cannot be fully page-cached while a test is running — the first HTML response has to include the correct variant. See <a href='/documentation/alpha-insights/experiments/page-cache-and-running-tests.html'>Page Cache and Running Tests</a>.</p>
+<p>That server-side timing is why targeted URLs cannot be fully page-cached while a test is running — the first HTML response has to include the correct variant. See <a href='/documentation/alpha-insights/ab-testing/page-cache-and-running-tests.html'>Page Cache and Running Tests</a>.</p>
 
 <h3>Writing CSS and JS</h3>
 <ul>
@@ -36,11 +36,11 @@
 }</code></pre>
 
 <h3>Theme and plugin branching</h3>
-<p>Helpers work on the storefront after assignment. They return false / null for holdout visitors and for anyone not in that experiment. Full reference: <a href='/documentation/alpha-insights/experiments/developer-helpers.html'>Developer Helpers</a>.</p>
+<p>Helpers work on the storefront after assignment. They return false / null for holdout visitors and for anyone not in that experiment. Full reference: <a href='/documentation/alpha-insights/ab-testing/developer-helpers.html'>Developer Helpers</a>.</p>
 
 <h3>Related</h3>
 <ul>
-<li><a href='/documentation/alpha-insights/experiments/creating-an-experiment.html'>Creating an Experiment</a></li>
-<li><a href='/documentation/alpha-insights/experiments/previewing-and-qa.html'>Previewing and QA</a></li>
-<li><a href='/documentation/alpha-insights/experiments/free-vs-pro.html'>Free vs Pro</a></li>
+<li><a href='/documentation/alpha-insights/ab-testing/creating-an-ab-test.html'>Creating an A/B Test</a></li>
+<li><a href='/documentation/alpha-insights/ab-testing/previewing-and-qa.html'>Previewing and QA</a></li>
+<li><a href='/documentation/alpha-insights/ab-testing/free-vs-pro.html'>Free vs Pro</a></li>
 </ul>

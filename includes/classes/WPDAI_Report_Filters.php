@@ -920,7 +920,7 @@ class WPDAI_Report_Filters {
         $results = array_filter( $results );
 
         // Manually place an option for standard events
-        array_push( $results, 'product_page_view', 'form_submit', 'init_checkout', 'checkout_error', 'log_in', 'log_out', 'page_view', 'product_purchase', 'transaction', 'product_click', 'viewed_cart_page', 'viewed_checkout_page', 'add_to_cart' );
+        array_push( $results, 'product_page_view', 'form_submit', 'init_checkout', 'checkout_error', 'log_in', 'log_out', 'page_view', 'product_purchase', 'transaction', 'product_click', 'viewed_cart_page', 'viewed_checkout_page', 'add_to_cart', 'remove_from_cart' );
 
         // Sort alphabetically -> ignoring cases
         usort( $results, 'strnatcasecmp' );

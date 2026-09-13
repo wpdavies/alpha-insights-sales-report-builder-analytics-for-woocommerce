@@ -1,6 +1,6 @@
 <?php
 /**
- * Cache plugin compatibility for cache-safe analytics v2.
+ * Cache plugin compatibility for cache-safe analytics.
  *
  * @package Alpha Insights
  */
@@ -17,10 +17,6 @@ class WPDAI_Cache_Compatibility {
 	 * @return void
 	 */
 	public static function init() {
-		if ( ! wpdai_is_cache_safe_tracking_enabled() ) {
-			return;
-		}
-
 		add_filter( 'rocket_cache_reject_cookies', array( __CLASS__, 'filter_rocket_cache_reject_cookies' ), 20 );
 		add_filter( 'litespeed_vary_cookies', array( __CLASS__, 'filter_litespeed_vary_cookies' ), 20 );
 	}
@@ -38,7 +34,7 @@ class WPDAI_Cache_Compatibility {
 			'wpd_ai_engaged_session',
 		);
 
-		return (array) apply_filters( 'wpd_ai_v2_cache_ignore_cookies', $cookies );
+		return (array) wpdai_apply_analytics_filter( 'wpd_ai_cache_ignore_cookies', 'wpd_ai_v2_cache_ignore_cookies', $cookies );
 	}
 
 	/**
@@ -48,7 +44,7 @@ class WPDAI_Cache_Compatibility {
 	 * @return array
 	 */
 	public static function filter_rocket_cache_reject_cookies( $cookies ) {
-		if ( 'checkout_only' !== wpdai_get_analytics_v2_cookie_storage_mode() ) {
+		if ( 'checkout_only' !== wpdai_get_analytics_cookie_storage_mode() ) {
 			return $cookies;
 		}
 
@@ -66,7 +62,7 @@ class WPDAI_Cache_Compatibility {
 	 * @return array
 	 */
 	public static function filter_litespeed_vary_cookies( $cookies ) {
-		if ( 'checkout_only' !== wpdai_get_analytics_v2_cookie_storage_mode() ) {
+		if ( 'checkout_only' !== wpdai_get_analytics_cookie_storage_mode() ) {
 			return $cookies;
 		}
 

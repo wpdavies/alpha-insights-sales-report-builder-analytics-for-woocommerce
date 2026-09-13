@@ -104,7 +104,7 @@ https://yourstore.com/products?utm_source=facebook&meta_cid={{campaign.id}}
 <li>Facebook automatically replaces <code>{{campaign.id}}</code> with the actual campaign ID (e.g., <code>23851234567890123</code>)</li>
 <li>Your visitor lands on: <code>https://yourstore.com/products?meta_cid=23851234567890123</code></li>
 <li>Alpha Insights JavaScript captures the landing page URL</li>
-<li>URL stored in cookie: <code>wpd_ai_landing_page</code></li>
+<li>URL stored in <code>localStorage</code> and mirrored to cookie <code>wpd_ai_landing_page</code> at cart/checkout</li>
 <li>At checkout, Alpha Insights extracts <code>meta_cid=23851234567890123</code> from the landing page</li>
 <li>Campaign ID <code>23851234567890123</code> saved to order meta: <code>_wpd_ai_meta_campaign_id</code></li>
 </ol>
@@ -115,32 +115,30 @@ https://yourstore.com/products?utm_source=facebook&meta_cid={{campaign.id}}
 
 <h4>Cookie Lifetime and Session Tracking</h4>
 
-<p><strong>Cookie Duration:</strong> 10 minutes by default</p>
+<p><strong>Session timeout:</strong> 30 minutes of inactivity by default. Landing page and <code>meta_cid</code> follow the <a href='/documentation/alpha-insights/website-traffic/attribution-window.html'>Attribution Window</a> (default 3 days).</p>
 
 <p><strong>What this means:</strong></p>
 <ul>
-<li>Customer clicks ad and lands on your store → cookie created</li>
-<li>Cookie refreshes every 10 minutes of activity</li>
-<li>If customer leaves and returns within 10 minutes (inactive), cookie persists</li>
-<li>If customer leaves for >10 minutes (inactive), cookie expires</li>
-<li><strong>However:</strong> Once order is created, attribution is permanently saved to order meta (never expires)</li>
+<li>Customer clicks ad and lands on your store → landing page is stored in <code>localStorage</code></li>
+<li>Session identity refreshes with activity for 30 minutes</li>
+<li>If the customer leaves and returns within the attribution window, first-touch landing page is kept unless Override Attribution on New UTM Visit resets it</li>
+<li><strong>However:</strong> Once an order is created, attribution is permanently saved to order meta (never expires)</li>
 </ul>
 
-<p><strong>Important:</strong> Orders are attributed based on <em>first landing page</em> from the cookie. If a customer clicks a Facebook ad, browses your site, leaves, then returns directly (without clicking an ad again), the order will still be attributed to the original Facebook campaign as long as they complete checkout within a reasonable timeframe.</p>
+<p><strong>Important:</strong> Orders are attributed based on the stored landing page. If a customer clicks a Facebook ad, browses, leaves, then returns directly, the order is still attributed to the original Facebook campaign as long as checkout happens inside the attribution window (and a later UTM visit does not override it).</p>
 
 <h4>Attribution Window</h4>
 
-<p><strong>No Fixed Attribution Window:</strong> Alpha Insights doesn't use time-based attribution windows like "7-day click" or "30-day view."</p>
+<p>Alpha Insights uses a configurable <strong>Attribution Window</strong> (Session Only, or 1–30 days; default 3 days). That is how long the landing page (and <code>meta_cid</code>) is remembered.</p>
 
-<p><strong>How it works instead:</strong></p>
+<p><strong>How it works:</strong></p>
 <ul>
-<li>Attribution is based on the <code>meta_cid</code> parameter in the landing page URL</li>
+<li>Attribution is based on the <code>meta_cid</code> parameter in the stored landing page URL</li>
 <li>If the customer's landing page contains <code>meta_cid</code>, the order is attributed to that campaign</li>
-<li>There's no time limit between click and purchase (could be same day or weeks later)</li>
-<li>Attribution is "last-click" based on the stored landing page cookie</li>
+<li>First-touch is kept for the window unless Override Attribution on New UTM Visit is True and a later session arrives with new tracking parameters</li>
 </ul>
 
-<p><strong>Why this matters:</strong> A customer could click your ad in January, and if they return in March and place an order (and still have the landing page data), it would be attributed to that campaign. In practice, cookies expire, so most attribution happens within days or weeks of the initial click.</p>
+<p><strong>Why this matters:</strong> A customer could click your ad and return days later; if landing-page data is still within the window, the order is attributed to that campaign. In practice most attribution happens within days of the initial click.</p>
 
 <h4>Retroactive Attribution (Last 30 Days)</h4>
 
@@ -475,13 +473,13 @@ Returns: Array of order data indexed by campaign ID
 
 <h4>JavaScript Tracking</h4>
 
-<p><strong>File:</strong> <code>wpd-alpha-insights-event-tracking.js</code></p>
+<p><strong>Files:</strong> <code>wpd-ai-client.js</code> and <code>wpd-ai-event-tracking.js</code></p>
 
 <p><strong>Key Functions:</strong></p>
 <ul>
 <li>Captures landing page URL on first page load</li>
-<li>Stores in first-party cookie: <code>wpd_ai_landing_page</code></li>
-<li>Cookie refreshes on subsequent page views</li>
+<li>Stores in <code>localStorage</code> (<code>wpd_ai_v2_landing_page</code>) and mirrors to cookie <code>wpd_ai_landing_page</code> at cart/checkout</li>
+<li>Session activity refreshes on subsequent page views</li>
 <li>Available at checkout for order attribution</li>
 </ul>
 

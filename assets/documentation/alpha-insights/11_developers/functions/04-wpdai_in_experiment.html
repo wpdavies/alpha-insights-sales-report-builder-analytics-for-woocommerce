@@ -23,7 +23,7 @@
 <td>$experiment_slug</td>
 <td>string</td>
 <td>Yes</td>
-<td>Experiment slug from <strong>Experiments → Edit</strong> (not the display name).</td>
+<td>A/B test slug from <strong>A/B Test → Edit</strong> (not the display name).</td>
 </tr>
 <tr>
 <td>$variant_key</td>
@@ -56,13 +56,13 @@
 <h4>Notes</h4>
 <ul>
 <li>Call this on or after <code>wp</code>. Assignment has not run yet on earlier hooks such as <code>plugins_loaded</code>.</li>
-<li>Always wrap with <code>function_exists()</code> so the theme stays safe if Experiments is not loaded.</li>
+<li>Always wrap with <code>function_exists()</code> so the theme stays safe if A/B Testing is not loaded.</li>
 <li>Authorized preview query args force a variant and this helper follows them. Preview does not write experiment events.</li>
-<li>See the Experiments guide for assignment, cache, and QA: <a href='/documentation/alpha-insights/experiments/developer-helpers.html'>Developer Helpers</a>.</li>
+<li>See the A/B Testing guide for assignment, cache, and QA: <a href='/documentation/alpha-insights/ab-testing/developer-helpers.html'>Developer Helpers</a>.</li>
 </ul>
 
 <h3>Related</h3>
 <ul>
 <li><a href='/documentation/alpha-insights/developers/functions/wpdai_get_experiment_variant.html'>wpdai_get_experiment_variant</a></li>
-<li><a href='/documentation/alpha-insights/experiments/what-are-experiments.html'>What Are Experiments?</a></li>
+<li><a href='/documentation/alpha-insights/ab-testing/what-are-ab-tests.html'>What Are A/B Tests?</a></li>
 </ul>

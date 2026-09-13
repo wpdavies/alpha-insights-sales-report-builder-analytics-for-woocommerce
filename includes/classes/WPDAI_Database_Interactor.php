@@ -34,11 +34,19 @@ class WPDAI_Database_Interactor {
     public $experiment_assignments_table = '';
     public $table_definitions            = array();
 
-    /** 
+    /**
+     * Request-level singleton so insert/event paths do not reconstruct this object.
      *
-     *   Init
-     * 
-     **/
+     * @return self
+     */
+    public static function instance() {
+        static $instance = null;
+        if ( null === $instance ) {
+            $instance = new self();
+        }
+        return $instance;
+    }
+
     public function __construct() {
 
         $this->define_props();
@@ -55,7 +63,7 @@ class WPDAI_Database_Interactor {
         global $wpdb;
 
         $this->plugin_db_version            = WPD_AI_DB_VERSION;
-        $this->installed_db_version         = get_option( 'wpd_ai_db_version' );
+        $this->installed_db_version         = self::get_cached_installed_db_version();
         $this->session_data_table           = $wpdb->prefix . 'wpd_ai_session_data';
         $this->events_table                 = $wpdb->prefix . 'wpd_ai_woocommerce_events';
         $this->product_impressions_table    = $wpdb->prefix . 'wpd_ai_product_impressions'; // Deprecated
@@ -64,6 +72,19 @@ class WPDAI_Database_Interactor {
         $this->experiment_variants_table    = $wpdb->prefix . 'wpd_ai_experiment_variants';
         $this->experiment_assignments_table = $wpdb->prefix . 'wpd_ai_experiment_assignments';
 
+    }
+
+    /**
+     * Cache the installed schema version for the request.
+     *
+     * @return string|false
+     */
+    private static function get_cached_installed_db_version() {
+        static $cached_version = null;
+        if ( null === $cached_version ) {
+            $cached_version = get_option( 'wpd_ai_db_version' );
+        }
+        return $cached_version;
     }
 
     /**
@@ -628,7 +649,9 @@ class WPDAI_Database_Interactor {
         // Session data table indexes
         $this->add_new_index( $session_data_table, 'session_id' ); // Used in WHERE session_id IN (...)
         $this->add_new_index( $session_data_table, 'date_created_gmt' ); // Used for date range queries
+        $this->add_new_index( $session_data_table, 'date_updated_gmt' ); // Used for recent-session reuse
         $this->add_new_index( $session_data_table, 'ip_address' ); // Used in WHERE ip_address IN (...) subqueries
+        $this->add_composite_index( $session_data_table, 'idx_ip_date_updated', array( 'ip_address', 'date_updated_gmt' ) );
         $this->add_new_index( $session_data_table, 'user_id' ); // Used in WHERE user_id IN (...) subqueries
         $this->add_new_index( $session_data_table, 'device_category' ); // Used in WHERE device_category IN (...) subqueries
         

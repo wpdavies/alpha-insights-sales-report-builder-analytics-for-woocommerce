@@ -100,9 +100,18 @@
 <p><strong>What it does:</strong> When enabled, page views are only tracked if there is mouse movement or clicks, and reporting only includes sessions that are marked as engaged or have duration greater than 0 seconds.</p>
 <p><strong>Options:</strong> True or False. Use True to focus on meaningful engagement and reduce noise from bots or quick bounces.</p>
 
-<h4>Attribution Window Timeout (days)</h4>
-<p><strong>What it does:</strong> How many days the attribution window stays open. The attribution window stores the landing page and referral source for the session for this period.</p>
-<p><strong>Options:</strong> 1, 2, 3, 4, 5, 6, 7, 14, or 30 days. Choose based on your typical sales cycle (e.g. 7 or 14 days for most stores).</p>
+<h4>Attribution Window</h4>
+<p><strong>What it does:</strong> How long the landing page and referral source are remembered. Session Only resets attribution whenever a new session starts (after the session inactivity timeout, default 30 minutes). Multi-day options keep first-touch attribution across return visits within the selected period.</p>
+<p><strong>Options:</strong> Session Only, or 1, 2, 3, 4, 5, 6, 7, 14, or 30 days. The default is 3 days. Choose based on your typical sales cycle (for example 7 or 14 days for most stores).</p>
+<p>See the <a href='/documentation/alpha-insights/website-traffic/attribution-window.html'>Attribution Window</a> guide for examples.</p>
+
+<h4>Override Attribution on New UTM Visit</h4>
+<p><strong>What it does:</strong> When a returning visitor starts a new session with UTM tags or click IDs (<code>gclid</code>, <code>fbclid</code>, and similar), replace the stored landing page and referral. Leave this off to keep first-touch attribution for the attribution window.</p>
+<p><strong>Options:</strong> True (default) or False.</p>
+
+<h4>Cookie Storage Mode</h4>
+<p><strong>What it does:</strong> Cache-safe analytics stores session identity in the browser. Checkout Only keeps analytics data in <code>localStorage</code> until cart or checkout for best page-cache performance. Immediate writes cookies on first visit.</p>
+<p><strong>Options:</strong> Checkout Only (recommended) or Immediate. See <a href='/documentation/alpha-insights/website-traffic/cache-safe-tracking-beta.html'>Cache-Safe Event Tracking</a>.</p>
 
 <h3>WordPress Admin Display Extensions</h3>
 <p>These options control which Alpha Insights columns appear in the standard WordPress admin list tables. The checkboxes display or hide extensions to the default columns.</p>

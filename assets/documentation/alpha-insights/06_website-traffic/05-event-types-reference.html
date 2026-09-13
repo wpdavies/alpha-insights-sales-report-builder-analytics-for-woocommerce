@@ -75,7 +75,7 @@
 
 <p><strong>Special handling:</strong></p>
 <ul>
-<li>If page is checkout page (ID matches <code>wc_get_page_id('checkout')</code>), also triggers <code>init_checkout</code> event</li>
+<li>If page is checkout page (ID matches <code>wc_get_page_id('checkout')</code>) and is not the order-received thank you page, also triggers <code>init_checkout</code> event</li>
 <li>If page is cart page (ID matches <code>wc_get_page_id('cart')</code>), also triggers <code>viewed_cart_page</code> event</li>
 <li>Product pages automatically set product_id field</li>
 </ul>
@@ -351,8 +351,9 @@ LIMIT 20;</code></pre>
 
 <p><strong>When triggered:</strong></p>
 <ul>
-<li>Automatically when checkout page is viewed</li>
+<li>Automatically when the checkout page is viewed</li>
 <li>Derived from <code>page_view</code> event on checkout page</li>
+<li>Not fired on the order-received thank you page (<code>/order-received/{order_id}/</code>)</li>
 <li>Processed server-side in REST API handler</li>
 </ul>
 
@@ -806,9 +807,9 @@ wpd_send_woocommerce_event($event_data);</code></pre>
 <ul>
 <li><strong>Rate limiting:</strong> Max 60 events per minute per IP</li>
 <li><strong>No retroactive tracking:</strong> Only tracks from enablement forward</li>
-<li><strong>Cookie dependency:</strong> Requires cookies enabled</li>
+<li><strong>Browser storage:</strong> Requires JavaScript and <code>localStorage</code> (cookies at cart/checkout in Checkout Only mode)</li>
 <li><strong>JavaScript dependency:</strong> Most events require JS enabled</li>
-<li><strong>Session-based:</strong> Events tied to sessions (10-minute timeout)</li>
+<li><strong>Session-based:</strong> Events tied to sessions (30-minute inactivity timeout)</li>
 <li><strong>Single-domain:</strong> Doesn't track cross-domain behavior</li>
 </ul>
 

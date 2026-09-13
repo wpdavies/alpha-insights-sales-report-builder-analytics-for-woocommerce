@@ -109,10 +109,11 @@ https://yourstore.com?utm_source=google&utm_medium=cpc</code></pre>
 <li><strong>Query parameter check first:</strong> <code>fbclid</code> (Facebook Click ID) forces Social classification</li>
 <li><strong>Query parameter check:</strong> <code>utm_source=fb</code> or <code>utm_source=ig</code> or <code>utm_source=Facebook</code></li>
 <li><strong>Referrer domain match:</strong> Checks if referrer contains facebook.com, instagram.com, etc.</li>
+<li><strong>In-app browser fallback:</strong> Facebook or Instagram in-app user agents (<code>FBAN</code>, <code>FB_IAB</code>, <code>FBIOS</code>, <code>FB4A</code>, <code>Instagram</code>) are classified as Social when the session would otherwise be Direct</li>
 <li><strong>Social vs Paid Social:</strong> If utm_medium=cpc also present, may be classified differently</li>
 </ol>
 
-<p><strong>Technical note:</strong> Facebook and Instagram often strip referrer data for privacy. Using <code>fbclid</code> is automatic, but UTM parameters are more reliable for other platforms.</p>
+<p><strong>Technical note:</strong> Facebook and Instagram often strip referrer data for privacy. Click IDs and UTMs still take priority. The in-app user-agent fallback only recodes Direct sessions; it does not override Google Ads, Email, or other tagged sources. Google Search App (<code>GSA/</code>) is not treated as Social.</p>
 
 <p><strong>Typical characteristics:</strong></p>
 
@@ -247,7 +248,7 @@ https://yourstore.com?utm_source=google&utm_medium=cpc</code></pre>
 <ul>
 <li>Typed URL directly into browser</li>
 <li>Bookmarks or saved links</li>
-<li>Links from native apps (email apps, messaging apps) that strip referrers</li>
+<li>Links from native apps (email apps, messaging apps) that strip referrers. Facebook and Instagram in-app browsers are recoded to Social when no other source is present.</li>
 <li>HTTPS → HTTP transitions (referrer lost)</li>
 <li>Shortened URLs without tracking (bit.ly, etc.)</li>
 <li>Links from PDFs or documents</li>
@@ -390,6 +391,7 @@ https://yourstore.com?utm_source=google&utm_medium=cpc</code></pre>
     <li>External domain → Referral</li>
     </ul>
 </li>
+<li><strong>In-app social fallback:</strong> Facebook / Instagram in-app user agent + result is still Direct → Social</li>
 </ol>
 
 <p><strong>Why query parameters take priority:</strong> They're explicit and intentional (you added them), so they're more reliable than referrer data which can be stripped or missing.</p>
@@ -771,16 +773,16 @@ Actions:
 <p><strong>How Alpha Insights handles this:</strong></p>
 
 <ul>
-<li><strong>Session Attribution:</strong> Each session is attributed to the source that started it</li>
-<li><strong>Order Attribution:</strong> Orders are attributed to the landing page and referrer from the order session</li>
-<li><strong>Typically last-click attribution:</strong> The final session before purchase gets credit</li>
+<li><strong>Session Attribution:</strong> Each session stores a landing page and referrer (first-touch within the Attribution Window)</li>
+<li><strong>Order Attribution:</strong> Orders copy the stored landing page and referrer at checkout</li>
+<li><strong>UTM override:</strong> A new session with campaign parameters can replace first-touch when Override Attribution on New UTM Visit is True</li>
 </ul>
 
 <p><strong>What this means:</strong></p>
 <ul>
-<li>Facebook might assist conversions without getting credit</li>
-<li>Direct traffic may be overvalued (it's often the final touchpoint)</li>
-<li>Email and organic often get proper credit (high intent, direct conversion)</li>
+<li>With a multi-day window, the first campaign can still receive credit on a later direct purchase</li>
+<li>A later UTM or click-ID session can replace that first-touch when Override Attribution is on</li>
+<li>Use the Website Sessions report to see assisting channels that did not get order credit</li>
 </ul>
 
 <p><strong>To understand full journey:</strong></p>
@@ -915,7 +917,7 @@ Direct → Best for:
 
 <p><strong>PHP Class:</strong> <code>WPDAI_Traffic_Type_Detection</code></p>
 
-<p><strong>Detection method:</strong> <code>determine_traffic_source($referral_url, $query_parameters)</code></p>
+<p><strong>Detection method:</strong> <code>determine_traffic_source()</code> on <code>WPDAI_Traffic_Type_Detection</code>, which accepts a referral URL, landing-page query parameters, and an optional user agent</p>
 
 <p><strong>Process flow:</strong></p>
 
@@ -928,6 +930,7 @@ Direct → Best for:
 <li><code>is_traffic_social()</code> - Matches against $social_sources array</li>
 <li><code>is_traffic_direct()</code> - Returns true if referrer is empty or null</li>
 <li>Final checks: Own domain → Direct, app:// → App, otherwise → Referral</li>
+<li>If the result is still Direct and the user agent is a Facebook or Instagram in-app browser → Social</li>
 </ol>
 
 <p><strong>Available traffic types function:</strong> <code>WPDAI_Traffic_Type_Detection::available_traffic_types()</code></p>

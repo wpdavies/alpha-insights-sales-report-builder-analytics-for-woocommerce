@@ -5,6 +5,7 @@
 (function() {
 	'use strict';
 
+	// Persisted browser key prefix. Do not rename — existing visitor sessions use these keys.
 	var STORAGE_PREFIX = 'wpd_ai_v2_';
 	var KEYS = {
 		sessionId: STORAGE_PREFIX + 'session_id',
@@ -19,7 +20,7 @@
 	var TRACKING_PARAMS = [
 		'gclid', 'gbraid', 'wbraid', 'dclid', 'fbclid', 'msclkid', 'ttclid', 'li_fat_id', 'srsltid',
 		'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
-		'google_cid', 'meta_cid',
+		'google_cid', 'meta_cid', 'gad_source', 'gad_campaignid',
 		'ref', 'source', 'referrer', 'referer'
 	];
 
@@ -47,6 +48,11 @@
 		return parseInt(cfg.attribution_session_only, 10) === 1;
 	}
 
+	function shouldOverrideAttributionOnNewUtm() {
+		var cfg = getConfig();
+		return parseInt(cfg.override_attribution_on_new_utm, 10) === 1;
+	}
+
 	function getCookieStorageMode() {
 		var cfg = getConfig();
 		return cfg.cookie_storage_mode === 'immediate' ? 'immediate' : 'checkout_only';
@@ -56,7 +62,12 @@
 		var value = '; ' + document.cookie;
 		var parts = value.split('; ' + name + '=');
 		if (parts.length === 2) {
-			return parts.pop().split(';').shift();
+			var raw = parts.pop().split(';').shift();
+			try {
+				return decodeURIComponent(raw);
+			} catch (e) {
+				return raw;
+			}
 		}
 		return null;
 	}
@@ -150,16 +161,56 @@
 		return false;
 	}
 
+	function isCheckoutLikePage() {
+		var cfg = getConfig();
+		if (cfg.is_cart || cfg.is_checkout) {
+			return true;
+		}
+
+		try {
+			var path = (window.location.pathname || '').toLowerCase();
+			var search = (window.location.search || '').toLowerCase();
+			if (search.indexOf('wc-ajax=') !== -1) {
+				return true;
+			}
+			if (/\/(checkout|cart)(\/|$)/.test(path)) {
+				return true;
+			}
+			if (path.indexOf('order-received') !== -1 || path.indexOf('order-pay') !== -1) {
+				return true;
+			}
+		} catch (e) {
+			return false;
+		}
+
+		return false;
+	}
+
+	function existingSessionId() {
+		return lsGet(KEYS.sessionId) || readCookie('wpd_ai_session_id') || '';
+	}
+
 	function isNewSession() {
+		var sessionId = existingSessionId();
+
+		// Never rotate the session on cart/checkout — cookies may be written
+		// for the first time here, and inactivity should not start a new one.
+		if (isCheckoutLikePage() && sessionId) {
+			return false;
+		}
+
 		var now = Date.now();
 		var timeoutMs = getSessionTimeoutMs();
-		var sessionId = lsGet(KEYS.sessionId);
 		var lastActivity = parseInt(lsGet(KEYS.sessionActivity) || '0', 10);
 
 		return !sessionId || !lastActivity || (now - lastActivity) > timeoutMs;
 	}
 
 	function resetAttribution(now) {
+		if (isCheckoutLikePage() && !hasTrackingParams(document.location.href)) {
+			return;
+		}
+
 		var timestamp = now || Date.now();
 		lsSet(KEYS.landingPage, document.location.href);
 		lsSet(KEYS.landingSetAt, String(timestamp));
@@ -174,14 +225,26 @@
 		var newSession = (isNewSessionVisit === true) ? true : isNewSession();
 		var attributionExpired = landingSetAt && (now - landingSetAt) > attributionMs;
 		var hasTracking = hasTrackingParams(document.location.href);
+		var onCheckout = isCheckoutLikePage();
 
-		if (!lsGet(KEYS.landingPage) || attributionExpired) {
+		if (onCheckout && lsGet(KEYS.landingPage) && !hasTracking) {
+			// Keep the original landing page through checkout.
+		} else if (!lsGet(KEYS.landingPage) || attributionExpired) {
 			resetAttribution(now);
 		} else if (isSessionOnlyAttribution() && newSession) {
 			resetAttribution(now);
-		} else if (newSession && hasTracking) {
-			// Last-touch: a new session with UTM/tracking params overrides the attribution window.
+		} else if (shouldOverrideAttributionOnNewUtm() && newSession && hasTracking) {
+			// Optional last-touch: a new session with UTM/tracking params overrides the attribution window.
 			resetAttribution(now);
+		} else if (hasTracking && !hasTrackingParams(lsGet(KEYS.landingPage))) {
+			// First hit was untagged (Safari / prefetch / same-tab ad click).
+			// Promote landing only; keep an existing external referrer.
+			lsSet(KEYS.landingPage, document.location.href);
+			lsSet(KEYS.landingSetAt, String(now));
+			if (!lsGet(KEYS.referralSource)) {
+				lsSet(KEYS.referralSource, getReferrerValue());
+				lsSet(KEYS.referralSetAt, String(now));
+			}
 		} else if (!lsGet(KEYS.referralSetAt)) {
 			lsSet(KEYS.referralSource, getReferrerValue());
 			lsSet(KEYS.referralSetAt, String(now));
@@ -203,8 +266,12 @@
 		var newSession = isNewSession();
 		ensureAttribution(newSession);
 
-		var sessionId = lsGet(KEYS.sessionId);
-		if (newSession) {
+		var sessionId = existingSessionId();
+		if (sessionId && !lsGet(KEYS.sessionId)) {
+			lsSet(KEYS.sessionId, sessionId);
+		}
+
+		if (newSession || !sessionId) {
 			sessionId = generateSessionId();
 			lsSet(KEYS.sessionId, sessionId);
 		}
@@ -272,8 +339,10 @@
 
 	function bindServerSideCookieSync() {
 		if (typeof jQuery !== 'undefined') {
-			jQuery(document.body).on('adding_to_cart', syncCookiesForCheckout);
-			jQuery(document.body).on('added_to_cart', syncCookiesForCheckout);
+			jQuery(document.body).on(
+				'adding_to_cart added_to_cart updated_checkout update_checkout init_checkout cfw_updated_checkout checkout_error',
+				syncCookiesForCheckout
+			);
 		}
 
 		document.addEventListener('submit', function(event) {
@@ -282,10 +351,39 @@
 				return;
 			}
 
-			if (target.classList.contains('cart') || target.classList.contains('variations_form')) {
+			if (target.classList.contains('cart') || target.classList.contains('variations_form') || target.classList.contains('checkout') || 'checkout' === target.getAttribute('name')) {
 				syncCookiesForCheckout();
 			}
 		}, true);
+
+		bindWcAjaxCookieSync();
+	}
+
+	function isWcAjaxUrl(url) {
+		return !!url && String(url).indexOf('wc-ajax') !== -1;
+	}
+
+	function bindWcAjaxCookieSync() {
+		if (typeof XMLHttpRequest !== 'undefined' && XMLHttpRequest.prototype && XMLHttpRequest.prototype.open) {
+			var originalOpen = XMLHttpRequest.prototype.open;
+			XMLHttpRequest.prototype.open = function(method, url) {
+				if (isWcAjaxUrl(url)) {
+					syncCookiesForCheckout();
+				}
+				return originalOpen.apply(this, arguments);
+			};
+		}
+
+		if (typeof window.fetch === 'function') {
+			var originalFetch = window.fetch;
+			window.fetch = function(input, init) {
+				var url = (typeof input === 'string') ? input : (input && input.url);
+				if (isWcAjaxUrl(url)) {
+					syncCookiesForCheckout();
+				}
+				return originalFetch.apply(this, arguments);
+			};
+		}
 	}
 
 	window.WpdAiClient = {

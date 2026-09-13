@@ -66,12 +66,51 @@ class WPDAI_Experiments_Admin {
 				'cssSettings'        => $css_settings,
 				'jsSettings'         => $js_settings,
 				'phpSettings'        => $php_settings,
+				'currency'           => self::get_currency_js_config(),
+				'objectives'         => wpdai_get_experiment_conversion_objectives(),
 				'i18n'               => array(
 					'variant'           => __( 'Variant', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 					'remove'            => __( 'Remove', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 					'freeRunningLimit'  => self::free_running_limit_message(),
+					'leading'           => __( 'Leading', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+					'progress'          => __( 'Progress', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+					'cumulative'        => __( 'Cumulative', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+					'liftVsControl'     => __( 'Lift vs control', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+					'noChartData'       => __( 'The chart will appear once this test has exposures.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+					'proSuffix'         => __( 'Pro', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 				),
 			)
+		);
+	}
+
+	/**
+	 * WooCommerce currency config for the list-table JS formatter.
+	 *
+	 * @return array
+	 */
+	protected static function get_currency_js_config() {
+		$symbol   = '$';
+		$position = 'left';
+		$decimals = 2;
+		$thousand = ',';
+		$decimal  = '.';
+		if ( function_exists( 'get_woocommerce_currency_symbol' ) ) {
+			$symbol = html_entity_decode( wp_strip_all_tags( get_woocommerce_currency_symbol() ), ENT_QUOTES, 'UTF-8' );
+		}
+		if ( function_exists( 'get_option' ) ) {
+			$position = (string) get_option( 'woocommerce_currency_pos', 'left' );
+			$thousand = (string) get_option( 'woocommerce_price_thousand_sep', ',' );
+			$decimal  = (string) get_option( 'woocommerce_price_decimal_sep', '.' );
+		}
+		if ( function_exists( 'wc_get_price_decimals' ) ) {
+			$decimals = (int) wc_get_price_decimals();
+		}
+		return array(
+			'symbol'   => $symbol,
+			'position' => $position,
+			'decimals' => $decimals,
+			'thousand' => $thousand,
+			'decimal'  => $decimal,
 		);
 	}
 
@@ -88,7 +127,7 @@ class WPDAI_Experiments_Admin {
 		if ( function_exists( 'wpdai_is_analytics_enabled' ) && wpdai_is_analytics_enabled() ) {
 			return;
 		}
-		echo '<div class="wpd-notice notice notice-warning"><p>' . esc_html__( 'Experiments require Alpha Insights analytics to be enabled. Turn on website traffic tracking in General Settings before running a test.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) . '</p></div>';
+		echo '<div class="wpd-notice notice notice-warning"><p>' . esc_html__( 'A/B tests require Alpha Insights analytics to be enabled. Turn on website traffic tracking in General Settings before starting a test.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) . '</p></div>';
 	}
 
 	/**
@@ -118,7 +157,7 @@ class WPDAI_Experiments_Admin {
 				wp_safe_redirect( $redirect );
 				exit;
 			}
-			self::queue_notice( 'saved', __( 'Experiment saved.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'updated' );
+			self::queue_notice( 'saved', __( 'A/B test saved.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'updated' );
 			wp_safe_redirect( self::edit_url( absint( $result ) ) );
 			exit;
 		}
@@ -130,7 +169,7 @@ class WPDAI_Experiments_Admin {
 			check_admin_referer( 'wpd_ai_experiment_status_' . $id );
 			if ( 'delete' === $action ) {
 				WPDAI_Experiment_Store::delete( $id );
-				self::queue_notice( 'deleted', __( 'Experiment deleted.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'updated' );
+				self::queue_notice( 'deleted', __( 'A/B test deleted.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'updated' );
 			} else {
 				$map    = array(
 					'run'      => 'running',
@@ -141,7 +180,7 @@ class WPDAI_Experiments_Admin {
 				if ( is_wp_error( $result ) ) {
 					self::queue_notice( $result->get_error_code(), $result->get_error_message(), 'error' );
 				} else {
-					self::queue_notice( 'status', __( 'Experiment updated.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'updated' );
+					self::queue_notice( 'status', __( 'A/B test updated.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'updated' );
 				}
 			}
 			wp_safe_redirect( admin_url( 'admin.php?page=' . WPDAI_Admin_Menu::$experiments_slug ) );
@@ -180,7 +219,7 @@ class WPDAI_Experiments_Admin {
 		?>
 		<div class="wrap">
 			<?php do_action( 'wpd_before_heading' ); ?>
-			<h3><?php esc_html_e( 'Experiment (Beta)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></h3>
+			<h3><?php esc_html_e( 'A/B Test (Beta)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></h3>
 			<?php do_action( 'wpd_before_content' ); ?>
 			<?php
 			$printed_codes = self::print_notices();
@@ -196,12 +235,12 @@ class WPDAI_Experiments_Admin {
 						<a href="<?php echo esc_url( $edit_url ); ?>" class="button button-primary pull-right"><?php esc_html_e( 'Add New', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></a>
 					</div>
 					<p class="wpd-exp-list-intro">
-						<?php esc_html_e( 'Experiments split visitors between a control and one or more treatments so you can measure which version converts better. Each visitor is assigned on the first matching page view and then sees that variant’s CSS, JS, or PHP until you pause or complete the test.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
+						<?php esc_html_e( 'A/B tests split visitors between a control and one or more treatments so you can measure which version converts better. Each visitor is assigned on the first matching page view and then sees that variant’s CSS, JS, or PHP until you pause or complete the test.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
 					</p>
 				</div>
 				<div class="wpd-exp-list">
 					<?php if ( empty( $experiments ) ) : ?>
-						<p class="wpd-exp-list-empty"><?php esc_html_e( 'No experiments yet. Create one to split traffic between a control and a treatment.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></p>
+						<p class="wpd-exp-list-empty"><?php esc_html_e( 'No A/B tests yet. Create one to split traffic between a control and a treatment.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></p>
 					<?php endif; ?>
 					<?php foreach ( $experiments as $experiment ) : ?>
 						<?php
@@ -239,6 +278,8 @@ class WPDAI_Experiments_Admin {
 				'winner_name' => '',
 				'winner_lift' => null,
 				'has_data'    => false,
+				'progress'    => array(),
+				'goal_type'   => isset( $experiment['goals']['primary']['type'] ) ? (string) $experiment['goals']['primary']['type'] : 'transaction',
 			);
 			$variants = isset( $experiment['variants'] ) && is_array( $experiment['variants'] ) ? $experiment['variants'] : array();
 			foreach ( $variants as $variant ) {
@@ -246,15 +287,9 @@ class WPDAI_Experiments_Admin {
 				if ( '' === $vkey ) {
 					continue;
 				}
-				$summaries[ $eid ]['arms'][ $vkey ] = array(
-					'name'               => ! empty( $variant['name'] ) ? $variant['name'] : $vkey,
-					'is_control'         => ! empty( $variant['is_control'] ),
-					'exposures'          => 0,
-					'add_to_carts'       => 0,
-					'initiate_checkouts' => 0,
-					'conversions'        => 0,
-					'rate'               => 0,
-					'lift'               => null,
+				$summaries[ $eid ]['arms'][ $vkey ] = self::empty_arm_summary(
+					! empty( $variant['name'] ) ? $variant['name'] : $vkey,
+					! empty( $variant['is_control'] )
 				);
 			}
 		}
@@ -263,15 +298,33 @@ class WPDAI_Experiments_Admin {
 			return $summaries;
 		}
 
-		$warehouse = wpdai_data_warehouse(
-			array(
-				'date_preset'         => 'all_time',
-				'date_format_display' => 'year',
-			)
+		$span    = WPDAI_Experiment_Store::get_exposed_assignment_date_span();
+		$wh_args = array(
+			'date_preset'         => 'all_time',
+			'date_format_display' => 'year',
 		);
+		if ( ! is_array( $span ) || empty( $span['from'] ) || empty( $span['to'] ) ) {
+			$span = self::get_experiments_date_span( $experiments );
+		}
+		if ( is_array( $span ) && ! empty( $span['from'] ) && ! empty( $span['to'] ) ) {
+			$wh_args = array(
+				'date_from'            => $span['from'],
+				'date_to'              => $span['to'],
+				'date_format_display'  => 'day',
+				'experiments_progress' => true,
+			);
+		}
+		$warehouse = wpdai_data_warehouse( $wh_args );
 		$warehouse->fetch_data( array( 'experiments' ) );
-		$tables = $warehouse->get_data( 'experiments', 'data_table' );
-		$rows   = ( is_array( $tables ) && isset( $tables['variants'] ) && is_array( $tables['variants'] ) ) ? $tables['variants'] : array();
+		$tables   = $warehouse->get_data( 'experiments', 'data_table' );
+		$rows     = ( is_array( $tables ) && isset( $tables['variants'] ) && is_array( $tables['variants'] ) ) ? $tables['variants'] : array();
+		$progress = $warehouse->get_data( 'experiments', 'progress' );
+		if ( ! is_array( $progress ) && is_array( $tables ) && isset( $tables['progress'] ) && is_array( $tables['progress'] ) ) {
+			$progress = $tables['progress'];
+		}
+		if ( ! is_array( $progress ) ) {
+			$progress = array();
+		}
 
 		foreach ( $rows as $row ) {
 			$eid  = isset( $row['experiment_id'] ) ? (int) $row['experiment_id'] : 0;
@@ -280,15 +333,9 @@ class WPDAI_Experiments_Admin {
 				continue;
 			}
 			if ( ! isset( $summaries[ $eid ]['arms'][ $vkey ] ) ) {
-				$summaries[ $eid ]['arms'][ $vkey ] = array(
-					'name'               => ! empty( $row['variant_name'] ) ? $row['variant_name'] : $vkey,
-					'is_control'         => ! empty( $row['is_control'] ),
-					'exposures'          => 0,
-					'add_to_carts'       => 0,
-					'initiate_checkouts' => 0,
-					'conversions'        => 0,
-					'rate'               => 0,
-					'lift'               => null,
+				$summaries[ $eid ]['arms'][ $vkey ] = self::empty_arm_summary(
+					! empty( $row['variant_name'] ) ? $row['variant_name'] : $vkey,
+					! empty( $row['is_control'] )
 				);
 			}
 
@@ -296,8 +343,23 @@ class WPDAI_Experiments_Admin {
 			$arm['exposures']          = isset( $row['exposures'] ) ? (int) $row['exposures'] : 0;
 			$arm['add_to_carts']       = isset( $row['add_to_carts'] ) ? (int) $row['add_to_carts'] : 0;
 			$arm['initiate_checkouts'] = isset( $row['initiate_checkouts'] ) ? (int) $row['initiate_checkouts'] : 0;
+			$arm['transactions']       = isset( $row['transactions'] ) ? (int) $row['transactions'] : 0;
 			$arm['conversions']        = isset( $row['conversions'] ) ? (int) $row['conversions'] : 0;
-			$arm['rate']               = isset( $row['conversion_rate'] ) ? (float) $row['conversion_rate'] : 0;
+			if ( isset( $row['transaction_value'] ) ) {
+				$arm['revenue'] = (float) $row['transaction_value'];
+			} elseif ( isset( $row['revenue'] ) ) {
+				$arm['revenue'] = (float) $row['revenue'];
+			} else {
+				$arm['revenue'] = 0;
+			}
+			if ( $arm['transactions'] > 0 ) {
+				$arm['aov'] = round( $arm['revenue'] / $arm['transactions'], 2 );
+			} elseif ( isset( $row['aov'] ) ) {
+				$arm['aov'] = (float) $row['aov'];
+			} else {
+				$arm['aov'] = 0;
+			}
+			$arm['rate'] = isset( $row['conversion_rate'] ) ? (float) $row['conversion_rate'] : 0;
 			if ( empty( $arm['is_control'] ) && isset( $row['lift'] ) ) {
 				$arm['lift'] = (float) $row['lift'];
 			}
@@ -321,9 +383,162 @@ class WPDAI_Experiments_Admin {
 				$summaries[ $eid ]['winner_name'] = $summaries[ $eid ]['arms'][ $best_key ]['name'];
 				$summaries[ $eid ]['winner_lift'] = $summaries[ $eid ]['arms'][ $best_key ]['lift'];
 			}
+			$progress_row = null;
+			if ( isset( $progress[ $eid ] ) && is_array( $progress[ $eid ] ) ) {
+				$progress_row = $progress[ $eid ];
+			} elseif ( isset( $progress[ (string) $eid ] ) && is_array( $progress[ (string) $eid ] ) ) {
+				$progress_row = $progress[ (string) $eid ];
+			}
+			if ( is_array( $progress_row ) ) {
+				$summaries[ $eid ]['progress'] = $progress_row;
+			}
 		}
 
 		return $summaries;
+	}
+
+	/**
+	 * Local date span from experiment start/created timestamps.
+	 *
+	 * @param array $experiments Experiments.
+	 * @return array{from:string,to:string}|null
+	 */
+	protected static function get_experiments_date_span( $experiments ) {
+		$from_ts = null;
+		foreach ( (array) $experiments as $experiment ) {
+			foreach ( array( 'start_gmt', 'created_gmt' ) as $key ) {
+				if ( empty( $experiment[ $key ] ) || '0000-00-00 00:00:00' === $experiment[ $key ] ) {
+					continue;
+				}
+				$local = get_date_from_gmt( $experiment[ $key ], 'Y-m-d' );
+				$ts    = $local ? strtotime( $local ) : false;
+				if ( $ts && ( null === $from_ts || $ts < $from_ts ) ) {
+					$from_ts = $ts;
+				}
+			}
+		}
+		if ( ! $from_ts ) {
+			return null;
+		}
+
+		$from = gmdate( 'Y-m-d', strtotime( '-1 day', $from_ts ) );
+		$to   = current_time( 'Y-m-d' );
+		return array(
+			'from' => $from,
+			'to'   => $to,
+		);
+	}
+
+	/**
+	 * Empty per-variant summary row.
+	 *
+	 * @param string $name       Variant name.
+	 * @param bool   $is_control Whether this arm is control.
+	 * @return array
+	 */
+	protected static function empty_arm_summary( $name, $is_control ) {
+		return array(
+			'name'               => $name,
+			'is_control'         => $is_control,
+			'exposures'          => 0,
+			'add_to_carts'       => 0,
+			'initiate_checkouts' => 0,
+			'transactions'       => 0,
+			'conversions'        => 0,
+			'revenue'            => 0,
+			'aov'                => 0,
+			'rate'               => 0,
+			'lift'               => null,
+		);
+	}
+
+	/**
+	 * Format a money amount for the experiments list table.
+	 *
+	 * @param float $amount Amount.
+	 * @return string
+	 */
+	protected static function format_money( $amount ) {
+		if ( function_exists( 'wc_price' ) ) {
+			return wp_strip_all_tags( wc_price( (float) $amount ) );
+		}
+		return number_format_i18n( (float) $amount, 2 );
+	}
+
+	/**
+	 * Metric used to compare variants for a list-table conversion objective.
+	 *
+	 * @param array  $arm       Arm summary.
+	 * @param string $objective Objective key.
+	 * @return array{value:float,rate:float,kind:string}
+	 */
+	protected static function get_arm_objective_metric( $arm, $objective ) {
+		$arm       = is_array( $arm ) ? $arm : array();
+		$exposures = isset( $arm['exposures'] ) ? (int) $arm['exposures'] : 0;
+		$objective = sanitize_key( (string) $objective );
+
+		if ( 'add_to_cart' === $objective ) {
+			$value = isset( $arm['add_to_carts'] ) ? (float) $arm['add_to_carts'] : 0;
+			return array(
+				'value' => $value,
+				'rate'  => $exposures ? $value / $exposures : 0,
+				'kind'  => 'count',
+			);
+		}
+		if ( 'initiate_checkout' === $objective ) {
+			$value = isset( $arm['initiate_checkouts'] ) ? (float) $arm['initiate_checkouts'] : 0;
+			return array(
+				'value' => $value,
+				'rate'  => $exposures ? $value / $exposures : 0,
+				'kind'  => 'count',
+			);
+		}
+		if ( 'purchase_value' === $objective ) {
+			$value = isset( $arm['revenue'] ) ? (float) $arm['revenue'] : 0;
+			return array(
+				'value' => $value,
+				'rate'  => $exposures ? $value / $exposures : 0,
+				'kind'  => 'currency',
+			);
+		}
+		if ( 'revenue_per_exposure' === $objective ) {
+			$value = $exposures && isset( $arm['revenue'] ) ? (float) $arm['revenue'] / $exposures : 0;
+			return array(
+				'value' => $value,
+				'rate'  => $value,
+				'kind'  => 'currency',
+			);
+		}
+		if ( 'aov' === $objective ) {
+			$value = isset( $arm['aov'] ) ? (float) $arm['aov'] : 0;
+			return array(
+				'value' => $value,
+				'rate'  => $value,
+				'kind'  => 'currency',
+			);
+		}
+
+		$value = isset( $arm['transactions'] ) ? (float) $arm['transactions'] : 0;
+		return array(
+			'value' => $value,
+			'rate'  => $exposures ? $value / $exposures : 0,
+			'kind'  => 'count',
+		);
+	}
+
+	/**
+	 * Format the comparison rate for a conversion objective.
+	 *
+	 * @param float  $rate      Rate (ratio or currency amount).
+	 * @param string $objective Objective key.
+	 * @return string
+	 */
+	protected static function format_objective_rate( $rate, $objective ) {
+		$objective = sanitize_key( (string) $objective );
+		if ( in_array( $objective, array( 'aov', 'purchase_value', 'revenue_per_exposure' ), true ) ) {
+			return self::format_money( $rate );
+		}
+		return number_format_i18n( (float) $rate * 100, 1 ) . '%';
 	}
 
 	/**
@@ -427,11 +642,40 @@ class WPDAI_Experiments_Admin {
 				'wpd_ai_experiment_status_' . $eid
 			);
 		};
+		$goal_type      = isset( $summary['goal_type'] ) ? (string) $summary['goal_type'] : ( isset( $experiment['goals']['primary']['type'] ) ? (string) $experiment['goals']['primary']['type'] : 'transaction' );
+		$objective      = wpdai_map_experiment_goal_to_objective( $goal_type );
+		$objectives     = wpdai_get_experiment_conversion_objectives();
+		$is_pro         = wpdai_experiments_is_pro();
+		if ( ! $is_pro && wpdai_experiment_goal_is_pro( $objective ) ) {
+			$objective = 'transaction';
+		}
+		$objective_meta = isset( $objectives[ $objective ] ) ? $objectives[ $objective ] : $objectives['transaction'];
+		$colspan        = 10;
+		$control_rate = null;
+		$best_key     = '';
+		$best_rate    = null;
+		$best_tied    = false;
+		foreach ( $arms as $vkey => $arm ) {
+			$metric = self::get_arm_objective_metric( $arm, $objective );
+			if ( ! empty( $arm['is_control'] ) ) {
+				$control_rate = $metric['rate'];
+			}
+			if ( (int) $arm['exposures'] < 1 ) {
+				continue;
+			}
+			if ( null === $best_rate || $metric['rate'] > $best_rate ) {
+				$best_rate = $metric['rate'];
+				$best_key  = $vkey;
+				$best_tied = false;
+			} elseif ( $metric['rate'] === $best_rate ) {
+				$best_tied = true;
+			}
+		}
+		if ( $best_tied ) {
+			$best_key = '';
+		}
 		?>
-		<table class="wpd-table widefat wpd-exp-list-table">
-			<thead>
-				<tr class="wpd-exp-list-heading">
-					<th colspan="7">
+		<div class="wpd-exp-list-table-wrap" data-exp-summary="1" data-default-goal="<?php echo esc_attr( $objective ); ?>">
 						<div class="wpd-exp-list-heading-inner">
 							<div class="wpd-exp-list-identity">
 								<a href="<?php echo esc_url( self::edit_url( $eid ) ); ?>">
@@ -443,6 +687,40 @@ class WPDAI_Experiments_Admin {
 								<span class="wpd-exp-status wpd-exp-status--<?php echo esc_attr( $status ); ?>"><?php echo esc_html( ucfirst( $status ) ); ?></span>
 								<span class="wpd-exp-traffic"><?php echo esc_html( (int) $experiment['traffic_percent'] ); ?>%</span>
 								<span class="wpd-exp-code-badges"><?php self::render_code_badges( $code_flags ); ?></span>
+							</div>
+							<div class="wpd-exp-goal-picker">
+								<label for="wpd-exp-goal-<?php echo esc_attr( (string) $eid ); ?>">
+									<?php esc_html_e( 'Target conversion', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?>
+								</label>
+								<select id="wpd-exp-goal-<?php echo esc_attr( (string) $eid ); ?>" class="wpd-input wpd-exp-goal-select" data-saved-goal="<?php echo esc_attr( $goal_type ); ?>">
+									<?php foreach ( $objectives as $key => $meta ) : ?>
+										<?php
+										$option_label = $meta['label'];
+										if ( ! $is_pro && ! empty( $meta['pro'] ) ) {
+											$option_label = sprintf(
+												/* translators: %s: objective label */
+												__( '%s (Pro)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+												$meta['label']
+											);
+										}
+										?>
+										<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $objective, $key ); ?> <?php echo ( ! $is_pro && ! empty( $meta['pro'] ) ) ? 'data-pro="1"' : ''; ?>><?php echo esc_html( $option_label ); ?></option>
+									<?php endforeach; ?>
+								</select>
+								<?php if ( ! $is_pro ) : ?>
+									<a href="#" class="wpd-trigger-upgrade-modal wpd-exp-goal-upgrade screen-reader-text"><?php esc_html_e( 'Upgrade to Pro', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></a>
+								<?php endif; ?>
+								<span class="wpd-exp-goal-saved wpd-meta">
+									<?php
+									echo esc_html(
+										sprintf(
+											/* translators: %s: saved primary goal label */
+											__( 'Saved: %s', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+											wpdai_get_experiment_goal_label( $goal_type )
+										)
+									);
+									?>
+								</span>
 							</div>
 							<div class="wpd-exp-row-actions">
 								<a class="button button-small" href="<?php echo esc_url( self::edit_url( $eid ) ); ?>"><?php esc_html_e( 'Edit', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></a>
@@ -460,38 +738,72 @@ class WPDAI_Experiments_Admin {
 								<?php if ( 'completed' !== $status ) : ?>
 									<a class="button button-small" href="<?php echo esc_url( $status_url( 'complete' ) ); ?>"><?php esc_html_e( 'Complete', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></a>
 								<?php endif; ?>
-								<a class="button button-small" href="<?php echo esc_url( $status_url( 'delete' ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete this experiment and its assignment history?', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');"><?php esc_html_e( 'Delete', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></a>
+								<a class="button button-small" href="<?php echo esc_url( $status_url( 'delete' ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Delete this A/B test and its assignment history?', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>');"><?php esc_html_e( 'Delete', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></a>
 							</div>
 						</div>
-					</th>
-				</tr>
-				<tr>
+				<?php
+				$progress      = isset( $summary['progress'] ) && is_array( $summary['progress'] ) ? $summary['progress'] : array();
+				$has_progress  = ! empty( $progress['dates'] ) && ! empty( $progress['arms'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $progress['dates'][0] );
+				$progress_json = $has_progress ? wp_json_encode( $progress ) : '';
+				if ( $has_progress && is_string( $progress_json ) ) :
+					?>
+						<div class="wpd-exp-progress" data-progress="<?php echo esc_attr( $progress_json ); ?>">
+							<div class="wpd-exp-progress-head">
+								<span class="wpd-exp-progress-title"><?php esc_html_e( 'Progress', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></span>
+								<span class="wpd-exp-progress-metric"><?php esc_html_e( 'Lift vs control', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></span>
+							</div>
+							<div class="wpd-exp-progress-chart" role="img" aria-label="<?php echo esc_attr( __( 'Cumulative lift versus control', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) ); ?>"></div>
+							<div class="wpd-exp-progress-legend"></div>
+						</div>
+				<?php endif; ?>
+		<div class="wpd-exp-list-table-scroll">
+		<table class="wpd-table widefat wpd-exp-list-table">
+			<thead>
+				<tr class="wpd-exp-list-cols">
 					<th><?php esc_html_e( 'Variant', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
 					<th><?php esc_html_e( 'Exposures', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
-					<th><?php esc_html_e( 'Add to carts', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
-					<th><?php esc_html_e( 'Initiate checkouts', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
-					<th><?php esc_html_e( 'Conversions', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
-					<th><?php esc_html_e( 'Conversion rate', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+					<th data-goal-col="add_to_cart"<?php echo 'add_to_cart' === $objective ? ' class="is-target-col"' : ''; ?>><?php esc_html_e( 'Add to carts', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+					<th data-goal-col="initiate_checkout"<?php echo 'initiate_checkout' === $objective ? ' class="is-target-col"' : ''; ?>><?php esc_html_e( 'Initiate checkouts', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+					<th data-goal-col="transaction"<?php echo 'transaction' === $objective ? ' class="is-target-col"' : ''; ?>><?php esc_html_e( 'Purchases', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+					<th data-goal-col="purchase_value"<?php echo 'purchase_value' === $objective ? ' class="is-target-col"' : ''; ?>><?php esc_html_e( 'Revenue', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+					<th data-goal-col="revenue_per_exposure"<?php echo 'revenue_per_exposure' === $objective ? ' class="is-target-col"' : ''; ?>><?php esc_html_e( 'Rev / exposure', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+					<th data-goal-col="aov"<?php echo 'aov' === $objective ? ' class="is-target-col"' : ''; ?>><?php esc_html_e( 'AOV', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+					<th class="wpd-exp-col-goal-rate"><?php echo esc_html( $objective_meta['rate_label'] ); ?></th>
 					<th><?php esc_html_e( 'Lift vs control', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
 				<?php if ( empty( $arms ) ) : ?>
 					<tr>
-						<td colspan="7"><?php esc_html_e( 'No variants configured.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></td>
+						<td colspan="<?php echo esc_attr( (string) $colspan ); ?>"><?php esc_html_e( 'No variants configured.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></td>
 					</tr>
 				<?php endif; ?>
 				<?php foreach ( $arms as $vkey => $arm ) : ?>
-					<?php $is_winner = ( isset( $summary['winner_key'] ) && $vkey === $summary['winner_key'] && ! empty( $summary['has_data'] ) ); ?>
-					<tr<?php echo $is_winner ? ' class="is-winner"' : ''; ?>>
-						<td>
+					<?php
+					$metric    = self::get_arm_objective_metric( $arm, $objective );
+					$rpe       = self::get_arm_objective_metric( $arm, 'revenue_per_exposure' );
+					$is_winner = ( '' !== $best_key && $vkey === $best_key && (int) $arm['exposures'] > 0 );
+					$lift      = null;
+					if ( empty( $arm['is_control'] ) && null !== $control_rate && 0.0 !== (float) $control_rate ) {
+						$lift = ( ( $metric['rate'] - $control_rate ) / abs( $control_rate ) ) * 100;
+					}
+					?>
+					<tr
+						class="wpd-exp-arm-row<?php echo $is_winner ? ' is-winner' : ''; ?>"
+						data-is-control="<?php echo ! empty( $arm['is_control'] ) ? '1' : '0'; ?>"
+						data-exposures="<?php echo esc_attr( (string) (int) $arm['exposures'] ); ?>"
+						data-transactions="<?php echo esc_attr( (string) (int) ( isset( $arm['transactions'] ) ? $arm['transactions'] : 0 ) ); ?>"
+						data-add-to-carts="<?php echo esc_attr( (string) (int) ( isset( $arm['add_to_carts'] ) ? $arm['add_to_carts'] : 0 ) ); ?>"
+						data-initiate-checkouts="<?php echo esc_attr( (string) (int) ( isset( $arm['initiate_checkouts'] ) ? $arm['initiate_checkouts'] : 0 ) ); ?>"
+						data-revenue="<?php echo esc_attr( (string) (float) ( isset( $arm['revenue'] ) ? $arm['revenue'] : 0 ) ); ?>"
+						data-aov="<?php echo esc_attr( (string) (float) ( isset( $arm['aov'] ) ? $arm['aov'] : 0 ) ); ?>"
+					>
+						<td class="wpd-exp-arm-name">
 							<?php echo esc_html( $arm['name'] ); ?>
 							<?php if ( ! empty( $arm['is_control'] ) ) : ?>
-								<span class="wpd-meta"><?php esc_html_e( 'Control', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></span>
+								<span class="wpd-exp-arm-role"><?php esc_html_e( 'Control', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></span>
 							<?php endif; ?>
-							<?php if ( $is_winner ) : ?>
-								<span class="wpd-exp-arm-leading"><?php esc_html_e( 'Leading', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></span>
-							<?php endif; ?>
+							<span class="wpd-exp-arm-leading"<?php echo $is_winner ? '' : ' hidden'; ?>><?php esc_html_e( 'Leading', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></span>
 							<?php
 							$arm_flags = isset( $variant_code[ $vkey ] ) ? $variant_code[ $vkey ] : array();
 							if ( ! empty( $arm_flags['css'] ) || ! empty( $arm_flags['js'] ) || ! empty( $arm_flags['php'] ) ) :
@@ -500,14 +812,22 @@ class WPDAI_Experiments_Admin {
 							<?php endif; ?>
 						</td>
 						<td><?php echo esc_html( number_format_i18n( (int) $arm['exposures'] ) ); ?></td>
-						<td><?php echo esc_html( number_format_i18n( isset( $arm['add_to_carts'] ) ? (int) $arm['add_to_carts'] : 0 ) ); ?></td>
-						<td><?php echo esc_html( number_format_i18n( isset( $arm['initiate_checkouts'] ) ? (int) $arm['initiate_checkouts'] : 0 ) ); ?></td>
-						<td><?php echo esc_html( number_format_i18n( (int) $arm['conversions'] ) ); ?></td>
-						<td><?php echo esc_html( number_format_i18n( (float) $arm['rate'], 1 ) ); ?>%</td>
-						<td>
+						<td data-goal-col="add_to_cart"<?php echo 'add_to_cart' === $objective ? ' class="is-target-col"' : ''; ?>><?php echo esc_html( number_format_i18n( isset( $arm['add_to_carts'] ) ? (int) $arm['add_to_carts'] : 0 ) ); ?></td>
+						<td data-goal-col="initiate_checkout"<?php echo 'initiate_checkout' === $objective ? ' class="is-target-col"' : ''; ?>><?php echo esc_html( number_format_i18n( isset( $arm['initiate_checkouts'] ) ? (int) $arm['initiate_checkouts'] : 0 ) ); ?></td>
+						<td data-goal-col="transaction"<?php echo 'transaction' === $objective ? ' class="is-target-col"' : ''; ?>><?php echo esc_html( number_format_i18n( isset( $arm['transactions'] ) ? (int) $arm['transactions'] : 0 ) ); ?></td>
+						<td data-goal-col="purchase_value"<?php echo 'purchase_value' === $objective ? ' class="is-target-col"' : ''; ?>><?php echo esc_html( self::format_money( isset( $arm['revenue'] ) ? $arm['revenue'] : 0 ) ); ?></td>
+						<td data-goal-col="revenue_per_exposure"<?php echo 'revenue_per_exposure' === $objective ? ' class="is-target-col"' : ''; ?>><?php echo esc_html( self::format_money( $rpe['value'] ) ); ?></td>
+						<td data-goal-col="aov"<?php echo 'aov' === $objective ? ' class="is-target-col"' : ''; ?>><?php echo esc_html( self::format_money( isset( $arm['aov'] ) ? $arm['aov'] : 0 ) ); ?></td>
+						<td class="wpd-exp-cell-goal-rate"><?php echo esc_html( self::format_objective_rate( $metric['rate'], $objective ) ); ?></td>
+						<td class="wpd-exp-cell-lift">
 							<?php
-							if ( null !== $arm['lift'] ) {
-								echo esc_html( ( $arm['lift'] > 0 ? '+' : '' ) . number_format_i18n( (float) $arm['lift'], 1 ) . '%' );
+							if ( null !== $lift ) {
+								$lift_class = ( $lift > 0 ) ? 'is-up' : ( ( $lift < 0 ) ? 'is-down' : '' );
+								printf(
+									'<span class="wpd-exp-lift %s">%s</span>',
+									esc_attr( $lift_class ),
+									esc_html( ( $lift > 0 ? '+' : '' ) . number_format_i18n( (float) $lift, 1 ) . '%' )
+								);
 							} else {
 								echo '&mdash;';
 							}
@@ -517,6 +837,8 @@ class WPDAI_Experiments_Admin {
 				<?php endforeach; ?>
 			</tbody>
 		</table>
+		</div>
+		</div>
 		<?php
 	}
 
@@ -529,7 +851,7 @@ class WPDAI_Experiments_Admin {
 		$id         = isset( $_GET['experiment_id'] ) ? absint( $_GET['experiment_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$experiment = $id ? WPDAI_Experiment_Store::get( $id ) : self::blank_experiment();
 		if ( $id && ! $experiment ) {
-			self::queue_notice( 'not_found', __( 'That experiment was not found.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'error' );
+			self::queue_notice( 'not_found', __( 'That A/B test was not found.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'error' );
 			self::render_list();
 			return;
 		}
@@ -588,7 +910,7 @@ class WPDAI_Experiments_Admin {
 		?>
 		<div class="wrap">
 			<?php do_action( 'wpd_before_heading' ); ?>
-			<h3><?php echo $id ? esc_html__( 'Edit Experiment', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) : esc_html__( 'Add Experiment', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></h3>
+			<h3><?php echo $id ? esc_html__( 'Edit A/B Test', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) : esc_html__( 'Add A/B Test', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></h3>
 			<?php do_action( 'wpd_before_content' ); ?>
 			<?php self::print_notices(); ?>
 			<div class="wpd-white-block">
@@ -615,7 +937,7 @@ class WPDAI_Experiments_Admin {
 					<?php endif; ?>
 
 					<p class="wpd-exp-save-actions">
-						<?php submit_button( __( 'Save Experiment', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'primary', 'submit', false ); ?>
+						<?php submit_button( __( 'Save A/B Test', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'primary', 'submit', false ); ?>
 					</p>
 					<table class="wpd-table widefat">
 						<tbody>
@@ -661,12 +983,35 @@ class WPDAI_Experiments_Admin {
 							<tr>
 								<td><?php esc_html_e( 'Primary goal', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></td>
 								<td>
-									<?php $goal_type = isset( $goals['primary']['type'] ) ? (string) $goals['primary']['type'] : 'transaction'; ?>
-									<select id="wpd-exp-primary-goal-type" name="experiment[goals][primary][type]" <?php disabled( ! $is_pro ); ?>>
-										<option value="transaction" <?php selected( $goal_type, 'transaction' ); ?>><?php esc_html_e( 'Purchase', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-										<option value="add_to_cart" <?php selected( $goal_type, 'add_to_cart' ); ?>><?php esc_html_e( 'Add to cart', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-										<option value="page_view" <?php selected( $goal_type, 'page_view' ); ?>><?php esc_html_e( 'Page view', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-										<option value="event" <?php selected( $goal_type, 'event' ); ?>><?php esc_html_e( 'Custom event', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+									<?php
+									$goal_type = isset( $goals['primary']['type'] ) ? (string) $goals['primary']['type'] : 'transaction';
+									if ( ! $is_pro && wpdai_experiment_goal_is_pro( $goal_type ) ) {
+										$goal_type = 'transaction';
+									}
+									$editor_goals = array(
+										'transaction'          => __( 'Purchases', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+										'purchase_value'       => __( 'Purchase value', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+										'revenue_per_exposure' => __( 'Revenue per exposure', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+										'aov'                  => __( 'Average order value', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+										'add_to_cart'          => __( 'Add to cart', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+										'page_view'            => __( 'Page view', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+										'event'                => __( 'Custom event', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+									);
+									?>
+									<select id="wpd-exp-primary-goal-type" name="experiment[goals][primary][type]">
+										<?php foreach ( $editor_goals as $goal_key => $goal_label ) : ?>
+											<?php
+											$goal_is_pro = wpdai_experiment_goal_is_pro( $goal_key );
+											if ( ! $is_pro && $goal_is_pro ) {
+												$goal_label = sprintf(
+													/* translators: %s: goal label */
+													__( '%s (Pro)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+													$goal_label
+												);
+											}
+											?>
+											<option value="<?php echo esc_attr( $goal_key ); ?>" <?php selected( $goal_type, $goal_key ); ?> <?php echo ( ! $is_pro && $goal_is_pro ) ? 'data-pro="1"' : ''; ?>><?php echo esc_html( $goal_label ); ?></option>
+										<?php endforeach; ?>
 									</select>
 									<?php if ( ! $is_pro ) : ?>
 										<p class="wpd-meta"><a href="#" class="wpd-trigger-upgrade-modal"><?php esc_html_e( 'Free tests use Purchase as the primary goal.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></a></p>
@@ -875,7 +1220,7 @@ class WPDAI_Experiments_Admin {
 							<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . WPDAI_Admin_Menu::$experiments_slug ) ); ?>" class="button"><?php esc_html_e( 'Back to list', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></a>
 							<a href="<?php echo esc_url( self::results_url() ); ?>" class="button"><?php esc_html_e( 'View results', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></a>
 						</span>
-						<?php submit_button( __( 'Save Experiment', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'primary', 'submit', false ); ?>
+						<?php submit_button( __( 'Save A/B Test', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), 'primary', 'submit', false ); ?>
 					</p>
 				</form>
 			</div>
@@ -1053,7 +1398,7 @@ class WPDAI_Experiments_Admin {
 			),
 			'goals'           => array(
 				'primary'   => array(
-					'type'       => sanitize_key( $raw['goals']['primary']['type'] ?? 'transaction' ),
+					'type'       => self::sanitize_goal_type( $raw['goals']['primary']['type'] ?? 'transaction' ),
 					'event_type' => sanitize_text_field( $raw['goals']['primary']['event_type'] ?? '' ),
 					'path'       => sanitize_text_field( $raw['goals']['primary']['path'] ?? '' ),
 				),
@@ -1094,6 +1439,21 @@ class WPDAI_Experiments_Admin {
 		}
 
 		return WPDAI_Experiment_Store::save( $data );
+	}
+
+	/**
+	 * Sanitize a primary goal type.
+	 *
+	 * @param string $type Raw type.
+	 * @return string
+	 */
+	protected static function sanitize_goal_type( $type ) {
+		$type    = sanitize_key( (string) $type );
+		$allowed = array( 'transaction', 'add_to_cart', 'page_view', 'event', 'purchase_value', 'revenue_per_exposure', 'aov' );
+		if ( in_array( $type, $allowed, true ) ) {
+			return $type;
+		}
+		return 'transaction';
 	}
 
 	/**
@@ -1153,7 +1513,7 @@ class WPDAI_Experiments_Admin {
 	protected static function change_status( $id, $status ) {
 		$experiment = WPDAI_Experiment_Store::get( $id );
 		if ( ! $experiment ) {
-			return new WP_Error( 'not_found', __( 'Experiment not found.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
+			return new WP_Error( 'not_found', __( 'A/B test not found.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
 		}
 
 		if ( 'running' === $status ) {
@@ -1173,7 +1533,7 @@ class WPDAI_Experiments_Admin {
 	 * Editor URL (list "Add New" and row Edit links).
 	 *
 	 * Uses `subpage=edit` so the shared submenu highlighter can tell this
-	 * screen apart from All Experiments.
+	 * screen apart from All A/B Tests.
 	 *
 	 * @param int $id Optional experiment ID.
 	 * @return string
@@ -1274,7 +1634,7 @@ class WPDAI_Experiments_Admin {
 	 * @return string
 	 */
 	protected static function free_running_limit_message() {
-		return __( 'The free version allows one running experiment. Pause or complete the current test, or upgrade to Pro.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
+		return __( 'The free version allows one running A/B test. Pause or complete the current test, or upgrade to Pro.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
 	}
 
 	/**

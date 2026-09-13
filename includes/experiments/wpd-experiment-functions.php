@@ -103,6 +103,110 @@ function wpdai_get_experiment_default_goals() {
 }
 
 /**
+ * Conversion objectives available without a Pro license.
+ *
+ * @return array
+ */
+function wpdai_get_experiment_free_conversion_objectives() {
+	return array( 'transaction' );
+}
+
+/**
+ * Whether a conversion objective or saved primary goal is Pro-only.
+ *
+ * @param string $goal_type Goal or objective key.
+ * @return bool
+ */
+function wpdai_experiment_goal_is_pro( $goal_type ) {
+	return ! in_array( sanitize_key( (string) $goal_type ), wpdai_get_experiment_free_conversion_objectives(), true );
+}
+
+/**
+ * Conversion objectives available on the experiments list table.
+ *
+ * @return array
+ */
+function wpdai_get_experiment_conversion_objectives() {
+	return array(
+		'transaction'          => array(
+			'label'      => __( 'Purchases', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'rate_label' => __( 'Purchase rate', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'kind'       => 'count',
+			'pro'        => false,
+		),
+		'add_to_cart'          => array(
+			'label'      => __( 'Add to carts', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'rate_label' => __( 'Add to cart rate', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'kind'       => 'count',
+			'pro'        => true,
+		),
+		'initiate_checkout'    => array(
+			'label'      => __( 'Initiate checkouts', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'rate_label' => __( 'Checkout rate', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'kind'       => 'count',
+			'pro'        => true,
+		),
+		'purchase_value'       => array(
+			'label'      => __( 'Purchase value', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'rate_label' => __( 'Revenue / visitor', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'kind'       => 'currency',
+			'pro'        => true,
+		),
+		'revenue_per_exposure' => array(
+			'label'      => __( 'Revenue per exposure', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'rate_label' => __( 'Rev / exposure', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'kind'       => 'currency',
+			'pro'        => true,
+		),
+		'aov'                  => array(
+			'label'      => __( 'Average order value', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'rate_label' => __( 'AOV', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			'kind'       => 'currency',
+			'pro'        => true,
+		),
+	);
+}
+
+/**
+ * Human label for a stored primary goal type.
+ *
+ * @param string $goal_type Goal type key.
+ * @return string
+ */
+function wpdai_get_experiment_goal_label( $goal_type ) {
+	$goal_type = sanitize_key( (string) $goal_type );
+	$labels    = array(
+		'transaction'          => __( 'Purchases', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		'add_to_cart'          => __( 'Add to carts', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		'initiate_checkout'    => __( 'Initiate checkouts', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		'purchase_value'       => __( 'Purchase value', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		'revenue_per_exposure' => __( 'Revenue per exposure', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		'aov'                  => __( 'Average order value', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		'page_view'            => __( 'Page view', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		'event'                => __( 'Custom event', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+	);
+	if ( isset( $labels[ $goal_type ] ) ) {
+		return $labels[ $goal_type ];
+	}
+	return $labels['transaction'];
+}
+
+/**
+ * Map a stored primary goal to a list-table conversion objective.
+ *
+ * @param string $goal_type Stored primary goal type.
+ * @return string
+ */
+function wpdai_map_experiment_goal_to_objective( $goal_type ) {
+	$goal_type   = sanitize_key( (string) $goal_type );
+	$objectives  = wpdai_get_experiment_conversion_objectives();
+	if ( isset( $objectives[ $goal_type ] ) ) {
+		return $goal_type;
+	}
+	return 'transaction';
+}
+
+/**
  * Allowed experiment statuses.
  *
  * @return array

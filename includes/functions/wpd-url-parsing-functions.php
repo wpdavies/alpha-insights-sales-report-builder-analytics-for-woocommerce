@@ -80,6 +80,314 @@ function wpdai_get_query_params( $url ) {
 }
 
 /**
+ * Query params that identify paid / campaign attribution.
+ *
+ * @return array<int, string>
+ */
+function wpdai_get_attribution_tracking_params() {
+	return array(
+		'gclid',
+		'gbraid',
+		'wbraid',
+		'dclid',
+		'fbclid',
+		'msclkid',
+		'ttclid',
+		'li_fat_id',
+		'srsltid',
+		'utm_source',
+		'utm_medium',
+		'utm_campaign',
+		'utm_term',
+		'utm_content',
+		'google_cid',
+		'meta_cid',
+		'gad_source',
+		'gad_campaignid',
+		'ref',
+		'source',
+		'referrer',
+		'referer',
+	);
+}
+
+/**
+ * Whether a URL includes campaign or click-id query params.
+ *
+ * @param string $url URL to inspect.
+ * @return bool
+ */
+function wpdai_url_has_tracking_params( $url ) {
+	if ( ! is_string( $url ) || '' === $url ) {
+		return false;
+	}
+
+	$query_params = wpdai_get_query_params( $url );
+	if ( empty( $query_params ) ) {
+		return false;
+	}
+
+	foreach ( wpdai_get_attribution_tracking_params() as $param ) {
+		if ( isset( $query_params[ $param ] ) && '' !== (string) $query_params[ $param ] ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Decode and validate an attribution URL without using sanitize_text_field().
+ *
+ * sanitize_text_field() strips %XX sequences and can destroy encoded landing pages.
+ *
+ * @param string $url Raw URL.
+ * @return string
+ */
+function wpdai_sanitize_attribution_url( $url ) {
+	if ( ! is_string( $url ) || '' === $url ) {
+		return '';
+	}
+
+	$url = trim( wp_unslash( $url ) );
+	if ( '' === $url ) {
+		return '';
+	}
+
+	$decoded = rawurldecode( $url );
+	if ( $decoded !== $url ) {
+		$url    = $decoded;
+		$double = rawurldecode( $url );
+		if ( $double !== $url && filter_var( $double, FILTER_VALIDATE_URL ) ) {
+			$url = $double;
+		}
+	}
+
+	$url = htmlspecialchars_decode( $url );
+	$url = filter_var( $url, FILTER_SANITIZE_URL );
+	if ( ! is_string( $url ) || ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
+		return '';
+	}
+
+	$lower = strtolower( $url );
+	if ( str_contains( $lower, 'wp-admin' ) || str_contains( $lower, 'wp-login' ) || str_contains( $lower, 'admin-ajax' ) ) {
+		return '';
+	}
+
+	if ( wpdai_is_checkout_like_url( $url ) && ! wpdai_url_has_tracking_params( $url ) ) {
+		return '';
+	}
+
+	return esc_url_raw( $url );
+}
+
+/**
+ * Whether a URL is cart, checkout, thank-you, or a WooCommerce AJAX endpoint.
+ *
+ * These should not become a session landing page unless they carry campaign tags.
+ *
+ * @param string $url URL to inspect.
+ * @return bool
+ */
+function wpdai_is_checkout_like_url( $url ) {
+	if ( ! is_string( $url ) || '' === $url ) {
+		return false;
+	}
+
+	$url   = htmlspecialchars_decode( $url );
+	$path  = strtolower( (string) wp_parse_url( $url, PHP_URL_PATH ) );
+	$query = strtolower( (string) wp_parse_url( $url, PHP_URL_QUERY ) );
+
+	if ( str_contains( $query, 'wc-ajax=' ) ) {
+		return true;
+	}
+
+	if ( preg_match( '#/(checkout|cart)(/|$)#', $path ) ) {
+		return true;
+	}
+
+	if ( str_contains( $path, 'order-received' ) || str_contains( $path, 'order-pay' ) ) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Whether a URL is a WooCommerce AJAX, admin-ajax, or REST endpoint.
+ *
+ * @param string $url URL to inspect.
+ * @return bool
+ */
+function wpdai_is_ajax_or_rest_url( $url ) {
+	if ( ! is_string( $url ) || '' === $url ) {
+		return false;
+	}
+
+	$url   = htmlspecialchars_decode( $url );
+	$path  = strtolower( (string) wp_parse_url( $url, PHP_URL_PATH ) );
+	$query = strtolower( (string) wp_parse_url( $url, PHP_URL_QUERY ) );
+
+	if ( str_contains( $query, 'wc-ajax=' ) || str_contains( $query, 'rest_route=' ) ) {
+		return true;
+	}
+
+	if ( str_contains( $path, 'admin-ajax.php' ) || str_contains( $path, '/wp-json/' ) ) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Same-site browser referrer, including internal pages. AJAX/REST URLs are skipped.
+ *
+ * @return string
+ */
+function wpdai_get_same_site_referer_url() {
+	$candidates = array();
+
+	if ( ! empty( $_SERVER['HTTP_REFERER'] ) ) {
+		$candidates[] = wp_unslash( $_SERVER['HTTP_REFERER'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized via esc_url_raw() below.
+	}
+
+	if ( function_exists( 'wp_get_raw_referer' ) ) {
+		$raw = wp_get_raw_referer();
+		if ( is_string( $raw ) && '' !== $raw ) {
+			$candidates[] = $raw;
+		}
+	}
+
+	$site_host = wp_parse_url( home_url(), PHP_URL_HOST );
+	$site_host = strtolower( (string) preg_replace( '/^www\./', '', (string) $site_host ) );
+
+	foreach ( $candidates as $candidate ) {
+		$url = esc_url_raw( $candidate );
+		if ( '' === $url || wpdai_is_ajax_or_rest_url( $url ) ) {
+			continue;
+		}
+
+		$host = strtolower( (string) preg_replace( '/^www\./', '', (string) wp_parse_url( $url, PHP_URL_HOST ) ) );
+		if ( '' !== $host && $host === $site_host ) {
+			return $url;
+		}
+	}
+
+	return '';
+}
+
+/**
+ * Page the visitor was on when an AJAX/REST event fired.
+ *
+ * @param string $fallback   Current request URL, used only if it is not AJAX/REST.
+ * @param int    $product_id Optional product permalink fallback.
+ * @return string
+ */
+function wpdai_get_event_origin_url( $fallback = '', $product_id = 0 ) {
+	$referer = wpdai_get_same_site_referer_url();
+	if ( '' !== $referer ) {
+		return $referer;
+	}
+
+	if ( is_string( $fallback ) && '' !== $fallback && ! wpdai_is_ajax_or_rest_url( $fallback ) ) {
+		return esc_url_raw( $fallback );
+	}
+
+	$product_id = (int) $product_id;
+	if ( $product_id > 0 && function_exists( 'get_permalink' ) ) {
+		$permalink = get_permalink( $product_id );
+		if ( is_string( $permalink ) && '' !== $permalink ) {
+			return esc_url_raw( $permalink );
+		}
+	}
+
+	return '';
+}
+
+/**
+ * First non-empty URL, preferring one that still has tracking params.
+ *
+ * @param array<int, string> $urls Candidate URLs.
+ * @return string
+ */
+function wpdai_select_attribution_url( $urls ) {
+	$first = '';
+
+	if ( ! is_array( $urls ) ) {
+		return '';
+	}
+
+	foreach ( $urls as $url ) {
+		if ( ! is_string( $url ) || '' === $url ) {
+			continue;
+		}
+
+		$sanitized = wpdai_sanitize_attribution_url( $url );
+		if ( '' === $sanitized ) {
+			continue;
+		}
+
+		if ( '' === $first ) {
+			$first = $sanitized;
+		}
+
+		if ( wpdai_url_has_tracking_params( $sanitized ) ) {
+			return $sanitized;
+		}
+	}
+
+	return $first;
+}
+
+/**
+ * Keep the first landing page. Upgrade only from untagged → tagged.
+ *
+ * @param string $existing Already stored landing page.
+ * @param string $incoming Newly resolved landing page.
+ * @return string
+ */
+function wpdai_choose_first_touch_landing_page( $existing, $incoming ) {
+	$existing = is_string( $existing ) ? wpdai_sanitize_attribution_url( $existing ) : '';
+	$incoming = is_string( $incoming ) ? wpdai_sanitize_attribution_url( $incoming ) : '';
+
+	if ( '' === $existing ) {
+		return $incoming;
+	}
+
+	if ( '' === $incoming ) {
+		return $existing;
+	}
+
+	if ( wpdai_url_has_tracking_params( $existing ) ) {
+		return $existing;
+	}
+
+	if ( wpdai_url_has_tracking_params( $incoming ) ) {
+		return $incoming;
+	}
+
+	return $existing;
+}
+
+/**
+ * Keep the first external referral. Never replace a stored referrer with empty.
+ *
+ * @param string $existing Already stored referral URL.
+ * @param string $incoming Newly resolved referral URL.
+ * @return string
+ */
+function wpdai_choose_first_touch_referral_url( $existing, $incoming ) {
+	$existing = is_string( $existing ) ? trim( $existing ) : '';
+	$incoming = is_string( $incoming ) ? trim( $incoming ) : '';
+
+	if ( '' !== $existing ) {
+		return $existing;
+	}
+
+	return $incoming;
+}
+
+/**
  * 
  *	Returns the current URL path from $_SERVER unaltered by WP -> does not include domain
  *
@@ -165,4 +473,38 @@ function wpdai_get_referral_url_raw() {
     }
 
     return $referral_url;
+}
+
+/**
+ * Whether a URL is the WooCommerce order-received (thank you) page.
+ *
+ * @param string $url Page URL.
+ * @return bool
+ */
+function wpdai_is_order_received_url( $url ) {
+	if ( ! is_string( $url ) || '' === trim( $url ) ) {
+		return false;
+	}
+
+	$url      = htmlspecialchars_decode( $url );
+	$endpoint = 'order-received';
+
+	if ( function_exists( 'wc_get_page_id' ) ) {
+		$endpoint = (string) get_option( 'woocommerce_checkout_order_received_endpoint', 'order-received' );
+	}
+
+	$endpoint = sanitize_title( $endpoint );
+	if ( '' === $endpoint ) {
+		$endpoint = 'order-received';
+	}
+
+	$query = wpdai_parse_query_params( $url );
+	if ( isset( $query[ $endpoint ] ) && '' !== (string) $query[ $endpoint ] ) {
+		return true;
+	}
+
+	$path    = (string) wp_parse_url( $url, PHP_URL_PATH );
+	$pattern = '#/' . preg_quote( $endpoint, '#' ) . '(?:/|$)#';
+
+	return (bool) preg_match( $pattern, $path );
 }

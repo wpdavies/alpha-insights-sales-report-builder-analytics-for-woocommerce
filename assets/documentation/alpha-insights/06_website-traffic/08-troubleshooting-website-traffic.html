@@ -74,11 +74,11 @@ Verify your user role is NOT in the exclusion list</code></pre>
 
 <p><strong>5. JavaScript not loading</strong></p>
 
-<p><strong>Check:</strong> Browser developer tools (F12) → Network tab → look for <code>wpd-alpha-insights-event-tracking.js</code></p>
+<p><strong>Check:</strong> Browser developer tools (F12) → Network tab → look for <code>wpd-ai-event-tracking.js</code> and <code>wpd-ai-client.js</code></p>
 
 <p><strong>Solution:</strong></p>
 <ul>
-<li>If file not found (404): Check file exists at <code>wp-content/plugins/wp-davies-alpha-insights/assets/js/wpd-alpha-insights-event-tracking.js</code></li>
+<li>If file not found (404): Check files exist at <code>wp-content/plugins/wp-davies-alpha-insights/assets/js/analytics/</code></li>
 <li>If file blocked by firewall: Check server security rules</li>
 <li>If file not loading: Check theme/plugin conflicts (try Twenty Twenty-Three theme)</li>
 <li>Clear all caches (browser, plugin, server)</li>
@@ -118,21 +118,22 @@ LIMIT 10;</code></pre>
 
 <p><strong>If no results:</strong> Sessions not being created at all</p>
 
-<p><strong>2. Check if cookies are set</strong></p>
+<p><strong>2. Check browser storage</strong></p>
 
 <ul>
 <li>Open browser Developer Tools (F12)</li>
 <li>Go to Application tab (Chrome) or Storage tab (Firefox)</li>
-<li>Click Cookies → Your domain</li>
-<li>Look for: <code>wpd_ai_session_id</code>, <code>wpd_ai_landing_page</code>, <code>wpd_ai_referral_source</code></li>
+<li>Click Local Storage → Your domain</li>
+<li>Look for: <code>wpd_ai_v2_session_id</code>, <code>wpd_ai_v2_landing_page</code>, <code>wpd_ai_v2_referral_source</code></li>
+<li>Cookies <code>wpd_ai_session_id</code>, <code>wpd_ai_landing_page</code>, and <code>wpd_ai_referral_source</code> may be absent until cart or checkout in Checkout Only mode</li>
 </ul>
 
-<p><strong>If cookies missing:</strong></p>
+<p><strong>If localStorage values are missing:</strong></p>
 <ul>
-<li>Cookies might be blocked by browser settings</li>
-<li>Privacy extensions may be blocking (try disabling)</li>
-<li>Incognito/Private mode may block third-party cookies (shouldn't affect first-party, but test)</li>
-<li>Server-side cookie setting might be failing (check PHP headers)</li>
+<li>Analytics may be disabled, or the visitor role is excluded</li>
+<li>Privacy extensions may be blocking storage (try disabling)</li>
+<li>Incognito/Private mode may restrict storage</li>
+<li>Cached HTML may still point at retired script URLs — purge page cache after updates</li>
 </ul>
 
 <p><strong>3. Check for bot detection false positive</strong></p>
@@ -248,20 +249,20 @@ echo "Banned: " . ($banned ? 'Yes' : 'No');</code></pre>
 
 <h4>Diagnostic Steps</h4>
 
-<p><strong>1. Check if landing page cookie exists at time of order</strong></p>
+<p><strong>1. Check if landing page data exists at time of order</strong></p>
 
 <ul>
 <li>Add item to cart</li>
 <li>Open Developer Tools → Application → Cookies</li>
-<li>Verify <code>wpd_ai_landing_page</code> cookie exists</li>
+<li>Verify <code>wpd_ai_v2_landing_page</code> in Local Storage (and the <code>wpd_ai_landing_page</code> cookie on cart/checkout)</li>
 <li>Check its value (should be a URL)</li>
 <li>Proceed to checkout</li>
 <li>Cookie should still exist throughout checkout</li>
 </ul>
 
-<p><strong>If cookie missing or expires:</strong></p>
+<p><strong>If storage is missing or expired:</strong></p>
 <ul>
-<li>Session may have expired (>10 minutes since last page load)</li>
+<li>Session may have expired (more than 30 minutes since last page load)</li>
 <li>Cookies may be blocked</li>
 <li>Checkout may be on different subdomain (cookies don't transfer)</li>
 </ul>
@@ -331,17 +332,17 @@ add_action('woocommerce_checkout_order_processed', function($order_id) {
 <li>Redirects may lose parameters (check redirect preserves query string)</li>
 </ul>
 
-<p><strong>2. Check landing page cookie value</strong></p>
+<p><strong>2. Check landing page storage</strong></p>
 
 <ul>
-<li>After clicking UTM link, check Developer Tools → Cookies</li>
-<li>Look at <code>wpd_ai_landing_page</code> cookie value</li>
-<li>Should include full URL with UTM parameters</li>
+<li>After clicking a UTM link, check Developer Tools → Application → Local Storage</li>
+<li>Look at <code>wpd_ai_v2_landing_page</code></li>
+<li>Should include the full URL with UTM parameters</li>
 </ul>
 
-<p><strong>If UTMs not in cookie:</strong></p>
+<p><strong>If UTMs are not in storage:</strong></p>
 <ul>
-<li>Cookie may have been set before UTM visit (from previous session)</li>
+<li>Attribution may have been set on an earlier visit (first-touch within the window). If you expected last-touch, confirm <strong>Override Attribution on New UTM Visit</strong> is True and that enough time passed for a new session</li>
 <li>Wait 10+ minutes for session to expire, then try again</li>
 <li>Or clear cookies and try again</li>
 </ul>
@@ -358,7 +359,7 @@ LIMIT 10;</code></pre>
 <p><strong>If UTMs not in database:</strong></p>
 <ul>
 <li>Session not created</li>
-<li>Landing page cookie not being read correctly</li>
+<li>Landing page not being read from browser storage or the session record</li>
 <li>Data not being written to database</li>
 </ul>
 
@@ -408,7 +409,7 @@ LIMIT 20;</code></pre>
 
 <p><strong>Problem:</strong> Facebook, Instagram, TikTok often don't send referrer for privacy</p>
 
-<p><strong>Solution:</strong> Always use UTM parameters for social posts</p>
+<p><strong>Solution:</strong> Facebook and Instagram in-app browsers are classified as Social when the session would otherwise be Direct. Still use UTM parameters on social posts (and for TikTok) so paid vs organic stays explicit.</p>
 
 <pre><code>// Instead of: https://yourstore.com/products
 // Use: https://yourstore.com/products?utm_source=facebook&utm_medium=social</code></pre>
@@ -555,10 +556,10 @@ ORDER BY date_created_gmt DESC;</code></pre>
 
 <p><strong>4. Check if session exists</strong></p>
 
-<p>Add to cart requires active session (with cookie)</p>
+<p>Add to cart requires an active session. In Checkout Only mode the client writes cookies before the add-to-cart request.</p>
 <ul>
-<li>If no session cookie, event may not be recorded</li>
-<li>Check Developer Tools → Cookies for <code>wpd_ai_session_id</code></li>
+<li>If no session ID is present, the event may not be recorded</li>
+<li>Check Local Storage for <code>wpd_ai_v2_session_id</code>, then Cookies for <code>wpd_ai_session_id</code> after add-to-cart</li>
 </ul>
 
 <h3>Issue 10: High "Direct" Traffic (Seems Wrong)</h3>
@@ -574,7 +575,7 @@ ORDER BY date_created_gmt DESC;</code></pre>
 <li>Bookmarks</li>
 <li>Links with no referrer</li>
 <li>HTTPS → HTTP transitions (referrer lost)</li>
-<li>Links from mobile apps (often no referrer)</li>
+<li>Links from mobile apps (often no referrer). Facebook and Instagram in-app browsers are attributed to Social when no other source is present.</li>
 <li>Links from email clients (often no referrer)</li>
 <li>Links from messaging apps (WhatsApp, Messenger, etc.)</li>
 <li>Shortened URLs without UTMs (bit.ly, etc.)</li>
@@ -757,7 +758,7 @@ ALTER TABLE wp_wpd_ai_events ADD INDEX idx_date (date_created_gmt);</code></pre>
 
 <p><strong>2. "Why do I have multiple sessions for same visitor?"</strong></p>
 <ul>
-<li>Sessions expire after 10 minutes of inactivity</li>
+<li>Sessions expire after 30 minutes of inactivity</li>
 <li>Each return visit after expiration = new session</li>
 <li>This is correct behavior</li>
 </ul>
@@ -771,10 +772,10 @@ ALTER TABLE wp_wpd_ai_events ADD INDEX idx_date (date_created_gmt);</code></pre>
 
 <p><strong>4. "Why does order show different source than I expected?"</strong></p>
 <ul>
-<li>Alpha Insights uses last-click attribution</li>
-<li>Order attributed to most recent session</li>
-<li>Customer may have visited multiple times from different sources</li>
-<li>Session may have expired between visits</li>
+<li>Attribution is first-touch within the Attribution Window, unless a later UTM/click-ID session overrode it</li>
+<li>The order copies the stored landing page and referral at checkout</li>
+<li>The customer may have visited multiple times from different sources</li>
+<li>The attribution window (or Session Only) may have expired between visits</li>
 </ul>
 
 <h4>Related Documentation</h4>
