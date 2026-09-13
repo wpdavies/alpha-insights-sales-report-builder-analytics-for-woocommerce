@@ -1784,6 +1784,14 @@ class WPDAI_Report_Builder {
                 'conversion_rate_by_date' => array(
                     'analytics.data_by_date.transactions_by_date',
                     'analytics.data_by_date.sessions_by_date'
+                ),
+                'percent_sessions_with_add_to_cart_by_date' => array(
+                    'analytics.data_by_date.sessions_with_add_to_cart_by_date',
+                    'analytics.data_by_date.sessions_by_date'
+                ),
+                'percent_sessions_with_initiate_checkout_by_date' => array(
+                    'analytics.data_by_date.sessions_with_initiate_checkout_by_date',
+                    'analytics.data_by_date.sessions_by_date'
                 )
             ),
             'google_campaigns' => array(

@@ -114,20 +114,47 @@
 	justify-content: flex-end;
 }
 
-.wpd-exp-row-actions .button-small {
-	min-height: 24px;
-	line-height: 2;
-	padding: 0 8px;
+.wpd-exp-row-actions .button,
+.wpd-exp-row-actions .button:hover,
+.wpd-exp-row-actions .button:focus,
+.wpd-exp-row-actions .button:focus-visible,
+.wpd-exp-row-actions .button:active,
+.wpd-exp-row-actions .button.button-small,
+.wpd-exp-row-actions .button.button-small:hover,
+.wpd-exp-row-actions .button.button-small:focus,
+.wpd-exp-row-actions .button.button-small:focus-visible,
+.wpd-exp-row-actions .button.button-small:active,
+.wp-core-ui .wpd-exp-row-actions .button.button-small,
+.wp-core-ui .wpd-exp-row-actions .button.button-small:hover,
+.wp-core-ui .wpd-exp-row-actions .button.button-small:focus,
+.wp-core-ui .wpd-exp-row-actions .button.button-small:focus-visible,
+.wp-core-ui .wpd-exp-row-actions .button.button-small:active {
+	box-sizing: border-box;
+	height: 24px !important;
+	min-height: 24px !important;
+	max-height: 24px;
+	padding: 0 8px !important;
+	line-height: 22px !important;
+	font-size: 11px;
+	border-radius: var(--alpha-border-radius-sm, 4px);
+	box-shadow: none;
+	transform: none;
+}
+
+.wp-core-ui .wpd-exp-row-actions .button.button-small:focus,
+.wp-core-ui .wpd-exp-row-actions .button.button-small:focus-visible {
+	outline: 1px solid var(--alpha-primary, #138fdd);
+	outline-offset: 1px;
 }
 
 .wpd-exp-list {
-	padding: 0;
+	padding: 0 0 8px;
 }
 
 .wpd-exp-list-intro {
 	margin: 12px 0 0;
 	max-width: 52em;
-	color: #50575e;
+	color: var(--alpha-gray, #6c757d);
 	font-size: 14px;
 	font-weight: 400;
 	line-height: 1.55;
@@ -135,18 +162,35 @@
 
 .wpd-exp-list-empty {
 	margin: 0 0 16px;
-	color: #646970;
+	color: var(--alpha-gray, #6c757d);
+}
+
+.wpd-exp-list-table-wrap {
+	margin: 0 0 16px;
+	border: 1px solid #e6e8ec;
+	border-radius: var(--alpha-border-radius-md, 8px);
+	box-shadow: var(--alpha-shadow-sm, 0 2px 4px rgba(0, 0, 0, 0.06));
+	background: var(--alpha-white, #fff);
+	font-family: var(--alpha-font-family, 'Poppins', sans-serif);
+}
+
+.wpd-exp-list-table-scroll {
+	overflow-x: auto;
 }
 
 .wpd-exp-list-table {
-	width: 100%;
-	border: 1px solid #dcdcde;
-	border-radius: 6px;
+	width: max-content;
+	min-width: 100%;
+	margin: 0;
+	border: 0;
+	border-radius: 0;
 	border-collapse: separate;
 	border-spacing: 0;
-	overflow: hidden;
-	background: #fff;
-	margin: 0 0 16px;
+	background: transparent;
+}
+
+table.wpd-exp-list-table.wpd-table {
+	margin: 0;
 }
 
 .wpd-exp-list-table thead tr.wpd-exp-list-heading th {
@@ -154,8 +198,8 @@
 	font-weight: 400;
 	text-transform: none;
 	letter-spacing: 0;
-	background: #fff;
-	border-bottom: 1px solid #dcdcde;
+	background: var(--alpha-white, #fff);
+	border-bottom: 1px solid #e6e8ec;
 	text-align: left;
 }
 
@@ -163,17 +207,29 @@
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 12px 16px;
-	padding: 12px 14px;
+	gap: 10px 16px;
+	padding: 14px 16px;
+	border-bottom: 1px solid #e6e8ec;
 }
 
 .wpd-exp-list-identity {
-	flex: 1 1 180px;
+	flex: 1 1 160px;
 	min-width: 0;
 }
 
 .wpd-exp-list-identity a {
+	color: var(--alpha-dark-gray, #2c3e50);
 	text-decoration: none;
+}
+
+.wpd-exp-list-identity a:hover,
+.wpd-exp-list-identity a:focus {
+	color: var(--alpha-primary, #138fdd);
+}
+
+.wpd-exp-list-identity strong {
+	font-size: 15px;
+	font-weight: 600;
 }
 
 .wpd-exp-list-meta {
@@ -183,35 +239,81 @@
 	gap: 8px;
 }
 
+.wpd-exp-goal-picker {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px 8px;
+	margin-left: auto;
+}
+
+.wpd-exp-goal-picker label {
+	margin: 0;
+	color: var(--alpha-gray, #6c757d);
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+}
+
+.wpd-exp-goal-select {
+	box-sizing: border-box;
+	width: 12em;
+	min-width: 0;
+	max-width: 12em;
+	flex: 0 0 12em;
+	margin: 0;
+	padding: 4px 8px;
+	height: 32px;
+	border-color: #d8dde3;
+	border-radius: var(--alpha-border-radius-sm, 4px);
+	font-size: 13px;
+	line-height: 1.3;
+}
+
+.wpd-exp-goal-select:focus {
+	border-color: var(--alpha-primary, #138fdd);
+	box-shadow: 0 0 0 1px var(--alpha-primary, #138fdd);
+	outline: none;
+}
+
+.wpd-exp-goal-saved {
+	font-size: 12px;
+	white-space: nowrap;
+}
+
 .wpd-exp-status {
 	display: inline-block;
 	padding: 2px 8px;
 	border-radius: 999px;
-	background: #f0f0f1;
-	color: #50575e;
-	font-size: 12px;
+	background: var(--alpha-light-gray, #f8f9fa);
+	color: var(--alpha-gray, #6c757d);
+	font-size: 11px;
 	font-weight: 600;
+	letter-spacing: 0.02em;
 	line-height: 1.4;
+	text-transform: uppercase;
 }
 
 .wpd-exp-status--running {
 	background: #edfaef;
-	color: #1e7e34;
+	color: var(--alpha-success, #28a745);
 }
 
 .wpd-exp-status--paused {
-	background: #fcf3cf;
+	background: #fff8e1;
 	color: #8a6d1b;
 }
 
 .wpd-exp-status--completed {
-	background: #e7f3ff;
-	color: #0a4b78;
+	background: #e8f6fd;
+	color: var(--alpha-primary, #138fdd);
 }
 
 .wpd-exp-traffic {
-	color: #646970;
+	color: var(--alpha-gray, #6c757d);
 	font-size: 12px;
+	font-weight: 500;
 }
 
 .wpd-exp-code-badges {
@@ -251,53 +353,247 @@
 	vertical-align: middle;
 }
 
-.wpd-exp-list-table thead tr:not(.wpd-exp-list-heading) th {
+.wpd-exp-list-table thead tr.wpd-exp-progress-row th {
+	padding: 0;
+	font-weight: 400;
+	text-transform: none;
+	letter-spacing: 0;
+	background: var(--alpha-white, #fff);
+	border-bottom: 1px solid #e6e8ec;
+	text-align: left;
+	overflow: visible;
+}
+
+.wpd-exp-progress {
+	position: relative;
+	width: 100%;
+	box-sizing: border-box;
+	padding: 12px 16px 14px;
+	border-bottom: 1px solid #e6e8ec;
+}
+
+.wpd-exp-progress-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 6px 12px;
+	margin-bottom: 6px;
+}
+
+.wpd-exp-progress-title {
+	color: var(--alpha-dark-gray, #2c3e50);
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.03em;
+	text-transform: uppercase;
+}
+
+.wpd-exp-progress-metric {
+	color: var(--alpha-gray, #6c757d);
+	font-size: 12px;
+	font-weight: 500;
+}
+
+.wpd-exp-progress-chart {
+	position: relative;
+	width: 100%;
+	min-height: 240px;
+}
+
+.wpd-exp-progress-svg {
+	display: block;
+	width: 100%;
+	height: 240px;
+}
+
+.wpd-exp-progress-grid {
+	stroke: #eef1f4;
+	stroke-width: 1;
+}
+
+.wpd-exp-progress-baseline {
+	stroke: #c5ced6;
+	stroke-width: 1.25;
+	stroke-dasharray: 4 4;
+}
+
+.wpd-exp-progress-axis-label {
+	fill: #8b939c;
+	font-size: 10px;
+	font-family: var(--alpha-font-family, 'Poppins', sans-serif);
+}
+
+.wpd-exp-progress-hover-line {
+	stroke: #c5ced6;
+	stroke-width: 1;
+	stroke-dasharray: 3 3;
+	pointer-events: none;
+}
+
+.wpd-exp-progress-empty {
+	margin: 24px 0;
+	color: var(--alpha-gray, #6c757d);
+	font-size: 13px;
+	text-align: center;
+}
+
+.wpd-exp-progress-legend {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 16px;
+	margin-top: 4px;
+}
+
+.wpd-exp-progress-legend-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	color: var(--alpha-dark-gray, #2c3e50);
+	font-size: 12px;
+	font-weight: 500;
+}
+
+.wpd-exp-progress-legend-item i,
+.wpd-exp-progress-tooltip-row i {
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+}
+
+.wpd-exp-progress-tooltip {
+	position: absolute;
+	z-index: 2;
+	min-width: 140px;
+	padding: 8px 10px;
+	border: 1px solid #e6e8ec;
+	border-radius: var(--alpha-border-radius-sm, 4px);
+	background: #fff;
+	box-shadow: var(--alpha-shadow-sm, 0 2px 4px rgba(0, 0, 0, 0.08));
+	color: var(--alpha-dark-gray, #2c3e50);
+	font-size: 12px;
+	line-height: 1.45;
+	pointer-events: none;
+}
+
+.wpd-exp-progress-tooltip strong {
+	display: block;
+	margin-bottom: 4px;
+	font-size: 11px;
+	font-weight: 600;
+}
+
+.wpd-exp-progress-tooltip-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.wpd-exp-list-table thead tr.wpd-exp-list-cols th {
 	padding: 8px 12px;
 	font-size: 11px;
 	font-weight: 600;
 	text-transform: uppercase;
-	letter-spacing: 0.02em;
-	color: #646970;
-	background: #f6f7f7;
-	border-bottom: 1px solid #dcdcde;
+	letter-spacing: 0.03em;
+	color: var(--alpha-gray, #6c757d);
+	background: var(--alpha-light-gray, #f8f9fa);
+	border-bottom: 1px solid #e6e8ec;
 	text-align: right;
+	white-space: nowrap;
 }
 
-.wpd-exp-list-table thead tr:not(.wpd-exp-list-heading) th:first-child,
+.wpd-exp-list-table thead tr.wpd-exp-list-cols th:first-child,
 .wpd-exp-list-table tbody td:first-child {
 	text-align: left;
 }
 
 .wpd-exp-list-table tbody td {
-	padding: 9px 12px;
+	padding: 10px 12px;
 	text-align: right;
 	font-size: 13px;
-	border-bottom: 1px solid #f0f0f1;
+	color: var(--alpha-dark-gray, #2c3e50);
+	border-bottom: 1px solid #f0f2f4;
+	vertical-align: middle;
+	white-space: nowrap;
+}
+
+.wpd-exp-list-table tbody td.wpd-exp-arm-name {
+	white-space: normal;
 }
 
 .wpd-exp-list-table tbody tr:last-child td {
 	border-bottom: none;
 }
 
-.wpd-exp-list-table tbody tr:hover {
-	background: transparent;
+.wpd-exp-list-table tbody tr:hover td {
+	background: #fbfdff;
 }
 
 .wpd-exp-list-table tbody tr.is-winner td {
-	font-weight: 600;
-	background: #f0f6fc;
+	background: #f3f9fd;
+}
+
+.wpd-exp-list-table thead th.is-target-col {
+	color: var(--alpha-dark-gray, #2c3e50);
+	font-weight: 700;
+}
+
+.wpd-exp-arm-role {
+	display: inline-block;
+	margin-left: 6px;
+	color: var(--alpha-gray, #6c757d);
+	font-size: 11px;
+	font-weight: 500;
 }
 
 .wpd-exp-arm-leading {
-	display: inline-block;
+	display: none;
 	margin-left: 6px;
-	padding: 1px 6px;
-	border-radius: 3px;
-	background: var(--alpha-primary, #2271b1);
+	padding: 1px 7px;
+	border-radius: 999px;
+	background: var(--alpha-primary, #138fdd);
 	color: #fff;
-	font-size: 11px;
+	font-size: 10px;
 	font-weight: 600;
-	line-height: 1.4;
+	letter-spacing: 0.03em;
+	line-height: 1.5;
+	text-transform: uppercase;
+}
+
+.wpd-exp-arm-row.is-winner .wpd-exp-arm-leading {
+	display: inline-block;
+}
+
+.wpd-exp-lift {
+	font-weight: 600;
+}
+
+.wpd-exp-lift.is-up {
+	color: var(--alpha-success, #28a745);
+}
+
+.wpd-exp-lift.is-down {
+	color: var(--alpha-danger, #dc3545);
+}
+
+@media (max-width: 782px) {
+	.wpd-exp-goal-picker {
+		margin-left: 0;
+		width: auto;
+		max-width: 100%;
+	}
+
+	.wpd-exp-goal-select {
+		width: 12em;
+		max-width: 100%;
+		flex: 0 1 12em;
+	}
+
+	.wpd-exp-row-actions {
+		justify-content: flex-start;
+		width: 100%;
+	}
 }
 
 .wpd-exp-locked-filter {

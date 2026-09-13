@@ -200,6 +200,41 @@
 		min-width: 100px;
 	}
 
+	#wpd-ai-settings .wpd-debug-logs-header {
+		flex-wrap: wrap;
+	}
+
+	#wpd-ai-settings .wpd-debug-logs-header .wpd-delete-all-logs {
+		width: 100%;
+		text-align: center;
+	}
+
+	#wpd-ai-settings .wpd-debug-sessions-filters {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	#wpd-ai-settings .wpd-debug-sessions-filter,
+	#wpd-ai-settings .wpd-debug-sessions-filter-actions,
+	#wpd-ai-settings .wpd-debug-sessions-filter .wpd-input,
+	#wpd-ai-settings .wpd-debug-sessions-summary .wpd-debug-sessions-export,
+	#wpd-ai-settings .wpd-debug-sessions-export-actions .button {
+		width: 100%;
+		min-width: 0;
+		box-sizing: border-box;
+		text-align: center;
+	}
+
+	#wpd-ai-settings .wpd-debug-tab-nav {
+		gap: 6px;
+	}
+
+	#wpd-ai-settings .wpd-debug-tab-nav .wpd-nav-tab {
+		flex: 1 1 calc(50% - 6px);
+		text-align: center;
+		box-sizing: border-box;
+	}
+
 	/* Debug / code output */
 	#wpd-ai-settings pre,
 	#wpd-ai-settings code,

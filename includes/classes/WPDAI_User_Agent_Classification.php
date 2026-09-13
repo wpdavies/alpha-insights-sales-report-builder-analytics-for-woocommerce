@@ -303,10 +303,15 @@ class WPDAI_User_Agent_Classification {
      */
     protected function isSpecificBot($agent)
     {
-        $escaped_patterns = array_map(function($pattern) {
-            return preg_quote($pattern, '/');
-        }, $this->getCrawlerBots());
-        $compiled_regex = '(' . implode('|', $escaped_patterns) . ')';
+        static $compiled_regex = null;
+
+        if (null === $compiled_regex) {
+            $escaped_patterns = array_map(function($pattern) {
+                return preg_quote($pattern, '/');
+            }, $this->getCrawlerBots());
+            $compiled_regex = '(' . implode('|', $escaped_patterns) . ')';
+        }
+
         return preg_match("/{$compiled_regex}/i", $agent);
     }
 

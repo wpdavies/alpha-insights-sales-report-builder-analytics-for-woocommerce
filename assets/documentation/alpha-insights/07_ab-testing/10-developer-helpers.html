@@ -28,7 +28,7 @@ if ( 'treatment' === $variant ) {
 <p>Full reference: <a href='/documentation/alpha-insights/developers/functions/wpdai_get_experiment_variant.html'>Function: wpdai_get_experiment_variant</a>.</p>
 
 <h3>Preview in development</h3>
-<p>Authorized users can force a variant with <code>wpd_ai_preview_exp</code> and <code>wpd_ai_preview_var</code> query args. Helpers follow the preview. Preview does not write experiment events. See <a href='/documentation/alpha-insights/experiments/previewing-and-qa.html'>Previewing and QA</a>.</p>
+<p>Authorized users can force a variant with <code>wpd_ai_preview_exp</code> and <code>wpd_ai_preview_var</code> query args. Helpers follow the preview. Preview does not write experiment events. See <a href='/documentation/alpha-insights/ab-testing/previewing-and-qa.html'>Previewing and QA</a>.</p>
 
 <h3>Hooks</h3>
 <table>
@@ -56,9 +56,10 @@ if ( 'treatment' === $variant ) {
 
 <h3>Custom conversion goals</h3>
 <p>For a Pro custom-event goal, record the same event type with <a href='/documentation/alpha-insights/developers/functions/wpdai_track_custom_event.html'>wpdai_track_custom_event</a> or the JavaScript tracker. The report counts exposed sessions that include that event type.</p>
+<p>Purchase value, revenue per exposure, and average order value (Pro) still convert on an attributed purchase. They change how the A/B Test list scores lift (revenue per visitor, revenue per exposure, or AOV), not the PHP helpers.</p>
 
 <h3>Related</h3>
 <ul>
-<li><a href='/documentation/alpha-insights/experiments/variants-css-js-php.html'>Variants, CSS, JS, and PHP</a></li>
+<li><a href='/documentation/alpha-insights/ab-testing/variants-css-js-php.html'>Variants, CSS, JS, and PHP</a></li>
 <li><a href='/documentation/alpha-insights/website-traffic/tracking-custom-events.html'>Tracking Custom Events</a></li>
 </ul>

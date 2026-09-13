@@ -1,0 +1,73 @@
+<h2>Reading the Report</h2>
+
+<p>Open <strong>Alpha Insights → A/B Test → Report</strong> (also under Website Traffic as <strong>A/B Tests</strong>). The A/B Test list shows the same warehouse metrics for all time. The report is date-filtered (default last 30 days) and includes charts plus a full variant table.</p>
+
+<p>You can filter the report to one or more A/B tests from the filters modal (Pro for custom filter sets, same as other reports).</p>
+
+<h3>Headline metrics</h3>
+<table>
+<tr>
+<th>Metric</th>
+<th>What it measures</th>
+</tr>
+<tr>
+<td>Exposures</td>
+<td>Assigned visitors who saw a variant. This is the conversion-rate denominator.</td>
+</tr>
+<tr>
+<td>Conversions</td>
+<td>Exposed visitors who completed the A/B test’s primary goal. For Purchases, purchase value, and average order value, that is an attributed purchase.</td>
+</tr>
+<tr>
+<td>Conversion rate</td>
+<td>On the date-filtered report this is conversions ÷ exposures (purchase rate for purchase-based goals). On the list, <strong>Target conversion</strong> can switch the rate to add-to-cart rate, checkout rate, revenue per visitor, revenue per exposure, or AOV.</td>
+</tr>
+<tr>
+<td>Lift vs control</td>
+<td>How far a treatment sits above or below that test’s own control on the selected rate. Control is not given a lift.</td>
+</tr>
+<tr>
+<td>Add to carts / initiate checkouts / purchases</td>
+<td>Funnel counts from the same exposed sessions. Rates are also available as % of exposures.</td>
+</tr>
+<tr>
+<td>Sessions / duration</td>
+<td>Analytics sessions joined to exposed assignments.</td>
+</tr>
+</table>
+
+<h3>Pro-only columns and goals</h3>
+<ul>
+<li><strong>Revenue (purchase value)</strong> — attributed purchase value from session events, with visitor-ID fallback on the order. As a <em>saved primary goal</em> (Pro only), the list scores lift as revenue per exposed visitor.</li>
+<li><strong>Revenue per exposure</strong> — revenue ÷ exposures. Use this instead of total revenue when variants have different traffic. As a <em>saved primary goal</em> (Pro only), the list scores lift on this rate.</li>
+<li><strong>AOV (average order value)</strong> — revenue ÷ attributed purchases. As a <em>saved primary goal</em> (Pro only), the list scores lift as AOV.</li>
+<li><strong>Profit</strong> — store profit for those attributed sessions / orders.</li>
+<li><strong>Significance</strong> — scored against that test’s own control, even if more than one test is in the date range. Confidence interval columns appear on the variant table when Pro is active.</li>
+</ul>
+<p>Free lists and reports stay on Purchases. Revenue, revenue per exposure, AOV, profit, significance, and the value goals require Pro.</p>
+
+<h3>Charts</h3>
+<ul>
+<li><strong>Hits per A/B test</strong> — exposures over time, grouped by test.</li>
+<li><strong>Conversion rate by variant</strong> — includes control so you can compare arms on the same axis.</li>
+<li><strong>Daily lift vs control</strong> — treatment arms only.</li>
+</ul>
+
+<h3>How to read a result</h3>
+<ol>
+<li>Confirm both arms have meaningful exposures. Very small samples swing wildly.</li>
+<li>Match the metric to the hypothesis: purchase rate for conversion tests, revenue per exposure or AOV (Pro) when the change is about value rather than volume.</li>
+<li>Use the funnel (add to cart → initiate checkout → purchase) to see where a treatment helps or hurts.</li>
+<li>In Pro, wait for significance before you ship a small lift. A “leading” badge on the list is only the current highest rate for the selected target conversion, not a statistical call.</li>
+<li>If the list and report disagree, check the report date range. The list is all-time.</li>
+</ol>
+
+<h3>Metric names in Report Builder</h3>
+<p>A/B test fields are labelled with an <strong>Experiment -</strong> prefix in pickers so they stay distinct from website traffic and orders. You can add them to custom reports the same way as other warehouse entities.</p>
+
+<h3>Related</h3>
+<ul>
+<li><a href='/documentation/alpha-insights/ab-testing/how-assignment-works.html'>How Assignment Works</a></li>
+<li><a href='/documentation/alpha-insights/ab-testing/free-vs-pro.html'>Free vs Pro</a></li>
+<li><a href='/documentation/alpha-insights/report-builder/understanding-pre-built-reports.html'>Understanding Pre-Built Reports</a></li>
+</ul>

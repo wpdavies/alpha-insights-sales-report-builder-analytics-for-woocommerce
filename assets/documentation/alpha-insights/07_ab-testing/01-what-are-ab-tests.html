@@ -1,0 +1,58 @@
+<h2>What Are A/B Tests?</h2>
+
+<p>Alpha Insights A/B Testing lets you test changes on your store and measure which version actually converts. Visitors are split between a control and one or more treatments. Each person keeps the same variant on later visits, and results are tied to your Alpha Insights analytics and orders — so you can see conversion rate, lift, and (in Pro) revenue and significance, not just clicks.</p>
+
+<p>Open the feature from <strong>Alpha Insights → A/B Test</strong>. Analytics must be enabled in General Settings before a test can run.</p>
+
+<h3>What you can test</h3>
+<ul>
+<li><strong>CSS</strong> — layout, colour, spacing, or hide/show elements</li>
+<li><strong>JavaScript</strong> — copy, buttons, banners, or client-side behaviour</li>
+<li><strong>PHP (Pro)</strong> — server-side changes on the HTML request, before the page is painted</li>
+</ul>
+
+<p>You can also branch theme or plugin code with the helpers <code>wpdai_in_experiment()</code> and <code>wpdai_get_experiment_variant()</code>. See <a href='/documentation/alpha-insights/ab-testing/developer-helpers.html'>Developer Helpers</a>.</p>
+
+<h3>How a test runs</h3>
+<ol>
+<li>You create a draft with a primary goal (Free: Purchases; Pro: add to cart, page view, custom event, purchase value, or average order value), page rules, and variants.</li>
+<li>You start the test. Targeted URLs miss full-page cache so the correct variant can render on first paint.</li>
+<li>On a matching page view, Alpha Insights assigns the visitor to an arm (or holdout, in Pro) and records eligibility, assignment, and exposure events.</li>
+<li>That visitor keeps the same variant via a sticky visitor cookie until you pause or complete the test.</li>
+<li>The A/B Test list and the A/B Tests report show exposures, funnel steps, conversions, conversion rate, and lift versus control.</li>
+</ol>
+
+<h3>Statuses</h3>
+<table>
+<tr>
+<th>Status</th>
+<th>What it means</th>
+</tr>
+<tr>
+<td>Draft</td>
+<td>Saved but not assigning traffic. Safe to edit.</td>
+</tr>
+<tr>
+<td>Running</td>
+<td>Eligible visitors are assigned. Targeted URLs bypass page cache.</td>
+</tr>
+<tr>
+<td>Paused</td>
+<td>No new assignments or variant code. Existing assignment history is kept. Cache returns to those URLs.</td>
+</tr>
+<tr>
+<td>Completed</td>
+<td>The test is finished. History stays available in the report.</td>
+</tr>
+</table>
+
+<h3>Free vs Pro at a glance</h3>
+<p>Free includes one running A/B test, 100% of eligible traffic, CSS/JS, and a Purchases goal. Pro adds A/B/n variants, holdout %, PHP snippets, extra page and audience targeting, scheduled start/end dates, extra primary goals (including purchase value and average order value), and significance / revenue on the report. Full comparison: <a href='/documentation/alpha-insights/ab-testing/free-vs-pro.html'>Free vs Pro</a>.</p>
+
+<h3>Related</h3>
+<ul>
+<li><a href='/documentation/alpha-insights/ab-testing/creating-an-ab-test.html'>Creating an A/B Test</a></li>
+<li><a href='/documentation/alpha-insights/ab-testing/how-assignment-works.html'>How Assignment Works</a></li>
+<li><a href='/documentation/alpha-insights/ab-testing/reading-the-report.html'>Reading the Report</a></li>
+<li><a href='/documentation/alpha-insights/website-traffic/understanding-website-analytics.html'>Understanding Website Analytics</a></li>
+</ul>

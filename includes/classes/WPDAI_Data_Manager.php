@@ -444,6 +444,7 @@ class WPDAI_Data_Manager {
             '_wpd_amount_paid_currency',
             '_wpd_date_paid',
             '_wpd_expense_reference',
+            '_wpd_on_purchasing_list',
             '_wpd_recurring_expense_enabled',
             '_wpd_recurring_expense_frequency',
             '_wpd_recurring_expense_beginning_date',

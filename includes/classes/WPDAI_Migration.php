@@ -67,6 +67,8 @@ class WPDAI_Migration {
         // Hook into individual migration actions
         add_action( 'wpd_ai_migration_build_engaged_sessions', array( $this, 'build_engaged_sessions' ) );
         add_action( 'wpd_ai_migration_promote_cache_safe_event_tracking', array( $this, 'promote_cache_safe_event_tracking' ) );
+        add_action( 'wpd_ai_migration_retire_legacy_event_tracking', array( $this, 'retire_legacy_event_tracking' ) );
+        add_action( 'wpd_ai_migration_backfill_untagged_session_landing_pages', array( $this, 'backfill_untagged_session_landing_pages' ) );
         
         // Register AJAX actions
         add_action( 'wp_ajax_wpd_run_migration', array( $this, 'run_migration_ajax_handler' ) );
@@ -91,7 +93,18 @@ class WPDAI_Migration {
                 'description' => __( 'Promote cache-safe event tracking to default and migrate analytics settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
                 'name' => __( 'Promote Cache-Safe Event Tracking', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
             ),
-            // Add more migrations here as needed
+            'retire_legacy_event_tracking' => array(
+                'hook' => 'wpd_ai_migration_retire_legacy_event_tracking',
+                'version' => '5.10.0',
+                'description' => __( 'Remove the retired legacy event tracking setting so cache-safe analytics is the only loader', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'name' => __( 'Retire Legacy Event Tracking', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+            ),
+            'backfill_untagged_session_landing_pages' => array(
+                'hook' => 'wpd_ai_migration_backfill_untagged_session_landing_pages',
+                'version' => '5.10.5',
+                'description' => __( 'Upgrade Direct/untagged session landing pages when a later event in the same session includes UTM tags or click IDs', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                'name' => __( 'Backfill Tagged Landing Pages', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+            ),
         );
     }
 
@@ -377,6 +390,345 @@ class WPDAI_Migration {
 
         return true;
 
+    }
+
+    /**
+     * Migration: Drop the retired legacy event tracking opt-out.
+     *
+     * Cache-safe analytics is the only loader. Stored settings no longer control that.
+     *
+     * @return bool
+     */
+    public function retire_legacy_event_tracking() {
+
+        wpdai_write_log( 'Starting migration: retire_legacy_event_tracking', 'migration' );
+
+        $analytics_settings = get_option( 'wpd_ai_analytics', array() );
+        if ( ! is_array( $analytics_settings ) ) {
+            $analytics_settings = array();
+        }
+
+        unset( $analytics_settings['enable_legacy_event_tracking'], $analytics_settings['enable_cache_safe_tracking_beta'] );
+
+        if ( empty( $analytics_settings['cookie_storage_mode'] ) ) {
+            $analytics_settings['cookie_storage_mode'] = 'checkout_only';
+        }
+
+        update_option( 'wpd_ai_analytics', $analytics_settings );
+
+        wpdai_write_log( 'Migration retire_legacy_event_tracking completed.', 'migration' );
+
+        $this->mark_migration_completed( 'retire_legacy_event_tracking' );
+
+        return true;
+
+    }
+
+    /**
+     * Option that stores the session-table ID cursor for the landing-page backfill.
+     */
+    const BACKFILL_LANDING_CURSOR_OPTION = 'wpd_ai_backfill_untagged_landing_cursor';
+
+    /**
+     * Migration: upgrade untagged session landing pages from tagged event URLs.
+     *
+     * Finds sessions whose stored landing page has no campaign/click-id params,
+     * then sets landing_page to the earliest same-session event URL that does.
+     * Also updates matching order meta. Safe to re-run.
+     *
+     * @return bool
+     */
+    public function backfill_untagged_session_landing_pages() {
+
+        wpdai_write_log( 'Starting migration: backfill_untagged_session_landing_pages', 'migration' );
+
+        if ( ! function_exists( 'wpdai_url_has_tracking_params' ) || ! function_exists( 'wpdai_choose_first_touch_landing_page' ) ) {
+            wpdai_write_log( 'Attribution helpers are not available. Migration cannot proceed.', 'migration_error' );
+            return false;
+        }
+
+        global $wpdb;
+
+        $db_interactor      = new WPDAI_Database_Interactor();
+        $session_data_table = $db_interactor->session_data_table;
+        $events_table       = $db_interactor->events_table;
+        $batch_size         = 200;
+        $max_batches        = wp_doing_ajax() ? 200 : 40;
+        $total_updated      = 0;
+        $total_orders       = 0;
+        $cursor             = (int) get_option( self::BACKFILL_LANDING_CURSOR_OPTION, 0 );
+        $untagged_sql       = $this->get_untagged_landing_sql( 'landing_page' );
+        $event_like_sql     = $this->get_tagged_url_like_sql( 'page_href' );
+
+        for ( $batch_number = 1; $batch_number <= $max_batches; $batch_number++ ) {
+            $id_sql    = $wpdb->prepare( 'ID > %d', $cursor );
+            $limit_sql = $wpdb->prepare( 'LIMIT %d', $batch_size );
+            $session_sql = "SELECT ID, session_id, landing_page
+                FROM {$session_data_table}
+                WHERE {$untagged_sql}
+                AND {$id_sql}
+                ORDER BY ID ASC
+                {$limit_sql}";
+
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table name and LIKE fragments are escaped separately; IDs are prepared.
+            $sessions = $wpdb->get_results( $session_sql, ARRAY_A );
+
+            if ( ! is_array( $sessions ) || empty( $sessions ) ) {
+                delete_option( self::BACKFILL_LANDING_CURSOR_OPTION );
+                /* translators: %d: Number of updated sessions */
+                wpdai_write_log( sprintf( __( 'Migration backfill_untagged_session_landing_pages completed. Updated %d sessions.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $total_updated ), 'migration' );
+                $this->mark_migration_completed( 'backfill_untagged_session_landing_pages' );
+                return true;
+            }
+
+            $cursor      = (int) end( $sessions )['ID'];
+            $session_ids = array();
+            $by_session  = array();
+
+            foreach ( $sessions as $session ) {
+                $session_id = isset( $session['session_id'] ) ? (string) $session['session_id'] : '';
+                if ( '' === $session_id ) {
+                    continue;
+                }
+                $session_ids[]            = $session_id;
+                $by_session[ $session_id ] = isset( $session['landing_page'] ) ? (string) $session['landing_page'] : '';
+            }
+
+            $upgraded = array();
+            if ( ! empty( $session_ids ) ) {
+                $placeholders = implode( ',', array_fill( 0, count( $session_ids ), '%s' ) );
+                $in_sql       = $wpdb->prepare( $placeholders, ...$session_ids ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Placeholder count matches session IDs.
+                $event_sql    = "SELECT session_id, page_href
+                    FROM {$events_table}
+                    WHERE session_id IN ({$in_sql})
+                    AND page_href != ''
+                    AND {$event_like_sql}
+                    ORDER BY date_created_gmt ASC";
+
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Session IDs are prepared; LIKE fragments are escaped separately.
+                $events = $wpdb->get_results( $event_sql, ARRAY_A );
+
+                if ( is_array( $events ) ) {
+                    foreach ( $events as $event ) {
+                        $session_id = isset( $event['session_id'] ) ? (string) $event['session_id'] : '';
+                        $page_href  = isset( $event['page_href'] ) ? (string) $event['page_href'] : '';
+
+                        if ( '' === $session_id || isset( $upgraded[ $session_id ] ) ) {
+                            continue;
+                        }
+
+                        if ( $this->is_unusable_backfill_url( $page_href ) ) {
+                            continue;
+                        }
+
+                        if ( ! wpdai_url_has_tracking_params( $page_href ) ) {
+                            continue;
+                        }
+
+                        $existing = isset( $by_session[ $session_id ] ) ? $by_session[ $session_id ] : '';
+                        $chosen   = wpdai_choose_first_touch_landing_page( $existing, $page_href );
+
+                        if ( '' !== $chosen && $chosen !== $existing ) {
+                            $upgraded[ $session_id ] = $chosen;
+                        }
+                    }
+                }
+            }
+
+            foreach ( $upgraded as $session_id => $landing_page ) {
+                $updated = $wpdb->update(
+                    $session_data_table,
+                    array( 'landing_page' => $landing_page ),
+                    array( 'session_id' => $session_id ),
+                    array( '%s' ),
+                    array( '%s' )
+                );
+
+                if ( false !== $updated ) {
+                    $total_updated += (int) $updated;
+                }
+            }
+
+            if ( ! empty( $upgraded ) ) {
+                $total_orders += $this->backfill_order_landing_pages( $upgraded );
+            }
+
+            update_option( self::BACKFILL_LANDING_CURSOR_OPTION, $cursor, false );
+
+            /* translators: 1: Batch number, 2: Sessions upgraded in this batch, 3: Total upgraded */
+            wpdai_write_log( sprintf( __( 'Migration backfill_untagged_session_landing_pages batch %1$d upgraded %2$d sessions (Total: %3$d).', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $batch_number, count( $upgraded ), $total_updated ), 'migration' );
+
+            if ( count( $sessions ) < $batch_size ) {
+                delete_option( self::BACKFILL_LANDING_CURSOR_OPTION );
+                /* translators: 1: Updated sessions, 2: Updated orders */
+                wpdai_write_log( sprintf( __( 'Migration backfill_untagged_session_landing_pages completed. Updated %1$d sessions and %2$d orders.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $total_updated, $total_orders ), 'migration' );
+                $this->mark_migration_completed( 'backfill_untagged_session_landing_pages' );
+                return true;
+            }
+        }
+
+        if ( class_exists( 'WPDAI_Action_Scheduler' ) ) {
+            $action_scheduler = new WPDAI_Action_Scheduler();
+            $action_scheduler->schedule_one_off_event( 'wpd_ai_migration_backfill_untagged_session_landing_pages', 15 );
+        }
+
+        /* translators: 1: Updated sessions so far, 2: Cursor ID */
+        wpdai_write_log( sprintf( __( 'Migration backfill_untagged_session_landing_pages paused after %1$d updates (cursor ID %2$d). Another pass is scheduled.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $total_updated, $cursor ), 'migration' );
+
+        return true;
+
+    }
+
+    /**
+     * SQL fragment: column looks like it has no campaign or click-id params.
+     *
+     * @param string $column Column name.
+     * @return string
+     */
+    private function get_untagged_landing_sql( $column ) {
+        $likes = array();
+        foreach ( $this->get_backfill_tracking_needles() as $needle ) {
+            $likes[] = $this->build_url_like_clause( $column, $needle, true );
+        }
+
+        return "({$column} IS NULL OR {$column} = '' OR (" . implode( ' AND ', $likes ) . '))';
+    }
+
+    /**
+     * SQL fragment: column likely contains a campaign or click-id param.
+     *
+     * @param string $column Column name.
+     * @return string
+     */
+    private function get_tagged_url_like_sql( $column ) {
+        $likes = array();
+        foreach ( $this->get_backfill_tracking_needles() as $needle ) {
+            $likes[] = $this->build_url_like_clause( $column, $needle, false );
+        }
+
+        return '(' . implode( ' OR ', $likes ) . ')';
+    }
+
+    /**
+     * Escaped LIKE comparison for a tracking-param needle.
+     *
+     * Built without $wpdb->prepare() so % characters are not treated as placeholders.
+     *
+     * @param string $column Column name.
+     * @param string $needle Query-string needle, e.g. gclid=.
+     * @param bool   $not    Whether to use NOT LIKE.
+     * @return string
+     */
+    private function build_url_like_clause( $column, $needle, $not ) {
+        global $wpdb;
+
+        $like = '%' . $wpdb->esc_like( $needle ) . '%';
+        $op   = $not ? 'NOT LIKE' : 'LIKE';
+
+        return $column . ' ' . $op . " '" . esc_sql( $like ) . "'";
+    }
+
+    /**
+     * High-confidence query-string needles used to prefilter URLs in SQL.
+     *
+     * @return array<int, string>
+     */
+    private function get_backfill_tracking_needles() {
+        return array(
+            'gclid=',
+            'gbraid=',
+            'wbraid=',
+            'dclid=',
+            'fbclid=',
+            'msclkid=',
+            'utm_source=',
+            'utm_medium=',
+            'utm_campaign=',
+            'google_cid=',
+            'gad_source=',
+            'gad_campaignid=',
+        );
+    }
+
+    /**
+     * AJAX / checkout endpoints should not become a landing page.
+     *
+     * @param string $url Candidate URL.
+     * @return bool
+     */
+    private function is_unusable_backfill_url( $url ) {
+        if ( ! is_string( $url ) || '' === $url ) {
+            return true;
+        }
+
+        $lower = strtolower( $url );
+        if ( str_contains( $lower, 'wc-ajax=' ) || str_contains( $lower, 'admin-ajax' ) || str_contains( $lower, 'wp-admin' ) || str_contains( $lower, 'wp-login' ) ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Copy upgraded landing pages onto orders that stored the same session id.
+     *
+     * @param array<string, string> $upgraded Session ID => landing page.
+     * @return int Orders updated.
+     */
+    private function backfill_order_landing_pages( $upgraded ) {
+        if ( empty( $upgraded ) || ! function_exists( 'wc_get_orders' ) ) {
+            return 0;
+        }
+
+        $orders = wc_get_orders(
+            array(
+                'limit'      => 250,
+                'return'     => 'objects',
+                'meta_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- One-off migration lookup by session id.
+                    array(
+                        'key'     => '_wpd_ai_session_id',
+                        'value'   => array_keys( $upgraded ),
+                        'compare' => 'IN',
+                    ),
+                ),
+            )
+        );
+
+        if ( empty( $orders ) ) {
+            return 0;
+        }
+
+        $updated = 0;
+
+        foreach ( $orders as $order ) {
+            if ( ! is_a( $order, 'WC_Order' ) ) {
+                continue;
+            }
+
+            $session_id = (string) $order->get_meta( '_wpd_ai_session_id' );
+            if ( '' === $session_id || ! isset( $upgraded[ $session_id ] ) ) {
+                continue;
+            }
+
+            $current = (string) $order->get_meta( '_wpd_ai_landing_page' );
+            $chosen  = wpdai_choose_first_touch_landing_page( $current, $upgraded[ $session_id ] );
+
+            if ( '' === $chosen || $chosen === $current ) {
+                continue;
+            }
+
+            $order->update_meta_data( '_wpd_ai_landing_page', $chosen );
+
+            $query_params = function_exists( 'wpdai_get_query_params' ) ? wpdai_get_query_params( $chosen ) : array();
+            if ( isset( $query_params['google_cid'] ) && is_numeric( $query_params['google_cid'] ) && '' === (string) $order->get_meta( '_wpd_ai_google_campaign_id' ) ) {
+                $order->update_meta_data( '_wpd_ai_google_campaign_id', trim( (string) $query_params['google_cid'] ) );
+            }
+
+            $order->save();
+            $updated++;
+        }
+
+        return $updated;
     }
 
     /**

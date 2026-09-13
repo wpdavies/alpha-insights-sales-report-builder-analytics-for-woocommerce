@@ -445,25 +445,25 @@ $available_shipping_methods					= wpdai_get_available_shipping_methods();
 			</tr>
 			<tr>
 				<td>
-					<label><?php esc_html_e( 'Cookie Storage Mode', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php esc_html_e( 'Cache-safe event tracking is enabled by default. Checkout Only keeps analytics data in localStorage until cart/checkout for best cache performance. Immediate writes cookies on first visit.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Override Attribution on New UTM Visit', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'When a returning visitor starts a new session with UTM tags or click IDs (gclid, fbclid, and similar), replace the stored landing page and referral. Leave this off to keep first-touch attribution for the attribution window.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
-					<select class="wpd-input" name="wpd_ai_analytics[cookie_storage_mode]">
-						<option value="checkout_only" <?php echo esc_attr( wpdai_selected_option( 'checkout_only', $analytics_settings['cookie_storage_mode'] ?? 'checkout_only' ) ); ?>><?php esc_html_e( 'Checkout Only (Recommended)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="immediate" <?php echo esc_attr( wpdai_selected_option( 'immediate', $analytics_settings['cookie_storage_mode'] ?? 'checkout_only' ) ); ?>><?php esc_html_e( 'Immediate', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+					<select class="wpd-input" name="wpd_ai_analytics[override_attribution_on_new_utm]">
+						<option value="1" <?php echo esc_attr( wpdai_selected_option( '1', $analytics_settings['override_attribution_on_new_utm'] ?? 1 ) ); ?>><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="0" <?php echo esc_attr( wpdai_selected_option( '0', $analytics_settings['override_attribution_on_new_utm'] ?? 1 ) ); ?>><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
 					</select>
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<label><?php esc_html_e( 'Legacy Event Tracking (Deprecated)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
-					<div class="wpd-meta"><?php esc_html_e( 'Reverts to the former PHP cookie-based tracking system. Deprecated — only enable temporarily if you need the old behavior while troubleshooting cache compatibility.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+					<label><?php esc_html_e( 'Cookie Storage Mode', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></label>
+					<div class="wpd-meta"><?php esc_html_e( 'Cache-safe analytics stores session identity in the browser. Checkout Only keeps analytics data in localStorage until cart/checkout for best cache performance. Immediate writes cookies on first visit.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
 				</td>
 				<td>
-					<select class="wpd-input" name="wpd_ai_analytics[enable_legacy_event_tracking]">
-						<option value="0" <?php echo esc_attr( wpdai_selected_option( '0', $analytics_settings['enable_legacy_event_tracking'] ?? 0 ) ); ?>><?php esc_html_e( 'False', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-						<option value="1" <?php echo esc_attr( wpdai_selected_option( '1', $analytics_settings['enable_legacy_event_tracking'] ?? 0 ) ); ?>><?php esc_html_e( 'True', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+					<select class="wpd-input" name="wpd_ai_analytics[cookie_storage_mode]">
+						<option value="checkout_only" <?php echo esc_attr( wpdai_selected_option( 'checkout_only', $analytics_settings['cookie_storage_mode'] ?? 'checkout_only' ) ); ?>><?php esc_html_e( 'Checkout Only (Recommended)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+						<option value="immediate" <?php echo esc_attr( wpdai_selected_option( 'immediate', $analytics_settings['cookie_storage_mode'] ?? 'checkout_only' ) ); ?>><?php esc_html_e( 'Immediate', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
 					</select>
 				</td>
 			</tr>

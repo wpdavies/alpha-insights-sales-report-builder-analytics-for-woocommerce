@@ -8,12 +8,13 @@
 
 <p>Alpha Insights uses a custom-built, first-party tracking system that combines:</p>
 <ul>
-<li><strong>Client-side JavaScript</strong> for event capture</li>
-<li><strong>Server-side PHP</strong> for session management and validation</li>
+<li><strong>Client-side JavaScript</strong> for event capture and session identity</li>
+<li><strong>Server-side PHP</strong> for validation, IP resolution, and WooCommerce hooks</li>
 <li><strong>REST API</strong> for asynchronous event submission</li>
 <li><strong>Custom database tables</strong> for efficient data storage</li>
-<li><strong>Cookie-based session management</strong> (first-party cookies)</li>
+<li><strong>Browser storage</strong> (<code>localStorage</code> first, first-party cookies at cart/checkout or immediately)</li>
 </ul>
+<p>Cache-safe analytics is the only frontend loader. See <a href='/documentation/alpha-insights/website-traffic/cache-safe-tracking-beta.html'>Cache-Safe Event Tracking</a>.</p>
 
 <h3>Architecture Diagram (Conceptual)</h3>
 
@@ -21,7 +22,8 @@
 │                     VISITOR BROWSER                         │
 │                                                             │
 │  ┌─────────────────────────────────────────────┐          │
-│  │   Cookies (First-Party):                     │          │
+│  │   localStorage (wpd_ai_v2_* keys)            │          │
+│  │   Cookies at cart/checkout (or Immediate):   │          │
 │  │   - wpd_ai_session_id                        │          │
 │  │   - wpd_ai_landing_page                      │          │
 │  │   - wpd_ai_referral_source                   │          │
@@ -29,10 +31,10 @@
 │                       │                                     │
 │                       ↓                                     │
 │  ┌─────────────────────────────────────────────┐          │
-│  │   JavaScript: wpd-alpha-insights-            │          │
-│  │   event-tracking.js (~5KB)                   │          │
-│  │   - Captures page views                       │          │
-│  │   - Tracks product clicks                     │          │
+│  │   JavaScript:                                 │          │
+│  │   wpd-ai-client.js + wpd-ai-event-tracking.js│          │
+│  │   - Session / attribution in the browser      │          │
+│  │   - Captures page views and product clicks    │          │
 │  │   - Monitors form submissions                 │          │
 │  │   - Sends events to REST API                  │          │
 │  └─────────────────────────────────────────────┘          │
@@ -53,8 +55,9 @@
 │                       ↓                                     │
 │  ┌──────────────────────────────────────────────────────┐ │
 │  │   PHP Classes:                                        │ │
-│  │   - WPDAI_WooCommerce_Event_Tracking (event processing)        │ │
-│  │   - WPDAI_Session_Tracking (session management)        │ │
+│  │   - WPDAI_Event_Tracking (event processing)           │ │
+│  │   - WPDAI_Session_Context (session from payload)      │ │
+│  │   - WPDAI_Analytics_Scripts (enqueue + localize)      │ │
 │  │   - WPDAI_Traffic_Type_Detection (source classification)         │ │
 │  │   - WPDAI_User_Agent_Classification (device/bot detection)            │ │
 │  │   - WPDAI_Database_Interactor (DB operations)          │ │
@@ -98,13 +101,11 @@
 
 <h3>1. Client-Side Tracking (JavaScript)</h3>
 
-<p><strong>File:</strong> <code>assets/js/wpd-alpha-insights-event-tracking.js</code></p>
+<p><strong>Files:</strong> <code>assets/js/analytics/wpd-ai-client.js</code> and <code>assets/js/analytics/wpd-ai-event-tracking.js</code></p>
 
-<p><strong>Size:</strong> ~5KB (minified)</p>
+<p><strong>Loading:</strong> Enqueued by <code>WPDAI_Analytics_Scripts</code> on <code>wp_enqueue_scripts</code> when analytics is enabled. Handles: <code>wpd-ai-client</code> and <code>wpd-ai-event-tracking</code>.</p>
 
-<p><strong>Loading:</strong> Enqueued via <code>wp_enqueue_scripts</code> hook, loads asynchronously</p>
-
-<p><strong>Main class:</strong> <code>WpdAiEventTracking</code></p>
+<p><strong>Main objects:</strong> <code>window.WpdAiClient</code> (session/attribution) and <code>WpdAiEventTracking</code> (events)</p>
 
 <p><strong>Responsibilities:</strong></p>
 
@@ -142,110 +143,128 @@
 
 <p><strong>Localized variables available to JavaScript:</strong></p>
 
-<pre><code>wpdAlphaInsightsEventTracking = {
+<pre><code>wpdAiClientConfig = {
+  session_timeout_seconds: 1800,
+  attribution_timeout_seconds: 259200,
+  attribution_session_only: 0,
+  override_attribution_on_new_utm: 1,
+  cookie_storage_mode: "checkout_only",
+  cookie_domain: "",
+  is_cart: false,
+  is_checkout: false
+}
+
+wpdAlphaInsightsEventTracking = {
   api_endpoint: "/wp-json/alpha-insights/v1/woocommerce-events",
   current_post_id: 123,
   current_post_type: "product"
 }</code></pre>
 
-<h3>2. Cookie Management</h3>
+<h3>2. Browser Storage &amp; Cookies</h3>
 
-<p><strong>Three first-party cookies are set:</strong> For complete details on cookie lifecycle, expiration, and privacy implications, see the <a href='/documentation/alpha-insights/website-traffic/session-management.html'>Session Management guide</a>.</p>
+<p><strong>Primary store is <code>localStorage</code></strong> (keys prefixed with <code>wpd_ai_v2_</code>). First-party cookies are a checkout/server-side mirror. For lifecycle and privacy details, see the <a href='/documentation/alpha-insights/website-traffic/session-management.html'>Session Management guide</a>.</p>
 
-<h4>wpd_ai_session_id</h4>
+<h4>localStorage keys</h4>
+<ul>
+<li><code>wpd_ai_v2_session_id</code> — Unique session identifier</li>
+<li><code>wpd_ai_v2_session_activity</code> — Last activity timestamp (ms)</li>
+<li><code>wpd_ai_v2_landing_page</code> / <code>wpd_ai_v2_landing_set_at</code></li>
+<li><code>wpd_ai_v2_referral_source</code> / <code>wpd_ai_v2_referral_set_at</code></li>
+</ul>
+<p>The <code>wpd_ai_v2_</code> prefix is kept for session continuity. Do not rename it.</p>
+
+<h4>wpd_ai_session_id (cookie)</h4>
 
 <ul>
-<li><strong>Purpose:</strong> Unique session identifier</li>
-<li><strong>Value:</strong> MD5 hash of user agent + timestamp, prefixed with "wpd"</li>
-<li><strong>Example:</strong> <code>wpd5f4dcc3b5aa7651234567890</code></li>
-<li><strong>Expiry:</strong> 10 minutes from last activity</li>
-<li><strong>Renewal:</strong> Refreshed on every page load</li>
+<li><strong>Purpose:</strong> Unique session identifier for server-side hooks</li>
+<li><strong>Value:</strong> <code>wpd</code> + timestamp + random string (generated in JavaScript)</li>
+<li><strong>Example:</strong> <code>wpd1712345678901abcxyz</code></li>
+<li><strong>Expiry:</strong> 30 minutes from last activity (filter <code>wpd_session_timeout_seconds</code>)</li>
+<li><strong>When written:</strong> Cart/checkout (and add-to-cart) in Checkout Only mode; first visit in Immediate mode</li>
 <li><strong>Path:</strong> / (site-wide)</li>
-<li><strong>Generation:</strong> <code>WPDAI_Session_Tracking::generate_unique_session_id()</code></li>
 </ul>
 
 <h4>wpd_ai_landing_page</h4>
 
 <ul>
-<li><strong>Purpose:</strong> Store first page visited (with full URL including query parameters)</li>
+<li><strong>Purpose:</strong> Store first page visited (full URL including query parameters)</li>
 <li><strong>Value:</strong> Full URL of landing page</li>
 <li><strong>Example:</strong> <code>https://yourstore.com/products?utm_source=facebook&utm_campaign=spring</code></li>
-<li><strong>Expiry:</strong> 10 minutes from last activity</li>
-<li><strong>Set once:</strong> Only on first page of session</li>
-<li><strong>Renewal:</strong> Expiry refreshed but value doesn't change</li>
+<li><strong>Expiry:</strong> Attribution window (Session Only, or 1–30 days; default 3 days)</li>
+<li><strong>Set once:</strong> Until the window expires, Session Only starts a new session, or Override Attribution on New UTM Visit resets it</li>
 <li><strong>Path:</strong> / (site-wide)</li>
 </ul>
 
 <h4>wpd_ai_referral_source</h4>
 
 <ul>
-<li><strong>Purpose:</strong> Store HTTP referrer URL</li>
-<li><strong>Value:</strong> Referrer URL from HTTP headers</li>
+<li><strong>Purpose:</strong> Store document referrer URL</li>
+<li><strong>Value:</strong> Referrer URL from <code>document.referrer</code></li>
 <li><strong>Example:</strong> <code>https://www.google.com/search?q=...</code></li>
-<li><strong>Expiry:</strong> 10 minutes from last activity (but set indefinitely)</li>
-<li><strong>Set once:</strong> Only on first page of session</li>
-<li><strong>Filtering:</strong> Own domain referrers are ignored (set to empty)</li>
+<li><strong>Expiry:</strong> Same as landing page (attribution window)</li>
+<li><strong>Filtering:</strong> Own-domain referrers are stored as empty</li>
 <li><strong>Path:</strong> / (site-wide)</li>
 </ul>
 
-<p><strong>Why 10 minutes?</strong></p>
+<p><strong>Why 30 minutes for the session?</strong></p>
 <ul>
-<li>Industry standard for session timeout</li>
+<li>Matches the Google Analytics default session timeout</li>
 <li>Balances data accuracy with user privacy</li>
 <li>Prevents abandoned browsing from inflating session counts</li>
-<li>Aligns with Google Analytics' default session timeout</li>
 </ul>
 
 <p><strong>Session renewal logic:</strong></p>
 
-<pre><code>// Pseudo-code
-if (cookie 'wpd_ai_session_id' exists) {
+<pre><code>// Pseudo-code (browser)
+if (localStorage session_id exists AND last_activity within 30 minutes) {
   // Continue existing session
-  session_id = cookie_value
-  refresh_cookie_expiry(10 minutes from now)
-  update_session_end_time_in_db()
+  session_id = stored_value
+  refresh last_activity
 } else {
   // Start new session
-  session_id = generate_unique_id()
-  set_cookie('wpd_ai_session_id', session_id, 10 minutes)
-  landing_page = current_url_with_params
-  set_cookie('wpd_ai_landing_page', landing_page, 10 minutes)
-  referral_url = get_http_referer()
-  set_cookie('wpd_ai_referral_source', referral_url, 10 minutes)
-  create_session_in_db()
-}</code></pre>
+  session_id = "wpd" + timestamp + random
+  store session_id and last_activity
+  if (no landing page OR attribution expired
+      OR (Session Only AND new session)
+      OR (Override UTM AND new session AND URL has tracking params)) {
+    reset landing page and referral
+  }
+}
+// Cookies written on cart/checkout (Checkout Only) or immediately (Immediate)</code></pre>
 
 <h3>3. Server-Side Session Management</h3>
 
-<p><strong>Class:</strong> <code>WPDAI_Session_Tracking</code></p>
+<p><strong>Live class:</strong> <code>WPDAI_Session_Context</code></p>
 
-<p><strong>File:</strong> <code>includes/classes/WPDAI_Session_Tracking.php</code></p>
+<p><strong>File:</strong> <code>includes/analytics/WPDAI_Session_Context.php</code></p>
+
+<p>Session identity arrives on the REST payload from the browser. The server does not create analytics sessions by sending PHP <code>Set-Cookie</code> headers on every page view.</p>
 
 <p><strong>Responsibilities:</strong></p>
 
 <ul>
-<li>Generate unique session IDs</li>
-<li>Manage session cookies</li>
-<li>Capture referral URLs from HTTP headers</li>
-<li>Detect device type, browser, OS (via WPDAI_User_Agent_Classification)</li>
-<li>Store/update session data in database</li>
+<li>Read <code>session_id</code>, landing page, and referral from the event payload (and cookies when present)</li>
+<li>In Checkout Only mode, load persisted attribution from the session table when cookies are missing</li>
+<li>Detect device type, browser, OS (via <code>WPDAI_User_Agent_Classification</code>)</li>
+<li>Resolve client IP (via <code>WPDAI_Client_IP</code>)</li>
+<li>Store/update session data in the database</li>
 <li>Bot detection and filtering</li>
 </ul>
+
+<p><code>WPDAI_Session_Tracking</code> remains as shared helpers: cookie domain, attribution window seconds, and Session Only. The parent <code>WPDAI_WooCommerce_Event_Tracking</code> still holds shared server-side event methods.</p>
 
 <p><strong>Key methods:</strong></p>
 
 <ul>
-<li><code>setup_session_data()</code> - Initializes all session properties</li>
-<li><code>get_set_session_id()</code> - Retrieves or creates session ID</li>
-<li><code>get_set_landing_page()</code> - Captures landing page from cookie</li>
-<li><code>get_set_referral_url()</code> - Captures referrer from cookie or headers</li>
-<li><code>get_set_ip_address()</code> - Captures visitor IP (with proxy support)</li>
-<li><code>store_session_in_db()</code> - Inserts/updates session record</li>
+<li><code>WPDAI_Event_Tracking::get_set_session_instance()</code> — Builds <code>WPDAI_Session_Context</code> from the request payload</li>
+<li><code>WPDAI_Session_Context</code> — Resolves session ID, landing page, referral, IP</li>
+<li><code>WPDAI_Session_Tracking::get_attribution_timeout_seconds()</code> — Attribution window</li>
+<li><code>WPDAI_Session_Tracking::get_cookie_domain()</code> — Cookie domain</li>
 </ul>
 
 <p><strong>Session properties:</strong></p>
 
-<pre><code>class WPDAI_Session_Tracking {
+<pre><code>class WPDAI_Session_Context {
   public string $session_id = '';
   public string $ip_address = '';
   public string $landing_page = '';
@@ -261,26 +280,24 @@ if (cookie 'wpd_ai_session_id' exists) {
   public int $is_bot = 0;
 }</code></pre>
 
-<p><strong>Hook used:</strong> <code>template_redirect</code> (priority 1)</p>
+<p><strong>Hook used:</strong> Sessions are written when events arrive (REST) or when server-side WooCommerce hooks fire. <code>template_redirect</code> only sets the current object type/ID for script localization.</p>
 
 <p><strong>Execution flow:</strong></p>
 
 <ol>
-<li>WordPress loads and fires <code>template_redirect</code> hook</li>
-<li><code>WPDAI_Session_Tracking->store_session_in_db_hook()</code> executes</li>
-<li>Checks if CRON, AJAX, or admin (skip if true)</li>
-<li>Checks if main query (skip if not)</li>
-<li>Calls <code>store_session_in_db()</code></li>
-<li>Checks if session exists in database</li>
-<li>If exists: Updates <code>date_updated_gmt</code>, <code>landing_page</code>, <code>referral_url</code></li>
-<li>If not exists: Inserts new session row</li>
+<li>Browser sends an event (or a server-side hook fires) with <code>session_id</code>, landing page, and referral</li>
+<li><code>WPDAI_Event_Tracking</code> builds <code>WPDAI_Session_Context</code> from that payload</li>
+<li>Context resolves IP, device, and persisted attribution if cookies are missing</li>
+<li>If the session exists: updates <code>date_updated_gmt</code> (and attribution when provided)</li>
+<li>If not: inserts a new session row</li>
 </ol>
 
 <h3>4. Event Tracking System</h3>
 
-<p><strong>Class:</strong> <code>WPDAI_WooCommerce_Event_Tracking</code> (extends <code>WPDAI_Session_Tracking</code>)</p>
+<p><strong>Class:</strong> <code>WPDAI_Event_Tracking</code> (extends <code>WPDAI_WooCommerce_Event_Tracking</code>)</p>
 
-<p><strong>File:</strong> <code>includes/classes/WPDAI_WooCommerce_Event_Tracking.php</code></p>
+<p><strong>File:</strong> <code>includes/analytics/WPDAI_Event_Tracking.php</code></p>
+<p>Shared server-side methods remain on the parent in <code>includes/classes/WPDAI_Woocommerce_Event_Tracking.php</code>.</p>
 
 <p>For complete details on all tracked events, see the <a href='/documentation/alpha-insights/website-traffic/event-types-reference.html'>Event Types Reference</a>.</p>
 
@@ -400,12 +417,19 @@ array(
 
   // 3. Fallback checks
   if (empty($referral_url) || $referring_domain === $site_host) {
-    return 'Direct';
+    $result = 'Direct';
   } elseif (strpos($referral_url, 'app://') !== false) {
-    return 'App';
+    $result = 'App';
   } else {
-    return 'Referral';
+    $result = 'Referral';
   }
+
+  // 4. Facebook / Instagram in-app browsers with no other source → Social
+  if ($result === 'Direct' && $this->is_in_app_social_user_agent()) {
+    return 'Social';
+  }
+
+  return $result;
 }</code></pre>
 
 <h3>6. Database Schema</h3>
@@ -514,7 +538,7 @@ _wpd_ai_google_campaign_id  = "987654321" (if google_cid present)</code></pre>
 
 <p><strong>Why permanent order meta?</strong></p>
 <ul>
-<li>Session cookies expire after 10 minutes</li>
+<li>Session identity expires after 30 minutes of inactivity; attribution follows the Attribution Window</li>
 <li>Customers may return days later to complete purchase</li>
 <li>Landing page stored in order ensures accurate attribution</li>
 <li>Historical data preserved even if session data is purged</li>
@@ -779,9 +803,9 @@ add_filter('wpd_track_user', function($track_user, $user) {
 
 <h3>4. Custom Session Timeout</h3>
 
-<pre><code>// Change session timeout from 10 minutes to 30 minutes
+<pre><code>// Change session timeout from 30 minutes to 60 minutes
 add_filter('wpd_session_timeout_seconds', function($timeout) {
-  return 30 * 60; // 30 minutes
+  return 60 * 60; // 60 minutes
 });</code></pre>
 
 <h4>Debugging & Troubleshooting</h4>
@@ -842,14 +866,13 @@ ORDER BY count DESC;
 
 // Should show page_view, product_click, etc.</code></pre>
 
-<h3>Test Cookie Creation</h3>
+<h3>Test Browser Storage</h3>
 
-<p>In browser dev tools (Application tab → Cookies):</p>
+<p>In browser dev tools (Application tab):</p>
 <ul>
-<li>Look for <code>wpd_ai_session_id</code></li>
-<li>Should be set with 10-minute expiry</li>
-<li>Refresh page, cookie should renew</li>
-<li>Wait 10+ minutes, cookie should expire and new session created</li>
+<li>Local Storage → your domain → look for <code>wpd_ai_v2_session_id</code>, <code>wpd_ai_v2_landing_page</code>, <code>wpd_ai_v2_referral_source</code></li>
+<li>Cookies may be absent until cart/checkout in Checkout Only mode</li>
+<li>Wait 30+ minutes without activity, then reload — a new session ID should be created</li>
 </ul>
 
 <h4>System Requirements</h4>
@@ -868,7 +891,7 @@ ORDER BY count DESC;
 <h4>Compatibility</h4>
 
 <ul>
-<li>✅ Works with page caching (Batcache, WP Super Cache, W3 Total Cache)</li>
+<li>✅ Works with page caching (WP Fastest Cache, WP Rocket, LiteSpeed, WP Super Cache, W3 Total Cache) — see <a href='/documentation/alpha-insights/website-traffic/cache-safe-tracking-beta.html'>Cache-Safe Event Tracking</a></li>
 <li>✅ Works with CDNs (CloudFlare, StackPath, BunnyCDN)</li>
 <li>✅ Works with HPOS (High-Performance Order Storage)</li>
 <li>✅ Works with multisite (each site tracked separately)</li>
@@ -881,8 +904,8 @@ ORDER BY count DESC;
 <h4>Technical Limitations</h4>
 
 <ul>
-<li><strong>Session timeout:</strong> 10 minutes fixed (can be filtered)</li>
-<li><strong>Attribution model:</strong> Last-click (session that created order)</li>
+<li><strong>Session timeout:</strong> 30 minutes of inactivity (filter <code>wpd_session_timeout_seconds</code>)</li>
+<li><strong>Attribution model:</strong> First-touch within the Attribution Window, with optional last-touch reset on a new UTM/click-ID session (default on)</li>
 <li><strong>Cross-device tracking:</strong> Limited (relies on cookies, not cross-device)</li>
 <li><strong>Cross-domain tracking:</strong> Not supported (single domain only)</li>
 <li><strong>Historical data:</strong> Only tracks from enablement forward (no retroactive tracking)</li>

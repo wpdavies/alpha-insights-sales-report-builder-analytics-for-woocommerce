@@ -360,7 +360,7 @@ class WPDAI_Order_Calculator {
 
         // Traffic Source Data
         $query_params 				    = wpdai_get_query_params( $landing_page );
-		$traffic_source 			    = ( $created_via === 'admin' ) ? 'Admin' : wpdai_get_traffic_type( $referrer_url, $query_params );
+		$traffic_source 			    = ( $created_via === 'admin' ) ? 'Admin' : wpdai_get_traffic_type( $referrer_url, $query_params, $user_agent );
         $campaign_name 			        = '';
         $meta_campaign_id 				= $this->order->get_meta( '_wpd_ai_meta_campaign_id' );
         $google_campaign_id 			= $this->order->get_meta( '_wpd_ai_google_campaign_id' );

@@ -311,7 +311,7 @@ class WPDAI_Experiment_Store {
 		global $wpdb;
 
 		if ( ! self::tables_exist() ) {
-			return new WP_Error( 'db_error', __( 'Experiment tables are not installed yet. Deactivate and reactivate Alpha Insights, or wait for the database upgrade to finish.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
+			return new WP_Error( 'db_error', __( 'A/B test tables are not installed yet. Deactivate and reactivate Alpha Insights, or wait for the database upgrade to finish.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
 		}
 
 		$id     = isset( $data['id'] ) ? absint( $data['id'] ) : 0;
@@ -320,7 +320,7 @@ class WPDAI_Experiment_Store {
 		$status = isset( $data['status'] ) ? sanitize_key( $data['status'] ) : 'draft';
 
 		if ( '' === $name ) {
-			return new WP_Error( 'missing_name', __( 'Experiment name is required.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
+			return new WP_Error( 'missing_name', __( 'A/B test name is required.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
 		}
 
 		if ( '' === $slug ) {
@@ -365,7 +365,7 @@ class WPDAI_Experiment_Store {
 		if ( $id > 0 ) {
 			$existing = self::get( $id );
 			if ( ! $existing ) {
-				return new WP_Error( 'not_found', __( 'Experiment not found.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
+				return new WP_Error( 'not_found', __( 'A/B test not found.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
 			}
 			$previous_status = $existing['status'];
 			$wpdb->update( $table, $row, array( 'id' => $id ), $formats, array( '%d' ) );
@@ -553,7 +553,7 @@ class WPDAI_Experiment_Store {
 	public static function set_status( $id, $status ) {
 		$experiment = self::get( $id );
 		if ( ! $experiment ) {
-			return new WP_Error( 'not_found', __( 'Experiment not found.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
+			return new WP_Error( 'not_found', __( 'A/B test not found.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
 		}
 		$experiment['status'] = $status;
 		return self::save( $experiment );
@@ -671,6 +671,60 @@ class WPDAI_Experiment_Store {
 			$slug = $original . '-' . $i;
 			++$i;
 		}
+	}
+
+	/**
+	 * Local calendar span covering exposed, non-holdout assignments.
+	 *
+	 * Used so the A/B test list can fetch daily progress without building
+	 * an all-time daily date container.
+	 *
+	 * @return array{from:string,to:string}|null
+	 */
+	public static function get_exposed_assignment_date_span() {
+		if ( ! self::tables_exist() ) {
+			return null;
+		}
+
+		global $wpdb;
+		$table = self::assignments_table();
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is prefix-based and trusted.
+		$row = $wpdb->get_row(
+			"SELECT MIN(assigned_gmt) AS min_gmt, MAX(assigned_gmt) AS max_gmt
+			FROM {$table}
+			WHERE holdout = 0
+			AND exposed_gmt IS NOT NULL
+			AND exposed_gmt != '0000-00-00 00:00:00'",
+			ARRAY_A
+		);
+
+		if ( empty( $row['min_gmt'] ) || empty( $row['max_gmt'] ) ) {
+			return null;
+		}
+
+		$from = get_date_from_gmt( $row['min_gmt'], 'Y-m-d' );
+		$to   = get_date_from_gmt( $row['max_gmt'], 'Y-m-d' );
+		if ( ! $from || ! $to ) {
+			return null;
+		}
+
+		$from_ts = strtotime( $from . ' -1 day' );
+		$to_ts   = strtotime( $to . ' +1 day' );
+		if ( ! $from_ts || ! $to_ts ) {
+			return null;
+		}
+
+		$from = gmdate( 'Y-m-d', $from_ts );
+		$to   = gmdate( 'Y-m-d', $to_ts );
+		$today = current_time( 'Y-m-d' );
+		if ( $to > $today ) {
+			$to = $today;
+		}
+
+		return array(
+			'from' => $from,
+			'to'   => $to,
+		);
 	}
 
 	/**

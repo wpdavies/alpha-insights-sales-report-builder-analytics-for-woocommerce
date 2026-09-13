@@ -234,7 +234,8 @@ class WPDAI_Experiment_Eligibility {
 		}
 
 		if ( class_exists( 'WPDAI_Traffic_Type_Detection' ) ) {
-			$detector = new WPDAI_Traffic_Type_Detection( $referral, $query );
+			$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+			$detector   = new WPDAI_Traffic_Type_Detection( $referral, $query, $user_agent );
 			return (string) $detector->determine_traffic_source();
 		}
 

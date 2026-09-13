@@ -1,31 +1,43 @@
 <h2>Cache-Safe Event Tracking</h2>
 
-<p>Alpha Insights uses cache-safe event tracking by default. It stores session identity in the browser (localStorage) and does not send PHP <code>Set-Cookie</code> headers for analytics, which improves full-page cache compatibility.</p>
+<p>Cache-safe analytics is the only frontend event-tracking loader in Alpha Insights. It stores session identity in the browser (<code>localStorage</code>) and does not send PHP <code>Set-Cookie</code> headers for analytics on cached pages. That keeps full-page HTML cache compatible with session tracking.</p>
 
-<p>Configure cookie storage mode under <strong>Alpha Insights → Settings → General Settings → Alpha Analytics &amp; Event Tracking → Cookie Storage Mode</strong>.</p>
+<p>Configure storage and attribution under <strong>Alpha Insights → Settings → General Settings → Alpha Analytics &amp; Event Tracking</strong>.</p>
+
+<h3>How it works</h3>
+<p>Two scripts load on the storefront when WooCommerce event tracking is enabled:</p>
+<ul>
+<li><code>assets/js/analytics/wpd-ai-client.js</code> — session ID, landing page, referral source, cookie sync</li>
+<li><code>assets/js/analytics/wpd-ai-event-tracking.js</code> — page views, product clicks, forms, WooCommerce JS events</li>
+</ul>
+<p>Session and attribution values live in <code>localStorage</code> first. Cookie names stay the same (<code>wpd_ai_session_id</code>, <code>wpd_ai_landing_page</code>, <code>wpd_ai_referral_source</code>) so checkout and server-side hooks can still read them. The <code>localStorage</code> key prefix is <code>wpd_ai_v2_</code> (for example <code>wpd_ai_v2_session_id</code>). That prefix is intentional so existing visitor sessions continue after upgrades — do not rename it.</p>
 
 <h3>Cookie storage modes</h3>
 <ul>
-<li><strong>Checkout Only (Recommended):</strong> Session and attribution data stay in localStorage until the visitor reaches cart or checkout. Best for page caching.</li>
-<li><strong>Immediate:</strong> Writes analytics cookies on first visit. May reduce cache hit rates.</li>
+<li><strong>Checkout Only (Recommended):</strong> Session and attribution data stay in <code>localStorage</code> until the visitor reaches cart or checkout, or becomes engaged. Best for page caching.</li>
+<li><strong>Immediate:</strong> Writes analytics cookies on first visit. May reduce cache hit rates if your cache varies on cookies.</li>
 </ul>
 
-<h3>Legacy event tracking (deprecated)</h3>
-<p>The former PHP cookie-based tracking system is deprecated. If you need it temporarily while troubleshooting, enable <strong>Legacy Event Tracking (Deprecated)</strong> in General Settings. This option will be removed in a future release.</p>
-
 <h3>Cache plugin notes</h3>
-<p>In checkout_only mode, Alpha Insights registers compatibility hooks for WP Rocket and LiteSpeed Cache to avoid treating <code>wpd_ai_*</code> cookies as cache-busting vary cookies. Configure Cloudflare or other CDNs to cache anonymous HTML separately from cart/checkout if needed.</p>
+<p>In Checkout Only mode, Alpha Insights registers compatibility hooks for WP Rocket and LiteSpeed Cache so <code>wpd_ai_*</code> cookies are not treated as cache-busting vary cookies. Configure Cloudflare or other CDNs to cache anonymous HTML separately from cart and checkout if needed.</p>
 
-<p><strong>Experiments are different:</strong> a running A/B test must vary HTML, so targeted URLs miss page cache until you pause or complete the test. Analytics cookies stay cache-ignored. See <a href='/documentation/alpha-insights/experiments/page-cache-and-running-tests.html'>Page Cache and Running Tests</a>.</p>
+<p><strong>A/B tests are different:</strong> a running A/B test must vary HTML, so targeted URLs miss page cache until you pause or complete the test. Analytics cookies stay cache-ignored. See <a href='/documentation/alpha-insights/ab-testing/page-cache-and-running-tests.html'>Page Cache and Running Tests</a>.</p>
 
 <h3>Server-side events</h3>
-<p>In <code>checkout_only</code> mode, analytics cookies are written before add-to-cart requests and on cart/checkout pages. Session attribution is also loaded from the database when a matching <code>session_id</code> is available, so server-side hooks (add to cart, order completion) stay linked to the same visitor session.</p>
+<p>In Checkout Only mode, analytics cookies are written before add-to-cart requests and on cart or checkout pages. Session attribution is also loaded from the database when a matching <code>session_id</code> is available, so server-side hooks (add to cart, order completion) stay linked to the same visitor session.</p>
+
+<h3>Attribution</h3>
+<p>Landing page and referral source follow the <a href='/documentation/alpha-insights/website-traffic/attribution-window.html'>Attribution Window</a> setting (Session Only, or 1–30 days). When <strong>Override Attribution on New UTM Visit</strong> is True (the default), a new session that arrives with UTM tags or click IDs (<code>gclid</code>, <code>fbclid</code>, and similar) replaces the stored landing page and referral. Turn that setting off to keep first-touch attribution for the full window.</p>
 
 <h3>Developer filters</h3>
 <ul>
-<li><code>wpd_ai_cache_safe_tracking_enabled</code> — Force enable/disable cache-safe tracking.</li>
+<li><code>wpd_ai_cache_safe_tracking_enabled</code> — Returning false disables frontend analytics. There is no legacy PHP-cookie fallback.</li>
 <li><code>wpd_ai_cookie_storage_mode</code> — Override storage mode (<code>checkout_only</code> or <code>immediate</code>).</li>
-<li><code>wpd_ai_v2_resolve_session_context</code> — Modify resolved session context before DB writes.</li>
-<li><code>wpd_ai_v2_cache_ignore_cookies</code> — Customize cookies ignored by cache compatibility hooks.</li>
+<li><code>wpd_ai_override_attribution_on_new_utm</code> — Override the UTM last-touch setting.</li>
+<li><code>wpd_ai_resolve_session_context</code> — Modify resolved session context before DB writes. The previous <code>wpd_ai_v2_resolve_session_context</code> hook still runs after this one.</li>
+<li><code>wpd_ai_cache_ignore_cookies</code> — Customize cookies ignored by cache compatibility hooks. The previous <code>wpd_ai_v2_cache_ignore_cookies</code> hook still runs after this one.</li>
+<li><code>wpd_ai_client_ip</code>, <code>wpd_ai_trust_proxy_headers</code>, <code>wpd_ai_cloudflare_ip_ranges</code> — IP resolution. Previous <code>wpd_ai_v2_*</code> names still run after the current hooks.</li>
 <li><code>wpd_ai_event_table_columns</code> — Customize allowed columns when preparing event rows for database insert.</li>
 </ul>
+
+<p>Retired script handles <code>wpd-ai-client-v2</code> and <code>wpd-ai-event-tracking-v2</code> are registered as empty aliases of the current scripts. Dequeue the current handles (<code>wpd-ai-client</code>, <code>wpd-ai-event-tracking</code>) if you need to stop tracking.</p>

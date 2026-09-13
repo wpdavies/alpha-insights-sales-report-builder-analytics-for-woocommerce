@@ -1,6 +1,6 @@
 <?php
 /**
- * Visitor IP resolver for cache-safe analytics v2.
+ * Visitor IP resolver for cache-safe analytics.
  *
  * WooCommerce's geolocation helper prefers X-Real-IP / X-Forwarded-For and
  * never reads CF-Connecting-IP. Behind Cloudflare or cloudflared that stores
@@ -111,7 +111,7 @@ class WPDAI_Client_IP {
 		 * @param string $remote_addr REMOTE_ADDR for this request.
 		 * @param bool   $trust_proxy Whether proxy headers were trusted.
 		 */
-		return (string) apply_filters( 'wpd_ai_v2_client_ip', $ip, $remote_addr, $trust_proxy );
+		return (string) wpdai_apply_analytics_filter( 'wpd_ai_client_ip', 'wpd_ai_v2_client_ip', $ip, $remote_addr, $trust_proxy );
 	}
 
 	/**
@@ -128,12 +128,12 @@ class WPDAI_Client_IP {
 		}
 
 		/**
-		 * Filter whether analytics v2 should trust Cloudflare / forwarded IP headers.
+		 * Filter whether analytics should trust Cloudflare / forwarded IP headers.
 		 *
 		 * @param bool   $trust       Whether to trust proxy headers.
 		 * @param string $remote_addr Connecting IP (REMOTE_ADDR).
 		 */
-		return (bool) apply_filters( 'wpd_ai_v2_trust_proxy_headers', $trust, $remote_addr );
+		return (bool) wpdai_apply_analytics_filter( 'wpd_ai_trust_proxy_headers', 'wpd_ai_v2_trust_proxy_headers', $trust, $remote_addr );
 	}
 
 	/**
@@ -250,7 +250,7 @@ class WPDAI_Client_IP {
 			return false;
 		}
 
-		$ranges = (array) apply_filters( 'wpd_ai_v2_cloudflare_ip_ranges', self::$cloudflare_ip_ranges );
+		$ranges = (array) wpdai_apply_analytics_filter( 'wpd_ai_cloudflare_ip_ranges', 'wpd_ai_v2_cloudflare_ip_ranges', self::$cloudflare_ip_ranges );
 
 		foreach ( $ranges as $cidr ) {
 			if ( is_string( $cidr ) && self::ip_in_cidr( $ip, $cidr ) ) {

@@ -1292,13 +1292,10 @@ class WPDAI_Data_Warehouse {
             $result['path'] = $parsed_url['path'];
         }
 
-        // Only collect query params
-        $query_parameters = wp_parse_url( $url, PHP_URL_QUERY );
+        if ( ! empty( $parsed_url['query'] ) ) {
 
-        if ( ! empty($query_parameters) ) {
-
-            $result['decoded_qp'] = $query_parameters;
-            parse_str( $query_parameters, $result['query_parameters'] );
+            $result['decoded_qp'] = $parsed_url['query'];
+            parse_str( $parsed_url['query'], $result['query_parameters'] );
 
         }
 
@@ -1310,10 +1307,14 @@ class WPDAI_Data_Warehouse {
      *
      *  Calculate traffic source type
      *
+     *  @param string                    $referral_url     Referral URL.
+     *  @param array<string, mixed>|null $query_parameters Landing-page query params.
+     *  @param string                    $user_agent       Optional visitor user agent.
+     *  @return string Traffic source label.
      */
-    public function determine_traffic_source( $referral_url, $query_parameters = null ) {
+    public function determine_traffic_source( $referral_url, $query_parameters = null, $user_agent = '' ) {
 
-        $traffic_type = new WPDAI_Traffic_Type_Detection( $referral_url, $query_parameters );
+        $traffic_type = new WPDAI_Traffic_Type_Detection( $referral_url, $query_parameters, $user_agent );
         return $traffic_type->determine_traffic_source();
 
     }
@@ -1618,6 +1619,9 @@ class WPDAI_Data_Warehouse {
                     'execution_time' => $execution_time,
                     'memory_usage' => $memory_usage,
                 );
+                if ( isset( $custom_data['progress'] ) && is_array( $custom_data['progress'] ) ) {
+                    $formatted['progress'] = $custom_data['progress'];
+                }
                 $this->set_data( $primary, $formatted );
                 $this->fetched_custom_sources[ $source_id ] = true;
                 return true;
@@ -1647,6 +1651,9 @@ class WPDAI_Data_Warehouse {
                     'execution_time' => $execution_time,
                     'memory_usage' => $memory_usage,
                 );
+                if ( isset( $entity_data['progress'] ) && is_array( $entity_data['progress'] ) ) {
+                    $formatted['progress'] = $entity_data['progress'];
+                }
                 $this->set_data( $ent, $formatted );
             }
             $this->fetched_custom_sources[ $source_id ] = true;

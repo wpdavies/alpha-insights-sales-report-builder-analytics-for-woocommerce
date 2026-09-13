@@ -374,6 +374,38 @@ function wpdai_delete_log_ajax() {
 }
 
 /**
+ * Delete all Alpha Insights debug log files.
+ */
+add_action( 'wp_ajax_wpd_delete_all_logs', 'wpdai_delete_all_logs_ajax' );
+function wpdai_delete_all_logs_ajax() {
+
+	if ( ! wpdai_verify_ajax_request() ) {
+		return;
+	}
+
+	$deleted = function_exists( 'wpdai_delete_all_debug_logs' ) ? wpdai_delete_all_debug_logs() : 0;
+
+	if ( $deleted > 0 ) {
+		$message = sprintf(
+			/* translators: %d: Number of deleted log files */
+			_n( '%d log file has been deleted.', '%d log files have been deleted.', $deleted, 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			$deleted
+		);
+	} else {
+		$message = __( 'No log files were found.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
+	}
+
+	wp_send_json(
+		array(
+			'success' => true,
+			'deleted' => $deleted,
+			'message' => $message,
+		)
+	);
+
+}
+
+/**
  * Load all documentation files
  */
 add_action('wp_ajax_wpd_load_documentation', 'wpdai_load_documentation_ajax');
@@ -473,7 +505,9 @@ function wpdai_strip_numeric_prefix($name) {
 			if (!empty($subfolder_data)) {
 				// Strip numeric prefix from folder name for display
 				$display_name = wpdai_strip_numeric_prefix($item);
-				$display_name = ucwords(str_replace('-', ' ', $display_name));
+				$display_name = str_replace( array( '-', '_' ), ' ', $display_name );
+				$display_name = preg_replace( '/\bab\b/i', 'A/B', $display_name );
+				$display_name = ucwords( $display_name );
 				
 				$result[$item] = array(
 					'type'  => 'folder',
@@ -597,4 +631,36 @@ function wpdai_save_getting_started_settings() {
 	wp_send_json_success( array(
 		'message' => __( 'Settings saved successfully', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
 	) );
+}
+
+/**
+ * Load browsing history for the order dashboard modal.
+ */
+add_action( 'wp_ajax_wpd_get_order_browsing_history', 'wpdai_get_order_browsing_history_ajax' );
+function wpdai_get_order_browsing_history_ajax() {
+
+	if ( ! wpdai_verify_ajax_request() ) {
+		return;
+	}
+
+	if ( ! current_user_can( 'edit_shop_orders' ) && ! current_user_can( 'manage_woocommerce' ) ) {
+		wp_send_json_error(
+			array(
+				'message' => __( 'You do not have permission to view this order.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			)
+		);
+	}
+
+	$order_id = isset( $_POST['order_id'] ) ? absint( wp_unslash( $_POST['order_id'] ) ) : 0;
+	$history  = wpdai_get_order_browsing_history( $order_id );
+
+	if ( is_wp_error( $history ) ) {
+		wp_send_json_error(
+			array(
+				'message' => $history->get_error_message(),
+			)
+		);
+	}
+
+	wp_send_json_success( $history );
 }

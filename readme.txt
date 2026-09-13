@@ -4,7 +4,7 @@ Tags: woocommerce analytics, woocommerce reporting, woocommerce analytics plugin
 Requires at least: 5.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.1.0
+Stable tag: 2.2.0
 Requires Plugins: woocommerce
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -188,6 +188,44 @@ Default WooCommerce reports focus primarily on revenue. Alpha Insights adds cost
 
 == Changelog ==
 
+= 2.2.0 =
+* Tweak - Experiments renamed to A/B Test in the admin menu, reports, and documentation
+* Add - A/B Test list shows purchases, revenue, AOV, and revenue per exposure, with a Target conversion picker
+* Add - Cumulative lift-vs-control progress chart above each A/B test results table
+* Fix - A/B Test list leading badge and row action buttons no longer jump or show more than one leader
+* Tweak - A/B Test list table aligns with the heading text, and the Target conversion selector stays a compact width
+* Tweak - Cache-safe analytics is now the only event tracking loader; the Legacy Event Tracking setting has been removed
+* Tweak - Analytics loader, classes, and helper functions no longer use a v2 suffix; previous names remain as aliases
+* Add - Optional setting to override first-touch attribution when a new session arrives with UTM tags or click IDs (on by default)
+* Fix - Session landing page and referral are first-touch: set once, never overwritten by later untagged page views
+* Fix - An untagged first hit can be upgraded when a later page in the same session includes UTM tags or click IDs (gclid, gbraid)
+* Fix - Landing-page cookies are no longer passed through sanitize_text_field(), which could strip encoded query strings
+* Add - Migration to backfill untagged session landing pages from later events that include UTM tags or click IDs
+* Fix - Google Ads referrers such as googleadservices.com are classified as Google Ads instead of Organic
+* Tweak - Facebook and Instagram in-app browser sessions with no referrer or click ID are attributed to Social
+* Fix - Cart and checkout no longer start a new session when cookies are missing or the inactivity window has elapsed
+* Tweak - Cart and checkout follow-up events reuse the resolved session instead of writing a second session row
+* Fix - Add to cart events store the originating page URL instead of the wc-ajax / REST endpoint
+* Add - Remove from cart events, with the same origin URL and session handling as add to cart
+* Fix - Checkout initiation is no longer recorded on the WooCommerce order-received thank you page
+* Add - Session Add To Cart Rate and Session Init Checkout Rate as time series metrics (unique sessions with the event, as a percentage of total sessions)
+* Tweak - Relabel the matching single metrics to Session Add To Cart Rate and Session Init Checkout Rate
+* Fix - Widget CSV download now exports formula metrics (conversion rate, session rates, AOV) and time series tables instead of failing silently
+* Tweak - Event insert REST path skips redundant session writes, avoids loading the WooCommerce session, and uses a composite session index for visitor reuse lookups
+* Add - Browsing History on the order dashboard: AJAX-loaded customer journey modal, grouped by session
+* Tweak - Debug Settings splits General, Data Management, and Migrations into separate tabs
+* Add - Delete All Logs button on the Debug Settings logs header
+* Add - Sessions debug tab: raw session rows with calculated source, date and source filters, event fold-outs, pagination, and CSV export
+* Tweak - Meta crawler, WebPageTest PTST, and GtkLauncher user agents are classified as bots
+* Tweak - Order cost/profit calculations are cached for the remainder of the request
+* Tweak - Uncached-order cache builder uses a limited LEFT JOIN instead of loading every order ID
+* Tweak - Session counts by IP and user query the session table directly
+* Tweak - Analytics reports memoize per-session traffic source and landing URL, and apply traffic filters before event processing
+* Tweak - Analytics cleanup cron deletes empty-landing, bot, and orphan sessions in bulk instead of row-by-row
+* Tweak - Bot user-agent matching compiles the crawler pattern list once per request
+* Tweak - Payment, shipping, and analytics settings are memoized for the request
+* Tweak - Order dashboard customer LTV, order count, and AOV use email helpers instead of a full sales warehouse
+
 = 2.1.0 =
 * Add - Experiments (Beta): A/B test storefront changes with CSS and JavaScript variants, sticky visitor assignment, cache-safe page targeting, and a results report (exposures, conversions, lift)
 * Add - Developer helpers wpdai_in_experiment() and wpdai_get_experiment_variant() for theme and plugin branching
@@ -275,6 +313,9 @@ Default WooCommerce reports focus primarily on revenue. Alpha Insights adds cost
 ---
 
 == Upgrade Notice ==
+
+= 2.2.0 =
+Improves A/B Test results (lift-vs-control chart and richer list metrics), makes cache-safe analytics the only tracking loader, and fixes first-touch attribution, cart/checkout sessions, and add-to-cart URLs.
 
 = 2.1.0 =
 Adds Experiments (Beta) for A/B testing storefront CSS and JavaScript, plus analytics and reporting fixes since 2.0.

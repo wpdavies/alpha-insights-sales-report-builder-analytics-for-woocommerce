@@ -1,34 +1,48 @@
 <h2>Attribution Window</h2>
-<p>Alpha Insights uses an <strong>attribution window</strong> to decide how long to remember where a visitor came from and which page they first landed on. This guide explains what the setting controls, what data is stored (referral URL and landing page), and how it affects your reports and order attribution.</p>
+<p>Alpha Insights uses an <strong>attribution window</strong> to decide how long to remember where a visitor came from and which page they first landed on. This guide explains what the settings control, what data is stored (referral URL and landing page), and how that affects reports and order attribution.</p>
 
-<h3>Where the setting lives</h3>
-<p>The attribution window is configured in <strong>Alpha Insights → Settings → General Settings</strong>, under the section <strong>Alpha Analytics &amp; Event Tracking</strong>.</p>
-<p><strong>Setting name:</strong> <strong>Attribution Window Timeout (days)</strong></p>
-<p><strong>Options:</strong> 1, 2, 3, 4, 5, 6, 7, 14, or 30 days. The default is 3 days if the setting is not saved.</p>
-<p>This value is used everywhere attribution is applied: cookies, session storage, and reporting. The frontend and backend stay in sync so the same number of days is used for storing and expiring attribution data.</p>
+<h3>Where the settings live</h3>
+<p>Attribution is configured in <strong>Alpha Insights → Settings → General Settings</strong>, under <strong>Alpha Analytics &amp; Event Tracking</strong>.</p>
+
+<h4>Attribution Window</h4>
+<p><strong>Options:</strong> Session Only, or 1, 2, 3, 4, 5, 6, 7, 14, or 30 days. The default is 3 days if the setting is not saved.</p>
+<p>This value is used everywhere attribution is applied: browser storage, cookies (when written), session records, and reporting. The frontend and backend stay in sync so the same duration is used for storing and expiring attribution data.</p>
+
+<h4>Override Attribution on New UTM Visit</h4>
+<p><strong>Default:</strong> True.</p>
+<p>When a returning visitor starts a <strong>new session</strong> with UTM tags or click IDs (<code>gclid</code>, <code>gbraid</code>, <code>fbclid</code>, <code>msclkid</code>, <code>utm_source</code>, <code>google_cid</code>, <code>meta_cid</code>, and similar), replace the stored landing page and referral with this visit. Leave this <strong>False</strong> to keep first-touch attribution for the rest of the window.</p>
+<p>Session Only still resets attribution on every new session, whether or not the URL has campaign parameters.</p>
 
 <h3>What the attribution window actually sets</h3>
 <p>The attribution window controls how long two pieces of data are kept for the visitor:</p>
 <ol>
-<li><strong>Referral URL (referral source)</strong> – the URL of the page or site the visitor came from (e.g. a Google search results page, a Facebook post, or another website).</li>
-<li><strong>Landing page</strong> – the first page on your site that the visitor loaded (the full URL of that page).</li>
+<li><strong>Referral URL (referral source)</strong> – the URL of the page or site the visitor came from (for example a Google search results page, a Facebook post, or another website).</li>
+<li><strong>Landing page</strong> – the first page on your site that the visitor loaded (the full URL of that page, including query parameters).</li>
 </ol>
-<p>Both are stored when the visitor first hits your site (or when first detected). By default they use <strong>first-touch</strong> attribution: once set, they are not updated on later page views within the same session. They expire after the attribution window (in days) from when they were first set.</p>
-<p><strong>Exception — new session with campaign tracking:</strong> If a visitor returns after their session has expired (typically 30 minutes of inactivity) and lands on your site via a URL with UTM or other campaign tracking parameters (e.g. <code>utm_campaign</code>, <code>gclid</code>, <code>fbclid</code>, <code>meta_cid</code>, <code>google_cid</code>), the landing page and referral source are <strong>reset to that visit</strong> — even if the original attribution window has not yet expired. This last-touch behaviour ensures orders and reports reflect the most recent campaign that brought the visitor back.</p>
-<p><strong>Referral URL</strong> is stored in the cookie <code>wpd_ai_referral_source</code> and in server-side session (PHP/WooCommerce session) as a backup. It is used to work out the <strong>traffic source</strong> (e.g. Organic Search, Google Ads, Direct, Social).</p>
-<p><strong>Landing page</strong> is set by JavaScript on the first page load (<code>document.location.href</code>) and stored in the cookie <code>wpd_ai_landing_page</code>. It is not overwritten by later activity within the same session; it always represents the first page they landed on within the attribution period. It <em>is</em> overwritten when a new session begins with campaign tracking parameters in the URL.</p>
-<p>When the window expires, both values are cleared. After that, a later visit or purchase will no longer be tied to that original referrer or landing page unless the visitor comes again with a new referrer/landing (which will then get a new window).</p>
+<p>Both are stored when the visitor first hits your site (or when first detected). They use <strong>first-touch</strong> attribution within the window: once set, they are not updated on later page views in the same session, and they are not updated on later sessions unless one of the reset rules below applies. They expire after the attribution window from when they were first set (or at session end if you chose Session Only).</p>
+
+<p><strong>When attribution resets:</strong></p>
+<ul>
+<li><strong>Window expired</strong> — landing page and referral are cleared and the next visit starts a new first-touch window.</li>
+<li><strong>Session Only</strong> — every new session (after the inactivity timeout) captures a new landing page and referral.</li>
+<li><strong>Override on new UTM visit</strong> (default on) — a new session whose URL includes UTM or click-ID parameters replaces stored attribution, even if the multi-day window has not expired.</li>
+</ul>
+
+<p><strong>Where values are stored:</strong> the analytics client writes them to <code>localStorage</code> first (<code>wpd_ai_v2_landing_page</code>, <code>wpd_ai_v2_referral_source</code>, plus timestamps). Cookies <code>wpd_ai_landing_page</code> and <code>wpd_ai_referral_source</code> are written on cart and checkout in Checkout Only mode, or on first visit in Immediate mode. See <a href="/documentation/alpha-insights/website-traffic/cache-safe-tracking-beta.html">Cache-Safe Event Tracking</a>.</p>
+<p><strong>Referral URL</strong> is used to work out the <strong>traffic source</strong> (for example Organic Search, Google Ads, Direct, Social). Same-site referrers are ignored and stored as empty.</p>
+<p><strong>Landing page</strong> is set by JavaScript from <code>document.location.href</code>. It always represents the first page of the current attribution period, unless a reset rule above overwrites it.</p>
 
 <h3>What this means for reporting</h3>
 <h4>Sessions and traffic source</h4>
 <p>Each stored session includes <code>landing_page</code> and <code>referral_url</code> (or equivalent). The traffic source (acquisition channel) is derived from the referral URL and any UTM or tracking parameters on the landing page. Reports that group by <strong>traffic source</strong>, <strong>acquisition channel</strong>, or <strong>landing page</strong> use this session data. If the attribution window is short, sessions that extend beyond the window no longer have a valid referral/landing and may be treated as direct or uncategorized once the data has expired.</p>
 <h4>Order attribution</h4>
-<p>When an order is placed, Alpha Insights copies the current <strong>referral source</strong> and <strong>landing page</strong> from the session/cookies onto the order (order meta <code>_wpd_ai_referral_source</code> and <code>_wpd_ai_landing_page</code>). So the order is attributed to whatever source and landing page were still within the attribution window at checkout.</p>
+<p>When an order is placed, Alpha Insights copies the current <strong>referral source</strong> and <strong>landing page</strong> from session storage onto the order (order meta <code>_wpd_ai_referral_source</code> and <code>_wpd_ai_landing_page</code>). So the order is attributed to whatever source and landing page were still within the attribution window at checkout.</p>
 <ul>
-<li>If the customer clicked an ad, landed on your site, and bought within the attribution window (e.g. 7 days), the order is attributed to that ad (e.g. Google Ads or Facebook).</li>
+<li>If the customer clicked an ad, landed on your site, and bought within the attribution window (for example 7 days), the order is attributed to that ad (for example Google Ads or Facebook).</li>
 <li>If they clicked an ad, left, and came back 10 days later (with a 7-day window), the referral/landing may have expired; the order can then be attributed to Direct or the new visit’s source, depending on how they returned.</li>
+<li>If they return later with a new UTM or click ID and Override Attribution is True, the order is attributed to that later campaign.</li>
 </ul>
-<p>So a <strong>longer window</strong> (e.g. 14 or 30 days) keeps “first touch” longer and attributes more orders to the original campaign or referrer. A <strong>shorter window</strong> (e.g. 1–3 days) attributes only orders that happen soon after the first visit; later returns may show as direct or a different source.</p>
+<p>A <strong>longer window</strong> (for example 14 or 30 days) keeps first-touch longer and attributes more orders to the original campaign or referrer — unless a later UTM visit overrides it. A <strong>shorter window</strong> or <strong>Session Only</strong> attributes only the current visit (or visits that happen soon after the first touch).</p>
 <h4>Reports that use this data</h4>
 <ul>
 <li><strong>Website Traffic / Analytics reports</strong> – Sessions and events are tied to traffic source and landing page from session data (which respects the attribution window).</li>
@@ -37,17 +51,20 @@
 </ul>
 <h3>Choosing a value</h3>
 <ul>
-<li><strong>Short (1–3 days):</strong> Good if you care mainly about immediate response (e.g. same-day or next-day conversions). Fewer orders will be attributed to an old click; returning visitors after the window may show as Direct.</li>
-<li><strong>Medium (7 days):</strong> Common default for e‑commerce; balances “first touch” and not over-attributing to very old visits.</li>
-<li><strong>Long (14–30 days):</strong> Use when your sales cycle is longer (e.g. consideration period, B2B) so that orders placed within 2–4 weeks still get attributed to the original campaign or referrer.</li>
+<li><strong>Session Only:</strong> Reset landing page and referral whenever a new session starts (after the inactivity timeout, default 30 minutes). Use this when you want each visit attributed independently.</li>
+<li><strong>Short (1–3 days):</strong> Good if you care mainly about immediate response (for example same-day or next-day conversions). Fewer orders will be attributed to an old click; returning visitors after the window may show as Direct.</li>
+<li><strong>Medium (7 days):</strong> Common for e‑commerce; balances first-touch and not over-attributing to very old visits.</li>
+<li><strong>Long (14–30 days):</strong> Use when your sales cycle is longer (for example consideration period, B2B) so that orders placed within 2–4 weeks still get attributed to the original campaign or referrer.</li>
 </ul>
-<p>Changing the setting only affects <strong>new</strong> attribution (new cookies and new session data). Existing orders and already-stored sessions keep the referral and landing page they had when they were saved.</p>
+<p>Changing the setting only affects <strong>new</strong> attribution (new browser storage and new session data). Existing orders and already-stored sessions keep the referral and landing page they had when they were saved.</p>
 <h3>Technical note</h3>
-<p>The attribution window is independent of <strong>session</strong> length. Sessions can expire or be extended based on activity and session timeout rules. Referral URL and landing page are stored and expired primarily by the attribution window (from the time they were first set), so they can outlast a given session depending on your settings. They are <strong>de-coupled from the session ID</strong>: if a session expires (e.g. 30 minutes of inactivity), the referral and landing page are not cleared unless the returning visit includes campaign tracking parameters — in which case attribution is updated to that new campaign visit.</p>
-<p>Internally, the setting is stored as <strong>days</strong> and converted to seconds for cookies and server-side expiry. The frontend (JavaScript) receives the same value in seconds so cookie expiry and reporting stay in sync.</p>
+<p>The attribution window is independent of <strong>session</strong> length, except when you choose Session Only. Sessions expire after 30 minutes of inactivity by default (filterable). Referral URL and landing page can outlast a given session when you use a multi-day window. They are <strong>de-coupled from the session ID</strong>: if a session expires, the referral and landing page stay until the window expires, unless Override Attribution on New UTM Visit is True and the returning visit includes campaign parameters.</p>
+<p>Internally, the setting is stored as <strong>days</strong> (or <code>0</code> for Session Only) and converted to seconds for cookies and browser expiry. The frontend JavaScript receives the same value in seconds so storage expiry and reporting stay in sync.</p>
 <h4>For developers</h4>
-<p>You can override the attribution window programmatically with the filter <code>wpd_attribution_timeout_seconds</code>. The filter receives the computed value in seconds (from the saved days setting) and must return an integer (seconds). Example:</p>
+<p>You can override the attribution window programmatically with the filter <code>wpd_attribution_timeout_seconds</code>. The filter receives the computed value in seconds (from the saved days setting, or the session timeout when Session Only is selected) and must return an integer (seconds). Example:</p>
 <pre><code>add_filter( 'wpd_attribution_timeout_seconds', function( $seconds ) {
     return 14 * DAY_IN_SECONDS; // 14 days
 }, 10 );</code></pre>
+<p>Override the UTM last-touch behaviour with <code>wpd_ai_override_attribution_on_new_utm</code>:</p>
+<pre><code>add_filter( 'wpd_ai_override_attribution_on_new_utm', '__return_false' );</code></pre>
 <p>For more on how traffic source is determined from referral URL and UTM parameters, see <a href="/documentation/alpha-insights/website-traffic/traffic-source-analysis.html">Traffic Source Analysis</a> and <a href="/documentation/alpha-insights/website-traffic/tracking-utm-campaigns.html">Tracking UTM Campaigns</a>.</p>

@@ -66,7 +66,7 @@
 
 <h3>Visitor Sessions</h3>
 
-<p><strong>What is a session?</strong> A visitor's continuous browsing activity on your site until they leave or are inactive for 10 minutes. Sessions are tracked using browser cookies.</p>
+<p><strong>What is a session?</strong> A visitor's continuous browsing activity on your site until they leave or are inactive for 30 minutes. Sessions are tracked in the browser with <code>localStorage</code>, and mirrored to first-party cookies on cart and checkout (or immediately, depending on Cookie Storage Mode).</p>
 
 <p><strong>Tracked session data:</strong></p>
 
@@ -85,13 +85,12 @@
 <li>Unique session ID (generated automatically)</li>
 </ul>
 
-<p><strong>Technical detail:</strong> Sessions are managed via three cookies:</p>
+<p><strong>Technical detail:</strong> Sessions are managed in the browser first, then mirrored to cookies when needed:</p>
 <ul>
-<li><code>wpd_ai_session_id</code> - Unique session identifier</li>
-<li><code>wpd_ai_landing_page</code> - First page URL visited</li>
-<li><code>wpd_ai_referral_source</code> - Where the visitor came from</li>
+<li><code>localStorage</code> keys prefixed with <code>wpd_ai_v2_</code> (session ID, landing page, referral, activity timestamps)</li>
+<li>Cookies <code>wpd_ai_session_id</code>, <code>wpd_ai_landing_page</code>, and <code>wpd_ai_referral_source</code> on cart/checkout (Checkout Only mode) or on first visit (Immediate mode)</li>
 </ul>
-<p>All three cookies expire after 10 minutes of inactivity and are automatically renewed on each page view.</p>
+<p>The session ID expires after 30 minutes of inactivity (filterable). Landing page and referral follow the <a href='/documentation/alpha-insights/website-traffic/attribution-window.html'>Attribution Window</a> setting, not the session timeout.</p>
 
 <h3>Traffic Sources</h3>
 
@@ -193,7 +192,7 @@
 <li>Traffic source attribution (Organic, Paid, Social, Email, etc.)</li>
 </ul>
 
-<p><strong>How it works:</strong> When an order is created, Alpha Insights automatically reads the visitor's cookies and saves the landing page and referral data to the order meta. This creates a permanent link between the order and the marketing source.</p>
+<p><strong>How it works:</strong> When an order is created, Alpha Insights reads the visitor's session and attribution data (cookies written at cart/checkout, or the matching session in the database) and saves the landing page and referral to the order meta. This creates a permanent link between the order and the marketing source.</p>
 
 <h3>What Is NOT Tracked</h3>
 
@@ -216,7 +215,7 @@
 
 <h3>1. Frontend Tracking</h3>
 
-<p>Alpha Insights loads a lightweight JavaScript file (<code>wpd-alpha-insights-event-tracking.js</code>, ~5KB) that automatically tracks:</p>
+<p>Alpha Insights loads cache-safe analytics scripts (<code>wpd-ai-client.js</code> and <code>wpd-ai-event-tracking.js</code>) that automatically track:</p>
 
 <ul>
 <li>Page views on every page load</li>
@@ -231,17 +230,17 @@
 
 <p>On the first page load, Alpha Insights:</p>
 <ol>
-<li>Generates a unique session ID (MD5 hash of user agent + timestamp)</li>
-<li>Captures referral URL from HTTP headers</li>
-<li>Stores session data in cookies (10-minute expiry)</li>
-<li>Creates session record in database (<code>wpd_ai_session_data</code> table)</li>
+<li>Generates a unique session ID in the browser</li>
+<li>Captures the landing page URL and document referrer</li>
+<li>Stores session data in <code>localStorage</code> (and cookies if Cookie Storage Mode is Immediate)</li>
+<li>Creates a session record in the database (<code>wpd_ai_session_data</code> table) when the first event is sent</li>
 </ol>
 
-<p>On subsequent page loads within 10 minutes:</p>
+<p>On subsequent page loads within 30 minutes:</p>
 <ol>
-<li>Reads existing session ID from cookie</li>
+<li>Reads the existing session ID from <code>localStorage</code></li>
 <li>Updates session end time (<code>date_updated_gmt</code>)</li>
-<li>Refreshes cookie expiry (another 10 minutes)</li>
+<li>Refreshes last-activity timestamps</li>
 <li>Adds new events to the session</li>
 </ol>
 
@@ -327,10 +326,23 @@
 <li>When <strong>False</strong>, every page load is tracked immediately. See <a href='/documentation/alpha-insights/website-traffic/session-management.html'>Session Management</a> for details on engaged sessions.</li>
 </ul>
 
-<p><strong>Attribution Window Timeout (days):</strong></p>
+<p><strong>Attribution Window:</strong></p>
 <ul>
-<li>How long the <strong>referral URL</strong> and <strong>landing page</strong> are stored for the visitor (1–30 days, default 3). After this period they expire; new visits get a new attribution. Affects traffic source and order attribution.</li>
+<li>How long the <strong>referral URL</strong> and <strong>landing page</strong> are stored (Session Only, or 1–30 days; default 3 days). Session Only resets attribution when a new session starts. Multi-day options keep first-touch across return visits until the window expires.</li>
 <li>See <a href='/documentation/alpha-insights/website-traffic/attribution-window.html'>Attribution Window</a> for full details.</li>
+</ul>
+
+<p><strong>Override Attribution on New UTM Visit:</strong></p>
+<ul>
+<li>When <strong>True</strong> (default), a new session that arrives with UTM tags or click IDs replaces stored landing page and referral.</li>
+<li>When <strong>False</strong>, first-touch attribution stays for the rest of the window even if the visitor comes back via a new campaign URL.</li>
+</ul>
+
+<p><strong>Cookie Storage Mode:</strong></p>
+<ul>
+<li><strong>Checkout Only (recommended):</strong> Keep session identity in <code>localStorage</code> until cart or checkout so page cache is not busted.</li>
+<li><strong>Immediate:</strong> Write analytics cookies on first visit.</li>
+<li>See <a href='/documentation/alpha-insights/website-traffic/cache-safe-tracking-beta.html'>Cache-Safe Event Tracking</a>.</li>
 </ul>
 
 <h4>Viewing Analytics Data</h4>
@@ -471,7 +483,7 @@
 <ul>
 <li>One visitor can have multiple sessions</li>
 <li>Example: Someone visits Monday and again Wednesday = 2 sessions</li>
-<li>Sessions expire after 10 minutes of inactivity</li>
+<li>Sessions expire after 30 minutes of inactivity</li>
 <li>Counted from unique session IDs in database</li>
 </ul>
 
@@ -723,11 +735,11 @@ Insight: Organic search generates 2.3x more profit per session and higher conver
 <li><code>_wpd_ai_google_campaign_id</code> - Google campaign ID (if google_cid present)</li>
 </ul>
 
-<p><strong>Cookies:</strong></p>
+<p><strong>Browser storage:</strong></p>
 <ul>
-<li><code>wpd_ai_session_id</code> - Session identifier (10-minute expiry)</li>
-<li><code>wpd_ai_landing_page</code> - Landing page URL (10-minute expiry)</li>
-<li><code>wpd_ai_referral_source</code> - Referrer URL (10-minute expiry)</li>
+<li><code>localStorage</code> keys prefixed with <code>wpd_ai_v2_</code> — session ID, landing page, referral, activity timestamps</li>
+<li><code>wpd_ai_session_id</code> cookie — session identifier (30-minute inactivity expiry; written at cart/checkout in Checkout Only mode)</li>
+<li><code>wpd_ai_landing_page</code> / <code>wpd_ai_referral_source</code> cookies — attribution (expiry follows the Attribution Window)</li>
 </ul>
 
 <p><strong>REST API Endpoint:</strong></p>
@@ -737,16 +749,19 @@ Insight: Organic search generates 2.3x more profit per session and higher conver
 
 <p><strong>PHP Classes:</strong></p>
 <ul>
-<li><code>WPDAI_Session_Tracking</code> - Session management</li>
-<li><code>WPDAI_WooCommerce_Event_Tracking</code> - Event tracking</li>
-<li><code>WPDAI_Traffic_Type_Detection</code> - Traffic source classification</li>
-<li><code>WPDAI_Data_Warehouse</code> - Data aggregation and reporting</li>
-<li><code>WPDAI_User_Agent_Classification</code> - Device and bot detection</li>
+<li><code>WPDAI_Analytics_Loader</code> / <code>WPDAI_Analytics_Scripts</code> — Frontend loader and script enqueue</li>
+<li><code>WPDAI_Event_Tracking</code> — Live event tracking (extends <code>WPDAI_WooCommerce_Event_Tracking</code>)</li>
+<li><code>WPDAI_Session_Context</code> — Resolves session identity from the request payload</li>
+<li><code>WPDAI_Session_Tracking</code> — Shared helpers (cookie domain, attribution window)</li>
+<li><code>WPDAI_Traffic_Type_Detection</code> — Traffic source classification</li>
+<li><code>WPDAI_Data_Warehouse</code> — Data aggregation and reporting</li>
+<li><code>WPDAI_User_Agent_Classification</code> — Device and bot detection</li>
 </ul>
 
-<p><strong>JavaScript Object:</strong></p>
+<p><strong>JavaScript:</strong></p>
 <ul>
-<li><code>WpdAiEventTracking</code> - Frontend event tracking class</li>
+<li><code>wpd-ai-client.js</code> — Session and attribution client (<code>wpdAiClient</code>)</li>
+<li><code>wpd-ai-event-tracking.js</code> — Frontend event tracking</li>
 </ul>
 
 <h4>Next Steps</h4>
@@ -757,7 +772,7 @@ Insight: Organic search generates 2.3x more profit per session and higher conver
 <li>Review <a href='/documentation/alpha-insights/website-traffic/technical-architecture.html'>Technical Architecture</a> for implementation details</li>
 <li>See <a href='/documentation/alpha-insights/website-traffic/event-types-reference.html'>Event Types Reference</a> for all tracked events</li>
 <li>Check <a href='/documentation/alpha-insights/website-traffic/troubleshooting-website-traffic.html'>Troubleshooting Guide</a> if you encounter issues</li>
-<li>Run <a href='/documentation/alpha-insights/experiments/what-are-experiments.html'>A/B experiments</a> against the same analytics and order data</li>
+<li>Run <a href='/documentation/alpha-insights/ab-testing/what-are-ab-tests.html'>A/B tests</a> against the same analytics and order data</li>
 <li>Explore <a href='/documentation/alpha-insights/report-builder/creating-custom-reports.html'>Creating Custom Reports</a> to build traffic-based reports</li>
 <li>Set up <a href='/documentation/alpha-insights/integrations/facebook/facebook-campaign-tracking.html'>Facebook Campaign Tracking</a> for ad attribution</li>
 <li>Configure <a href='/documentation/alpha-insights/integrations/google-ads/google-ads-campaign-tracking.html'>Google Ads Tracking</a> for search campaign ROI</li>

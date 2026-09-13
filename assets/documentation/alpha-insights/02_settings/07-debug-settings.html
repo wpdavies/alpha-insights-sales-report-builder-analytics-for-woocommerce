@@ -5,8 +5,37 @@
 <ol>
 <li>Go to <strong>Alpha Insights → Settings</strong></li>
 <li>Navigate to the <strong>Debug</strong> settings page</li>
-<li>You'll see debugging tools and system logs</li>
+<li>You'll see four tabs: <strong>General</strong>, <strong>Sessions</strong>, <strong>Data Management</strong>, and <strong>Migrations</strong></li>
 </ol>
+
+<h3>Page Tabs</h3>
+<ul>
+<li><strong>General:</strong> Debug order calculations and WP Davies logs (default)</li>
+<li><strong>Sessions:</strong> Review raw session rows, calculated traffic source, landing-page parameters, and fold-out events</li>
+<li><strong>Data Management:</strong> Inspect and delete Alpha Insights-generated data</li>
+<li><strong>Migrations:</strong> Review and manually run data migrations after plugin updates</li>
+</ul>
+
+<h2>Sessions Debug</h2>
+<p>Use the <strong>Sessions</strong> tab to inspect how Alpha Insights classified each visit. This is especially useful when reviewing Direct traffic that you expected to attribute elsewhere.</p>
+
+<h3>What It Shows</h3>
+<ul>
+<li><strong>Session ID:</strong> Analytics session identifier</li>
+<li><strong>Started:</strong> Session start time in your site timezone, plus duration</li>
+<li><strong>IP address:</strong> Visitor IP stored on the session</li>
+<li><strong>Landing page:</strong> Path and query parameters broken out as key/value pairs</li>
+<li><strong>User agent:</strong> Raw user agent stored with the session</li>
+<li><strong>Source:</strong> The same calculated traffic source used in reports (from landing-page parameters, referral URL, and Facebook/Instagram in-app user agents)</li>
+</ul>
+
+<h3>Filters</h3>
+<ul>
+<li><strong>Date range:</strong> Defaults to the last 30 days</li>
+<li><strong>Session source:</strong> Filter to Direct, Organic, paid channels, and other calculated sources</li>
+</ul>
+<p>Results are paginated at 100 sessions per page. Expand a row to see referral URL, full landing page, device details, and every stored event for that session.</p>
+<p>Use <strong>Export to CSV</strong> to download every matching session, not just the current page. The modal lets you choose a flat <strong>session data</strong> file or a flat <strong>event data</strong> file.</p>
 
 <h3>Who Should Use Debug Settings</h3>
 <ul>
@@ -35,7 +64,7 @@
 <li>Note the order ID number</li>
 </ul>
 </li>
-<li>On Debug Settings page, enter order ID in "Debug order ID" field</li>
+<li>On the Debug Settings <strong>General</strong> tab, enter order ID in "Debug order ID" field</li>
 <li>Click <strong>Debug</strong> button</li>
 <li>Page reloads and shows complete calculation output below</li>
 </ol>
@@ -141,10 +170,10 @@
 </ul>
 
 <h2>WP Davies Logs</h2>
-<p>View system logs from Alpha Insights operations.</p>
+<p>View system logs from Alpha Insights operations on the <strong>General</strong> tab.</p>
 
 <h3>Log Display</h3>
-<p>The log section shows all available log files in a split-panel interface:</p>
+<p>The log section shows all available log files in a split-panel interface. Use <strong>Delete All Logs</strong> in the logs header to remove every log file at once.</p>
 
 <p><strong>Left panel:</strong> List of available logs</p>
 <ul>

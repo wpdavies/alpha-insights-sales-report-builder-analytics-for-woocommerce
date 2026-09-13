@@ -7,35 +7,38 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class WPDAI_Event_Tracking_V2
+ * Class WPDAI_Event_Tracking
  */
-class WPDAI_Event_Tracking_V2 extends WPDAI_WooCommerce_Event_Tracking {
+class WPDAI_Event_Tracking extends WPDAI_WooCommerce_Event_Tracking {
 
 	/** @var self|null */
-	private static $v2_instance = null;
+	private static $tracking_instance = null;
 
 	/** @var array<string, mixed> */
 	protected $session_payload = array();
+
+	/** @var bool Whether the session row was written earlier in this request. */
+	protected $session_persisted_this_request = false;
 
 	/**
 	 * @return self
 	 */
 	public static function get_instance() {
-		if ( null === self::$v2_instance ) {
-			self::$v2_instance = new self();
+		if ( null === self::$tracking_instance ) {
+			self::$tracking_instance = new self();
 		}
-		return self::$v2_instance;
+		return self::$tracking_instance;
 	}
 
 	/**
-	 * Register hooks for v2 tracking.
+	 * Register hooks for cache-safe tracking.
 	 */
 	public function __construct() {
 		if ( ! wpdai_is_analytics_enabled() ) {
 			$this->event_tracking_enabled = 0;
 		}
 
-		$this->settings                  = wpdai_get_analytics_settings();
+		$this->settings                    = wpdai_get_analytics_settings();
 		$this->only_track_engaged_sessions = isset( $this->settings['only_track_engaged_sessions'] ) ? (int) $this->settings['only_track_engaged_sessions'] : 0;
 
 		if ( 1 !== (int) $this->event_tracking_enabled ) {
@@ -46,6 +49,7 @@ class WPDAI_Event_Tracking_V2 extends WPDAI_WooCommerce_Event_Tracking {
 
 		add_action( 'template_redirect', array( $this, 'setup_object_type_id' ), 1 );
 		add_action( 'woocommerce_add_to_cart', array( $this, 'db_track_product_add_to_cart' ), 10, 6 );
+		add_action( 'woocommerce_remove_cart_item', array( $this, 'db_track_product_remove_from_cart' ), 10, 2 );
 		add_action( 'woocommerce_thankyou', array( $this, 'db_track_products_purchased_thankyou_page' ), 10, 1 );
 		add_action( 'woocommerce_order_status_changed', array( $this, 'db_track_products_purchased_on_order_status_change' ), 20, 4 );
 		add_action( 'woocommerce_order_status_changed', array( $this, 'db_track_failed_orders' ), 30, 4 );
@@ -59,9 +63,9 @@ class WPDAI_Event_Tracking_V2 extends WPDAI_WooCommerce_Event_Tracking {
 	}
 
 	/**
-	 * Legacy script registration is handled by WPDAI_Analytics_V2_Scripts.
+	 * Frontend scripts are registered by WPDAI_Analytics_Scripts.
 	 *
-	 * @return array<string, mixed>|void
+	 * @return array<string, mixed>
 	 */
 	public function register_event_tracking_script() {
 		return array();
@@ -79,6 +83,59 @@ class WPDAI_Event_Tracking_V2 extends WPDAI_WooCommerce_Event_Tracking {
 	}
 
 	/**
+	 * Whether this event can reuse the session already resolved in this request.
+	 *
+	 * @param array<string, mixed> $data Event payload.
+	 * @return bool
+	 */
+	protected function can_reuse_session_for_event( $data ) {
+		if ( empty( $this->session_instance ) || ! is_object( $this->session_instance ) ) {
+			return false;
+		}
+
+		$incoming_session_id = '';
+		if ( ! empty( $data['session_id'] ) && is_string( $data['session_id'] ) ) {
+			$incoming_session_id = sanitize_text_field( $data['session_id'] );
+		}
+
+		$existing_session_id = isset( $this->session_instance->session_id ) ? (string) $this->session_instance->session_id : '';
+
+		return ( '' === $incoming_session_id || $incoming_session_id === $existing_session_id );
+	}
+
+	/**
+	 * Reuse the request session when the incoming event belongs to it.
+	 *
+	 * @param array<string, mixed> $data Event payload.
+	 * @return WPDAI_Session_Context
+	 */
+	protected function resolve_session_instance_for_event( $data ) {
+		$this->session_payload = is_array( $data ) ? $data : array();
+
+		$incoming_session_id = '';
+		if ( ! empty( $data['session_id'] ) && is_string( $data['session_id'] ) ) {
+			$incoming_session_id = sanitize_text_field( $data['session_id'] );
+		}
+
+		if ( ! empty( $this->session_instance ) && is_object( $this->session_instance ) ) {
+			$existing_session_id = isset( $this->session_instance->session_id ) ? (string) $this->session_instance->session_id : '';
+			$can_reuse           = ( '' === $incoming_session_id || $incoming_session_id === $existing_session_id );
+
+			if ( $can_reuse ) {
+				if ( ! empty( $data['page_href'] ) && is_string( $data['page_href'] ) ) {
+					$this->session_instance->page_href = esc_url_raw( $data['page_href'] );
+				}
+				return $this->session_instance;
+			}
+		}
+
+		$this->session_instance                 = null;
+		$this->session_persisted_this_request = false;
+
+		return $this->get_set_session_instance();
+	}
+
+	/**
 	 * Resolve client IP without constructing full session context.
 	 *
 	 * @return string
@@ -91,7 +148,7 @@ class WPDAI_Event_Tracking_V2 extends WPDAI_WooCommerce_Event_Tracking {
 	 * @param string $ip_address Client IP.
 	 * @return bool
 	 */
-	protected function v2_is_ip_banned( $ip_address ) {
+	protected function is_ip_banned( $ip_address ) {
 		if ( empty( $ip_address ) ) {
 			return false;
 		}
@@ -103,7 +160,7 @@ class WPDAI_Event_Tracking_V2 extends WPDAI_WooCommerce_Event_Tracking {
 	 * @param string $ip_address Client IP.
 	 * @return bool
 	 */
-	protected function v2_is_rate_limit_exceeded( $ip_address ) {
+	protected function is_rate_limit_exceeded( $ip_address ) {
 		if ( empty( $ip_address ) ) {
 			return false;
 		}
@@ -126,7 +183,7 @@ class WPDAI_Event_Tracking_V2 extends WPDAI_WooCommerce_Event_Tracking {
 	 * @param array<string, mixed> $data Event data.
 	 * @return bool
 	 */
-	protected function v2_block_request_by_data( $data ) {
+	protected function should_block_request_by_data( $data ) {
 		$block_request = false;
 
 		if ( ! is_array( $data ) || empty( $data ) ) {
@@ -171,29 +228,29 @@ class WPDAI_Event_Tracking_V2 extends WPDAI_WooCommerce_Event_Tracking {
 			);
 		}
 
-		$ip_address = $this->get_client_ip_for_rate_limit();
+		if ( ! $this->can_reuse_session_for_event( $data ) ) {
+			$ip_address = $this->get_client_ip_for_rate_limit();
 
-		if ( $this->v2_is_ip_banned( $ip_address ) ) {
-			return array(
-				'success'       => false,
-				'message'       => __( 'IP address is banned from event tracking.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
-				'code'          => 'ip_banned',
-				'rows_inserted' => 0,
-			);
+			if ( $this->is_ip_banned( $ip_address ) ) {
+				return array(
+					'success'       => false,
+					'message'       => __( 'IP address is banned from event tracking.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+					'code'          => 'ip_banned',
+					'rows_inserted' => 0,
+				);
+			}
+
+			if ( $this->is_rate_limit_exceeded( $ip_address ) ) {
+				return array(
+					'success'       => false,
+					'message'       => __( 'Rate limit exceeded. Too many requests.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+					'code'          => 'rate_limit_exceeded',
+					'rows_inserted' => 0,
+				);
+			}
 		}
 
-		if ( $this->v2_is_rate_limit_exceeded( $ip_address ) ) {
-			return array(
-				'success'       => false,
-				'message'       => __( 'Rate limit exceeded. Too many requests.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
-				'code'          => 'rate_limit_exceeded',
-				'rows_inserted' => 0,
-			);
-		}
-
-		$this->session_payload  = $data;
-		$this->session_instance = null;
-		$session_instance       = $this->get_set_session_instance();
+		$session_instance = $this->resolve_session_instance_for_event( $data );
 
 		if ( ! $this->track_user() || ! $this->event_tracking_enabled ) {
 			return array(
@@ -231,7 +288,7 @@ class WPDAI_Event_Tracking_V2 extends WPDAI_WooCommerce_Event_Tracking {
 			);
 		}
 
-		$db_interactor = new WPDAI_Database_Interactor();
+		$db_interactor = WPDAI_Database_Interactor::instance();
 		$table_name    = $db_interactor->events_table;
 
 		$data['date_created_gmt'] = current_time( 'mysql', true );
@@ -247,6 +304,15 @@ class WPDAI_Event_Tracking_V2 extends WPDAI_WooCommerce_Event_Tracking {
 		}
 		if ( ! isset( $data['page_href'] ) || empty( $data['page_href'] ) ) {
 			$data['page_href'] = $session_instance->page_href;
+		}
+
+		if ( ! empty( $data['page_href'] ) && function_exists( 'wpdai_is_ajax_or_rest_url' ) && wpdai_is_ajax_or_rest_url( $data['page_href'] ) ) {
+			$origin = function_exists( 'wpdai_get_event_origin_url' )
+				? wpdai_get_event_origin_url( '', isset( $data['product_id'] ) ? (int) $data['product_id'] : 0 )
+				: '';
+			if ( '' !== $origin ) {
+				$data['page_href'] = $origin;
+			}
 		}
 		if ( ! isset( $data['object_type'] ) || empty( $data['object_type'] ) ) {
 			$data['object_type'] = $this->object_type;
@@ -282,7 +348,7 @@ class WPDAI_Event_Tracking_V2 extends WPDAI_WooCommerce_Event_Tracking {
 		$data['product_id']     = (int) $data['product_id'];
 		$data['variation_id']   = (int) $data['variation_id'];
 
-		if ( $this->v2_block_request_by_data( $data ) ) {
+		if ( $this->should_block_request_by_data( $data ) ) {
 			return array(
 				'success'       => false,
 				'message'       => __( 'Event tracking blocked: invalid or incomplete data.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
@@ -291,7 +357,10 @@ class WPDAI_Event_Tracking_V2 extends WPDAI_WooCommerce_Event_Tracking {
 			);
 		}
 
-		$session_instance->store_session_in_db();
+		if ( ! $this->session_persisted_this_request ) {
+			$session_instance->store_session_in_db();
+			$this->session_persisted_this_request = true;
+		}
 
 		$data = apply_filters( 'wpd_ai_event_data_before_insertion', $data );
 		$data = wpdai_prepare_event_row_for_db( $data );
@@ -319,3 +388,5 @@ class WPDAI_Event_Tracking_V2 extends WPDAI_WooCommerce_Event_Tracking {
 		);
 	}
 }
+
+class_alias( 'WPDAI_Event_Tracking', 'WPDAI_Event_Tracking_V2' );

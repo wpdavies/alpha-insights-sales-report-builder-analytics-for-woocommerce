@@ -23,6 +23,12 @@ defined( 'ABSPATH' ) || exit;
  **/
 function wpdai_get_payment_gateway_cost_settings() {
 
+	static $cached_settings = null;
+
+	if ( null !== $cached_settings ) {
+		return $cached_settings;
+	}
+
 	$settings = array(
 		'default' => array(
 			'percent_of_sales' => 0,
@@ -76,6 +82,8 @@ function wpdai_get_payment_gateway_cost_settings() {
 	}
 
 
+	$cached_settings = $settings;
+
 	return $settings;
 }
 
@@ -88,6 +96,12 @@ function wpdai_get_payment_gateway_cost_settings() {
  * 
  **/
 function wpdai_get_shipping_cost_settings() {
+
+	static $cached_settings = null;
+
+	if ( null !== $cached_settings ) {
+		return $cached_settings;
+	}
 
 	// Default settings
 	$settings = array(
@@ -146,6 +160,8 @@ function wpdai_get_shipping_cost_settings() {
 
 
 	}
+
+	$cached_settings = $settings;
 
 	// Return final payload
 	return $settings;
@@ -345,12 +361,18 @@ function wpdai_get_authorized_user_roles_settings() {
  */
 function wpdai_get_analytics_settings() {
 
+	static $cached_settings = null;
+
+	if ( null !== $cached_settings ) {
+		return $cached_settings;
+	}
+
 	$default_settings = array(
 		'enable_woocommerce_analytics' => 1,
 		'exclude_roles' => array(),
 		'only_track_engaged_sessions' => 0,
 		'attribution_timeout_in_days' => 3,
-		'enable_legacy_event_tracking' => 0,
+		'override_attribution_on_new_utm' => 1,
 		'cookie_storage_mode' => 'checkout_only',
 	);
 
@@ -365,12 +387,11 @@ function wpdai_get_analytics_settings() {
 		$saved_analytics_settings = array();
 	}
 
-	// Backward compatibility: map retired beta flag to legacy opt-out.
-	if ( ! array_key_exists( 'enable_legacy_event_tracking', $saved_analytics_settings ) && array_key_exists( 'enable_cache_safe_tracking_beta', $saved_analytics_settings ) ) {
-		$saved_analytics_settings['enable_legacy_event_tracking'] = empty( $saved_analytics_settings['enable_cache_safe_tracking_beta'] ) ? 1 : 0;
-	}
+	unset( $saved_analytics_settings['enable_legacy_event_tracking'], $saved_analytics_settings['enable_cache_safe_tracking_beta'] );
 
-	return wp_parse_args( $saved_analytics_settings, $default_settings );
+	$cached_settings = wp_parse_args( $saved_analytics_settings, $default_settings );
+
+	return $cached_settings;
 
 }
 

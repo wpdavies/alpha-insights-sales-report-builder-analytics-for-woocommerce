@@ -186,7 +186,9 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
             'session_id' => array(),
             'ip_address' => array(),
             'sessions_by_date' => array(),
-            'ip_address_by_date' => array()
+            'ip_address_by_date' => array(),
+            'sessions_with_add_to_cart_by_date' => array(),
+            'sessions_with_initiate_checkout_by_date' => array(),
         );
 
         $data_by_date = array(
@@ -200,6 +202,10 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
             'product_clicks_by_date' => $data_warehouse->get_data_by_date_range_container(),
             'product_page_views_by_date' => $data_warehouse->get_data_by_date_range_container(),
             'add_to_carts_by_date' => $data_warehouse->get_data_by_date_range_container(),
+            'sessions_with_add_to_cart_by_date' => $data_warehouse->get_data_by_date_range_container(),
+            'sessions_with_initiate_checkout_by_date' => $data_warehouse->get_data_by_date_range_container(),
+            'percent_sessions_with_add_to_cart_by_date' => $data_warehouse->get_data_by_date_range_container(),
+            'percent_sessions_with_initiate_checkout_by_date' => $data_warehouse->get_data_by_date_range_container(),
             'conversion_rate_by_date' => $data_warehouse->get_data_by_date_range_container(),
             'transactions_by_date' => $data_warehouse->get_data_by_date_range_container(),
             'checkout_errors_by_date' => $data_warehouse->get_data_by_date_range_container(),
@@ -239,7 +245,8 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
 
         // Initialize session_data_map outside the loop so it persists across batches
         // This ensures session data from previous batches is preserved
-        $session_data_map = array();
+        $session_data_map     = array();
+        $session_derived_cache = array();
         
         while ( $offset < $total_count ) {
 
@@ -318,19 +325,47 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
                 // @todo this should likely be done on submission of data
                 if ($event_type == 'add_to_cart') $event_value = $event_value * $event_quantity;
 
-                // Variable cleaning
-                $session_duration               = $data_warehouse->calculate_difference_in_seconds( $session_date_updated_gmt, $session_date_created_gmt );
-                $event_timestamp_in_local       = $data_warehouse->get_date_from_gmt( $event_date_created_gmt ); // Replaced native get_date_from_gmt() with faster version
-                $session_date_created_local     = $data_warehouse->get_date_from_gmt( $session_date_created_gmt ); // Replaced native get_date_from_gmt() with faster version
-                $session_date_updated_local     = $data_warehouse->get_date_from_gmt( $session_date_updated_gmt ); // Replaced native get_date_from_gmt() with faster version
-                $landing_page_url_components    = $data_warehouse->get_url_components( $landing_page );
-                $landing_page_path              = $landing_page_url_components['path'];
-                $landing_page_query_parameters  = $landing_page_url_components['query_parameters'];
-                $session_traffic_source         = $data_warehouse->determine_traffic_source( $referral_url, $landing_page_query_parameters );
-                $event_page_url_components      = $data_warehouse->get_url_components( $page_href );
-                $event_page_path                = $event_page_url_components['path'];
-                $event_formatted_date           = $data_warehouse->reformat_date_to_date_format($event_timestamp_in_local); // Formatted for date date
-                (isset($landing_page_query_parameters['utm_campaign'])) ? $utm_campaign = $landing_page_query_parameters['utm_campaign'] : $utm_campaign = null;
+                $cache_key = (string) $normalized_session_id;
+                if ( ! isset( $session_derived_cache[ $cache_key ] ) ) {
+                    $landing_page_url_components = $data_warehouse->get_url_components( $landing_page );
+                    $landing_page_query_parameters = $landing_page_url_components['query_parameters'];
+                    $session_user_agent = ( $session_data && ! empty( $session_data['additional_data'] ) )
+                        ? WPDAI_Traffic_Type_Detection::user_agent_from_additional_data( $session_data['additional_data'] )
+                        : '';
+
+                    $session_derived_cache[ $cache_key ] = array(
+                        'session_duration'               => $data_warehouse->calculate_difference_in_seconds( $session_date_updated_gmt, $session_date_created_gmt ),
+                        'session_date_created_local'     => $data_warehouse->get_date_from_gmt( $session_date_created_gmt ),
+                        'session_date_updated_local'     => $data_warehouse->get_date_from_gmt( $session_date_updated_gmt ),
+                        'landing_page_url_components'    => $landing_page_url_components,
+                        'landing_page_path'              => $landing_page_url_components['path'],
+                        'landing_page_query_parameters'  => $landing_page_query_parameters,
+                        'session_user_agent'             => $session_user_agent,
+                        'session_traffic_source'         => $data_warehouse->determine_traffic_source( $referral_url, $landing_page_query_parameters, $session_user_agent ),
+                        'utm_campaign'                   => isset( $landing_page_query_parameters['utm_campaign'] ) ? $landing_page_query_parameters['utm_campaign'] : null,
+                    );
+                }
+
+                $session_derived                = $session_derived_cache[ $cache_key ];
+                $session_duration               = $session_derived['session_duration'];
+                $session_date_created_local     = $session_derived['session_date_created_local'];
+                $session_date_updated_local     = $session_derived['session_date_updated_local'];
+                $landing_page_url_components    = $session_derived['landing_page_url_components'];
+                $landing_page_path              = $session_derived['landing_page_path'];
+                $landing_page_query_parameters  = $session_derived['landing_page_query_parameters'];
+                $session_traffic_source         = $session_derived['session_traffic_source'];
+                $utm_campaign                   = $session_derived['utm_campaign'];
+
+                /**
+                 *  Apply Traffic type filtering to sessions
+                 *  This data does not currently exist in the DB so needs to be done here
+                 **/
+                if ( $traffic_type_filter && ! in_array($session_traffic_source, $traffic_type_filter) ) continue;
+
+                $event_timestamp_in_local  = $data_warehouse->get_date_from_gmt( $event_date_created_gmt );
+                $event_page_url_components = $data_warehouse->get_url_components( $page_href );
+                $event_page_path           = $event_page_url_components['path'];
+                $event_formatted_date      = $data_warehouse->reformat_date_to_date_format( $event_timestamp_in_local );
 
                 // Data Filtering
                 $session_already_in_table = isset( $session_data_table[ $session_id ] );
@@ -338,12 +373,6 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
                 // Prefer newest sessions when truncated: events are fetched DESC, so the first
                 // N unique sessions are the most recent. Keep updating rows already included.
                 $can_write_session_row = $session_already_in_table || ( $session_data_table_count < $data_table_limit );
-    
-                /**
-                 *  Apply Traffic type filtering to sessions
-                 *  This data does not currently exist in the DB so needs to be done here
-                 **/
-                if ( $traffic_type_filter && ! in_array($session_traffic_source, $traffic_type_filter) ) continue;
                 
                 // Setup session container
                 if ( $can_write_session_row ) {
@@ -602,6 +631,11 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
                         $session_unique_array['sessions_with_add_to_cart'][$session_id] = true;
                         $totals['sessions_with_add_to_cart']++;
                     }
+                    if ( ! isset($temp_counter['sessions_with_add_to_cart_by_date'][$event_formatted_date][$session_id]) ) {
+                        $temp_counter['sessions_with_add_to_cart_by_date'][$event_formatted_date][$session_id] = true;
+                        if ( ! isset($data_by_date['sessions_with_add_to_cart_by_date'][$event_formatted_date]) ) $data_by_date['sessions_with_add_to_cart_by_date'][$event_formatted_date] = 0;
+                        $data_by_date['sessions_with_add_to_cart_by_date'][$event_formatted_date]++;
+                    }
                     // Add to carts
                     if ( ! empty($session_traffic_source) ) $categorized_data['acquisition_summary'][$session_traffic_source]['add_to_carts']++;
                     if ( ! empty($device_category) ) $categorized_data['device_category_summary'][$device_category]['add_to_carts']++;
@@ -623,6 +657,11 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
                     if ( ! isset($session_unique_array['sessions_with_initiate_checkout'][$session_id]) ) {
                         $session_unique_array['sessions_with_initiate_checkout'][$session_id] = true;
                         $totals['sessions_with_initiate_checkout']++;
+                    }
+                    if ( ! isset($temp_counter['sessions_with_initiate_checkout_by_date'][$event_formatted_date][$session_id]) ) {
+                        $temp_counter['sessions_with_initiate_checkout_by_date'][$event_formatted_date][$session_id] = true;
+                        if ( ! isset($data_by_date['sessions_with_initiate_checkout_by_date'][$event_formatted_date]) ) $data_by_date['sessions_with_initiate_checkout_by_date'][$event_formatted_date] = 0;
+                        $data_by_date['sessions_with_initiate_checkout_by_date'][$event_formatted_date]++;
                     }
                     // Initiate checkouts
                     if ( ! empty($session_traffic_source) ) $categorized_data['acquisition_summary'][$session_traffic_source]['initiate_checkouts']++;
@@ -880,6 +919,20 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
             $conversion_rate = wpdai_calculate_percentage( $transactions, $session_count );
             $data_by_date['conversion_rate_by_date'][$date_key] = $conversion_rate;
 
+        }
+
+        // Session add to cart rate: unique sessions with at least one add to cart / sessions
+        foreach ( $data_by_date['percent_sessions_with_add_to_cart_by_date'] as $date_key => $value ) {
+            $session_count = ( isset( $data_by_date['sessions_by_date'][ $date_key ] ) ) ? (int) $data_by_date['sessions_by_date'][ $date_key ] : 0;
+            $sessions_with_add_to_cart = ( isset( $data_by_date['sessions_with_add_to_cart_by_date'][ $date_key ] ) ) ? (int) $data_by_date['sessions_with_add_to_cart_by_date'][ $date_key ] : 0;
+            $data_by_date['percent_sessions_with_add_to_cart_by_date'][ $date_key ] = wpdai_calculate_percentage( $sessions_with_add_to_cart, $session_count );
+        }
+
+        // Session init checkout rate: unique sessions with at least one checkout start / sessions
+        foreach ( $data_by_date['percent_sessions_with_initiate_checkout_by_date'] as $date_key => $value ) {
+            $session_count = ( isset( $data_by_date['sessions_by_date'][ $date_key ] ) ) ? (int) $data_by_date['sessions_by_date'][ $date_key ] : 0;
+            $sessions_with_initiate_checkout = ( isset( $data_by_date['sessions_with_initiate_checkout_by_date'][ $date_key ] ) ) ? (int) $data_by_date['sessions_with_initiate_checkout_by_date'][ $date_key ] : 0;
+            $data_by_date['percent_sessions_with_initiate_checkout_by_date'][ $date_key ] = wpdai_calculate_percentage( $sessions_with_initiate_checkout, $session_count );
         }
 
         // Some cleaning - All Events
@@ -1222,7 +1275,8 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
                     date_updated_gmt,
                     device_category,
                     ip_address,
-                    engaged_session
+                    engaged_session,
+                    additional_data
                     FROM $session_data_table 
                     WHERE session_id IN ($session_ids_placeholder)",
                     $session_ids_chunk

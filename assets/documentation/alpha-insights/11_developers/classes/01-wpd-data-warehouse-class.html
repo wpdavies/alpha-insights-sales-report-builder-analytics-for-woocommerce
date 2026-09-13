@@ -194,10 +194,10 @@ $orders_by_date = $warehouse->get_data( 'orders', 'data_by_date' );</code></pre>
 <p><strong>Parameters:</strong> <code>$entity</code> (string|null) – Entity name, or null for default limit.</p>
 <p><strong>Returns:</strong> Integer (0 = no table data, PHP_INT_MAX for unlimited when filter is 0 or -1).</p>
 
-<h5>determine_traffic_source( $referral_url, $query_parameters = null )</h5>
-<p><strong>Purpose:</strong> Derive traffic source from a referral URL (and optional query params).</p>
-<p><strong>Parameters:</strong> <code>$referral_url</code> (string), <code>$query_parameters</code> (array|null)</p>
-<p><strong>Returns:</strong> String (e.g. 'google', 'facebook', 'direct').</p>
+<h5>determine_traffic_source( $referral_url, $query_parameters = null, $user_agent = '' )</h5>
+<p><strong>Purpose:</strong> Derive traffic source from a referral URL, optional query params, and optional visitor user agent.</p>
+<p><strong>Parameters:</strong> <code>$referral_url</code> (string), <code>$query_parameters</code> (array|null), <code>$user_agent</code> (string)</p>
+<p><strong>Returns:</strong> String (e.g. 'Organic', 'Social', 'Direct').</p>
 
 <h5>get_analytics_event_count()</h5>
 <p><strong>Purpose:</strong> Total analytics event count for current filters. Delegates to the registered analytics data source if it implements the method.</p>

@@ -561,16 +561,7 @@ function wpdai_get_session_count_by_user_id( $user_id ) {
 		return (int) $cached;
 	}
 
-	$filter = array(
-		'date_preset' => 'all_time',
-		'data_filters' => array(
-			'website_traffic' => array(
-				'user_id' => array( $user_id )
-			)
-		)
-	);
-	$wpd_data = wpdai_data_warehouse( $filter );
-	$session_data = $wpd_data->get_analytics_session_count();
+	$session_data = wpdai_count_sessions_from_session_table( 'user_id', $user_id );
 
 	if ( is_numeric( $session_data ) ) {
 		wpdai_set_data_fetch_cache( $cache_key, (int) $session_data, $expiration, $cache_group );
@@ -603,16 +594,7 @@ function wpdai_get_session_count_by_ip_address( $ip_address ) {
 		return (int) $cached;
 	}
 
-	$filter = array(
-		'date_preset' => 'all_time',
-		'data_filters' => array(
-			'website_traffic' => array(
-				'ip_address' => array( $ip_address )
-			)
-		)
-	);
-	$wpd_data = wpdai_data_warehouse( $filter );
-	$session_data = $wpd_data->get_analytics_session_count();
+	$session_data = wpdai_count_sessions_from_session_table( 'ip_address', $ip_address );
 
 	if ( is_numeric( $session_data ) ) {
 		wpdai_set_data_fetch_cache( $cache_key, (int) $session_data, $expiration, $cache_group );
@@ -621,6 +603,63 @@ function wpdai_get_session_count_by_ip_address( $ip_address ) {
 
 	return $session_data;
 
+}
+
+/**
+ * Count sessions that have events for a session-table column value.
+ *
+ * @param string     $column Column name (user_id or ip_address).
+ * @param int|string $value  Column value.
+ * @return int|false
+ */
+function wpdai_count_sessions_from_session_table( $column, $value ) {
+
+	global $wpdb;
+
+	$allowed_columns = array( 'user_id', 'ip_address' );
+	if ( ! in_array( $column, $allowed_columns, true ) ) {
+		return false;
+	}
+
+	$db_interactor      = new WPDAI_Database_Interactor();
+	$session_data_table = $db_interactor->session_data_table;
+	$events_table       = $db_interactor->events_table;
+
+	if ( ! in_array( $session_data_table, $db_interactor->get_managed_tables(), true ) || ! in_array( $events_table, $db_interactor->get_managed_tables(), true ) ) {
+		return false;
+	}
+
+	$engaged_sql = '';
+	if ( function_exists( 'wpdai_get_analytics_settings' ) ) {
+		$settings = wpdai_get_analytics_settings();
+		if ( ! empty( $settings['only_track_engaged_sessions'] ) ) {
+			$engaged_sql = ' AND ( s.engaged_session = 1 OR s.date_created_gmt != s.date_updated_gmt )';
+		}
+	}
+
+	$value_placeholder = ( 'user_id' === $column ) ? '%d' : '%s';
+
+	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table and column names are allow-listed.
+	$count = $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*)
+			FROM {$session_data_table} s
+			WHERE s.{$column} = {$value_placeholder}
+			AND EXISTS (
+				SELECT 1 FROM {$events_table} e WHERE e.session_id = s.session_id
+			)
+			{$engaged_sql}",
+			$value
+		)
+	);
+
+	if ( $wpdb->last_error ) {
+		wpdai_write_log( 'Error counting sessions from session table.', 'db_error' );
+		wpdai_write_log( $wpdb->last_error, 'db_error' );
+		return false;
+	}
+
+	return is_numeric( $count ) ? (int) $count : false;
 }
 
 /**
@@ -702,6 +741,360 @@ function wpdai_get_analytics_ip_address_from_order( $order ) {
 	}
 
 	return sanitize_text_field( $ip_address );
+}
+
+/**
+ * Event types included in the order browsing-history timeline.
+ *
+ * @return array<int, string>
+ */
+function wpdai_get_browsing_history_event_types() {
+	$types = array(
+		'page_view',
+		'product_click',
+		'add_to_cart',
+		'remove_from_cart',
+		'viewed_cart_page',
+		'init_checkout',
+		'viewed_checkout_page',
+		'checkout_error',
+		'transaction',
+		'product_purchase',
+		'form_submit',
+		'log_in',
+		'log_out',
+	);
+
+	/**
+	 * Filter event types shown in the order browsing history modal.
+	 *
+	 * @param array<int, string> $types Event type slugs.
+	 */
+	return (array) apply_filters( 'wpd_ai_order_browsing_history_event_types', $types );
+}
+
+/**
+ * Human-readable label for an analytics event type.
+ *
+ * @param string $event_type Event type slug.
+ * @return string
+ */
+function wpdai_get_browsing_history_event_label( $event_type ) {
+	$event_type = sanitize_key( (string) $event_type );
+	$labels     = array(
+		'page_view'             => __( 'Page view', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		'product_click'         => __( 'Product click', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		'add_to_cart'           => __( 'Add to cart', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		'remove_from_cart'      => __( 'Removed from cart', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		'viewed_cart_page'      => __( 'Viewed cart', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		'init_checkout'         => __( 'Started checkout', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		'viewed_checkout_page'  => __( 'Viewed checkout', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		'checkout_error'        => __( 'Checkout error', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		'transaction'           => __( 'Purchase', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		'product_purchase'      => __( 'Product purchased', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		'form_submit'           => __( 'Form submit', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		'log_in'                => __( 'Logged in', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		'log_out'               => __( 'Logged out', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+	);
+
+	if ( isset( $labels[ $event_type ] ) ) {
+		return $labels[ $event_type ];
+	}
+
+	$fallback = str_replace( '_', ' ', $event_type );
+	return $fallback ? ucwords( $fallback ) : __( 'Event', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
+}
+
+/**
+ * Format a GMT datetime for display in the site timezone.
+ *
+ * @param string $gmt_datetime MySQL GMT datetime.
+ * @return string
+ */
+function wpdai_format_browsing_history_datetime( $gmt_datetime ) {
+	if ( ! is_string( $gmt_datetime ) || '' === trim( $gmt_datetime ) ) {
+		return '';
+	}
+
+	$timestamp = strtotime( $gmt_datetime . ' UTC' );
+	if ( ! $timestamp ) {
+		return '';
+	}
+
+	$format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
+	if ( function_exists( 'wp_date' ) ) {
+		return wp_date( $format, $timestamp );
+	}
+
+	return date_i18n( $format, $timestamp );
+}
+
+/**
+ * Compact duration between two GMT datetimes.
+ *
+ * @param string $start_gmt Start datetime.
+ * @param string $end_gmt   End datetime.
+ * @return string
+ */
+function wpdai_format_browsing_history_duration( $start_gmt, $end_gmt ) {
+	$start = strtotime( (string) $start_gmt . ' UTC' );
+	$end   = strtotime( (string) $end_gmt . ' UTC' );
+
+	if ( ! $start || ! $end || $end < $start ) {
+		return '';
+	}
+
+	$seconds = $end - $start;
+	if ( $seconds < 60 ) {
+		/* translators: %d: seconds */
+		return sprintf( _n( '%d sec', '%d secs', $seconds, 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $seconds );
+	}
+
+	$minutes = (int) floor( $seconds / 60 );
+	if ( $minutes < 60 ) {
+		/* translators: %d: minutes */
+		return sprintf( _n( '%d min', '%d mins', $minutes, 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $minutes );
+	}
+
+	$hours            = (int) floor( $minutes / 60 );
+	$remaining_minutes = $minutes % 60;
+	if ( $remaining_minutes < 1 ) {
+		/* translators: %d: hours */
+		return sprintf( _n( '%d hr', '%d hrs', $hours, 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $hours );
+	}
+
+	/* translators: 1: hours, 2: minutes */
+	return sprintf( __( '%1$d hr %2$d min', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ), $hours, $remaining_minutes );
+}
+
+/**
+ * Display path for a stored URL.
+ *
+ * @param string $url Full URL.
+ * @return string
+ */
+function wpdai_get_browsing_history_url_path( $url ) {
+	if ( ! is_string( $url ) || '' === $url ) {
+		return '';
+	}
+
+	$parsed = wp_parse_url( $url );
+	if ( ! is_array( $parsed ) ) {
+		return $url;
+	}
+
+	$path = isset( $parsed['path'] ) && '' !== $parsed['path'] ? $parsed['path'] : '/';
+	if ( ! empty( $parsed['query'] ) ) {
+		$path .= '?' . $parsed['query'];
+	}
+
+	return $path;
+}
+
+/**
+ * Load session + event browsing history for an order's visitor IP.
+ *
+ * @param int $order_id Order ID.
+ * @return array<string, mixed>|\WP_Error
+ */
+function wpdai_get_order_browsing_history( $order_id ) {
+	$order_id = absint( $order_id );
+	if ( $order_id < 1 ) {
+		return new WP_Error( 'invalid_order', __( 'Invalid order.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
+	}
+
+	$order = wc_get_order( $order_id );
+	if ( ! is_a( $order, 'WC_Order' ) ) {
+		return new WP_Error( 'invalid_order', __( 'Order not found.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
+	}
+
+	$ip_address          = wpdai_get_analytics_ip_address_from_order( $order );
+	$order_session_id    = sanitize_text_field( (string) $order->get_meta( '_wpd_ai_session_id' ) );
+	$session_limit       = (int) apply_filters( 'wpd_ai_order_browsing_history_session_limit', 80 );
+	$session_limit       = max( 1, min( 200, $session_limit ) );
+
+	global $wpdb;
+	$db_interactor = new WPDAI_Database_Interactor();
+	$session_table = $db_interactor->session_data_table;
+	$events_table  = $db_interactor->events_table;
+
+	$managed_tables = $db_interactor->get_managed_tables();
+	if ( ! in_array( $session_table, $managed_tables, true ) || ! in_array( $events_table, $managed_tables, true ) ) {
+		return new WP_Error( 'invalid_table', __( 'Analytics tables are not available.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
+	}
+
+	$sessions = array();
+
+	if ( '' !== $ip_address ) {
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is validated via Database Interactor whitelist.
+		$ip_sessions = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT session_id, landing_page, referral_url, date_created_gmt, date_updated_gmt, device_category, operating_system, browser, additional_data
+				FROM {$session_table}
+				WHERE ip_address = %s
+				ORDER BY date_created_gmt DESC
+				LIMIT %d",
+				$ip_address,
+				$session_limit
+			),
+			ARRAY_A
+		);
+
+		if ( is_array( $ip_sessions ) ) {
+			$sessions = $ip_sessions;
+		}
+	}
+
+	if ( '' !== $order_session_id ) {
+		$found_order_session = false;
+		foreach ( $sessions as $session_row ) {
+			if ( isset( $session_row['session_id'] ) && $session_row['session_id'] === $order_session_id ) {
+				$found_order_session = true;
+				break;
+			}
+		}
+
+		if ( ! $found_order_session ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is validated via Database Interactor whitelist.
+			$order_session = $wpdb->get_row(
+				$wpdb->prepare(
+					"SELECT session_id, landing_page, referral_url, date_created_gmt, date_updated_gmt, device_category, operating_system, browser, additional_data
+					FROM {$session_table}
+					WHERE session_id = %s
+					LIMIT 1",
+					$order_session_id
+				),
+				ARRAY_A
+			);
+
+			if ( is_array( $order_session ) ) {
+				array_unshift( $sessions, $order_session );
+			}
+		}
+	}
+
+	if ( empty( $sessions ) ) {
+		return array(
+			'sessions'      => array(),
+			'session_count' => 0,
+			'ip_address'    => $ip_address,
+		);
+	}
+
+	$session_ids = array();
+	foreach ( $sessions as $session_row ) {
+		if ( ! empty( $session_row['session_id'] ) ) {
+			$session_ids[] = (string) $session_row['session_id'];
+		}
+	}
+	$session_ids = array_values( array_unique( $session_ids ) );
+
+	$event_types = wpdai_get_browsing_history_event_types();
+	$events_by_session = array();
+
+	if ( ! empty( $session_ids ) && ! empty( $event_types ) ) {
+		$session_placeholders = implode( ',', array_fill( 0, count( $session_ids ), '%s' ) );
+		$event_placeholders   = implode( ',', array_fill( 0, count( $event_types ), '%s' ) );
+		$query_args           = array_merge( $session_ids, $event_types );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Table name is validated; placeholders are generated from counted arrays.
+		$event_rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT session_id, page_href, event_type, object_type, object_id, product_id, date_created_gmt
+				FROM {$events_table}
+				WHERE session_id IN ({$session_placeholders})
+				AND event_type IN ({$event_placeholders})
+				ORDER BY date_created_gmt ASC",
+				$query_args
+			),
+			ARRAY_A
+		);
+
+		if ( is_array( $event_rows ) ) {
+			foreach ( $event_rows as $event_row ) {
+				$event_session_id = isset( $event_row['session_id'] ) ? (string) $event_row['session_id'] : '';
+				if ( '' === $event_session_id ) {
+					continue;
+				}
+
+				$page_href = isset( $event_row['page_href'] ) ? (string) $event_row['page_href'] : '';
+				$events_by_session[ $event_session_id ][] = array(
+					'time'        => wpdai_format_browsing_history_datetime( $event_row['date_created_gmt'] ?? '' ),
+					'type'        => sanitize_key( $event_row['event_type'] ?? '' ),
+					'type_label'  => wpdai_get_browsing_history_event_label( $event_row['event_type'] ?? '' ),
+					'url'         => esc_url_raw( $page_href ),
+					'path'        => wpdai_get_browsing_history_url_path( $page_href ),
+					'object_type' => sanitize_key( $event_row['object_type'] ?? '' ),
+				);
+			}
+		}
+	}
+
+	$formatted = array();
+	foreach ( $sessions as $session_row ) {
+		$session_id   = isset( $session_row['session_id'] ) ? (string) $session_row['session_id'] : '';
+		$landing_page = isset( $session_row['landing_page'] ) ? (string) $session_row['landing_page'] : '';
+		$referral_url = isset( $session_row['referral_url'] ) ? (string) $session_row['referral_url'] : '';
+		$query_params = function_exists( 'wpdai_get_query_params' ) ? wpdai_get_query_params( $landing_page ) : array();
+		$user_agent   = class_exists( 'WPDAI_Traffic_Type_Detection' )
+			? WPDAI_Traffic_Type_Detection::user_agent_from_additional_data( $session_row['additional_data'] ?? '' )
+			: '';
+		$traffic      = function_exists( 'wpdai_get_traffic_type' ) ? wpdai_get_traffic_type( $referral_url, $query_params, $user_agent ) : '';
+		$page_views   = isset( $events_by_session[ $session_id ] ) ? $events_by_session[ $session_id ] : array();
+
+		$device_bits = array_filter(
+			array(
+				isset( $session_row['device_category'] ) ? $session_row['device_category'] : '',
+				isset( $session_row['browser'] ) ? $session_row['browser'] : '',
+				isset( $session_row['operating_system'] ) ? $session_row['operating_system'] : '',
+			)
+		);
+
+		$has_order = ( $session_id === $order_session_id && '' !== $order_session_id );
+		if ( ! $has_order ) {
+			foreach ( $page_views as $event ) {
+				if ( isset( $event['type'] ) && in_array( $event['type'], array( 'transaction', 'product_purchase' ), true ) ) {
+					$has_order = true;
+					break;
+				}
+			}
+		}
+
+		$formatted[] = array(
+			'session_id'        => $session_id,
+			'is_order_session'  => ( $session_id === $order_session_id && '' !== $order_session_id ),
+			'has_order'         => $has_order,
+			'started_at'        => wpdai_format_browsing_history_datetime( $session_row['date_created_gmt'] ?? '' ),
+			'ended_at'          => wpdai_format_browsing_history_datetime( $session_row['date_updated_gmt'] ?? '' ),
+			'duration'          => wpdai_format_browsing_history_duration( $session_row['date_created_gmt'] ?? '', $session_row['date_updated_gmt'] ?? '' ),
+			'traffic_source'    => is_string( $traffic ) ? $traffic : '',
+			'landing_page'      => esc_url_raw( $landing_page ),
+			'landing_page_path' => wpdai_get_browsing_history_url_path( $landing_page ),
+			'referral'          => $referral_url,
+			'device'            => implode( ' · ', $device_bits ),
+			'page_view_count'   => count( $page_views ),
+			'page_views'        => $page_views,
+			'_sort'             => isset( $session_row['date_created_gmt'] ) ? (string) $session_row['date_created_gmt'] : '',
+		);
+	}
+
+	usort(
+		$formatted,
+		function( $a, $b ) {
+			return strcmp( $b['_sort'], $a['_sort'] );
+		}
+	);
+
+	foreach ( $formatted as &$formatted_session ) {
+		unset( $formatted_session['_sort'] );
+	}
+	unset( $formatted_session );
+
+	return array(
+		'sessions'      => $formatted,
+		'session_count' => count( $formatted ),
+		'ip_address'    => $ip_address,
+	);
 }
 
 /**

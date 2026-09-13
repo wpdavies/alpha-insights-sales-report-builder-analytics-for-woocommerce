@@ -123,12 +123,6 @@ class WPDAI_Free_Loader {
                     'icon'  => null,
                     'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
                 ),
-                'facebook_expenses' => array(
-                    'title' => __( 'Facebook Expenses', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
-                    'url'   => '#pro-feature',
-                    'icon'  => null,
-                    'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
-                ),
                 'facebook_settings' => array(
                     'title' => __( 'Facebook Settings', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                     'url'   => '#pro-feature',
@@ -137,12 +131,6 @@ class WPDAI_Free_Loader {
                 ),
                 'google_ads_report' => array(
                     'title' => __( 'Google Ads Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
-                    'url'   => '#pro-feature',
-                    'icon'  => null,
-                    'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
-                ),
-                'google_ads_expenses' => array(
-                    'title' => __( 'Google Ads Expenses', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                     'url'   => '#pro-feature',
                     'icon'  => null,
                     'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
@@ -171,20 +159,26 @@ class WPDAI_Free_Loader {
                     'icon'  => null,
                     'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
                 ),
-                'report' => array(
-                    'title' => __( 'Expense Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
-                    'url'   => '#pro-feature',
-                    'icon'  => null,
-                    'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
-                ),
                 'manage_all_expenses' => array(
-                    'title' => __( 'Manage All Expenses', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                    'title' => __( 'Expense Register', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                     'url'   => '#pro-feature',
                     'icon'  => null,
                     'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
                 ),
                 'add_expense' => array(
                     'title' => __( 'Add New Expense', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                    'url'   => '#pro-feature',
+                    'icon'  => null,
+                    'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
+                ),
+                'stock_planner' => array(
+                    'title' => __( 'Stock Planner', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                    'url'   => '#pro-feature',
+                    'icon'  => null,
+                    'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
+                ),
+                'purchasing' => array(
+                    'title' => __( 'Purchasing', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                     'url'   => '#pro-feature',
                     'icon'  => null,
                     'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
@@ -197,6 +191,12 @@ class WPDAI_Free_Loader {
                 ),
                 'bulk_import_expenses' => array(
                     'title' => __( 'Bulk Create Expenses', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
+                    'url'   => '#pro-feature',
+                    'icon'  => null,
+                    'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
+                ),
+                'report' => array(
+                    'title' => __( 'Expense Report', 'alpha-insights-sales-report-builder-analytics-for-woocommerce'),
                     'url'   => '#pro-feature',
                     'icon'  => null,
                     'additional_classes' => array('wpd-pro-menu-item', 'wpd-trigger-upgrade-modal'),
