@@ -103,6 +103,25 @@ function wpdai_get_experiment_default_goals() {
 }
 
 /**
+ * Conversion objectives available without a Pro license.
+ *
+ * @return array
+ */
+function wpdai_get_experiment_free_conversion_objectives() {
+	return array( 'transaction' );
+}
+
+/**
+ * Whether a conversion objective or saved primary goal is Pro-only.
+ *
+ * @param string $goal_type Goal or objective key.
+ * @return bool
+ */
+function wpdai_experiment_goal_is_pro( $goal_type ) {
+	return ! in_array( sanitize_key( (string) $goal_type ), wpdai_get_experiment_free_conversion_objectives(), true );
+}
+
+/**
  * Conversion objectives available on the experiments list table.
  *
  * @return array
@@ -113,31 +132,37 @@ function wpdai_get_experiment_conversion_objectives() {
 			'label'      => __( 'Purchases', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 			'rate_label' => __( 'Purchase rate', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 			'kind'       => 'count',
+			'pro'        => false,
 		),
 		'add_to_cart'          => array(
 			'label'      => __( 'Add to carts', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 			'rate_label' => __( 'Add to cart rate', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 			'kind'       => 'count',
+			'pro'        => true,
 		),
 		'initiate_checkout'    => array(
 			'label'      => __( 'Initiate checkouts', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 			'rate_label' => __( 'Checkout rate', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 			'kind'       => 'count',
+			'pro'        => true,
 		),
 		'purchase_value'       => array(
 			'label'      => __( 'Purchase value', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 			'rate_label' => __( 'Revenue / visitor', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 			'kind'       => 'currency',
+			'pro'        => true,
 		),
 		'revenue_per_exposure' => array(
 			'label'      => __( 'Revenue per exposure', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 			'rate_label' => __( 'Rev / exposure', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 			'kind'       => 'currency',
+			'pro'        => true,
 		),
 		'aov'                  => array(
 			'label'      => __( 'Average order value', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 			'rate_label' => __( 'AOV', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 			'kind'       => 'currency',
+			'pro'        => true,
 		),
 	);
 }

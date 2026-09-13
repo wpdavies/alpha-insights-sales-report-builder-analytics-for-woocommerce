@@ -282,6 +282,15 @@ table.wpd-exp-list-table.wpd-table {
 	white-space: nowrap;
 }
 
+.wpd-exp-goal-upgrade.screen-reader-text {
+	clip: rect(1px, 1px, 1px, 1px);
+	position: absolute !important;
+	height: 1px;
+	width: 1px;
+	overflow: hidden;
+	word-wrap: normal !important;
+}
+
 .wpd-exp-status {
 	display: inline-block;
 	padding: 2px 8px;

@@ -77,6 +77,7 @@ class WPDAI_Experiments_Admin {
 					'cumulative'        => __( 'Cumulative', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 					'liftVsControl'     => __( 'Lift vs control', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 					'noChartData'       => __( 'The chart will appear once this test has exposures.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+					'proSuffix'         => __( 'Pro', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 				),
 			)
 		);
@@ -644,6 +645,10 @@ class WPDAI_Experiments_Admin {
 		$goal_type      = isset( $summary['goal_type'] ) ? (string) $summary['goal_type'] : ( isset( $experiment['goals']['primary']['type'] ) ? (string) $experiment['goals']['primary']['type'] : 'transaction' );
 		$objective      = wpdai_map_experiment_goal_to_objective( $goal_type );
 		$objectives     = wpdai_get_experiment_conversion_objectives();
+		$is_pro         = wpdai_experiments_is_pro();
+		if ( ! $is_pro && wpdai_experiment_goal_is_pro( $objective ) ) {
+			$objective = 'transaction';
+		}
 		$objective_meta = isset( $objectives[ $objective ] ) ? $objectives[ $objective ] : $objectives['transaction'];
 		$colspan        = 10;
 		$control_rate = null;
@@ -689,9 +694,22 @@ class WPDAI_Experiments_Admin {
 								</label>
 								<select id="wpd-exp-goal-<?php echo esc_attr( (string) $eid ); ?>" class="wpd-input wpd-exp-goal-select" data-saved-goal="<?php echo esc_attr( $goal_type ); ?>">
 									<?php foreach ( $objectives as $key => $meta ) : ?>
-										<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $objective, $key ); ?>><?php echo esc_html( $meta['label'] ); ?></option>
+										<?php
+										$option_label = $meta['label'];
+										if ( ! $is_pro && ! empty( $meta['pro'] ) ) {
+											$option_label = sprintf(
+												/* translators: %s: objective label */
+												__( '%s (Pro)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+												$meta['label']
+											);
+										}
+										?>
+										<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $objective, $key ); ?> <?php echo ( ! $is_pro && ! empty( $meta['pro'] ) ) ? 'data-pro="1"' : ''; ?>><?php echo esc_html( $option_label ); ?></option>
 									<?php endforeach; ?>
 								</select>
+								<?php if ( ! $is_pro ) : ?>
+									<a href="#" class="wpd-trigger-upgrade-modal wpd-exp-goal-upgrade screen-reader-text"><?php esc_html_e( 'Upgrade to Pro', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></a>
+								<?php endif; ?>
 								<span class="wpd-exp-goal-saved wpd-meta">
 									<?php
 									echo esc_html(
@@ -965,15 +983,35 @@ class WPDAI_Experiments_Admin {
 							<tr>
 								<td><?php esc_html_e( 'Primary goal', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></td>
 								<td>
-									<?php $goal_type = isset( $goals['primary']['type'] ) ? (string) $goals['primary']['type'] : 'transaction'; ?>
-									<select id="wpd-exp-primary-goal-type" name="experiment[goals][primary][type]" <?php disabled( ! $is_pro ); ?>>
-										<option value="transaction" <?php selected( $goal_type, 'transaction' ); ?>><?php esc_html_e( 'Purchases', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-										<option value="purchase_value" <?php selected( $goal_type, 'purchase_value' ); ?>><?php esc_html_e( 'Purchase value', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-										<option value="revenue_per_exposure" <?php selected( $goal_type, 'revenue_per_exposure' ); ?>><?php esc_html_e( 'Revenue per exposure', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-										<option value="aov" <?php selected( $goal_type, 'aov' ); ?>><?php esc_html_e( 'Average order value', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-										<option value="add_to_cart" <?php selected( $goal_type, 'add_to_cart' ); ?>><?php esc_html_e( 'Add to cart', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-										<option value="page_view" <?php selected( $goal_type, 'page_view' ); ?>><?php esc_html_e( 'Page view', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
-										<option value="event" <?php selected( $goal_type, 'event' ); ?>><?php esc_html_e( 'Custom event', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></option>
+									<?php
+									$goal_type = isset( $goals['primary']['type'] ) ? (string) $goals['primary']['type'] : 'transaction';
+									if ( ! $is_pro && wpdai_experiment_goal_is_pro( $goal_type ) ) {
+										$goal_type = 'transaction';
+									}
+									$editor_goals = array(
+										'transaction'          => __( 'Purchases', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+										'purchase_value'       => __( 'Purchase value', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+										'revenue_per_exposure' => __( 'Revenue per exposure', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+										'aov'                  => __( 'Average order value', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+										'add_to_cart'          => __( 'Add to cart', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+										'page_view'            => __( 'Page view', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+										'event'                => __( 'Custom event', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+									);
+									?>
+									<select id="wpd-exp-primary-goal-type" name="experiment[goals][primary][type]">
+										<?php foreach ( $editor_goals as $goal_key => $goal_label ) : ?>
+											<?php
+											$goal_is_pro = wpdai_experiment_goal_is_pro( $goal_key );
+											if ( ! $is_pro && $goal_is_pro ) {
+												$goal_label = sprintf(
+													/* translators: %s: goal label */
+													__( '%s (Pro)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+													$goal_label
+												);
+											}
+											?>
+											<option value="<?php echo esc_attr( $goal_key ); ?>" <?php selected( $goal_type, $goal_key ); ?> <?php echo ( ! $is_pro && $goal_is_pro ) ? 'data-pro="1"' : ''; ?>><?php echo esc_html( $goal_label ); ?></option>
+										<?php endforeach; ?>
 									</select>
 									<?php if ( ! $is_pro ) : ?>
 										<p class="wpd-meta"><a href="#" class="wpd-trigger-upgrade-modal"><?php esc_html_e( 'Free tests use Purchase as the primary goal.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></a></p>

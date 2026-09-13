@@ -179,6 +179,40 @@
 		return (window.wpdAiExperimentsAdmin && wpdAiExperimentsAdmin.objectives) || {};
 	}
 
+	function isProBuild() {
+		return !!(window.wpdAiExperimentsAdmin && Number(wpdAiExperimentsAdmin.isPro));
+	}
+
+	function isProObjective(goal) {
+		var objectives = getObjectives();
+		if (objectives[goal] && typeof objectives[goal].pro !== 'undefined') {
+			return !!objectives[goal].pro;
+		}
+		return goal && goal !== 'transaction';
+	}
+
+	function freeFallbackGoal() {
+		return 'transaction';
+	}
+
+	function triggerExperimentUpgrade() {
+		var $link = $('.wpd-trigger-upgrade-modal').first();
+		if ($link.length) {
+			$link.trigger('click');
+		}
+	}
+
+	function guardProGoal($select, goal, silent) {
+		if (isProBuild() || !isProObjective(goal)) {
+			return goal;
+		}
+		$select.val(freeFallbackGoal());
+		if (!silent) {
+			triggerExperimentUpgrade();
+		}
+		return freeFallbackGoal();
+	}
+
 	function formatNumber(value, decimals) {
 		var n = Number(value);
 		if (!isFinite(n)) {
@@ -658,8 +692,8 @@
 
 	function applyGoal($root, goal) {
 		var objectives = getObjectives();
-		if (!objectives[goal]) {
-			goal = 'transaction';
+		if (!objectives[goal] || (!isProBuild() && isProObjective(goal))) {
+			goal = freeFallbackGoal();
 		}
 		var meta = objectives[goal] || {};
 		if (meta.rate_label) {
@@ -724,10 +758,10 @@
 		$('[data-exp-summary]').each(function () {
 			var $root = $(this);
 			var $select = $root.find('.wpd-exp-goal-select');
-			var goal = $select.val() || $root.attr('data-default-goal') || 'transaction';
+			var goal = guardProGoal($select, $select.val() || $root.attr('data-default-goal') || freeFallbackGoal(), true);
 			applyGoal($root, goal);
 			$select.on('change', function () {
-				applyGoal($root, $(this).val());
+				applyGoal($root, guardProGoal($select, $(this).val()));
 			});
 		});
 
@@ -764,12 +798,12 @@
 		});
 	}
 
-	function syncPrimaryGoalFields() {
+	function syncPrimaryGoalFields(event) {
 		var $type = $('#wpd-exp-primary-goal-type');
 		if (!$type.length) {
 			return;
 		}
-		var selected = $type.val();
+		var selected = guardProGoal($type, $type.val(), !event);
 		$('.wpd-exp-goal-extra').each(function () {
 			var types = (($(this).attr('data-goal-types') || '').split(/\s+/)).filter(Boolean);
 			$(this).toggleClass('hidden', types.indexOf(selected) === -1);
