@@ -3810,6 +3810,7 @@ body.wpd-debug-sessions-modal-open {
 .wpd-debug-sessions .wpd-order-acquisition-channel.order-status.app { background: #edc203; color: #333; }
 .wpd-debug-sessions .wpd-order-acquisition-channel.order-status.referral { background: rgb(132, 103, 214); }
 .wpd-debug-sessions .wpd-order-acquisition-channel.order-status.ai_chat { background: #00acc1; }
+.wpd-debug-sessions .wpd-order-acquisition-channel.order-status.qr_code { background: #37474f; }
 .wpd-debug-sessions .wpd-order-acquisition-channel.order-status.unknown { background: #9e9e9e; }
 .wpd-debug-output td {
     padding: 0px;
@@ -4614,4 +4615,184 @@ body.wpd-debug-sessions-modal-open {
 }
 .wpd-integration-pro-upsell-cta .button {
     margin-right: 8px;
+}
+.wpd-shipstation-debug-results {
+    margin-top: 8px;
+}
+.wpd-shipstation-debug-results[hidden] {
+    display: none;
+}
+.wpd-shipstation-debug-summary {
+    margin: 0 0 8px;
+}
+.wpd-shipstation-debug-table-wrap {
+    overflow-x: auto;
+    margin: 12px 0;
+}
+.wpd-shipstation-debug-table-wrap table {
+    margin: 0;
+}
+.wpd-shipstation-debug-would-sync {
+    color: #1a7f37;
+    font-weight: 600;
+}
+.wpd-shipstation-debug-skip,
+.wpd-shipstation-debug-unmatched {
+    color: #b32d2e;
+    font-weight: 600;
+}
+.wpd-shipstation-debug-raw {
+    margin-top: 12px;
+}
+.wpd-shipstation-debug-raw summary {
+    cursor: pointer;
+    font-weight: 600;
+}
+.wpd-shipstation-debug-raw .wpd-debug-container {
+    margin-top: 8px;
+}
+#wpd-shipstation-debug-days {
+    width: 70px;
+    margin-right: 0;
+}
+#wpd-shipstation-debug-order {
+    min-width: 180px;
+    max-width: 280px;
+}
+.wpd-shipstation-debug-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.wpd-shipstation-debug-controls .button {
+    width: auto;
+}
+.wpd-shipstation-bulk-sync-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.wpd-shipstation-bulk-sync-controls .button {
+    width: auto;
+}
+#wpd-shipstation-cancel-bulk-sync[hidden] {
+    display: none !important;
+}
+body.wpd-shipstation-backfill-open {
+    overflow: hidden;
+}
+.wpd-shipstation-backfill-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100100;
+    display: none;
+}
+.wpd-shipstation-backfill-modal.is-open {
+    display: block;
+}
+.wpd-shipstation-backfill-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+}
+.wpd-shipstation-backfill-dialog {
+    position: relative;
+    z-index: 1;
+    width: min(960px, calc(100% - 32px));
+    max-height: calc(100vh - 48px);
+    margin: 24px auto;
+    overflow: auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    padding: 24px 24px 20px;
+}
+.wpd-shipstation-backfill-close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    border: 0;
+    background: transparent;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    color: #666;
+}
+.wpd-shipstation-backfill-dialog h2 {
+    margin: 0 32px 8px 0;
+}
+.wpd-shipstation-backfill-dialog h3 {
+    margin: 16px 0 8px;
+}
+.wpd-shipstation-backfill-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+}
+.wpd-shipstation-backfill-toolbar label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+#wpd-shipstation-backfill-batch {
+    width: 70px;
+}
+#wpd-shipstation-backfill-stop[hidden],
+#wpd-shipstation-backfill-more[hidden] {
+    display: none !important;
+}
+.wpd-shipstation-backfill-progress {
+    color: #555;
+}
+.wpd-shipstation-backfill-table-wrap {
+    max-height: 280px;
+    overflow: auto;
+    border: 1px solid #dcdcde;
+}
+.wpd-shipstation-backfill-table-wrap table {
+    margin: 0;
+}
+.wpd-shipstation-backfill-list-actions {
+    margin: 8px 0 0;
+}
+.wpd-shipstation-backfill-log {
+    max-height: 240px;
+    overflow: auto;
+    margin: 0;
+    padding: 10px 12px;
+    background: #1d2327;
+    color: #f0f0f1;
+    border-radius: 4px;
+    font-family: Consolas, Monaco, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+}
+.wpd-shipstation-backfill-log-line {
+    margin: 0 0 6px;
+}
+.wpd-shipstation-backfill-log-line.is-saved {
+    color: #8fd19e;
+}
+.wpd-shipstation-backfill-log-line.is-miss {
+    color: #dcdcde;
+}
+.wpd-shipstation-backfill-log-line.is-error,
+.wpd-shipstation-backfill-log-line.is-retry {
+    color: #f1aeb5;
+}
+.wpd-shipstation-backfill-result.is-saved {
+    color: #1a7f37;
+    font-weight: 600;
+}
+.wpd-shipstation-backfill-result.is-miss {
+    color: #50575e;
+}
+.wpd-shipstation-backfill-result.is-error,
+.wpd-shipstation-backfill-result.is-retry {
+    color: #b32d2e;
+    font-weight: 600;
 }

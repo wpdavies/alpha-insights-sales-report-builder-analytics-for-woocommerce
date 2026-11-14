@@ -37,6 +37,9 @@
 .wp-list-table .wpd-order-acquisition-channel.order-status.ai_chat {
     background: #00acc1;
 }
+.wp-list-table .wpd-order-acquisition-channel.order-status.qr_code {
+    background: #37474f;
+}
 .wp-list-table .wpd-order-acquisition-channel.order-status.admin {
     background: #607d8b;
 }
@@ -189,6 +192,9 @@ div#wpd-ai-cost-of-goods.panel select {
 div#wpd-ai-cost-of-goods {
     padding: 25px;
     position: relative;
+}
+#wpd-ai-cost-of-goods tr.wpd-cog-other-cost td {
+    background: #f6f7f7;
 }
 table.wpd-data-table td span {
     overflow: auto;
@@ -635,6 +641,21 @@ body.wpd-bh-modal-open {
     background: #edfaf3;
     color: #14804a;
 }
+.wpd-bh-pill-assigned {
+    background: #e8f1ff;
+    color: #0b5cab;
+}
+.wpd-bh-session.is-assigned {
+    border-color: #b6d4fe;
+}
+.wpd-bh-session-summary .wpd-bh-session-actions {
+    grid-template-columns: 1fr;
+    margin-top: 4px;
+}
+.wpd-bh-session-actions .wpd-bh-assign-btn {
+    width: auto;
+    justify-self: start;
+}
 .wpd-bh-chevron {
     width: 8px;
     height: 8px;
@@ -770,4 +791,35 @@ body.wpd-bh-modal-open {
     .wpd-bh-session-meta {
         margin-top: 8px;
     }
+}
+
+#wpd-ai-shipstation .inside {
+    margin: 0;
+    padding: 12px;
+}
+.wpd-shipstation-order-panel {
+    margin: 0;
+}
+.wpd-shipstation-order-total {
+    margin: 0 0 8px;
+}
+.wpd-shipstation-order-labels {
+    margin: 0 0 8px;
+    padding: 0;
+    list-style: none;
+}
+.wpd-shipstation-order-labels li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 4px;
+    font-size: 12px;
+}
+.wpd-shipstation-order-panel .wpd-shipstation-resync-order {
+    width: 100%;
+    text-align: center;
+}
+.wpd-shipstation-resync-status {
+    display: block;
+    margin-top: 6px;
 }

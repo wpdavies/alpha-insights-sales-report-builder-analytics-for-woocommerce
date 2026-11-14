@@ -6,6 +6,11 @@
 	background: #fff;
 }
 
+.wpd-exp-goal-description {
+	max-width: 42em;
+	margin-top: 8px;
+}
+
 .wpd-exp-variant-meta {
 	display: flex;
 	flex-wrap: wrap;
@@ -30,6 +35,11 @@
 
 .wpd-exp-variant-weight {
 	width: 80px;
+}
+
+.wpd-exp-preview-button {
+	margin-left: auto;
+	margin-bottom: 4px;
 }
 
 .wpd-exp-code-tabs {
@@ -527,6 +537,12 @@ table.wpd-exp-list-table.wpd-table {
 	white-space: nowrap;
 }
 
+.wpd-exp-list-table tbody td .wpd-meta {
+	margin-top: 2px;
+	font-size: 11px;
+	color: var(--alpha-gray, #6c757d);
+}
+
 .wpd-exp-list-table tbody td.wpd-exp-arm-name {
 	white-space: normal;
 }
@@ -543,7 +559,8 @@ table.wpd-exp-list-table.wpd-table {
 	background: #f3f9fd;
 }
 
-.wpd-exp-list-table thead th.is-target-col {
+.wpd-exp-list-table thead th.is-target-col,
+.wpd-exp-list-table tbody td.is-target-col {
 	color: var(--alpha-dark-gray, #2c3e50);
 	font-weight: 700;
 }
@@ -584,6 +601,92 @@ table.wpd-exp-list-table.wpd-table {
 
 .wpd-exp-lift.is-down {
 	color: var(--alpha-danger, #dc3545);
+}
+
+.wpd-exp-significance-summary {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 8px 12px;
+	margin: 0;
+	padding: 10px 12px;
+	border-top: 1px solid #e6e8ec;
+	font-size: 13px;
+	line-height: 1.45;
+	color: var(--alpha-dark-gray, #2c3e50);
+}
+
+.wpd-exp-significance-summary strong {
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.03em;
+	text-transform: uppercase;
+}
+
+.wpd-exp-sig-summary--significant {
+	background: #edfaef;
+}
+
+.wpd-exp-sig-summary--significant strong {
+	color: var(--alpha-success, #28a745);
+}
+
+.wpd-exp-sig-summary--directional {
+	background: #fff8e1;
+}
+
+.wpd-exp-sig-summary--directional strong {
+	color: #8a6d1b;
+}
+
+.wpd-exp-sig-summary--inconclusive,
+.wpd-exp-sig-summary--needs_data {
+	background: #f8f9fa;
+}
+
+.wpd-exp-sig-summary--inconclusive strong,
+.wpd-exp-sig-summary--needs_data strong {
+	color: var(--alpha-gray, #6c757d);
+}
+
+.wpd-exp-cell-significance {
+	white-space: nowrap;
+}
+
+.wpd-exp-cell-significance .wpd-meta {
+	margin-top: 2px;
+	font-size: 11px;
+	color: var(--alpha-gray, #6c757d);
+}
+
+.wpd-exp-sig {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: var(--alpha-light-gray, #f8f9fa);
+	color: var(--alpha-gray, #6c757d);
+	font-size: 10px;
+	font-weight: 600;
+	letter-spacing: 0.03em;
+	line-height: 1.5;
+	text-transform: uppercase;
+}
+
+.wpd-exp-sig--significant {
+	background: #edfaef;
+	color: var(--alpha-success, #28a745);
+}
+
+.wpd-exp-sig--directional {
+	background: #fff8e1;
+	color: #8a6d1b;
+}
+
+.wpd-exp-sig--inconclusive,
+.wpd-exp-sig--needs_data,
+.wpd-exp-sig--baseline {
+	background: #eef1f4;
+	color: var(--alpha-gray, #6c757d);
 }
 
 @media (max-width: 782px) {

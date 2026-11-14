@@ -1586,3 +1586,663 @@ jQuery(document).ready(function($) {
         }
     });
 });
+jQuery(document).ready(function($) {
+    var $fetchButton = $('#wpd-shipstation-debug-fetch');
+    if ( ! $fetchButton.length ) {
+        return;
+    }
+
+    var $daysInput = $('#wpd-shipstation-debug-days');
+    var $orderInput = $('#wpd-shipstation-debug-order');
+    var $results = $('#wpd-shipstation-debug-results');
+    var $apiKey = $('#wpd_ai_shipstation_api_key');
+
+    $daysInput.add( $orderInput ).on('keydown', function(e) {
+        if ( e.key === 'Enter' ) {
+            e.preventDefault();
+            $fetchButton.trigger('click');
+        }
+    });
+
+    $fetchButton.on('click', function(e) {
+        e.preventDefault();
+
+        if ( $fetchButton.prop('disabled') ) {
+            return;
+        }
+
+        var processingText = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.processing)
+            ? wpdAlphaInsights.strings.processing
+            : 'Processing...';
+        var workingText = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.working)
+            ? wpdAlphaInsights.strings.working
+            : 'We are working on it!';
+        var errorText = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.error)
+            ? wpdAlphaInsights.strings.error
+            : 'Your action could not be completed.';
+        var requestFailedText = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings && wpdAlphaInsights.strings.requestFailed)
+            ? wpdAlphaInsights.strings.requestFailed
+            : 'Request Failed';
+
+        $fetchButton.prop('disabled', true);
+        $results.attr('hidden', true).empty();
+        wpdPopNotification( 'loading', processingText, workingText );
+
+        var ajaxurl = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.ajax_url)
+            ? wpdAlphaInsights.ajax_url
+            : '/wp-admin/admin-ajax.php';
+
+        $.ajax({
+            url: ajaxurl,
+            method: 'POST',
+            timeout: 60000,
+            data: {
+                action: 'wpd_ai_shipstation_debug_fetch',
+                days: $daysInput.val() || 7,
+                order_number: $orderInput.length ? $.trim( $orderInput.val() ) : '',
+                api_key: $apiKey.length ? $apiKey.val() : '',
+                nonce: (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.nonce) ? wpdAlphaInsights.nonce : ''
+            }
+        })
+        .done(function( response ) {
+            var parsedResponse = wpdHandleAjaxResponse(
+                response,
+                (response && response.data && response.data.message) ? response.data.message : '',
+                errorText
+            );
+            if ( parsedResponse && parsedResponse.success && parsedResponse.data && parsedResponse.data.html ) {
+                $results.html( parsedResponse.data.html ).removeAttr('hidden');
+            }
+        })
+        .fail(function( jqXHR ) {
+            var errorMessage = errorText;
+            if ( jqXHR.responseText ) {
+                try {
+                    var errorResponse = JSON.parse( jqXHR.responseText );
+                    errorMessage = wpdExtractResponseMessage( errorResponse, errorMessage );
+                } catch (err) {
+                    // Keep default message.
+                }
+            }
+            wpdPopNotification( 'fail', requestFailedText, errorMessage );
+        })
+        .always(function() {
+            $fetchButton.prop('disabled', false);
+        });
+    });
+});
+jQuery(document).ready(function($) {
+    var $controls = $('.wpd-shipstation-bulk-sync-controls');
+    var $runButton = $('#wpd-shipstation-trigger-bulk-sync');
+    var $cancelButton = $('#wpd-shipstation-cancel-bulk-sync');
+    var $deleteButton = $('#wpd-shipstation-delete-sync-data');
+    var pollTimer = null;
+
+    if ( ! $runButton.length && ! $deleteButton.length ) {
+        return;
+    }
+
+    function ajaxUrl() {
+        return (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.ajax_url)
+            ? wpdAlphaInsights.ajax_url
+            : '/wp-admin/admin-ajax.php';
+    }
+
+    function ajaxNonce() {
+        return (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.nonce)
+            ? wpdAlphaInsights.nonce
+            : '';
+    }
+
+    function uiStrings() {
+        var strings = (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.strings) ? wpdAlphaInsights.strings : {};
+        return {
+            processing: strings.processing || 'Processing...',
+            working: strings.working || 'We are working on it!',
+            success: strings.success || 'Your request has been successfully completed.',
+            error: strings.error || 'Your action could not be completed.',
+            requestFailed: strings.requestFailed || 'Request Failed'
+        };
+    }
+
+    function labelRun() {
+        return $controls.data('label-run') || 'Run bulk sync';
+    }
+
+    function labelRunning() {
+        return $controls.data('label-running') || 'Bulk Sync Running';
+    }
+
+    function setBulkRunning(isRunning) {
+        if ( $controls.length ) {
+            $controls.attr('data-running', isRunning ? '1' : '0');
+        }
+        if ( $runButton.length ) {
+            $runButton.prop('disabled', !!isRunning);
+            $runButton.text(isRunning ? labelRunning() : labelRun());
+        }
+        if ( $cancelButton.length ) {
+            $cancelButton.prop('disabled', false);
+            if ( isRunning ) {
+                $cancelButton.removeAttr('hidden');
+            } else {
+                $cancelButton.attr('hidden', 'hidden');
+            }
+        }
+        if ( $deleteButton.length && ! $deleteButton.data('busy') ) {
+            $deleteButton.prop('disabled', !!isRunning);
+        }
+        if ( isRunning ) {
+            startStatusPoll();
+        } else {
+            stopStatusPoll();
+        }
+    }
+
+    function isBulkRunning() {
+        return $controls.attr('data-running') === '1';
+    }
+
+    function startStatusPoll() {
+        stopStatusPoll();
+        pollTimer = window.setInterval(function() {
+            $.post(ajaxUrl(), {
+                action: 'wpd_ai_shipstation_bulk_sync_status',
+                nonce: ajaxNonce()
+            }).done(function(response) {
+                if ( response && response.success && response.data && ! response.data.running ) {
+                    setBulkRunning(false);
+                }
+            });
+        }, 15000);
+    }
+
+    function stopStatusPoll() {
+        if ( pollTimer ) {
+            window.clearInterval(pollTimer);
+            pollTimer = null;
+        }
+    }
+
+    $runButton.on('click', function(e) {
+        e.preventDefault();
+        if ( $runButton.prop('disabled') ) {
+            return;
+        }
+
+        var strings = uiStrings();
+        wpdPopNotification('loading', strings.processing, strings.working);
+
+        $.post(ajaxUrl(), {
+            action: 'wpd_ai_shipstation_trigger_bulk_sync',
+            nonce: ajaxNonce()
+        })
+        .done(function(response) {
+            var parsed = wpdHandleAjaxResponse(
+                response,
+                (response && response.data && response.data.message) ? response.data.message : strings.success,
+                strings.error
+            );
+            if ( parsed && parsed.success ) {
+                setBulkRunning(true);
+            }
+        })
+        .fail(function(jqXHR) {
+            var errorMessage = strings.error;
+            if ( jqXHR.responseText ) {
+                try {
+                    var errorResponse = JSON.parse(jqXHR.responseText);
+                    errorMessage = wpdExtractResponseMessage(errorResponse, errorMessage);
+                } catch (err) {
+                    // Keep default message.
+                }
+            }
+            wpdPopNotification('fail', strings.requestFailed, errorMessage);
+        });
+    });
+
+    $cancelButton.on('click', function(e) {
+        e.preventDefault();
+        if ( $cancelButton.prop('disabled') ) {
+            return;
+        }
+
+        var strings = uiStrings();
+        $cancelButton.prop('disabled', true);
+        wpdPopNotification('loading', strings.processing, strings.working);
+
+        $.post(ajaxUrl(), {
+            action: 'wpd_ai_shipstation_cancel_bulk_sync',
+            nonce: ajaxNonce()
+        })
+        .done(function(response) {
+            var parsed = wpdHandleAjaxResponse(
+                response,
+                (response && response.data && response.data.message) ? response.data.message : strings.success,
+                strings.error
+            );
+            if ( parsed && parsed.success ) {
+                setBulkRunning(false);
+            } else {
+                $cancelButton.prop('disabled', false);
+            }
+        })
+        .fail(function(jqXHR) {
+            var errorMessage = strings.error;
+            if ( jqXHR.responseText ) {
+                try {
+                    var errorResponse = JSON.parse(jqXHR.responseText);
+                    errorMessage = wpdExtractResponseMessage(errorResponse, errorMessage);
+                } catch (err) {
+                    // Keep default message.
+                }
+            }
+            wpdPopNotification('fail', strings.requestFailed, errorMessage);
+            $cancelButton.prop('disabled', false);
+        });
+    });
+
+    $deleteButton.on('click', function(e) {
+        e.preventDefault();
+        if ( $deleteButton.prop('disabled') ) {
+            return;
+        }
+
+        var strings = uiStrings();
+        $deleteButton.data('busy', true).prop('disabled', true);
+        wpdPopNotification('loading', strings.processing, strings.working);
+
+        $.ajax({
+            url: ajaxUrl(),
+            method: 'POST',
+            timeout: 60000,
+            data: {
+                action: 'wpd_ai_shipstation_delete_sync_data',
+                nonce: ajaxNonce()
+            }
+        })
+        .done(function(response) {
+            wpdHandleAjaxResponse(
+                response,
+                (response && response.data && response.data.message) ? response.data.message : strings.success,
+                strings.error
+            );
+        })
+        .fail(function(jqXHR) {
+            var errorMessage = strings.error;
+            if ( jqXHR.status === 504 || jqXHR.status === 502 || jqXHR.status === 0 ) {
+                errorMessage = $deleteButton.data('timeout-message') || 'The request stopped early. Click Delete sync data again to continue.';
+            } else if ( jqXHR.responseText ) {
+                try {
+                    var errorResponse = JSON.parse(jqXHR.responseText);
+                    errorMessage = wpdExtractResponseMessage(errorResponse, errorMessage);
+                } catch (err) {
+                    // Keep default message.
+                }
+            }
+            wpdPopNotification('fail', strings.requestFailed, errorMessage);
+        })
+        .always(function() {
+            $deleteButton.removeData('busy');
+            $deleteButton.prop('disabled', isBulkRunning());
+        });
+    });
+
+    if ( isBulkRunning() ) {
+        startStatusPoll();
+    }
+});
+jQuery(document).ready(function($) {
+    var $openButton = $('#wpd-shipstation-backfill-missing');
+    var $modal = $('#wpd-shipstation-backfill-modal');
+    if ( ! $openButton.length || ! $modal.length ) {
+        return;
+    }
+
+    var $rows = $('#wpd-shipstation-backfill-rows');
+    var $log = $('#wpd-shipstation-backfill-log');
+    var $progress = $('#wpd-shipstation-backfill-progress');
+    var $start = $('#wpd-shipstation-backfill-start');
+    var $stop = $('#wpd-shipstation-backfill-stop');
+    var $more = $('#wpd-shipstation-backfill-more');
+    var $batch = $('#wpd-shipstation-backfill-batch');
+    var listPage = 0;
+    var listPages = 0;
+    var listTotal = 0;
+    var running = false;
+    var stopRequested = false;
+    var cursor = { after_date: '', after_id: 0 };
+    var stats = { checked: 0, saved: 0, miss: 0, error: 0 };
+    var retryCount = 0;
+    var retryOrderId = 0;
+
+    function ajaxUrl() {
+        return (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.ajax_url)
+            ? wpdAlphaInsights.ajax_url
+            : '/wp-admin/admin-ajax.php';
+    }
+
+    function ajaxNonce() {
+        return (typeof wpdAlphaInsights !== 'undefined' && wpdAlphaInsights.nonce)
+            ? wpdAlphaInsights.nonce
+            : '';
+    }
+
+    function text(key) {
+        var value = $modal.attr('data-text-' + key);
+        return value ? value : '';
+    }
+
+    function fill(template, values) {
+        var output = template || '';
+        $.each(values, function(name, value) {
+            output = output.split('{' + name + '}').join(String(value));
+        });
+        return output;
+    }
+
+    function batchSize() {
+        var size = parseInt($batch.val(), 10);
+        if (isNaN(size) || size < 1) {
+            size = 1;
+        }
+        if (size > 5) {
+            size = 5;
+        }
+        $batch.val(size);
+        return size;
+    }
+
+    function setRunning(isRunning) {
+        running = isRunning;
+        $start.prop('disabled', isRunning || listTotal < 1);
+        $batch.prop('disabled', isRunning);
+        $openButton.prop('disabled', isRunning);
+        $stop.prop('disabled', false);
+        if (isRunning) {
+            $start.text(text('running'));
+            $stop.removeAttr('hidden');
+        } else {
+            $stop.attr('hidden', 'hidden');
+            $start.text(cursor.after_id || cursor.after_date ? text('continue') : text('start'));
+        }
+    }
+
+    function renderProgress(templateKey) {
+        var values = {
+            checked: stats.checked,
+            saved: stats.saved,
+            miss: stats.miss,
+            error: stats.error,
+            errors: stats.error,
+            shown: $rows.find('tr[data-order-id]').length,
+            total: listTotal
+        };
+        var summary = fill(text('showing'), values);
+        var detail = fill(text(templateKey || 'progress'), values);
+        $progress.text(summary + ' ' + detail);
+    }
+
+    function appendLog(message, level) {
+        var $line = $('<p>', { 'class': 'wpd-shipstation-backfill-log-line is-' + (level || 'miss') });
+        $line.text(message);
+        $log.append($line);
+        if ($log[0]) {
+            $log.scrollTop($log[0].scrollHeight);
+        }
+    }
+
+    function appendOrders(orders) {
+        if (listPage === 1) {
+            $rows.empty();
+        }
+        if (!orders || !orders.length) {
+            if (!$rows.find('tr[data-order-id]').length) {
+                $rows.html($('<tr>').append($('<td>', { colspan: 6, text: text('empty') })));
+            }
+            return;
+        }
+        $.each(orders, function(_, order) {
+            if ($rows.find('tr[data-order-id="' + order.id + '"]').length) {
+                return;
+            }
+            var $row = $('<tr>', { 'data-order-id': order.id });
+            $row.append($('<td>').text('#' + order.number));
+            $row.append($('<td>').text(order.date || ''));
+            $row.append($('<td>').text(order.status || ''));
+            $row.append($('<td>', { 'class': 'wpd-ss-backfill-ss' }).text(order.shipstation_cost || ''));
+            $row.append($('<td>', { 'class': 'wpd-ss-backfill-ship' }).text(order.shipping_cost || ''));
+            $row.append($('<td>', { 'class': 'wpd-shipstation-backfill-result' }).text(text('waiting')));
+            $rows.append($row);
+        });
+    }
+
+    function loadList(page) {
+        $more.prop('disabled', true);
+        return $.ajax({
+            url: ajaxUrl(),
+            method: 'POST',
+            timeout: 60000,
+            data: {
+                action: 'wpd_ai_shipstation_backfill_missing_list',
+                page: page,
+                nonce: ajaxNonce()
+            }
+        }).done(function(response) {
+            if (!response || !response.success || !response.data) {
+                if (page === 1) {
+                    $rows.html($('<tr>').append($('<td>', { colspan: 6, text: text('load-failed') })));
+                }
+                return;
+            }
+            listPage = response.data.page || page;
+            listPages = response.data.pages || 0;
+            listTotal = response.data.total || 0;
+            appendOrders(response.data.orders || []);
+            if (listPage < listPages) {
+                $more.removeAttr('hidden');
+            } else {
+                $more.attr('hidden', 'hidden');
+            }
+            renderProgress('progress');
+            $start.prop('disabled', running || listTotal < 1);
+        }).fail(function() {
+            if (page === 1) {
+                $rows.html($('<tr>').append($('<td>', { colspan: 6, text: text('load-failed') })));
+            }
+        }).always(function() {
+            $more.prop('disabled', false);
+        });
+    }
+
+    function applyEntry(entry) {
+        if (!entry) {
+            return;
+        }
+        appendLog(entry.message, entry.level);
+        var $row = $rows.find('tr[data-order-id="' + entry.order_id + '"]');
+        if ($row.length) {
+            $row.find('.wpd-ss-backfill-ss').text(entry.shipstation_cost || '');
+            $row.find('.wpd-ss-backfill-ship').text(entry.shipping_cost || '');
+            $row.find('.wpd-shipstation-backfill-result')
+                .removeClass('is-saved is-miss is-error is-retry')
+                .addClass('is-' + entry.level)
+                .text(entry.status_label || '');
+        }
+        if (entry.level === 'retry') {
+            return;
+        }
+        stats.checked += 1;
+        if (entry.level === 'saved') {
+            stats.saved += 1;
+        } else if (entry.level === 'miss') {
+            stats.miss += 1;
+        } else {
+            stats.error += 1;
+        }
+    }
+
+    function finishRun(templateKey) {
+        setRunning(false);
+        renderProgress(templateKey);
+        appendLog(fill(text(templateKey), {
+            checked: stats.checked,
+            saved: stats.saved,
+            miss: stats.miss,
+            errors: stats.error
+        }), templateKey === 'finished' ? 'saved' : 'miss');
+    }
+
+    function runNextBatch() {
+        if (!running) {
+            return;
+        }
+        if (stopRequested) {
+            finishRun('stopped');
+            return;
+        }
+
+        $.ajax({
+            url: ajaxUrl(),
+            method: 'POST',
+            timeout: 300000,
+            data: {
+                action: 'wpd_ai_shipstation_backfill_missing_batch',
+                batch_size: batchSize(),
+                after_date: cursor.after_date,
+                after_id: cursor.after_id,
+                nonce: ajaxNonce()
+            }
+        }).done(function(response) {
+            if (!running) {
+                return;
+            }
+            if (!response || !response.success || !response.data) {
+                var message = (response && response.data && response.data.message) ? response.data.message : text('request-failed');
+                appendLog(message, 'error');
+                finishRun('stopped');
+                return;
+            }
+
+            var data = response.data;
+            $.each(data.entries || [], function(_, entry) {
+                applyEntry(entry);
+            });
+            renderProgress('progress');
+
+            if (data.retry) {
+                var retryEntry = (data.entries || [])[ (data.entries || []).length - 1 ] || {};
+                if (retryEntry.order_id && retryEntry.order_id === retryOrderId) {
+                    retryCount += 1;
+                } else {
+                    retryOrderId = retryEntry.order_id || 0;
+                    retryCount = 1;
+                }
+                if (retryCount >= 3) {
+                    finishRun('stopped');
+                    return;
+                }
+                var waitSeconds = data.wait_seconds || 20;
+                appendLog(fill(text('wait'), { seconds: waitSeconds }), 'retry');
+                window.setTimeout(runNextBatch, waitSeconds * 1000);
+                return;
+            }
+
+            retryCount = 0;
+            retryOrderId = 0;
+            var previousCursor = (cursor.after_date || '') + '|' + (cursor.after_id || 0);
+            var nextCursor = (data.after_date || '') + '|' + (data.after_id || 0);
+            if (data.processed && nextCursor === previousCursor) {
+                appendLog(text('request-failed'), 'error');
+                finishRun('stopped');
+                return;
+            }
+            cursor.after_date = data.after_date || '';
+            cursor.after_id = data.after_id || 0;
+
+            if (data.done || !data.processed) {
+                cursor.after_date = '';
+                cursor.after_id = 0;
+                finishRun('finished');
+                return;
+            }
+
+            runNextBatch();
+        }).fail(function() {
+            if (!running) {
+                return;
+            }
+            appendLog(text('request-failed'), 'error');
+            finishRun('stopped');
+        });
+    }
+
+    function openModal() {
+        $modal.removeAttr('hidden').addClass('is-open');
+        $('body').addClass('wpd-shipstation-backfill-open');
+        if (!listPage && !running) {
+            $rows.html($('<tr>').append($('<td>', { colspan: 6, text: text('loading') })));
+            loadList(1);
+        }
+        $start.trigger('focus');
+    }
+
+    function closeModal() {
+        if (running) {
+            stopRequested = true;
+        }
+        $modal.attr('hidden', 'hidden').removeClass('is-open');
+        $('body').removeClass('wpd-shipstation-backfill-open');
+    }
+
+    $openButton.on('click', function(e) {
+        e.preventDefault();
+        openModal();
+    });
+
+    $modal.on('click', '[data-wpd-shipstation-backfill-close]', function(e) {
+        e.preventDefault();
+        closeModal();
+    });
+
+    $more.on('click', function(e) {
+        e.preventDefault();
+        if (listPage < listPages) {
+            loadList(listPage + 1);
+        }
+    });
+
+    $start.on('click', function(e) {
+        e.preventDefault();
+        if (running || $start.prop('disabled')) {
+            return;
+        }
+        stopRequested = false;
+        if (!cursor.after_id && !cursor.after_date) {
+            stats = { checked: 0, saved: 0, miss: 0, error: 0 };
+            $log.empty();
+            appendLog(text('started'), 'miss');
+        }
+        setRunning(true);
+        renderProgress('progress');
+        runNextBatch();
+    });
+
+    $stop.on('click', function(e) {
+        e.preventDefault();
+        stopRequested = true;
+        $stop.prop('disabled', true);
+    });
+
+    $batch.on('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+        }
+    });
+
+    $(document).on('keydown.wpdShipstationBackfill', function(e) {
+        if (e.key === 'Escape' && $modal.hasClass('is-open')) {
+            closeModal();
+        }
+    });
+});

@@ -179,7 +179,7 @@ class WPDAI_Webhook_Provider {
         
         if ( ! as_next_scheduled_action( self::$recurring_event_hook ) ) {
             $first_run = function_exists( 'wpdai_next_1am_local_timestamp' ) ? wpdai_next_1am_local_timestamp() : strtotime( 'tomorrow 01:00:00' );
-            as_schedule_recurring_action( $first_run, DAY_IN_SECONDS, self::$recurring_event_hook, array(), $action_scheduler::EVENT_GROUP_SLUG );
+            as_schedule_recurring_action( $first_run, DAY_IN_SECONDS, self::$recurring_event_hook, array(), $action_scheduler::EVENT_GROUP_SLUG, true );
         }
 
     }

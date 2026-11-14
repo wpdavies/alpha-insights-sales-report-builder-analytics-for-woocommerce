@@ -86,15 +86,81 @@ function wpdai_delete_all_product_cache() {
  */
 function wpdai_delete_product_cache_by_product_id( $product_id ) {
 
+	$product_id = absint( $product_id );
+	if ( $product_id < 1 ) {
+		return false;
+	}
+
+	wpdai_clear_product_cost_object_cache( $product_id );
+
 	// Deletes the transient used for analytics reporting
-	$delete_transient = delete_transient( '_wpd_product_statistics_' . $product_id );
+	delete_transient( '_wpd_product_statistics_' . $product_id );
+	wp_cache_delete( '_wpd_product_statistics_' . $product_id, 'wpd_ai_fetch' );
 
 	// Deletes the data storage cache
-	$delete_cache = delete_post_meta( $product_id, '_wpd_ai_product_data_store' );
+	delete_post_meta( $product_id, '_wpd_ai_product_data_store' );
 	$delete_cache = delete_post_meta( $product_id, '_wpd_ai_product_analytics' );
 
 	return $delete_cache;
 
+}
+
+/**
+ * Drop the in-memory / persistent object cache for a product cost.
+ *
+ * @param int $product_id Product or variation ID.
+ * @return bool
+ */
+function wpdai_clear_product_cost_object_cache( $product_id ) {
+	$product_id = absint( $product_id );
+	if ( $product_id < 1 ) {
+		return false;
+	}
+
+	wp_cache_delete( $product_id, '_wpd_ai_product_cost_price' );
+
+	if ( function_exists( 'clean_post_cache' ) ) {
+		clean_post_cache( $product_id );
+	}
+
+	if ( function_exists( 'wc_delete_product_transients' ) ) {
+		wc_delete_product_transients( $product_id );
+	}
+
+	return true;
+}
+
+/**
+ * Clear product and related order caches after a cost of goods change.
+ *
+ * @param int|array<int, int> $product_ids Product or variation IDs.
+ * @return bool
+ */
+function wpdai_clear_caches_after_product_cost_change( $product_ids ) {
+	if ( ! is_array( $product_ids ) ) {
+		$product_ids = array( $product_ids );
+	}
+
+	$product_ids = array_values(
+		array_unique(
+			array_filter(
+				array_map( 'absint', $product_ids )
+			)
+		)
+	);
+
+	if ( empty( $product_ids ) ) {
+		return false;
+	}
+
+	foreach ( $product_ids as $product_id ) {
+		wpdai_delete_product_cache_by_product_id( $product_id );
+		wpdai_update_product_cache_by_product_id( $product_id );
+	}
+
+	wpdai_delete_order_cache_by_product_ids( $product_ids );
+
+	return true;
 }
 
 /**
@@ -145,6 +211,8 @@ function wpdai_delete_order_cache_by_order_id( $order_id ) {
 
 	// Fetch result
 	$result = $wpdb->query( $sql_query );
+
+	wp_cache_delete( $order_id, '_wpd_ai_order_cache' );
 
 	// Check for DB errors
 	if ( $wpdb->last_error ) {
@@ -206,6 +274,10 @@ function wpdai_delete_order_cache_by_order_ids( $order_ids ) {
 
 	// Fetch result
 	$result = $wpdb->query( $sql_query );
+
+	if ( function_exists( 'wpdai_delete_order_calculations_in_object_cache' ) ) {
+		wpdai_delete_order_calculations_in_object_cache( $sanitized_ids );
+	}
 
 	// Check for DB errors
 	if ( $wpdb->last_error ) {
@@ -428,6 +500,8 @@ function wpdai_product_data_collection( $active_product_id ) {
 			'parent_id' 						=> null,
 			'product_category' 					=> null,
 			'product_tags' 						=> null,
+			'product_brand' 					=> null,
+			'product_supplier' 					=> null,
 			'variation_attributes' 				=> null,
 			'combine_variations_product_image' 	=> null,
 			'combine_variations_product_name' 	=> null,
@@ -541,6 +615,9 @@ function wpdai_product_data_collection( $active_product_id ) {
 		'parent_id' 						=> $parent_id,
 		'product_category' 					=> $product_category,
 		'product_tags' 						=> $product_tags,
+		'product_brand' 					=> wpdai_get_product_brand_terms( $active_product_id ),
+		'product_brand_resolution' 			=> 'native_then_attribute',
+		'product_supplier' 					=> wpdai_get_product_supplier_terms( $active_product_id ),
 		'variation_attributes' 				=> $variation_data,
 		'combine_variations_product_image' 	=> $combine_variations_product_image,
 		'combine_variations_product_name' 	=> $combine_variations_product_name,
@@ -551,6 +628,203 @@ function wpdai_product_data_collection( $active_product_id ) {
 	return $product_data_collection;
 
 }
+
+/**
+ * Brand taxonomies used for reporting: native Brands and the Brand attribute.
+ *
+ * @return array<int,string>
+ */
+function wpdai_get_product_brand_taxonomies() {
+
+	$taxonomies = array();
+
+	if ( taxonomy_exists( 'product_brand' ) ) {
+		$taxonomies[] = 'product_brand';
+	}
+
+	if ( taxonomy_exists( 'pa_brand' ) ) {
+		$taxonomies[] = 'pa_brand';
+	}
+
+	return $taxonomies;
+
+}
+
+/**
+ * Get brand terms for a product.
+ *
+ * Native product_brand takes precedence. pa_brand is used only when the
+ * product has no product_brand terms. Variations resolve from the parent,
+ * matching product_cat; a set variation-level pa_brand slug is used first.
+ *
+ * @param int $product_id Product or variation ID.
+ * @return array<int,WP_Term> Brand terms, or an empty array.
+ */
+function wpdai_get_product_brand_terms( $product_id ) {
+
+	$product_id = absint( $product_id );
+	$taxonomies = wpdai_get_product_brand_taxonomies();
+	if ( $product_id <= 0 || empty( $taxonomies ) ) {
+		return array();
+	}
+
+	$product   = wc_get_product( $product_id );
+	$lookup_id = $product_id;
+	if ( is_a( $product, 'WC_Product' ) && $product->get_parent_id() ) {
+		$lookup_id = absint( $product->get_parent_id() );
+	}
+
+	foreach ( $taxonomies as $taxonomy ) {
+		$terms = wpdai_get_product_terms_for_brand_taxonomy( $lookup_id, $taxonomy, $product );
+		if ( ! empty( $terms ) ) {
+			return array_values( $terms );
+		}
+	}
+
+	return array();
+
+}
+
+/**
+ * Terms for one brand taxonomy, including variation-level pa_brand attributes.
+ *
+ * @param int              $lookup_id Parent ID for variations, otherwise the product ID.
+ * @param string           $taxonomy  product_brand or pa_brand.
+ * @param WC_Product|false $product   Product object when available.
+ * @return array<int,WP_Term>
+ */
+function wpdai_get_product_terms_for_brand_taxonomy( $lookup_id, $taxonomy, $product = false ) {
+
+	if ( is_a( $product, 'WC_Product' ) && $product->get_parent_id() && 0 === strpos( $taxonomy, 'pa_' ) ) {
+		$attributes = $product->get_attributes();
+		if ( is_array( $attributes ) && ! empty( $attributes[ $taxonomy ] ) ) {
+			$slug = $attributes[ $taxonomy ];
+			if ( is_string( $slug ) && '' !== $slug ) {
+				$term = get_term_by( 'slug', sanitize_title( $slug ), $taxonomy );
+				if ( $term && ! is_wp_error( $term ) ) {
+					return array( $term );
+				}
+			}
+		}
+	}
+
+	$terms = get_the_terms( $lookup_id, $taxonomy );
+	if ( ! $terms || is_wp_error( $terms ) ) {
+		return array();
+	}
+
+	return array_values( $terms );
+
+}
+
+/**
+ * Expand selected brand term IDs so a name matches both product_brand and pa_brand.
+ *
+ * @param array<int,int|string>|int $term_ids Selected term IDs.
+ * @return array<int,int>
+ */
+function wpdai_expand_product_brand_filter_term_ids( $term_ids ) {
+
+	if ( ! is_array( $term_ids ) ) {
+		$term_ids = array( $term_ids );
+	}
+
+	$expanded = array();
+	$names    = array();
+
+	foreach ( $term_ids as $term_id ) {
+		$term_id = absint( $term_id );
+		if ( $term_id <= 0 ) {
+			continue;
+		}
+
+		$expanded[] = $term_id;
+		$term       = get_term( $term_id );
+		if ( $term && ! is_wp_error( $term ) && '' !== $term->name ) {
+			$names[] = $term->name;
+		}
+	}
+
+	$names = array_unique( $names );
+	foreach ( wpdai_get_product_brand_taxonomies() as $taxonomy ) {
+		foreach ( $names as $name ) {
+			$match = get_term_by( 'name', $name, $taxonomy );
+			if ( $match && ! is_wp_error( $match ) ) {
+				$expanded[] = (int) $match->term_id;
+			}
+		}
+	}
+
+	return array_values( array_unique( $expanded ) );
+
+}
+
+/**
+ * Get supplier terms for a product.
+ *
+ * Variations resolve from the parent, matching product categories.
+ *
+ * @param int $product_id Product or variation ID.
+ * @return array<int,WP_Term> Supplier terms, or an empty array.
+ */
+function wpdai_get_product_supplier_terms( $product_id ) {
+
+	$product_id = absint( $product_id );
+	if ( $product_id <= 0 || ! taxonomy_exists( 'suppliers' ) ) {
+		return array();
+	}
+
+	$product   = wc_get_product( $product_id );
+	$lookup_id = $product_id;
+	if ( is_a( $product, 'WC_Product' ) && $product->get_parent_id() ) {
+		$lookup_id = absint( $product->get_parent_id() );
+	}
+
+	$terms = get_the_terms( $lookup_id, 'suppliers' );
+	if ( ! $terms || is_wp_error( $terms ) ) {
+		return array();
+	}
+
+	return array_values( $terms );
+
+}
+
+/**
+ * Drop product cache when a product's supplier terms change.
+ *
+ * @param int    $object_id Object ID.
+ * @param mixed  $terms     Term slugs or IDs.
+ * @param mixed  $tt_ids    Term taxonomy IDs.
+ * @param string $taxonomy  Taxonomy slug.
+ * @return void
+ */
+function wpdai_clear_product_cache_on_supplier_assignment( $object_id, $terms, $tt_ids, $taxonomy ) {
+
+	unset( $terms, $tt_ids );
+
+	if ( 'suppliers' !== $taxonomy ) {
+		return;
+	}
+
+	$object_id = absint( $object_id );
+	if ( $object_id < 1 || 'product' !== get_post_type( $object_id ) ) {
+		return;
+	}
+
+	wpdai_delete_product_cache_by_product_id( $object_id );
+
+	$product = wc_get_product( $object_id );
+	if ( ! is_a( $product, 'WC_Product' ) || ! $product->is_type( 'variable' ) ) {
+		return;
+	}
+
+	foreach ( $product->get_children() as $child_id ) {
+		wpdai_delete_product_cache_by_product_id( $child_id );
+	}
+
+}
+
+add_action( 'set_object_terms', 'wpdai_clear_product_cache_on_supplier_assignment', 10, 4 );
 
 /**
  * 

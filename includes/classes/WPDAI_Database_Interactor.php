@@ -645,6 +645,10 @@ class WPDAI_Database_Interactor {
         // This optimizes: WHERE date_created_gmt >= X AND event_type IN (...) ORDER BY date_created_gmt
         // More efficient than using separate indexes
         $this->add_composite_index( $events_table, 'idx_date_event', array( 'date_created_gmt', 'event_type' ) );
+
+        // Product statistics collector: WHERE product_id IN (...) AND event_type IN (...) GROUP BY both.
+        // Index-only count, instead of scanning every event row for the product.
+        $this->add_composite_index( $events_table, 'idx_product_event', array( 'product_id', 'event_type' ) );
         
         // Session data table indexes
         $this->add_new_index( $session_data_table, 'session_id' ); // Used in WHERE session_id IN (...)

@@ -65,6 +65,19 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
         $product_ids_filter             = $data_warehouse->get_data_filter('products', 'products');
         $product_category_filter        = $data_warehouse->get_data_filter('products', 'product_category');
         $product_tag_filter             = $data_warehouse->get_data_filter('products', 'product_tag');
+        $brand_reporting_enabled        = function_exists( 'wpdai_is_product_brand_reporting_enabled' ) && wpdai_is_product_brand_reporting_enabled();
+        $product_brand_filter           = $brand_reporting_enabled ? $data_warehouse->get_data_filter( 'products', 'product_brand' ) : false;
+        if ( $product_brand_filter && function_exists( 'wpdai_expand_product_brand_filter_term_ids' ) ) {
+            $product_brand_filter = wpdai_expand_product_brand_filter_term_ids( $product_brand_filter );
+        }
+        $supplier_reporting_enabled     = function_exists( 'wpdai_is_product_supplier_reporting_enabled' ) && wpdai_is_product_supplier_reporting_enabled();
+        $product_supplier_filter        = $supplier_reporting_enabled ? $data_warehouse->get_data_filter( 'products', 'product_supplier' ) : false;
+        if ( $product_supplier_filter && ! is_array( $product_supplier_filter ) ) {
+            $product_supplier_filter = array( $product_supplier_filter );
+        }
+        if ( is_array( $product_supplier_filter ) ) {
+            $product_supplier_filter = array_values( array_filter( array_map( 'absint', $product_supplier_filter ) ) );
+        }
         $billing_country_filter         = $data_warehouse->get_data_filter('customers', 'billing_country');
         $user_id_filter                 = $data_warehouse->get_data_filter('customers', 'user_id');
         $ip_address_filter              = $data_warehouse->get_data_filter('customers', 'ip_address');
@@ -244,7 +257,7 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
             'product_metrics'   => array(
                 'product_type_data'  => array(),
                 'product_cat_data'   => array(),
-                'product_tag_data'   => array()
+                'product_tag_data'   => array(),
             ),
             'coupon_metrics'    => array(
                 'orders_with_and_without_coupons' => array(
@@ -298,18 +311,40 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
                 'product_revenue_by_date'    => $data_warehouse->get_data_by_date_range_container(),
                 'quantity_sold_by_date' 		=> $data_warehouse->get_data_by_date_range_container(),
             ),
-            'coupon_metrics' => array(
-                'orders_with_coupon_by_date'     => $data_warehouse->get_data_by_date_range_container(),
-                'coupon_discount_amount_by_date' => $data_warehouse->get_data_by_date_range_container(),
-            ),
-            'tax_metrics' => array(
-                'taxes_collected_by_date' => $data_warehouse->get_data_by_date_range_container(),
-                'tax_rates_collected_by_date' => array( 'no_data_available' => $data_warehouse->get_data_by_date_range_container() ),
-            ),
-            'refund_metrics' => array(
-                // Populated by refunds_internal
-            ),
+        );
 
+        if ( $brand_reporting_enabled ) {
+            $categorized_data['product_metrics']['product_brand_data'] = array();
+            $data_by_date['product_metrics']['brand_revenue_by_date']       = array( 'no_data_available' => $data_warehouse->get_data_by_date_range_container() );
+            $data_by_date['product_metrics']['brand_quantity_sold_by_date'] = array( 'no_data_available' => $data_warehouse->get_data_by_date_range_container() );
+            $data_by_date['product_metrics']['brand_profit_by_date']        = array( 'no_data_available' => $data_warehouse->get_data_by_date_range_container() );
+            $data_by_date['product_metrics']['brand_order_count_by_date']   = array( 'no_data_available' => $data_warehouse->get_data_by_date_range_container() );
+            $data_by_date['product_metrics']['brand_cogs_by_date']          = array( 'no_data_available' => $data_warehouse->get_data_by_date_range_container() );
+            $data_by_date['product_metrics']['brand_margin_by_date']        = array( 'no_data_available' => $data_warehouse->get_data_by_date_range_container() );
+            $data_by_date['product_metrics']['brand_refund_amount_by_date'] = array( 'no_data_available' => $data_warehouse->get_data_by_date_range_container() );
+        }
+
+        if ( $supplier_reporting_enabled ) {
+            $categorized_data['product_metrics']['product_supplier_data'] = array();
+            $data_by_date['product_metrics']['supplier_revenue_by_date']       = array( 'no_data_available' => $data_warehouse->get_data_by_date_range_container() );
+            $data_by_date['product_metrics']['supplier_quantity_sold_by_date'] = array( 'no_data_available' => $data_warehouse->get_data_by_date_range_container() );
+            $data_by_date['product_metrics']['supplier_profit_by_date']        = array( 'no_data_available' => $data_warehouse->get_data_by_date_range_container() );
+            $data_by_date['product_metrics']['supplier_order_count_by_date']   = array( 'no_data_available' => $data_warehouse->get_data_by_date_range_container() );
+            $data_by_date['product_metrics']['supplier_cogs_by_date']          = array( 'no_data_available' => $data_warehouse->get_data_by_date_range_container() );
+            $data_by_date['product_metrics']['supplier_margin_by_date']        = array( 'no_data_available' => $data_warehouse->get_data_by_date_range_container() );
+            $data_by_date['product_metrics']['supplier_refund_amount_by_date'] = array( 'no_data_available' => $data_warehouse->get_data_by_date_range_container() );
+        }
+
+        $data_by_date['coupon_metrics'] = array(
+            'orders_with_coupon_by_date'     => $data_warehouse->get_data_by_date_range_container(),
+            'coupon_discount_amount_by_date' => $data_warehouse->get_data_by_date_range_container(),
+        );
+        $data_by_date['tax_metrics'] = array(
+            'taxes_collected_by_date' => $data_warehouse->get_data_by_date_range_container(),
+            'tax_rates_collected_by_date' => array( 'no_data_available' => $data_warehouse->get_data_by_date_range_container() ),
+        );
+        $data_by_date['refund_metrics'] = array(
+            // Populated by refunds_internal
         );
 
         // Fetch refunds data from external source and integrate into our data above
@@ -336,6 +371,14 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
         $product_type_data                          = array();
         $product_cat_data                           = array();
         $product_tag_data                           = array();
+        $product_brand_data                         = array();
+        $brand_item_data                            = array();
+        $brand_orders_by_date                       = array();
+        $unassigned_brand_label                     = __( 'Unassigned', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
+        $product_supplier_data                      = array();
+        $supplier_item_data                         = array();
+        $supplier_orders_by_date                    = array();
+        $unassigned_supplier_label                  = __( 'Unassigned', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
         $filtered_product_ids                       = array();
         $custom_order_cost_data                     = array();
         $payment_gateway_data                       = array();
@@ -460,6 +503,25 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
 
         while( $offset < $total_batches ) {
 
+            // A previous batch, or the refunds fetch, already stopped. Do not load another cache chunk.
+            if ( $data_warehouse->is_memory_exhausted() ) {
+                break;
+            }
+
+            if ( wpdai_is_memory_usage_greater_than() ) {
+                $data_warehouse->mark_memory_exhausted();
+                $data_warehouse->set_error(
+                    sprintf(
+                        /* translators: 1: Number of processed orders, 2: Total number of orders, 3: PHP memory limit */
+                        __( 'You\'ve exhausted your memory usage after %1$s out of %2$s orders. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %3$s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                        $total_order_count,
+                        $total_db_records,
+                        $memory_limit
+                    )
+                );
+                break;
+            }
+
             // Get the current batch of order IDs
             $current_order_ids_batch = array_slice( $order_ids, $offset * $batch_size, $batch_size );
             
@@ -471,8 +533,9 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
             // Loop through order ID's to build organised data and calculate totals
             foreach ( $current_order_ids_batch as $order_id ) {
 
-                // Memory Check
-                if ( wpdai_is_memory_usage_greater_than(90) ) {
+                // Memory Check. Break this batch only; the cache is released below, then the while stops.
+                if ( wpdai_is_memory_usage_greater_than() ) {
+                    $data_warehouse->mark_memory_exhausted();
                     $data_warehouse->set_error(
                         sprintf(
                             /* translators: 1: Number of processed orders, 2: Total number of orders, 3: PHP memory limit */
@@ -733,6 +796,137 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
                     if ( ! $order_has_target_product_tag ) continue;
 
                     // Any recalculations required
+                    $order_data['total_product_discount_percent'] = wpdai_calculate_percentage( $order_data['total_product_discounts'], $order_data['total_product_revenue_at_rrp'] );
+
+                }
+
+                // Filter by product brand if required (Pro only)
+                if ( $brand_reporting_enabled && $product_brand_filter ) {
+
+                    $order_has_target_product_brand = false;
+
+                    $order_data['total_product_revenue_at_rrp']     = 0;
+                    $order_data['total_product_revenue']            = 0;
+                    $order_data['total_product_revenue_ex_tax']     = 0;
+                    $order_data['total_product_discounts']          = 0;
+                    $order_data['total_product_discount_percent']   = 0;
+                    $order_data['total_product_profit']             = 0;
+                    $order_data['total_skus_sold']                  = 0;
+                    $order_data['total_product_cost']               = 0;
+
+                    if ( is_array( $order_data['product_data'] ) && ! empty( $order_data['product_data'] ) ) {
+
+                        foreach ( $order_data['product_data'] as $product_id => $product_data ) {
+
+                            $product_data_store = $data_warehouse->get_product_data_cache( $product_id );
+                            $product_is_in_target_brand = false;
+                            $brand_terms = $this->get_product_brand_terms_for_metrics( $product_data_store, $product_id );
+
+                            if ( ! empty( $brand_terms ) ) {
+
+                                foreach ( $brand_terms as $product_brand_taxonomy ) {
+
+                                    if ( ! is_a( $product_brand_taxonomy, 'WP_Term' ) ) {
+                                        continue;
+                                    }
+
+                                    if ( in_array( $product_brand_taxonomy->term_id, $product_brand_filter ) ) {
+
+                                        $order_has_target_product_brand = true;
+                                        $product_is_in_target_brand     = true;
+
+                                        $order_data['total_skus_sold']++;
+                                        $order_data['total_product_revenue_at_rrp'] += $product_data['product_revenue_at_rrp'];
+                                        $order_data['total_product_revenue']        += $product_data['product_revenue'];
+                                        $order_data['total_product_revenue_ex_tax'] += $product_data['product_revenue_excluding_tax'];
+                                        $order_data['total_product_discounts']      += $product_data['product_discount_amount'];
+                                        $order_data['total_product_profit']         += $product_data['total_profit'];
+                                        $order_data['total_product_cost']           += $product_data['total_cost_of_goods'];
+
+                                    }
+
+                                }
+
+                            }
+
+                            if ( ! $product_is_in_target_brand ) {
+                                unset( $order_data['product_data'][ $product_id ] );
+                            }
+
+                        }
+
+                    }
+
+                    if ( ! $order_has_target_product_brand ) {
+                        continue;
+                    }
+
+                    $order_data['total_product_discount_percent'] = wpdai_calculate_percentage( $order_data['total_product_discounts'], $order_data['total_product_revenue_at_rrp'] );
+
+                }
+
+                // Filter by product supplier if required (Pro only)
+                if ( $supplier_reporting_enabled && $product_supplier_filter ) {
+
+                    $order_has_target_product_supplier = false;
+
+                    $order_data['total_product_revenue_at_rrp']     = 0;
+                    $order_data['total_product_revenue']            = 0;
+                    $order_data['total_product_revenue_ex_tax']     = 0;
+                    $order_data['total_product_discounts']          = 0;
+                    $order_data['total_product_discount_percent']   = 0;
+                    $order_data['total_product_profit']             = 0;
+                    $order_data['total_skus_sold']                  = 0;
+                    $order_data['total_product_cost']               = 0;
+
+                    if ( is_array( $order_data['product_data'] ) && ! empty( $order_data['product_data'] ) ) {
+
+                        foreach ( $order_data['product_data'] as $product_id => $product_data ) {
+
+                            $product_data_store = $data_warehouse->get_product_data_cache( $product_id );
+                            $product_is_in_target_supplier = false;
+                            $supplier_terms = $this->get_product_supplier_terms_for_metrics( $product_data_store, $product_id );
+
+                            if ( ! empty( $supplier_terms ) ) {
+
+                                foreach ( $supplier_terms as $product_supplier_term ) {
+
+                                    if ( ! is_a( $product_supplier_term, 'WP_Term' ) ) {
+                                        continue;
+                                    }
+
+                                    if ( in_array( (int) $product_supplier_term->term_id, $product_supplier_filter, true ) ) {
+
+                                        $order_has_target_product_supplier = true;
+                                        $product_is_in_target_supplier     = true;
+
+                                        $order_data['total_skus_sold']++;
+                                        $order_data['total_product_revenue_at_rrp'] += $product_data['product_revenue_at_rrp'];
+                                        $order_data['total_product_revenue']        += $product_data['product_revenue'];
+                                        $order_data['total_product_revenue_ex_tax'] += $product_data['product_revenue_excluding_tax'];
+                                        $order_data['total_product_discounts']      += $product_data['product_discount_amount'];
+                                        $order_data['total_product_profit']         += $product_data['total_profit'];
+                                        $order_data['total_product_cost']           += $product_data['total_cost_of_goods'];
+                                        break;
+
+                                    }
+
+                                }
+
+                            }
+
+                            if ( ! $product_is_in_target_supplier ) {
+                                unset( $order_data['product_data'][ $product_id ] );
+                            }
+
+                        }
+
+                    }
+
+                    if ( ! $order_has_target_product_supplier ) {
+                        continue;
+                    }
+
                     $order_data['total_product_discount_percent'] = wpdai_calculate_percentage( $order_data['total_product_discounts'], $order_data['total_product_revenue_at_rrp'] );
 
                 }
@@ -1352,6 +1546,14 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
 
                             );
 
+                            if ( $brand_reporting_enabled ) {
+                                $product_item_data[ $product_id ]['product_brand'] = ! empty( $product_data_store['product_brand'] ) ? $product_data_store['product_brand'] : array();
+                            }
+
+                            if ( $supplier_reporting_enabled ) {
+                                $product_item_data[ $product_id ]['product_supplier'] = ! empty( $product_data_store['product_supplier'] ) ? $product_data_store['product_supplier'] : array();
+                            }
+
                         }
 
                         // Any vars used for calculations (refund fields populated from refunds_internal below)
@@ -1460,6 +1662,124 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
 
                         }
 
+                        if ( $brand_reporting_enabled ) {
+
+                            $brand_terms = $this->get_product_brand_terms_for_metrics( $product_data_store, $product_id );
+                            if ( empty( $brand_terms ) ) {
+                                $brand_terms = array( $this->get_unassigned_brand_term( $unassigned_brand_label ) );
+                            }
+
+                            $customer_key = ! empty( $order_data['billing_email'] )
+                                ? $order_data['billing_email']
+                                : ( ! empty( $order_data['customer_id'] ) ? (string) $order_data['customer_id'] : (string) $order_id );
+
+                            foreach ( $brand_terms as $brand_term ) {
+
+                                if ( ! is_a( $brand_term, 'WP_Term' ) ) {
+                                    continue;
+                                }
+
+                                $brand_name = $brand_term->name;
+                                if ( ! isset( $product_brand_data[ $brand_name ] ) ) {
+                                    $product_brand_data[ $brand_name ] = $this->get_default_brand_bucket( $brand_name, $brand_term );
+                                }
+
+                                $this->ensure_brand_time_series( $data_by_date, $brand_name, $data_warehouse );
+
+                                $product_brand_data[ $brand_name ]['total_revenue']          += $product_data['product_revenue'];
+                                $product_brand_data[ $brand_name ]['total_quantity_sold']    += $product_data['qty_sold'];
+                                $product_brand_data[ $brand_name ]['total_cogs']             += $product_data['total_cost_of_goods'];
+                                $product_brand_data[ $brand_name ]['total_profit']           += $product_data['total_profit'];
+                                $product_brand_data[ $brand_name ]['total_discount_amount']  += $product_data['product_discount_amount'];
+                                $product_brand_data[ $brand_name ]['_product_ids'][ $product_id ] = true;
+                                $product_brand_data[ $brand_name ]['_order_ids'][ $order_id ]     = true;
+                                $product_brand_data[ $brand_name ]['_customer_ids'][ $customer_key ] = true;
+                                $product_brand_data[ $brand_name ]['_discount_percent_sum']  += $product_data['product_discount_percentage'];
+                                $product_brand_data[ $brand_name ]['_discount_percent_count']++;
+
+                                if ( isset( $data_by_date['product_metrics']['brand_revenue_by_date'][ $brand_name ][ $date_range_key ] ) ) {
+                                    $data_by_date['product_metrics']['brand_revenue_by_date'][ $brand_name ][ $date_range_key ] += $product_data['product_revenue'];
+                                }
+                                if ( isset( $data_by_date['product_metrics']['brand_quantity_sold_by_date'][ $brand_name ][ $date_range_key ] ) ) {
+                                    $data_by_date['product_metrics']['brand_quantity_sold_by_date'][ $brand_name ][ $date_range_key ] += $product_data['qty_sold'];
+                                }
+                                if ( isset( $data_by_date['product_metrics']['brand_profit_by_date'][ $brand_name ][ $date_range_key ] ) ) {
+                                    $data_by_date['product_metrics']['brand_profit_by_date'][ $brand_name ][ $date_range_key ] += $product_data['total_profit'];
+                                }
+                                if ( isset( $data_by_date['product_metrics']['brand_cogs_by_date'][ $brand_name ][ $date_range_key ] ) ) {
+                                    $data_by_date['product_metrics']['brand_cogs_by_date'][ $brand_name ][ $date_range_key ] += $product_data['total_cost_of_goods'];
+                                }
+
+                                if ( ! isset( $brand_orders_by_date[ $brand_name ][ $date_range_key ][ $order_id ] ) ) {
+                                    $brand_orders_by_date[ $brand_name ][ $date_range_key ][ $order_id ] = true;
+                                    if ( isset( $data_by_date['product_metrics']['brand_order_count_by_date'][ $brand_name ][ $date_range_key ] ) ) {
+                                        $data_by_date['product_metrics']['brand_order_count_by_date'][ $brand_name ][ $date_range_key ]++;
+                                    }
+                                }
+
+                            }
+
+                        }
+
+                        if ( $supplier_reporting_enabled ) {
+
+                            $supplier_terms = $this->get_product_supplier_terms_for_metrics( $product_data_store, $product_id );
+                            if ( empty( $supplier_terms ) ) {
+                                $supplier_terms = array( $this->get_unassigned_supplier_term( $unassigned_supplier_label ) );
+                            }
+
+                            $supplier_customer_key = ! empty( $order_data['billing_email'] )
+                                ? $order_data['billing_email']
+                                : ( ! empty( $order_data['customer_id'] ) ? (string) $order_data['customer_id'] : (string) $order_id );
+
+                            foreach ( $supplier_terms as $supplier_term ) {
+
+                                if ( ! is_a( $supplier_term, 'WP_Term' ) ) {
+                                    continue;
+                                }
+
+                                $supplier_name = $supplier_term->name;
+                                if ( ! isset( $product_supplier_data[ $supplier_name ] ) ) {
+                                    $product_supplier_data[ $supplier_name ] = $this->get_default_supplier_bucket( $supplier_name, $supplier_term );
+                                }
+
+                                $this->ensure_supplier_time_series( $data_by_date, $supplier_name, $data_warehouse );
+
+                                $product_supplier_data[ $supplier_name ]['total_revenue']          += $product_data['product_revenue'];
+                                $product_supplier_data[ $supplier_name ]['total_quantity_sold']    += $product_data['qty_sold'];
+                                $product_supplier_data[ $supplier_name ]['total_cogs']             += $product_data['total_cost_of_goods'];
+                                $product_supplier_data[ $supplier_name ]['total_profit']           += $product_data['total_profit'];
+                                $product_supplier_data[ $supplier_name ]['total_discount_amount']  += $product_data['product_discount_amount'];
+                                $product_supplier_data[ $supplier_name ]['_product_ids'][ $product_id ] = true;
+                                $product_supplier_data[ $supplier_name ]['_order_ids'][ $order_id ]     = true;
+                                $product_supplier_data[ $supplier_name ]['_customer_ids'][ $supplier_customer_key ] = true;
+                                $product_supplier_data[ $supplier_name ]['_discount_percent_sum']  += $product_data['product_discount_percentage'];
+                                $product_supplier_data[ $supplier_name ]['_discount_percent_count']++;
+
+                                if ( isset( $data_by_date['product_metrics']['supplier_revenue_by_date'][ $supplier_name ][ $date_range_key ] ) ) {
+                                    $data_by_date['product_metrics']['supplier_revenue_by_date'][ $supplier_name ][ $date_range_key ] += $product_data['product_revenue'];
+                                }
+                                if ( isset( $data_by_date['product_metrics']['supplier_quantity_sold_by_date'][ $supplier_name ][ $date_range_key ] ) ) {
+                                    $data_by_date['product_metrics']['supplier_quantity_sold_by_date'][ $supplier_name ][ $date_range_key ] += $product_data['qty_sold'];
+                                }
+                                if ( isset( $data_by_date['product_metrics']['supplier_profit_by_date'][ $supplier_name ][ $date_range_key ] ) ) {
+                                    $data_by_date['product_metrics']['supplier_profit_by_date'][ $supplier_name ][ $date_range_key ] += $product_data['total_profit'];
+                                }
+                                if ( isset( $data_by_date['product_metrics']['supplier_cogs_by_date'][ $supplier_name ][ $date_range_key ] ) ) {
+                                    $data_by_date['product_metrics']['supplier_cogs_by_date'][ $supplier_name ][ $date_range_key ] += $product_data['total_cost_of_goods'];
+                                }
+
+                                if ( ! isset( $supplier_orders_by_date[ $supplier_name ][ $date_range_key ][ $order_id ] ) ) {
+                                    $supplier_orders_by_date[ $supplier_name ][ $date_range_key ][ $order_id ] = true;
+                                    if ( isset( $data_by_date['product_metrics']['supplier_order_count_by_date'][ $supplier_name ][ $date_range_key ] ) ) {
+                                        $data_by_date['product_metrics']['supplier_order_count_by_date'][ $supplier_name ][ $date_range_key ]++;
+                                    }
+                                }
+
+                            }
+
+                        }
+
                     } // End Product Line Item Loop
 
                 } // End Product Data Availability Check
@@ -1552,6 +1872,11 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
 
         foreach( $product_item_data as $product_id => $product_data ) {
 
+            // Order collection already stopped for memory. Skip enrichment if usage is still high so the partial result can be encoded.
+            if ( wpdai_is_memory_usage_greater_than() ) {
+                break;
+            }
+
             // Populate refund fields from refunds_internal (matched by product_id / active_product_id)
             $total_quantity_refunded = isset( $product_data['total_quantity_refunded'] ) ? (float) $product_data['total_quantity_refunded'] : 0;
             $total_times_refunded    = isset( $product_data['total_times_refunded'] ) ? (int) $product_data['total_times_refunded'] : 0;
@@ -1566,6 +1891,44 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
             $product_item_data[ $product_id ]['total_times_refunded']    = $total_times_refunded;
             $product_item_data[ $product_id ]['total_refund_amount']     = $total_refund_amount;
             $product_item_data[ $product_id ]['refund_rate']             = wpdai_divide( $total_times_refunded, $product_data['total_times_sold'] ) * 100;
+
+            if ( $brand_reporting_enabled && ( $total_refund_amount > 0 || $total_quantity_refunded > 0 ) ) {
+                $refund_brand_store = $data_warehouse->get_product_data_cache( $product_id );
+                $refund_brand_terms = $this->get_product_brand_terms_for_metrics( $refund_brand_store, $product_id );
+                if ( empty( $refund_brand_terms ) ) {
+                    $refund_brand_terms = array( $this->get_unassigned_brand_term( $unassigned_brand_label ) );
+                }
+                foreach ( $refund_brand_terms as $refund_brand_term ) {
+                    if ( ! is_a( $refund_brand_term, 'WP_Term' ) ) {
+                        continue;
+                    }
+                    $refund_brand_name = $refund_brand_term->name;
+                    if ( ! isset( $product_brand_data[ $refund_brand_name ] ) ) {
+                        $product_brand_data[ $refund_brand_name ] = $this->get_default_brand_bucket( $refund_brand_name, $refund_brand_term );
+                    }
+                    $product_brand_data[ $refund_brand_name ]['total_refund_amount']      += $total_refund_amount;
+                    $product_brand_data[ $refund_brand_name ]['total_quantity_refunded']  += $total_quantity_refunded;
+                }
+            }
+
+            if ( $supplier_reporting_enabled && ( $total_refund_amount > 0 || $total_quantity_refunded > 0 ) ) {
+                $refund_supplier_store = $data_warehouse->get_product_data_cache( $product_id );
+                $refund_supplier_terms = $this->get_product_supplier_terms_for_metrics( $refund_supplier_store, $product_id );
+                if ( empty( $refund_supplier_terms ) ) {
+                    $refund_supplier_terms = array( $this->get_unassigned_supplier_term( $unassigned_supplier_label ) );
+                }
+                foreach ( $refund_supplier_terms as $refund_supplier_term ) {
+                    if ( ! is_a( $refund_supplier_term, 'WP_Term' ) ) {
+                        continue;
+                    }
+                    $refund_supplier_name = $refund_supplier_term->name;
+                    if ( ! isset( $product_supplier_data[ $refund_supplier_name ] ) ) {
+                        $product_supplier_data[ $refund_supplier_name ] = $this->get_default_supplier_bucket( $refund_supplier_name, $refund_supplier_term );
+                    }
+                    $product_supplier_data[ $refund_supplier_name ]['total_refund_amount']      += $total_refund_amount;
+                    $product_supplier_data[ $refund_supplier_name ]['total_quantity_refunded']  += $total_quantity_refunded;
+                }
+            }
 
             // Calculations
             $product_item_data[$product_id]['purchase_rate']                    = wpdai_divide( $product_data['total_times_sold'], $total_order_count ) * 100;
@@ -1589,6 +1952,64 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
         }
         $totals['product_metrics']['total_product_refund_amount'] = $total_product_refund_amount;
         $totals['product_metrics']['total_line_items_refunded']  = $total_line_items_refunded;
+
+        if ( $brand_reporting_enabled && isset( $data_table['refund_metrics']['refunds'] ) && is_array( $data_table['refund_metrics']['refunds'] ) ) {
+            foreach ( $data_table['refund_metrics']['refunds'] as $refund_row ) {
+                $refund_date_key = wpdai_utc_timestamp_to_date_key( $refund_row['refund_date'] ?? 0, $date_format );
+                $refund_items    = isset( $refund_row['refund_items'] ) && is_array( $refund_row['refund_items'] ) ? $refund_row['refund_items'] : array();
+                foreach ( $refund_items as $refund_item ) {
+                    $refund_product_id = isset( $refund_item['product_id'] ) ? (int) $refund_item['product_id'] : 0;
+                    if ( $refund_product_id <= 0 ) {
+                        continue;
+                    }
+                    $refund_item_amount = isset( $refund_item['refund_amount'] ) ? (float) $refund_item['refund_amount'] : 0;
+                    $refund_store       = $data_warehouse->get_product_data_cache( $refund_product_id );
+                    $refund_terms       = $this->get_product_brand_terms_for_metrics( $refund_store, $refund_product_id );
+                    if ( empty( $refund_terms ) ) {
+                        $refund_terms = array( $this->get_unassigned_brand_term( $unassigned_brand_label ) );
+                    }
+                    foreach ( $refund_terms as $refund_term ) {
+                        if ( ! is_a( $refund_term, 'WP_Term' ) ) {
+                            continue;
+                        }
+                        $refund_brand_name = $refund_term->name;
+                        $this->ensure_brand_time_series( $data_by_date, $refund_brand_name, $data_warehouse );
+                        if ( isset( $data_by_date['product_metrics']['brand_refund_amount_by_date'][ $refund_brand_name ][ $refund_date_key ] ) ) {
+                            $data_by_date['product_metrics']['brand_refund_amount_by_date'][ $refund_brand_name ][ $refund_date_key ] += $refund_item_amount;
+                        }
+                    }
+                }
+            }
+        }
+
+        if ( $supplier_reporting_enabled && isset( $data_table['refund_metrics']['refunds'] ) && is_array( $data_table['refund_metrics']['refunds'] ) ) {
+            foreach ( $data_table['refund_metrics']['refunds'] as $refund_row ) {
+                $refund_date_key = wpdai_utc_timestamp_to_date_key( $refund_row['refund_date'] ?? 0, $date_format );
+                $refund_items    = isset( $refund_row['refund_items'] ) && is_array( $refund_row['refund_items'] ) ? $refund_row['refund_items'] : array();
+                foreach ( $refund_items as $refund_item ) {
+                    $refund_product_id = isset( $refund_item['product_id'] ) ? (int) $refund_item['product_id'] : 0;
+                    if ( $refund_product_id <= 0 ) {
+                        continue;
+                    }
+                    $refund_item_amount = isset( $refund_item['refund_amount'] ) ? (float) $refund_item['refund_amount'] : 0;
+                    $refund_store       = $data_warehouse->get_product_data_cache( $refund_product_id );
+                    $refund_terms       = $this->get_product_supplier_terms_for_metrics( $refund_store, $refund_product_id );
+                    if ( empty( $refund_terms ) ) {
+                        $refund_terms = array( $this->get_unassigned_supplier_term( $unassigned_supplier_label ) );
+                    }
+                    foreach ( $refund_terms as $refund_term ) {
+                        if ( ! is_a( $refund_term, 'WP_Term' ) ) {
+                            continue;
+                        }
+                        $refund_supplier_name = $refund_term->name;
+                        $this->ensure_supplier_time_series( $data_by_date, $refund_supplier_name, $data_warehouse );
+                        if ( isset( $data_by_date['product_metrics']['supplier_refund_amount_by_date'][ $refund_supplier_name ][ $refund_date_key ] ) ) {
+                            $data_by_date['product_metrics']['supplier_refund_amount_by_date'][ $refund_supplier_name ][ $refund_date_key ] += $refund_item_amount;
+                        }
+                    }
+                }
+            }
+        }
 
         // Handle some refund adjustments
         // Pick up the orders that we've marked as refunded in this timeline, so we can make the correct GP adjustments
@@ -2032,6 +2453,148 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
         $categorized_data['product_metrics']['product_cat_data']               = $product_cat_data;
         $categorized_data['product_metrics']['product_tag_data']               = $product_tag_data;
 
+        if ( $brand_reporting_enabled ) {
+            $brand_revenue_total = 0;
+            $brand_units_total   = 0;
+            $brand_profit_total  = 0;
+            $brand_orders_total  = 0;
+            $top_brand_revenue   = 0;
+
+            foreach ( $product_brand_data as $brand_name => $brand_row ) {
+                $brand_revenue_total += $brand_row['total_revenue'];
+                $brand_units_total   += $brand_row['total_quantity_sold'];
+                $brand_profit_total  += $brand_row['total_profit'];
+                $brand_orders_total  += count( $brand_row['_order_ids'] );
+                if ( $brand_name !== $unassigned_brand_label && $brand_row['total_revenue'] > $top_brand_revenue ) {
+                    $top_brand_revenue = $brand_row['total_revenue'];
+                }
+            }
+
+            foreach ( $product_brand_data as $brand_name => &$brand_row ) {
+                $order_count = count( $brand_row['_order_ids'] );
+                $brand_row['total_order_count']       = $order_count;
+                $brand_row['unique_products_sold']    = count( $brand_row['_product_ids'] );
+                $brand_row['unique_customers']        = count( $brand_row['_customer_ids'] );
+                $brand_row['average_selling_price']   = wpdai_divide( $brand_row['total_revenue'], $brand_row['total_quantity_sold'], 2 );
+                $brand_row['margin_percentage']       = wpdai_calculate_margin( $brand_row['total_profit'], $brand_row['total_revenue'] );
+                $brand_row['profit_per_unit']         = wpdai_divide( $brand_row['total_profit'], $brand_row['total_quantity_sold'], 2 );
+                $brand_row['profit_per_order']        = wpdai_divide( $brand_row['total_profit'], $order_count, 2 );
+                $brand_row['revenue_per_order']       = wpdai_divide( $brand_row['total_revenue'], $order_count, 2 );
+                $brand_row['average_discount_percent'] = wpdai_divide( $brand_row['_discount_percent_sum'], $brand_row['_discount_percent_count'], 2 );
+                $brand_row['percent_of_revenue']      = wpdai_calculate_percentage( $brand_row['total_revenue'], $brand_revenue_total, 2 );
+                $brand_row['percent_of_units']        = wpdai_calculate_percentage( $brand_row['total_quantity_sold'], $brand_units_total, 2 );
+                $brand_row['percent_of_profit']       = wpdai_calculate_percentage( $brand_row['total_profit'], $brand_profit_total, 2 );
+                $brand_row['percent_of_orders']       = wpdai_calculate_percentage( $order_count, $brand_orders_total, 2 );
+                $brand_row['refund_rate_percentage']  = wpdai_calculate_percentage( $brand_row['total_refund_amount'], $brand_row['total_revenue'], 2 );
+                $brand_row['quantity_return_rate']    = wpdai_calculate_percentage( $brand_row['total_quantity_refunded'], $brand_row['total_quantity_sold'], 2 );
+
+                unset( $brand_row['_product_ids'], $brand_row['_order_ids'], $brand_row['_customer_ids'], $brand_row['_discount_percent_sum'], $brand_row['_discount_percent_count'] );
+
+                $table_key = $brand_row['brand_id'] > 0 ? $brand_row['brand_id'] : 'unassigned';
+                $brand_item_data[ $table_key ] = $brand_row;
+            }
+            unset( $brand_row );
+
+            $assigned_brand_count = 0;
+            foreach ( $product_brand_data as $brand_name => $brand_row ) {
+                if ( $brand_name !== $unassigned_brand_label ) {
+                    $assigned_brand_count++;
+                }
+            }
+
+            $categorized_data['product_metrics']['product_brand_data'] = $product_brand_data;
+            $totals['product_metrics']['total_brands_sold']            = $assigned_brand_count;
+            $totals['product_metrics']['top_brand_revenue_percent']    = wpdai_calculate_percentage( $top_brand_revenue, $brand_revenue_total, 2 );
+            $totals['product_metrics']['unassigned_brand_revenue']     = isset( $product_brand_data[ $unassigned_brand_label ]['total_revenue'] )
+                ? $product_brand_data[ $unassigned_brand_label ]['total_revenue']
+                : 0;
+
+            if ( isset( $data_by_date['product_metrics']['brand_revenue_by_date'] ) && is_array( $data_by_date['product_metrics']['brand_revenue_by_date'] ) ) {
+                foreach ( $data_by_date['product_metrics']['brand_revenue_by_date'] as $brand_name => $dates ) {
+                    if ( 'no_data_available' === $brand_name || ! is_array( $dates ) ) {
+                        continue;
+                    }
+                    foreach ( $dates as $date_key => $revenue_value ) {
+                        $profit_value = isset( $data_by_date['product_metrics']['brand_profit_by_date'][ $brand_name ][ $date_key ] )
+                            ? $data_by_date['product_metrics']['brand_profit_by_date'][ $brand_name ][ $date_key ]
+                            : 0;
+                        $data_by_date['product_metrics']['brand_margin_by_date'][ $brand_name ][ $date_key ] = wpdai_calculate_margin( $profit_value, $revenue_value );
+                    }
+                }
+            }
+        }
+
+        if ( $supplier_reporting_enabled ) {
+            $supplier_revenue_total = 0;
+            $supplier_units_total   = 0;
+            $supplier_profit_total  = 0;
+            $supplier_orders_total  = 0;
+            $top_supplier_revenue   = 0;
+
+            foreach ( $product_supplier_data as $supplier_name => $supplier_row ) {
+                $supplier_revenue_total += $supplier_row['total_revenue'];
+                $supplier_units_total   += $supplier_row['total_quantity_sold'];
+                $supplier_profit_total  += $supplier_row['total_profit'];
+                $supplier_orders_total  += count( $supplier_row['_order_ids'] );
+                if ( $supplier_name !== $unassigned_supplier_label && $supplier_row['total_revenue'] > $top_supplier_revenue ) {
+                    $top_supplier_revenue = $supplier_row['total_revenue'];
+                }
+            }
+
+            foreach ( $product_supplier_data as $supplier_name => &$supplier_row ) {
+                $order_count = count( $supplier_row['_order_ids'] );
+                $supplier_row['total_order_count']        = $order_count;
+                $supplier_row['unique_products_sold']     = count( $supplier_row['_product_ids'] );
+                $supplier_row['unique_customers']         = count( $supplier_row['_customer_ids'] );
+                $supplier_row['average_selling_price']    = wpdai_divide( $supplier_row['total_revenue'], $supplier_row['total_quantity_sold'], 2 );
+                $supplier_row['margin_percentage']        = wpdai_calculate_margin( $supplier_row['total_profit'], $supplier_row['total_revenue'] );
+                $supplier_row['profit_per_unit']          = wpdai_divide( $supplier_row['total_profit'], $supplier_row['total_quantity_sold'], 2 );
+                $supplier_row['profit_per_order']         = wpdai_divide( $supplier_row['total_profit'], $order_count, 2 );
+                $supplier_row['revenue_per_order']        = wpdai_divide( $supplier_row['total_revenue'], $order_count, 2 );
+                $supplier_row['average_discount_percent'] = wpdai_divide( $supplier_row['_discount_percent_sum'], $supplier_row['_discount_percent_count'], 2 );
+                $supplier_row['percent_of_revenue']       = wpdai_calculate_percentage( $supplier_row['total_revenue'], $supplier_revenue_total, 2 );
+                $supplier_row['percent_of_units']         = wpdai_calculate_percentage( $supplier_row['total_quantity_sold'], $supplier_units_total, 2 );
+                $supplier_row['percent_of_profit']        = wpdai_calculate_percentage( $supplier_row['total_profit'], $supplier_profit_total, 2 );
+                $supplier_row['percent_of_orders']        = wpdai_calculate_percentage( $order_count, $supplier_orders_total, 2 );
+                $supplier_row['refund_rate_percentage']   = wpdai_calculate_percentage( $supplier_row['total_refund_amount'], $supplier_row['total_revenue'], 2 );
+                $supplier_row['quantity_return_rate']     = wpdai_calculate_percentage( $supplier_row['total_quantity_refunded'], $supplier_row['total_quantity_sold'], 2 );
+
+                unset( $supplier_row['_product_ids'], $supplier_row['_order_ids'], $supplier_row['_customer_ids'], $supplier_row['_discount_percent_sum'], $supplier_row['_discount_percent_count'] );
+
+                $table_key = $supplier_row['supplier_id'] > 0 ? $supplier_row['supplier_id'] : 'unassigned';
+                $supplier_item_data[ $table_key ] = $supplier_row;
+            }
+            unset( $supplier_row );
+
+            $assigned_supplier_count = 0;
+            foreach ( $product_supplier_data as $supplier_name => $supplier_row ) {
+                if ( $supplier_name !== $unassigned_supplier_label ) {
+                    $assigned_supplier_count++;
+                }
+            }
+
+            $categorized_data['product_metrics']['product_supplier_data'] = $product_supplier_data;
+            $totals['product_metrics']['total_suppliers_sold']            = $assigned_supplier_count;
+            $totals['product_metrics']['top_supplier_revenue_percent']    = wpdai_calculate_percentage( $top_supplier_revenue, $supplier_revenue_total, 2 );
+            $totals['product_metrics']['unassigned_supplier_revenue']     = isset( $product_supplier_data[ $unassigned_supplier_label ]['total_revenue'] )
+                ? $product_supplier_data[ $unassigned_supplier_label ]['total_revenue']
+                : 0;
+
+            if ( isset( $data_by_date['product_metrics']['supplier_revenue_by_date'] ) && is_array( $data_by_date['product_metrics']['supplier_revenue_by_date'] ) ) {
+                foreach ( $data_by_date['product_metrics']['supplier_revenue_by_date'] as $supplier_name => $dates ) {
+                    if ( 'no_data_available' === $supplier_name || ! is_array( $dates ) ) {
+                        continue;
+                    }
+                    foreach ( $dates as $date_key => $revenue_value ) {
+                        $profit_value = isset( $data_by_date['product_metrics']['supplier_profit_by_date'][ $supplier_name ][ $date_key ] )
+                            ? $data_by_date['product_metrics']['supplier_profit_by_date'][ $supplier_name ][ $date_key ]
+                            : 0;
+                        $data_by_date['product_metrics']['supplier_margin_by_date'][ $supplier_name ][ $date_key ] = wpdai_calculate_margin( $profit_value, $revenue_value );
+                    }
+                }
+            }
+        }
+
         // After the order loop, calculate averages and percentages
         if ($totals['order_metrics']['total_tax_collected'] > 0) {
             foreach ($data_table['tax_metrics'] as $rate_id => &$summary) {
@@ -2080,7 +2643,7 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
                 'totals'            => $totals['product_metrics'],
                 'categorized_data'  => $categorized_data['product_metrics'],
                 'data_by_date'      => $data_by_date['product_metrics'],
-                'data_table'        => array( 'products' => $data_table['product_metrics'] ),
+                'data_table'        => $this->build_products_data_table( $data_table['product_metrics'], $brand_reporting_enabled, $brand_item_data, $supplier_reporting_enabled, $supplier_item_data ),
                 'total_db_records'  => $total_db_records,
             ),
             'coupons'   => array(
@@ -2107,6 +2670,272 @@ class WPDAI_Sales_Data_Source extends WPDAI_Custom_Data_Source_Base {
         );
 
         return apply_filters( 'wpd_alpha_insights_data_source_sales', $sales_data, $data_warehouse );
+    }
+
+    /**
+     * Default brand metric bucket.
+     *
+     * @param string       $brand_name Brand display name.
+     * @param WP_Term|null $term       Brand term when available.
+     * @return array
+     */
+    private function get_default_brand_bucket( $brand_name, $term = null ) {
+
+        return array(
+            'brand_name'                => $brand_name,
+            'brand_id'                  => is_a( $term, 'WP_Term' ) ? (int) $term->term_id : 0,
+            'brand_slug'                => is_a( $term, 'WP_Term' ) ? $term->slug : '',
+            'total_revenue'             => 0,
+            'total_quantity_sold'       => 0,
+            'total_order_count'         => 0,
+            'unique_products_sold'      => 0,
+            'unique_customers'          => 0,
+            'percent_of_revenue'        => 0,
+            'percent_of_units'          => 0,
+            'percent_of_profit'         => 0,
+            'percent_of_orders'         => 0,
+            'total_cogs'                => 0,
+            'total_profit'              => 0,
+            'margin_percentage'         => 0,
+            'profit_per_unit'           => 0,
+            'profit_per_order'          => 0,
+            'revenue_per_order'         => 0,
+            'average_selling_price'     => 0,
+            'total_discount_amount'     => 0,
+            'average_discount_percent'  => 0,
+            'total_refund_amount'       => 0,
+            'total_quantity_refunded'   => 0,
+            'refund_rate_percentage'    => 0,
+            'quantity_return_rate'      => 0,
+            '_product_ids'              => array(),
+            '_order_ids'                => array(),
+            '_customer_ids'             => array(),
+            '_discount_percent_sum'     => 0,
+            '_discount_percent_count'   => 0,
+        );
+
+    }
+
+    /**
+     * Placeholder term for products with no product_brand assignment.
+     *
+     * @param string $label Unassigned label.
+     * @return WP_Term
+     */
+    private function get_unassigned_brand_term( $label ) {
+
+        $term_data                  = new stdClass();
+        $term_data->term_id         = 0;
+        $term_data->name            = $label;
+        $term_data->slug            = 'unassigned';
+        $term_data->term_group      = 0;
+        $term_data->term_taxonomy_id = 0;
+        $term_data->taxonomy        = 'product_brand';
+        $term_data->description     = '';
+        $term_data->parent          = 0;
+        $term_data->count           = 0;
+
+        return new WP_Term( $term_data );
+
+    }
+
+    /**
+     * Brand terms from cache, with a live fallback.
+     *
+     * @param array $product_data_store Product cache row.
+     * @param int   $product_id         Product or variation ID.
+     * @return array<int,WP_Term>
+     */
+    private function get_product_brand_terms_for_metrics( $product_data_store, $product_id ) {
+
+        if ( is_array( $product_data_store ) && ! empty( $product_data_store['product_brand'] ) && is_array( $product_data_store['product_brand'] ) ) {
+            return $product_data_store['product_brand'];
+        }
+
+        if ( function_exists( 'wpdai_get_product_brand_terms' ) ) {
+            return wpdai_get_product_brand_terms( $product_id );
+        }
+
+        return array();
+
+    }
+
+    /**
+     * Ensure multi-dimensional brand time series containers exist for a brand.
+     *
+     * @param array                $data_by_date    Date payload by reference.
+     * @param string               $brand_name      Brand display name.
+     * @param WPDAI_Data_Warehouse $data_warehouse  Warehouse instance.
+     * @return void
+     */
+    private function ensure_brand_time_series( &$data_by_date, $brand_name, $data_warehouse ) {
+
+        $series_keys = array(
+            'brand_revenue_by_date',
+            'brand_quantity_sold_by_date',
+            'brand_profit_by_date',
+            'brand_order_count_by_date',
+            'brand_cogs_by_date',
+            'brand_margin_by_date',
+            'brand_refund_amount_by_date',
+        );
+
+        foreach ( $series_keys as $series_key ) {
+            if ( isset( $data_by_date['product_metrics'][ $series_key ]['no_data_available'] ) ) {
+                $data_by_date['product_metrics'][ $series_key ] = array();
+            }
+            if ( ! isset( $data_by_date['product_metrics'][ $series_key ][ $brand_name ] ) ) {
+                $data_by_date['product_metrics'][ $series_key ][ $brand_name ] = $data_warehouse->get_data_by_date_range_container();
+            }
+        }
+
+    }
+
+    /**
+     * Product data tables, including optional brand and supplier indexes.
+     *
+     * @param array $product_rows               Product rows.
+     * @param bool  $brand_reporting_enabled    Whether brand rows are included.
+     * @param array $brand_item_data            Brand rows.
+     * @param bool  $supplier_reporting_enabled Whether supplier rows are included.
+     * @param array $supplier_item_data         Supplier rows.
+     * @return array
+     */
+    private function build_products_data_table( $product_rows, $brand_reporting_enabled, $brand_item_data, $supplier_reporting_enabled, $supplier_item_data ) {
+
+        $products_data_table = array(
+            'products' => $product_rows,
+        );
+
+        if ( $brand_reporting_enabled ) {
+            $products_data_table['brands'] = $brand_item_data;
+        }
+
+        if ( $supplier_reporting_enabled ) {
+            $products_data_table['suppliers'] = $supplier_item_data;
+        }
+
+        return $products_data_table;
+
+    }
+
+    /**
+     * Default supplier metric bucket.
+     *
+     * @param string       $supplier_name Supplier display name.
+     * @param WP_Term|null $term          Supplier term when available.
+     * @return array
+     */
+    private function get_default_supplier_bucket( $supplier_name, $term = null ) {
+
+        return array(
+            'supplier_name'             => $supplier_name,
+            'supplier_id'               => is_a( $term, 'WP_Term' ) ? (int) $term->term_id : 0,
+            'supplier_slug'             => is_a( $term, 'WP_Term' ) ? $term->slug : '',
+            'total_revenue'             => 0,
+            'total_quantity_sold'       => 0,
+            'total_order_count'         => 0,
+            'unique_products_sold'      => 0,
+            'unique_customers'          => 0,
+            'percent_of_revenue'        => 0,
+            'percent_of_units'          => 0,
+            'percent_of_profit'         => 0,
+            'percent_of_orders'         => 0,
+            'total_cogs'                => 0,
+            'total_profit'              => 0,
+            'margin_percentage'         => 0,
+            'profit_per_unit'           => 0,
+            'profit_per_order'          => 0,
+            'revenue_per_order'         => 0,
+            'average_selling_price'     => 0,
+            'total_discount_amount'     => 0,
+            'average_discount_percent'  => 0,
+            'total_refund_amount'       => 0,
+            'total_quantity_refunded'   => 0,
+            'refund_rate_percentage'    => 0,
+            'quantity_return_rate'      => 0,
+            '_product_ids'              => array(),
+            '_order_ids'                => array(),
+            '_customer_ids'             => array(),
+            '_discount_percent_sum'     => 0,
+            '_discount_percent_count'   => 0,
+        );
+
+    }
+
+    /**
+     * Placeholder term for products with no supplier assignment.
+     *
+     * @param string $label Unassigned label.
+     * @return WP_Term
+     */
+    private function get_unassigned_supplier_term( $label ) {
+
+        $term_data                   = new stdClass();
+        $term_data->term_id          = 0;
+        $term_data->name             = $label;
+        $term_data->slug             = 'unassigned';
+        $term_data->term_group       = 0;
+        $term_data->term_taxonomy_id = 0;
+        $term_data->taxonomy         = 'suppliers';
+        $term_data->description      = '';
+        $term_data->parent           = 0;
+        $term_data->count            = 0;
+
+        return new WP_Term( $term_data );
+
+    }
+
+    /**
+     * Supplier terms from cache, with a live fallback.
+     *
+     * @param array $product_data_store Product cache row.
+     * @param int   $product_id         Product or variation ID.
+     * @return array<int,WP_Term>
+     */
+    private function get_product_supplier_terms_for_metrics( $product_data_store, $product_id ) {
+
+        if ( is_array( $product_data_store ) && array_key_exists( 'product_supplier', $product_data_store ) && is_array( $product_data_store['product_supplier'] ) ) {
+            return $product_data_store['product_supplier'];
+        }
+
+        if ( function_exists( 'wpdai_get_product_supplier_terms' ) ) {
+            return wpdai_get_product_supplier_terms( $product_id );
+        }
+
+        return array();
+
+    }
+
+    /**
+     * Ensure multi-dimensional supplier time series containers exist for a supplier.
+     *
+     * @param array                $data_by_date    Date payload by reference.
+     * @param string               $supplier_name   Supplier display name.
+     * @param WPDAI_Data_Warehouse $data_warehouse  Warehouse instance.
+     * @return void
+     */
+    private function ensure_supplier_time_series( &$data_by_date, $supplier_name, $data_warehouse ) {
+
+        $series_keys = array(
+            'supplier_revenue_by_date',
+            'supplier_quantity_sold_by_date',
+            'supplier_profit_by_date',
+            'supplier_order_count_by_date',
+            'supplier_cogs_by_date',
+            'supplier_margin_by_date',
+            'supplier_refund_amount_by_date',
+        );
+
+        foreach ( $series_keys as $series_key ) {
+            if ( isset( $data_by_date['product_metrics'][ $series_key ]['no_data_available'] ) ) {
+                $data_by_date['product_metrics'][ $series_key ] = array();
+            }
+            if ( ! isset( $data_by_date['product_metrics'][ $series_key ][ $supplier_name ] ) ) {
+                $data_by_date['product_metrics'][ $series_key ][ $supplier_name ] = $data_warehouse->get_data_by_date_range_container();
+            }
+        }
+
     }
 
 }

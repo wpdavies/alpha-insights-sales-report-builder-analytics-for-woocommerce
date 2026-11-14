@@ -69,11 +69,11 @@ class WPDAI_Data_Warehouse {
     protected array $product_cache = array();
 
     /**
-     * 
-     * 
-     * Flag that states whether the memory has been exahusted for this report
-     * 
-     **/
+     * True once a fetch has stopped early because PHP memory crossed the abort threshold.
+     * Callers should return the data collected so far instead of loading another batch.
+     *
+     * @var bool
+     */
     protected bool $memory_exhausted = false;
 
     /**
@@ -920,6 +920,28 @@ class WPDAI_Data_Warehouse {
     }
 
     /**
+     * Stop further fetching for this warehouse and keep the results collected so far.
+     *
+     * @return void
+     */
+    public function mark_memory_exhausted() {
+
+        $this->memory_exhausted = true;
+
+    }
+
+    /**
+     * Whether this fetch has already given up because memory was too high.
+     *
+     * @return bool
+     */
+    public function is_memory_exhausted() {
+
+        return $this->memory_exhausted;
+
+    }
+
+    /**
      * 
      *  Gets the total record count
      * 
@@ -1107,6 +1129,8 @@ class WPDAI_Data_Warehouse {
         // Try and call this from the prop cache if available
         if ( isset($this->product_cache[$product_id]) && is_array($this->product_cache[$product_id]) && ! empty($this->product_cache[$product_id]) ) {
 
+            $this->product_cache[$product_id] = $this->maybe_hydrate_product_brand_cache( $product_id, $this->product_cache[$product_id] );
+            $this->product_cache[$product_id] = $this->maybe_hydrate_product_supplier_cache( $product_id, $this->product_cache[$product_id] );
             return $this->product_cache[$product_id];
 
         }
@@ -1122,10 +1146,94 @@ class WPDAI_Data_Warehouse {
 
         }
 
+        $product_data_store = $this->maybe_hydrate_product_brand_cache( $product_id, $product_data_store );
+        $product_data_store = $this->maybe_hydrate_product_supplier_cache( $product_id, $product_data_store );
+
         // Cache results in prop
         $this->product_cache[$product_id] = $product_data_store;
 
         // Return Results
+        return $product_data_store;
+
+    }
+
+    /**
+     * Hydrate missing product_brand terms onto an existing product cache row.
+     *
+     * Older `_wpd_ai_product_data_store` rows will not have this key, or will
+     * lack pa_brand. Live-load terms and persist so we do not need a full
+     * product-cache wipe.
+     *
+     * @param int   $product_id         Product or variation ID.
+     * @param array $product_data_store Cached product payload.
+     * @return array
+     */
+    protected function maybe_hydrate_product_brand_cache( $product_id, $product_data_store ) {
+
+        if ( ! is_array( $product_data_store ) ) {
+            return $product_data_store;
+        }
+
+        $has_brand_key = array_key_exists( 'product_brand', $product_data_store );
+        $cached_brands = $has_brand_key ? $product_data_store['product_brand'] : null;
+        $resolution    = isset( $product_data_store['product_brand_resolution'] )
+            ? $product_data_store['product_brand_resolution']
+            : '';
+        $is_current    = 'native_then_attribute' === $resolution;
+
+        if ( $has_brand_key && $is_current && ! empty( $cached_brands ) ) {
+            return $product_data_store;
+        }
+
+        $live_brands = function_exists( 'wpdai_get_product_brand_terms' )
+            ? wpdai_get_product_brand_terms( $product_id )
+            : array();
+
+        // Keep a persisted empty array when the product truly has no brands.
+        if ( $has_brand_key && $is_current && empty( $live_brands ) ) {
+            return $product_data_store;
+        }
+
+        $product_data_store['product_brand']             = $live_brands;
+        $product_data_store['product_brand_resolution']  = 'native_then_attribute';
+        unset( $product_data_store['product_brand_includes_pa'] );
+
+        update_post_meta( $product_id, '_wpd_ai_product_data_store', $product_data_store );
+
+        return $product_data_store;
+
+    }
+
+    /**
+     * Hydrate missing supplier terms onto an existing product cache row.
+     *
+     * Older `_wpd_ai_product_data_store` rows will not have this key.
+     * Live-load terms and persist so we do not need a full product-cache wipe.
+     *
+     * @param int   $product_id         Product or variation ID.
+     * @param array $product_data_store Cached product payload.
+     * @return array
+     */
+    protected function maybe_hydrate_product_supplier_cache( $product_id, $product_data_store ) {
+
+        if ( ! is_array( $product_data_store ) ) {
+            return $product_data_store;
+        }
+
+        if ( ! function_exists( 'wpdai_is_product_supplier_reporting_enabled' ) || ! wpdai_is_product_supplier_reporting_enabled() ) {
+            return $product_data_store;
+        }
+
+        if ( array_key_exists( 'product_supplier', $product_data_store ) ) {
+            return $product_data_store;
+        }
+
+        $product_data_store['product_supplier'] = function_exists( 'wpdai_get_product_supplier_terms' )
+            ? wpdai_get_product_supplier_terms( $product_id )
+            : array();
+
+        update_post_meta( $product_id, '_wpd_ai_product_data_store', $product_data_store );
+
         return $product_data_store;
 
     }
@@ -1541,6 +1649,22 @@ class WPDAI_Data_Warehouse {
             }
         }
         foreach ( $sources_by_id as $source ) {
+            if ( $this->is_memory_exhausted() ) {
+                break;
+            }
+
+            if ( function_exists( 'wpdai_is_memory_usage_greater_than' ) && wpdai_is_memory_usage_greater_than() ) {
+                $this->mark_memory_exhausted();
+                $this->set_error(
+                    sprintf(
+                        /* translators: %s: PHP memory limit */
+                        __( 'You\'ve exhausted your memory usage. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                        ini_get( 'memory_limit' )
+                    )
+                );
+                break;
+            }
+
             $this->fetch_custom_data_source_internal( $source );
         }
 

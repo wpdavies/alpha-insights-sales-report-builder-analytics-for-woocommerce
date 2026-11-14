@@ -199,7 +199,8 @@ function wpdai_collect_product_statistics_cron() {
     wpdai_write_log( 'Collecting product IDs', 'cron' );
     
     // List of product Id's
-    $product_ids = wpdai_query_product_ids_for_analytics_collector( 25 ); // Collect 25 products
+    // Runs 4 times a day, so 150 per run keeps the old 25-per-hour daily throughput.
+    $product_ids = wpdai_query_product_ids_for_analytics_collector( 150 );
 
     // Make sure the data is correct
     if ( is_array($product_ids) && ! empty($product_ids) ) {
@@ -211,10 +212,16 @@ function wpdai_collect_product_statistics_cron() {
         wpdai_write_log( 'We have an array of product IDs, ' . $product_count . ' products found.', 'cron' );
         wpdai_write_log( 'Looping through product IDs to fetch product analytics.', 'cron' );
 
+        // One grouped query for the whole batch instead of four per product.
+        // With tracking off, each product keeps its stored counts instead.
+        $event_counts = wpdai_is_analytics_enabled() ? wpdai_get_product_event_counts( $product_ids ) : false;
+
         foreach( $product_ids as $product_id ) {
 
+            $product_event_counts = ( is_array( $event_counts ) && isset( $event_counts[ (int) $product_id ] ) ) ? $event_counts[ (int) $product_id ] : null;
+
             // False = force refresh data collection and update transients and meta
-            $product_analytics = wpdai_fetch_product_analytics_by_product_id( $product_id, false );
+            $product_analytics = wpdai_fetch_product_analytics_by_product_id( $product_id, false, $product_event_counts );
 
             // Log iteration
             wpdai_write_log( '(' . $i . '/' . $product_count . ') Calculating analytics for product id: ' . $product_id . '.', 'cron' );

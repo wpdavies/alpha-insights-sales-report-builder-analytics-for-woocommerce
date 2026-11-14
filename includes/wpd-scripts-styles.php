@@ -228,10 +228,38 @@ function wpdai_admin_enqueue() {
 						'sessionCount'     => __( 'sessions', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 						'sessionStart'     => __( 'Session start', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 						'sessionEnd'       => __( 'Session end', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						'useForOrder'      => __( 'Use for this order', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						'usedForOrder'     => __( 'Used for this order', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						'assignConfirm'    => __( 'Use this session landing page and referral for this order?', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						'assigning'        => __( 'Updating…', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						'assignError'      => __( 'Unable to update order attribution. Please try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 					),
 				)
 			);
 			wp_enqueue_script( 'wpd-order-browsing-history' );
+
+			if ( class_exists( 'WPDAI_ShipStation' ) && WPDAI_ShipStation::get_instance()->is_configured() ) {
+				wp_register_script(
+					'wpd-order-shipstation',
+					WPD_AI_URL_PATH . 'assets/js/pro/wpd-order-shipstation.js',
+					array( 'jquery' ),
+					WPD_AI_VER,
+					true
+				);
+				wp_localize_script(
+					'wpd-order-shipstation',
+					'wpdAiShipStationOrder',
+					array(
+						'ajax_url' => admin_url( 'admin-ajax.php' ),
+						'nonce'    => wp_create_nonce( WPD_AI_AJAX_NONCE_ACTION ),
+						'i18n'     => array(
+							'syncing' => __( 'Checking ShipStation…', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+							'error'   => __( 'Unable to resync this order. Please try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+						),
+					)
+				);
+				wp_enqueue_script( 'wpd-order-shipstation' );
+			}
 			
 			// Logo URL
 			$wpd_ai_logo = wpdai_get_logo_icon_url();

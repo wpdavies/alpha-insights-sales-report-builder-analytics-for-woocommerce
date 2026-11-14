@@ -235,26 +235,89 @@ function wpdai_display_log( $log, $title = false ) {
 }
 
 /**
+ * Whether current PHP memory use is above the abort threshold.
  *
- *	Check memory loop 
- *	@return $peak_memory_usage if true, otherwise returns false
+ * Uses current allocation (not peak). Peak never falls, so a spike earlier in the
+ * request would abort every later query even after that memory was freed. Stopping
+ * around 75% leaves room to finish the partial result and encode it as JSON.
+ * The last 25% is not enough once the next batch, or json_encode(), allocates.
  *
+ * @param int|null $percent Abort when current usage exceeds this percent of the limit. Default 75.
+ * @return int|false Current usage in bytes when over the threshold, otherwise false.
  */
-function wpdai_is_memory_usage_greater_than( $percent = 90 ) {
+function wpdai_is_memory_usage_greater_than( $percent = null ) {
 
-    $peak_memory_usage 	= memory_get_peak_usage( true );
-    $wp_memory_limit 	= wpdai_get_memory_limit( true );
-    $memory_usage 		= wpdai_divide( $peak_memory_usage, $wp_memory_limit ) * 100;
+	if ( null === $percent ) {
+		$percent = 75;
+	}
 
-    if ( $memory_usage > $percent ) {
+	$limit_setting = ini_get( 'memory_limit' );
+	if ( ! is_string( $limit_setting ) || '' === $limit_setting || '-1' === $limit_setting ) {
+		return false;
+	}
 
-        return $peak_memory_usage;
+	$memory_limit_bytes = wpdai_get_memory_limit( true );
+	$memory_usage_bytes = memory_get_usage( false );
+	$memory_usage       = wpdai_divide( $memory_usage_bytes, $memory_limit_bytes ) * 100;
 
-    } else {
+	if ( $memory_usage > $percent ) {
+		return $memory_usage_bytes;
+	}
 
-        return false;
+	return false;
 
-    }
+}
+
+/**
+ * Send a JSON response, including when encoding the payload fails.
+ *
+ * wp_send_json() prints the encoded string directly. When encoding fails it prints
+ * nothing, and the browser reports an empty JSON body.
+ *
+ * @param mixed    $data        Response data.
+ * @param int|null $status_code Optional HTTP status code.
+ * @return void
+ */
+function wpdai_send_json( $data, $status_code = null ) {
+
+	$json = wp_json_encode( $data );
+
+	if ( ! is_string( $json ) || '' === $json ) {
+		$detail = function_exists( 'json_last_error_msg' ) ? json_last_error_msg() : '';
+		wpdai_write_log( 'JSON response encode failed: ' . $detail, 'fatal_error' );
+		$data        = array(
+			'success' => false,
+			'message' => __( 'The report result was too large to return. Shorten the date range or increase the PHP memory limit and try again.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+		);
+		$json        = wp_json_encode( $data );
+		$status_code = 500;
+	}
+
+	if ( ! is_string( $json ) || '' === $json ) {
+		$json        = '{"success":false,"message":"The report result was too large to return."}';
+		$status_code = 500;
+	}
+
+	if ( ! headers_sent() ) {
+		header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ) );
+		if ( null !== $status_code && function_exists( 'status_header' ) ) {
+			status_header( $status_code );
+		}
+	}
+
+	echo $json; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON response body.
+
+	if ( function_exists( 'wp_doing_ajax' ) && wp_doing_ajax() && function_exists( 'wp_die' ) ) {
+		wp_die(
+			'',
+			'',
+			array(
+				'response' => null,
+			)
+		);
+	}
+
+	die;
 
 }
 

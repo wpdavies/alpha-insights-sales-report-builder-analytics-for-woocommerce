@@ -697,6 +697,107 @@ class WPDAI_Report_Filters {
     }
 
     /**
+     * List of available WooCommerce product brands (product_brand and pa_brand).
+     *
+     * @return array Associative array of term_id => term_name.
+     */
+    public function get_filter_values_product_brands() {
+
+        if ( ! function_exists( 'wpdai_is_product_brand_reporting_enabled' ) || ! wpdai_is_product_brand_reporting_enabled() ) {
+            return array();
+        }
+
+        $results = get_transient( 'wpd_ai_report_filters_product_brands_v2' );
+
+        if ( $results && $this->is_transient_enabled ) {
+            return $results;
+        }
+
+        $taxonomies = function_exists( 'wpdai_get_product_brand_taxonomies' )
+            ? wpdai_get_product_brand_taxonomies()
+            : array();
+
+        if ( empty( $taxonomies ) ) {
+            return array();
+        }
+
+        $brand_array = array();
+        $seen_names  = array();
+
+        foreach ( $taxonomies as $taxonomy ) {
+            $brands = get_terms(
+                array(
+                    'taxonomy'   => $taxonomy,
+                    'hide_empty' => true,
+                )
+            );
+
+            if ( is_wp_error( $brands ) ) {
+                continue;
+            }
+
+            foreach ( $brands as $brand ) {
+                if ( isset( $seen_names[ $brand->name ] ) ) {
+                    continue;
+                }
+                $seen_names[ $brand->name ]     = true;
+                $brand_array[ $brand->term_id ] = $brand->name;
+            }
+        }
+
+        if ( ! empty( $brand_array ) ) {
+            set_transient( 'wpd_ai_report_filters_product_brands_v2', $brand_array, $this->transient_duration_in_seconds );
+        }
+
+        return $brand_array;
+
+    }
+
+    /**
+     * List of suppliers assigned to products or expenses.
+     *
+     * @return array Associative array of term_id => term_name.
+     */
+    public function get_filter_values_product_suppliers() {
+
+        if ( ! function_exists( 'wpdai_is_product_supplier_reporting_enabled' ) || ! wpdai_is_product_supplier_reporting_enabled() ) {
+            return array();
+        }
+
+        $results = get_transient( 'wpd_ai_report_filters_product_suppliers' );
+
+        if ( $results && $this->is_transient_enabled ) {
+            return $results;
+        }
+
+        if ( ! taxonomy_exists( 'suppliers' ) ) {
+            return array();
+        }
+
+        $suppliers = get_terms(
+            array(
+                'taxonomy'   => 'suppliers',
+                'hide_empty' => false,
+            )
+        );
+
+        $supplier_array = array();
+
+        if ( ! is_wp_error( $suppliers ) ) {
+            foreach ( $suppliers as $supplier ) {
+                $supplier_array[ $supplier->term_id ] = $supplier->name;
+            }
+        }
+
+        if ( ! empty( $supplier_array ) ) {
+            set_transient( 'wpd_ai_report_filters_product_suppliers', $supplier_array, $this->transient_duration_in_seconds );
+        }
+
+        return $supplier_array;
+
+    }
+
+    /**
      * 
      * 	List of available billing countries
      * 

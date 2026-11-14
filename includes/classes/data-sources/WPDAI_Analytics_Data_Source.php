@@ -140,6 +140,7 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
             'percent_sessions_with_product_page_view'   => 0.00,
             'percent_sessions_with_add_to_cart'         => 0.00,
             'percent_sessions_with_initiate_checkout'   => 0.00,
+            'percent_sessions_checkout_complete'        => 0.00,
             'conversion_rate'                           => 0.00
         );
 
@@ -189,6 +190,7 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
             'ip_address_by_date' => array(),
             'sessions_with_add_to_cart_by_date' => array(),
             'sessions_with_initiate_checkout_by_date' => array(),
+            'sessions_with_transaction_by_date' => array(),
         );
 
         $data_by_date = array(
@@ -204,8 +206,10 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
             'add_to_carts_by_date' => $data_warehouse->get_data_by_date_range_container(),
             'sessions_with_add_to_cart_by_date' => $data_warehouse->get_data_by_date_range_container(),
             'sessions_with_initiate_checkout_by_date' => $data_warehouse->get_data_by_date_range_container(),
+            'sessions_with_transaction_by_date' => $data_warehouse->get_data_by_date_range_container(),
             'percent_sessions_with_add_to_cart_by_date' => $data_warehouse->get_data_by_date_range_container(),
             'percent_sessions_with_initiate_checkout_by_date' => $data_warehouse->get_data_by_date_range_container(),
+            'percent_sessions_checkout_complete_by_date' => $data_warehouse->get_data_by_date_range_container(),
             'conversion_rate_by_date' => $data_warehouse->get_data_by_date_range_container(),
             'transactions_by_date' => $data_warehouse->get_data_by_date_range_container(),
             'checkout_errors_by_date' => $data_warehouse->get_data_by_date_range_container(),
@@ -250,6 +254,23 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
         
         while ( $offset < $total_count ) {
 
+            if ( $data_warehouse->is_memory_exhausted() ) {
+                break;
+            }
+
+            if ( wpdai_is_memory_usage_greater_than() ) {
+                $memory_limit = ini_get( 'memory_limit' );
+                $data_warehouse->mark_memory_exhausted();
+                $data_warehouse->set_error(
+                    sprintf(
+                        /* translators: %s: PHP memory limit */
+                        __( 'You\'ve exhausted your memory usage. Increase your PHP memory limit or reduce the date range. Your current PHP memory limit is %s.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+                        $memory_limit
+                    )
+                );
+                break;
+            }
+
             $raw_analytics_data = array();
             // Don't reset session_data_map - merge new data into existing map
             $batch_session_data_map = array();
@@ -278,9 +299,10 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
              */
             foreach( $raw_analytics_data as $event ) {
 
-                // Memory Check
-                if ( wpdai_is_memory_usage_greater_than(90) ) {
+                // Memory Check. Break this batch only so it can be unset before the while stops.
+                if ( wpdai_is_memory_usage_greater_than() ) {
                     $memory_limit = ini_get('memory_limit');
+                    $data_warehouse->mark_memory_exhausted();
                     $data_warehouse->set_error(
                         sprintf(
                             /* translators: %s: PHP memory limit */
@@ -691,6 +713,11 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
                         $session_unique_array['sessions_with_transaction'][$session_id] = true;
                         $totals['sessions_with_transaction']++;
                     }
+                    if ( ! isset($temp_counter['sessions_with_transaction_by_date'][$event_formatted_date][$session_id]) ) {
+                        $temp_counter['sessions_with_transaction_by_date'][$event_formatted_date][$session_id] = true;
+                        if ( ! isset($data_by_date['sessions_with_transaction_by_date'][$event_formatted_date]) ) $data_by_date['sessions_with_transaction_by_date'][$event_formatted_date] = 0;
+                        $data_by_date['sessions_with_transaction_by_date'][$event_formatted_date]++;
+                    }
                     if (! empty($landing_page_path)) {
                         $categorized_data['landing_page_summary'][$landing_page_path]['transactions']++;
                         $categorized_data['landing_page_summary'][$landing_page_path]['revenue'] += $event_value;
@@ -935,6 +962,13 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
             $data_by_date['percent_sessions_with_initiate_checkout_by_date'][ $date_key ] = wpdai_calculate_percentage( $sessions_with_initiate_checkout, $session_count );
         }
 
+        // Checkout completion rate: unique sessions with a transaction / unique sessions that initiated checkout
+        foreach ( $data_by_date['percent_sessions_checkout_complete_by_date'] as $date_key => $value ) {
+            $sessions_with_initiate_checkout = ( isset( $data_by_date['sessions_with_initiate_checkout_by_date'][ $date_key ] ) ) ? (int) $data_by_date['sessions_with_initiate_checkout_by_date'][ $date_key ] : 0;
+            $sessions_with_transaction = ( isset( $data_by_date['sessions_with_transaction_by_date'][ $date_key ] ) ) ? (int) $data_by_date['sessions_with_transaction_by_date'][ $date_key ] : 0;
+            $data_by_date['percent_sessions_checkout_complete_by_date'][ $date_key ] = wpdai_calculate_percentage( $sessions_with_transaction, $sessions_with_initiate_checkout );
+        }
+
         // Some cleaning - All Events
         if ( is_array($categorized_data['event_summary']) && ! empty($categorized_data['event_summary']) ) {
             foreach( $categorized_data['event_summary'] as $event_key => $event_data ) {
@@ -1102,6 +1136,7 @@ class WPDAI_Analytics_Data_Source extends WPDAI_Custom_Data_Source_Base {
         $totals['percent_sessions_with_product_page_view'] = wpdai_calculate_percentage( $totals['sessions_with_product_page_views'], $totals['sessions'], 2 );
         $totals['percent_sessions_with_add_to_cart'] = wpdai_calculate_percentage( $totals['sessions_with_add_to_cart'], $totals['sessions'], 2 );
         $totals['percent_sessions_with_initiate_checkout'] = wpdai_calculate_percentage( $totals['sessions_with_initiate_checkout'], $totals['sessions'], 2 );
+        $totals['percent_sessions_checkout_complete'] = wpdai_calculate_percentage( $totals['sessions_with_transaction'], $totals['sessions_with_initiate_checkout'], 2 );
         $totals['percent_sessions_with_form_submit'] = wpdai_calculate_percentage( $totals['sessions_with_form_submit'], $totals['sessions'], 2 );
         $totals['conversion_rate'] = wpdai_calculate_percentage( $totals['transactions'], $totals['sessions'], 2 );
 

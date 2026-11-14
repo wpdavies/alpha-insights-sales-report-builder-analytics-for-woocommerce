@@ -93,6 +93,8 @@ class WPDAI_Cost_Of_Goods_Manager {
 
 		if ( ! is_array( $suppliers ) ) $suppliers = [];
 
+		$price_excl_tax_suffix = ( function_exists( 'wc_prices_include_tax' ) && wc_prices_include_tax() ) ? ' ' . __( '(excl. tax)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) : '';
+
 		?>
         <div class="wrap">
             <div class="wpd-cogs-container" id="wpd-cogs-manager">
@@ -133,11 +135,11 @@ class WPDAI_Cost_Of_Goods_Manager {
                         <div class="wpd-cogs-stat-value" id="wpd-cogs-avg-margin">-</div>
                     </div>
                     <div class="wpd-cogs-stat-card">
-                        <div class="wpd-cogs-stat-label"><?php esc_html_e( 'Stock Value (RRP)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+                        <div class="wpd-cogs-stat-label"><?php esc_html_e( 'Stock Value (RRP)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?><?php echo esc_html( $price_excl_tax_suffix ); ?></div>
                         <div class="wpd-cogs-stat-value" id="wpd-cogs-total-stock-value-rrp">-</div>
                     </div>
                     <div class="wpd-cogs-stat-card">
-                        <div class="wpd-cogs-stat-label"><?php esc_html_e( 'Stock Value (Sell)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></div>
+                        <div class="wpd-cogs-stat-label"><?php esc_html_e( 'Stock Value (Sell)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?><?php echo esc_html( $price_excl_tax_suffix ); ?></div>
                         <div class="wpd-cogs-stat-value" id="wpd-cogs-total-stock-value-sell">-</div>
                     </div>
                     <div class="wpd-cogs-stat-card">
@@ -253,8 +255,8 @@ class WPDAI_Cost_Of_Goods_Manager {
                                          <input type="checkbox" id="wpd-cogs-select-all" title="Select All">
                                      </th>
                                      <th class="wpd-cogs-sortable" data-column="name">Product</th>
-                                     <th class="wpd-cogs-sortable" data-column="rrp">RRP</th>
-                                     <th class="wpd-cogs-sortable" data-column="sell_price"><?php esc_html_e( 'Sell Price', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
+                                     <th class="wpd-cogs-sortable" data-column="rrp"><?php esc_html_e( 'RRP', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?><?php echo esc_html( $price_excl_tax_suffix ); ?></th>
+                                     <th class="wpd-cogs-sortable" data-column="sell_price"><?php esc_html_e( 'Sell Price', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?><?php echo esc_html( $price_excl_tax_suffix ); ?></th>
                                      <th><?php esc_html_e( 'Cost of Goods', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ); ?></th>
                                      <th class="wpd-cogs-sortable" data-column="margin">Margin %</th>
                                      <th class="wpd-cogs-sortable" data-column="profit">Profit</th>
@@ -396,8 +398,8 @@ class WPDAI_Cost_Of_Goods_Manager {
 			$product_type = $product->get_type();
 			$is_variable_product = ($product_type === 'variable');
 			
-			$rrp = (float) $product->get_regular_price();
-			$sell_price = (float) $product->get_price();
+			$rrp = wpdai_get_product_price_excluding_tax( $product, 'regular' );
+			$sell_price = wpdai_get_product_price_excluding_tax( $product, 'active' );
 
 			// Get the actual meta value (if set by user) - using the correct meta key
 			$meta_cost_raw = get_post_meta($product_id, '_wpd_ai_product_cost', true);
@@ -593,8 +595,8 @@ class WPDAI_Cost_Of_Goods_Manager {
 			$cost = $meta_cost !== null ? $meta_cost : (float) $default_cost;
 			$stock_status = $product->get_stock_status();
 			$stock_quantity = (float) $product->get_stock_quantity();
-			$rrp = $is_variable_product ? null : (float) $product->get_regular_price();
-			$sell_price = $is_variable_product ? null : (float) $product->get_price();
+			$rrp = $is_variable_product ? null : wpdai_get_product_price_excluding_tax( $product, 'regular' );
+			$sell_price = $is_variable_product ? null : wpdai_get_product_price_excluding_tax( $product, 'active' );
 
 			// Apply post-query filters for stats
 			if (!empty($filters['stock_status']) && $stock_status !== $filters['stock_status']) {
@@ -677,13 +679,16 @@ class WPDAI_Cost_Of_Goods_Manager {
 			}
 		}
 
-		// Clear cache for orders containing this product
-		wpdai_delete_order_cache_by_product_ids( [$product_id] );
+		if ( function_exists( 'wpdai_clear_caches_after_product_cost_change' ) ) {
+			wpdai_clear_caches_after_product_cost_change( array( $product_id ) );
+		} else {
+			wpdai_delete_order_cache_by_product_ids( array( $product_id ) );
+		}
 
 		// Get updated product data
 		$product = wc_get_product($product_id);
 		if ($product) {
-			$sell_price = (float) $product->get_price();
+			$sell_price = wpdai_get_product_price_excluding_tax( $product, 'active' );
 			// Convert cost to float for calculations (empty string becomes 0)
 			$cost_for_calc = $cost === '' ? 0 : (float) $cost;
 			$margin = $sell_price > 0 ? ( ( $sell_price - $cost_for_calc ) / $sell_price * 100 ) : 0;
@@ -745,8 +750,8 @@ class WPDAI_Cost_Of_Goods_Manager {
 			__( 'Name', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 			__( 'SKU', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 			__( 'Type', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
-			__( 'RRP', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
-			__( 'Sell Price', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			__( 'RRP', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) . ( ( function_exists( 'wc_prices_include_tax' ) && wc_prices_include_tax() ) ? ' ' . __( '(excl. tax)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) : '' ),
+			__( 'Sell Price', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) . ( ( function_exists( 'wc_prices_include_tax' ) && wc_prices_include_tax() ) ? ' ' . __( '(excl. tax)', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) : '' ),
 			__( 'Cost of Goods', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 			__( 'Margin %', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
 			__( 'Profit', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
@@ -758,8 +763,8 @@ class WPDAI_Cost_Of_Goods_Manager {
 			$product = wc_get_product($product_id);
 			if (!$product) continue;
 
-			$rrp = (float) $product->get_regular_price();
-			$sell_price = (float) $product->get_price();
+			$rrp = wpdai_get_product_price_excluding_tax( $product, 'regular' );
+			$sell_price = wpdai_get_product_price_excluding_tax( $product, 'active' );
 
 			// Get meta cost (only if explicitly set)
 			$meta_cost = get_post_meta($product_id, '_wpd_ai_product_cost', true);
@@ -844,8 +849,11 @@ class WPDAI_Cost_Of_Goods_Manager {
 			}
 		}
 
-		// Clear cache for orders containing this product
-		wpdai_delete_order_cache_by_product_ids( [$product_id] );
+		if ( function_exists( 'wpdai_clear_caches_after_product_cost_change' ) ) {
+			wpdai_clear_caches_after_product_cost_change( array( $product_id ) );
+		} else {
+			wpdai_delete_order_cache_by_product_ids( array( $product_id ) );
+		}
 
 		wp_send_json_success([
 			'message' => 'Cost updated successfully',
@@ -1105,9 +1113,12 @@ class WPDAI_Cost_Of_Goods_Manager {
 			}
 		}
 
-		// Clear cache for orders containing the updated products
-		if (!empty($updated_product_ids)) {
-			wpdai_delete_order_cache_by_product_ids( $updated_product_ids );
+		if ( ! empty( $updated_product_ids ) ) {
+			if ( function_exists( 'wpdai_clear_caches_after_product_cost_change' ) ) {
+				wpdai_clear_caches_after_product_cost_change( $updated_product_ids );
+			} else {
+				wpdai_delete_order_cache_by_product_ids( $updated_product_ids );
+			}
 		}
 
 		wp_send_json_success([

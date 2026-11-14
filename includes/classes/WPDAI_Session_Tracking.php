@@ -1264,8 +1264,6 @@ class WPDAI_Session_Tracking {
         // Sanitize
         $data['session_id']         = sanitize_text_field($data['session_id']);
 		$data['ip_address']         = sanitize_text_field($data['ip_address']);
-		$data['landing_page']       = sanitize_url($data['landing_page']);
-		$data['referral_url']       = sanitize_url($data['referral_url']);
 		$data['user_id']            = (int) $data['user_id'] ;
         $data['device_category']    = sanitize_text_field($this->device_category);
         $data['operating_system']   = sanitize_text_field($this->operating_system);
@@ -1303,11 +1301,13 @@ class WPDAI_Session_Tracking {
 			if ( function_exists( 'wpdai_choose_first_touch_referral_url' ) ) {
 				$data['referral_url'] = wpdai_choose_first_touch_referral_url( $existing_referral, $data['referral_url'] );
 			} elseif ( '' !== $existing_referral ) {
-				$data['referral_url'] = sanitize_url( $existing_referral );
+				$data['referral_url'] = $existing_referral;
 			}
 
-			$this->landing_page = $data['landing_page'];
-			$this->referral_url = $data['referral_url'];
+			$data['landing_page'] = esc_url_raw( (string) $data['landing_page'] );
+			$data['referral_url'] = esc_url_raw( (string) $data['referral_url'] );
+			$this->landing_page   = $data['landing_page'];
+			$this->referral_url   = $data['referral_url'];
 
             $update_user = '';
             if ( $data['user_id'] > 0 ) {
@@ -1333,7 +1333,18 @@ class WPDAI_Session_Tracking {
 
         } else {
 
-            // Insert new session into DB
+			if ( function_exists( 'wpdai_choose_first_touch_landing_page' ) ) {
+				$data['landing_page'] = wpdai_choose_first_touch_landing_page( '', $data['landing_page'] );
+			}
+			if ( function_exists( 'wpdai_choose_first_touch_referral_url' ) ) {
+				$data['referral_url'] = wpdai_choose_first_touch_referral_url( '', $data['referral_url'] );
+			}
+
+			$data['landing_page'] = esc_url_raw( (string) $data['landing_page'] );
+			$data['referral_url'] = esc_url_raw( (string) $data['referral_url'] );
+			$this->landing_page   = $data['landing_page'];
+			$this->referral_url   = $data['referral_url'];
+
             $rows_inserted = $db_interactor->add_row( $table_name, $data );
 
         }
