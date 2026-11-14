@@ -231,6 +231,15 @@ body.live-share-report {
 	align-items: flex-end;
 }
 
+/*
+ * PDF export hides any element whose class contains "tooltip".
+ * Keep P&L amount cells visible even if that script still matches them.
+ */
+body.live-share-report td.pl-statement-value,
+body.live-share-report td.pl-statement-variance {
+	display: table-cell !important;
+}
+
 @media ( max-width: 768px ) {
 	.live-share-header {
 		padding: 16px;

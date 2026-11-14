@@ -1,0 +1,798 @@
+{
+  "dashboard_id": "brand-performance",
+  "name": "Brand Performance",
+  "menu_order": "21",
+  "widgets": [],
+  "filters": {
+    "date_from": null,
+    "date_to": null,
+    "date_preset": "this_year",
+    "comparison_date_selection": "previous_year",
+    "data_filters": {}
+  },
+  "created_at": 1761040032,
+  "updated_at": 1761040032,
+  "report_category": "sales_reports",
+  "version_number": "1.0",
+  "appear_in_menu": true,
+  "pro_report": true,
+  "realtime_data": false,
+  "icon": "sell",
+  "color": "blue",
+  "rows": [
+    {
+      "id": "row-brand-heading-overview",
+      "columns": [
+        {
+          "id": "column-brand-heading-overview",
+          "width": { "desktop": 12, "tablet": 12, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_heading_overview",
+              "type": "heading",
+              "config": {
+                "title": "Overview",
+                "heading_type": "h4",
+                "icon": "title",
+                "color": "blue",
+                "width_desktop": 12,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-brand-cards",
+      "columns": [
+        {
+          "id": "column-brand-card-0",
+          "width": { "desktop": 2, "tablet": 6, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_card_revenue",
+              "type": "metric_card",
+              "config": {
+                "title": "Product Revenue",
+                "metric": "products.totals.total_product_revenue",
+                "change_indicator": "previous_period",
+                "sub_value": "products.totals.total_product_profit",
+                "icon": "trending_up",
+                "color": "blue",
+                "width_desktop": 2,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-brand-card-1",
+          "width": { "desktop": 2, "tablet": 6, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_card_units",
+              "type": "metric_card",
+              "config": {
+                "title": "Units Sold",
+                "metric": "products.totals.total_qty_sold",
+                "change_indicator": "previous_period",
+                "sub_value": "products.totals.total_skus_sold",
+                "icon": "trending_up",
+                "color": "blue",
+                "width_desktop": 2,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-brand-card-2",
+          "width": { "desktop": 2, "tablet": 6, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_card_profit",
+              "type": "metric_card",
+              "config": {
+                "title": "Product Profit",
+                "metric": "products.totals.total_product_profit",
+                "change_indicator": "previous_period",
+                "sub_value": "products.totals.average_product_margin",
+                "icon": "trending_up",
+                "color": "blue",
+                "width_desktop": 2,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-brand-card-3",
+          "width": { "desktop": 2, "tablet": 6, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_card_refunds",
+              "type": "metric_card",
+              "config": {
+                "title": "Product Refunds",
+                "metric": "refunds.totals.total_refund_amount",
+                "change_indicator": "previous_period",
+                "sub_value": "refunds.totals.total_qty_refunded",
+                "icon": "undo",
+                "color": "red",
+                "width_desktop": 2,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-brand-card-4",
+          "width": { "desktop": 2, "tablet": 6, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_card_count",
+              "type": "metric_card",
+              "config": {
+                "title": "Brands Sold",
+                "metric": "products.totals.total_brands_sold",
+                "change_indicator": "previous_period",
+                "sub_value": "products.totals.top_brand_revenue_percent",
+                "icon": "inventory_2",
+                "color": "blue",
+                "width_desktop": 2,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-brand-card-5",
+          "width": { "desktop": 2, "tablet": 6, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_card_share",
+              "type": "metric_card",
+              "config": {
+                "title": "Top Brand Revenue Share",
+                "metric": "products.totals.top_brand_revenue_percent",
+                "change_indicator": "previous_period",
+                "sub_value": "products.totals.unassigned_brand_revenue",
+                "icon": "inventory_2",
+                "color": "blue",
+                "width_desktop": 2,
+                "width_tablet": 6,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-brand-table",
+      "columns": [
+        {
+          "id": "column-brand-table",
+          "width": { "desktop": 12, "tablet": 12, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_data_table",
+              "type": "data_table",
+              "config": {
+                "title": "Brand Performance",
+                "metric": "products.data_table.brands",
+                "selected_columns": [
+                  "brand_name",
+                  "total_revenue",
+                  "total_quantity_sold",
+                  "total_order_count",
+                  "average_selling_price",
+                  "total_cogs",
+                  "total_profit",
+                  "margin_percentage",
+                  "total_refund_amount",
+                  "refund_rate_percentage",
+                  "percent_of_revenue",
+                  "unique_products_sold",
+                  "unique_customers"
+                ],
+                "column_order": [],
+                "limit": "50",
+                "max_records": 500,
+                "sortable": true,
+                "searchable": true,
+                "default_sort_key": "total_revenue",
+                "default_sort_direction": "desc",
+                "filters": [],
+                "width_desktop": 12,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "icon": "list",
+                "color": "blue",
+                "no_max_height": false,
+                "max_height": "600",
+                "realtime_data": false,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-brand-heading-mix",
+      "columns": [
+        {
+          "id": "column-brand-heading-mix",
+          "width": { "desktop": 12, "tablet": 12, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_heading_mix",
+              "type": "heading",
+              "config": {
+                "title": "Mix",
+                "heading_type": "h4",
+                "icon": "title",
+                "color": "blue",
+                "width_desktop": 12,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-brand-mix-charts",
+      "columns": [
+        {
+          "id": "column-brand-mix-pie",
+          "width": { "desktop": 6, "tablet": 12, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_pie_revenue",
+              "type": "pie_chart",
+              "config": {
+                "title": "Revenue Share By Brand",
+                "data_type": "categorized_data",
+                "metric": "products.categorized_data.product_brand_data",
+                "metric_field": "total_revenue",
+                "metric_display": "currency",
+                "show_legend": true,
+                "color": "blue",
+                "width_desktop": 6,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-brand-mix-doughnut",
+          "width": { "desktop": 6, "tablet": 12, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_doughnut_profit",
+              "type": "doughnut_chart",
+              "config": {
+                "title": "Profit Share By Brand",
+                "data_type": "categorized_data",
+                "metric": "products.categorized_data.product_brand_data",
+                "metric_field": "total_profit",
+                "metric_display": "currency",
+                "show_legend": true,
+                "color": "blue",
+                "width_desktop": 6,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-brand-mix-stack",
+      "columns": [
+        {
+          "id": "column-brand-mix-stack",
+          "width": { "desktop": 8, "tablet": 12, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_stacked_revenue",
+              "type": "bar_chart",
+              "config": {
+                "title": "Brand Revenue Mix Over Time",
+                "data_type": "data_by_date",
+                "metrics": [
+                  {
+                    "metric": "products.data_by_date.brand_revenue_by_date",
+                    "label": "Brand Revenue",
+                    "icon": "inventory_2",
+                    "color": "blue",
+                    "data_source": "products",
+                    "value_key": "brand_revenue_by_date"
+                  }
+                ],
+                "date_format": "month",
+                "stacked": true,
+                "show_legend": true,
+                "chart_height": "335",
+                "color": "blue",
+                "width_desktop": 8,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-brand-mix-table",
+          "width": { "desktop": 4, "tablet": 12, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_mix_table",
+              "type": "simple_table",
+              "config": {
+                "title": "Brand Mix",
+                "data_type": "categorized_data",
+                "metric": "products.categorized_data.product_brand_data",
+                "metric_fields": [
+                  "percent_of_revenue",
+                  "percent_of_units",
+                  "percent_of_profit",
+                  "percent_of_orders"
+                ],
+                "rows_limit": 50,
+                "sort_config": {
+                  "key": "percent_of_revenue",
+                  "direction": "desc"
+                },
+                "color": "blue",
+                "width_desktop": 4,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-brand-heading-trends",
+      "columns": [
+        {
+          "id": "column-brand-heading-trends",
+          "width": { "desktop": 12, "tablet": 12, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_heading_trends",
+              "type": "heading",
+              "config": {
+                "title": "Trends",
+                "heading_type": "h4",
+                "icon": "title",
+                "color": "blue",
+                "width_desktop": 12,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-brand-trends-1",
+      "columns": [
+        {
+          "id": "column-brand-trend-revenue",
+          "width": { "desktop": 6, "tablet": 12, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_line_revenue",
+              "type": "line_chart",
+              "config": {
+                "title": "Revenue By Brand",
+                "data_type": "data_by_date",
+                "metrics": [
+                  {
+                    "metric": "products.data_by_date.brand_revenue_by_date",
+                    "label": "Brand Revenue",
+                    "icon": "inventory_2",
+                    "color": "blue",
+                    "data_source": "products",
+                    "value_key": "brand_revenue_by_date"
+                  }
+                ],
+                "date_format": "month",
+                "show_legend": true,
+                "chart_height": "335",
+                "color": "blue",
+                "width_desktop": 6,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-brand-trend-units",
+          "width": { "desktop": 6, "tablet": 12, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_line_units",
+              "type": "line_chart",
+              "config": {
+                "title": "Units By Brand",
+                "data_type": "data_by_date",
+                "metrics": [
+                  {
+                    "metric": "products.data_by_date.brand_quantity_sold_by_date",
+                    "label": "Brand Units Sold",
+                    "icon": "inventory_2",
+                    "color": "purple",
+                    "data_source": "products",
+                    "value_key": "brand_quantity_sold_by_date"
+                  }
+                ],
+                "date_format": "month",
+                "show_legend": true,
+                "chart_height": "335",
+                "color": "blue",
+                "width_desktop": 6,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-brand-trends-2",
+      "columns": [
+        {
+          "id": "column-brand-trend-profit",
+          "width": { "desktop": 6, "tablet": 12, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_line_profit",
+              "type": "line_chart",
+              "config": {
+                "title": "Profit By Brand",
+                "data_type": "data_by_date",
+                "metrics": [
+                  {
+                    "metric": "products.data_by_date.brand_profit_by_date",
+                    "label": "Brand Gross Profit",
+                    "icon": "inventory_2",
+                    "color": "green",
+                    "data_source": "products",
+                    "value_key": "brand_profit_by_date"
+                  }
+                ],
+                "date_format": "month",
+                "show_legend": true,
+                "chart_height": "335",
+                "color": "blue",
+                "width_desktop": 6,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-brand-trend-margin",
+          "width": { "desktop": 6, "tablet": 12, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_line_margin",
+              "type": "line_chart",
+              "config": {
+                "title": "Margin By Brand",
+                "data_type": "data_by_date",
+                "metrics": [
+                  {
+                    "metric": "products.data_by_date.brand_margin_by_date",
+                    "label": "Brand Gross Margin",
+                    "icon": "inventory_2",
+                    "color": "orange",
+                    "data_source": "products",
+                    "value_key": "brand_margin_by_date"
+                  }
+                ],
+                "date_format": "month",
+                "show_legend": true,
+                "chart_height": "335",
+                "color": "blue",
+                "width_desktop": 6,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-brand-heading-quality",
+      "columns": [
+        {
+          "id": "column-brand-heading-quality",
+          "width": { "desktop": 12, "tablet": 12, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_heading_quality",
+              "type": "heading",
+              "config": {
+                "title": "Quality and Price",
+                "heading_type": "h4",
+                "icon": "title",
+                "color": "blue",
+                "width_desktop": 12,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-brand-quality",
+      "columns": [
+        {
+          "id": "column-brand-margin-bar",
+          "width": { "desktop": 6, "tablet": 12, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_bar_margin",
+              "type": "bar_chart",
+              "config": {
+                "title": "Gross Margin By Brand",
+                "data_type": "categorized_data",
+                "metric": "products.categorized_data.product_brand_data",
+                "metric_field": "margin_percentage",
+                "metric_display": "percentage",
+                "show_legend": true,
+                "color": "blue",
+                "width_desktop": 6,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-brand-refund-bar",
+          "width": { "desktop": 6, "tablet": 12, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_bar_refund",
+              "type": "bar_chart",
+              "config": {
+                "title": "Refund Rate By Brand",
+                "data_type": "categorized_data",
+                "metric": "products.categorized_data.product_brand_data",
+                "metric_field": "refund_rate_percentage",
+                "metric_display": "percentage",
+                "show_legend": true,
+                "color": "red",
+                "width_desktop": 6,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-brand-quality-table",
+      "columns": [
+        {
+          "id": "column-brand-quality-table",
+          "width": { "desktop": 8, "tablet": 12, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_quality_table",
+              "type": "simple_table",
+              "config": {
+                "title": "Price Realization and Returns",
+                "data_type": "categorized_data",
+                "metric": "products.categorized_data.product_brand_data",
+                "metric_fields": [
+                  "average_selling_price",
+                  "average_discount_percent",
+                  "profit_per_unit",
+                  "quantity_return_rate"
+                ],
+                "rows_limit": 50,
+                "sort_config": {
+                  "key": "average_selling_price",
+                  "direction": "desc"
+                },
+                "color": "blue",
+                "width_desktop": 8,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        },
+        {
+          "id": "column-brand-unassigned",
+          "width": { "desktop": 4, "tablet": 12, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_unassigned_list",
+              "type": "metric_list",
+              "config": {
+                "title": "Data Quality",
+                "metrics": [
+                  {
+                    "metric": "products.totals.unassigned_brand_revenue",
+                    "label": "Unassigned Brand Revenue",
+                    "icon": "inventory_2",
+                    "color": "blue",
+                    "data_source": "products",
+                    "value_key": "unassigned_brand_revenue"
+                  },
+                  {
+                    "metric": "products.totals.top_brand_revenue_percent",
+                    "label": "Top Brand Revenue Share",
+                    "icon": "inventory_2",
+                    "color": "blue",
+                    "data_source": "products",
+                    "value_key": "top_brand_revenue_percent"
+                  },
+                  {
+                    "metric": "products.totals.total_brands_sold",
+                    "label": "Brands Sold",
+                    "icon": "inventory_2",
+                    "color": "blue",
+                    "data_source": "products",
+                    "value_key": "total_brands_sold"
+                  }
+                ],
+                "change_indicator": "previous_period",
+                "width_desktop": 4,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-brand-heading-skus",
+      "columns": [
+        {
+          "id": "column-brand-heading-skus",
+          "width": { "desktop": 12, "tablet": 12, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_heading_skus",
+              "type": "heading",
+              "config": {
+                "title": "Assortment",
+                "heading_type": "h4",
+                "icon": "title",
+                "color": "blue",
+                "width_desktop": 12,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "row-brand-skus",
+      "columns": [
+        {
+          "id": "column-brand-skus",
+          "width": { "desktop": 12, "tablet": 12, "mobile": 12 },
+          "isEmptyColumn": false,
+          "widgets": [
+            {
+              "id": "widget_brand_sku_table",
+              "type": "data_table",
+              "config": {
+                "title": "Products Sold",
+                "metric": "products.data_table.products",
+                "selected_columns": [
+                  "product_display",
+                  "product_name",
+                  "product_sku",
+                  "product_brand",
+                  "total_quantity_sold",
+                  "total_product_revenue",
+                  "total_product_profit",
+                  "average_margin",
+                  "total_refund_amount"
+                ],
+                "column_order": [],
+                "limit": "50",
+                "max_records": 500,
+                "sortable": true,
+                "searchable": true,
+                "default_sort_key": "total_product_revenue",
+                "default_sort_direction": "desc",
+                "filters": [],
+                "width_desktop": 12,
+                "width_tablet": 12,
+                "width_mobile": 12,
+                "icon": "list",
+                "color": "blue",
+                "no_max_height": false,
+                "max_height": "600",
+                "realtime_data": false,
+                "format": "text"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

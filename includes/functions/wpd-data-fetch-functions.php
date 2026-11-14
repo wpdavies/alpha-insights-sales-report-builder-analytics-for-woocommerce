@@ -1098,6 +1098,199 @@ function wpdai_get_order_browsing_history( $order_id ) {
 }
 
 /**
+ * First tagged page URL from a session's stored events.
+ *
+ * @param string $session_id Session ID.
+ * @return string
+ */
+function wpdai_get_first_tagged_event_landing_page( $session_id ) {
+	global $wpdb;
+
+	$session_id = is_string( $session_id ) ? $session_id : '';
+	if ( '' === $session_id || ! class_exists( 'WPDAI_Database_Interactor' ) ) {
+		return '';
+	}
+
+	$db_interactor  = new WPDAI_Database_Interactor();
+	$events_table   = $db_interactor->events_table;
+	$managed_tables = $db_interactor->get_managed_tables();
+	if ( ! in_array( $events_table, $managed_tables, true ) ) {
+		return '';
+	}
+
+	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is validated via Database Interactor whitelist.
+	$urls = $wpdb->get_col(
+		$wpdb->prepare(
+			"SELECT page_href FROM {$events_table} WHERE session_id = %s AND page_href <> '' ORDER BY date_created_gmt ASC, ID ASC",
+			$session_id
+		)
+	);
+
+	if ( ! is_array( $urls ) ) {
+		return '';
+	}
+
+	foreach ( $urls as $url ) {
+		$url = is_string( $url ) ? htmlspecialchars_decode( $url ) : '';
+		if ( '' === $url ) {
+			continue;
+		}
+		if ( function_exists( 'wpdai_landing_page_looks_correct' ) && wpdai_landing_page_looks_correct( $url ) ) {
+			return esc_url_raw( $url );
+		}
+	}
+
+	return '';
+}
+
+/**
+ * Resolve the landing page and referral that should be copied onto an order.
+ *
+ * Uses the stored session values when they look correct. Otherwise prefers the
+ * first tagged event URL and writes that back onto the session.
+ *
+ * @param string $session_id Session ID.
+ * @return array<string, string>|\WP_Error
+ */
+function wpdai_resolve_session_attribution_for_order( $session_id ) {
+	global $wpdb;
+
+	$session_id = is_string( $session_id ) ? $session_id : '';
+	if ( '' === $session_id || ! class_exists( 'WPDAI_Database_Interactor' ) ) {
+		return new WP_Error( 'invalid_session', __( 'Session not found.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
+	}
+
+	$db_interactor  = new WPDAI_Database_Interactor();
+	$session_table  = $db_interactor->session_data_table;
+	$managed_tables = $db_interactor->get_managed_tables();
+	if ( ! in_array( $session_table, $managed_tables, true ) ) {
+		return new WP_Error( 'invalid_table', __( 'Analytics tables are not available.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
+	}
+
+	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is validated via Database Interactor whitelist.
+	$session = $wpdb->get_row(
+		$wpdb->prepare(
+			"SELECT session_id, landing_page, referral_url, additional_data FROM {$session_table} WHERE session_id = %s LIMIT 1",
+			$session_id
+		),
+		ARRAY_A
+	);
+
+	if ( ! is_array( $session ) ) {
+		return new WP_Error( 'invalid_session', __( 'Session not found.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
+	}
+
+	$landing_page = isset( $session['landing_page'] ) ? (string) $session['landing_page'] : '';
+	$referral_url = isset( $session['referral_url'] ) ? (string) $session['referral_url'] : '';
+	$session_fixed = false;
+
+	if ( ! function_exists( 'wpdai_landing_page_looks_correct' ) || ! wpdai_landing_page_looks_correct( $landing_page ) ) {
+		$event_landing = wpdai_get_first_tagged_event_landing_page( $session_id );
+		if ( '' !== $event_landing ) {
+			$landing_page  = $event_landing;
+			$session_fixed = true;
+		}
+	}
+
+	if ( $session_fixed ) {
+		$wpdb->update(
+			$session_table,
+			array( 'landing_page' => $landing_page ),
+			array( 'session_id' => $session_id ),
+			array( '%s' ),
+			array( '%s' )
+		);
+	}
+
+	return array(
+		'session_id'     => $session_id,
+		'landing_page'   => $landing_page,
+		'referral_url'   => $referral_url,
+		'session_fixed'  => $session_fixed,
+		'additional_data'=> isset( $session['additional_data'] ) ? $session['additional_data'] : '',
+	);
+}
+
+/**
+ * Copy a session's landing page and referral onto an order.
+ *
+ * @param int    $order_id   Order ID.
+ * @param string $session_id Session ID.
+ * @return array<string, mixed>|\WP_Error
+ */
+function wpdai_assign_order_attribution_from_session( $order_id, $session_id ) {
+	$order_id   = absint( $order_id );
+	$session_id = is_string( $session_id ) ? $session_id : '';
+
+	if ( $order_id < 1 || '' === $session_id ) {
+		return new WP_Error( 'invalid_request', __( 'Order or session is missing.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
+	}
+
+	$order = wc_get_order( $order_id );
+	if ( ! is_a( $order, 'WC_Order' ) ) {
+		return new WP_Error( 'invalid_order', __( 'Order not found.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ) );
+	}
+
+	$resolved = wpdai_resolve_session_attribution_for_order( $session_id );
+	if ( is_wp_error( $resolved ) ) {
+		return $resolved;
+	}
+
+	$landing_page = isset( $resolved['landing_page'] ) ? (string) $resolved['landing_page'] : '';
+	$referral_url = isset( $resolved['referral_url'] ) ? (string) $resolved['referral_url'] : '';
+
+	$order->update_meta_data( '_wpd_ai_landing_page', $landing_page );
+	$order->update_meta_data( '_wpd_ai_referral_source', $referral_url );
+	$order->update_meta_data( '_wpd_ai_session_id', $session_id );
+
+	$query_params = function_exists( 'wpdai_get_query_params' ) ? wpdai_get_query_params( $landing_page ) : array();
+	if ( isset( $query_params['google_cid'] ) && is_numeric( $query_params['google_cid'] ) ) {
+		$order->update_meta_data( '_wpd_ai_google_campaign_id', trim( (string) $query_params['google_cid'] ) );
+	}
+	if ( isset( $query_params['meta_cid'] ) && is_numeric( $query_params['meta_cid'] ) ) {
+		$order->update_meta_data( '_wpd_ai_meta_campaign_id', trim( (string) $query_params['meta_cid'] ) );
+	}
+
+	$order->save_meta_data();
+
+	if ( function_exists( 'wpdai_delete_order_cache_by_order_id' ) ) {
+		wpdai_delete_order_cache_by_order_id( $order_id );
+	}
+
+	$user_agent = class_exists( 'WPDAI_Traffic_Type_Detection' )
+		? WPDAI_Traffic_Type_Detection::user_agent_from_additional_data( $resolved['additional_data'] ?? '' )
+		: (string) $order->get_customer_user_agent();
+	$traffic    = function_exists( 'wpdai_get_traffic_type' ) ? wpdai_get_traffic_type( $referral_url, $query_params, $user_agent ) : '';
+
+	$param_items = array();
+	if ( is_array( $query_params ) ) {
+		foreach ( $query_params as $param_key => $param_value ) {
+			if ( is_array( $param_value ) ) {
+				$param_value = wp_json_encode( $param_value );
+			}
+			$param_items[] = array(
+				'key'   => (string) $param_key,
+				'value' => (string) $param_value,
+			);
+		}
+	}
+
+	return array(
+		'session_id'           => $session_id,
+		'landing_page'         => $landing_page,
+		'landing_page_display' => function_exists( 'wpdai_strip_query_parameters_from_url' ) ? wpdai_strip_query_parameters_from_url( $landing_page ) : $landing_page,
+		'landing_page_path'    => function_exists( 'wpdai_get_browsing_history_url_path' ) ? wpdai_get_browsing_history_url_path( $landing_page ) : $landing_page,
+		'referral'             => $referral_url,
+		'traffic_source'       => is_string( $traffic ) ? $traffic : '',
+		'query_params'         => $param_items,
+		'session_fixed'        => ! empty( $resolved['session_fixed'] ),
+		'message'              => ! empty( $resolved['session_fixed'] )
+			? __( 'Order attribution updated from this session. The session landing page was also corrected from its event log.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' )
+			: __( 'Order attribution updated from this session.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+	);
+}
+
+/**
  * 
  * 	Fetches single product stat
  * 
@@ -1127,16 +1320,96 @@ function wpdai_get_product_statistic( $event_type, $product_id ) {
 }
 
 /**
- * 
+ * All-time product event counts for a batch of products, in one grouped query.
+ *
+ * Replaces four COUNT(*) queries per product. Uses the idx_product_event
+ * (product_id, event_type) index. Honours the "only track engaged sessions"
+ * setting the same way get_analytics_where_clause() does.
+ *
+ * @param int[] $product_ids Product or variation IDs.
+ * @return array<int, array<string, int>>|false Counts keyed by product ID then event type, false on DB error.
+ */
+function wpdai_get_product_event_counts( $product_ids ) {
+
+	global $wpdb;
+
+	$event_types = array( 'page_view', 'product_click', 'add_to_cart', 'product_purchase' );
+	$product_ids = array_values( array_unique( array_filter( array_map( 'absint', (array) $product_ids ) ) ) );
+	$counts      = array();
+
+	foreach ( $product_ids as $product_id ) {
+		$counts[ $product_id ] = array_fill_keys( $event_types, 0 );
+	}
+
+	if ( empty( $product_ids ) ) {
+		return $counts;
+	}
+
+	$wpd_db             = new WPDAI_Database_Interactor();
+	$events_table       = $wpd_db->events_table;
+	$session_data_table = $wpd_db->session_data_table;
+	$analytics_settings = wpdai_get_analytics_settings();
+	$engaged_clause     = '';
+
+	if ( ! empty( $analytics_settings['only_track_engaged_sessions'] ) ) {
+		// Correlated EXISTS uses the sessions.session_id index per row, instead of
+		// materialising every engaged session in the table for each count.
+		$engaged_clause = " AND EXISTS (
+			SELECT 1 FROM `{$session_data_table}` AS sessions
+			WHERE sessions.session_id = events.session_id
+			AND ( sessions.engaged_session = 1 OR sessions.date_created_gmt != sessions.date_updated_gmt )
+		)";
+	}
+
+	$id_placeholders   = implode( ',', array_fill( 0, count( $product_ids ), '%d' ) );
+	$type_placeholders = implode( ',', array_fill( 0, count( $event_types ), '%s' ) );
+
+	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names from trusted source, values prepared.
+	$sql = $wpdb->prepare(
+		"SELECT events.product_id, events.event_type, COUNT(*) AS event_count
+		FROM `{$events_table}` AS events
+		WHERE events.product_id IN ({$id_placeholders})
+		AND events.event_type IN ({$type_placeholders})
+		{$engaged_clause}
+		GROUP BY events.product_id, events.event_type",
+		array_merge( $product_ids, $event_types )
+	);
+
+	// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared above.
+	$rows = $wpdb->get_results( $sql, ARRAY_A );
+
+	if ( $wpdb->last_error ) {
+		wpdai_write_log( 'Error fetching product event counts, dumping the error and query.', 'db_error' );
+		wpdai_write_log( $wpdb->last_error, 'db_error' );
+		wpdai_write_log( $wpdb->last_query, 'db_error' );
+		return false;
+	}
+
+	if ( is_array( $rows ) ) {
+		foreach ( $rows as $row ) {
+			$product_id = (int) $row['product_id'];
+			if ( isset( $counts[ $product_id ][ $row['event_type'] ] ) ) {
+				$counts[ $product_id ][ $row['event_type'] ] = (int) $row['event_count'];
+			}
+		}
+	}
+
+	return $counts;
+
+}
+
+/**
+ *
  * 	Fetches product analytics directly from DB, used for calculating actuals
  * 
  * 	@param int $product_id
  *  @param int $variation_id (Optional)
  * 	@param bool $cache, whether to check against transients & product meta or not
+ * 	@param array|null $event_counts Optional pre-fetched counts from wpdai_get_product_event_counts() for this product
  * 	@return array
  * 
  */
-function wpdai_fetch_product_analytics_by_product_id( $product_id = 0, $cache = true ) {
+function wpdai_fetch_product_analytics_by_product_id( $product_id = 0, $cache = true, $event_counts = null ) {
 
 	// Safety check
 	if ( ! is_numeric($product_id) || $product_id < 1 ) {
@@ -1160,11 +1433,33 @@ function wpdai_fetch_product_analytics_by_product_id( $product_id = 0, $cache = 
 		
 	}
 
+	$previous_analytics = get_post_meta( $product_id, '_wpd_ai_product_analytics', true );
+
+	// One grouped query for all four event types. Skipped when tracking is off and we
+	// already have stored counts, since the events table can't have changed.
+	if ( ! is_array( $event_counts ) && ( wpdai_is_analytics_enabled() || ! is_array( $previous_analytics ) ) ) {
+		$batch_counts = wpdai_get_product_event_counts( array( $product_id ) );
+		if ( is_array( $batch_counts ) && isset( $batch_counts[ (int) $product_id ] ) ) {
+			$event_counts = $batch_counts[ (int) $product_id ];
+		}
+	}
+
+	// Tracking off or the query failed: keep the last stored counts rather than zeroing them.
+	if ( ! is_array( $event_counts ) ) {
+		$previous     = is_array( $previous_analytics ) ? $previous_analytics : array();
+		$event_counts = array(
+			'page_view'        => isset( $previous['product_page_views'] ) ? $previous['product_page_views'] : 0,
+			'product_click'    => isset( $previous['product_cat_page_clicks'] ) ? $previous['product_cat_page_clicks'] : 0,
+			'add_to_cart'      => isset( $previous['product_add_to_carts'] ) ? $previous['product_add_to_carts'] : 0,
+			'product_purchase' => isset( $previous['product_purchases'] ) ? $previous['product_purchases'] : 0,
+		);
+	}
+
 	$sales_data 					= wpdai_collect_product_sales_data_db_direct( $product_id );
-	$product_page_views 			= (int) wpdai_get_product_statistic( 'page_view', $product_id );
-	$product_cat_page_clicks 		= (int) wpdai_get_product_statistic( 'product_click', $product_id );
-	$product_add_to_carts 			= (int) wpdai_get_product_statistic( 'add_to_cart', $product_id );
-	$product_purchases_wpd_ai 		= (int) wpdai_get_product_statistic( 'product_purchase', $product_id );
+	$product_page_views 			= isset( $event_counts['page_view'] ) ? (int) $event_counts['page_view'] : 0;
+	$product_cat_page_clicks 		= isset( $event_counts['product_click'] ) ? (int) $event_counts['product_click'] : 0;
+	$product_add_to_carts 			= isset( $event_counts['add_to_cart'] ) ? (int) $event_counts['add_to_cart'] : 0;
+	$product_purchases_wpd_ai 		= isset( $event_counts['product_purchase'] ) ? (int) $event_counts['product_purchase'] : 0;
 	$product_qty_purchased_wpd_ai 	= (int) 0;
 	$wc_total_qty_purchased 		= (int) $sales_data['total_qty_sold'];
 	$total_revenue_pre_discount 	= (float) $sales_data['total_revenue_pre_discount'];

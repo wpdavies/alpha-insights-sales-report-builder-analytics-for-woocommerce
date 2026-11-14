@@ -4,7 +4,7 @@ Tags: woocommerce analytics, woocommerce reporting, woocommerce analytics plugin
 Requires at least: 5.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.2.0
+Stable tag: 2.3.0
 Requires Plugins: woocommerce
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -188,6 +188,26 @@ Default WooCommerce reports focus primarily on revenue. Alpha Insights adds cost
 
 == Changelog ==
 
+= 2.3.0 =
+* Add - QR Code traffic source: sessions whose utm_source or utm_medium contains the word qr or qrcode (e.g. qr, qr_code, qr-code, QR Code, menu_qr) are classified as QR Code instead of Referral or Direct
+* Fix - The product statistics background task could run many times a minute instead of hourly. Recurring tasks are now scheduled once, and existing duplicates are cancelled on update
+* Tweak - Product statistics count page views, product clicks, add to carts and purchases for a whole batch in one indexed query, instead of four all-time counts per product
+* Tweak - Product statistics refresh 4 times a day instead of hourly, with the same number of products updated per day
+* Tweak - With event tracking turned off, product statistics keep their stored counts instead of recounting the events table
+* Add - Large reports stop before PHP runs out of memory and return the results collected so far. Memory and time-limit fatals on report requests return a JSON error and are logged
+* Fix - Profit & Loss PDF export now prints line-item amounts and totals
+* Tweak - Product profit, margin and stock value use the price excluding tax when catalogue prices include tax, on the product cost panel and in Cost of Goods
+* Tweak - Product cost panel shows product cost and other costs separately
+* Fix - Deleted variations left on a variable product no longer cause a critical error on the product cost panel or margin range
+* Fix - Saving product costs clears the product cost cache so the new value is used immediately
+* Add - A/B test results show statistical significance (significant, directional, inconclusive or needs more data) with p-value and 95% confidence interval
+* Tweak - A/B funnel columns show rates instead of raw counts, with clearer goal labels and goal descriptions on the edit screen
+* Add - Order browsing history can assign a session's landing page and referral to the order
+* Fix - First-touch landing page and referral stay locked once set; linker-only and checkout URLs can no longer overwrite them
+* Add - Checkout Completion Rate and Sessions with Checkout Complete metrics
+* Add - Report Manager search, and up to 4 recently accessed reports
+* Fix - Report Manager search icon no longer overlaps the placeholder text
+
 = 2.2.0 =
 * Tweak - Experiments renamed to A/B Test in the admin menu, reports, and documentation
 * Add - A/B Test list shows purchases, revenue, AOV, and revenue per exposure, with a Target conversion picker
@@ -313,6 +333,9 @@ Default WooCommerce reports focus primarily on revenue. Alpha Insights adds cost
 ---
 
 == Upgrade Notice ==
+
+= 2.3.0 =
+Greatly reduces server load from the product statistics background task, adds a QR Code traffic source, and improves A/B test results, large report handling and product cost calculations.
 
 = 2.2.0 =
 Improves A/B Test results (lift-vs-control chart and richer list metrics), makes cache-safe analytics the only tracking loader, and fixes first-touch attribution, cart/checkout sessions, and add-to-cart URLs.

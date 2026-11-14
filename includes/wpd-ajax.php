@@ -664,3 +664,36 @@ function wpdai_get_order_browsing_history_ajax() {
 
 	wp_send_json_success( $history );
 }
+
+/**
+ * Copy a browsing-history session's landing page and referral onto an order.
+ */
+add_action( 'wp_ajax_wpd_assign_order_attribution_from_session', 'wpdai_assign_order_attribution_from_session_ajax' );
+function wpdai_assign_order_attribution_from_session_ajax() {
+
+	if ( ! wpdai_verify_ajax_request() ) {
+		return;
+	}
+
+	if ( ! current_user_can( 'edit_shop_orders' ) && ! current_user_can( 'manage_woocommerce' ) ) {
+		wp_send_json_error(
+			array(
+				'message' => __( 'You do not have permission to edit this order.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' ),
+			)
+		);
+	}
+
+	$order_id   = isset( $_POST['order_id'] ) ? absint( wp_unslash( $_POST['order_id'] ) ) : 0;
+	$session_id = isset( $_POST['session_id'] ) ? sanitize_text_field( wp_unslash( $_POST['session_id'] ) ) : '';
+	$result     = wpdai_assign_order_attribution_from_session( $order_id, $session_id );
+
+	if ( is_wp_error( $result ) ) {
+		wp_send_json_error(
+			array(
+				'message' => $result->get_error_message(),
+			)
+		);
+	}
+
+	wp_send_json_success( $result );
+}

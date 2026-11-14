@@ -250,6 +250,7 @@ class WPDAI_Report_Builder {
             'filters_data_map_values'      => $this->get_filters_data_map_values(),
             'default_report_ids'           => wpdai_get_default_react_report_ids(),
             'logo_icon_url'                => esc_url( wpdai_get_logo_icon_url() ),
+            'current_user_id'              => get_current_user_id(),
             'menu_slugs' => array(
                 'sales_reports'         => WPDAI_Admin_Menu::$sales_report_slug,
                 'website_traffic'       => WPDAI_Admin_Menu::$website_traffic_slug,
@@ -308,6 +309,92 @@ class WPDAI_Report_Builder {
         add_action('wp_ajax_wpd_build_order_cache_batch', [__CLASS__, 'build_order_cache_batch_ajax_handler']);
         add_action('wp_ajax_wpd_mark_cache_complete', [__CLASS__, 'mark_cache_complete_ajax_handler']);
         add_action('wp_ajax_wpd_search_report_query_parameters', [__CLASS__, 'search_report_query_parameters_ajax_handler']);
+        add_action( 'admin_init', [ __CLASS__, 'maybe_install_brand_performance_report' ] );
+        add_action( 'admin_init', [ __CLASS__, 'maybe_install_supplier_performance_report' ] );
+
+    }
+
+    /**
+     * Install the Brand Performance default report when Pro is active and brand terms exist.
+     *
+     * Does not overwrite an existing user-edited config.
+     *
+     * @return void
+     */
+    public static function maybe_install_brand_performance_report() {
+
+        if ( ! function_exists( 'wpdai_is_product_brand_reporting_enabled' ) || ! wpdai_is_product_brand_reporting_enabled() ) {
+            return;
+        }
+
+        if ( ! function_exists( 'wpdai_site_has_product_brand_data' ) || ! wpdai_site_has_product_brand_data() ) {
+            return;
+        }
+
+        if ( false !== get_option( 'wpd_dashboard_config_brand-performance' ) ) {
+            return;
+        }
+
+        $file = WPD_AI_PATH . 'includes/reports/dashboard-config-brand-performance.json';
+        if ( ! file_exists( $file ) ) {
+            return;
+        }
+
+        $json = file_get_contents( $file );
+        $data = json_decode( $json, true );
+        if ( ! is_array( $data ) || empty( $data['dashboard_id'] ) ) {
+            return;
+        }
+
+        try {
+            self::import_single_default_report( $data['dashboard_id'], $data );
+        } catch ( Exception $e ) {
+            if ( function_exists( 'wpdai_write_log' ) ) {
+                wpdai_write_log( 'Could not install brand performance default report: ' . $e->getMessage(), 'reports' );
+            }
+        }
+
+    }
+
+    /**
+     * Install the Supplier Performance default report when Pro is active and supplier terms exist.
+     *
+     * Does not overwrite an existing user-edited config.
+     *
+     * @return void
+     */
+    public static function maybe_install_supplier_performance_report() {
+
+        if ( ! function_exists( 'wpdai_is_product_supplier_reporting_enabled' ) || ! wpdai_is_product_supplier_reporting_enabled() ) {
+            return;
+        }
+
+        if ( ! function_exists( 'wpdai_site_has_product_supplier_data' ) || ! wpdai_site_has_product_supplier_data() ) {
+            return;
+        }
+
+        if ( false !== get_option( 'wpd_dashboard_config_supplier-performance' ) ) {
+            return;
+        }
+
+        $file = WPD_AI_PATH . 'includes/reports/dashboard-config-supplier-performance.json';
+        if ( ! file_exists( $file ) ) {
+            return;
+        }
+
+        $json = file_get_contents( $file );
+        $data = json_decode( $json, true );
+        if ( ! is_array( $data ) || empty( $data['dashboard_id'] ) ) {
+            return;
+        }
+
+        try {
+            self::import_single_default_report( $data['dashboard_id'], $data );
+        } catch ( Exception $e ) {
+            if ( function_exists( 'wpdai_write_log' ) ) {
+                wpdai_write_log( 'Could not install supplier performance default report: ' . $e->getMessage(), 'reports' );
+            }
+        }
 
     }
 
@@ -670,7 +757,7 @@ class WPDAI_Report_Builder {
             
             $response = self::get_live_dashboard_data_from_config( $config );
             
-            wp_send_json($response);
+            wpdai_send_json( $response );
             
         } catch (Exception $e) {
             self::log_error('WPDAI_Report_Builder: Error fetching live data: ' . $e->getMessage());
@@ -994,7 +1081,9 @@ class WPDAI_Report_Builder {
             'products' => array(
                 'products' => $products,
                 'product_categories' => $report_filters->get_filter_values_product_categories(),
-                'product_tags' => $report_filters->get_filter_values_product_tags()
+                'product_tags' => $report_filters->get_filter_values_product_tags(),
+                'product_brands' => $report_filters->get_filter_values_product_brands(),
+                'product_suppliers' => $report_filters->get_filter_values_product_suppliers(),
             ),
             'customers' => array(
                 'billing_countries' => $report_filters->get_filter_values_billing_countries(),
@@ -1528,6 +1617,7 @@ class WPDAI_Report_Builder {
             $total_db_records += $data_warehouse->get_total_db_records();
             $report_errors = $data_warehouse->get_errors();
             $execution_time_report_entities = $data_warehouse->get_execution_time();
+            $memory_exhausted = $data_warehouse->is_memory_exhausted();
 
             // Clear memory
             unset($data_warehouse);
@@ -1536,10 +1626,14 @@ class WPDAI_Report_Builder {
             $report_data = self::minimize_data($report_data, $required_entities);
             $report_data = self::clean_data($report_data, $date_range_container);
 
-            // Fetch comparison data if comparison dates are set
+            // Fetch comparison data if comparison dates are set and the primary fetch still has memory headroom.
             $comparison_data = array();
             $comparison_data_warehouse_filter = array();
             if (isset($filters['comparison_date_from']) && isset($filters['comparison_date_to'])) {
+
+                if ( $memory_exhausted || wpdai_is_memory_usage_greater_than() ) {
+                    $report_errors[] = __( 'Comparison data was skipped because PHP memory is close to its limit. Results cover the selected date range only.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
+                } else {
 
                 // Create comparison filters
                 $comparison_filters = $filters;
@@ -1561,6 +1655,10 @@ class WPDAI_Report_Builder {
                 $comparison_data_warehouse_filter = $comparison_warehouse->get_filter();
                 $total_db_records += $comparison_warehouse->get_total_db_records();
                 $execution_time_comparison_report_entities = $comparison_warehouse->get_execution_time();
+                $comparison_errors = $comparison_warehouse->get_errors();
+                if ( ! empty( $comparison_errors ) ) {
+                    $report_errors = array_merge( $report_errors, $comparison_errors );
+                }
 
                 // Add comparison execution times if set (sum in full float; rounded to 2 dec in final response).
                 foreach( $execution_time_report_entities as $execution_time_report_entity => $execution_time_report_entity_value ) {
@@ -1575,6 +1673,8 @@ class WPDAI_Report_Builder {
                 // Minimize and clean comparison data - skip in build mode
                 $comparison_data = self::minimize_data($comparison_data, $required_entities);
                 $comparison_data = self::clean_data($comparison_data, $comparison_date_range_container);
+
+                }
 
             }
 
@@ -1792,6 +1892,10 @@ class WPDAI_Report_Builder {
                 'percent_sessions_with_initiate_checkout_by_date' => array(
                     'analytics.data_by_date.sessions_with_initiate_checkout_by_date',
                     'analytics.data_by_date.sessions_by_date'
+                ),
+                'percent_sessions_checkout_complete_by_date' => array(
+                    'analytics.data_by_date.sessions_with_transaction_by_date',
+                    'analytics.data_by_date.sessions_with_initiate_checkout_by_date'
                 )
             ),
             'google_campaigns' => array(
@@ -2380,7 +2484,11 @@ class WPDAI_Report_Builder {
 
                 // Get the actual dashboard_id from the JSON file
                 $actual_dashboard_id = isset( $report_data['dashboard_id'] ) ? $report_data['dashboard_id'] : $slug;
-                
+
+                if ( function_exists( 'wpdai_is_default_report_available' ) && ! wpdai_is_default_report_available( $actual_dashboard_id ) ) {
+                    continue;
+                }
+
                 // Check if this report is currently installed by looking at the actual report data
                 $is_installed = false;
                 if ( in_array( $actual_dashboard_id, $installed_reports ) ) {
@@ -2515,10 +2623,16 @@ class WPDAI_Report_Builder {
             return $response;
         }
 
+        if ( function_exists( 'wpdai_is_default_report_available' ) && ! wpdai_is_default_report_available( $report_slug ) ) {
+            $response['success'] = false;
+            $response['message'] = __( 'This report requires Alpha Insights Pro.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
+            return $response;
+        }
+
         try {
             // Find the report file by searching through all JSON files for matching dashboard_id
             $reports_dir = WPD_AI_PATH . 'includes/reports/';
-            
+
             if ( ! is_dir( $reports_dir ) ) {
                 throw new Exception( 'Reports directory not found' );
             }
@@ -2848,6 +2962,22 @@ class WPDAI_Report_Builder {
                     // Check if the report is a subscription report and WC Subscriptions is active
                     if ( ! $wc_subscriptions && strpos( $dashboard_id, 'subscription' ) !== false ) {
                         continue;
+                    }
+
+                    if ( 'brand-performance' === $dashboard_id ) {
+                        $brand_reporting_enabled = function_exists( 'wpdai_is_product_brand_reporting_enabled' ) && wpdai_is_product_brand_reporting_enabled();
+                        $has_brand_data          = function_exists( 'wpdai_site_has_product_brand_data' ) && wpdai_site_has_product_brand_data();
+                        if ( ! $brand_reporting_enabled || ! $has_brand_data ) {
+                            continue;
+                        }
+                    }
+
+                    if ( 'supplier-performance' === $dashboard_id ) {
+                        $supplier_reporting_enabled = function_exists( 'wpdai_is_product_supplier_reporting_enabled' ) && wpdai_is_product_supplier_reporting_enabled();
+                        $has_supplier_data          = function_exists( 'wpdai_site_has_product_supplier_data' ) && wpdai_site_has_product_supplier_data();
+                        if ( ! $supplier_reporting_enabled || ! $has_supplier_data ) {
+                            continue;
+                        }
                     }
 
                     // Check if report already exists and override is false

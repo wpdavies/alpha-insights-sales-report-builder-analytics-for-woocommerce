@@ -184,6 +184,7 @@ class WPDAI_Traffic_Type_Detection {
             'app' 			=> 'App',
             'referral' 		=> 'Referral',
             'ai_chat' 		=> 'AI Chat',
+            'qr_code' 		=> 'QR Code',
             'unknown' 		=> 'Unknown'
             
         );
@@ -496,6 +497,11 @@ class WPDAI_Traffic_Type_Detection {
             return 'Email';
         }
 
+        // --- QR codes (scans arrive with no referrer, so the UTM tag is the only signal) ---
+        if ( $this->is_qr_code_tag( $source ) || $this->is_qr_code_tag( $medium ) ) {
+            return 'QR Code';
+        }
+
         // --- UTM medium ---
         if ( 'email' === $medium ) {
             return 'Email';
@@ -558,6 +564,37 @@ class WPDAI_Traffic_Type_Detection {
         // Tagged traffic is never Direct. Unknown UTMs are Referral.
         if ( '' !== $source || '' !== $medium || isset( $query_params['utm_campaign'] ) ) {
             return 'Referral';
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether a UTM source/medium value marks a QR code scan.
+     *
+     * Splits on non-alphanumerics and looks for a "qr" or "qrcode" word, so
+     * qr, qr_code, qr-code, "QR Code", qrcode, qr-flyer and menu_qr all match,
+     * while values that merely contain the letters (e.g. squarespace) do not.
+     *
+     * @param string $value Normalized (lowercase) UTM value.
+     * @return bool
+     */
+    private function is_qr_code_tag( $value ) {
+
+        if ( '' === $value ) {
+            return false;
+        }
+
+        $words = preg_split( '/[^a-z0-9]+/', $value, -1, PREG_SPLIT_NO_EMPTY );
+
+        if ( empty( $words ) ) {
+            return false;
+        }
+
+        foreach ( $words as $word ) {
+            if ( 'qr' === $word || 'qrcode' === $word || 'qrcodes' === $word || 'qrscan' === $word ) {
+                return true;
+            }
         }
 
         return false;

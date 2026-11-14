@@ -7,13 +7,13 @@
  * Author:              WP Davies
  * Author URI:          https://wpdavies.dev/
  *
- * Version:             	2.2.0
+ * Version:             	2.3.0
  * Requires at least:   	5.0
  * Tested up to:        	7.1
  * Requires PHP: 			7.4
  * Requires Plugins: 		woocommerce
  * WC requires at least: 	3.0
- * WC tested up to: 		11.1
+ * WC tested up to: 		11.3
  *
  * License:             GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -39,7 +39,7 @@ defined( 'ABSPATH' ) || exit;
 
 // Pro-owned version (not shared with Free). Used when Free has already claimed WPD_AI_VER this request.
 if ( ! defined( 'WPD_AI_PRO_PACKAGE_VERSION' ) ) {
-	define( 'WPD_AI_PRO_PACKAGE_VERSION', '5.10.7' );
+	define( 'WPD_AI_PRO_PACKAGE_VERSION', '5.15.0' );
 }
 
 class WPD_Alpha_Insights_Free_Plugin {
@@ -57,6 +57,13 @@ class WPD_Alpha_Insights_Free_Plugin {
 	 * @var bool
 	 */
 	public $version_check = true;
+
+	/**
+	 * Bytes kept free so a memory-exhaustion shutdown can still log and respond.
+	 *
+	 * @var string|null
+	 */
+	private $fatal_error_memory_reserve = null;
 
 	/**
 	 * Stores the cached compatibility check results to avoid running checks multiple times
@@ -105,6 +112,10 @@ class WPD_Alpha_Insights_Free_Plugin {
 
 		// Ensure log directory exists early
 		$this->ensure_log_directory();
+
+		// Keep a small buffer free. PHP cannot catch an out-of-memory fatal, but releasing
+		// this in the shutdown function leaves enough memory to log it and return JSON.
+		$this->fatal_error_memory_reserve = str_repeat( 'x', 262144 );
 
 		// Register shutdown function to catch fatal/critical errors
 		register_shutdown_function( array( $this, 'log_fatal_errors' ) );
@@ -176,7 +187,7 @@ class WPD_Alpha_Insights_Free_Plugin {
 		if ( ! defined('WPD_AI_VER') ) define( 'WPD_AI_VER', WPD_AI_PRO_PACKAGE_VERSION );
 		if ( ! defined('WPD_AI_CACHE_VERSION') ) define( 'WPD_AI_CACHE_VERSION', '5.10.4' ); // Follows along pro versioning
 		if ( ! defined('WPD_AI_CACHE_UPDATE_REQUIRED_VER') ) define( 'WPD_AI_CACHE_UPDATE_REQUIRED_VER', '5.8.0' ); // version this up as cache deletes are required
-		if ( ! defined('WPD_AI_DB_VERSION') ) define( 'WPD_AI_DB_VERSION', '5.10.7' );
+		if ( ! defined('WPD_AI_DB_VERSION') ) define( 'WPD_AI_DB_VERSION', '5.15.0' );
 		if ( ! defined('WPD_AI_PRODUCT_ID') ) define( 'WPD_AI_PRODUCT_ID', 8330 );
 		
 		// Security Constants
@@ -727,6 +738,9 @@ class WPD_Alpha_Insights_Free_Plugin {
 	 */
 	public function log_fatal_errors() {
 
+		// Free the reserve first so logging and the JSON response can allocate.
+		$this->fatal_error_memory_reserve = null;
+
 		// Get the last error
 		$error = error_get_last();
 
@@ -749,16 +763,19 @@ class WPD_Alpha_Insights_Free_Plugin {
 			return;
 		}
 
-		// Check if error is related to alpha-insights
-		$error_message = isset( $error['message'] ) ? strtolower( $error['message'] ) : '';
-		$error_file    = isset( $error['file'] ) ? strtolower( $error['file'] ) : '';
-		$search_string = 'alpha-insights';
+		$error_message_raw = isset( $error['message'] ) ? (string) $error['message'] : '';
+		$error_file_raw    = isset( $error['file'] ) ? (string) $error['file'] : '';
+		$error_message     = strtolower( $error_message_raw );
+		$error_file        = strtolower( $error_file_raw );
+		$search_string     = 'alpha-insights';
+		$is_plugin_file    = ( false !== strpos( $error_message, $search_string ) || false !== strpos( $error_file, $search_string ) );
+		$is_memory_error   = ( false !== strpos( $error_message, 'allowed memory size' ) || false !== strpos( $error_message, 'out of memory' ) );
+		$is_timeout_error  = ( false !== strpos( $error_message, 'maximum execution time' ) );
+		$is_plugin_request = $this->is_plugin_json_request();
 
-		// Check if error message or file path contains 'alpha-insights'
-		if ( 
-			false === strpos( $error_message, $search_string ) && 
-			false === strpos( $error_file, $search_string ) 
-		) {
+		// Ignore fatals from other plugins, unless this was one of our report requests
+		// (those often die inside WooCommerce while building a large query).
+		if ( ! $is_plugin_file && ! $is_plugin_request ) {
 			return;
 		}
 
@@ -767,9 +784,9 @@ class WPD_Alpha_Insights_Free_Plugin {
 		$log_entry = sprintf(
 			"FATAL ERROR [%s]: %s\nFile: %s\nLine: %s\n",
 			$error_type_name,
-			$error['message'],
-			$error['file'],
-			$error['line']
+			$error_message_raw,
+			$error_file_raw,
+			isset( $error['line'] ) ? $error['line'] : ''
 		);
 
 		// Log the error using wpdai_write_log if available, otherwise use the private log method
@@ -778,6 +795,88 @@ class WPD_Alpha_Insights_Free_Plugin {
 		} else {
 			$this->log( $log_entry, 'fatal_error' );
 		}
+
+		if ( function_exists( 'error_log' ) ) {
+			error_log( 'Alpha Insights: ' . str_replace( array( "\r", "\n" ), ' ', $log_entry ) );
+		}
+
+		if ( ! $is_plugin_request ) {
+			return;
+		}
+
+		if ( $is_memory_error ) {
+			$public_message = __( 'This report ran out of PHP memory before it could finish. Increase the PHP memory limit or use a shorter date range.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
+		} elseif ( $is_timeout_error ) {
+			$public_message = __( 'This report hit the PHP time limit before it could finish. Increase max_execution_time or use a shorter date range.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
+		} else {
+			$public_message = __( 'This report failed before it could finish. Check the Alpha Insights fatal error log for details.', 'alpha-insights-sales-report-builder-analytics-for-woocommerce' );
+		}
+
+		$this->send_fatal_json_response( $public_message );
+
+	}
+
+	/**
+	 * Whether the current request is an Alpha Insights AJAX or REST call that expects JSON.
+	 *
+	 * @return bool
+	 */
+	private function is_plugin_json_request() {
+
+		if ( function_exists( 'wp_doing_ajax' ) && wp_doing_ajax() ) {
+			// Reading the action only to recognise our own AJAX request after a fatal. Not a state change.
+			$action = isset( $_REQUEST['action'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) : '';
+			return ( 0 === strpos( $action, 'wpd_' ) || 0 === strpos( $action, 'wpd-' ) );
+		}
+
+		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+			$route = '';
+			if ( isset( $GLOBALS['wp'] ) && is_object( $GLOBALS['wp'] ) && isset( $GLOBALS['wp']->query_vars['rest_route'] ) ) {
+				$route = (string) $GLOBALS['wp']->query_vars['rest_route'];
+			}
+			if ( '' === $route && isset( $_SERVER['REQUEST_URI'] ) ) {
+				$route = (string) wp_unslash( $_SERVER['REQUEST_URI'] );
+			}
+			return false !== strpos( $route, 'alpha-insights/v1' );
+		}
+
+		return false;
+
+	}
+
+	/**
+	 * Replace an empty fatal response with a small JSON error.
+	 *
+	 * @param string $message Public error message.
+	 * @return void
+	 */
+	private function send_fatal_json_response( $message ) {
+
+		$buffer_level = ob_get_level();
+		for ( $i = 0; $i < $buffer_level; $i++ ) {
+			ob_end_clean();
+		}
+
+		$payload = array(
+			'success' => false,
+			'message' => $message,
+		);
+		$json = function_exists( 'wp_json_encode' ) ? wp_json_encode( $payload ) : json_encode( $payload );
+		if ( ! is_string( $json ) || '' === $json ) {
+			$json = '{"success":false,"message":"This report ran out of PHP memory before it could finish."}';
+		}
+
+		if ( ! headers_sent() ) {
+			if ( function_exists( 'status_header' ) ) {
+				status_header( 500 );
+			} else {
+				header( 'HTTP/1.1 500 Internal Server Error', true, 500 );
+			}
+			header( 'Content-Type: application/json; charset=utf-8' );
+		}
+
+		echo $json; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON error response.
+		exit( 1 );
 
 	}
 

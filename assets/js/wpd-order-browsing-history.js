@@ -98,14 +98,17 @@
 			var landing = session.landing_page_path || session.landing_page || '';
 			var referral = session.referral || '';
 			var views = session.page_views || [];
+			var assignedClass = session.is_order_session ? ' is-assigned' : '';
 
-			html += '<article class="wpd-bh-session' + expanded + '">';
+			html += '<article class="wpd-bh-session' + expanded + assignedClass + '" data-session-id="' + escapeHtml(session.session_id || '') + '">';
 			html += '<button type="button" class="wpd-bh-session-toggle" aria-expanded="' + (index === 0 ? 'true' : 'false') + '">';
 			html += '<span class="wpd-bh-session-main">';
 			html += '<span class="wpd-bh-session-date">' + escapeHtml(session.started_at || '') + '</span>';
 			html += '<span class="wpd-bh-pills">';
 			html += '<span class="wpd-bh-pill">' + escapeHtml(source) + '</span>';
-			if (session.has_order || session.is_order_session) {
+			if (session.is_order_session) {
+				html += '<span class="wpd-bh-pill wpd-bh-pill-assigned">' + escapeHtml(i18n('usedForOrder', 'Used for this order')) + '</span>';
+			} else if (session.has_order) {
 				html += '<span class="wpd-bh-pill wpd-bh-pill-order">' + escapeHtml(i18n('orderPlaced', 'Order Placed')) + '</span>';
 			}
 			html += '</span>';
@@ -135,6 +138,13 @@
 			}
 			if (session.device) {
 				html += '<div><span></span><em>' + escapeHtml(session.device) + '</em></div>';
+			}
+			if (session.session_id) {
+				html += '<div class="wpd-bh-session-actions">';
+				html += '<button type="button" class="button button-small wpd-bh-assign-btn" data-session-id="' + escapeHtml(session.session_id) + '">';
+				html += escapeHtml(session.is_order_session ? i18n('usedForOrder', 'Used for this order') : i18n('useForOrder', 'Use for this order'));
+				html += '</button>';
+				html += '</div>';
 			}
 			html += '</div>';
 
@@ -227,6 +237,108 @@
 		var isOpen = $session.hasClass('is-open');
 		$session.toggleClass('is-open', !isOpen);
 		$(this).attr('aria-expanded', isOpen ? 'false' : 'true');
+	});
+
+	function ucfirst(value) {
+		value = String(value || '');
+		return value.charAt(0).toUpperCase() + value.slice(1);
+	}
+
+	function updateOrderAttributionBox(data) {
+		var $box = $('.wpd-order-attribution');
+		if (!$box.length || !data) {
+			return;
+		}
+
+		$box.find('.wpd-ai-traffic-source').text(data.traffic_source || '');
+		$box.find('.wpd-ai-referral-source').text(data.referral || '');
+		$box.find('.wpd-ai-landing-page').text(data.landing_page_display || data.landing_page || '');
+
+		var $params = $box.find('.wpd-ai-query-params');
+		if (!$params.length) {
+			return;
+		}
+
+		var params = data.query_params || [];
+		if (!params.length) {
+			$params.empty();
+			return;
+		}
+
+		var html = '<div class="wpd-grid-2">';
+		params.forEach(function(item) {
+			html += '<span>' + escapeHtml(ucfirst(item.key)) + ':</span>';
+			html += '<span>' + escapeHtml(ucfirst(item.value)) + '</span>';
+		});
+		html += '</div>';
+		$params.html(html);
+	}
+
+	function markAssignedSession(sessionId, data) {
+		if (cache && Array.isArray(cache.sessions)) {
+			cache.sessions.forEach(function(session) {
+				session.is_order_session = session.session_id === sessionId;
+				if (session.session_id === sessionId && data) {
+					if (data.landing_page) {
+						session.landing_page = data.landing_page;
+						session.landing_page_path = data.landing_page_path || session.landing_page_path;
+					}
+					if (typeof data.referral !== 'undefined') {
+						session.referral = data.referral;
+					}
+					if (data.traffic_source) {
+						session.traffic_source = data.traffic_source;
+					}
+				}
+			});
+		}
+
+		if (cache) {
+			renderSessions(cache);
+		}
+	}
+
+	$(document).on('click', '.wpd-bh-assign-btn', function(event) {
+		event.preventDefault();
+		event.stopPropagation();
+
+		var $button = $(this);
+		var sessionId = $button.data('session-id');
+		if (!sessionId || !loadedOrderId || $button.prop('disabled')) {
+			return;
+		}
+
+		if (!window.confirm(i18n('assignConfirm', 'Use this session landing page and referral for this order?'))) {
+			return;
+		}
+
+		var originalLabel = $button.text();
+		$button.prop('disabled', true).text(i18n('assigning', 'Updating…'));
+
+		$.ajax({
+			url: config.ajax_url,
+			type: 'POST',
+			dataType: 'json',
+			data: {
+				action: 'wpd_assign_order_attribution_from_session',
+				nonce: config.nonce,
+				order_id: loadedOrderId,
+				session_id: sessionId
+			}
+		}).done(function(response) {
+			if (!response || !response.success || !response.data) {
+				var message = (response && response.data && response.data.message) ? response.data.message : i18n('assignError', 'Unable to update order attribution. Please try again.');
+				window.alert(message);
+				$button.prop('disabled', false).text(originalLabel);
+				return;
+			}
+
+			updateOrderAttributionBox(response.data);
+			markAssignedSession(sessionId, response.data);
+		}).fail(function() {
+			window.alert(i18n('assignError', 'Unable to update order attribution. Please try again.'));
+			$button.prop('disabled', false).text(originalLabel);
+		});
 	});
 
 	$(document).on('keydown', function(event) {

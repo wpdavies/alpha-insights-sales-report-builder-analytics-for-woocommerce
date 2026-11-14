@@ -225,6 +225,15 @@
 		});
 	}
 
+	function escapeHtml(value) {
+		return String(value == null ? '' : value)
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#039;');
+	}
+
 	function formatMoney(value) {
 		var cfg = (window.wpdAiExperimentsAdmin && wpdAiExperimentsAdmin.currency) || {};
 		var n = Number(value);
@@ -343,6 +352,199 @@
 
 	function isCurrencyGoal(goal) {
 		return goal === 'aov' || goal === 'purchase_value' || goal === 'revenue_per_exposure';
+	}
+
+	function armSuccesses(arm, goal) {
+		if (goal === 'add_to_cart') {
+			return arm.addToCarts || 0;
+		}
+		if (goal === 'initiate_checkout') {
+			return arm.initiateCheckouts || 0;
+		}
+		return arm.transactions || 0;
+	}
+
+	function experimentErf(x) {
+		var sign = x < 0 ? -1 : 1;
+		x = Math.abs(x);
+		var t = 1 / (1 + 0.3275911 * x);
+		var y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+		return sign * y;
+	}
+
+	function experimentNormalCdf(x) {
+		return 0.5 * (1 + experimentErf(x / Math.sqrt(2)));
+	}
+
+	function twoProportionZ(c1, n1, c2, n2) {
+		if (n1 < 1 || n2 < 1) {
+			return null;
+		}
+		var p = (c1 + c2) / (n1 + n2);
+		var se = Math.sqrt(p * (1 - p) * ((1 / n1) + (1 / n2)));
+		if (se <= 0) {
+			return null;
+		}
+		return ((c2 / n2) - (c1 / n1)) / se;
+	}
+
+	function wilsonInterval(successes, n) {
+		if (n < 1) {
+			return { low: 0, high: 0 };
+		}
+		var z = 1.96;
+		var p = successes / n;
+		var z2 = z * z;
+		var denom = 1 + (z2 / n);
+		var center = (p + (z2 / (2 * n))) / denom;
+		var margin = (z * Math.sqrt(((p * (1 - p)) / n) + (z2 / (4 * n * n)))) / denom;
+		return {
+			low: Math.max(0, center - margin),
+			high: Math.min(1, center + margin)
+		};
+	}
+
+	function significanceResult(c1, n1, c2, n2) {
+		var i18n = (window.wpdAiExperimentsAdmin && wpdAiExperimentsAdmin.i18n) || {};
+		var p1 = n1 > 0 ? c1 / n1 : 0;
+		var p2 = n2 > 0 ? c2 / n2 : 0;
+		var lift = n1 > 0 && p1 > 0 ? ((p2 - p1) / p1) * 100 : null;
+		var ci = wilsonInterval(c2, n2);
+		var pooled = (n1 + n2) > 0 ? (c1 + c2) / (n1 + n2) : 0;
+		var ready = n1 >= 100 && n2 >= 100 && (n1 * pooled) >= 5 && (n2 * pooled) >= 5 && (n1 * (1 - pooled)) >= 5 && (n2 * (1 - pooled)) >= 5;
+		var result = {
+			status: 'needs_data',
+			label: i18n.needsMoreData || 'Needs more data',
+			summary: i18n.sigNeedsData || 'Need about 100 visitors in each arm, with enough conversions, before this result is reliable.',
+			pValue: null,
+			lift: lift,
+			rateLow: ci.low,
+			rateHigh: ci.high,
+			direction: lift > 0 ? 'up' : (lift < 0 ? 'down' : 'flat'),
+			ready: ready
+		};
+
+		if (n1 < 1 || n2 < 1) {
+			return result;
+		}
+
+		var z = twoProportionZ(c1, n1, c2, n2);
+		if (z === null) {
+			return result;
+		}
+
+		var pValue = 2 * (1 - experimentNormalCdf(Math.abs(z)));
+		pValue = Math.round(Math.min(1, Math.max(0, pValue)) * 10000) / 10000;
+		result.pValue = pValue;
+
+		if (!ready) {
+			return result;
+		}
+
+		if (pValue <= 0.05) {
+			result.status = 'significant';
+			result.label = i18n.significant || 'Significant';
+			result.summary = result.direction === 'up' ? (i18n.sigAhead || '') : (i18n.sigBehind || '');
+			return result;
+		}
+
+		if (pValue <= 0.20) {
+			result.status = 'directional';
+			result.label = i18n.directional || 'Directional';
+			result.summary = i18n.sigDirectional || '';
+			return result;
+		}
+
+		result.status = 'inconclusive';
+		result.label = i18n.inconclusive || 'Inconclusive';
+		result.summary = i18n.sigInconclusive || '';
+		return result;
+	}
+
+	function formatPValue(value) {
+		var template = (window.wpdAiExperimentsAdmin && wpdAiExperimentsAdmin.i18n && wpdAiExperimentsAdmin.i18n.pValue) || 'p = %s';
+		return template.replace('%s', formatNumber(value, 3));
+	}
+
+	function formatCi(low, high) {
+		var template = (window.wpdAiExperimentsAdmin && wpdAiExperimentsAdmin.i18n && wpdAiExperimentsAdmin.i18n.ciLabel) || '95%% CI %s–%s';
+		return template
+			.replace('%%', '%')
+			.replace('%s', formatNumber(low * 100, 1) + '%')
+			.replace('%s', formatNumber(high * 100, 1) + '%');
+	}
+
+	function renderSignificanceHtml(arm, result, goal) {
+		var i18n = (window.wpdAiExperimentsAdmin && wpdAiExperimentsAdmin.i18n) || {};
+		var ci = wilsonInterval(armSuccesses(arm, goal), arm.exposures || 0);
+		var html = '';
+		if (arm.isControl) {
+			html += '<span class="wpd-exp-sig wpd-exp-sig--baseline">' + escapeHtml(i18n.baseline || 'Baseline') + '</span>';
+			html += '<div class="wpd-meta">' + escapeHtml(formatCi(ci.low, ci.high)) + '</div>';
+			return html;
+		}
+		if (!result) {
+			return '&mdash;';
+		}
+		html += '<span class="wpd-exp-sig wpd-exp-sig--' + result.status + '"' + (result.summary ? ' title="' + escapeHtml(result.summary) + '"' : '') + '>' + escapeHtml(result.label) + '</span>';
+		if (result.pValue !== null && result.pValue !== undefined) {
+			html += '<div class="wpd-meta">' + escapeHtml(formatPValue(result.pValue)) + '</div>';
+		}
+		html += '<div class="wpd-meta">' + escapeHtml(formatCi(result.rateLow, result.rateHigh)) + '</div>';
+		return html;
+	}
+
+	function updateSignificance($root, goal, $rows, controlArm) {
+		var i18n = (window.wpdAiExperimentsAdmin && wpdAiExperimentsAdmin.i18n) || {};
+		var results = [];
+		$rows.each(function () {
+			var $tr = $(this);
+			var arm = readArm($tr);
+			var result = null;
+			if (!arm.isControl && controlArm) {
+				result = significanceResult(
+					armSuccesses(controlArm, goal),
+					controlArm.exposures || 0,
+					armSuccesses(arm, goal),
+					arm.exposures || 0
+				);
+				results.push(result);
+			}
+			$tr.find('.wpd-exp-cell-significance').html(renderSignificanceHtml(arm, result, goal));
+		});
+
+		var $summary = $root.find('.wpd-exp-significance-summary');
+		if (!$summary.length) {
+			$summary = $('<div class="wpd-exp-significance-summary" />');
+			$root.find('.wpd-exp-list-table-scroll').before($summary);
+		}
+
+		var chosen = results[0] || null;
+		if ($root.find('tr.wpd-exp-arm-row.is-winner').length && results.length) {
+			var winnerIndex = $rows.index($root.find('tr.wpd-exp-arm-row.is-winner'));
+			var treatmentOffset = 0;
+			$rows.each(function (index) {
+				if (readArm($(this)).isControl) {
+					return;
+				}
+				if (index === winnerIndex) {
+					chosen = results[treatmentOffset];
+				}
+				treatmentOffset++;
+			});
+		}
+
+		if (!chosen) {
+			$summary.remove();
+			return;
+		}
+
+		var extra = isCurrencyGoal(goal)
+			? '<span class="wpd-meta">' + escapeHtml(i18n.sigValueNote || '') + '</span>'
+			: '';
+		$summary
+			.attr('class', 'wpd-exp-significance-summary wpd-exp-sig-summary--' + chosen.status)
+			.html('<strong>' + escapeHtml(chosen.label) + '</strong><span>' + escapeHtml(chosen.summary) + '</span>' + extra);
 	}
 
 	function liftVsControl(armRates, controlRates) {
@@ -692,12 +894,11 @@
 
 	function applyGoal($root, goal) {
 		var objectives = getObjectives();
+		if (goal === 'purchase_value') {
+			goal = 'revenue_per_exposure';
+		}
 		if (!objectives[goal] || (!isProBuild() && isProObjective(goal))) {
 			goal = freeFallbackGoal();
-		}
-		var meta = objectives[goal] || {};
-		if (meta.rate_label) {
-			$root.find('.wpd-exp-col-goal-rate').text(meta.rate_label);
 		}
 
 		$root.find('[data-goal-col]').removeClass('is-target-col');
@@ -705,10 +906,12 @@
 
 		var $rows = $root.find('tr.wpd-exp-arm-row');
 		var controlRate = null;
+		var controlArm = null;
 		$rows.each(function () {
 			var arm = readArm($(this));
 			if (arm.isControl) {
 				controlRate = armMetric(arm, goal).rate;
+				controlArm = arm;
 			}
 		});
 
@@ -719,11 +922,6 @@
 			var $tr = $(this);
 			var arm = readArm($tr);
 			var metric = armMetric(arm, goal);
-			var displayRate =
-				goal === 'aov' || goal === 'purchase_value' || goal === 'revenue_per_exposure'
-					? formatMoney(metric.rate)
-					: formatNumber(metric.rate * 100, 1) + '%';
-			$tr.find('.wpd-exp-cell-goal-rate').text(displayRate);
 
 			var $lift = $tr.find('.wpd-exp-cell-lift');
 			if (arm.isControl || controlRate === null || controlRate === 0) {
@@ -751,6 +949,7 @@
 			$best.addClass('is-winner');
 		}
 
+		updateSignificance($root, goal, $rows, controlArm);
 		renderProgressChart($root);
 	}
 
@@ -804,6 +1003,8 @@
 			return;
 		}
 		var selected = guardProGoal($type, $type.val(), !event);
+		var description = $type.find('option:selected').attr('data-description') || '';
+		$type.siblings('.wpd-exp-goal-description').text(description);
 		$('.wpd-exp-goal-extra').each(function () {
 			var types = (($(this).attr('data-goal-types') || '').split(/\s+/)).filter(Boolean);
 			$(this).toggleClass('hidden', types.indexOf(selected) === -1);
@@ -909,6 +1110,7 @@
 				$(this).removeData('cm');
 				$(this).prop('disabled', false);
 			});
+			$clone.find('.wpd-exp-preview-button').remove();
 			$clone.find('.CodeMirror').remove();
 			$clone.find('textarea.wpd-exp-code').each(function () {
 				$(this).show().css('display', '').removeData('cm');

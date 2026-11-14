@@ -137,6 +137,55 @@ function wpdai_url_has_tracking_params( $url ) {
 }
 
 /**
+ * Google linker leftovers (_gl / _ga) with no real campaign or click IDs.
+ *
+ * These should not become a first-touch landing page.
+ *
+ * @param string $url URL to inspect.
+ * @return bool
+ */
+function wpdai_url_is_linker_only( $url ) {
+	if ( ! is_string( $url ) || '' === $url ) {
+		return false;
+	}
+
+	$query_params = wpdai_get_query_params( $url );
+	if ( empty( $query_params ) ) {
+		return false;
+	}
+
+	if ( wpdai_url_has_tracking_params( $url ) ) {
+		return false;
+	}
+
+	return isset( $query_params['_gl'] ) || isset( $query_params['_ga'] );
+}
+
+/**
+ * Whether a stored landing page should be treated as finished first-touch.
+ *
+ * Tagged landings are locked. Checkout and Google-linker leftovers are not.
+ *
+ * @param string $url Landing URL.
+ * @return bool
+ */
+function wpdai_landing_page_looks_correct( $url ) {
+	if ( ! is_string( $url ) || '' === trim( $url ) ) {
+		return false;
+	}
+
+	if ( wpdai_is_checkout_like_url( $url ) && ! wpdai_url_has_tracking_params( $url ) ) {
+		return false;
+	}
+
+	if ( wpdai_url_is_linker_only( $url ) ) {
+		return false;
+	}
+
+	return wpdai_url_has_tracking_params( $url );
+}
+
+/**
  * Decode and validate an attribution URL without using sanitize_text_field().
  *
  * sanitize_text_field() strips %XX sequences and can destroy encoded landing pages.
@@ -347,26 +396,35 @@ function wpdai_select_attribution_url( $urls ) {
  * @return string
  */
 function wpdai_choose_first_touch_landing_page( $existing, $incoming ) {
-	$existing = is_string( $existing ) ? wpdai_sanitize_attribution_url( $existing ) : '';
-	$incoming = is_string( $incoming ) ? wpdai_sanitize_attribution_url( $incoming ) : '';
+	$existing_raw = is_string( $existing ) ? trim( htmlspecialchars_decode( $existing ) ) : '';
+	$incoming_raw = is_string( $incoming ) ? trim( htmlspecialchars_decode( $incoming ) ) : '';
 
-	if ( '' === $existing ) {
+	if ( '' !== $incoming_raw && wpdai_url_is_linker_only( $incoming_raw ) ) {
+		$incoming = '';
+	} else {
+		$incoming = wpdai_sanitize_attribution_url( $incoming_raw );
+		if ( '' !== $incoming && wpdai_url_is_linker_only( $incoming ) ) {
+			$incoming = '';
+		}
+	}
+
+	if ( '' === $existing_raw ) {
 		return $incoming;
 	}
 
-	if ( '' === $incoming ) {
-		return $existing;
+	if ( wpdai_landing_page_looks_correct( $existing_raw ) ) {
+		return $existing_raw;
 	}
 
-	if ( wpdai_url_has_tracking_params( $existing ) ) {
-		return $existing;
+	if ( '' === $incoming ) {
+		return $existing_raw;
 	}
 
 	if ( wpdai_url_has_tracking_params( $incoming ) ) {
 		return $incoming;
 	}
 
-	return $existing;
+	return $existing_raw;
 }
 
 /**

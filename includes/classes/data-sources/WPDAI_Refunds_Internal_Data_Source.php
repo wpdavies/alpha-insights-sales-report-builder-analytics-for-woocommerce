@@ -277,7 +277,8 @@ class WPDAI_Refunds_Internal_Data_Source extends WPDAI_Custom_Data_Source_Base {
             foreach ( $current_refund_ids_batch as $refund_id ) {
 
                 // Memory check
-                if ( wpdai_is_memory_usage_greater_than( 90 ) ) {
+                if ( wpdai_is_memory_usage_greater_than() ) {
+                    $data_warehouse->mark_memory_exhausted();
                     $data_warehouse->set_error(
                         sprintf(
                             /* translators: 1: Number of processed refunds, 2: Total number of refunds, 3: PHP memory limit */

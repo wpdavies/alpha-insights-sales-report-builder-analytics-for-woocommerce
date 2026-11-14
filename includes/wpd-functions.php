@@ -431,6 +431,78 @@ function wpdai_get_default_cost_price_by_product_id( $product_id ) {
 
 /**
  *
+ *	Selling or regular price with sales tax removed.
+ *
+ *	Product profit uses this figure. WooCommerce stores the price as entered, so when
+ *	prices are entered inclusive of tax, get_price() includes tax. Order reports already
+ *	subtract tax. This keeps catalogue profit on the same net price. Non-taxable products,
+ *	and stores that enter prices exclusive of tax, get the stored price unchanged.
+ *	A missing product returns 0. If tax cannot be removed, the entered price is returned instead.
+ *
+ *	@param WC_Product|int $product Product object or ID.
+ *	@param string         $which   'active' for the current selling price, 'regular' for the regular price.
+ *	@return float
+ *
+ */
+function wpdai_get_product_price_excluding_tax( $product, $which = 'active' ) {
+
+	$raw_price = 0.0;
+
+	try {
+
+		if ( is_numeric( $product ) ) {
+			if ( ! function_exists( 'wc_get_product' ) ) {
+				return 0.0;
+			}
+			$product = wc_get_product( absint( $product ) );
+		}
+
+		if ( ! is_object( $product ) || ! is_a( $product, 'WC_Product' ) ) {
+			return 0.0;
+		}
+
+		$raw_price = ( 'regular' === $which ) ? $product->get_regular_price() : $product->get_price();
+
+		if ( ! is_scalar( $raw_price ) || ! is_numeric( $raw_price ) ) {
+			return 0.0;
+		}
+
+		$raw_price = (float) $raw_price;
+
+		if ( $raw_price <= 0 ) {
+			return 0.0;
+		}
+
+		// wc_get_price_excluding_tax() calls these. Missing any of them would fatal inside WooCommerce.
+		if ( ! function_exists( 'wc_get_price_excluding_tax' ) || ! function_exists( 'wc_prices_include_tax' ) || ! class_exists( 'WC_Tax' ) ) {
+			return $raw_price;
+		}
+
+		$excluding_tax = wc_get_price_excluding_tax(
+			$product,
+			array(
+				'qty'   => 1,
+				'price' => $raw_price,
+			)
+		);
+
+		if ( ! is_scalar( $excluding_tax ) || ! is_numeric( $excluding_tax ) ) {
+			return $raw_price;
+		}
+
+		return (float) $excluding_tax;
+
+	} catch ( \Throwable $exception ) {
+		if ( ! is_scalar( $raw_price ) || ! is_numeric( $raw_price ) ) {
+			return 0.0;
+		}
+		return (float) $raw_price;
+	}
+
+}
+
+/**
+ *
  *	Get default cost price by product ID only using the default fallback values set in general settings, e.g. 30% of RRP
  *  Will return 0 if no default cost price is set in general settings or if the product price is not set
  * 
@@ -1195,12 +1267,14 @@ function wpdai_get_min_max_product_margin_range( $product ) {
 			foreach( $variation_ids as $product_id ) {
 
 				$cost_price = wpdai_get_cost_price_by_product_id( $product_id );
-				
-				// Reload variation product
-				$product = wc_get_product( $product_id );
-				if ( ! is_a($product, 'WC_Product') ) return false; // Cant continue if we cant find a product?
 
-				$rrp_price = (float) $product->get_regular_price();
+				// Skip variation IDs whose product has been deleted.
+				$product = wc_get_product( $product_id );
+				if ( ! is_a( $product, 'WC_Product' ) ) {
+					continue;
+				}
+
+				$rrp_price = wpdai_get_product_price_excluding_tax( $product, 'regular' );
 
 				// Create array of margin calculations
 				$profit = $rrp_price - $cost_price;
@@ -1208,7 +1282,11 @@ function wpdai_get_min_max_product_margin_range( $product ) {
 				$margin_array[] = $margin;
 
 			}
-	
+
+			if ( empty( $margin_array ) ) {
+				return false;
+			}
+
 			$min_margin = min( $margin_array );
 			$max_margin = max( $margin_array );
 			
@@ -1263,7 +1341,7 @@ function wpdai_calculate_margin_by_product( $product ) {
 
 	} else {
 
-		$rrp 				= (float) $product->get_regular_price();
+		$rrp 				= wpdai_get_product_price_excluding_tax( $product, 'regular' );
 		$cogs 				= (float) wpdai_get_cost_price_by_product_id( $product->get_id() );
 		$profit 			= $rrp - $cogs;
 		$margin_percentage 	= wpdai_calculate_margin( $profit, $rrp );

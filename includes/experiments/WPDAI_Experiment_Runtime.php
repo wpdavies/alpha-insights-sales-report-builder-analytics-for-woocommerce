@@ -68,13 +68,25 @@ class WPDAI_Experiment_Runtime {
 	 * @return bool
 	 */
 	protected static function should_skip() {
+		if ( self::should_skip_request() ) {
+			return true;
+		}
+		if ( ! function_exists( 'wpdai_is_analytics_enabled' ) || ! wpdai_is_analytics_enabled() ) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Skip storefront runtime on admin, AJAX, cron, REST, and feeds.
+	 *
+	 * @return bool
+	 */
+	protected static function should_skip_request() {
 		if ( is_admin() || wp_doing_ajax() || wp_doing_cron() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 			return true;
 		}
 		if ( did_action( 'parse_query' ) && ( is_feed() || is_robots() || is_trackback() ) ) {
-			return true;
-		}
-		if ( ! function_exists( 'wpdai_is_analytics_enabled' ) || ! wpdai_is_analytics_enabled() ) {
 			return true;
 		}
 		return false;
@@ -86,10 +98,18 @@ class WPDAI_Experiment_Runtime {
 	 * @return void
 	 */
 	public static function maybe_assign() {
-		if ( self::$did_assign || self::should_skip() ) {
+		if ( self::$did_assign || self::should_skip_request() ) {
 			return;
 		}
 		self::$did_assign = true;
+
+		if ( self::apply_preview() ) {
+			return;
+		}
+
+		if ( self::should_skip() ) {
+			return;
+		}
 
 		$running = WPDAI_Experiment_Store::get_running();
 		if ( empty( $running ) ) {
@@ -110,7 +130,6 @@ class WPDAI_Experiment_Runtime {
 
 		WPDAI_Experiment_Cache::bypass_current_request();
 
-		$preview    = self::get_preview();
 		$visitor_id = self::ensure_visitor_id();
 		$session_id = self::get_session_id();
 		$map        = self::get_assignment_map();
@@ -120,27 +139,16 @@ class WPDAI_Experiment_Runtime {
 			$variant_key = '';
 			$variant     = null;
 			$holdout     = false;
-			$is_preview  = ( $preview && isset( $preview['slug'] ) && $preview['slug'] === $experiment['slug'] );
-			$log_events  = ! $is_preview;
 
-			if ( $is_preview ) {
-				$variant_key = $preview['variant_key'];
-				$variant     = WPDAI_Experiment_Assigner::find_variant( $experiment, $variant_key );
-				if ( empty( $variant ) ) {
-					$variant     = WPDAI_Experiment_Assigner::find_control_variant( $experiment );
-					$variant_key = $variant ? $variant['variant_key'] : 'control';
-				}
-			} else {
-				if ( ! WPDAI_Experiment_Eligibility::is_eligible( $experiment, $visitor_id ) ) {
-					continue;
-				}
-				$assigned    = WPDAI_Experiment_Assigner::assign( $experiment, $visitor_id, $session_id, $log_events );
-				$holdout     = ! empty( $assigned['holdout'] );
-				$variant_key = $assigned['variant_key'];
-				$variant     = $assigned['variant'];
-				if ( empty( $variant ) && ! $holdout && '' !== $variant_key ) {
-					$variant = WPDAI_Experiment_Assigner::find_control_variant( $experiment );
-				}
+			if ( ! WPDAI_Experiment_Eligibility::is_eligible( $experiment, $visitor_id ) ) {
+				continue;
+			}
+			$assigned    = WPDAI_Experiment_Assigner::assign( $experiment, $visitor_id, $session_id, true );
+			$holdout     = ! empty( $assigned['holdout'] );
+			$variant_key = $assigned['variant_key'];
+			$variant     = $assigned['variant'];
+			if ( empty( $variant ) && ! $holdout && '' !== $variant_key ) {
+				$variant = WPDAI_Experiment_Assigner::find_control_variant( $experiment );
 			}
 
 			if ( $holdout || empty( $variant_key ) || empty( $variant ) ) {
@@ -164,11 +172,61 @@ class WPDAI_Experiment_Runtime {
 	}
 
 	/**
+	 * Apply an authorized QA preview, ignoring experiment status, targeting, and audience.
+	 *
+	 * Does not record experiment events or persist assignment cookies.
+	 *
+	 * @return bool True when a preview variant was applied.
+	 */
+	protected static function apply_preview() {
+		$preview = self::get_preview();
+		if ( ! $preview ) {
+			return false;
+		}
+
+		$experiment = WPDAI_Experiment_Store::get_by_slug( $preview['slug'] );
+		if ( ! $experiment || empty( $experiment['id'] ) ) {
+			return false;
+		}
+
+		$variant_key = $preview['variant_key'];
+		$variant     = WPDAI_Experiment_Assigner::find_variant( $experiment, $variant_key );
+		if ( empty( $variant ) ) {
+			$variant     = WPDAI_Experiment_Assigner::find_control_variant( $experiment );
+			$variant_key = $variant ? $variant['variant_key'] : '';
+		}
+		if ( empty( $variant ) || '' === $variant_key ) {
+			return false;
+		}
+
+		if ( ! headers_sent() ) {
+			nocache_headers();
+		}
+		WPDAI_Experiment_Cache::bypass_current_request();
+
+		self::$matched_page = true;
+		self::$applied[]    = array(
+			'experiment' => $experiment,
+			'variant'    => $variant,
+		);
+
+		if ( wpdai_experiments_is_pro() && ! empty( $variant['php'] ) ) {
+			do_action( 'wpd_ai_experiment_run_php_snippet', $variant['php'], $experiment, $variant );
+		}
+
+		return true;
+	}
+
+	/**
 	 * Whether the current request matches a running experiment page rule.
 	 *
 	 * @return bool
 	 */
 	public static function request_matches_running_experiment() {
+		if ( self::get_preview() ) {
+			return true;
+		}
+
 		if ( self::$did_assign ) {
 			return self::$matched_page;
 		}

@@ -352,6 +352,11 @@ class WPDAI_Data_Manager {
             '_wpd_ai_starshipit_api_sync_attempt_count',
             '_wpd_ai_shipstation_shipping_cost',
             '_wpd_ai_shipstation_shipment_id',
+            '_wpd_ai_shipstation_label_costs',
+            '_wpd_ai_shipstation_synced_at',
+            '_wpd_ai_shipstation_backfill_attempts',
+            '_wpd_ai_shipstation_backfill_last_try',
+            '_wpd_ai_shipstation_backfill_status',
             '_wpd_ai_exchange_rate',
             
             // Order Item Meta Keys

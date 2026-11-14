@@ -123,6 +123,10 @@ function wpdai_get_default_react_reports() {
             // Get the actual dashboard_id from the JSON file
             $actual_dashboard_id = isset( $report_data['dashboard_id'] ) ? $report_data['dashboard_id'] : $slug;
 
+            if ( ! wpdai_is_default_report_available( $actual_dashboard_id ) ) {
+                continue;
+            }
+
             $default_reports[] = array(
                 'dashboard_id' => $actual_dashboard_id,
                 'name' => isset( $report_data['name'] ) ? $report_data['name'] : ucwords( str_replace( '-', ' ', $actual_dashboard_id ) ),
@@ -606,4 +610,103 @@ function wpdai_delete_sessions_and_events_by_ip_address( $ip_address ) {
 	);
 
 	return $result;
+}
+
+/**
+ * Whether Pro brand reporting payloads should be built.
+ *
+ * @return bool
+ */
+function wpdai_is_product_brand_reporting_enabled() {
+
+	return defined( 'WPD_AI_PRO' ) && WPD_AI_PRO;
+
+}
+
+/**
+ * Whether the store has at least one product assigned to product_brand or pa_brand.
+ *
+ * @return bool
+ */
+function wpdai_site_has_product_brand_data() {
+
+	$taxonomies = function_exists( 'wpdai_get_product_brand_taxonomies' )
+		? wpdai_get_product_brand_taxonomies()
+		: array();
+
+	if ( empty( $taxonomies ) ) {
+		return false;
+	}
+
+	foreach ( $taxonomies as $taxonomy ) {
+		$term_count = wp_count_terms(
+			$taxonomy,
+			array(
+				'hide_empty' => true,
+			)
+		);
+
+		if ( ! is_wp_error( $term_count ) && (int) $term_count > 0 ) {
+			return true;
+		}
+	}
+
+	return false;
+
+}
+
+/**
+ * Whether Pro supplier reporting payloads should be built.
+ *
+ * @return bool
+ */
+function wpdai_is_product_supplier_reporting_enabled() {
+
+	return defined( 'WPD_AI_PRO' ) && WPD_AI_PRO && taxonomy_exists( 'suppliers' );
+
+}
+
+/**
+ * Whether the store has at least one supplier term in use.
+ *
+ * @return bool
+ */
+function wpdai_site_has_product_supplier_data() {
+
+	if ( ! taxonomy_exists( 'suppliers' ) ) {
+		return false;
+	}
+
+	$term_count = wp_count_terms(
+		'suppliers',
+		array(
+			'hide_empty' => true,
+		)
+	);
+
+	return ! is_wp_error( $term_count ) && (int) $term_count > 0;
+
+}
+
+/**
+ * Whether a default report can be listed and installed in this build.
+ *
+ * Brand and Supplier Performance only have data in Pro, so the free build
+ * must not offer them in the report library.
+ *
+ * @param string $dashboard_id Default report dashboard_id.
+ * @return bool
+ */
+function wpdai_is_default_report_available( $dashboard_id ) {
+
+	if ( 'brand-performance' === $dashboard_id ) {
+		return wpdai_is_product_brand_reporting_enabled();
+	}
+
+	if ( 'supplier-performance' === $dashboard_id ) {
+		return wpdai_is_product_supplier_reporting_enabled();
+	}
+
+	return true;
+
 }
